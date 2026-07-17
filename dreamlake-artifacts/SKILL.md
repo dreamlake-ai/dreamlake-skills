@@ -1,6 +1,6 @@
 ---
 name: dreamlake-artifacts
-description: Publish, version, share, delete, and view renderable DreamLake artifacts (HTML, React, Markdown, SVG, Mermaid, or code) with the `dreamlake artifact` CLI. Use when a user wants to upload/push an artifact, update or version one, list them, control visibility (private/public), create a shareable link, or delete one.
+description: Publish, version, share, delete, restore, and view renderable DreamLake artifacts (HTML, React, Markdown, SVG, Mermaid, or code) with the `dreamlake artifact` CLI. Use when a user wants to upload/push an artifact, update or version one, list them, control visibility (private/public), create a shareable link, delete one (soft or permanent), or restore one from the Trash.
 ---
 
 # DreamLake Artifacts
@@ -16,8 +16,8 @@ mutation; the dashboard is for viewing and for the visibility/share controls.
 ## Prerequisites
 
 1. The `dreamlake` CLI is installed and on PATH (`pip install dreamlake` or
-   `uv tool install dreamlake`). Artifacts need **v0.4.10+** (`delete` and the
-   post-push open link landed in 0.4.10 / 0.4.9).
+   `uv tool install dreamlake`). Artifacts need **v0.4.10+** (`delete`), **v0.4.13+**
+   (`restore`), and **v0.4.14+** (`delete --permanent`).
 2. The user is authenticated: `dreamlake login` (device-auth flow). A push fails with
    `not authenticated. run 'dreamlake login' first.` otherwise.
 3. Pushing writes to the user's own namespace by default; use `--namespace <slug>` to
@@ -87,17 +87,25 @@ dreamlake artifact list [--namespace NS]
 Lists the artifacts in a namespace with their latest version and kind. Authenticated
 members see all of a namespace's artifacts; without auth only `public` ones are listed.
 
-## Delete an artifact
+## Delete, restore & permanent purge
 
 ```bash
-dreamlake artifact delete <id> [--namespace NS] [-y]
+dreamlake artifact delete <id> [--namespace NS] [-y]      # soft delete → Trash
+dreamlake artifact restore <id> [--namespace NS]          # undo a soft delete
+dreamlake artifact delete <id> --permanent [-y]           # purge — IRREVERSIBLE
 ```
 
-**Soft-deletes** the artifact: it disappears from the gallery/list and its content stops
-resolving, and any live `?share=` link is invalidated. Prompts for confirmation unless
-`-y`/`--yes`. Member-only. **Restorable** — pushing the same `--id` again clears the
-deletion and brings it back (starting a fresh version chain if it had been purged). There
-is no permanent-purge in the CLI yet; soft delete retains the stored content server-side.
+`delete` **soft-deletes** the artifact: it moves to the dashboard's **Trash** (a tab in
+the owner's gallery), its content stops resolving for non-members, and any live
+`?share=` link is invalidated. Prompts for confirmation unless `-y`/`--yes`. Member-only.
+**Restorable** three ways: `dreamlake artifact restore <id>`, the Restore button in the
+Trash, or re-pushing the same `--id`.
+
+`delete --permanent` (v0.4.14+) **permanently erases** the artifact — all versions, the
+stored content in S3, and the catalog entry. It works on live or already-trashed
+artifacts, uses a stronger confirmation prompt, and **cannot be undone** — never pass
+`-y` with `--permanent` unless the user has explicitly confirmed they want the artifact
+gone forever. The dashboard equivalent is **Delete forever** inside the Trash.
 
 ## Visibility & sharing
 
