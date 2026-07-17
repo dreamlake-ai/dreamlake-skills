@@ -1,6 +1,6 @@
 ---
 name: dreamlake-artifacts
-description: Publish, version, share, and view renderable DreamLake artifacts (HTML, React, Markdown, SVG, Mermaid, or code) with the `dreamlake artifact` CLI. Use when a user wants to upload/push an artifact, update or version one, list them, control visibility (private/public), or create a shareable link.
+description: Publish, version, share, delete, and view renderable DreamLake artifacts (HTML, React, Markdown, SVG, Mermaid, or code) with the `dreamlake artifact` CLI. Use when a user wants to upload/push an artifact, update or version one, list them, control visibility (private/public), create a shareable link, or delete one.
 ---
 
 # DreamLake Artifacts
@@ -16,7 +16,8 @@ mutation; the dashboard is for viewing and for the visibility/share controls.
 ## Prerequisites
 
 1. The `dreamlake` CLI is installed and on PATH (`pip install dreamlake` or
-   `uv tool install dreamlake`). Artifacts need **v0.4.8+**.
+   `uv tool install dreamlake`). Artifacts need **v0.4.10+** (`delete` and the
+   post-push open link landed in 0.4.10 / 0.4.9).
 2. The user is authenticated: `dreamlake login` (device-auth flow). A push fails with
    `not authenticated. run 'dreamlake login' first.` otherwise.
 3. Pushing writes to the user's own namespace by default; use `--namespace <slug>` to
@@ -73,6 +74,10 @@ dreamlake artifact push ./report.html --visibility public --title "Public Report
 dreamlake artifact push ./draft.md --share
 ```
 
+After a successful push the CLI prints an **open link** to the artifact (its dashboard
+URL, with the `?share=` token appended when `--share` was used) — hand it to the user so
+they can click straight through to view what they uploaded.
+
 ## List artifacts
 
 ```bash
@@ -81,6 +86,18 @@ dreamlake artifact list [--namespace NS]
 
 Lists the artifacts in a namespace with their latest version and kind. Authenticated
 members see all of a namespace's artifacts; without auth only `public` ones are listed.
+
+## Delete an artifact
+
+```bash
+dreamlake artifact delete <id> [--namespace NS] [-y]
+```
+
+**Soft-deletes** the artifact: it disappears from the gallery/list and its content stops
+resolving, and any live `?share=` link is invalidated. Prompts for confirmation unless
+`-y`/`--yes`. Member-only. **Restorable** — pushing the same `--id` again clears the
+deletion and brings it back (starting a fresh version chain if it had been purged). There
+is no permanent-purge in the CLI yet; soft delete retains the stored content server-side.
 
 ## Visibility & sharing
 

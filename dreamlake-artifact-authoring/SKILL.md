@@ -22,6 +22,19 @@ CSP**. The single most important rule:
 > **Inline everything**: embed CSS/JS directly, use data-URI images and fonts, hard-code
 > or generate data in the file.
 
+> **The one exception — embedded video players.** `frame-src` allows a scoped
+> allowlist: **YouTube, youtube-nocookie, and Vimeo**. You *can* embed those players via
+> an `<iframe>`. Nothing else is opened — `connect-src` is still `'self'`, so the artifact
+> itself still can't fetch external data; only those players' own iframes may load.
+> ```html
+> <iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID"
+>         style="width:100%;aspect-ratio:16/9;border:0"
+>         allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+> ```
+> Prefer **`youtube-nocookie.com`** — it plays under the `html`-kind sandbox (which has no
+> `allow-same-origin`) without needing cookies. Direct 3rd-party video *files*
+> (`<video src="https://…mp4">`) are still blocked (`media-src` is `'self' data: blob:`).
+
 Other facts that matter:
 
 - **A neutral base style is injected** for the `react`, `svg`, `markdown`, `code`, and
@@ -142,7 +155,8 @@ Markdown fences — the whole file *is* the code.
 ## Common pitfalls (each = a blank or broken render)
 
 - ❌ External `<script src>` / `<link href>` / web font / remote image → **CSP-blocked**.
-  Inline it; use data URIs.
+  Inline it; use data URIs. (Exception: YouTube/youtube-nocookie/Vimeo player `<iframe>`s
+  are allowed — see the media note above.)
 - ❌ `import React from 'react'` in a `react` artifact → fails. `React` is a global.
 - ❌ No top-level `App` in a `react` artifact → nothing renders.
 - ❌ Inline HTML inside a `markdown` artifact → stripped. Use `html` kind instead.
