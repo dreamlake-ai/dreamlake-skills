@@ -1,0 +1,335 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docs.dreamlake.ai/workflows/workflow-spec.schema.json",
+  "title": "DreamLake WorkflowSpec v1",
+  "type": "object",
+  "required": ["version", "name", "stages", "nodes", "edges"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$" },
+    "description": { "type": "string", "maxLength": 2000 },
+    "stages": {
+      "type": "array", "minItems": 1, "maxItems": 32,
+      "items": { "$ref": "#/$defs/stage" }
+    },
+    "nodes": {
+      "type": "array", "maxItems": 200,
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "edges": {
+      "type": "array", "maxItems": 400,
+      "items": { "$ref": "#/$defs/edge" }
+    },
+    "defaults": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "model": { "type": "string" },
+        "provider": { "type": "string" },
+        "queue": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$" },
+    "portName": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,31}$" },
+    "duration": { "type": "string", "pattern": "^[0-9]+(ms|s|m|h)$" },
+    "dataType": {
+      "enum": ["artifact", "file", "directory", "table", "dataset", "model", "metrics", "samples"]
+    },
+    "collectionType": { "enum": ["samples", "table", "directory"] },
+    "permission": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_-]*(:[A-Za-z0-9@/_.*-]+)?$",
+      "description": "domain.resource.verb[:scope] — verbs read|create|update|delete + registered custom verbs (release, run, submit, consume). Tool access goes in uda.tools, never here."
+    },
+    "port": {
+      "type": "object", "required": ["name", "type"], "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/portName" },
+        "type": { "$ref": "#/$defs/dataType" },
+        "collect": { "type": "boolean", "description": "input ports only — accept >=1 same-type edges as an ordered collection" }
+      }
+    },
+    "stage": {
+      "type": "object", "required": ["id", "title"], "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "detail": { "type": "string", "maxLength": 2000 }
+      }
+    },
+    "providerRef": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "provider": { "type": "string" },
+        "launcher": { "enum": ["SSH", "SLURM", "EC2", "GCE", "Kube"] },
+        "kwargs": { "type": "object" },
+        "instance_type": { "type": "string" },
+        "image_id": { "type": "string" },
+        "image": { "type": "string" },
+        "partition": { "type": "string" },
+        "time_limit": { "type": "string" },
+        "resources": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "cpu": { "type": "integer", "minimum": 0 },
+            "gpu": { "type": "integer", "minimum": 0 },
+            "mem": { "type": "string" }
+          }
+        },
+        "runner": { "enum": ["process", "docker"] },
+        "dispatch": { "enum": ["direct", "daemon"] }
+      },
+      "not": { "required": ["provider", "launcher"] }
+    },
+    "outputBinding": {
+      "type": "object", "required": ["kind", "pathTemplate"], "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["dataset", "artifact", "node", "bindr"] },
+        "project": { "type": "string" },
+        "pathTemplate": { "type": "string", "maxLength": 256 }
+      },
+      "if": { "properties": { "kind": { "enum": ["dataset", "node", "bindr"] } } },
+      "then": { "required": ["kind", "pathTemplate", "project"] }
+    },
+    "retryPolicy": {
+      "type": "object", "required": ["max_attempts"], "additionalProperties": false,
+      "properties": {
+        "max_attempts": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "retry_on": { "enum": ["all", "transient"] },
+        "backoff": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "initial": { "$ref": "#/$defs/duration" },
+            "factor": { "type": "number", "minimum": 1 },
+            "max": { "$ref": "#/$defs/duration" }
+          }
+        }
+      }
+    },
+    "executionCompute": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "retry": { "$ref": "#/$defs/retryPolicy" },
+        "timeout": { "$ref": "#/$defs/duration" },
+        "cache": {
+          "type": "object", "required": ["enabled"], "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "version": { "type": "string", "maxLength": 64 }
+          }
+        }
+      }
+    },
+    "executionUda": {
+      "type": "object", "additionalProperties": false,
+      "description": "cache is FORBIDDEN on uda — agent runs are non-deterministic",
+      "properties": {
+        "retry": { "$ref": "#/$defs/retryPolicy" },
+        "timeout": { "$ref": "#/$defs/duration" }
+      }
+    },
+    "nodeCommon": {
+      "type": "object",
+      "required": ["id", "kind", "stageId", "title"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "stageId": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "detail": { "type": "string", "maxLength": 2000 },
+        "inputs": { "type": "array", "maxItems": 8, "items": { "$ref": "#/$defs/port" } },
+        "outputs": { "type": "array", "maxItems": 8, "items": { "$ref": "#/$defs/port" } },
+        "outputBinding": { "$ref": "#/$defs/outputBinding" }
+      }
+    },
+    "node": {
+      "allOf": [{ "$ref": "#/$defs/nodeCommon" }],
+      "oneOf": [
+        { "$ref": "#/$defs/computeNode" },
+        { "$ref": "#/$defs/udaNode" },
+        { "$ref": "#/$defs/samplerNode" },
+        { "$ref": "#/$defs/controlNode" }
+      ]
+    },
+    "computeNode": {
+      "type": "object", "required": ["kind", "compute"],
+      "properties": {
+        "kind": { "const": "compute" },
+        "compute": {
+          "type": "object", "required": ["udf"], "additionalProperties": false,
+          "properties": {
+            "udf": { "type": "string", "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$" },
+            "params": { "type": "object", "maxProperties": 64 },
+            "provider": { "$ref": "#/$defs/providerRef" },
+            "dispatch": { "enum": ["direct", "daemon"] }
+          }
+        },
+        "execution": { "$ref": "#/$defs/executionCompute" }
+      }
+    },
+    "udaNode": {
+      "type": "object", "required": ["kind", "uda"],
+      "properties": {
+        "kind": { "const": "uda" },
+        "uda": {
+          "type": "object", "required": ["instructions", "permissions"], "additionalProperties": false,
+          "properties": {
+            "instructions": { "type": "string", "minLength": 1, "maxLength": 8000 },
+            "description": { "type": "string", "maxLength": 500 },
+            "model": { "type": "string" },
+            "tools": { "type": "array", "maxItems": 32, "items": { "type": "string" } },
+            "permissions": { "type": "array", "items": { "$ref": "#/$defs/permission" } },
+            "max_turns": { "type": "integer", "minimum": 1, "maximum": 1000 },
+            "output_schema": { "type": "object" },
+            "provider": { "$ref": "#/$defs/providerRef" },
+            "queue": { "$ref": "#/$defs/id" }
+          },
+          "oneOf": [
+            { "required": ["provider"], "not": { "required": ["queue"] } },
+            { "required": ["queue"], "not": { "required": ["provider"] } }
+          ]
+        },
+        "execution": { "$ref": "#/$defs/executionUda" }
+      }
+    },
+    "samplerNode": {
+      "type": "object", "required": ["kind", "sampler"],
+      "properties": {
+        "kind": { "const": "sampler" },
+        "inputs": {
+          "type": "array", "minItems": 1, "maxItems": 1,
+          "items": {
+            "type": "object", "required": ["name", "type"],
+            "properties": { "type": { "$ref": "#/$defs/collectionType" } }
+          }
+        },
+        "outputs": { "type": "array", "maxItems": 0, "description": "derived — do not declare" },
+        "sampler": {
+          "oneOf": [
+            {
+              "type": "object", "required": ["strategy", "fraction"], "additionalProperties": false,
+              "properties": {
+                "strategy": { "const": "bernoulli" },
+                "fraction": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+                "min_size": { "type": "integer", "minimum": 1 },
+                "seed": { "type": "integer", "minimum": 0, "maximum": 4294967295 }
+              }
+            },
+            {
+              "type": "object", "required": ["strategy", "size"], "additionalProperties": false,
+              "properties": {
+                "strategy": { "const": "random_n" },
+                "size": { "type": "integer", "minimum": 1 },
+                "with_replacement": { "type": "boolean" },
+                "seed": { "type": "integer", "minimum": 0, "maximum": 4294967295 }
+              }
+            },
+            {
+              "type": "object", "required": ["strategy", "stratify_by"], "additionalProperties": false,
+              "properties": {
+                "strategy": { "const": "stratified" },
+                "stratify_by": { "type": "string", "minLength": 1 },
+                "fraction": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+                "fractions": {
+                  "type": "object", "maxProperties": 256,
+                  "additionalProperties": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+                },
+                "min_size": { "type": "integer", "minimum": 1 },
+                "seed": { "type": "integer", "minimum": 0, "maximum": 4294967295 }
+              },
+              "oneOf": [
+                { "required": ["fraction"], "not": { "required": ["fractions"] } },
+                { "required": ["fractions"], "not": { "required": ["fraction"] } }
+              ]
+            },
+            {
+              "type": "object", "required": ["strategy", "size"], "additionalProperties": false,
+              "properties": {
+                "strategy": { "const": "first_n" },
+                "size": { "type": "integer", "minimum": 1 }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "controlNode": {
+      "type": "object", "required": ["kind", "control"],
+      "properties": {
+        "kind": { "const": "control" },
+        "inputs": { "type": "array", "minItems": 1, "maxItems": 1 },
+        "outputs": { "type": "array", "maxItems": 0, "description": "derived — do not declare" },
+        "control": {
+          "oneOf": [
+            {
+              "type": "object", "required": ["type", "expression"], "additionalProperties": false,
+              "properties": {
+                "type": { "const": "condition" },
+                "expression": { "type": "string", "minLength": 1, "maxLength": 2000 }
+              }
+            },
+            {
+              "type": "object", "required": ["type", "cases"], "additionalProperties": false,
+              "properties": {
+                "type": { "const": "switch" },
+                "cases": {
+                  "type": "array", "minItems": 1, "maxItems": 16,
+                  "items": {
+                    "type": "object", "required": ["name", "expression"], "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "allOf": [
+                          { "$ref": "#/$defs/portName" },
+                          { "not": { "enum": ["default", "in"] } }
+                        ]
+                      },
+                      "expression": { "type": "string", "minLength": 1, "maxLength": 2000 }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object", "required": ["type", "mode", "until", "max_iterations"], "additionalProperties": false,
+              "properties": {
+                "type": { "const": "loop" },
+                "mode": { "const": "while" },
+                "until": { "type": "string", "minLength": 1, "maxLength": 2000 },
+                "max_iterations": { "type": "integer", "minimum": 1, "maximum": 1000 }
+              }
+            },
+            {
+              "type": "object", "required": ["type", "mode", "over"], "additionalProperties": false,
+              "properties": {
+                "type": { "const": "loop" },
+                "mode": { "const": "foreach" },
+                "over": { "type": "string", "minLength": 1 },
+                "max_concurrency": { "type": "integer", "minimum": 1, "maximum": 256 }
+              }
+            },
+            {
+              "type": "object", "required": ["type"], "additionalProperties": false,
+              "properties": {
+                "type": { "const": "approval" },
+                "approvers": { "type": "array", "maxItems": 32, "items": { "type": "string" } },
+                "message": { "type": "string", "maxLength": 2000 },
+                "timeout_s": { "type": "integer", "minimum": 60 }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "edge": {
+      "type": "object", "required": ["id", "from", "to"], "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "from": { "$ref": "#/$defs/id" },
+        "fromPort": { "$ref": "#/$defs/portName" },
+        "to": { "$ref": "#/$defs/id" },
+        "toPort": { "$ref": "#/$defs/portName" }
+      }
+    }
+  }
+}
