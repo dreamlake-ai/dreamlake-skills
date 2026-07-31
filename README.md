@@ -10,6 +10,7 @@ task correctly.
 | Skill | What it does |
 |---|---|
 | [`dreamlake-artifacts`](./dreamlake-artifacts/SKILL.md) | Publish, version, share, and view renderable artifacts (HTML/React/Markdown/SVG/Mermaid/code) via the `dreamlake artifact` CLI |
+| [`dreamlake-datasets`](./dreamlake-datasets/SKILL.md) | Upload annotated robot-training episodes (video + joints + subtasks, multi-camera) to a DreamLake dataset with the Python SDK, revise them, and search |
 | [`workflow-generator`](./workflow-generator/SKILL.md) | Generate DreamLake WorkflowSpec v1 JSON (stages, compute/agent/sampler/control nodes, typed edges) from a natural-language goal, then validate + push via `dreamlake workflow push` (CLI ≥ 0.5.0) |
 
 ## Installation
