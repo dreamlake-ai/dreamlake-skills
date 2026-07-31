@@ -16,7 +16,7 @@ Full reference: https://docs.dreamlake.ai/datasets/reference
 ## Prerequisites
 
 ```bash
-pip install dreamlake dreamdb     # SDK + storage engine
+pip install "dreamlake>=0.6.0" "dreamdb>=0.0.6"   # SDK + storage engine (dreamdb<0.0.6 lacks ingest_cmaf)
 # ffmpeg must be on PATH (brew install ffmpeg / apt install ffmpeg)
 dreamlake login                    # once; CI uses DREAMLAKE_API_KEY
 ```
