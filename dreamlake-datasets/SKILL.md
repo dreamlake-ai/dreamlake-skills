@@ -72,6 +72,36 @@ Multi-camera joints: `joints_pose={"head": doc1, "wrist": doc2}`. A bare
 doc binds to the primary camera. The SDK serializes these compactly —
 never pre-minify or pre-compress them yourself.
 
+### Reconstruction (3D, optional third modality)
+
+Peer to `subtasks`/`joints_pose`: five flat `recon_*` kwargs on `add_episode`
+and `revise`. All 3D is in the camera's **OpenCV frame** (x-right/y-down/
+z-forward), metres, quaternion **wxyz**, frame `f` ↔ `f/fps`; colour is not
+stored. `recon_mesh` is episode-level; the other four are per-camera (bare doc
+→ primary, or `{camera: doc}`, same rule as joints).
+
+```python
+epo = ds.add_episode(
+    video, subtasks=..., joints_pose=...,
+    recon_mesh={name: obj_text},                      # or {name: {"obj": ..., "scale": <float>}}
+    recon_pose={frame: {name: {"t": [x,y,z], "q": [w,x,y,z]}}},
+    recon_camera={"fx": .., "fy": .., "cx": .., "cy": ..},  # pinhole intrinsics; w/h default 2*cx/2*cy
+    recon_hands={                                     # optional
+        "faces":  {"left": [[a,b,c], ...], "right": [...]},
+        "frames": {frame: {"left": {"verts": [[x,y,z], ...], "joints": [[x,y,z], ...]}, "right": {...}}},
+    },
+    recon_gravity=[x, y, z],                          # optional; up direction
+)
+```
+
+Each is optional; at least one present. Re-passing a piece revises it; pass
+`{camera: doc}` to fill a named camera later. `recon_pose` tells a bare
+per-frame doc from a `{camera: doc}` map by numeric-vs-name keys — don't name
+a camera a bare number. Any recon write stamps space meta
+`dreamdb.dataset.recon = "v1"`. Read back:
+`read_recon_mesh()` / `read_recon_pose(camera=None)` / `read_recon_camera` /
+`read_recon_hands` / `read_recon_gravity` — each returns the doc or `None`.
+
 ### Extend and revise (Episode handle)
 
 ```python
