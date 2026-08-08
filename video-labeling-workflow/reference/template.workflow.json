@@ -1,0 +1,455 @@
+{
+  "version": 1,
+  "name": "{{WORKFLOW_NAME}}",
+  "description": "Turn a raw manipulation video into a browsable annotated dataset: temporal subtask labels, per-frame hand pose, and accuracy scored against a reference.",
+  "defaults": {
+    "model": "gemini-3.5-flash"
+  },
+  "stages": [
+    {
+      "id": "prepare",
+      "title": "Prepare",
+      "detail": "Wrap the raw video as a LeRobot dataset"
+    },
+    {
+      "id": "annotate",
+      "title": "Annotate",
+      "detail": "Segment and caption the manipulation events"
+    },
+    {
+      "id": "handpose",
+      "title": "Hand pose",
+      "detail": "Per-frame hand keypoints and overlay"
+    },
+    {
+      "id": "evaluate",
+      "title": "Evaluate",
+      "detail": "Score against the reference annotations"
+    },
+    {
+      "id": "publish",
+      "title": "Publish",
+      "detail": "Publish the annotated episode as a dataset, then hold for review"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "video_source",
+      "kind": "compute",
+      "stageId": "prepare",
+      "title": "video_source",
+      "detail": "The source manipulation video to annotate.",
+      "compute": {
+        "udf": "workflow_runtime.udfs.subtask.sources.list_videos",
+        "params": {
+          "task": "{{TASK}}",
+          "source": "{{SOURCE}}",
+          "path": "{{VIDEO_PATH}}",
+          "source_namespace": "{{SOURCE_NAMESPACE}}"
+        },
+        "dispatch": "direct"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "videos",
+          "type": "samples"
+        }
+      ],
+      "execution": {
+        "timeout": "10m",
+        "retry": {
+          "max_attempts": 2
+        }
+      }
+    },
+    {
+      "id": "video_to_lerobot",
+      "kind": "compute",
+      "stageId": "prepare",
+      "title": "video_to_lerobot",
+      "detail": "Wrap the video as a single-episode LeRobot dataset at a uniform frame rate.",
+      "compute": {
+        "udf": "workflow_runtime.udfs.subtask.lerobot.video_to_lerobot",
+        "params": {},
+        "dispatch": "daemon"
+      },
+      "inputs": [
+        {
+          "name": "videos",
+          "type": "samples"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "dataset",
+          "type": "dataset"
+        }
+      ],
+      "execution": {
+        "timeout": "1h",
+        "retry": {
+          "max_attempts": 2
+        }
+      },
+      "outputBinding": {
+        "kind": "dataset",
+        "project": "micro1",
+        "pathTemplate": "micro1-subtask/{runId}/{nodeId}"
+      }
+    },
+    {
+      "id": "subtask_labeler",
+      "kind": "uda",
+      "stageId": "annotate",
+      "title": "subtask_labeler",
+      "detail": "Segment the episode into completed manipulation events, then caption each one with surrounding visual context.",
+      "uda": {
+        "instructions": "Reconstruct the sequence of COMPLETED manipulation events in this episode as temporal subtasks. First segment the episode into contiguous {start_sec, end_sec, subtask} spans from timestamped contact sheets; then re-label each span using its previous/current/next context. A boundary belongs where the world state changes: a held object changes, an object is placed or released, a tool starts or stops altering a surface, or a container opens or closes. Do not split approach/grasp/retreat unless the world state changes.",
+        "model": "gemini-3.5-flash",
+        "permissions": [
+          "dreamlake.datasets.read",
+          "dreamlake.datasets.create"
+        ],
+        "provider": {
+          "provider": "gemini-api"
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "labeled_subtasks"
+          ],
+          "properties": {
+            "labeled_subtasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "start_sec",
+                  "end_sec",
+                  "subtask"
+                ],
+                "properties": {
+                  "start_sec": {
+                    "type": "number"
+                  },
+                  "end_sec": {
+                    "type": "number"
+                  },
+                  "subtask": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "inputs": [
+        {
+          "name": "dataset",
+          "type": "dataset"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "labeled",
+          "type": "dataset"
+        }
+      ],
+      "execution": {
+        "timeout": "20m",
+        "retry": {
+          "max_attempts": 2
+        }
+      },
+      "outputBinding": {
+        "kind": "dataset",
+        "project": "micro1",
+        "pathTemplate": "micro1-subtask/{runId}/{nodeId}"
+      }
+    },
+    {
+      "id": "video_frames",
+      "kind": "compute",
+      "stageId": "handpose",
+      "title": "video_frames",
+      "detail": "Sample frames from the video for hand-pose estimation.",
+      "compute": {
+        "udf": "workflow_runtime.udfs.hand_pose.nodes.video_to_frames",
+        "params": {
+          "fps": 15,
+          "max_frames": 0
+        },
+        "dispatch": "direct"
+      },
+      "inputs": [
+        {
+          "name": "video",
+          "type": "samples"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "frames",
+          "type": "directory"
+        }
+      ],
+      "execution": {
+        "timeout": "1h",
+        "retry": {
+          "max_attempts": 2
+        }
+      }
+    },
+    {
+      "id": "hand_pose",
+      "kind": "compute",
+      "stageId": "handpose",
+      "title": "hand_pose",
+      "detail": "Estimate 21-keypoint hand pose per frame on the GPU, and render the tracked overlay.",
+      "compute": {
+        "udf": "workflow_runtime.udfs.hand_pose.nodes.hand_pose",
+        "params": {
+          "methods": [
+            "wilor"
+          ]
+        },
+        "provider": {
+          "launcher": "EC2",
+          "instance_type": "g5.xlarge",
+          "resources": {
+            "gpu": 1
+          }
+        },
+        "dispatch": "daemon"
+      },
+      "inputs": [
+        {
+          "name": "frames",
+          "type": "directory"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "keypoints",
+          "type": "file"
+        },
+        {
+          "name": "comparison",
+          "type": "file"
+        }
+      ],
+      "execution": {
+        "timeout": "4h",
+        "retry": {
+          "max_attempts": 1
+        }
+      },
+      "outputBinding": {
+        "kind": "artifact",
+        "pathTemplate": "micro1-subtask/{runId}/handpose"
+      }
+    },
+    {
+      "id": "gold_source",
+      "kind": "compute",
+      "stageId": "evaluate",
+      "title": "gold_source",
+      "detail": "Reference phase captions, used as ground truth.",
+      "compute": {
+        "udf": "workflow_runtime.udfs.subtask.sources.list_gold",
+        "params": {
+          "source": "{{SOURCE}}",
+          "path": "{{GOLD_PATH}}",
+          "source_namespace": "{{SOURCE_NAMESPACE}}"
+        },
+        "dispatch": "direct"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "gold",
+          "type": "file"
+        }
+      ],
+      "execution": {
+        "timeout": "10m",
+        "retry": {
+          "max_attempts": 2
+        }
+      }
+    },
+    {
+      "id": "subtask_metrics",
+      "kind": "compute",
+      "stageId": "evaluate",
+      "title": "subtask_metrics",
+      "detail": "Score our segments against the reference: temporal IoU, boundary F1, and label agreement.",
+      "compute": {
+        "udf": "workflow_runtime.udfs.subtask.evaluate.compare_to_gold",
+        "dispatch": "direct"
+      },
+      "inputs": [
+        {
+          "name": "labeled",
+          "type": "dataset"
+        },
+        {
+          "name": "gold",
+          "type": "file"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "metrics",
+          "type": "metrics"
+        }
+      ],
+      "outputBinding": {
+        "kind": "artifact",
+        "pathTemplate": "micro1-subtask/{runId}/metrics"
+      },
+      "execution": {
+        "timeout": "10m",
+        "retry": {
+          "max_attempts": 1
+        }
+      }
+    },
+    {
+      "id": "publish_dataset",
+      "kind": "compute",
+      "stageId": "publish",
+      "title": "publish_dataset",
+      "detail": "Publish the annotated episode — video, subtask timeline, and hand-skeleton overlay — as a browsable dataset.",
+      "compute": {
+        "udf": "workflow_runtime.udfs.dataset.publish.upload_to_dreamlake",
+        "params": {
+          "dataset_name": "micro1-subtasks"
+        },
+        "dispatch": "direct"
+      },
+      "inputs": [
+        {
+          "name": "labeled",
+          "type": "dataset"
+        },
+        {
+          "name": "keypoints",
+          "type": "file"
+        },
+        {
+          "name": "video",
+          "type": "samples"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "dataset",
+          "type": "dataset"
+        }
+      ],
+      "outputBinding": {
+        "kind": "dataset",
+        "project": "micro1",
+        "pathTemplate": "datasets/micro1-subtasks"
+      },
+      "execution": {
+        "timeout": "30m",
+        "retry": {
+          "max_attempts": 2
+        }
+      }
+    },
+    {
+      "id": "publish_gate",
+      "kind": "control",
+      "stageId": "publish",
+      "title": "publish_gate",
+      "detail": "Hold the finished run until a human has reviewed the published dataset.",
+      "inputs": [
+        {
+          "name": "dataset",
+          "type": "dataset"
+        }
+      ],
+      "control": {
+        "type": "approval",
+        "message": "Open the published dataset and review it. Approving marks the run complete."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "video_source",
+      "fromPort": "videos",
+      "to": "video_to_lerobot",
+      "toPort": "videos"
+    },
+    {
+      "id": "e2",
+      "from": "video_to_lerobot",
+      "fromPort": "dataset",
+      "to": "subtask_labeler",
+      "toPort": "dataset"
+    },
+    {
+      "id": "e3",
+      "from": "video_source",
+      "fromPort": "videos",
+      "to": "video_frames",
+      "toPort": "video"
+    },
+    {
+      "id": "e4",
+      "from": "video_frames",
+      "fromPort": "frames",
+      "to": "hand_pose",
+      "toPort": "frames"
+    },
+    {
+      "id": "e5",
+      "from": "subtask_labeler",
+      "fromPort": "labeled",
+      "to": "subtask_metrics",
+      "toPort": "labeled"
+    },
+    {
+      "id": "e6",
+      "from": "gold_source",
+      "fromPort": "gold",
+      "to": "subtask_metrics",
+      "toPort": "gold"
+    },
+    {
+      "id": "e7",
+      "from": "subtask_labeler",
+      "fromPort": "labeled",
+      "to": "publish_dataset",
+      "toPort": "labeled"
+    },
+    {
+      "id": "e8",
+      "from": "hand_pose",
+      "fromPort": "keypoints",
+      "to": "publish_dataset",
+      "toPort": "keypoints"
+    },
+    {
+      "id": "e9",
+      "from": "video_source",
+      "fromPort": "videos",
+      "to": "publish_dataset",
+      "toPort": "video"
+    },
+    {
+      "id": "e10",
+      "from": "publish_dataset",
+      "fromPort": "dataset",
+      "to": "publish_gate",
+      "toPort": "dataset"
+    }
+  ]
+}

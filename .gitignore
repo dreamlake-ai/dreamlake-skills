@@ -1,0 +1,25 @@
+# Editor and OS droppings. None of this belongs in a repo whose whole content
+# is text meant to be read by someone else's agent.
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# JetBrains
+.idea/
+*.iml
+
+# VS Code — keep shared settings possible, drop the per-machine ones
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+.\#*
