@@ -86,7 +86,7 @@ picker on the page can pin an older one. So iterate freely.
 - `--name <name>` overrides the spec's own `name` field.
 - A run's DATASET lands in the workflow's namespace, beside the workflow. It
   used to follow the caller's token instead, so a workflow published to an org
-  produced datasets in the personal namespace of whoever pressed Run — findable
+  produced annotations in the personal namespace of whoever pressed Run — findable
   by one person, and not the one looking. The worker now qualifies the name with
   the namespace on the queue message (needs dreamlake >= 0.7.0 on the worker,
   where `namespace/name` is understood).

@@ -7,7 +7,7 @@ description: >
   from the canvas. Use when the user asks to "create a video
   labeling workflow", "创建一个视频打标的 workflow", or wants to segment a
   manipulation video into subtasks, estimate hand pose, score against reference
-  annotations, and publish an annotated dataset. Takes precedence over
+  annotations, and publish an annotated result. Takes precedence over
   workflow-generator for video labeling; use workflow-generator only for a
   workflow this one does not cover.
 ---
@@ -40,9 +40,9 @@ handpose                  └─→ video_frames ─→ hand_pose ── keypoin
                                                                           │    │  │
 evaluate       gold_source ────────────────────────────→ subtask_metrics ─┘    │  │
                                                                                ↓  ↓
-publish                   └──────────────── video ──────────────────→ publish_dataset
+publish                   └──────────────── video ──────────────────→ publish_annotation
                                                                              ↓
-                                                                      publish_gate ⏸
+                                                                      review_gate ⏸
 ```
 
 | Stage | Does |
@@ -51,7 +51,7 @@ publish                   └──────────────── vi
 | annotate | two-stage VLM segmentation + relabeling → `labeled_subtasks` |
 | handpose | sample frames, estimate 21-keypoint hand pose (WiLoR on GPU), render the overlay |
 | evaluate | temporal IoU / boundary-F1 / label agreement vs the gold phase captions |
-| publish | one DreamLake dataset: video + subtask timeline + skeleton overlay, then a gate holding the run for review |
+| publish | one DreamLake **annotation**: video + subtask timeline + skeleton overlay, then a gate holding the run for review |
 
 ## Procedure
 
@@ -103,7 +103,7 @@ go straight to validation.
 
 Why each matters (for your own judgement, not to recite): the reference file
 needs `phase_captions` to score against; the task description is fed to the
-model as the episode goal and becomes the dataset label, so a vague one costs
+model as the episode goal and becomes the annotation's label, so a vague one costs
 annotation quality; local paths cannot work because the job runs on a worker
 elsewhere, and a URL cannot work either — it expires, and it tells whoever opens
 the canvas later nothing about where the data came from.
@@ -166,10 +166,10 @@ no worker environment. If you edit the template or the UDFs, run
 `python -m workflow_runtime.tests.test_spec_params <file>` in the WORKER's
 environment before shipping the change.
 
-`publish_gate` sits AFTER `publish_dataset`, not before it. A gate asking
+`review_gate` sits AFTER `publish_annotation`, not before it. A gate asking
 someone to review the result has to run once the result exists — placed earlier
-it asks them to approve something they cannot open, and the page has no dataset
-to link to. It carries no `execution.timeout`: a run may sit at a gate for
+it asks them to approve something they cannot open, and the page has no
+annotation to link to. It carries no `execution.timeout`: a run may sit at a gate for
 months at no cost (the worker checkpoints and ACKs), and a timeout there would
 kill work for the crime of being reviewed on a Monday.
 
@@ -193,9 +193,9 @@ an edit.
 | `video_to_lerobot.video_key` | the LeRobot column name; changing it leaves the three downstream nodes unable to find the video |
 | `hand_pose.overlay_method`, `use_conda` | default to `wilor` / `True`, which is what the worker has; a different method needs its own environment built there first |
 | `video_source.remote_url`, `local_path` (and the same on `gold_source`) | the fallback for runs with no source behind them; exposing it invites a URL back into the spec, which is what naming a source replaced |
-| `publish_dataset.namespace` | defaults to the namespace the RUN belongs to, which is where a team's results should land; setting it here publishes someone else's workflow output into your org |
-| `publish_dataset.camera` | only `main` renders — a different camera writes an episode the web app cannot show (measured) |
-| `publish_dataset.backend`, `unique_name` | point the publish at a local backend / stop the run-id suffix; both produce a run that appears to succeed and publishes nowhere useful |
+| `publish_annotation.namespace` | defaults to the namespace the RUN belongs to, which is where a team's results should land; setting it here publishes someone else's workflow output into your org |
+| `publish_annotation.camera` | only `main` renders — a different camera writes an episode the web app cannot show (measured) |
+| `publish_annotation.backend`, `unique_name` | point the publish at a local backend / stop the run-id suffix; both produce a run that appears to succeed and publishes nowhere useful |
 | `subtask_labeler.sample_sec`, `frames_per_sheet` | refiner reads these in a worker SUBPROCESS, so a value set here is ignored; the handler rejects them rather than pretend |
 | `subtask_labeler.min_coverage` | the acceptance threshold for a silent VLM truncation; loosening it re-admits the failure it exists to catch |
 
@@ -268,8 +268,8 @@ The worker must be running and reachable from the queue, with `refiner`,
 `dreamlake`/`dreamdb`, `dreamlake-lakeshore` installed, a Gemini key
 (`GOOGLE_GENERATIVE_AI_API_KEY`), and — for hand pose — the WiLoR conda env plus
 `HAND_POSE_REPO`. The DreamLake token travels with the run itself (the trigger
-puts the caller's token on the queue message), so the dataset publishes as
+puts the caller's token on the queue message), so the annotation publishes as
 whoever pressed Run; nothing needs to be configured on the worker for that.
 
-Each run publishes to its **own** dataset (`<name>-<runId>`), so re-running on
+Each run publishes to its **own** annotation (`<name>-<runId>`), so re-running on
 new footage never revises a previous run's episodes.

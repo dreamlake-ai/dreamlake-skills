@@ -1,7 +1,7 @@
 {
   "version": 1,
   "name": "{{WORKFLOW_NAME}}",
-  "description": "Turn a raw manipulation video into a browsable annotated dataset: temporal subtask labels, per-frame hand pose, and accuracy scored against a reference.",
+  "description": "Turn a raw manipulation video into a browsable DreamLake annotation: temporal subtask labels, per-frame hand pose, and accuracy scored against a reference.",
   "defaults": {
     "model": "gemini-3.5-flash"
   },
@@ -29,7 +29,7 @@
     {
       "id": "publish",
       "title": "Publish",
-      "detail": "Publish the annotated episode as a dataset, then hold for review"
+      "detail": "Publish the annotated episode, then hold for review"
     }
   ],
   "nodes": [
@@ -40,7 +40,7 @@
       "title": "video_source",
       "detail": "The source manipulation video to annotate.",
       "compute": {
-        "udf": "workflow_runtime.udfs.subtask.sources.list_videos",
+        "udf": "runtime.nodes.subtask.sources.list_videos",
         "params": {
           "task": "{{TASK}}",
           "source": "{{SOURCE}}",
@@ -70,7 +70,7 @@
       "title": "video_to_lerobot",
       "detail": "Wrap the video as a single-episode LeRobot dataset at a uniform frame rate.",
       "compute": {
-        "udf": "workflow_runtime.udfs.subtask.lerobot.video_to_lerobot",
+        "udf": "runtime.nodes.subtask.lerobot.video_to_lerobot",
         "params": {},
         "dispatch": "daemon"
       },
@@ -176,7 +176,7 @@
       "title": "video_frames",
       "detail": "Sample frames from the video for hand-pose estimation.",
       "compute": {
-        "udf": "workflow_runtime.udfs.hand_pose.nodes.video_to_frames",
+        "udf": "runtime.nodes.hand_pose.frames.video_to_frames",
         "params": {
           "fps": 15,
           "max_frames": 0
@@ -209,7 +209,7 @@
       "title": "hand_pose",
       "detail": "Estimate 21-keypoint hand pose per frame on the GPU, and render the tracked overlay.",
       "compute": {
-        "udf": "workflow_runtime.udfs.hand_pose.nodes.hand_pose",
+        "udf": "runtime.nodes.hand_pose.estimate.hand_pose",
         "params": {
           "methods": [
             "wilor"
@@ -258,7 +258,7 @@
       "title": "gold_source",
       "detail": "Reference phase captions, used as ground truth.",
       "compute": {
-        "udf": "workflow_runtime.udfs.subtask.sources.list_gold",
+        "udf": "runtime.nodes.subtask.sources.list_gold",
         "params": {
           "source": "{{SOURCE}}",
           "path": "{{GOLD_PATH}}",
@@ -287,7 +287,7 @@
       "title": "subtask_metrics",
       "detail": "Score our segments against the reference: temporal IoU, boundary F1, and label agreement.",
       "compute": {
-        "udf": "workflow_runtime.udfs.subtask.evaluate.compare_to_gold",
+        "udf": "runtime.nodes.subtask.evaluate.compare_to_gold",
         "dispatch": "direct"
       },
       "inputs": [
@@ -318,15 +318,15 @@
       }
     },
     {
-      "id": "publish_dataset",
+      "id": "publish_annotation",
       "kind": "compute",
       "stageId": "publish",
-      "title": "publish_dataset",
-      "detail": "Publish the annotated episode — video, subtask timeline, and hand-skeleton overlay — as a browsable dataset.",
+      "title": "publish_annotation",
+      "detail": "Publish the labeled episode as a DreamLake annotation: video + subtask timeline + hand-pose overlay.",
       "compute": {
-        "udf": "workflow_runtime.udfs.dataset.publish.upload_to_dreamlake",
+        "udf": "runtime.nodes.annotation.publish.upload_to_dreamlake",
         "params": {
-          "dataset_name": "micro1-subtasks"
+          "annotation_name": "micro1-subtasks"
         },
         "dispatch": "direct"
       },
@@ -346,14 +346,14 @@
       ],
       "outputs": [
         {
-          "name": "dataset",
+          "name": "annotation",
           "type": "dataset"
         }
       ],
       "outputBinding": {
         "kind": "dataset",
         "project": "micro1",
-        "pathTemplate": "datasets/micro1-subtasks"
+        "pathTemplate": "annotations/micro1-subtasks"
       },
       "execution": {
         "timeout": "30m",
@@ -363,20 +363,20 @@
       }
     },
     {
-      "id": "publish_gate",
+      "id": "review_gate",
       "kind": "control",
       "stageId": "publish",
-      "title": "publish_gate",
-      "detail": "Hold the finished run until a human has reviewed the published dataset.",
+      "title": "review_gate",
+      "detail": "Hold the run so a person can open what was produced and approve it.",
       "inputs": [
         {
-          "name": "dataset",
+          "name": "annotation",
           "type": "dataset"
         }
       ],
       "control": {
         "type": "approval",
-        "message": "Open the published dataset and review it. Approving marks the run complete."
+        "message": "Open the published annotation and review it. Approving marks the run complete."
       }
     }
   ],
@@ -427,29 +427,29 @@
       "id": "e7",
       "from": "subtask_labeler",
       "fromPort": "labeled",
-      "to": "publish_dataset",
+      "to": "publish_annotation",
       "toPort": "labeled"
     },
     {
       "id": "e8",
       "from": "hand_pose",
       "fromPort": "keypoints",
-      "to": "publish_dataset",
+      "to": "publish_annotation",
       "toPort": "keypoints"
     },
     {
       "id": "e9",
       "from": "video_source",
       "fromPort": "videos",
-      "to": "publish_dataset",
+      "to": "publish_annotation",
       "toPort": "video"
     },
     {
       "id": "e10",
-      "from": "publish_dataset",
-      "fromPort": "dataset",
-      "to": "publish_gate",
-      "toPort": "dataset"
+      "from": "publish_annotation",
+      "fromPort": "annotation",
+      "to": "review_gate",
+      "toPort": "annotation"
     }
   ]
 }
