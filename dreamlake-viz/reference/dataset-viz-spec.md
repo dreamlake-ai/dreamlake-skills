@@ -29,18 +29,6 @@ another bucket) adds one more block, `storage:` — see
 [below](#storage--where-the-dataset-lives). Everything else is the reference
 for the blocks.
 
-## Live example
-
-One file exercising most of the spec at once — glob enumeration,
-auto-discovered annotation tracks (`joints_pose` keypoints drawn over the
-video, `subtasks` segments on a timeline), and a real 3D hand–object
-reconstruction driven by the shared cursor. It uses the `folder` format on
-purpose: the **zero-convention layout** — any files you can put in folders,
-no conversion, the easiest dataset there is to prepare. An *existing*
-LeRobot / zarr / MCAP dataset needs an even shorter file (`format:` +
-`episodes: auto` — see the gallery). The source pane is the complete
-standalone `.dreamrc`; copy it and it runs anywhere:
-
 <a
   href="/dataset-viz/gallery"
   style={{
@@ -67,6 +55,18 @@ standalone `.dreamrc`; copy it and it runs anywhere:
   </span>
   <span style={{ fontSize: 20, opacity: 0.55, flexShrink: 0 }}>→</span>
 </a>
+
+## Live example
+
+One file exercising most of the spec at once — glob enumeration,
+auto-discovered annotation tracks (`joints_pose` keypoints drawn over the
+video, `subtasks` segments on a timeline), and a real 3D hand–object
+reconstruction driven by the shared cursor. It uses the `folder` format on
+purpose: the **zero-convention layout** — any files you can put in folders,
+no conversion, the easiest dataset there is to prepare. An *existing*
+LeRobot / zarr / MCAP dataset needs an even shorter file (`format:` +
+`episodes: auto` — see the gallery). The source pane is the complete
+standalone `.dreamrc`; copy it and it runs anywhere:
 
 ## `dataset:` — which episodes, parsed how
 

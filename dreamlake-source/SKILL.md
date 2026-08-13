@@ -13,16 +13,33 @@ covers getting the bytes there; writing the `.dreamrc` is the
 `reference/dataset-viz-authoring.md` for layout decisions and
 `reference/dataset-viz-spec.md` for the file itself).
 
-## 1. Decide the layout BEFORE uploading
+## 1. Inspect FIRST — the user never needs to know formats
 
-From `dreamlake-viz`'s authoring guide, compressed:
+The user will say "upload my data". Deciding what it is and how it uploads
+is YOUR job, not theirs — never ask them "what format is this?" before you
+have looked. Inspect the directory (`ls -R`, `head` the small files, `file`
+/ `ffprobe` the media) and match the signature:
 
-| you have | upload as | notes |
+| you find | it is | upload as |
 |---|---|---|
-| a LeRobot export (v2.x / v3.0) | **as-is** | `format: lerobot`, `episodes: auto` — nothing else needed |
-| a UMI / ReplayBuffer `.zarr.zip` or `.zarr/` store | **as-is** | `format: umi` |
-| indexed `.mcap` logs | **as-is** | `format: mcap` (json channels + CompressedImage in v1) |
-| raw recordings (mp4 / images / CSV / parquet / JSON) | **one folder per run** | `format: folder`, `episodes: "episodes/*/"` — zero conversion |
+| `meta/info.json` (with `codebase_version`, `features`) | a LeRobot export (v2.x / v3.0) | **as-is** → `format: lerobot`, `episodes: auto` |
+| `*.zarr.zip` or a `.zarr/` directory | UMI / ReplayBuffer zarr | **as-is** → `format: umi` |
+| `*.mcap` files | indexed MCAP logs | **as-is** → `format: mcap` (json channels + CompressedImage in v1) |
+| folders of recordings (mp4 / images / CSV / parquet / JSON) | raw runs | **one folder per run** → `format: folder`, `episodes: "episodes/*/"` — zero conversion |
+
+**Nothing matches? Nothing is rejected.** The degradation ladder:
+
+1. Anything file-shaped still uploads as `folder` — media, tabular, and
+   class-named JSON render; unrecognized files simply appear as plain
+   entries in the field catalog instead of a view. Tell the user which
+   files WILL render and which will merely be listed.
+2. Containers we can't read yet (HDF5, RLDS/TFRecord, rosbag) — offer the
+   two real options: convert to LeRobot (most tools export it), or extract
+   the per-episode media/logs into folders. Don't upload a container as-is
+   and promise visualization.
+3. When inference could be wrong inside a supported format (a depth-named
+   tensor, an oddly-named point cloud), `dataset.kinds` in the `.dreamrc`
+   overrides per feature — see `dreamlake-viz`.
 
 Two preparation rules that bite people:
 
