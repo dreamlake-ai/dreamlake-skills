@@ -9,6 +9,8 @@ task correctly.
 
 | Skill | What it does |
 |---|---|
+| [`dreamlake-source`](./dreamlake-source/SKILL.md) | Upload a robot dataset (LeRobot/zarr/MCAP/raw folders) to object storage or DreamLake so a `.dreamrc` can visualize it; layout rules, listing manifests, verification |
+| [`dreamlake-viz`](./dreamlake-viz/SKILL.md) | Author the `.dreamrc` dataset-visualization file — formats, storage, view components, annotations. GENERATED from the viz docs (`scripts/sync-dreamlake-viz.sh` re-syncs; never hand-edit) |
 | [`dreamlake-artifacts`](./dreamlake-artifacts/SKILL.md) | Publish, version, share, and view renderable artifacts (HTML/React/Markdown/SVG/Mermaid/code) via the `dreamlake artifact` CLI |
 | [`dreamlake-annotations`](./dreamlake-annotations/SKILL.md) | Upload annotated robot-training episodes (video + joints + subtasks, multi-camera) to a DreamLake annotation with the Python SDK, revise them, and search |
 | [`workflow-generator`](./workflow-generator/SKILL.md) | Generate DreamLake WorkflowSpec v1 JSON (stages, compute/agent/sampler/control nodes, typed edges) from a natural-language goal, then validate + push via `dreamlake workflow push` (CLI ≥ 0.5.0) |
