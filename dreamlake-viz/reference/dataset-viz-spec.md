@@ -31,16 +31,42 @@ for the blocks.
 
 ## Live example
 
-One file exercising most of the spec at once — folder-per-episode glob
-enumeration, auto-discovered annotation tracks (`joints_pose` keypoints drawn
-over the video, `subtasks` segments on a timeline), and a real 3D hand–object
-reconstruction driven by the shared cursor. The source pane is the complete
-standalone `.dreamrc` (its `storage:` inline) — copy it and it runs anywhere:
+One file exercising most of the spec at once — glob enumeration,
+auto-discovered annotation tracks (`joints_pose` keypoints drawn over the
+video, `subtasks` segments on a timeline), and a real 3D hand–object
+reconstruction driven by the shared cursor. It uses the `folder` format on
+purpose: the **zero-convention layout** — any files you can put in folders,
+no conversion, the easiest dataset there is to prepare. An *existing*
+LeRobot / zarr / MCAP dataset needs an even shorter file (`format:` +
+`episodes: auto` — see the gallery). The source pane is the complete
+standalone `.dreamrc`; copy it and it runs anywhere:
 
-More datasets — LeRobot v2/v3 on HuggingFace and plain S3, UMI zip and zarr
-stores, alternate layouts of the same data — live in the
-**[gallery](reference/dataset-viz-gallery.md)**, a two-pane switcher of complete
-`.dreamrc` files.
+<a
+  href="/dataset-viz/gallery"
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+    margin: '18px 0 6px',
+    padding: '14px 18px',
+    borderRadius: 12,
+    background: 'color-mix(in srgb, currentColor 6%, transparent)',
+    textDecoration: 'none',
+    color: 'inherit',
+  }}
+>
+  <span>
+    <span style={{ display: 'block', fontWeight: 650, fontSize: 15 }}>
+      Gallery — 11 real datasets, one grammar
+    </span>
+    <span style={{ display: 'block', fontSize: 13, opacity: 0.65, marginTop: 2 }}>
+      LeRobot v2/v3 · depth maps · point clouds · UMI zarr · MCAP · annotations + 3D —
+      a full-screen two-pane switcher of complete .dreamrc files
+    </span>
+  </span>
+  <span style={{ fontSize: 20, opacity: 0.55, flexShrink: 0 }}>→</span>
+</a>
 
 ## `dataset:` — which episodes, parsed how
 
