@@ -49,13 +49,17 @@ What `Episode.read()` returns, and which component renders it. Kinds name a
 | `frames` | `{ count, fps?, frameAt(i) }` — lazy per-frame fetch | `frameStack` |
 | `series` | `{ timestamps, columns }` — per-dim numeric traces | `lineChart` |
 | `segments` | `{ segments: [{ start, end, label }] }` — any time-range → label track | `timeline`, `videoStack` overlays |
-| `keypoints` | `{ doc }` — per-frame 2D keypoint sets | `videoStack` overlays |
+| `keypoints` | `{ keypoints }` — per-frame 2D detections, normalized (pixel space, fps, sparse frames, skeleton) | `videoStack` overlays |
 | `pose3d` | `{ timestamps, joints, shape }` — per-frame 3D point sets | `recon3d` |
-| `recon3d` | `{ doc }` — mesh / pose / hands / gravity / camera ([file shape](reference/dataset-viz-authoring.md)) | `recon3d` |
+| `mesh3d` | `{ url, format }` — static geometry (glTF/GLB/OBJ); its node names bind the tracks below | `recon3d` |
+| `transform3d` | `{ timestamps, values, layout }` — per-frame position + quaternion | `recon3d` |
+| `vertices3d` | `{ count, fps?, vertexCount, at(i) }` — per-frame vertex positions, lazy | `recon3d` |
 | `file` | `{ url, ext? }` — anything else | listed in `fieldsCatalog` |
 
-Annotation file shapes (what goes *inside* a keypoints / segments / recon3d
-JSON) are specified in the [authoring guide](reference/dataset-viz-authoring.md).
+Where each class comes from — a feature in the dataset's own container, or a
+standard file beside it (WebVTT/SRT, COCO, glTF, parquet) — is specified in
+the [authoring guide](reference/dataset-viz-authoring.md#2-annotations-live-in-the-container).
+**No kind is fed by a format of our own.**
 
 ### Adding a new data class
 
@@ -231,7 +235,7 @@ and overflow scrolls horizontally, synced across episodes under a
 | `bandTrack` | `series: [ ref \| { field, label? } ]` — same field addressing as `lineChart`; each resolved column becomes one band row | `series` | `maxLevels` (default 12) — a column is discrete when its unique values (rounded to 6 decimals) fit, busier columns get a one-line "use lineChart" note · `bandHeight` (default 18) per-band px. Runs of equal value become colored rects; value→color legend below; natural height. | — |
 | `metaPanel` | — (renders `EpisodeInfo`: name, duration, frames, fps, task strings) | — | `note` — a free-text line · `showTasks: false` hides the task strings (single-task datasets repeat one sentence per episode otherwise) | — |
 | `fieldsCatalog` | — | all (lists them) | — | — |
-| `recon3d` | `fields` — the first `recon3d` doc is the scene, every `pose3d` field rides along as an animated point set | `recon3d`, `pose3d` | `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically | — |
+| `recon3d` | `fields` — a `mesh3d` file is the scene; `transform3d` / `vertices3d` tracks bind to the glTF node whose name they match; `pose3d` fields ride along as animated point sets | `mesh3d`, `transform3d`, `vertices3d`, `pose3d` | `up` — gravity vector in the data's own frame (uprights the grid) · `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically | — |
 | `pointCloud` | `fields` — the first `pointcloud` field renders (one cloud per panel in v1) | `pointcloud` | `up: y \| z` (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically. Per-point color when the data carries rgb; camera auto-fits the first frame | — |
 
 Hosts add components with `registerComponent({ name, component, rows? })`;

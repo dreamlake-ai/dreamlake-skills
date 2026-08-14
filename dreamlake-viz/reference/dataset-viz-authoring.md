@@ -46,18 +46,13 @@ my-dataset/
     chunk-000/file-000.parquet
   videos/
     observation.images.top/chunk-000/file-000.mp4
-  annotations/                # OPTIONAL — your annotation tracks (see below)
-    joints_pose/episode_000000.json
-    subtasks/episode_000000.json
 ```
 
 - `meta/info.json` must carry `codebase_version`, `total_episodes`, and
   `features` (every camera and series is a feature). v2.x and v3.0 layouts are
   both supported. **The dataset's own files are never modified.**
-- **Annotation tracks**: put the files under `annotations/<track>/`, one per
-  episode, and declare them in the `.dreamrc` (`dataset.annotations` — see the
-  [spec](reference/dataset-viz-spec.md)). `{episode_index:06d}` in the path template is
-  expanded per episode.
+- **Annotations are features**, not extra files — see
+  [§2](#2-annotations-live-in-the-container).
 
 ### `folder` — folder-per-episode
 
@@ -71,8 +66,8 @@ my-dataset/
       cam_top.mp4
       cam_wrist.mp4
       annotations/            # OPTIONAL — auto-discovered
-        joints_pose.json
-        subtasks.json
+        hand_keypoints.json   # COCO keypoints
+        subtasks.vtt          # WebVTT cues
     2026-08-01_run2/
       …
 ```
@@ -95,12 +90,14 @@ rules are explicit — three, applied in order per file:**
 2. **Extension** — `mp4`/`webm` → `video`, `jpg`/`png` → `image`,
    `csv`/`parquet` → `series` (timestamp-like column = x-axis, numeric
    columns = traces).
-3. **JSON name inference** — the same rule everywhere, root files and
-   `annotations/` alike: `recon*` → `recon3d`; `joints*`/`keypoints*`/
-   `pose*` → `keypoints`; `task*`/`subtask*`/`action*`/`segment*`/`phase*`/
-   `stage*` → `segments`; anything unmatched stays a plain file.
+3. **Annotation formats, by extension** — `.vtt`/`.srt` → `segments`,
+   `.gltf`/`.glb`/`.obj` → `mesh3d`, a COCO keypoints `.json` → `keypoints`.
+   A `.parquet` is inspected: a list column of xyz vectors becomes
+   `vertices3d` / `pose3d`, translation + quaternion columns become
+   `transform3d` (one track per object when a grouping column names them).
+   Anything unrecognized stays a plain file.
 
-A class-kind JSON becomes a **track named by its basename** (`subtasks`, not
+An annotation file becomes a **track named by its basename** (`subtasks`, not
 a path); every other file is a field named by its **filename, extension
 kept** (`cam_ego.mp4`, `joint_state.csv`) — that is the name `views` binds.
 The `annotations/` subfolder is the recommended home for tracks and wins
@@ -124,47 +121,68 @@ my-dataset/
   at the dataset root) and declare them in `dataset.annotations` — the store
   itself is read as-is.
 
-### Annotation file shapes
+## 2. Annotations live in the container
 
-Two data *classes* render natively today; both are plain JSON you can produce
-from any pipeline. A class covers a family of tracks — `segments` is one
-shape for tasks, subtasks, actions, phases, or anything subtitle-like:
+Hand keypoints, task segments, 3D reconstructions — **we define no format for
+any of it.** Per-frame data goes into your dataset's own container, expressed
+the way that container already expresses things. Only what a container cannot
+model (static geometry) or cannot accept (a read-only mirror) sits beside it,
+and then in an established file format.
 
-```jsonc
-// keypoints class — per-frame 2D keypoint sets (hands, body, any skeleton).
-// Pixel space of the camera it annotates, sparse frames.
-{
-  "width": 1920, "height": 1080,   // REQUIRED: annotation-time pixel space
-  "src_fps": 29.987,               // REQUIRED: frame k renders at k / src_fps
-  "frames": {
-    "0": [{ "keypoints_2d": [[x, y], "…"] }]
-  }
-}
+### In a LeRobot dataset — add a feature
 
-// segments class — any time-range → label mapping; gaps are fine.
-// Both shapes are accepted and normalized:
-{ "segments": [ { "start": 0.0, "end": 2.5, "label": "pick up plate" } ] }
-{ "labeled_subtasks": [ { "start_sec": 0.0, "end_sec": 2.5, "subtask": "pick up plate" } ] }
+Everything below is an ordinary entry in `meta/info.json` plus its column in
+the episode parquet. Nothing beside the dataset, nothing new invented.
+
+| class | feature in `meta/info.json` | parquet column |
+| --- | --- | --- |
+| **keypoints** | `"observation.keypoints_2d.<cam>": {dtype: float32, shape: [J,2]}` — name contains `keypoint`/`joint`/`landmark`, 8 ≤ J ≤ 200 | one `[J,2]` per frame, **pixel coordinates**. `[J,3]` adds a per-joint score. Pixel space comes from the camera feature sharing the trailing name segment (`…cam_high` ↔ `observation.images.cam_high`) |
+| **segments** | `"<name>_index": {dtype: int64, shape: [1]}` | one integer per frame — **plus a label table** in `meta/`: `meta/<name>s.jsonl` (v2) or `.parquet` (v3). This is LeRobot's own `task_index` + `tasks` idiom; `subtask_index` + `meta/subtasks.jsonl` works the same way |
+| **transform3d** | `"observation.<object>_pose": {dtype: float32, shape: [7], names: ["x","y","z","qw","qx","qy","qz"]}` | position + quaternion per frame. `shape: [N,7]` with `names` listing objects emits one track per object |
+| **vertices3d** | `"observation.<name>_verts": {dtype: float32, shape: [V,3]}` | vertex positions per frame; topology comes from a glTF (below) |
+| **pose3d** | `"observation.<name>_points": {dtype: float32, shape: [N,3]}` | 3D points per frame (21 points render as a hand skeleton) |
+
+Names are read as evidence, and `dataset.kinds` overrides any of it:
+
+```yaml
+dataset:
+  format: lerobot
+  kinds:
+    "observation.tracked_points": keypoints
+    "observation.*_pose": transform3d
 ```
 
-```jsonc
-// recon3d class — 3D hand-object reconstruction, one doc per episode.
-// Camera's OpenCV frame (x-right/y-down/z-forward), metres, quaternions wxyz;
-// the platform's recon_* key names are accepted as aliases.
-{
-  "mesh":    { "<object>": { "obj": "<.obj text>", "scale": 1.0 } },
-  "pose":    { "frames": { "<f>": { "<object>": { "t": [x, y, z], "q": [w, x, y, z] } } } },
-  "hands":   { "faces":  { "left": [[a, b, c], "…"], "right": ["…"] },
-               "frames": { "<f>": { "left": { "verts": [[x, y, z], "…"], "joints": [[x, y, z], "…"] } } } },
-  "gravity": [x, y, z],
-  "camera":  { "fx": 500, "fy": 500, "cx": 320, "cy": 180 }
-}
+### In an MCAP log — add a channel
+
+Each annotation is a channel like any other. JSON-encoded channels with
+numeric leaves become series; a channel of string labels becomes `segments`;
+`foxglove.CompressedImage` becomes frames. Use the
+[Foxglove schemas](https://docs.foxglove.dev/docs/visualization/message-schemas/introduction)
+where one fits.
+
+### Beside the data — established file formats only
+
+For a read-only dataset, or for data no container models:
+
+| class | format | notes |
+| --- | --- | --- |
+| **segments** | **WebVTT** (`.vtt`) or **SubRip** (`.srt`) | the web standard for "time range → text". `HH:MM:SS.mmm --> HH:MM:SS.mmm` then the label |
+| **keypoints** | **COCO keypoints** JSON | stock spec: `images` / `annotations` (`keypoints: [x,y,v …]`, `bbox`) / `categories` (`keypoints` names, 1-based `skeleton`). Add a top-level `fps` so frames map to time |
+| **mesh3d** | **glTF / GLB** (`.glb`) | static geometry. **Node names are the join key** — a node `ruler` binds the `transform3d` track named `ruler` (or `ruler_pose`, `poses[ruler]`) |
+| **transform3d / vertices3d / pose3d** | **Parquet** | per-frame numeric data belongs in a columnar file: `tx,ty,tz,qw,qx,qy,qz` columns (plus an object column to hold several) for transforms; a list column of flat xyz for vertices and points |
+
+Declare them with `dataset.annotations` (or drop them in a `folder`
+episode's `annotations/` folder and they're found automatically):
+
+```yaml
+dataset:
+  annotations:
+    subtasks: "annotations/subtasks/episode_{episode_index:06d}.vtt"
+    hands:    "annotations/hands/episode_{episode_index:06d}.json"
+    scene:    "recon/scene.glb"
 ```
 
-Track names starting with `recon` infer the `recon3d` class automatically.
-Any other JSON is surfaced in the field catalog as a plain file.
-
-## 2. Recognize a dataset you already have
+## 3. Recognize a dataset you already have
 
 List the root and match the signature:
 
@@ -197,38 +215,36 @@ collections paired at view time, and occupancy only appears in
 autonomous-driving stacks. If they arrive, they arrive as external assets
 referenced by a `.dreamrc`, not as dataset layout rules.
 
-## 3. Decision tree
+## 4. Decision tree
 
 1. **Format** — from the table above.
 2. **Episodes** — container format → `auto`; folders → glob (trailing `/`).
 3. **Views** — start from the fields you know are there:
-   - cameras → `videoStack` (+ `overlays` if you shipped `joints_pose`)
+   - cameras → `videoStack` (+ `overlays` for a keypoints or segments track)
    - state/action series → `lineChart` with `series`
    - subtask segments → `timeline` with `tracks`
    - not sure what's in there → start with just `component: fieldsCatalog`,
      read the catalog, then write the real views.
 
-## 4. Worked examples
+## 5. Worked examples
 
 ### LeRobot with annotations (the full picture)
 
-Dataset side — annotation files under `annotations/`, the dataset itself
-untouched. The `.dreamrc` declares them and lays out the views:
+The annotations are **features of the dataset** — a `[21,2]` keypoint column
+and a `subtask_index` column with its label table in `meta/`. The `.dreamrc`
+adds nothing but the layout:
 
 ```yaml
 version: 1
 dataset:
   format: lerobot
   episodes: auto
-  annotations:
-    joints_pose: { path: "annotations/joints_pose/episode_{episode_index:06d}.json", kind: keypoints }
-    subtasks:    { path: "annotations/subtasks/episode_{episode_index:06d}.json",    kind: segments }
 views:
   - component: videoStack
     fields: ["observation.images.*"]
-    overlays: [joints_pose]
+    overlays: [observation.keypoints_2d.cam_high]
   - component: timeline
-    tracks: [subtasks]
+    tracks: [subtask_index]
   - component: lineChart
     series: [{ field: [action, "*"] }]
 ```
@@ -284,7 +300,7 @@ views:
   - component: fieldsCatalog     # read what's there, then write real views
 ```
 
-## 5. Verify
+## 6. Verify
 
 - **In the app**: open the dataset's folder (source or project) — a `.dreamrc`
   in the listing switches the panel to the dataset view. Parse errors show the
@@ -307,8 +323,8 @@ Common errors and what they mean:
 
 | message | fix |
 | --- | --- |
-| `dataset.format '…' is not a registered format` | typo, or the format isn't supported yet — see the table in §2 |
+| `dataset.format '…' is not a registered format` | typo, or the format isn't supported yet — see the table in §3 |
 | `views[n].component '…' is not registered` | typo — the message lists the registry |
 | `episodes glob "…" — '**' is not supported` | use one `*` per path segment |
 | a panel renders "no fields matched" | your `fields`/`series` pattern missed the catalog — render `fieldsCatalog` once and copy the real names |
-| video plays but overlays don't draw | annotation track missing from the dataset entry file, or its `width/height/src_fps` don't match the camera |
+| video plays but overlays don't draw | the keypoints track's pixel space doesn't match the camera (COCO `images[].width/height`, or the paired camera feature), or its frame rate is wrong |

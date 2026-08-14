@@ -59,9 +59,10 @@ for the blocks.
 ## Live example
 
 One file exercising most of the spec at once — glob enumeration,
-auto-discovered annotation tracks (`joints_pose` keypoints drawn over the
-video, `subtasks` segments on a timeline), and a real 3D hand–object
-reconstruction driven by the shared cursor. It uses the `folder` format on
+auto-discovered annotation tracks (COCO hand keypoints drawn over the video,
+WebVTT subtask cues on a timeline), and a real 3D hand–object reconstruction
+(glTF geometry + per-frame parquet tracks) driven by the shared cursor. It
+uses the `folder` format on
 purpose: the **zero-convention layout** — any files you can put in folders,
 no conversion, the easiest dataset there is to prepare. An *existing*
 LeRobot / zarr / MCAP dataset needs an even shorter file (`format:` +
@@ -93,47 +94,57 @@ dataset:
 In glob mode the matched path is handed to the adapter as the episode root —
 you never write per-episode config.
 
-### `dataset.annotations` — extra tracks, one mechanism for every format
+### `dataset.annotations` — tracks that live beside the data
 
-Annotation files (hand joints, subtask segments, 3D reconstruction, …) live
-**beside the data** — the original dataset is never modified. The `.dreamrc`
-declares where they are; the merge happens *after* the format adapter runs, so
-every declared track lands in the same catalog as the dataset's own fields:
+**Annotations belong inside your dataset's own container** — a LeRobot
+feature, an MCAP channel, a zarr array — because that is where per-frame data
+already has a home ([how, per format](reference/dataset-viz-authoring.md)). Two cases
+can't do that, and only those two use this block:
+
+- the dataset is **read-only** (a mirror you don't own), or
+- the data is something a container doesn't model — **static geometry**.
+
+Then the file sits beside the data in an **established format** and the
+`.dreamrc` says where. The original dataset is never modified; the merge
+happens *after* the format adapter runs, so a declared track lands in the
+same catalog as the dataset's own fields:
 
 ```yaml
 dataset:
   format: lerobot
   episodes: auto
   annotations:
-    joints_pose: { path: "annotations/joints_pose/episode_{episode_index:06d}.json", kind: keypoints }
-    subtasks:    { path: "annotations/subtasks/episode_{episode_index:06d}.json",    kind: segments }
-    # a bare string is shorthand for { path } with the kind inferred from the name
+    subtasks: "annotations/subtasks/episode_{episode_index:06d}.vtt"   # WebVTT
+    hands:    "annotations/hands/episode_{episode_index:06d}.json"     # COCO keypoints
+    scene:    "recon/scene.glb"                                        # glTF geometry
 ```
 
 - **Paths** are relative to the dataset root; templates use the same
   `{var}` / `{var:06d}` style LeRobot itself uses. Vars: `episode_index`,
-  `episode_name`, `episode_path` (glob mode), `episode_ordinal`.
+  `episode_name`, `episode_path` (glob mode), `episode_ordinal.
+- **The kind comes from the file extension**, so a bare path string is the
+  normal form. Add `{ path, kind }` only to override.
 - **Merge rule**: a declaration **overrides** a native track of the same name —
   an explicit entry is user intent (e.g. replace a dataset's coarse task
   segments with a refined re-annotation). Undeclared native tracks stay.
-- The `folder` format additionally auto-discovers `annotations/<track>.json`
-  inside each episode folder — a layout convention; declaring is never
-  required when the files follow it.
+- The `folder` format auto-discovers anything in each episode's
+  `annotations/` folder — declaring is never required when files live there.
 
-Each track is then a **field of the episode** like any camera or series —
-`views` refers to it by its name. The **name** is yours (`joints_pose`,
-`subtasks`, `left_hand`, `phase`, …); the **kind** names the *class* of data
-and decides how it renders:
+Each track is then a **field of the episode** like any camera or series, and
+its **kind** — the class of data, never a specific track name — decides how it
+renders:
 
-| kind | the class | file shape | rendered as |
+| kind | the class | comes from | rendered as |
 | --- | --- | --- | --- |
-| `keypoints` | per-frame 2D keypoint sets — hands, body, any skeleton | `{ width, height, src_fps, frames: { "<frame>": [{ keypoints_2d: [[x,y],…] }] } }` | skeleton drawn over video (`overlays`) |
-| `segments` | any time-range → label mapping — tasks, subtasks, actions, phases, subtitle-like | `{ labeled_subtasks: [{ start_sec, end_sec, subtask }] }` or `{ segments: [{ start, end, label }] }` — adapters normalize both | labelled blocks on a timeline (`tracks`) or captions over video (`overlays`) |
-| `recon3d` | 3D hand–object reconstruction | one JSON doc per episode: `{ mesh, pose, hands?, gravity?, camera? }` — see the [authoring guide](reference/dataset-viz-authoring.md) | animated 3D scene (`recon3d` component): OBJ meshes at 6-DoF poses, MANO hands, gravity-upright grid |
-| anything else | — | any JSON / OBJ / … | listed in the field catalog |
+| `segments` | any time-range → label mapping — tasks, subtasks, actions, phases | **WebVTT / SubRip** files; or an index column + label table inside the container | timeline blocks (`tracks`), captions over video (`overlays`) |
+| `keypoints` | per-frame 2D keypoint sets — hands, body, any skeleton | **COCO keypoints** JSON; or a per-frame `[J,2]` feature in the container | skeleton over video (`overlays`) |
+| `mesh3d` | static 3D geometry | **glTF / GLB** (OBJ tolerated) | the `recon3d` scene; its node names bind the tracks below |
+| `transform3d` | per-frame rigid pose of one object | a `[7]` feature (position + quaternion) in the container, or a parquet with `tx,ty,tz,qw,qx,qy,qz` | moves the glTF node of the same name |
+| `vertices3d` | per-frame vertex positions of a deforming mesh | a `[V,3]` feature or a parquet list column | reshapes the glTF node of the same name |
+| `pose3d` | per-frame 3D point sets | a `[N,3]` feature or a parquet list column | animated points (21 points draw a hand skeleton) |
 
-See [Authoring guide](reference/dataset-viz-authoring.md) for the full per-format layout
-specs, including where the annotation files themselves go.
+See the [authoring guide](reference/dataset-viz-authoring.md) for exactly how each format
+carries these.
 
 ## `views:` — compose base components
 
@@ -146,7 +157,7 @@ layout: nest `split` nodes to build any arrangement.
 views:
   - component: videoStack
     fields: ["observation.images.*"]   # binding
-    overlays: [joints_pose]            # binding — annotation track by name
+    overlays: [hand_keypoints]         # binding — annotation track by name
     columns: 2                         # passthrough prop
   - component: timeline
     tracks: [subtasks]
@@ -194,7 +205,7 @@ with `registerComponent(name, spec)`:
 | `timeline` | ruler + labelled track blocks | `tracks` |
 | `metaPanel` | episode name / duration / task strings header card | — (`note` prop) |
 | `fieldsCatalog` | the episode's field catalog as a table | — |
-| `recon3d` | animated 3D scene: reconstruction docs (`recon3d`) and 3D point sets (`pose3d`), orbit + cursor-driven playback | `fields` |
+| `recon3d` | animated 3D scene: glTF geometry moved by per-frame `transform3d` / `vertices3d` tracks, plus `pose3d` point sets — orbit + cursor-driven playback | `fields` |
 | `depthStack` | per-frame depth maps, turbo-colorized | `fields` |
 | `trajectory2d` | planar series as a top-down xy path | `series` |
 | `bandTrack` | discrete series as categorical color bands | `series` |
