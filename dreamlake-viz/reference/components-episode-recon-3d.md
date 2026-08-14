@@ -9,6 +9,60 @@ This is the same scene the platform's annotation viewer renders for
 `recon3d` datasets; the example below loads a real exported scene (a ruler +
 a toy with MANO hand meshes) from its glTF binary.
 
+```tsx file="BasicSpec.tsx"
+// EpisodeRecon3d standalone: a controlled 3D view driven by `time`/`duration`
+// props — here a self-running clock; in an app, any shared player clock.
+// Everything it renders comes from STANDARD files: geometry from a glTF
+// binary (`scene.glb` — nodes `ruler`, `toy`, `left_hand`, `right_hand`),
+// and this demo binds nothing per-frame, so the scene shows its rest pose.
+// Orbit with the mouse.
+
+const SCENE_URL =
+  'https://huggingface.co/datasets/live9080/dreamlake-ceramics/resolve/main/episodes/episode_a/scene.glb'
+const DURATION = 5
+
+export function BasicSpec() {
+  const [scene, setScene] = useState<Scene3dInput | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [time, setTime] = useState(0)
+  const raf = useRef(0)
+
+  useEffect(() => {
+    let cancelled = false
+    loadGltf(SCENE_URL, 'glb')
+      .then((meshes) => {
+        if (!cancelled)
+          setScene({ meshes, transforms: [], vertexTracks: [], pointTracks: [], upVector: null })
+      })
+      .catch((e) => {
+        if (!cancelled) setError((e as Error).message)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!scene) return
+    const start = performance.now()
+    const tick = (now: number) => {
+      setTime(((now - start) / 1000) % DURATION)
+      raf.current = requestAnimationFrame(tick)
+    }
+    raf.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf.current)
+  }, [scene])
+
+  if (error) return <div className="font-mono text-sm text-red-600">{error}</div>
+  if (!scene) return <div className="text-sm opacity-60">Loading scene…</div>
+  return (
+    <div style={{ height: 360, borderRadius: 8, overflow: 'hidden' }}>
+      <EpisodeRecon3d scene={scene} time={time} duration={DURATION} />
+    </div>
+  )
+}
+```
+
 ## Data in
 
 Geometry comes from a **glTF / GLB** file; everything per-frame comes from the

@@ -1,117 +1,95 @@
 # Quick start
 
-`@dreamlake/viz` is the visualization library for robotics data — point clouds, TF
-trees, occupancy grids, and image streams, rendered in the browser from a live ROS bridge
-or a recorded bag. This page gets your first scene on screen in under two minutes.
+`@dreamlake/viz` visualizes robot-learning datasets in the browser. One
+`.dreamrc` file at a dataset root renders every episode in it — LeRobot /
+zarr / MCAP / plain folders; cameras, depth maps, point clouds, time series,
+annotations and 3D reconstructions — all read **in place** over HTTP range
+requests, never downloaded whole.
 
-## Install
+The design in one sentence: pre-built view components each declare an input
+contract, format adapters normalize whatever is on disk into those contracts,
+and the `.dreamrc` states which fields feed which views — the program never
+decides what your data means. The full story:
+[the architecture](reference/dataset-viz-overview.md).
 
-Add `@dreamlake/viz` to any modern bundler. The package ships ESM and a CDN build —
-both are tree-shakeable down to just the renderers you actually use.
+## The no-code path: one file on your dataset
+
+If your dataset is public (a HuggingFace repo, any CORS-enabled bucket), you
+never need to install anything. Write a `.dreamrc` at its root:
+
+```yaml file=".dreamrc"
+version: 1
+
+dataset:
+  format: lerobot        # lerobot | folder | umi | mcap
+  episodes: auto
+
+views:
+  - component: videoStack
+    fields: ["observation.images.*"]
+  - component: lineChart
+    series:
+      - { field: [action, "*"] }
+```
+
+Check it from a shell before you ship it — with no config it prints the
+dataset's field inventory, which is how you find out what to bind:
 
 ```bash file="terminal"
-# npm
-npm install @dreamlake/viz
-
-# or pnpm
-pnpm add @dreamlake/viz
+npx tsx scripts/check-dreamrc.mts hf:your-name/your-dataset
 ```
 
-## Your first scene
+Then open the dataset in the DreamLake app, or compare against the
+[gallery](reference/dataset-viz-gallery.md) — every entry there is a complete `.dreamrc`
+over a real public dataset. Copyable starting points:
+[templates](reference/dataset-viz-templates.md). The grammar:
+[the .dreamrc file](reference/dataset-viz-spec.md).
 
-A `Scene` binds a transport (rosbridge, foxglove ws, or a local `.bag`/`.mcap` file)
-to a set of `Layer` objects. Layers subscribe to topics and own their own GPU
-buffers — you can mount them in any order and toggle visibility independently.
+## The library path: render it yourself
 
-```ts file="scene.ts"
+For hosts embedding the viewer. The library is YAML-free (parse upstream) and
+credential-free (storage drivers carry identifiers only):
 
-const scene = new Scene({
-  canvas: document.querySelector("#viewport"),
-  transport: { kind: "rosbridge", url: "ws://robot.local:9090" },
-  fixedFrame: "map",
-});
-
-scene.add(new TFTree());
-scene.add(new Grid({ size: 20, divisions: 20 }));
-scene.add(new PointCloud({ topic: "/velodyne_points", colorBy: "z" }));
-
-await scene.start();
+```bash file="terminal"
+pnpm add @dreamlake/viz react react-dom
 ```
 
-### HTML scaffold
+```tsx file="app.tsx"
 
-The renderer needs a sized canvas and nothing else. `Scene` will observe the canvas
-and adopt its CSS pixel size, including DPR.
+const rc = validateDreamrc(parse(dreamrcText))
+const { episodes, warnings } = await resolveDataset(rc, {
+  // For a file found at a dataset root, inject that root; a file declaring
+  // its own storage: resolves alone and the declaration wins.
+  rootStorage: { driver: 'hf', repo: 'live9080/dreamlake-ceramics' },
+})
 
-```html file="index.html"
-<canvas id="viewport" style="width: 100%; height: 100vh"></canvas>
-<script type="module" src="./scene.ts"></script>
+// One episode → one player. Render a list by mapping; wrap it in
+// <SyncScrollProvider> and mount lazily for long datasets.
+export const App = () => <DatasetViz episode={episodes[0]} views={rc.views} />
 ```
 
-> **Note:** On Chromium-based browsers `@dreamlake/viz` uses WebGPU automatically; on Safari and
->   Firefox it falls back to WebGL2 with the same scene graph. Performance differences are
->   documented per-layer.
+`validateDreamrc` throws errors written to be fixed mechanically — the
+offending key, the allowed values, a did-you-mean — because a `.dreamrc` is
+often authored by an agent in a write → validate → fix loop. Hosts extend
+every axis at runtime: `registerStorage` for an authorized backend,
+`registerFormat` for a dataset layout, `registerComponent` for a view of
+their own ([TypeScript API](reference/dataset-viz-spec.md#typescript-api)).
 
-## Replay a recorded bag
+## What's in this package
 
-Swap the transport for `kind: "file"` to play back a `.bag` or `.mcap` from disk —
-same scene, same layers, no live robot required. The clock becomes scrubbable
-via `scene.clock`.
-
-```ts file="replay.ts"
-const file = await fetch("/runs/2026-04-30.mcap").then(r => r.blob());
-
-const scene = new Scene({
-  canvas, fixedFrame: "odom",
-  transport: { kind: "file", source: file },
-});
-
-scene.clock.on("tick", t => console.log(t.toFixed(3)));
-await scene.start();
-scene.clock.play(1.0); // 1× speed
-```
-
-## Built-in layers
-
-Every layer is a small class with a topic, a message type, and render options. You can
-subclass `Layer` for anything custom; below is the catalog that ships in the box.
-
-| Layer | Message type | Notes |
-| --- | --- | --- |
-| `PointCloud` | `sensor_msgs/PointCloud2` | Color by axis, intensity, or RGB field. |
-| `TFTree` | `tf2_msgs/TFMessage` | Renders frame axes; doubles as the transform graph. |
-| `Grid` | — | Static reference grid, anchored to `fixedFrame`. |
-| `OccupancyGrid` | `nav_msgs/OccupancyGrid` | 2D costmaps and SLAM output. |
-| `Image` | `sensor_msgs/Image` | Decodes on a worker; supports compressed variants. |
-| `MarkerArray` | `visualization_msgs/MarkerArray` | Cubes, spheres, lines, text — rviz-compatible. |
-
-## React binding
-
-Prefer JSX? `@dreamlake/viz/react` exposes the same primitives as components.
-Layer order in JSX is render order; toggle visibility by mounting/unmounting.
-
-```tsx file="App.tsx"
-
-export function App() {
-  return (
-    <Scene
-      transport={{ kind: "rosbridge", url: "ws://robot.local:9090" }}
-      fixedFrame="map"
-    >
-      <TFTree />
-      <Grid size={20} divisions={20} />
-      <PointCloud topic="/velodyne_points" colorBy="z" />
-    </Scene>
-  );
-}
-```
-
-> **Warning:** In React 18 dev with Strict Mode the `Scene` component will create & tear down a
->   transport on first mount. This is expected; production builds run a single mount.
+| export | what it is |
+| --- | --- |
+| `@dreamlake/viz/dataset-viz` | the `.dreamrc` engine: validate, resolve, render ([docs](reference/dataset-viz-overview.md)) |
+| `@dreamlake/viz/episode-*`, `…/media-overlay` | the underlying episode components — video stack, line chart, timeline, frame stack, 3D scene ([docs](reference/components-episode-video-stack.md)) |
+| `@dreamlake/viz/file-preview` | single-file preview used by the DreamLake file browser |
+| `@dreamlake/viz/schema-viz` | the previous-generation, schema-driven viewer the platform still ships |
 
 ## Where to go next
 
-1. Skim the [layer catalog](#built-in-layers) — one section per layer, with full
-   options and message-field mapping.
-2. Wire up authoring & deeplinking via `scene.serialize()` for sharable snapshots.
-3. Drop a `` next to your viewport for scrubbing across recorded segments.
+| you want | read |
+| --- | --- |
+| to understand the design | [the architecture](reference/dataset-viz-overview.md) |
+| to write a `.dreamrc` | [the .dreamrc file](reference/dataset-viz-spec.md) · [view components](reference/dataset-viz-views.md) · [reference](reference/dataset-viz-reference.md) |
+| to prepare a dataset | [what your data must look like](reference/dataset-viz-requirements.md) |
+| working examples | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md) |
+| these docs, for your agent | [LLM-readable docs](reference/llm-readable.md) |

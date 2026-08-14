@@ -1,6 +1,6 @@
 ---
 name: dreamlake-viz
-description: @dreamlake/viz visualizes robot-learning datasets in the browser: one `.dreamrc` file at a dataset root renders every episode — LeRobot / zarr / MCAP / plain folders, cameras, depth, point clouds, time series, annotations, and 3D reconstructions, all read in place over HTTP. Use when answering questions about DreamLake (Quick start, EpisodeTimeline, The .dreamrc file, Overview, Gallery, View components, EpisodeVideoStack, Authoring: data → viz, Schema, EpisodeFrameStack, Media overlays, EpisodeRecon3d, EpisodeLineChart, Reference, FilePreview, Storage, Views, Adapters, Loaders, Views, Concept, LLM-Readable Docs).
+description: @dreamlake/viz visualizes robot-learning datasets in the browser: one `.dreamrc` file at a dataset root renders every episode — LeRobot / zarr / MCAP / plain folders, cameras, depth, point clouds, time series, annotations, and 3D reconstructions, all read in place over HTTP. Use when answering questions about DreamLake (Quick start, The architecture, EpisodeTimeline, The .dreamrc file, Overview, View components, What your data must look like, Reference, EpisodeVideoStack, Templates, Schema, Gallery, EpisodeFrameStack, Media overlays, EpisodeRecon3d, EpisodeLineChart, Library internals, FilePreview, Storage, Views, Adapters, Loaders, Views, Concept, LLM-Readable Docs).
 ---
 # DreamLake
 
@@ -13,8 +13,19 @@ file that matches the question; each is a self-contained markdown page.
 
 **Get started**
 
-- `reference/overview.md` — Quick start: @dreamlake/viz — get your first scene on screen in under two minutes.
+- `reference/overview.md` — Quick start: @dreamlake/viz — visualize a robot-learning dataset in the browser: add one .dreamrc file to a dataset, or render it yourself with three calls.
 - `reference/llm-readable.md` — LLM-Readable Docs: Every page is available as clean markdown, plus an llms.txt index, a full-corpus dump, and an importable agent skill.
+
+**Dataset viz**
+
+- `reference/dataset-viz-overview.md` — The architecture: Why the system is shaped the way it is: pre-built view components each declare an input contract; the contracts are a small closed set of in-memory payload kinds; the bytes on disk stay in existing formats, normalized by adapters; and the .dreamrc is where meaning is stated.
+- `reference/dataset-viz-spec.md` — The .dreamrc file: One file at the dataset root visualizes the whole dataset: dataset (format, episode enumeration, declared annotation tracks — the original data is never modified) and views (free composition of base components).
+- `reference/dataset-viz-views.md` — View components: The visual catalog: every registered view component, each with a minimal .dreamrc and its live render — see what a component gives you before you bind it.
+- `reference/dataset-viz-requirements.md` — What your data must look like: The data side of the contract, whole: two rules the container must satisfy, the shape each payload demands, where annotation tracks live (inside the container first, established sidecar formats second), and the practical checks before you ship.
+- `reference/dataset-viz-reference.md` — Reference: The two kind sets — what the catalog states about bytes, and what a view can ask them to become — plus lookup tables for every name a .dreamrc can use: storage drivers and their config keys, format adapters and the inventories they produce, view components with the payload each binding slot asks for.
+- `reference/dataset-viz-templates.md` — Templates: Real datasets to copy the shape of: a LeRobot container carrying hand keypoints and labelled spans as ordinary features, and a plain folder of video plus standard sidecar files. Each is public, inspectable, and rendered here from its own .dreamrc.
+- `reference/dataset-viz-gallery.md` — Gallery: A roster of complete .dreamrc files over real public datasets — LeRobot v2/v3 (video, depth, point clouds), UMI zip and zarr stores, MCAP logs, raw folders with annotations and 3D reconstruction — switch between them and watch one grammar render each.
+- `reference/dataset-viz-internals.md` — Library internals: For people working on the library: the whole path from a .dreamrc file to pixels — storage, format adapters, the closed payload-kind waist, what an adapter does and does not decide, the three registries, and the laziness rules that open a 512MB log without downloading it.
 
 **Components**
 
@@ -24,14 +35,6 @@ file that matches the question; each is a self-contained markdown page.
 - `reference/components-media-overlay.md` — Media overlays: Per-frame bounding-box and keypoint-skeleton layers drawn over video and frame-stack tiles, declared in the media's own coordinate space.
 - `reference/components-episode-recon-3d.md` — EpisodeRecon3d: Controlled 3D reconstruction view — OBJ meshes at per-frame 6-DoF poses, MANO hands, animated 3D point tracks, forward-looking trails, gravity-upright grid, orbit controls. Same scene the platform annotation viewer renders.
 - `reference/components-episode-line-chart.md` — EpisodeLineChart: Episode time-series plot — synced cursor across multiple charts, EpisodeTimeline, and EpisodeVideoStack. Hardcoded six-hue palette.
-
-**Dataset viz**
-
-- `reference/dataset-viz-spec.md` — The .dreamrc file: One file at the dataset root visualizes the whole dataset: dataset (format, episode enumeration, declared annotation tracks — the original data is never modified) and views (free composition of base components).
-- `reference/dataset-viz-gallery.md` — Gallery: A roster of complete .dreamrc files over real public datasets — LeRobot v2/v3 (video, depth, point clouds), UMI zip and zarr stores, MCAP logs, raw folders with annotations and 3D reconstruction — switch between them and watch one grammar render each.
-- `reference/dataset-viz-views.md` — View components: The visual catalog: every registered view component, each with a minimal .dreamrc and its live render — see what a component gives you before you bind it.
-- `reference/dataset-viz-authoring.md` — Authoring: data → viz: The full journey: lay out and upload your dataset (per-format specs, including annotation tracks), pick the format and episode mode, write the .dreamrc, verify. Worked examples for every format.
-- `reference/dataset-viz-reference.md` — Reference: The data model (payload kinds — the narrow waist every format is normalized into) plus lookup tables for every name a .dreamrc can use: storage drivers and their config keys, format adapters and the layouts they expect, view components with bindings and props.
 
 **Schema viz**
 

@@ -39,6 +39,34 @@ Hover any tile to see the per-tile active state (full accent ring + bright
 1.5px scrub line); the other two tiles drop to a muted 1px ink scrub line at
 the same time.
 
+```tsx file="StandaloneSpec.tsx"
+
+const SAMPLE = '/preview-fixtures/episode-demo.mp4'
+const DEMO_DURATION = 21.205 // real duration of episode-demo.mp4
+
+const DEMO_VIDEOS: VideoSource[] = [
+  { id: 'front', src: SAMPLE, title: 'front', subtitle: '/camera/front/image_compressed' },
+  { id: 'wrist', src: SAMPLE, title: 'wrist', subtitle: '/camera/wrist/image_compressed' },
+  { id: 'top',   src: SAMPLE, title: 'top',   subtitle: '/camera/top/image_compressed' },
+]
+
+export const StandaloneSpec = () => {
+  const [hover, setHover] = useState<number | null>(null)
+  const [activeId, setActiveId] = useState<string>(DEMO_VIDEOS[0].id)
+  return (
+    <EpisodeVideoStack
+      videos={DEMO_VIDEOS}
+      duration={DEMO_DURATION}
+      time={hover}
+      onHover={setHover}
+      onHoverEnd={() => setHover(null)}
+      activeId={activeId}
+      onActiveChange={setActiveId}
+    />
+  )
+}
+```
+
 > All three tiles render the same `episode-demo.mp4` fixture shipped under
 > `docs/public/preview-fixtures/` (21.205s, 1280×720). Each `<video>`
 > element seeks independently as you hover. Real apps pass distinct camera
@@ -98,6 +126,99 @@ the tile keeps them glued to the presented frame during playback and
 scrubbing. Here, real 21-joint hand detections plus subtask captions, each
 converted with one adapter call:
 
+```tsx file="HandJointsSpec.tsx"
+
+// Egocentric recording + two annotation files in STANDARD formats: COCO
+// keypoints (21-joint hand skeletons) and WebVTT (subtitle-style captions).
+// The overlay layer itself takes normalized shapes — a keypoint track and a
+// list of labelled spans — so any parser can feed it.
+const EPISODE =
+  'https://huggingface.co/datasets/live9080/dreamlake-ceramics/resolve/main/episodes/episode_a'
+const VIDEO = `${EPISODE}/cam_ego.mp4`
+const KEYPOINTS = `${EPISODE}/annotations/hand_keypoints.json`
+const SUBTASKS = `${EPISODE}/annotations/subtasks.vtt`
+
+async function fetchText(url: string): Promise<string> {
+  const r = await fetch(url)
+  if (!r.ok) throw new Error(`HTTP ${r.status}`)
+  return r.text()
+}
+
+export const HandJointsSpec = () => {
+  const [overlays, setOverlays] = useState<MediaOverlay[]>()
+  const [duration, setDuration] = useState(33.7)
+  const [error, setError] = useState<string>()
+
+  // One TimelineClock is the single playhead: play advances it, hovering a
+  // tile SEEKS it (even mid-playback), pause parks it — playback always
+  // resumes from wherever the playhead is. Inside <ClockProvider> the
+  // <video> plays natively while the clock runs.
+  const { clock, state, play, pause, seek, setLoop } = useTimeline(duration)
+  const time = useClockValue(30, clock)
+  useEffect(() => {
+    setLoop(true)
+    play()
+  }, [setLoop, play])
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([fetchText(KEYPOINTS), fetchText(SUBTASKS)])
+      .then(([cocoText, vtt]) => {
+        if (cancelled) return
+        const track = parseCocoKeypoints(JSON.parse(cocoText))
+        const segments = parseWebVtt(vtt)
+        setOverlays([
+          keypointsOverlayFromTrack(track), // 21-joint skeletons
+          tracksOverlayFromSegments(segments), // subtitle captions
+        ])
+        const lastFrame = Math.max(...track.frames.keys())
+        if (Number.isFinite(lastFrame)) setDuration((lastFrame + 1) / track.fps)
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e))
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return (
+    <div className="flex flex-col gap-2">
+      <ClockProvider clock={clock}>
+        <EpisodeVideoStack
+          columns={1}
+          videos={[
+            {
+              id: 'ego',
+              src: VIDEO,
+              title: 'Ceramics',
+              subtitle: 'claru_ego · hand skeletons + subtask captions',
+              overlays,
+            },
+          ]}
+          duration={duration}
+          time={time}
+          onHover={seek}
+        />
+      </ClockProvider>
+      <button
+        type="button"
+        onClick={state.playing ? pause : play}
+        className="self-start rounded px-2 py-1 font-mono text-[11px] opacity-60 hover:opacity-100 hover:bg-current/10"
+      >
+        {state.playing ? '⏸ pause' : '▶ play'}
+      </button>
+      {error && (
+        <p className="font-mono text-[11px] opacity-60">
+          hand-joints fetch failed ({error}) — the demo bucket must allow
+          cross-origin GET.
+        </p>
+      )}
+    </div>
+  )
+}
+```
+
 See [Media overlays](reference/components-media-overlay.md) for the data model —
 coordinate spaces, by-frame / by-time lookup, and styling.
 
@@ -110,6 +231,61 @@ Two pieces of caller state wire the pair:
 - **`activeId`** — which video tile is currently the focused camera. Set on
   hover-enter; **deliberately not cleared on leave**, so the last-hovered
   tile keeps its accent ring while the pointer moves onto the timeline below.
+
+```tsx file="CombinedSpec.tsx"
+
+const SAMPLE = '/preview-fixtures/episode-demo.mp4'
+
+const DEMO_VIDEOS: VideoSource[] = [
+  { id: 'front', src: SAMPLE, title: 'front', subtitle: '/camera/front/image_compressed' },
+  { id: 'wrist', src: SAMPLE, title: 'wrist', subtitle: '/camera/wrist/image_compressed' },
+  { id: 'top',   src: SAMPLE, title: 'top',   subtitle: '/camera/top/image_compressed' },
+]
+
+export const CombinedSpec = () => {
+  const [activeId, setActiveId] = useState<string>(DEMO_VIDEOS[0].id)
+  // One TimelineClock is the single playhead for the whole pair: hovering
+  // any tile or the timeline SEEKS it (even mid-playback); play resumes
+  // from wherever the pointer left it. Inside <ClockProvider> the video
+  // tiles play natively while the clock runs.
+  const { clock, state, play, pause, seek } = useTimeline(DEMO_DURATION)
+  const time = useClockValue(30, clock)
+  const activeVideo = DEMO_VIDEOS.find(v => v.id === activeId)
+  const framesLabel = activeVideo
+    ? `KEYFRAMES · ${(activeVideo.title ?? activeVideo.id).toUpperCase()}`
+    : 'FRAMES'
+  return (
+    <div className="flex flex-col gap-2.5">
+      <ClockProvider clock={clock}>
+        <EpisodeVideoStack
+          videos={DEMO_VIDEOS}
+          duration={DEMO_DURATION}
+          time={time}
+          onHover={seek}
+          activeId={activeId}
+          onActiveChange={setActiveId}
+        />
+      </ClockProvider>
+      <EpisodeTimeline
+        duration={DEMO_DURATION}
+        frames={DEMO_FRAMES}
+        tracks={DEMO_TRACKS}
+        time={time}
+        onHover={seek}
+        onSeek={seek}
+        framesLabel={framesLabel}
+      />
+      <button
+        type="button"
+        onClick={state.playing ? pause : play}
+        className="self-start rounded px-2 py-1 font-mono text-[11px] opacity-60 hover:opacity-100 hover:bg-current/10"
+      >
+        {state.playing ? '⏸ pause' : '▶ play all cameras'}
+      </button>
+    </div>
+  )
+}
+```
 
 ### Active vs muted coordination
 

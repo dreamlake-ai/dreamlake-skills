@@ -29,36 +29,42 @@
 
 ## Notes per entry
 
-- **PushT / ALOHA / SVLA** — LeRobot v3 repos on the public Hub;
-  `episodes: auto` reads `total_episodes`, nothing else to configure. The
-  ALOHA entry lays its two charts out with a `split: row` node — layout
-  belongs to the author, nested `row` / `column` / `grid` compose freely.
+- **PushT / ALOHA** — LeRobot v3 repos on the public Hub; `episodes: auto`
+  reads `total_episodes`, nothing else to configure. Both pack every episode
+  of a camera into ONE mp4 and give each episode a time window in the
+  metadata, which is what the viewer plays. The ALOHA entry lays its charts
+  out with a `split: row` node — layout belongs to the author, and nested
+  `row` / `column` / `grid` compose freely.
 - **Cognition pour-water** — a LeRobot **v2.0** dataset served as plain
   HTTPS from a public S3 bucket: same `format: lerobot`, older layout,
   different storage — the `.dreamrc` barely changes. Its chart binds the same
   feature twice with dim globs (`"torso*"`) to overlay command (dashed) on
-  state (solid). All 298 declared episodes render; the demo bucket only
-  mirrors the first 3 — scroll past them to see the per-panel **error
-  states** a missing file produces.
+  state (solid). `meta/info.json` declares 298 episodes and only three are
+  mirrored, so the entry resolves five: the last two show the per-panel
+  **error state** a missing file produces, which is what a partial mirror
+  honestly looks like.
 - **LIBERO Spatial (depth)** — float32 depth maps stored raw in parquet:
   read as typed arrays and turbo-colorized on the fly, no image decoding at
   all. Frames in the same parquet row group cost zero extra requests.
-- **gym-xarm point clouds** — a `[512,6]` xyz+rgb tensor per frame
-  (Apache-2.0) surfacing as the `pointcloud` kind; orbit the scene while
-  the cursor plays. LeRobot has no semantic types — shape+name inference
-  classifies it, and `dataset.kinds` can override when inference loses.
-- **Cognition (MCAP)** — the same real robot data repacked into indexed
-  MCAP (one file per episode, zstd chunks; the repack script ships in the
-  repo as provenance).
-- **nuScenes mini (MCAP)** — a 512MB file on third-party demo infra read
-  IN PLACE: ~130KB of ranged reads before first paint, one lz4 chunk per
-  scrubbed camera frame. Channels outside the v1 scope (lidar point
-  clouds, grids, ros1 diagnostics) are omitted with console warnings.
+- **gym-xarm point clouds** — `observation.environment_state` is a `[512,6]`
+  float tensor and its name says nothing; the config binds it to `pointCloud`,
+  which reads it as xyz+rgb (Apache-2.0). Orbit the scene while the cursor
+  plays. LeRobot declares no semantics for a feature and nothing here invents
+  one — a human read the inventory once and wrote it down.
+- **nuScenes mini (MCAP)** — a 512MB file on third-party demo infra read IN
+  PLACE: the summary section gives 30 fields from 18 of its 41 channels for
+  ~2MB of ranged reads, then each field pulls only the chunks it needs.
+  Each channel is listed with its schema name, and that name selects a decoder
+  when a binding asks: `foxglove.PointCloud` read as `pointcloud` (34,688 LiDAR
+  points per frame), one tf child frame read as `transform3d`, `SceneUpdate`
+  model primitives, GPS. `cdr`-encoded channels (a plain ROS 2 bag) and
+  `Grid` / `CameraCalibration` are still omitted, with console warnings.
 - **MV-UMI** — the multi-GB `.zarr.zip` is never downloaded: the frame
   stack byte-ranges one JPEG-XL frame per camera under the cursor
   (JXL needs Safari 17+ or Chrome's flag).
 - **EgoVerse** — a `.zarr` v3 directory store; the flattened hand-keypoint
-  arrays surface as `pose3d` and animate as point sets in the 3D scene.
+  arrays are numbers like any other until the config binds them `as: pose3d`,
+  which animates them as point sets in the 3D scene.
 - **Ceramics** — `folder` format: annotations auto-discovered from each
   episode's `annotations/` dir; the `recon` track is a real exported
   reconstruction (ruler + toy, MANO hands) — orbit it while video plays.

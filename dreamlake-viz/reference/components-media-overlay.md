@@ -28,12 +28,170 @@ labelled subtask segments rendered as subtitle-style captions
 (`tracksOverlayFromSubtasks`). Both stay glued to the frame during
 playback and while scrubbing:
 
+```tsx file="HandJointsSpec.tsx"
+
+// Egocentric recording + two annotation files in STANDARD formats: COCO
+// keypoints (21-joint hand skeletons) and WebVTT (subtitle-style captions).
+// The overlay layer itself takes normalized shapes — a keypoint track and a
+// list of labelled spans — so any parser can feed it.
+const EPISODE =
+  'https://huggingface.co/datasets/live9080/dreamlake-ceramics/resolve/main/episodes/episode_a'
+const VIDEO = `${EPISODE}/cam_ego.mp4`
+const KEYPOINTS = `${EPISODE}/annotations/hand_keypoints.json`
+const SUBTASKS = `${EPISODE}/annotations/subtasks.vtt`
+
+async function fetchText(url: string): Promise<string> {
+  const r = await fetch(url)
+  if (!r.ok) throw new Error(`HTTP ${r.status}`)
+  return r.text()
+}
+
+export const HandJointsSpec = () => {
+  const [overlays, setOverlays] = useState<MediaOverlay[]>()
+  const [duration, setDuration] = useState(33.7)
+  const [error, setError] = useState<string>()
+
+  // One TimelineClock is the single playhead: play advances it, hovering a
+  // tile SEEKS it (even mid-playback), pause parks it — playback always
+  // resumes from wherever the playhead is. Inside <ClockProvider> the
+  // <video> plays natively while the clock runs.
+  const { clock, state, play, pause, seek, setLoop } = useTimeline(duration)
+  const time = useClockValue(30, clock)
+  useEffect(() => {
+    setLoop(true)
+    play()
+  }, [setLoop, play])
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([fetchText(KEYPOINTS), fetchText(SUBTASKS)])
+      .then(([cocoText, vtt]) => {
+        if (cancelled) return
+        const track = parseCocoKeypoints(JSON.parse(cocoText))
+        const segments = parseWebVtt(vtt)
+        setOverlays([
+          keypointsOverlayFromTrack(track), // 21-joint skeletons
+          tracksOverlayFromSegments(segments), // subtitle captions
+        ])
+        const lastFrame = Math.max(...track.frames.keys())
+        if (Number.isFinite(lastFrame)) setDuration((lastFrame + 1) / track.fps)
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e))
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return (
+    <div className="flex flex-col gap-2">
+      <ClockProvider clock={clock}>
+        <EpisodeVideoStack
+          columns={1}
+          videos={[
+            {
+              id: 'ego',
+              src: VIDEO,
+              title: 'Ceramics',
+              subtitle: 'claru_ego · hand skeletons + subtask captions',
+              overlays,
+            },
+          ]}
+          duration={duration}
+          time={time}
+          onHover={seek}
+        />
+      </ClockProvider>
+      <button
+        type="button"
+        onClick={state.playing ? pause : play}
+        className="self-start rounded px-2 py-1 font-mono text-[11px] opacity-60 hover:opacity-100 hover:bg-current/10"
+      >
+        {state.playing ? '⏸ pause' : '▶ play'}
+      </button>
+      {error && (
+        <p className="font-mono text-[11px] opacity-60">
+          hand-joints fetch failed ({error}) — the demo bucket must allow
+          cross-origin GET.
+        </p>
+      )}
+    </div>
+  )
+}
+```
+
 ## Bounding boxes on a frame stack
 
 Hand-authored synthetic detections in **normalized** coordinates, keyed by
 frame index. The `cup` only exists on frames 30–75 — sparse keys draw
 nothing, so boxes appear and disappear with the data instead of going
 stale:
+
+```tsx file="BBoxOverlaySpec.tsx"
+
+const FRAME_COUNT = UNTIMED_FRAMES.length
+
+// Synthetic detections in NORMALIZED coordinates (0..1 of the frame), keyed
+// by frame index. One "gripper" track orbits slowly; a "cup" exists only on
+// frames 30–75 — sparse keys simply draw nothing, they never go stale.
+function buildDetections(): BBoxOverlay {
+  const frames: Record<number, BBoxItem[]> = {}
+  for (let i = 0; i < FRAME_COUNT; i++) {
+    const a = (i / FRAME_COUNT) * 2 * Math.PI
+    const x = 0.38 + 0.22 * Math.cos(a)
+    const y = 0.35 + 0.18 * Math.sin(a)
+    const items: BBoxItem[] = [
+      {
+        box: [x, y, x + 0.22, y + 0.3],
+        label: 'gripper',
+        trackId: 'gripper-0',
+        score: 0.93,
+      },
+    ]
+    if (i >= 30 && i <= 75) {
+      items.push({
+        box: [0.66, 0.12, 0.92, 0.42],
+        label: 'cup',
+        trackId: 'cup-0',
+        score: 0.81,
+      })
+    }
+    frames[i] = items
+  }
+  return {
+    id: 'detections',
+    kind: 'bbox',
+    space: { units: 'normalized' },
+    data: { by: 'frame', frames },
+    style: { showScore: true },
+  }
+}
+
+export const BBoxOverlaySpec = () => {
+  const overlays = useMemo(() => [buildDetections()], [])
+  return (
+    <EpisodeFrameStack
+      columns={2}
+      sources={[
+        {
+          id: 'front',
+          frames: UNTIMED_FRAMES,
+          title: 'front',
+          subtitle: 'synthetic detections',
+          overlays,
+        },
+        {
+          id: 'top',
+          frames: UNTIMED_FRAMES,
+          title: 'top',
+          subtitle: 'no overlay',
+        },
+      ]}
+    />
+  )
+}
+```
 
 ## Declaring coordinates
 

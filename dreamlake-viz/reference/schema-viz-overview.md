@@ -12,6 +12,29 @@ storage at a public LeRobot dataset and **omits `panels`** — so viz
 **auto-lays-out** the whole episode: a camera stack, a task timeline, and one
 chart per numeric field. The entire program:
 
+```tsx file="AutoLayoutSpec.tsx"
+// Omit `panels` entirely → viz auto-lays-out the source: a camera stack, a task
+// timeline, and one chart per numeric field. The smallest possible schema that
+// still produces a full view — the "I don't know this dataset yet" workflow.
+
+const schema: VizSchema = {
+  version: 1,
+  sources: {
+    ep: {
+      adapter: 'lerobot',
+      storage: {
+        driver: 'http',
+        basePath: 'https://huggingface.co/datasets/lerobot/aloha_static_coffee/resolve/main',
+      },
+      episode: 0,
+    },
+  },
+  // no `panels` → auto-layout runs against `ep`
+}
+
+export const AutoLayoutSpec = () => <DatasetPreview schema={schema} />
+```
+
 A schema has two parts:
 
 - **`sources`** — each names an **[adapter](reference/schema-viz-adapters.md)** (_what format

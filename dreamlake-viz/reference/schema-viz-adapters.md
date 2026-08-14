@@ -115,6 +115,75 @@ Low-dim arrays are stored raw, so no Zarr/codec dependency is pulled in.
 | `episode` | number | `0`     | Episode index; rows come from `meta/episode_ends` |
 | `fps`     | number | `60`    | Frame rate for the time axis                      |
 
+```tsx file="UmiEpisodeSpec.tsx"
+// A UMI-family ReplayBuffer episode → low-dim state/action time series, read
+// straight from a real, public dataset on HuggingFace. The `umi` adapter reads
+// arrays out of the `.zarr.zip` (a zipped Zarr v2 store) over HTTP range
+// requests, so the multi-GB archive is never downloaded whole — it reads the
+// central directory once, then only this episode's chunks.
+//
+// Dataset: MV-UMI `bottles_rack` (omarrayyann/mv-umi) — a multi-view UMI corpus
+// with paired egocentric-wrist + third-person cameras (camera0_rgb / camera1_rgb)
+// plus the usual low-dim end-effector trajectory. Public, no gating; HuggingFace
+// sends CORS and supports range, which is what makes the in-browser range reads
+// work. The cameras are stored one JPEG-XL frame per chunk and shown with the
+// `frameStack` view, which lazily byte-ranges just the cursor's frame (so a
+// 100k-frame camera costs one fetch per scrub). JPEG-XL decodes natively in
+// Safari 17+ and Chrome with the JXL flag.
+
+const schema: VizSchema = {
+  version: 1,
+  sources: {
+    ep: {
+      // `hf` resolves to https://huggingface.co/datasets/<id>/resolve/main/<path>
+      adapter: 'umi',
+      storage: { driver: 'hf', id: 'omarrayyann/mv-umi' },
+      path: 'bottles_rack_data.zarr.zip',
+      episode: 0,
+      fps: 59.94,
+    },
+  },
+  timeline: { source: 'ep' },
+  panels: [
+    {
+      view: 'frameStack',
+      source: 'ep',
+      columns: 2,
+      fields: ['camera0_rgb', 'camera1_rgb'], // wrist + third-person, JPEG-XL
+    },
+    {
+      view: 'gridLayout',
+      columns: 2,
+      children: [
+        {
+          view: 'lineChart',
+          source: 'ep',
+          title: 'End-effector position — x / y / z (m)',
+          height: 240,
+          fields: ['robot0_eef_pos'],
+        },
+        {
+          view: 'lineChart',
+          source: 'ep',
+          title: 'End-effector rotation — axis-angle',
+          height: 240,
+          fields: ['robot0_eef_rot_axis_angle'],
+        },
+      ],
+    },
+    {
+      view: 'lineChart',
+      source: 'ep',
+      title: 'Gripper width (m)',
+      height: 200,
+      fields: ['robot0_gripper_width'],
+    },
+  ],
+}
+
+export const UmiEpisodeSpec = () => <DatasetPreview schema={schema} />
+```
+
 > **The host must send CORS + support range.** The example reads a real public
 > dataset (MV-UMI `bottles_rack`, dual-camera) directly from HuggingFace, which
 > sends CORS and supports range. UMI's own `cup_in_the_wild` is hosted on
@@ -148,6 +217,70 @@ same-origin slice):
   path: egoverse_sample.zarr # a directory, not a .zip
 ```
 
+```tsx file="EgoVerseSpec.tsx"
+// EgoVerse — a Zarr v3 *directory* store (not a `.zarr.zip`), demonstrating the
+// adapter's folder mode. One `.zarr` per episode; the root `zarr.json` is the
+// manifest (features + fps + total_frames); each array is `sharding_indexed` +
+// zstd. The adapter auto-detects folder vs zip from the path and reads each chunk
+// as its own URL — no central directory, so it is size-independent.
+//
+// This points at a small same-origin slice (four pose arrays of one episode)
+// because the full EgoVerse corpus lives on Cloudflare R2 behind credentials.
+
+const schema: VizSchema = {
+  version: 1,
+  sources: {
+    ep: {
+      adapter: 'umi', // alias: zarr — folder mode is detected from the path
+      storage: { driver: 'http', basePath: '/viz-samples/egoverse/' },
+      path: 'egoverse_sample.zarr',
+    },
+  },
+  timeline: { source: 'ep' },
+  panels: [
+    {
+      view: 'gridLayout',
+      columns: 2,
+      children: [
+        {
+          view: 'lineChart',
+          source: 'ep',
+          title: 'Left EEF pose — xyz + quaternion',
+          height: 240,
+          fields: ['left.obs_ee_pose'],
+        },
+        {
+          view: 'lineChart',
+          source: 'ep',
+          title: 'Right EEF pose — xyz + quaternion',
+          height: 240,
+          fields: ['right.obs_ee_pose'],
+        },
+      ],
+    },
+    {
+      view: 'lineChart',
+      source: 'ep',
+      title: 'Head pose',
+      height: 200,
+      fields: ['obs_head_pose'],
+    },
+    {
+      view: 'lineChart',
+      source: 'ep',
+      title: 'Eye gaze — xyz',
+      height: 200,
+      fields: ['obs_eye_gaze'],
+    },
+    // 21 hand joints (63 = 21×3) → parsed into the Model as `pose3d`. No 3D
+    // renderer ships yet, so the placeholder view surfaces it.
+    { view: 'placeholder3d', source: 'ep', fields: ['left.obs_keypoints'] },
+  ],
+}
+
+export const EgoVerseSpec = () => <DatasetPreview schema={schema} />
+```
+
 ### `egocentric` — media + sidecar annotations
 
 The video-centric corpora (**EGO4D, Ego-Exo4D, EgoDex, RH20T**) share one shape —
@@ -163,6 +296,36 @@ else. Needs a listable driver (`hf`, or `http` + an `index.json`):
 - adapter: egocentric
   dataset: ego4d # built-in profiles: ego4d · egoexo4d · rh20t
   storage: { driver: http, basePath: /viz-samples/ego4d/ }
+```
+
+```tsx file="EgocentricSpec.tsx"
+// Egocentric "media + sidecar" adapter on real EGO4D clips.
+//
+// `dataset: 'ego4d'` is all that's needed: the EGO4D PROFILE discovers the clips
+// (videoStack) and the narration track (timeline) by listing the storage — no
+// hand-written `videos`/`annotations`. (A custom or unprofiled layout lists them
+// explicitly instead; see the adapter docs.)
+//
+// Same-origin sample: three real EGO4D clips. EGO4D's actual narration
+// annotations are license-gated, so the cue track is a short illustrative file in
+// EGO4D's real `{ narrations: [{ timestamp_sec, text }] }` format.
+
+const schema: VizSchema = {
+  version: 1,
+  sources: {
+    ep: {
+      adapter: 'egocentric',
+      dataset: 'ego4d',
+      storage: { driver: 'http', basePath: '/viz-samples/ego4d/' },
+    },
+  },
+  panels: [
+    { view: 'videoStack', source: 'ep', fields: ['*'], columns: 3 },
+    { view: 'timeline', source: 'ep', fields: ['narrations.json'] },
+  ],
+}
+
+export const EgocentricSpec = () => <DatasetPreview schema={schema} />
 ```
 
 **2 · By explicit lists — custom or unprofiled layout.** Spell out what to expose;
@@ -190,8 +353,68 @@ NPY sidecars into charts / `pose3d`; per-frame image dirs → `frames`.
 The other built-in profiles are the same one-liner. **Ego-Exo4D** (`dataset:
 egoexo4d`) — synchronized ego + exo cameras, discovered as per-camera `frames`:
 
+```tsx file="EgoExo4dSpec.tsx"
+// Ego-Exo4D via the `egoexo4d` profile — synchronized egocentric (Aria) + exo
+// cameras. The full release ships aligned videos; this same-origin sample is the
+// frame-extract form (one dir per camera), which the profile discovers as
+// per-camera `frames`. The frameStack scrubs all views on one shared cursor.
+//
+// Real Ego-Exo4D frames (take cmu_bike01_2): ego + two exo cameras.
+
+const schema: VizSchema = {
+  version: 1,
+  sources: {
+    ep: {
+      adapter: 'egocentric',
+      dataset: 'egoexo4d',
+      storage: { driver: 'http', basePath: '/viz-samples/egoexo4d/' },
+    },
+  },
+  panels: [{ view: 'frameStack', source: 'ep', fields: ['*'], columns: 3 }],
+}
+
+export const EgoExo4dSpec = () => <DatasetPreview schema={schema} />
+```
+
 **RH20T** (`dataset: rh20t`) — low-dim NPY sidecars under `lowdim/` (here, real
 joint angles + velocities; the full dataset adds per-camera `rgb/cam_*/` frames):
+
+```tsx file="Rh20tSpec.tsx"
+// RH20T via the `rh20t` profile — the egocentric adapter discovers the low-dim
+// NPY sidecars under `lowdim/` (and, in the full dataset, per-camera JPEG
+// sequences under `rgb/cam_*/`). Same-origin sample: real joint data, recovered
+// from the dataset's `transformed/joint.npy` and written in the canonical
+// `lowdim/joint_angles.npy` (T×7) form.
+
+const schema: VizSchema = {
+  version: 1,
+  sources: {
+    ep: {
+      adapter: 'egocentric',
+      dataset: 'rh20t',
+      storage: { driver: 'http', basePath: '/viz-samples/rh20t/' },
+    },
+  },
+  panels: [
+    {
+      view: 'lineChart',
+      source: 'ep',
+      title: 'Joint angles — 7 DoF',
+      height: 240,
+      fields: ['lowdim/joint_angles.npy'],
+    },
+    {
+      view: 'lineChart',
+      source: 'ep',
+      title: 'Joint velocities',
+      height: 200,
+      fields: ['lowdim/joint_velocities.npy'],
+    },
+  ],
+}
+
+export const Rh20tSpec = () => <DatasetPreview schema={schema} />
+```
 
 ## Writing your own adapter
 

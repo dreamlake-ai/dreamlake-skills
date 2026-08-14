@@ -15,6 +15,23 @@ multi-camera footage that should scrub against the same cursor.
 Pure hover-driven: the cursor follows the pointer; when it leaves, the cursor
 disappears.
 
+```tsx file="BasicSpec.tsx"
+
+export const BasicSpec = () => {
+  const [t, setT] = useState<number | null>(null)
+  return (
+    <EpisodeTimeline
+      duration={DEMO_DURATION}
+      frames={DEMO_FRAMES}
+      tracks={DEMO_TRACKS}
+      time={t}
+      onHover={setT}
+      onHoverEnd={() => setT(null)}
+    />
+  )
+}
+```
+
 ## Frames
 
 `frames` is an **ascending-time-sorted** list of `{ time, image }`. The

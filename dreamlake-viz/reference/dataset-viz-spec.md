@@ -3,7 +3,10 @@
 **One `.dreamrc` at the root of a dataset renders every episode in it.** The file
 answers three questions — where the episodes are, how to parse them, and how to
 lay out the visualization — and nothing else. It is plain YAML, never contains
-credentials, and works unchanged on any storage backend.
+credentials, and works unchanged on any storage backend. Why the system is
+shaped this way — views with declared input contracts, meaning stated in the
+config — is [the architecture](reference/dataset-viz-overview.md); this page is the
+grammar.
 
 ```yaml
 # .dreamrc — at the dataset root
@@ -46,7 +49,7 @@ for the blocks.
 >
   <span>
     <span style={{ display: 'block', fontWeight: 650, fontSize: 15 }}>
-      Gallery — 11 real datasets, one grammar
+      Gallery — 10 real datasets, one grammar
     </span>
     <span style={{ display: 'block', fontSize: 13, opacity: 0.65, marginTop: 2 }}>
       LeRobot v2/v3 · depth maps · point clouds · UMI zarr · MCAP · annotations + 3D —
@@ -69,10 +72,50 @@ LeRobot / zarr / MCAP dataset needs an even shorter file (`format:` +
 `episodes: auto` — see the gallery). The source pane is the complete
 standalone `.dreamrc`; copy it and it runs anywhere:
 
+```yaml file=".dreamrc.yaml"
+version: 1
+name: Ceramics demo
+storage: { driver: hf, repo: live9080/dreamlake-ceramics }
+dataset:
+  format: folder
+  episodes: "episodes/*/"
+views:
+  - split: row               # ONE fixed height for the pair - the video takes
+    height: 170              # its aspect width, the 3D scene fills the rest
+    children:
+      - component: videoStack
+        fields: ["*"]
+        overlays:                                    # the one slot that draws
+          - { field: hand_keypoints, as: keypoints } # two different things,
+          - { field: subtasks, as: segments }        # so each entry says which
+      - component: recon3d
+        fields: ["scene"]                              # geometry
+        tracks:                                        # …moved by these
+          - { field: "poses*", as: transform3d }
+          - { field: "hand_verts_*", as: vertices3d }
+          - { field: "hand_joints_*", as: pose3d }
+  - component: timeline
+    tracks: [subtasks]
+```
+
 ## `dataset:` — which episodes, parsed how
 
 `format` names the dataset format; `episodes` says how to enumerate the episodes.
 Both live here and nowhere else.
+
+**Which format is mine?** List the dataset root and match the signature:
+
+| you see at the root | `format` | `episodes` |
+| --- | --- | --- |
+| `meta/info.json` | `lerobot` | `auto` |
+| a `*.zarr.zip` or a `.zarr/` directory | `umi` | `auto` |
+| `*.mcap` files | `mcap` | `auto` |
+| one folder per recording | `folder` | a glob, e.g. `"episodes/*/"` |
+
+If none matches, `folder` is the escape hatch: it asks nothing of the layout
+beyond one directory per episode, and reads whatever standard files it finds.
+HDF5 (RoboMimic, ManiSkill, AgiBotWorld) and RLDS/TFRecord (Open X-Embodiment)
+have no adapter yet — most publishers also ship a LeRobot export, which does.
 
 | key | values | meaning |
 | --- | --- | --- |
@@ -80,7 +123,8 @@ Both live here and nowhere else.
 | `episodes` | `auto` (default) | ask the format adapter. Container formats know their own episode count (LeRobot `meta/info.json` `total_episodes`, zarr `episode_ends`). |
 | | `"episodes/*"` | a glob over storage paths — one episode per match. A trailing `/` matches directories only. Only `*` is supported, one path segment per star. |
 | | `{ glob, sort?, limit? }` | glob with options. `sort`: `name` (numeric-aware, default) \| `name-desc` \| `none`. `limit`: cap per pattern (default 1000). |
-| `annotations` | `{ <track>: <path> \| { path, kind? } }` | extra annotation tracks merged into every episode's catalog — see below. |
+| `annotations` | `{ <track>: <path> \| { path, kind? } }` | extra annotation tracks merged into every episode's catalog — see below. `kind` is the author stating the payload once in the declaration instead of at every binding. |
+| `labels` | `{ "<name or glob>": "Display name" }` | rename a field, or one dimension of one (`"observation.state[3]"`), when the dataset's own names are serial numbers, `null`, or absent. |
 
 Use `auto` for container formats (`lerobot`, `umi`) and a glob for
 folder-per-episode layouts (`folder`):
@@ -92,59 +136,52 @@ dataset:
 ```
 
 In glob mode the matched path is handed to the adapter as the episode root —
-you never write per-episode config.
+you never write per-episode config. `{ limit }` on its own (no glob) caps what
+a container format enumerated, which is how you preview a 300-episode dataset.
 
-### `dataset.annotations` — tracks that live beside the data
+**Writing `views:` for a dataset you have not seen** — start with
+`component: fieldsCatalog` and nothing else. It prints the inventory: every
+field's address plus the `dtype`, `shape` and `names` the container reported,
+and no conclusion drawn from them. Reading that listing is where the judgment
+happens — you are the one who knows that `observation.environment_state` is a
+point cloud — and the bindings you write next are where it gets recorded.
 
-**Annotations belong inside your dataset's own container** — a LeRobot
-feature, an MCAP channel, a zarr array — because that is where per-frame data
-already has a home ([how, per format](reference/dataset-viz-authoring.md)). Two cases
-can't do that, and only those two use this block:
+### `dataset.labels` — names the container got wrong
 
-- the dataset is **read-only** (a mirror you don't own), or
-- the data is something a container doesn't model — **static geometry**.
-
-Then the file sits beside the data in an **established format** and the
-`.dreamrc` says where. The original dataset is never modified; the merge
-happens *after* the format adapter runs, so a declared track lands in the
-same catalog as the dataset's own fields:
+A camera keyed by its serial number, a 14-dim state whose `names` is `null`:
+the data is right and only the label is unreadable. Patterns match field names
+(or a `feature[dim]` address), first match wins:
 
 ```yaml
 dataset:
   format: lerobot
-  episodes: auto
-  annotations:
-    subtasks: "annotations/subtasks/episode_{episode_index:06d}.vtt"   # WebVTT
-    hands:    "annotations/hands/episode_{episode_index:06d}.json"     # COCO keypoints
-    scene:    "recon/scene.glb"                                        # glTF geometry
+  labels:
+    "observation.images.cam_035622060973": Front camera
+    "observation.state[3]": wrist_flex
 ```
 
-- **Paths** are relative to the dataset root; templates use the same
-  `{var}` / `{var:06d}` style LeRobot itself uses. Vars: `episode_index`,
-  `episode_name`, `episode_path` (glob mode), `episode_ordinal.
-- **The kind comes from the file extension**, so a bare path string is the
-  normal form. Add `{ path, kind }` only to override.
-- **Merge rule**: a declaration **overrides** a native track of the same name —
-  an explicit entry is user intent (e.g. replace a dataset's coarse task
-  segments with a refined re-annotation). Undeclared native tracks stay.
-- The `folder` format auto-discovers anything in each episode's
-  `annotations/` folder — declaring is never required when files live there.
+`labels` changes what is **displayed** and nothing else; bindings still use the
+real names. There is no companion key for meaning — nothing to correct, because
+nothing was guessed. What a field is gets stated where it is bound.
 
-Each track is then a **field of the episode** like any camera or series, and
-its **kind** — the class of data, never a specific track name — decides how it
-renders:
+### `dataset.annotations` — tracks that live beside the data
 
-| kind | the class | comes from | rendered as |
-| --- | --- | --- | --- |
-| `segments` | any time-range → label mapping — tasks, subtasks, actions, phases | **WebVTT / SubRip** files; or an index column + label table inside the container | timeline blocks (`tracks`), captions over video (`overlays`) |
-| `keypoints` | per-frame 2D keypoint sets — hands, body, any skeleton | **COCO keypoints** JSON; or a per-frame `[J,2]` feature in the container | skeleton over video (`overlays`) |
-| `mesh3d` | static 3D geometry | **glTF / GLB** (OBJ tolerated) | the `recon3d` scene; its node names bind the tracks below |
-| `transform3d` | per-frame rigid pose of one object | a `[7]` feature (position + quaternion) in the container, or a parquet with `tx,ty,tz,qw,qx,qy,qz` | moves the glTF node of the same name |
-| `vertices3d` | per-frame vertex positions of a deforming mesh | a `[V,3]` feature or a parquet list column | reshapes the glTF node of the same name |
-| `pose3d` | per-frame 3D point sets | a `[N,3]` feature or a parquet list column | animated points (21 points draw a hand skeleton) |
+Annotations belong **inside** your dataset's container — see
+[what your data must look like](reference/dataset-viz-requirements.md#annotations-belong-inside-the-container).
+This block is for the two cases that cannot: static geometry, which no
+container models, and a dataset you cannot write into.
 
-See the [authoring guide](reference/dataset-viz-authoring.md) for exactly how each format
-carries these.
+```yaml
+dataset:
+  format: lerobot
+  annotations:
+    scene: "recon/scene.glb"     # a path, nothing more
+```
+
+The merge happens after the format adapter runs, so a declared track lands in
+the same catalog as the dataset's own fields, and a declaration **overrides** a
+native track of the same name. Paths, formats and the rest:
+[files beside the data](reference/dataset-viz-requirements.md#files-beside-the-data).
 
 ## `views:` — compose base components
 
@@ -156,11 +193,12 @@ layout: nest `split` nodes to build any arrangement.
 ```yaml
 views:
   - component: videoStack
-    fields: ["observation.images.*"]   # binding
-    overlays: [hand_keypoints]         # binding — annotation track by name
+    fields: ["observation.images.*"]   # binding — read as video
+    overlays:
+      - { field: observation.keypoints_2d.left.ego, as: keypoints }
     columns: 2                         # passthrough prop
   - component: timeline
-    tracks: [subtasks]
+    tracks: [{ field: subtask_index, as: segments }]   # joins its label table
   - split: row                         # layout node: row | column | grid
     children:
       - component: lineChart
@@ -173,9 +211,19 @@ views:
 
 Rules, all of them:
 
-- **One binding style per component.** `videoStack`/`frameStack` bind `fields`,
-  `lineChart` binds `series`, `timeline` binds `tracks`, `videoStack` also takes
-  `overlays`. A bare string in `series`/`tracks` is shorthand for `{ field }`.
+- **One binding style per component.** Media components bind `fields`,
+  `lineChart` binds `series`, `timeline` binds `tracks`; media components also
+  take `overlays`, and `recon3d` takes both `fields` (geometry) and `tracks`
+  (motion). A bare string in `series`/`tracks`/`overlays` is shorthand for
+  `{ field }`. A slot a component does not read is an error, never ignored.
+- **The slot says what the bytes become.** Binding a field to a slot is what
+  decides how it is decoded — `series` reads numbers as traces, `tracks` on
+  `timeline` reads them as spans, `fields` on `pointCloud` reads them as a
+  cloud. When the field's addressing kind leaves the slot only one possibility,
+  nothing is written. When it leaves several, the entry says which with `as`
+  (`overlays` draws a skeleton or captions; a `.json` could be either), and
+  until it does the panel refuses and prints the choice
+  ([the rule](reference/dataset-viz-reference.md#which-payloads-a-field-can-serve--and-when-you-write-as)).
 - **Field references** are `"feature"` or `[feature, dim]` — a feature name
   (never split on dots: `observation.state` is one name), optionally drilled
   into one named dimension. One glob rule: `*` matches within a name.
@@ -189,29 +237,33 @@ Rules, all of them:
   else stretches to share the leftover, `flex` weighting it and `minWidth`
   flooring it); `width` — a fixed-width box; `height` — that child's own
   strip height.
-- **Omit `views` entirely** and a default layout is generated from the field
-  catalog by kind — videos in a stack, series in charts, cues on a timeline.
+
+`views` is **required**. There is no default layout: a dataset with no views
+is one nobody has described yet, and inventing an arrangement for it would be
+the program deciding what its data means. To find out what there is to bind,
+resolve the dataset with no config and read the inventory — `check-dreamrc`
+prints every field with its `dtype` and `shape`.
 
 ### Base components
 
 The initial registry — it grows over time, and a host app can register its own
-with `registerComponent(name, spec)`:
+with `registerComponent(spec)`:
 
-| component | renders | binding |
+| component | renders | slot → payload it asks for |
 | --- | --- | --- |
-| `videoStack` | camera videos as a tile grid, with overlay support | `fields`, `overlays` |
-| `frameStack` | per-frame image sequences (chunked cameras) | `fields` |
-| `lineChart` | time series, styled per-dim traces, synced cursor | `series` |
-| `timeline` | ruler + labelled track blocks | `tracks` |
+| `videoStack` | camera videos as a tile grid, with overlay support | `fields` → `video` \| `image` · `overlays` → `keypoints` \| `segments` |
+| `frameStack` | per-frame image sequences (chunked cameras) | `fields` → `frames` · `overlays` → `keypoints` \| `segments` |
+| `lineChart` | time series, styled per-dim traces, synced cursor | `series` → `series` |
+| `timeline` | ruler + labelled track blocks | `tracks` → `segments` |
 | `metaPanel` | episode name / duration / task strings header card | — (`note` prop) |
-| `fieldsCatalog` | the episode's field catalog as a table | — |
-| `recon3d` | animated 3D scene: glTF geometry moved by per-frame `transform3d` / `vertices3d` tracks, plus `pose3d` point sets — orbit + cursor-driven playback | `fields` |
-| `depthStack` | per-frame depth maps, turbo-colorized | `fields` |
-| `trajectory2d` | planar series as a top-down xy path | `series` |
-| `bandTrack` | discrete series as categorical color bands | `series` |
-| `pointCloud` | per-frame 3D point clouds, orbitable | `fields` |
+| `fieldsCatalog` | the episode's inventory as a table | — |
+| `recon3d` | animated 3D scene: glTF geometry moved by per-frame tracks, plus point sets — orbit + cursor-driven playback | `fields` → `mesh3d` · `tracks` → `transform3d` \| `vertices3d` \| `pose3d` |
+| `depthStack` | per-frame depth maps, turbo-colorized | `fields` → `depth` · `overlays` → `keypoints` \| `segments` |
+| `trajectory2d` | planar series as a top-down xy path | `series` → `series` |
+| `bandTrack` | discrete series as categorical color bands | `series` → `series` |
+| `pointCloud` | per-frame 3D point clouds, orbitable | `fields` → `pointcloud` |
 
-Per-component config keys, accepted field kinds, and defaults:
+Every slot, its payload, and the shape that payload needs:
 [reference](reference/dataset-viz-reference.md#view-components).
 
 ## `storage:` — where the dataset lives

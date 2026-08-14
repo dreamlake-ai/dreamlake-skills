@@ -25,6 +25,27 @@ A single chart driving its own cursor. `isScrubOwner` defaults to `true`,
 so the bright accent hairline + tooltip appear whenever the pointer is over
 the plot.
 
+```tsx file="BasicSpec.tsx"
+
+export const BasicSpec = () => {
+  const [time, setTime] = useState<number | null>(null)
+  return (
+    <div className="h-[180px]">
+      <EpisodeLineChart
+        title="Left arm"
+        caption="signal · joints"
+        series={LARM_JOINTS_SERIES}
+        duration={DEMO_DURATION}
+        unitHint="joint angles · target vs realized"
+        time={time}
+        onHover={setTime}
+        onHoverEnd={() => setTime(null)}
+      />
+    </div>
+  )
+}
+```
+
 ## Multi-chart sync
 
 The canonical Episode-view bottom row: four plots sharing one
@@ -33,10 +54,173 @@ mode. Hovering any chart updates the cursor on every other, and **every
 non-disabled chart renders its own tooltip** at the same `t` so you can
 compare per-channel readings across plots at a glance.
 
+```tsx file="MultiChartSyncSpec.tsx"
+
+// Mirrors the design's Episode-view bottom row: four time-series plots
+// (joints, motor temperatures, right-arm = NO SIGNAL, tactile) sharing
+// one hover cursor. Hovering any chart updates the cursor on every
+// other chart; only the one under the pointer renders the tooltip.
+export const MultiChartSyncSpec = () => {
+  const [time, setTime] = useState<number | null>(null)
+  const [ownerId, setOwnerId] = useState<string | null>(null)
+
+  const bind = (id: string) => ({
+    time,
+    isScrubOwner: ownerId === id,
+    onHover: (t: number) => { setTime(t); setOwnerId(id) },
+    onHoverEnd: () => { setTime(null); setOwnerId(null) },
+  })
+
+  return (
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 [grid-auto-rows:160px]">
+      <EpisodeLineChart
+        {...bind('joints')}
+        title="Left arm"
+        caption="signal · joints"
+        series={LARM_JOINTS_SERIES}
+        duration={DEMO_DURATION}
+        unitHint="joint angles · target vs realized"
+        yRange={[-1, 1]}
+      />
+      <EpisodeLineChart
+        {...bind('temp')}
+        title="Left arm motors"
+        caption="signal · temperature"
+        series={LARM_TEMP_SERIES}
+        duration={DEMO_DURATION}
+        unitHint="motor temperature · per channel"
+        yRange={[-1, 1]}
+      />
+      <EpisodeLineChart
+        {...bind('rarm')}
+        title="Right arm"
+        caption="signal · joints"
+        series={[]}
+        duration={DEMO_DURATION}
+        disabled
+      />
+      <EpisodeLineChart
+        {...bind('touch')}
+        title="Touch"
+        caption="signal · tactile"
+        series={TOUCH_SERIES}
+        duration={DEMO_DURATION}
+        unitHint="tactile force magnitude · per finger"
+        yRange={[-1, 1]}
+      />
+    </div>
+  )
+}
+```
+
 ## Synced with EpisodeTimeline + EpisodeVideoStack
 
 The full Episode-view layout — video stack + timeline + four time-series
 plots, all driven by one shared cursor.
+
+```tsx file="EpisodeViewSpec.tsx"
+
+// Full Episode-view replica: a three-camera video stack + a zoomable
+// timeline + four time-series plots, all driven by one shared cursor.
+// Mirrors the layout used by `_DLEpisodeDetailItem` in the design
+// (videos row · timeline row · time-series row).
+const SAMPLE = '/preview-fixtures/episode-demo.mp4'
+
+const VIDEOS: VideoSource[] = [
+  { id: 'front', src: SAMPLE, title: 'front', subtitle: '/camera/front/image_compressed' },
+  { id: 'wrist', src: SAMPLE, title: 'wrist', subtitle: '/camera/wrist/image_compressed' },
+  { id: 'top',   src: SAMPLE, title: 'top',   subtitle: '/camera/top/image_compressed' },
+]
+
+export const EpisodeViewSpec = () => {
+  const [hover, setHover] = useState<number | null>(null)
+  const [ownerId, setOwnerId] = useState<string | null>(null)
+  const [activeVideoId, setActiveVideoId] = useState<string>(VIDEOS[0].id)
+
+  // Hover binding shared by every surface in the episode view —
+  // any pointer-move flips the cursor and the active surface id, so
+  // every other surface re-renders its scrub line at the same time
+  // with a muted tone.
+  const bind = (id: string) => ({
+    time: hover,
+    isScrubOwner: ownerId === id,
+    onHover: (t: number) => { setHover(t); setOwnerId(id) },
+    onHoverEnd: () => { setHover(null); setOwnerId(null) },
+  })
+
+  // EpisodeVideoStack doesn't take `isScrubOwner` — it routes hover
+  // through activeId. We funnel the stack's hover events into the
+  // same shared state, marking the stack as the owner whenever any
+  // tile is the active one.
+  const stackBind = {
+    time: hover,
+    onHover: (t: number) => { setHover(t); setOwnerId('stack') },
+    onHoverEnd: () => { setHover(null); setOwnerId(null) },
+  }
+
+  const framesLabel = activeVideoId
+    ? `KEYFRAMES · ${activeVideoId.toUpperCase()}`
+    : 'FRAMES'
+
+  return (
+    <div className="flex flex-col gap-2">
+      <EpisodeVideoStack
+        {...stackBind}
+        videos={VIDEOS}
+        duration={DEMO_DURATION}
+        activeId={activeVideoId}
+        onActiveChange={setActiveVideoId}
+      />
+      <EpisodeTimeline
+        duration={DEMO_DURATION}
+        frames={DEMO_FRAMES}
+        tracks={DEMO_TRACKS}
+        framesLabel={framesLabel}
+        time={hover}
+        onHover={(t) => { setHover(t); setOwnerId('timeline') }}
+        onHoverEnd={() => { setHover(null); setOwnerId(null) }}
+      />
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 [grid-auto-rows:160px]">
+        <EpisodeLineChart
+          {...bind('joints')}
+          title="Left arm"
+          caption="signal · joints"
+          series={LARM_JOINTS_SERIES}
+          duration={DEMO_DURATION}
+          unitHint="joint angles · target vs realized"
+          yRange={[-1, 1]}
+        />
+        <EpisodeLineChart
+          {...bind('temp')}
+          title="Left arm motors"
+          caption="signal · temperature"
+          series={LARM_TEMP_SERIES}
+          duration={DEMO_DURATION}
+          unitHint="motor temperature · per channel"
+          yRange={[-1, 1]}
+        />
+        <EpisodeLineChart
+          {...bind('rarm')}
+          title="Right arm"
+          caption="signal · joints"
+          series={[]}
+          duration={DEMO_DURATION}
+          disabled
+        />
+        <EpisodeLineChart
+          {...bind('touch')}
+          title="Touch"
+          caption="signal · tactile"
+          series={TOUCH_SERIES}
+          duration={DEMO_DURATION}
+          unitHint="tactile force magnitude · per finger"
+          yRange={[-1, 1]}
+        />
+      </div>
+    </div>
+  )
+}
+```
 
 ### Cursor sync protocol
 
