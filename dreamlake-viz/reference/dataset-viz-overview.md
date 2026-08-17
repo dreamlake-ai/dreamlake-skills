@@ -46,9 +46,9 @@ consumes. That declaration **is** the input contract:
 | view | slot | contract it asks for |
 | --- | --- | --- |
 | `timeline` | `tracks` | `segments` — `{ start, end, label }` spans |
-| `pointCloud` | `fields` | `pointcloud` — per-frame `xyz` (+ optional `rgb`) |
+| `pointCloud` | `cloud` | `pointcloud` — per-frame `xyz` (+ optional `rgb`) |
 | `videoStack` | `overlays` | `keypoints` (a skeleton) or `segments` (captions) |
-| `recon3d` | `fields` + `tracks` | `mesh3d` geometry moved by `transform3d` / `vertices3d` / `pose3d` |
+| `recon3d` | `geometry` + `tracks` | `mesh3d` geometry moved by `transform3d` / `vertices3d` / `pose3d` |
 
 One declaration is enforced three ways: it is what the decoder is called
 with, what a `*` glob is filtered by, and what an author's `as:` is validated
@@ -80,11 +80,19 @@ Each contract is fed from the wire in a fixed order of preference:
    hold it or is not yours to write into: WebVTT/SRT for labelled time spans,
    COCO for 2D keypoints, glTF for geometry (and, animated, for its motion),
    Parquet for per-frame numbers. Every one of them predates us.
-3. **A minimal convention of ours, as a last resort.** Only where no
-   standard exists at all — and there is currently exactly one: the Parquet
-   column layout for per-frame motion (`tx,ty,tz` + quaternion + a grouping
-   column). It is named as ours wherever it appears, and an animated glTF is
-   the route that avoids it.
+3. **A structure of our own, defined deliberately.** Where no existing
+   standard fits, we define one — that is the ladder's last rung, not a
+   failure of it, and it is how a dataset gets guaranteed a correct
+   visualization when the ecosystem offers nothing to lean on. It has an
+   admission bar, because the thing to prevent is the casual, unexamined
+   format: survey the existing implementations first (LeRobot, Rerun,
+   Foxglove, glTF, COCO, … — absorb their experience before writing a line),
+   give the result its own spec section and a version, and keep it
+   normalizable to and from neighbouring standards where possible. There is
+   currently one on disk — the motion-track Parquet profile v1
+   ([which format to write](reference/dataset-viz-requirements.md#which-format-to-write))
+   — and one in memory: the payload contracts themselves, versioned with the
+   library and [published in full](reference/dataset-viz-reference.md#payload-contracts-in-full).
 4. **A format we do not read yet gets an adapter, not a rule.** Nobody is
    asked to convert: `registerFormat` adds a reader that normalizes the
    foreign layout into the same payloads, and until one exists, a custom
@@ -107,12 +115,12 @@ where a slot reads more than one contract, saying which with `as:`.
 
 ```yaml
 views:
-  - component: videoStack
-    fields: [observation.images.ego]                        # decoded as video
+  - view: videoStack
+    cameras: [observation.images.ego]                        # decoded as video
     overlays:
       - { field: observation.keypoints_2d.left.ego, as: keypoints }
-  - component: pointCloud
-    fields: [observation.environment_state]                 # the author knows
+  - view: pointCloud
+    cloud: [observation.environment_state]                 # the author knows
 ```
 
 `observation.environment_state` is a `[512,6]` float tensor whose name says

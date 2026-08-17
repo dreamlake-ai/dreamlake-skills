@@ -36,7 +36,7 @@ What each feature declares, and what the `.dreamrc` binds it to:
 
 | feature in `meta/info.json` | dtype / shape | bound as |
 | --- | --- | --- |
-| `observation.images.ego` | `video` [1080,1920,3] | `videoStack.fields` → camera tile |
+| `observation.images.ego` | `video` [1080,1920,3] | `videoStack.cameras` → camera tile |
 | `observation.keypoints_2d.left.ego` | `float32` [21,3] | `videoStack.overlays` with `as: keypoints` → hand skeleton |
 | `observation.keypoints_2d.right.ego` | `float32` [21,3] | the same, second hand |
 | `subtask_index` + `meta/subtasks.jsonl` | `int64` [1] + label table | `tracks: [{ field: subtask_index, as: segments }]` → labelled blocks |

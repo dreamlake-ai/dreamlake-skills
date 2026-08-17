@@ -17,10 +17,10 @@ dataset:                        # ── data entry + parsing ──
   format: lerobot               # lerobot | folder | umi | mcap
   episodes: auto                # ask the format adapter (default)
 
-views:                          # ── visualization: compose base components ──
-  - component: videoStack
-    fields: ["observation.images.*"]
-  - component: lineChart
+views:                          # ── visualization: compose views ──
+  - view: videoStack
+    cameras: ["observation.images.*"]
+  - view: lineChart
     series:
       - { field: [action, "*"] }
 ```
@@ -83,18 +83,18 @@ views:
   - split: row               # ONE fixed height for the pair - the video takes
     height: 170              # its aspect width, the 3D scene fills the rest
     children:
-      - component: videoStack
-        fields: ["*"]
+      - view: videoStack
+        cameras: ["*"]
         overlays:                                    # the one slot that draws
           - { field: hand_keypoints, as: keypoints } # two different things,
           - { field: subtasks, as: segments }        # so each entry says which
-      - component: recon3d
-        fields: ["scene"]                              # geometry
+      - view: recon3d
+        geometry: ["scene"]
         tracks:                                        # …moved by these
           - { field: "poses*", as: transform3d }
           - { field: "hand_verts_*", as: vertices3d }
           - { field: "hand_joints_*", as: pose3d }
-  - component: timeline
+  - view: timeline
     tracks: [subtasks]
 ```
 
@@ -140,7 +140,7 @@ you never write per-episode config. `{ limit }` on its own (no glob) caps what
 a container format enumerated, which is how you preview a 300-episode dataset.
 
 **Writing `views:` for a dataset you have not seen** — start with
-`component: fieldsCatalog` and nothing else. It prints the inventory: every
+`view: fieldsCatalog` and nothing else. It prints the inventory: every
 field's address plus the `dtype`, `shape` and `names` the container reported,
 and no conclusion drawn from them. Reading that listing is where the judgment
 happens — you are the one who knows that `observation.environment_state` is a
@@ -183,42 +183,44 @@ the same catalog as the dataset's own fields, and a declaration **overrides** a
 native track of the same name. Paths, formats and the rest:
 [files beside the data](reference/dataset-viz-requirements.md#files-beside-the-data).
 
-## `views:` — compose base components
+## `views:` — compose views
 
-Each entry names a **base component** from the registry and binds fields to it.
-Everything that is not a binding key is passed through to the component as
-props — each component's reference section lists what it accepts. You own the
+Each entry names a **view** from the registry and binds fields to it.
+Everything that is not a binding key is passed through to the view as
+props — each view's reference section lists what it accepts. You own the
 layout: nest `split` nodes to build any arrangement.
 
 ```yaml
 views:
-  - component: videoStack
-    fields: ["observation.images.*"]   # binding — read as video
+  - view: videoStack
+    cameras: ["observation.images.*"]  # binding — read as video
     overlays:
       - { field: observation.keypoints_2d.left.ego, as: keypoints }
     columns: 2                         # passthrough prop
-  - component: timeline
+  - view: timeline
     tracks: [{ field: subtask_index, as: segments }]   # joins its label table
   - split: row                         # layout node: row | column | grid
     children:
-      - component: lineChart
+      - view: lineChart
         series:
           - { field: [action, left_waist], label: waist · cmd }
           - { field: [observation.state, left_waist], label: waist · actual, dash: "3 2" }
-      - component: lineChart
+      - view: lineChart
         series: [{ field: [action, right_waist] }]
 ```
 
 Rules, all of them:
 
-- **One binding style per component.** Media components bind `fields`,
-  `lineChart` binds `series`, `timeline` binds `tracks`; media components also
-  take `overlays`, and `recon3d` takes both `fields` (geometry) and `tracks`
-  (motion). A bare string in `series`/`tracks`/`overlays` is shorthand for
-  `{ field }`. A slot a component does not read is an error, never ignored.
+- **One binding style per view, and the slot's name says what it takes.**
+  Camera views (`videoStack`, `frameStack`, `depthStack`) bind `cameras`,
+  `lineChart` binds `series`, `timeline` binds `tracks`, `pointCloud` binds
+  `cloud`; camera views also take `overlays`, and `recon3d` takes both
+  `geometry` (the glTF) and `tracks` (motion). A bare string in
+  `series`/`tracks`/`overlays` is shorthand for `{ field }`. A slot a view
+  does not read is an error, never ignored.
 - **The slot says what the bytes become.** Binding a field to a slot is what
   decides how it is decoded — `series` reads numbers as traces, `tracks` on
-  `timeline` reads them as spans, `fields` on `pointCloud` reads them as a
+  `timeline` reads them as spans, `cloud` on `pointCloud` reads them as a
   cloud. When the field's addressing kind leaves the slot only one possibility,
   nothing is written. When it leaves several, the entry says which with `as`
   (`overlays` draws a skeleton or captions; a `.json` could be either), and
@@ -244,24 +246,24 @@ the program deciding what its data means. To find out what there is to bind,
 resolve the dataset with no config and read the inventory — `check-dreamrc`
 prints every field with its `dtype` and `shape`.
 
-### Base components
+### The views
 
 The initial registry — it grows over time, and a host app can register its own
 with `registerComponent(spec)`:
 
-| component | renders | slot → payload it asks for |
+| view | renders | slot → payload it asks for |
 | --- | --- | --- |
-| `videoStack` | camera videos as a tile grid, with overlay support | `fields` → `video` \| `image` · `overlays` → `keypoints` \| `segments` |
-| `frameStack` | per-frame image sequences (chunked cameras) | `fields` → `frames` · `overlays` → `keypoints` \| `segments` |
+| `videoStack` | camera videos as a tile grid, with overlay support | `cameras` → `video` \| `image` · `overlays` → `keypoints` \| `segments` |
+| `frameStack` | per-frame image sequences (chunked cameras) | `cameras` → `frames` · `overlays` → `keypoints` \| `segments` |
 | `lineChart` | time series, styled per-dim traces, synced cursor | `series` → `series` |
 | `timeline` | ruler + labelled track blocks | `tracks` → `segments` |
 | `metaPanel` | episode name / duration / task strings header card | — (`note` prop) |
 | `fieldsCatalog` | the episode's inventory as a table | — |
-| `recon3d` | animated 3D scene: glTF geometry moved by per-frame tracks, plus point sets — orbit + cursor-driven playback | `fields` → `mesh3d` · `tracks` → `transform3d` \| `vertices3d` \| `pose3d` |
-| `depthStack` | per-frame depth maps, turbo-colorized | `fields` → `depth` · `overlays` → `keypoints` \| `segments` |
+| `recon3d` | animated 3D scene: glTF geometry moved by per-frame tracks, plus point sets — orbit + cursor-driven playback | `geometry` → `mesh3d` · `tracks` → `transform3d` \| `vertices3d` \| `pose3d` |
+| `depthStack` | per-frame depth maps, turbo-colorized | `cameras` → `depth` · `overlays` → `keypoints` \| `segments` |
 | `trajectory2d` | planar series as a top-down xy path | `series` → `series` |
 | `bandTrack` | discrete series as categorical color bands | `series` → `series` |
-| `pointCloud` | per-frame 3D point clouds, orbitable | `fields` → `pointcloud` |
+| `pointCloud` | per-frame 3D point clouds, orbitable | `cloud` → `pointcloud` |
 
 Every slot, its payload, and the shape that payload needs:
 [reference](reference/dataset-viz-reference.md#view-components).
@@ -306,7 +308,7 @@ allowed values, and the episode where expansion failed. Typical messages:
 
 ```
 .dreamrc: dataset.format 'lerobot3' is not a registered format (available: lerobot, folder, umi, mcap)
-.dreamrc: views[2].component 'lineChart2' is not registered (did you mean 'lineChart'?)
+.dreamrc: views[2].view 'lineChart2' is not registered (did you mean 'lineChart'?)
 .dreamrc: episodes glob "episodes/**" — '**' is not supported, use one '*' per path segment
 .dreamrc declares no 'storage:' and no host root storage was supplied — standalone files need storage: { driver, … }
 ```

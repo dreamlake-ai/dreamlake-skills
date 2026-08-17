@@ -3,8 +3,9 @@
 **A controlled 3D reconstruction view, shaped like the other Episode\***
 **components**: pass a `scene` (geometry + its per-frame tracks) plus
 `time`/`duration` and it animates — meshes move along their 6-DoF transform
-tracks, deforming meshes get new vertices per frame, trails look ahead of the
-playhead. Orbit with the mouse.
+tracks, deforming meshes get new vertices per frame, and the motion trail
+leads: the bright segment is the next few seconds of each path, with a dim
+past tail. Orbit with the mouse.
 This is the same scene the platform's annotation viewer renders for
 `recon3d` datasets; the example below loads a real exported scene (a ruler +
 a toy with MANO hand meshes) from its glTF binary.
@@ -93,9 +94,9 @@ track.
 | `scene` | `Scene3dInput` | meshes + per-frame tracks (see above) |
 | `time` | `number \| null` | playback position (seconds); null → first frame |
 | `duration` | `number` | clip length — maps time onto each track's own span |
-| `showTrails` | `boolean` | forward-looking motion trails (default on) |
+| `trail` | `{ ahead?, behind? } \| false` | motion-trail window, clip seconds around the playhead (default `{ ahead: 5, behind: 1 }` — the bright segment is the future; `false` for none) |
 | `interactive` | `boolean` | orbit controls (default on; off for thumbnails) |
 
-In a `.dreamrc`, the `recon3d` view component wraps this — `fields` binds the
+In a `.dreamrc`, the `recon3d` view wraps this — `geometry` and `tracks` bind the
 `mesh3d` / `transform3d` / `vertices3d` / `pose3d` tracks and the shared
 cursor drives `time`.

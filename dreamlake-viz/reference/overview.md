@@ -25,9 +25,9 @@ dataset:
   episodes: auto
 
 views:
-  - component: videoStack
-    fields: ["observation.images.*"]
-  - component: lineChart
+  - view: videoStack
+    cameras: ["observation.images.*"]
+  - view: lineChart
     series:
       - { field: [action, "*"] }
 ```

@@ -24,8 +24,8 @@ version: 1
 storage: { driver: hf, repo: live9080/dreamlake-ceramics }
 dataset: { format: folder, episodes: "episodes/*/" }
 views:
-  - component: videoStack
-    fields: ["*"]
+  - view: videoStack
+    cameras: ["*"]
     columns: 1
     overlays:                              # this slot draws two different
       - { field: hand_keypoints, as: keypoints }   # things, so each entry
@@ -46,8 +46,8 @@ dataset:
   path: bottles_rack_data.zarr.zip
   fps: 59.94
 views:
-  - component: frameStack
-    fields: ["camera0_rgb", "camera1_rgb"]
+  - view: frameStack
+    cameras: ["camera0_rgb", "camera1_rgb"]
     columns: 2
 ```
 
@@ -63,10 +63,10 @@ version: 1
 storage: { driver: hf, repo: juyil/libero_spatial_lerobot_depth }
 dataset: { format: lerobot }
 views:
-  - component: depthStack
+  - view: depthStack
     # Both are float32 [256,256,1]; naming them is what says "depth maps" -
     # the catalog only ever said "numbers of this shape".
-    fields: ["depth_primary", "depth_wrist"]
+    cameras: ["depth_primary", "depth_wrist"]
     columns: 2
 ```
 
@@ -82,10 +82,10 @@ version: 1
 storage: { driver: hf, repo: rishabhrj11/gym-xarm-pointcloud }
 dataset: { format: lerobot }
 views:
-  - component: pointCloud
-    fields: ["observation.environment_state"]   # float32 [512,6] - xyz + rgb
+  - view: pointCloud
+    cloud: ["observation.environment_state"]    # float32 [512,6] - xyz + rgb
     height: 360
-  - component: lineChart          # the pointer orbits the scene - scrub here
+  - view: lineChart          # the pointer orbits the scene - scrub here
     series: [{ field: action }]
     height: 140
 ```
@@ -101,7 +101,7 @@ version: 1
 storage: { driver: hf, repo: lerobot/pusht }
 dataset: { format: lerobot }
 views:
-  - component: lineChart
+  - view: lineChart
     series: [{ field: action }]
     title: Action - target x / y
     height: 220
@@ -119,7 +119,7 @@ version: 1
 storage: { driver: hf, repo: lerobot/pusht }
 dataset: { format: lerobot }
 views:
-  - component: trajectory2d
+  - view: trajectory2d
     series: [{ field: action }]
     height: 260
 ```
@@ -135,7 +135,7 @@ version: 1
 storage: { driver: hf, repo: live9080/dreamlake-ceramics }
 dataset: { format: folder, episodes: "episodes/*/" }
 views:
-  - component: timeline
+  - view: timeline
     tracks: [subtasks]
 ```
 
@@ -152,7 +152,7 @@ version: 1
 storage: { driver: hf, repo: live9080/dreamlake-cognition-v2 }
 dataset: { format: lerobot }
 views:
-  - component: bandTrack
+  - view: bandTrack
     series:
       - { field: [sub_task_index, sub_task_start] }   # continuous here -> renders the "use lineChart" note
       - { field: [cartesian_so3_dict.cartesian_pose_state, torso_state_8], label: torso_8 }
@@ -168,7 +168,7 @@ version: 1
 storage: { driver: hf, repo: lerobot/pusht }
 dataset: { format: lerobot }
 views:
-  - component: metaPanel
+  - view: metaPanel
     note: any free text rides along here
 ```
 
@@ -184,30 +184,33 @@ version: 1
 storage: { driver: hf, repo: live9080/dreamlake-ceramics }
 dataset: { format: folder, episodes: "episodes/*/" }
 views:
-  - component: fieldsCatalog
+  - view: fieldsCatalog
 ```
 
 ## recon3d
 
-The animated 3D scene, bound through two slots: `fields` is the geometry, and
-`tracks` is the per-frame motion that moves it — a track binds to the glTF
+The animated 3D scene, bound through two slots: `geometry` is the static
+scene, and `tracks` is the per-frame motion that moves it — a track binds to the glTF
 node whose name matches its ref. All three track kinds are parquet tables of
 numbers, so each entry names the one it is. Orbit with the mouse; playback
-follows the shared cursor:
+follows the shared cursor. The bright motion trail is the **future** — the
+next `trail.ahead` seconds (default 5) of each object's path, with a dim
+1-second past tail; in robot learning the question at time t is what is
+about to happen, so that is the segment that glows:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
 storage: { driver: hf, repo: live9080/dreamlake-ceramics }
 dataset: { format: folder, episodes: "episodes/*/" }
 views:
-  - component: recon3d
-    fields: ["scene"]                                # the glTF geometry
+  - view: recon3d
+    geometry: ["scene"]                              # the glTF file; node names join tracks
     tracks:                                          # per-frame motion: all
       - { field: "poses*", as: transform3d }         # three are parquet
       - { field: "hand_verts_*", as: vertices3d }    # tables of numbers, so
       - { field: "hand_joints_*", as: pose3d }       # each says what it is
     height: 360
-  - component: timeline           # the pointer orbits the scene - scrub here
+  - view: timeline           # the pointer orbits the scene - scrub here
     tracks: [subtasks]
 ```
 

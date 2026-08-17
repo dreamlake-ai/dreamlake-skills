@@ -200,7 +200,7 @@ pick up shelf board
 ```
 
 **2D keypoints — COCO**, stock, plus a top-level `fps` because COCO indexes
-images and a player needs seconds:
+images and a player needs seconds (our one documented extension to COCO):
 
 ```json file="hands.coco.json"
 {
@@ -240,10 +240,15 @@ Quaternion order is read from the COLUMN ORDER: `qw` first means `w,x,y,z`,
 requirement, consulted only once a binding has asked for `transform3d` or
 `vertices3d` — never evidence about what a file holds.
 
-> **Note:** Those column names are a DreamLake convention — Parquet is Apache's, but
-> "`tx,ty,tz` plus a quaternion plus a grouping column" is not written down
-> anywhere else. It stays as a fallback, and the animated glTF above is the
-> route that avoids it entirely. If you are choosing today, choose glTF.
+> **Note:** Those column names are ours — Parquet is Apache's, but "`tx,ty,tz` plus a
+> quaternion plus a grouping column" is not written down anywhere else, so we
+> define it deliberately: the **motion-track Parquet profile v1**, currently
+> the one self-defined on-disk structure in the spec
+> ([when we define our own](reference/dataset-viz-overview.md#where-the-bytes-come-from--the-standards-ladder)).
+> An animated glTF carries the same information inside an existing standard
+> and opens in Blender and three.js; the profile is the columnar route when
+> your pipeline is already writing Parquet. Pick whichever it produces more
+> naturally.
 
 ## Cameras: the encoding that actually matters
 

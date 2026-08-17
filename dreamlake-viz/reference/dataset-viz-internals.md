@@ -136,8 +136,10 @@ The performance rules are structural, not optimizations bolted on:
 
 ## Conventions versus formats
 
-The rule the library is built under: **we define no file format.** Worth being
-precise about what that does and does not claim.
+The rule the library is built under was once stated as "we define no file
+format"; the precise, current version is: **every self-defined structure is
+deliberate, surveyed, versioned — and rare.** Worth being precise about what
+that does and does not claim.
 
 A **format** dictates how bytes are laid out. We define none — every byte read
 is arranged by someone else's specification: LeRobot's parquet layout, Zarr,
@@ -156,9 +158,21 @@ layout does not match, the answer is an explicit `dataset.annotations` path or
 a different `format`, not a knob. Worth revisiting if a real dataset turns up
 that the placement rules get wrong.
 
-One shape is genuinely ours and should be named as such: the Parquet column
-convention for per-frame motion (`tx,ty,tz` plus a quaternion, plus a grouping
-column). Parquet is Apache's; that column layout is not written down anywhere
-else. It stays as a fallback, and an animated glTF — node TRS channels, read
-into the same tracks — is the route that avoids it. Prefer adding a reader for
-an existing format over keeping a column convention alive.
+One on-disk shape is genuinely ours and is named as such: the motion-track
+Parquet profile v1 (`tx,ty,tz` plus a quaternion, plus a grouping column).
+Parquet is Apache's; that column layout is not written down anywhere else.
+An animated glTF — node TRS channels, read into the same tracks — carries the
+same information inside an existing standard.
+
+Defining a structure of our own is **allowed, with an admission bar** — the
+thing the bar prevents is the casual, unexamined format, because an
+un-thought-through structure is how a dataset ends up unvisualizable in a way
+no adapter can fix. Before a new DreamLake structure ships: survey how the
+existing implementations model the same data (LeRobot, Rerun, Foxglove
+schemas, glTF, COCO, nuScenes, …) and write down what was taken from each;
+give it its own spec section and a version (the way the motion-track profile
+has one); keep it normalizable to and from the nearest standards where
+possible. When an existing format genuinely fits, a reader for it still beats
+a structure of ours — the ladder in
+[the architecture](reference/dataset-viz-overview.md#where-the-bytes-come-from--the-standards-ladder)
+is tried top-down.

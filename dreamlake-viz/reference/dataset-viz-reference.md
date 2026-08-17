@@ -81,7 +81,7 @@ Intersect a field's row with the payloads its slot reads
 ([per component](#view-components)):
 
 - **exactly one survives** — nothing to write; the container already settled it
-  (a `video` bound to `videoStack.fields`, a `tensor` bound to `pointCloud`);
+  (a `video` bound to `videoStack.cameras`, a `tensor` bound to `pointCloud`);
 - **more than one** — the binding says which with `as:`, and until it does the
   panel refuses and prints the choice (a `.json` bound to `overlays` is a
   skeleton file or a caption track, and nothing about the bytes says which);
@@ -94,7 +94,9 @@ label table.
 Where a payload comes from — a feature in the dataset's own container, or a
 standard file beside it (WebVTT/SRT, COCO, glTF, parquet) — is in the
 [contract](reference/dataset-viz-requirements.md#what-each-payload-needs).
-**No payload is fed by a format of our own.**
+**No payload requires a format of our own** — where a DreamLake structure
+exists (the motion-track Parquet profile v1), an existing standard carries
+the same payload.
 
 ### Data the library does not know
 
@@ -108,7 +110,7 @@ needs no library change:
 2. **Render it** — the host registers a component
    (`registerComponent({ name: 'gazePanel', component, reads: { fields: ['file'] } })`)
    whose slot reads `file`, fetches the URL and parses its own wire format.
-   The `.dreamrc` writes `component: gazePanel` and binds the field — no
+   The `.dreamrc` writes `view: gazePanel` and binds the field — no
    schema change, no library change.
 3. **Promote it** — once a payload proves general (the way `segments` covers
    tasks/subtasks/actions/phases), it graduates into the library: a `Payload`
@@ -120,6 +122,93 @@ dataset layout, `registerStorage` for a new backend — including *composite*
 backends (an overlay bucket layered over a read-only base is just another
 two-method `Storage` whose `list` merges and whose `resolveUrl` checks the
 overlay first).
+
+## Payload contracts in full
+
+The exact structures a `read(ref, { as })` returns — what a component is
+handed, and therefore what a host-registered component should expect. These
+are **the** in-memory contract: our one self-defined schema layer, versioned
+with the library ([why it exists](reference/dataset-viz-overview.md#the-contract-lives-in-memory-never-on-disk)).
+Every type below is exported from `@dreamlake/viz/dataset-viz`, and the
+source (`dataset-viz/types.ts`) is the authority — this listing mirrors it.
+
+```ts
+type Payload =
+  // A camera stream. `window` marks the sub-range of `url` this episode
+  // occupies (LeRobot v3 concatenates episodes into one file per camera).
+  | { kind: 'video'; url: string; window?: { from: number; to: number } }
+  | { kind: 'series'; timestamps: number[]; columns: Record<string, number[]> }
+  | { kind: 'image'; url: string }
+  | { kind: 'frames'; count: number; fps?: number; frameAt: (i: number) => Promise<string> }
+  | { kind: 'file'; url: string; ext?: string }
+  | { kind: 'keypoints'; keypoints: KeypointTrack }
+  | { kind: 'segments'; segments: Segment[] }
+  | { kind: 'pose3d'; timestamps: number[]; joints: number[][]; shape: number[]; layout?: string }
+  // Static 3D geometry — node names inside it are the join key for
+  // per-frame transform3d / vertices3d tracks.
+  | { kind: 'mesh3d'; url: string; format: 'gltf' | 'glb' | 'obj' }
+  | { kind: 'transform3d'; timestamps: number[]; values: Float32Array; layout: TransformLayout }
+  // Per-frame vertex positions for a deforming mesh, fetched lazily;
+  // topology comes from the paired mesh3d node.
+  | { kind: 'vertices3d'; count: number; fps?: number; vertexCount: number; at: (i: number) => Promise<Float32Array> }
+  // Raw values, never pre-colorized — the component owns the colormap.
+  | { kind: 'depth'; count: number; fps?: number; at: (i: number) => Promise<DepthFrame> }
+  | { kind: 'pointcloud'; count: number; fps?: number; at: (i: number) => Promise<CloudFrame> }
+
+/** One labelled time span — the canonical shape for every segment-class
+ *  track (tasks, subtasks, actions, phases, subtitle files). */
+interface Segment {
+  start: number
+  end: number
+  label: string
+}
+
+/** Per-frame 2D keypoints, normalized out of whatever the source was (COCO
+ *  JSON, a per-frame tensor). Coordinates are pixels in width × height;
+ *  frames are sparse — a missing key means "no detection". */
+interface KeypointTrack {
+  width: number
+  height: number
+  /** Frame index → detections. Frame k is shown at k / fps seconds. */
+  frames: Map<number, KeypointDetection[]>
+  fps: number
+  /** Index pairs drawn as bones. COCO-17 and Hand-21 presets are built in. */
+  skeleton?: [number, number][]
+  jointNames?: string[]
+}
+
+interface KeypointDetection {
+  /** [x, y] per joint, pixels. */
+  points: number[][]
+  score?: number
+  /** Free label — "left" / "right" / a class name. */
+  group?: string
+  /** [x1, y1, x2, y2] pixels, when the source carries one. */
+  box?: [number, number, number, number]
+}
+
+/** One depth map. `data` is row-major width×height; `scale` converts a raw
+ *  value to metres (0.001 for millimetre uint16; omit when unknown — the
+ *  component then normalizes to the frame's own range). 0 = no reading. */
+interface DepthFrame {
+  width: number
+  height: number
+  data: Float32Array | Uint16Array | Uint8Array
+  scale?: number
+}
+
+/** One cloud frame. `xyz` is N×3 metres; `rgb` optional N×3, either 0-255
+ *  bytes or 0-1 floats. */
+interface CloudFrame {
+  xyz: Float32Array
+  rgb?: Uint8Array | Float32Array
+}
+
+/** Component order of a transform3d row. Both orders occur in the wild
+ *  (glTF/three use xyzw; robotics and MANO exports use wxyz), so the
+ *  adapter states which it read instead of guessing downstream. */
+type TransformLayout = 'txyz_qwxyz' | 'txyz_qxyzw'
+```
 
 ## Storage drivers
 
@@ -279,17 +368,19 @@ component does not declare is rejected rather than ignored: `overlays:` on a
 failure mode this design removes.
 
 Whether a binding needs an `as:` follows from the field, not from the
-component — [the rule](#which-payloads-a-field-can-serve--and-when-you-write-as).
-`fields` entries are bare refs with nowhere to write one, so that slot is
-always settled by the field's own addressing kind; `series`, `tracks` and
-`overlays` take `{ field, as }` entries. A `*` glob selects only the fields
-whose addressing kind can serve the slot — `fields: ["*"]` on `videoStack`
-takes the cameras and leaves the tensors — while an explicit ref always passes
-and fails loudly if it cannot be read.
+view — [the rule](#which-payloads-a-field-can-serve--and-when-you-write-as).
+The media/geometry slots (`cameras`, `cloud`, `geometry`) take bare refs with
+nowhere to write one, so they are always settled by the field's own
+addressing kind; `series`, `tracks` and `overlays` take `{ field, as }`
+entries. A `*` glob selects only the fields whose addressing kind can serve
+the slot — `cameras: ["*"]` on `videoStack` takes the cameras and leaves the
+tensors — while an explicit ref always passes and fails loudly if it cannot
+be read.
 
-Bindings are the keys the component interprets (`fields` / `series` /
-`tracks` / `overlays`); **every other key passes through as a prop** to the
-underlying `Episode*` component, so its documented props are all available.
+Bindings are the keys the view interprets — its slot names (`cameras` /
+`cloud` / `geometry` / `series` / `tracks` / `overlays`); **every other key
+passes through as a prop** to the underlying `Episode*` component, so its
+documented props are all available.
 A `split: row` is a fixed-height strip (`height` on the split, default 280) —
 its sizing keys (`width` fixed box · `flex` stretch share · `minWidth` squish
 floor · child `height` override) are consumed by the layout, not the
@@ -298,22 +389,24 @@ and overflow scrolls horizontally, synced across episodes under a
 `SyncScrollProvider`. "row" marks components that render in the compact
 `layout="row"` strips (dataset lists); the rest appear in grid layout only.
 
-| component | binds | slot → payload | keys of note | row |
+| view | binds | slot → payload | keys of note | row |
 | --- | --- | --- | --- | --- |
-| `videoStack` | `fields` (a `*` glob expands to the container's media fields) · `overlays: [ { field, as, on? } ]` — `as` picks skeleton or captions, `on` pins one to a specific camera | `fields` → `video`, `image` · `overlays` → `keypoints`, `segments` | `columns` (default 3) · `tileAspect` — force one ratio; by default each tile uses its video's intrinsic ratio. Plus [EpisodeVideoStack](reference/components-episode-video-stack.md) props. Probes video durations when the format has no timeline. | ✓ |
-| `frameStack` | `fields` · `overlays` (same form as `videoStack` — the tiles take the same layer) | `fields` → `frames` · `overlays` → `keypoints`, `segments` | `columns` (default 3) | ✓ |
-| `depthStack` | `fields` — name the depth columns; a bare `*` would ask every tensor in the episode for a depth map · `overlays` | `fields` → `depth` · `overlays` → `keypoints`, `segments` | `colormap: turbo \| gray` (default `turbo`) · `min` / `max` (raw units) pin the color range; by default each frame maps its own min/max over valid readings (>0), invalid renders transparent · `columns` (default 3). Corner chip shows the mapped range — metres when the format knows the depth scale, raw units otherwise | ✓ |
+| `videoStack` | `cameras` (a `*` glob expands to the container's media fields) · `overlays: [ { field, as, on? } ]` — `as` picks skeleton or captions, `on` pins one to a specific camera | `cameras` → `video`, `image` · `overlays` → `keypoints`, `segments` | `columns` (default 3) · `tileAspect` — force one ratio; by default each tile uses its video's intrinsic ratio. Plus [EpisodeVideoStack](reference/components-episode-video-stack.md) props. Probes video durations when the format has no timeline. | ✓ |
+| `frameStack` | `cameras` · `overlays` (same form as `videoStack` — the tiles take the same layer) | `cameras` → `frames` · `overlays` → `keypoints`, `segments` | `columns` (default 3) | ✓ |
+| `depthStack` | `cameras` — name the depth columns; a bare `*` would ask every tensor in the episode for a depth map · `overlays` | `cameras` → `depth` · `overlays` → `keypoints`, `segments` | `colormap: turbo \| gray` (default `turbo`) · `min` / `max` (raw units) pin the color range; by default each frame maps its own min/max over valid readings (>0), invalid renders transparent · `columns` (default 3). Corner chip shows the mapped range — metres when the format knows the depth scale, raw units otherwise | ✓ |
 | `lineChart` | `series: [ ref \| { field, label?, color?, dash?, … } ]` — field is `feature` (all dims) or `[feature, dim]`; `*` globs work in both halves | `series` → `series` | `height` (default 180) sizes a standalone panel; in a `split: row` slot the chart fills the strip automatically. Plus `title`, `caption` + [EpisodeLineChart](reference/components-episode-line-chart.md) props | ✓ |
-| `trajectory2d` | `series: [ ref \| { field, label?, color? } ]` — each entry is one path; x/y dims are the columns named `x`/`y` (case-insensitive) or the first two | `series` → `series` | `invertY: false` — math convention (y up); default is image convention (top-left origin). `height` (default 260) sizes a standalone panel; in a `split: row` slot the plot fills the strip automatically | ✓ |
+| `trajectory2d` | `series: [ ref \| { field, label?, color? } ]` — each entry is one path; x/y dims are the columns named `x`/`y` (case-insensitive) or the first two | `series` → `series` | `invertY: false` — math convention (y up); default is image convention (top-left origin) · `window: { ahead?, behind? }` — pin the drawn path to the seconds around the cursor (defaults 5 / 1 when given; omitted, the full path draws). `height` (default 260) sizes a standalone panel; in a `split: row` slot the plot fills the strip automatically | ✓ |
 | `timeline` | `tracks` — required; nothing in an inventory says a column holds spans | `tracks` → `segments` | [EpisodeTimeline](reference/components-episode-timeline.md) props | — |
 | `bandTrack` | `series: [ ref \| { field, label? } ]` — same field addressing as `lineChart`; each resolved column becomes one band row | `series` → `series` | `maxLevels` (default 12) — a column is discrete when its unique values (rounded to 6 decimals) fit, busier columns get a one-line "use lineChart" note · `bandHeight` (default 18) per-band px. Runs of equal value become colored rects; value→color legend below; natural height. | — |
 | `metaPanel` | — (renders `EpisodeInfo`: name, duration, frames, fps, task strings) | — | `note` — a free-text line · `showTasks: false` hides the task strings (single-task datasets repeat one sentence per episode otherwise) | — |
 | `fieldsCatalog` | — | — (prints the inventory itself) | — | — |
-| `recon3d` | `fields` — the geometry file(s) that make the scene · `tracks` — the per-frame motion, each entry naming its `as`; a track binds to the glTF node whose name matches its ref | `fields` → `mesh3d` · `tracks` → `transform3d`, `vertices3d`, `pose3d` | `up` — gravity vector in the data's own frame (uprights the grid) · `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically | — |
-| `pointCloud` | `fields` — name the column; the first bound field renders (one cloud per panel in v1) | `fields` → `pointcloud` | `up: y \| z` (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically. Per-point color when the data carries rgb; camera auto-fits the first frame | — |
+| `recon3d` | `geometry` — the geometry file(s) that make the scene · `tracks` — the per-frame motion, each entry naming its `as`; a track binds to the glTF node whose name matches its ref | `geometry` → `mesh3d` · `tracks` → `transform3d`, `vertices3d`, `pose3d` | `up` — gravity vector in the data's own frame (uprights the grid) · `trail: { ahead?, behind? }` — motion-trail window in seconds around the playhead (default `{ ahead: 5, behind: 1 }`; the bright segment is the FUTURE — what is about to happen; `false` turns it off) · `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically | — |
+| `pointCloud` | `cloud` — name the column; the first bound field renders (one cloud per panel in v1) | `cloud` → `pointcloud` | `up: y \| z` (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically. Per-point color when the data carries rgb; camera auto-fits the first frame | — |
 
-Hosts add components with
-`registerComponent({ name, component, reads, rows? })` — `reads` is the
-slot → payload declaration above, and a component that omits it opts out of
-binding checks. A component receives
+Hosts add views with
+`registerComponent({ name, component, reads, slotNames?, rows? })` — `reads`
+is the slot → payload declaration above (canonical keys: `fields`, `series`,
+`tracks`, `overlays`), `slotNames` renames a slot's config-surface key the
+way `videoStack` surfaces `fields` as `cameras`, and a component that omits
+`reads` opts out of binding checks. A component receives
 `{ fields, info?, read, timeline, cursor, config, layout }`.
