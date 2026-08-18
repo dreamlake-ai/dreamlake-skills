@@ -138,8 +138,8 @@ file beside the data in an established format and declare it in the
 WEBVTT
 
 1
-00:00:00.000 --> 00:00:02.500
-pick up shelf board
+00:00:00.000 --> 00:00:04.500
+wet and smooth the wheel head
 ```
 
 **COCO keypoints** — stock COCO, plus a top-level `fps` because COCO
