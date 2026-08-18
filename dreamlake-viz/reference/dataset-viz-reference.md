@@ -6,8 +6,8 @@ Every name a `.dreamrc` can use, with its config keys. The
 [contract](reference/dataset-viz-requirements.md) says what your data must look like; this
 page is the lookup table — the names here are exactly the registries the
 validator checks, so anything not listed fails validation with a did-you-mean.
-For the pipeline and the registries in code, see
-[library internals](reference/dataset-viz-internals.md).
+For the pipeline and the registries in code, see the architecture's
+[under-the-hood section](reference/dataset-viz-overview.md#under-the-hood--for-library-work).
 
 ## Kinds — the catalog's, and the view's
 
@@ -73,7 +73,7 @@ else — no name, no shape, no extension:
 | `video`      | `video`                                                                             |
 | `image`      | `image`                                                                             |
 | `frames`     | `frames`, `depth` — depth shipped as 16-bit PNGs is a codec question, not a meaning |
-| `tensor`     | `series`, `keypoints`, `pose3d`, `transform3d`, `vertices3d`, `depth`, `pointcloud` |
+| `tensor`     | `series`, `segments`, `keypoints`, `pose3d`, `transform3d`, `vertices3d`, `depth`, `pointcloud` |
 | `text`       | `segments`                                                                          |
 | `file`       | `file`, `mesh3d`, `segments`, `keypoints`                                           |
 
@@ -251,9 +251,11 @@ none). The shape mirrors what `list()` returns:
 }
 ```
 
-`name` + `type` (`"file"` | `"dir"`) are required; `path` is the
-storage-relative (or absolute) location — entries may point anywhere, which
-is how a manifest can reference files hosted elsewhere. Don't list
+`type` (`"file"` | `"dir"`) defaults to `"file"`, `name` falls back to the
+last segment of `path`, and a bare JSON array of filename strings lists
+plain files; `path` is the storage-relative (or absolute) location —
+entries may point anywhere, which is how a manifest can reference files
+hosted elsewhere. Don't list
 `index.json` itself; `.dreamrc` need not be listed either (the app fetches
 it directly).
 
@@ -411,7 +413,7 @@ synced across episodes under a `SyncScrollProvider`. "row" marks components that
 | `metaPanel`    | — (renders `EpisodeInfo`: name, duration, frames, fps, task strings)                                                                                                           | —                                                                        | `note` — a free-text line · `showTasks: false` hides the task strings (single-task datasets repeat one sentence per episode otherwise)                                                                                                                                                                                                                                                                                     | —   |
 | `fields`       | —                                                                                                                                                                              | — (prints the inventory itself)                                          | `title` (default `Fields`)                                                                                                                                                                                                                                                                                                                                                                                                 | —   |
 | `recon3d`      | `geometry` — the geometry file(s) that make the scene · `tracks` — the per-frame motion, each entry naming its `as`; a track binds to the glTF node whose name matches its ref | `geometry` → `mesh3d` · `tracks` → `transform3d`, `vertices3d`, `pose3d` | `up` — gravity vector in the data's own frame (uprights the grid; default `[0, -1, 0]`, the OpenCV camera frame's up — y points down there) · `trail: { ahead?, behind? }` — motion-trail window in seconds around the playhead (default `{ ahead: 1, behind: 0 }` — pure future, so the trail runs out exactly when the clip does; `behind` opts into a dim past tail; `false` turns it off) · `height` (default 360)     | —   |
-| `pointCloud`   | `cloud` — name the column; the first bound field renders (one cloud per panel in v1)                                                                                           | `cloud` → `pointcloud`                                                   | `up: y \| z` (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360). Per-point color when the data carries rgb; camera auto-fits the first frame                                                                                                                                                                                                                                                   | —   |
+| `pointCloud`   | `cloud` — name the column; the first bound field renders (one cloud per panel in v1)                                                                                           | `cloud` → `pointcloud`                                                   | `up` — `y` / `z` or an `[x, y, z]` vector (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360). Per-point color when the data carries rgb; camera auto-fits the first frame                                                                                                                                                                                                                     | —   |
 
 Hosts add views with
 `registerComponent({ name, component, reads, slotNames?, rows? })` — `reads`

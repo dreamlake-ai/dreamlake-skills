@@ -70,11 +70,11 @@ dreamlake-ceramics/
 ├── .dreamrc
 └── episodes/
     ├── episode_a/
-    │   ├── cam_ego.mp4             ← track name = basename
+    │   ├── cam_ego.mp4                ← track name = basename
     │   └── annotations/
-    │       ├── hand_keypoints.json ← COCO keypoints
-    │       └── subtasks.vtt        ← WebVTT
-    └── episode_b/                  ← the same recording, second half
+    │       ├── hand_keypoints.json    ← COCO keypoints
+    │       └── subtasks.vtt           ← WebVTT
+    └── episode_b/                     ← the same recording, second half
         ├── cam_ego.mp4
         └── annotations/…
 ```
@@ -86,6 +86,11 @@ of them says what a file contains. `hand_keypoints.json` is catalogued as a
 `file` with a `.json` extension; it becomes a skeleton because the `.dreamrc`
 binds it `as: keypoints`. Rename every file and the parse result is identical;
 that is the line between a convention and a format.
+
+The same route carries 3D: drop a `scene.glb` plus per-node motion parquets
+into `annotations/` and a `recon3d` view joins them by glTF node name — the
+[hand-object gallery entry](/dataset-viz/gallery?example=taco-hand-object)
+is exactly that, five episodes of it.
 
 Both episodes carry the same track set here, but they need not: a dataset
 where some episodes are annotated and others are not is the normal case, and

@@ -270,6 +270,11 @@ npx tsx scripts/check-dreamrc.mts ./draft.dreamrc
 npx tsx scripts/check-dreamrc.mts hf:your-name/your-dataset
 ```
 
+One catch with local drafts: a root-arranged file — one that omits
+`storage:` because the app will inject it — cannot resolve standalone.
+Temporarily add a `storage:` line pointing at your bucket or repo while
+validating, and drop it again before upload.
+
 Every error names the offending key, the allowed values, and the nearest
 registered name — a write → validate → fix loop a person or an agent can
 run without reading anything else:
@@ -290,8 +295,8 @@ cursor. Copy it; it runs anywhere:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
-name: Ceramics demo
-storage: { driver: hf, repo: live9080/dreamlake-ceramics }
+name: Hand-object 3D recon (TACO)
+storage: { driver: hf, repo: live9080/dreamlake-hand-object }
 dataset:
   format: folder
   episodes: "episodes/*/"
@@ -306,9 +311,9 @@ views:
           - { field: subtasks, as: segments }        # so each entry says which
       - view: recon3d
         geometry: ["scene"]
-        tracks:                                        # …moved by these
-          - { field: "poses[ruler]", as: transform3d } # a grouped table binds
-          - { field: "poses[toy]", as: transform3d }   # one track per object
+        up: [0, -1, 0]       # camera-frame gravity: y is down, so up is -y
+        tracks:                                     # …moved by these
+          - { field: "*_pose", as: transform3d }    # kettle_pose -> node kettle
           - { field: "hand_verts_*", as: vertices3d }
           - { field: "hand_joints_*", as: pose3d }
   - view: timeline

@@ -44,20 +44,12 @@ library, never something an adapter does on the side.
 ## Views declare what they read
 
 Every registered component states, per binding slot, the payload kinds it
-consumes. That declaration **is** the input contract:
-
-| view         | slot                  | contract it asks for                                               |
-| ------------ | --------------------- | ------------------------------------------------------------------ |
-| `timeline`   | `tracks`              | `segments` — `{ start, end, label }` spans                         |
-| `pointCloud` | `cloud`               | `pointcloud` — per-frame `xyz` (+ optional `rgb`)                  |
-| `videoStack` | `overlays`            | `keypoints` (a skeleton) or `segments` (captions)                  |
-| `recon3d`    | `geometry` + `tracks` | `mesh3d` geometry moved by `transform3d` / `vertices3d` / `pose3d` |
-
-One declaration is enforced three ways: it is what the decoder is called
-with, what a `*` glob is filtered by, and what an author's `as:` is validated
-against. Bind a field to a slot whose contract its bytes cannot satisfy and
-the panel says so by name — `observation.state is float32 [6]; keypoints
-needs [J,2] or [J,3]` — instead of drawing something wrong. The full tables:
+consumes — that declaration **is** the input contract, and one declaration is
+enforced three ways: it is what the decoder is called with, what a `*` glob
+is filtered by, and what an author's `as:` is validated against. Bind a field
+to a slot whose contract its bytes cannot satisfy and the panel says so by
+name — `observation.state is float32 [6]; keypoints needs [J,2] or [J,3]` —
+instead of drawing something wrong. The per-view contract tables:
 [reference](reference/dataset-viz-reference.md#kinds--the-catalogs-and-the-views).
 
 ## The contract lives in memory, never on disk
@@ -103,6 +95,16 @@ Each contract is fed from the wire in a fixed order of preference:
    [the extension path](reference/dataset-viz-reference.md#data-the-library-does-not-know).
    A shape that proves general is then promoted into the contract set.
 
+Worth distinguishing what the ladder governs. A **format** dictates how
+bytes are laid out — we define almost none (the motion-track profile is the
+deliberate exception above); every other byte read is arranged by someone
+else's specification. A **convention** only says where to look and what to
+call things: the three that exist all live in the `folder` adapter and are
+purely about placement — a directory is an episode, a basename is a track
+name, `annotations/` is searched as well as the episode root. None of them
+says what a file contains: rename every file in a folder dataset and the
+parse result is identical, because no name was ever evidence.
+
 The result is that the requirements on your data are small and mostly not
 ours: [what your data must look like](reference/dataset-viz-requirements.md) is two rules
 plus the shape each contract demands — which is not a rule we impose, but
@@ -114,22 +116,11 @@ The last piece is the wiring. A field's catalog entry records how its bytes
 are addressed (a video stream, numbers with a shape, a file with an
 extension) and draws no conclusion; the binding in the `.dreamrc` is where a
 human or an agent states what the field _is_, by choosing the slot — and,
-where a slot reads more than one contract, saying which with `as:`.
-
-```yaml
-views:
-  - view: videoStack
-    cameras: [observation.images.ego] # decoded as video
-    overlays:
-      - { field: observation.keypoints_2d.left.ego, as: keypoints }
-  - view: pointCloud
-    cloud: [observation.environment_state] # the author knows
-```
-
-`observation.environment_state` is a `[512,6]` float tensor whose name says
-nothing. The program never decides what it means; the config's author read
-the inventory once and wrote it down. That one sentence is the design — the
-rest is [grammar](reference/dataset-viz-spec.md).
+where a slot reads more than one contract, saying which with `as:`. A
+`[512,6]` float tensor whose name says nothing becomes a point cloud because
+the config's author read the inventory once and wrote that down; the program
+never decides. That one sentence is the design — the rest is
+[grammar](reference/dataset-viz-spec.md).
 
 ## What this buys
 
@@ -144,13 +135,74 @@ rest is [grammar](reference/dataset-viz-spec.md).
   vocabulary, and every validation error names the offending key and the
   allowed values — a write → validate → fix loop an agent can run alone.
 
-## Where to go
+## Under the hood — for library work
 
-| you are                           | read                                                                                |
-| --------------------------------- | ----------------------------------------------------------------------------------- |
-| new — data in hand                | [start here](reference/dataset-viz-start.md)                                                    |
-| writing a `.dreamrc`              | [write the .dreamrc](reference/dataset-viz-spec.md), then [view components](reference/dataset-viz-views.md) |
-| preparing or publishing a dataset | [prepare your data](reference/dataset-viz-requirements.md)                                      |
-| looking up a name or a contract   | [reference](reference/dataset-viz-reference.md)                                                 |
-| wanting working examples          | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md)               |
-| changing the library              | [library internals](reference/dataset-viz-internals.md)                                         |
+Everything below is for people changing the library, not using it.
+
+### The pipeline
+
+One file at a dataset root becomes rendered episodes through five steps, and
+nothing else crosses between them:
+
+```
+.dreamrc text
+   │  parse YAML (the host does this — the library never sees YAML)
+   ▼
+validateDreamrc(obj)              dreamrc.ts   → DreamrcConfig, or an error naming the key
+   │
+   ▼
+resolveDataset(rc, {rootStorage}) resolve.ts   → storage, then a Dataset, then EpisodeInfo[]
+   │                                             (rc.storage → opts.storage → opts.rootStorage)
+   ▼
+dataset.episode(info)             formats/*    → an Episode handle per episode (cheap, no IO)
+   │
+   ▼
+episode.fields() / .read(ref)     formats/*    → Field[] with kinds, then Payloads
+   │
+   ▼
+<DatasetViz episode views>        components/  → components matched to kinds
+```
+
+Two rules about that diagram carry most of the design. **Storage is
+injected, never declared with credentials**: `pickStorage` takes the file's
+own `storage:` first, then a host-supplied instance, then the root the host
+found the file in — the library holds no tokens; a host registers an
+authorized driver under a name, and the `.dreamrc` only ever names it.
+**All IO past enumeration is lazy and inside `Episode`**: `resolveDataset`
+returns handles, not data, and nothing is fetched until a component asks for
+a field — which is what lets the gallery mount a hundred episodes and fetch
+for the two on screen.
+
+### Adapter discipline
+
+An adapter answers exactly two questions — "what is in here?" (a catalog of
+addresses plus container-reported facts, no conclusions) and "give me this,
+as that" (`read(ref, { as })`). Writing one, three rules hold:
+
+- **Validate, then decode.** A decoder checks the shape it was handed and
+  throws a message naming the mismatch. A wrong render is the one
+  unacceptable outcome, because the user cannot see that it is wrong.
+- **Omit, never mislist.** Something the adapter cannot address at all stays
+  out of the catalog, with a `console.warn` naming it.
+- **Facts are free, conclusions are not.** Record anything cheap into `meta`
+  at catalog time; resolve nothing. A label table is fetched when a binding
+  asks for spans, not because a column was called `task_index`.
+
+### The registries
+
+Three `Map`s, one per extension point, in `registry.ts` — `registerStorage`,
+`registerFormat`, `registerComponent`
+([the extension path](reference/dataset-viz-reference.md#data-the-library-does-not-know)).
+A host registers before it resolves. Unknown names fail with a nearest-match
+suggestion rather than a stack trace: these names are typed by hand (and by
+agents) into YAML, so the error message is part of the API.
+
+### Laziness
+
+Two rules are structural rather than bolted-on. Every cache stores the
+in-flight **promise**, not the result — parallel panels share one round trip
+instead of racing (dataset-level resources fetch once, per-episode resources
+per episode). And `ReadQuery` carries `timeRange` and `maxPoints`, so a
+chart asks for exactly what it will draw. Per-format ranged-read behavior
+(summary sections, parquet footers, zarr metadata) is in the
+[reference](reference/dataset-viz-reference.md).

@@ -70,7 +70,9 @@ tensor   subtask_index              int64 [1]
 ```
 
 You can also print the same listing from a shell, without deploying
-anything:
+anything — the script ships in the
+[viz-workspace repo](https://github.com/dreamlake-ai/viz-workspace), not on
+npm: clone it once and run from the repo root:
 
 ```bash
 npx tsx scripts/check-dreamrc.mts hf:your-name/your-dataset

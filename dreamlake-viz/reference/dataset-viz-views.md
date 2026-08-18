@@ -265,16 +265,16 @@ ends:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
-storage: { driver: hf, repo: live9080/dreamlake-ceramics }
+storage: { driver: hf, repo: live9080/dreamlake-hand-object }
 dataset: { format: folder, episodes: "episodes/*/" }
 views:
   - view: recon3d
-    geometry: ["scene"]                              # the glTF file; node names join tracks
-    tracks:                                          # per-frame motion, all parquet tables of
-      - { field: "poses[ruler]", as: transform3d }   # numbers, so each says what it is; a
-      - { field: "poses[toy]", as: transform3d }     # grouped poses table binds one track
-      - { field: "hand_verts_*", as: vertices3d }    # per object — [name] picks it, and the
-      - { field: "hand_joints_*", as: pose3d }       # name is also the glTF node it drives
+    geometry: ["scene"]                            # the glTF file; node names join tracks
+    up: [0, -1, 0]                                 # camera-frame data: y is down, so up is -y
+    tracks:                                        # per-frame motion, all parquet tables of
+      - { field: "*_pose", as: transform3d }       # numbers, so each says what it is; the
+      - { field: "hand_verts_*", as: vertices3d }  # track's name (kettle_pose) is also the
+      - { field: "hand_joints_*", as: pose3d }     # glTF node it drives
     height: 360
   - view: timeline           # the pointer orbits the scene - scrub here
     tracks: [subtasks]

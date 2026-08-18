@@ -66,9 +66,9 @@
 - **MV-UMI** — the multi-GB `.zarr.zip` is never downloaded: the frame
   stack byte-ranges one JPEG-XL frame per camera under the cursor
   (JXL needs Safari 17+ or Chrome's flag).
-- **EgoVerse** — a `.zarr` v3 directory store; the flattened hand-keypoint
-  arrays are numbers like any other until the config binds them `as: pose3d`,
-  which animates them as point sets in the 3D scene.
+- **EgoVerse** — a `.zarr` v3 directory store read in place; the flattened
+  arrays are numbers like any other until the config binds them — here as a
+  head-pose line chart.
 - **Ceramics** — `folder` format: annotations auto-discovered from each
-  episode's `annotations/` dir; the `recon` track is a real exported
-  reconstruction (ruler + toy, MANO hands) — orbit it while video plays.
+  episode's `annotations/` dir — COCO hand skeletons over the video, WebVTT
+  spans on the timeline, nothing converted.
