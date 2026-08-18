@@ -12,11 +12,11 @@ A LeRobot dataset, a zarr store, or MCAP logs render unmodified. Add the
 `.dreamrc` and go ([start here](reference/dataset-viz-start.md)). Per container, the one
 thing worth checking:
 
-| you have | `format` | the one thing to get right |
-| --- | --- | --- |
-| [LeRobot](https://huggingface.co/docs/lerobot/main/en/lerobot-dataset-v3) v2.0 / v2.1 / v3.0 | `lerobot` | cameras must be `dtype: video` or `dtype: image` in `meta/info.json` — that is what addresses them as media |
-| [Zarr](https://zarr-specs.readthedocs.io/) — `*.zarr.zip` ReplayBuffer or `.zarr/` v3 directory | `umi` | camera arrays need an image codec (JPEG/JPEG-XL/PNG) — that is what makes one chunk one frame |
-| [MCAP](https://mcap.dev/) v1, one file per episode | `mcap` | channels need Foxglove or JSON schemas — `cdr`/`ros2msg` (a plain ROS 2 bag) has no decoder yet |
+| you have                                                                                        | `format`  | the one thing to get right                                                                                  |
+| ----------------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------- |
+| [LeRobot](https://huggingface.co/docs/lerobot/main/en/lerobot-dataset-v3) v2.0 / v2.1 / v3.0    | `lerobot` | cameras must be `dtype: video` or `dtype: image` in `meta/info.json` — that is what addresses them as media |
+| [Zarr](https://zarr-specs.readthedocs.io/) — `*.zarr.zip` ReplayBuffer or `.zarr/` v3 directory | `umi`     | camera arrays need an image codec (JPEG/JPEG-XL/PNG) — that is what makes one chunk one frame               |
+| [MCAP](https://mcap.dev/) v1, one file per episode                                              | `mcap`    | channels need Foxglove or JSON schemas — `cdr`/`ros2msg` (a plain ROS 2 bag) has no decoder yet             |
 
 Adding annotations to a dataset you own? Put them **inside** the container
 as ordinary features — [below](#annotations-inside-the-container).
@@ -79,24 +79,23 @@ HDF5 (RoboMimic, ManiSkill, AgiBotWorld) and RLDS/TFRecord
 
 Whatever the container, a column bound to a view must have the shape that
 view decodes. This is the whole contract on the data side — not rules we
-impose, but what a skeleton or a point cloud *is*:
+impose, but what a skeleton or a point cloud _is_:
 
-| to render | the data must be | notes |
-| --- | --- | --- |
-| line chart traces | any numeric scalar or `[n]` column | the container's `names` label the traces |
-| 2D keypoints | float `[J,2]` or `[J,3]` | third component is a score; **NaN, not 0, for not-measured** |
-| labelled time spans | an int column **plus a label table**, a string column, or a `.vtt`/`.srt` | equal consecutive values merge into one span |
-| depth maps | float `[H,W]` / `[H,W,1]`, or 16-bit PNGs | metres or millimetres — declare the scale |
-| point clouds | float `[N,3]` or `[N,6]` | xyz, or xyz + rgb |
-| an object's pose track | float `[7]` or `[N,7]` | translation + quaternion |
-| a deforming mesh | float `[V,3]` per frame | topology comes from a bound glTF node |
-| 3D keypoints | float `[J,3]` or flat `[J*3]` | a point set per frame |
-| 3D geometry | a `.glb` / `.gltf` / `.obj` file | node names bind the motion tracks |
+| to render              | the data must be                                                          | notes                                                        |
+| ---------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| line chart traces      | any numeric scalar or `[n]` column                                        | the container's `names` label the traces                     |
+| 2D keypoints           | float `[J,2]` or `[J,3]`                                                  | third component is a score; **NaN, not 0, for not-measured** |
+| labelled time spans    | an int column **plus a label table**, a string column, or a `.vtt`/`.srt` | equal consecutive values merge into one span                 |
+| depth maps             | float `[H,W]` / `[H,W,1]`, or 16-bit PNGs                                 | metres or millimetres — declare the scale                    |
+| point clouds           | float `[N,3]` or `[N,6]`                                                  | xyz, or xyz + rgb                                            |
+| an object's pose track | float `[7]` or `[N,7]`                                                    | translation + quaternion                                     |
+| a deforming mesh       | float `[V,3]` per frame                                                   | topology comes from a bound glTF node                        |
+| 3D keypoints           | float `[J,3]` or flat `[J*3]`                                             | a point set per frame                                        |
+| 3D geometry            | a `.glb` / `.gltf` / `.obj` file                                          | node names bind the motion tracks                            |
 
-> **Note:** Zero is a real coordinate — the top-left pixel, the origin. Nothing
-> downstream can tell a fabricated zero from a measured one, so a frame
-> written as zeros draws a collapsed skeleton in the corner. Write NaN and it
-> renders as nothing, because it is nothing.
+> **Note:** Zero is a real coordinate — the top-left pixel, the origin. Nothing downstream can tell a
+>   fabricated zero from a measured one, so a frame written as zeros draws a collapsed skeleton in the
+>   corner. Write NaN and it renders as nothing, because it is nothing.
 
 ## Annotations: inside the container
 
@@ -104,9 +103,9 @@ When the dataset is yours, annotations belong **inside** it, as ordinary
 features in the container's own idiom — they travel with the dataset, read
 one episode at a time, with no second file to keep in sync.
 
-> **Note:** Measured on our own template: 150 frames of two hands cost **57.7 KB** as
-> parquet columns and **142.3 KB** as a JSON file next to them — and columns
-> read by episode row range while a file is fetched and parsed whole.
+> **Note:** Measured on our own template: 150 frames of two hands cost **57.7 KB** as parquet columns and
+>   **142.3 KB** as a JSON file next to them — and columns read by episode row range while a file is
+>   fetched and parsed whole.
 
 Concretely, per container:
 
@@ -126,12 +125,12 @@ models a mesh) and **a dataset you cannot write into**. For those, put a
 file beside the data in an established format and declare it in the
 `.dreamrc` ([the `annotations` key](reference/dataset-viz-spec.md#datasetannotations--tracks-that-live-beside-the-data)):
 
-| for | write | spec |
-| --- | --- | --- |
-| labelled time spans | **WebVTT** `.vtt` (or SubRip `.srt`) | [W3C](https://www.w3.org/TR/webvtt1/) |
-| 2D keypoints | **COCO keypoints** `.json` | [COCO](https://cocodataset.org/#format-data) |
-| geometry, and its motion | **glTF 2.0** `.glb` | [Khronos](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html) |
-| per-frame numbers | **Apache Parquet** | [Parquet](https://parquet.apache.org/docs/file-format/) |
+| for                      | write                                | spec                                                                 |
+| ------------------------ | ------------------------------------ | -------------------------------------------------------------------- |
+| labelled time spans      | **WebVTT** `.vtt` (or SubRip `.srt`) | [W3C](https://www.w3.org/TR/webvtt1/)                                |
+| 2D keypoints             | **COCO keypoints** `.json`           | [COCO](https://cocodataset.org/#format-data)                         |
+| geometry, and its motion | **glTF 2.0** `.glb`                  | [Khronos](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html) |
+| per-frame numbers        | **Apache Parquet**                   | [Parquet](https://parquet.apache.org/docs/file-format/)              |
 
 **WebVTT** — the web's own "time range → text" format:
 
@@ -151,12 +150,18 @@ indexes images and a player needs seconds (our one documented extension):
   "fps": 30,
   "images": [{ "id": 0, "file_name": "frame_000000.jpg", "width": 1920, "height": 1080 }],
   "annotations": [
-    { "id": 1, "image_id": 0, "category_id": 1,
+    {
+      "id": 1,
+      "image_id": 0,
+      "category_id": 1,
       "keypoints": [473.4, 714.2, 2, 532.2, 710.5, 2],
-      "bbox": [418, 524, 277, 249], "score": 0.79 }
+      "bbox": [418, 524, 277, 249],
+      "score": 0.79
+    }
   ],
-  "categories": [{ "id": 1, "name": "hand", "keypoints": ["wrist", "thumb_cmc"],
-                   "skeleton": [[1, 2]] }]
+  "categories": [
+    { "id": 1, "name": "hand", "keypoints": ["wrist", "thumb_cmc"], "skeleton": [[1, 2]] }
+  ]
 }
 ```
 
@@ -171,10 +176,10 @@ clip's TRS channels are read; skinning and morph targets are not yet.)
 
 **Parquet motion tracks** — when the motion is not in a glTF:
 
-| track | columns |
-| --- | --- |
-| object poses | `frame`, `timestamp`, `object`, `tx,ty,tz` + a quaternion — the `object` column splits it into one track per object, bound as `poses[ruler]` |
-| mesh vertices | `frame`, `timestamp`, and a **list-of-float** column of flat xyz |
+| track         | columns                                                                                                                                      |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| object poses  | `frame`, `timestamp`, `object`, `tx,ty,tz` + a quaternion — the `object` column splits it into one track per object, bound as `poses[ruler]` |
+| mesh vertices | `frame`, `timestamp`, and a **list-of-float** column of flat xyz                                                                             |
 
 Quaternion order is read from the column order: `qw` first means `w,x,y,z`,
 `qw` last means `x,y,z,w`. (These column names are the **motion-track

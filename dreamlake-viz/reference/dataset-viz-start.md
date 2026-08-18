@@ -8,19 +8,19 @@ whole workflow; every step links to the page with the details.
 
 ## What you can visualize
 
-| your data | view | what you get |
-| --- | --- | --- |
-| camera videos / image files | [`videoStack`](reference/dataset-viz-views.md#videostack) | a tile grid with a shared scrub cursor |
-| image sequences (one file or chunk per frame) | [`frameStack`](reference/dataset-viz-views.md#framestack) | scrubbable tiles, one fetch per frame |
-| depth maps (float tensors or 16-bit PNGs) | [`depthStack`](reference/dataset-viz-views.md#depthstack) | turbo-colorized tiles with a live range chip |
-| joint states, actions, any numeric columns | [`lineChart`](reference/dataset-viz-views.md#linechart) | time series with a synced cursor |
-| 2D positions (xy over time) | [`trajectory2d`](reference/dataset-viz-views.md#trajectory2d) | a top-down path with a moving trail |
-| task / subtask / phase labels over time | [`timeline`](reference/dataset-viz-views.md#timeline) | labelled blocks on a ruler |
-| discrete signals (gripper open/close, stages) | [`bandTrack`](reference/dataset-viz-views.md#bandtrack) | categorical color bands |
-| 2D keypoints (hands, body skeletons) | [`videoStack` `overlays`](reference/dataset-viz-views.md#videostack) | skeletons drawn over the camera |
-| 3D keypoints, object poses, deforming meshes | [`recon3d`](reference/dataset-viz-views.md#recon3d) | an animated, orbitable 3D scene |
-| per-frame point clouds | [`pointCloud`](reference/dataset-viz-views.md#pointcloud) | an orbitable cloud following playback |
-| episode metadata | [`metaPanel`](reference/dataset-viz-views.md#metapanel) | name, duration, fps, task strings |
+| your data                                     | view                                                     | what you get                                 |
+| --------------------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
+| camera videos / image files                   | [`videoStack`](reference/dataset-viz-views.md#videostack)            | a tile grid with a shared scrub cursor       |
+| image sequences (one file or chunk per frame) | [`frameStack`](reference/dataset-viz-views.md#framestack)            | scrubbable tiles, one fetch per frame        |
+| depth maps (float tensors or 16-bit PNGs)     | [`depthStack`](reference/dataset-viz-views.md#depthstack)            | turbo-colorized tiles with a live range chip |
+| joint states, actions, any numeric columns    | [`lineChart`](reference/dataset-viz-views.md#linechart)              | time series with a synced cursor             |
+| 2D positions (xy over time)                   | [`trajectory2d`](reference/dataset-viz-views.md#trajectory2d)        | a top-down path with a moving trail          |
+| task / subtask / phase labels over time       | [`timeline`](reference/dataset-viz-views.md#timeline)                | labelled blocks on a ruler                   |
+| discrete signals (gripper open/close, stages) | [`bandTrack`](reference/dataset-viz-views.md#bandtrack)              | categorical color bands                      |
+| 2D keypoints (hands, body skeletons)          | [`videoStack` `overlays`](reference/dataset-viz-views.md#videostack) | skeletons drawn over the camera              |
+| 3D keypoints, object poses, deforming meshes  | [`recon3d`](reference/dataset-viz-views.md#recon3d)                  | an animated, orbitable 3D scene              |
+| per-frame point clouds                        | [`pointCloud`](reference/dataset-viz-views.md#pointcloud)            | an orbitable cloud following playback        |
+| episode metadata                              | [`metaPanel`](reference/dataset-viz-views.md#metapanel)              | name, duration, fps, task strings            |
 
 All views in one episode share a clock: hover any time-axis panel and every
 panel scrubs together.
@@ -31,12 +31,12 @@ panel scrubs together.
 
 `dataset.format` names the reader. Look at your dataset root and match:
 
-| you have | `format` | anything to do first? |
-| --- | --- | --- |
-| a LeRobot dataset (`meta/info.json` at the root) | `lerobot` | no — v2.0/v2.1/v3.0 read as-is |
-| a zarr store (`*.zarr.zip` or a `.zarr/` directory) | `umi` | no |
-| MCAP logs (`*.mcap` files) | `mcap` | no |
-| **anything else** — videos, image folders, CSVs | `folder` | arrange one directory per episode — [the recipe](reference/dataset-viz-requirements.md#route-2-raw-recordings--the-folder-layout) |
+| you have                                            | `format`  | anything to do first?                                                                                                 |
+| --------------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------- |
+| a LeRobot dataset (`meta/info.json` at the root)    | `lerobot` | no — v2.0/v2.1/v3.0 read as-is                                                                                        |
+| a zarr store (`*.zarr.zip` or a `.zarr/` directory) | `umi`     | no                                                                                                                    |
+| MCAP logs (`*.mcap` files)                          | `mcap`    | no                                                                                                                    |
+| **anything else** — videos, image folders, CSVs     | `folder`  | arrange one directory per episode — [the recipe](reference/dataset-viz-requirements.md#route-2-raw-recordings--the-folder-layout) |
 
 The first three need zero preparation — the point of the system is that a
 published dataset renders **unmodified**, with one file added. `folder` is
@@ -51,10 +51,10 @@ Put this at the dataset root, swapping in your `format`:
 ```yaml file=".dreamrc"
 version: 1
 dataset:
-  format: lerobot        # lerobot | umi | mcap — or folder, with:
-  episodes: auto         # folder uses a glob instead: "episodes/*/"
+  format: lerobot # lerobot | umi | mcap — or folder, with:
+  episodes: auto # folder uses a glob instead: "episodes/*/"
 views:
-  - view: fields         # step 3: prints what the dataset holds
+  - view: fields # step 3: prints what the dataset holds
 ```
 
 ### 3. Read the inventory
@@ -77,7 +77,7 @@ npx tsx scripts/check-dreamrc.mts hf:your-name/your-dataset
 ```
 
 This listing is what you write bindings against. The viewer never guesses
-what a column means — *you* know `[21,3]` is a hand skeleton, and the next
+what a column means — _you_ know `[21,3]` is a hand skeleton, and the next
 step is where you write that down.
 
 ### 4. Bind views
@@ -91,11 +91,11 @@ dataset:
   episodes: auto
 views:
   - view: videoStack
-    cameras: ["observation.images.*"]          # glob: every camera
+    cameras: ['observation.images.*'] # glob: every camera
     overlays:
       - { field: observation.keypoints_2d, as: keypoints }
   - view: lineChart
-    series: [{ field: observation.state }]     # one trace per named dim
+    series: [{ field: observation.state }] # one trace per named dim
   - view: timeline
     tracks: [{ field: subtask_index, as: segments }]
 ```
@@ -129,11 +129,11 @@ npx tsx scripts/check-dreamrc.mts ./draft.dreamrc    # decodes every binding
 
 ## Where things are
 
-| you want | page |
-| --- | --- |
-| prepare or fix your data (shapes, annotations, camera encoding) | [prepare your data](reference/dataset-viz-requirements.md) |
-| every `.dreamrc` key, with defaults and examples | [write the .dreamrc](reference/dataset-viz-spec.md) |
-| every view, its live demo and its options | [view components](reference/dataset-viz-views.md) |
-| complete datasets to copy | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md) |
-| exact contracts, storage drivers, format details | [reference](reference/dataset-viz-reference.md) |
-| why the system is shaped this way | [the architecture](reference/dataset-viz-overview.md) |
+| you want                                                        | page                                                                  |
+| --------------------------------------------------------------- | --------------------------------------------------------------------- |
+| prepare or fix your data (shapes, annotations, camera encoding) | [prepare your data](reference/dataset-viz-requirements.md)                        |
+| every `.dreamrc` key, with defaults and examples                | [write the .dreamrc](reference/dataset-viz-spec.md)                               |
+| every view, its live demo and its options                       | [view components](reference/dataset-viz-views.md)                                 |
+| complete datasets to copy                                       | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md) |
+| exact contracts, storage drivers, format details                | [reference](reference/dataset-viz-reference.md)                                   |
+| why the system is shaped this way                               | [the architecture](reference/dataset-viz-overview.md)                             |

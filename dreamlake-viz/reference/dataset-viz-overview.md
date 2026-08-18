@@ -1,7 +1,7 @@
 # The architecture
 
-*(This page is the design rationale — to get something on screen, go to
-[start here](reference/dataset-viz-start.md).)*
+_(This page is the design rationale — to get something on screen, go to
+[start here](reference/dataset-viz-start.md).)_
 
 **A viewer cannot generate itself.** We do not produce bespoke visualization
 code per dataset — the system ships **pre-built view components** (a video
@@ -46,12 +46,12 @@ library, never something an adapter does on the side.
 Every registered component states, per binding slot, the payload kinds it
 consumes. That declaration **is** the input contract:
 
-| view | slot | contract it asks for |
-| --- | --- | --- |
-| `timeline` | `tracks` | `segments` — `{ start, end, label }` spans |
-| `pointCloud` | `cloud` | `pointcloud` — per-frame `xyz` (+ optional `rgb`) |
-| `videoStack` | `overlays` | `keypoints` (a skeleton) or `segments` (captions) |
-| `recon3d` | `geometry` + `tracks` | `mesh3d` geometry moved by `transform3d` / `vertices3d` / `pose3d` |
+| view         | slot                  | contract it asks for                                               |
+| ------------ | --------------------- | ------------------------------------------------------------------ |
+| `timeline`   | `tracks`              | `segments` — `{ start, end, label }` spans                         |
+| `pointCloud` | `cloud`               | `pointcloud` — per-frame `xyz` (+ optional `rgb`)                  |
+| `videoStack` | `overlays`            | `keypoints` (a skeleton) or `segments` (captions)                  |
+| `recon3d`    | `geometry` + `tracks` | `mesh3d` geometry moved by `transform3d` / `vertices3d` / `pose3d` |
 
 One declaration is enforced three ways: it is what the decoder is called
 with, what a `*` glob is filtered by, and what an author's `as:` is validated
@@ -106,24 +106,24 @@ Each contract is fed from the wire in a fixed order of preference:
 The result is that the requirements on your data are small and mostly not
 ours: [what your data must look like](reference/dataset-viz-requirements.md) is two rules
 plus the shape each contract demands — which is not a rule we impose, but
-what a skeleton, a point cloud, or a depth map *is*.
+what a skeleton, a point cloud, or a depth map _is_.
 
 ## The `.dreamrc` states meaning
 
 The last piece is the wiring. A field's catalog entry records how its bytes
 are addressed (a video stream, numbers with a shape, a file with an
 extension) and draws no conclusion; the binding in the `.dreamrc` is where a
-human or an agent states what the field *is*, by choosing the slot — and,
+human or an agent states what the field _is_, by choosing the slot — and,
 where a slot reads more than one contract, saying which with `as:`.
 
 ```yaml
 views:
   - view: videoStack
-    cameras: [observation.images.ego]                        # decoded as video
+    cameras: [observation.images.ego] # decoded as video
     overlays:
       - { field: observation.keypoints_2d.left.ego, as: keypoints }
   - view: pointCloud
-    cloud: [observation.environment_state]                 # the author knows
+    cloud: [observation.environment_state] # the author knows
 ```
 
 `observation.environment_state` is a `[512,6]` float tensor whose name says
@@ -146,11 +146,11 @@ rest is [grammar](reference/dataset-viz-spec.md).
 
 ## Where to go
 
-| you are | read |
-| --- | --- |
-| new — data in hand | [start here](reference/dataset-viz-start.md) |
-| writing a `.dreamrc` | [write the .dreamrc](reference/dataset-viz-spec.md), then [view components](reference/dataset-viz-views.md) |
-| preparing or publishing a dataset | [prepare your data](reference/dataset-viz-requirements.md) |
-| looking up a name or a contract | [reference](reference/dataset-viz-reference.md) |
-| wanting working examples | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md) |
-| changing the library | [library internals](reference/dataset-viz-internals.md) |
+| you are                           | read                                                                                |
+| --------------------------------- | ----------------------------------------------------------------------------------- |
+| new — data in hand                | [start here](reference/dataset-viz-start.md)                                                    |
+| writing a `.dreamrc`              | [write the .dreamrc](reference/dataset-viz-spec.md), then [view components](reference/dataset-viz-views.md) |
+| preparing or publishing a dataset | [prepare your data](reference/dataset-viz-requirements.md)                                      |
+| looking up a name or a contract   | [reference](reference/dataset-viz-reference.md)                                                 |
+| wanting working examples          | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md)               |
+| changing the library              | [library internals](reference/dataset-viz-internals.md)                                         |

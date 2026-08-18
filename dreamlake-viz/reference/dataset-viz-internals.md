@@ -90,7 +90,7 @@ The discipline that remains:
 
 - **Validate, then decode.** A decoder checks the shape it was handed and
   throws a message naming the mismatch — `observation.state is float32 [6];
-  keypoints needs [J,2] or [J,3]`. A wrong render is the one unacceptable
+keypoints needs [J,2] or [J,3]`. A wrong render is the one unacceptable
   outcome, because the user cannot see that it is wrong.
 - **Omit, never mislist.** Something the adapter cannot address at all stays
   out of the catalog with a `console.warn` naming it.

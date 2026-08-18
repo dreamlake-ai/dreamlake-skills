@@ -21,15 +21,15 @@ never need to install anything. Write a `.dreamrc` at its root:
 version: 1
 
 dataset:
-  format: lerobot        # lerobot | folder | umi | mcap
+  format: lerobot # lerobot | folder | umi | mcap
   episodes: auto
 
 views:
   - view: videoStack
-    cameras: ["observation.images.*"]
+    cameras: ['observation.images.*']
   - view: lineChart
     series:
-      - { field: [action, "*"] }
+      - { field: [action, '*'] }
 ```
 
 Check it from a shell before you ship it — with no config it prints the
@@ -78,20 +78,20 @@ their own ([TypeScript API](reference/dataset-viz-spec.md#typescript-api)).
 
 ## What's in this package
 
-| export | what it is |
-| --- | --- |
-| `@dreamlake/viz/dataset-viz` | the `.dreamrc` engine: validate, resolve, render ([docs](reference/dataset-viz-overview.md)) |
+| export                                        | what it is                                                                                                                             |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `@dreamlake/viz/dataset-viz`                  | the `.dreamrc` engine: validate, resolve, render ([docs](reference/dataset-viz-overview.md))                                                       |
 | `@dreamlake/viz/episode-*`, `…/media-overlay` | the underlying episode components — video stack, line chart, timeline, frame stack, 3D scene ([docs](reference/components-episode-video-stack.md)) |
-| `@dreamlake/viz/file-preview` | single-file preview used by the DreamLake file browser |
-| `@dreamlake/viz/schema-viz` | the previous-generation, schema-driven viewer the platform still ships |
+| `@dreamlake/viz/file-preview`                 | single-file preview used by the DreamLake file browser                                                                                 |
+| `@dreamlake/viz/schema-viz`                   | the previous-generation, schema-driven viewer the platform still ships                                                                 |
 
 ## Where to go next
 
-| you want | read |
-| --- | --- |
-| to get started, data in hand | [start here](reference/dataset-viz-start.md) |
-| to write a `.dreamrc` | [write the .dreamrc](reference/dataset-viz-spec.md) · [view components](reference/dataset-viz-views.md) · [reference](reference/dataset-viz-reference.md) |
-| to prepare a dataset | [prepare your data](reference/dataset-viz-requirements.md) |
-| to understand the design | [the architecture](reference/dataset-viz-overview.md) |
-| working examples | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md) |
-| these docs, for your agent | [LLM-readable docs](reference/llm-readable.md) |
+| you want                     | read                                                                                                                  |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| to get started, data in hand | [start here](reference/dataset-viz-start.md)                                                                                      |
+| to write a `.dreamrc`        | [write the .dreamrc](reference/dataset-viz-spec.md) · [view components](reference/dataset-viz-views.md) · [reference](reference/dataset-viz-reference.md) |
+| to prepare a dataset         | [prepare your data](reference/dataset-viz-requirements.md)                                                                        |
+| to understand the design     | [the architecture](reference/dataset-viz-overview.md)                                                                             |
+| working examples             | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md)                                                 |
+| these docs, for your agent   | [LLM-readable docs](reference/llm-readable.md)                                                                                    |

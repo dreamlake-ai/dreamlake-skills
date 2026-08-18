@@ -5,10 +5,10 @@ at the bytes, and make yours look the same.** Each carries its own `.dreamrc`
 at its root — the file you see below is fetched from the dataset, not copied
 into this page.
 
-| template | when it is yours | Hub |
-| --- | --- | --- |
+| template                             | when it is yours                                                 | Hub                                                                                                          |
+| ------------------------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | **LeRobot with annotation features** | you are writing a LeRobot dataset and want annotations INSIDE it | [live9080/dreamlake-lerobot-annotated](https://huggingface.co/datasets/live9080/dreamlake-lerobot-annotated) |
-| **Folder of video + sidecars** | you have recordings and files, and no container at all | [live9080/dreamlake-ceramics](https://huggingface.co/datasets/live9080/dreamlake-ceramics) |
+| **Folder of video + sidecars**       | you have recordings and files, and no container at all           | [live9080/dreamlake-ceramics](https://huggingface.co/datasets/live9080/dreamlake-ceramics)                   |
 
 Neither template asks you to convert anything into a DreamLake format —
 [prepare your data](reference/dataset-viz-requirements.md) is entirely container idioms and
@@ -34,11 +34,11 @@ dreamlake-lerobot-annotated/
 
 What each feature declares, and what the `.dreamrc` binds it to:
 
-| feature in `meta/info.json` | dtype / shape | bound as |
-| --- | --- | --- |
-| `observation.images.ego` | `video` [1080,1920,3] | `videoStack.cameras` → camera tile |
-| `observation.keypoints_2d.left.ego` | `float32` [21,3] | `videoStack.overlays` with `as: keypoints` → hand skeleton |
-| `observation.keypoints_2d.right.ego` | `float32` [21,3] | the same, second hand |
+| feature in `meta/info.json`             | dtype / shape             | bound as                                                             |
+| --------------------------------------- | ------------------------- | -------------------------------------------------------------------- |
+| `observation.images.ego`                | `video` [1080,1920,3]     | `videoStack.cameras` → camera tile                                   |
+| `observation.keypoints_2d.left.ego`     | `float32` [21,3]          | `videoStack.overlays` with `as: keypoints` → hand skeleton           |
+| `observation.keypoints_2d.right.ego`    | `float32` [21,3]          | the same, second hand                                                |
 | `subtask_index` + `meta/subtasks.jsonl` | `int64` [1] + label table | `tracks: [{ field: subtask_index, as: segments }]` → labelled blocks |
 
 Two details are load-bearing, and both are easy to get wrong:
@@ -98,9 +98,9 @@ the other one: **a dataset published by somebody else needs no modification at
 all.** Two of the most-downloaded LeRobot datasets, forked into our namespace
 with exactly one file added:
 
-| fork | upstream | files changed |
-| --- | --- | --- |
-| [live9080/pusht](https://huggingface.co/datasets/live9080/pusht) | [`lerobot/pusht`](https://huggingface.co/datasets/lerobot/pusht) — 206 episodes | **+1** (`.dreamrc`) |
+| fork                                                                                           | upstream                                                                                                             | files changed       |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| [live9080/pusht](https://huggingface.co/datasets/live9080/pusht)                               | [`lerobot/pusht`](https://huggingface.co/datasets/lerobot/pusht) — 206 episodes                                      | **+1** (`.dreamrc`) |
 | [live9080/svla_so101_pickplace](https://huggingface.co/datasets/live9080/svla_so101_pickplace) | [`lerobot/svla_so101_pickplace`](https://huggingface.co/datasets/lerobot/svla_so101_pickplace) — SO-101, two cameras | **+1** (`.dreamrc`) |
 
 Compare the file trees on the Hub: every parquet, every mp4 and every metadata
@@ -114,11 +114,11 @@ Two categories that need no template of ours, because the public dataset
 already has the shape — point a `.dreamrc` at them and read
 [prepare your data](reference/dataset-viz-requirements.md) for the rule each one satisfies:
 
-| you want | a real dataset that does it |
-| --- | --- |
-| depth maps | [`juyil/libero_spatial_lerobot_depth`](https://huggingface.co/datasets/juyil/libero_spatial_lerobot_depth) — `float32` [256,256,1] named `depth_primary` |
-| point clouds | [`rishabhrj11/gym-xarm-pointcloud`](https://huggingface.co/datasets/rishabhrj11/gym-xarm-pointcloud) — `float32` [512,6], xyz + rgb |
-| many cameras + bimanual state | [`lerobot/aloha_static_coffee`](https://huggingface.co/datasets/lerobot/aloha_static_coffee) — four cameras, 14-DoF |
+| you want                      | a real dataset that does it                                                                                                                              |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| depth maps                    | [`juyil/libero_spatial_lerobot_depth`](https://huggingface.co/datasets/juyil/libero_spatial_lerobot_depth) — `float32` [256,256,1] named `depth_primary` |
+| point clouds                  | [`rishabhrj11/gym-xarm-pointcloud`](https://huggingface.co/datasets/rishabhrj11/gym-xarm-pointcloud) — `float32` [512,6], xyz + rgb                      |
+| many cameras + bimanual state | [`lerobot/aloha_static_coffee`](https://huggingface.co/datasets/lerobot/aloha_static_coffee) — four cameras, 14-DoF                                      |
 
 The [gallery](reference/dataset-viz-gallery.md) renders all of them, plus zarr and MCAP.
 

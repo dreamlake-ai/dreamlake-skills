@@ -8,8 +8,13 @@ and standalone — copy any of them into the
 Three things apply to every view, so the tables below don't repeat them:
 
 - **Sizing** — every view takes `width`, `height`, `aspectRatio`
-  ([how they behave](reference/dataset-viz-spec.md#sizing--every-view-three-keys));
-  each view's own default height, where it has one, is in its table.
+  ([how they behave](reference/dataset-viz-spec.md#sizing--every-view-three-keys)).
+  Unsized, a view falls back to its own default height — `lineChart` 180,
+  `trajectory2d` 260, `recon3d` and `pointCloud` 360 — and every other view
+  takes its content's natural height (camera grids from their tiles, tables
+  and bands from their rows). The camera views additionally take
+  `tileAspect` to force one ratio on every tile; by default each tile uses
+  its own media's ratio.
 - **The shared cursor** — every view whose x-axis is time (videos, frames,
   depth, charts, bands, the timeline) scrubs the episode's shared cursor on
   hover; hover any demo to move it. The 3D views leave the pointer to
@@ -38,12 +43,12 @@ views:
       - { field: subtasks, as: segments }          # says which one it is
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `cameras` | refs / globs | **required** | the camera fields (`video` or `image`); `"*"` takes every camera and skips everything else |
-| `overlays` | `[{ field, as, on? }]` | — | `as: keypoints` (skeleton) or `as: segments` (captions); `on:` pins an overlay to one camera when several are bound |
-| `columns` | number | 3 | tile grid columns |
-| `tileAspect` | number | each video's own | force one aspect ratio on every tile |
+| option       | type / values          | default          | meaning                                                                                                             |
+| ------------ | ---------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `cameras`    | field names / globs    | **required**     | the camera fields (`video` or `image`); `"*"` takes every camera and skips everything else                          |
+| `overlays`   | `[{ field, as, on? }]` | —                | `as: keypoints` (skeleton) or `as: segments` (captions); `on:` pins an overlay to one camera when several are bound |
+| `columns`    | number                 | 3                | tile grid columns                                                                                                   |
+| `tileAspect` | number                 | each video's own | force one aspect ratio on every tile                                                                                |
 
 ## frameStack
 
@@ -65,11 +70,12 @@ views:
     columns: 2
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `cameras` | refs / globs | **required** | the `frames` fields (image sequences) |
-| `overlays` | `[{ field, as, on? }]` | — | same as videoStack — a frames camera is a camera |
-| `columns` | number | 3 | tile grid columns |
+| option       | type / values          | default          | meaning                                          |
+| ------------ | ---------------------- | ---------------- | ------------------------------------------------ |
+| `cameras`    | field names / globs    | **required**     | the `frames` fields (image sequences)            |
+| `overlays`   | `[{ field, as, on? }]` | —                | same as videoStack — a frames camera is a camera |
+| `columns`    | number                 | 3                | tile grid columns                                |
+| `tileAspect` | number                 | each frame's own | force one aspect ratio on every tile             |
 
 ## depthStack
 
@@ -89,13 +95,14 @@ views:
     columns: 2
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `cameras` | refs | **required** | name the depth columns explicitly — a bare `*` would ask every tensor for a depth map |
-| `overlays` | `[{ field, as, on? }]` | — | a depth camera is a camera too |
-| `colormap` | `turbo` \| `gray` | `turbo` | the color mapping |
-| `min` / `max` | number (raw units) | per-frame | pin the color range; by default each frame maps its own min/max over valid readings (>0) |
-| `columns` | number | 3 | tile grid columns |
+| option        | type / values          | default          | meaning                                                                                  |
+| ------------- | ---------------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| `cameras`     | field names            | **required**     | name the depth columns explicitly — a bare `*` would ask every tensor for a depth map    |
+| `overlays`    | `[{ field, as, on? }]` | —                | a depth camera is a camera too                                                           |
+| `colormap`    | `turbo` \| `gray`      | `turbo`          | the color mapping                                                                        |
+| `min` / `max` | number (raw units)     | per-frame        | pin the color range; by default each frame maps its own min/max over valid readings (>0) |
+| `columns`     | number                 | 3                | tile grid columns                                                                        |
+| `tileAspect`  | number                 | each frame's own | force one aspect ratio on every tile (the frame letterboxes inside)                      |
 
 ## pointCloud
 
@@ -116,11 +123,10 @@ views:
     height: 140
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `cloud` | one ref | **required** | the `[N,3]` / `[N,6]` column — the author says it is a cloud, the name never does |
-| `up` | `x` \| `y` \| `z` \| `[x,y,z]` | `z` | the data's up axis (robot-lab clouds are z-up) |
-| `height` | number | 360 | panel height when not otherwise sized |
+| option  | type / values                  | default      | meaning                                                                           |
+| ------- | ------------------------------ | ------------ | --------------------------------------------------------------------------------- |
+| `cloud` | one field name                 | **required** | the `[N,3]` / `[N,6]` column — the author says it is a cloud, the name never does |
+| `up`    | `x` \| `y` \| `z` \| `[x,y,z]` | `z`          | the data's up axis (robot-lab clouds are z-up)                                    |
 
 ## lineChart
 
@@ -138,12 +144,11 @@ views:
     height: 220
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `series` | `[ref \| { field, …style }]` | **required** | one entry per trace or per family; a `[n]` feature expands to one trace per named dim; `*` globs work in both halves of `[feature, dim]` |
-| *entry styling* | `label` `color` `dash` `width` `opacity` `linecap` `readout` `ghost` | — | [the full table](reference/dataset-viz-spec.md#series-entry-styling) — `dash` for command-vs-actual, `ghost` for reference traces |
-| `title` / `caption` | string | — | panel heading / footnote |
-| `height` | number | 180 | panel height when not otherwise sized |
+| option              | type / values                                                        | default      | meaning                                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `series`            | field names or `{ field, …style }`                                   | **required** | one entry per trace or per family; a `[n]` feature expands to one trace per named dim; `*` globs work in both halves of `[feature, dim]` |
+| _entry styling_     | `label` `color` `dash` `width` `opacity` `linecap` `readout` `ghost` | —            | [the full table](reference/dataset-viz-spec.md#series-entry-styling) — `dash` for command-vs-actual, `ghost` for reference traces                    |
+| `title` / `caption` | string                                                               | —            | panel heading / footnote                                                                                                                 |
 
 ## trajectory2d
 
@@ -161,12 +166,11 @@ views:
     height: 260
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `series` | `[ref \| { field, label?, color? }]` | **required** | one entry per path; x/y are the columns named `x`/`y` (case-insensitive) or the first two |
-| `invertY` | boolean | `true` | image convention (top-left origin); `false` flips to math convention |
-| `window` | `{ ahead?, behind? }` | full path | draw only the seconds around the cursor (defaults 1 / 0 when given) |
-| `height` | number | 260 | panel height when not otherwise sized |
+| option    | type / values                              | default      | meaning                                                                                   |
+| --------- | ------------------------------------------ | ------------ | ----------------------------------------------------------------------------------------- |
+| `series`  | field names or `{ field, label?, color? }` | **required** | one entry per path; x/y are the columns named `x`/`y` (case-insensitive) or the first two |
+| `invertY` | boolean                                    | `true`       | image convention (top-left origin); `false` flips to math convention                      |
+| `window`  | `{ ahead?, behind? }`                      | full path    | draw only the seconds around the cursor (defaults 1 / 0 when given)                       |
 
 ## timeline
 
@@ -184,9 +188,9 @@ views:
     tracks: [subtasks]
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `tracks` | `[ref \| { field, as: segments }]` | **required** | one row of blocks per track; equal consecutive values merge into one span, an int column joins its label table |
+| option   | type / values                            | default      | meaning                                                                                                        |
+| -------- | ---------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
+| `tracks` | field names or `{ field, as: segments }` | **required** | one row of blocks per track; equal consecutive values merge into one span, an int column joins its label table |
 
 ## bandTrack
 
@@ -205,11 +209,11 @@ views:
       - { field: [cartesian_so3_dict.cartesian_pose_state, torso_state_8], label: torso_8 }
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `series` | `[ref \| { field, label? }]` | **required** | same addressing as lineChart; each resolved column is one band row |
-| `maxLevels` | number | 12 | a column is "discrete" when its unique values fit; busier columns get a one-line "use lineChart" note |
-| `bandHeight` | number | 18 | per-band height in px |
+| option       | type / values                      | default      | meaning                                                                                               |
+| ------------ | ---------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| `series`     | field names or `{ field, label? }` | **required** | same addressing as lineChart; each resolved column is one band row                                    |
+| `maxLevels`  | number                             | 12           | a column is "discrete" when its unique values fit; busier columns get a one-line "use lineChart" note |
+| `bandHeight` | number                             | 18           | per-band height in px                                                                                 |
 
 ## metaPanel
 
@@ -225,10 +229,10 @@ views:
     note: any free text rides along here
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `note` | string | — | a free-text line — provenance, caveats, what the dataset is |
-| `showTasks` | boolean | `true` | `false` hides the task strings (single-task datasets repeat one sentence per episode) |
+| option      | type / values | default | meaning                                                                               |
+| ----------- | ------------- | ------- | ------------------------------------------------------------------------------------- |
+| `note`      | string        | —       | a free-text line — provenance, caveats, what the dataset is                           |
+| `showTasks` | boolean       | `true`  | `false` hides the task strings (single-task datasets repeat one sentence per episode) |
 
 ## fields
 
@@ -240,15 +244,15 @@ replace it:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
-storage: { driver: hf, repo: live9080/dreamlake-ceramics }
-dataset: { format: folder, episodes: "episodes/*/" }
+storage: { driver: hf, repo: live9080/dreamlake-lerobot-annotated }
+dataset: { format: lerobot, episodes: auto }
 views:
   - view: fields
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `title` | string | `Fields` | the table heading |
+| option  | type / values | default  | meaning           |
+| ------- | ------------- | -------- | ----------------- |
+| `title` | string        | `Fields` | the table heading |
 
 ## recon3d
 
@@ -276,10 +280,9 @@ views:
     tracks: [subtasks]
 ```
 
-| option | type / values | default | meaning |
-| --- | --- | --- | --- |
-| `geometry` | refs | `[]` | the glTF/GLB/OBJ file(s); empty for point-set-only scenes (hands without meshes) |
-| `tracks` | `[{ field, as }]` | **required** | `as: transform3d` (pose → same-named node) · `vertices3d` (deforming mesh → same-named node) · `pose3d` (point sets); a grouped poses parquet binds one track per object: `poses[ruler]` |
-| `up` | `x` \| `y` \| `z` \| `[x,y,z]` | `[0, -1, 0]` | the data frame's up vector — the default is the OpenCV camera frame's (y points down there) |
-| `trail` | `{ ahead?, behind? }` \| `false` | `{ ahead: 1, behind: 0 }` | motion-trail seconds around the playhead — pure future by default; `behind` opts into a dim past tail |
-| `height` | number | 360 | panel height when not otherwise sized |
+| option     | type / values                    | default                   | meaning                                                                                                                                                                                  |
+| ---------- | -------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `geometry` | field names                      | `[]`                      | the glTF/GLB/OBJ file(s); empty for point-set-only scenes (hands without meshes)                                                                                                         |
+| `tracks`   | `[{ field, as }]`                | **required**              | `as: transform3d` (pose → same-named node) · `vertices3d` (deforming mesh → same-named node) · `pose3d` (point sets); a grouped poses parquet binds one track per object: `poses[ruler]` |
+| `up`       | `x` \| `y` \| `z` \| `[x,y,z]`   | `[0, -1, 0]`              | the data frame's up vector — the default is the OpenCV camera frame's (y points down there)                                                                                              |
+| `trail`    | `{ ahead?, behind? }` \| `false` | `{ ahead: 1, behind: 0 }` | motion-trail seconds around the playhead — pure future by default; `behind` opts into a dim past tail                                                                                    |

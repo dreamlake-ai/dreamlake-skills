@@ -19,14 +19,14 @@ the two apart is the whole design.
 `Field.kind` says how the BYTES ARE ADDRESSED and nothing about what they
 mean. Six values, closed, and nothing turns a name or a shape into one of them:
 
-| kind | the container said | `meta` carries |
-| --- | --- | --- |
-| `video` | an encoded stream, seekable | `codec` / dimensions when reported |
-| `frames` | encoded images, one per frame | `count`, `fps?`, `ext` |
-| `image` | one encoded image | `ext` |
-| `tensor` | numbers | `dtype`, `shape`, `names` — verbatim |
-| `text` | strings | |
-| `file` | an address, and nothing claimed | `ext` |
+| kind     | the container said              | `meta` carries                       |
+| -------- | ------------------------------- | ------------------------------------ |
+| `video`  | an encoded stream, seekable     | `codec` / dimensions when reported   |
+| `frames` | encoded images, one per frame   | `count`, `fps?`, `ext`               |
+| `image`  | one encoded image               | `ext`                                |
+| `tensor` | numbers                         | `dtype`, `shape`, `names` — verbatim |
+| `text`   | strings                         |                                      |
+| `file`   | an address, and nothing claimed | `ext`                                |
 
 For a loose file the extension picks the addressing and only that: `.mp4` /
 `.webm` → `video`, `.jpg` / `.png` → `image`, `.csv` / `.parquet` → `tensor`.
@@ -43,21 +43,21 @@ them to decide what a field is.
 `read(ref, { as })` decodes into one of these. The `as` comes from the slot the
 field was bound to, so the interpretation is written in the `.dreamrc`:
 
-| payload | what comes back | the field must be |
-| --- | --- | --- |
-| `video` | `{ url, window? }` — streamable; `window` is this episode's span of a shared file | a `video` field |
-| `image` | `{ url }` | an `image` field |
-| `frames` | `{ count, fps?, frameAt(i) }` — lazy per-frame fetch | a `frames` field |
-| `series` | `{ timestamps, columns }` — per-dim numeric traces | any numeric scalar or `[n]`; `names` label the traces |
-| `segments` | `{ segments: [{ start, end, label }] }` — any time-range → label | an int column **plus its label table**, a string column, or a `.vtt` / `.srt` |
-| `keypoints` | `{ keypoints }` — pixel space, fps, sparse frames, skeleton | float `[J,2]` / `[J,3]`, or a COCO `.json` |
-| `depth` | `{ count, fps?, at(i) }` — raw values, never pre-colorized | float `[H,W]` or `[H,W,1]`, or `frames` of encoded 16-bit PNGs |
-| `pointcloud` | `{ count, fps?, at(i) }` | float `[N,3]` or `[N,6]` (xyz, or xyz + rgb) |
-| `transform3d` | `{ timestamps, values, layout }` — position + quaternion | float `[7]` or `[N,7]` |
-| `vertices3d` | `{ count, fps?, vertexCount, at(i) }` — lazy | float `[V,3]` |
-| `pose3d` | `{ timestamps, joints, shape }` — per-frame point sets | float `[J,3]` or a flat `[J*3]` |
-| `mesh3d` | `{ url, format }` — static geometry; its node names bind the tracks above | a `.glb` / `.gltf` / `.obj` |
-| `file` | `{ url, ext? }` — an address a component parses itself | anything |
+| payload       | what comes back                                                                   | the field must be                                                             |
+| ------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `video`       | `{ url, window? }` — streamable; `window` is this episode's span of a shared file | a `video` field                                                               |
+| `image`       | `{ url }`                                                                         | an `image` field                                                              |
+| `frames`      | `{ count, fps?, frameAt(i) }` — lazy per-frame fetch                              | a `frames` field                                                              |
+| `series`      | `{ timestamps, columns }` — per-dim numeric traces                                | any numeric scalar or `[n]`; `names` label the traces                         |
+| `segments`    | `{ segments: [{ start, end, label }] }` — any time-range → label                  | an int column **plus its label table**, a string column, or a `.vtt` / `.srt` |
+| `keypoints`   | `{ keypoints }` — pixel space, fps, sparse frames, skeleton                       | float `[J,2]` / `[J,3]`, or a COCO `.json`                                    |
+| `depth`       | `{ count, fps?, at(i) }` — raw values, never pre-colorized                        | float `[H,W]` or `[H,W,1]`, or `frames` of encoded 16-bit PNGs                |
+| `pointcloud`  | `{ count, fps?, at(i) }`                                                          | float `[N,3]` or `[N,6]` (xyz, or xyz + rgb)                                  |
+| `transform3d` | `{ timestamps, values, layout }` — position + quaternion                          | float `[7]` or `[N,7]`                                                        |
+| `vertices3d`  | `{ count, fps?, vertexCount, at(i) }` — lazy                                      | float `[V,3]`                                                                 |
+| `pose3d`      | `{ timestamps, joints, shape }` — per-frame point sets                            | float `[J,3]` or a flat `[J*3]`                                               |
+| `mesh3d`      | `{ url, format }` — static geometry; its node names bind the tracks above         | a `.glb` / `.gltf` / `.obj`                                                   |
+| `file`        | `{ url, ext? }` — an address a component parses itself                            | anything                                                                      |
 
 Ask for one the bytes cannot become and the read throws naming both sides
 (`observation.state is float32 [6]; keypoints needs [J,2] or [J,3]`) instead of
@@ -68,14 +68,14 @@ drawing something wrong.
 The bridge between the two tables. It reads the addressing kind and nothing
 else — no name, no shape, no extension:
 
-| addressed as | can be read as |
-| --- | --- |
-| `video` | `video` |
-| `image` | `image` |
-| `frames` | `frames`, `depth` — depth shipped as 16-bit PNGs is a codec question, not a meaning |
-| `tensor` | `series`, `keypoints`, `pose3d`, `transform3d`, `vertices3d`, `depth`, `pointcloud` |
-| `text` | `segments` |
-| `file` | `file`, `mesh3d`, `segments`, `keypoints` |
+| addressed as | can be read as                                                                      |
+| ------------ | ----------------------------------------------------------------------------------- |
+| `video`      | `video`                                                                             |
+| `image`      | `image`                                                                             |
+| `frames`     | `frames`, `depth` — depth shipped as 16-bit PNGs is a codec question, not a meaning |
+| `tensor`     | `series`, `keypoints`, `pose3d`, `transform3d`, `vertices3d`, `depth`, `pointcloud` |
+| `text`       | `segments`                                                                          |
+| `file`       | `file`, `mesh3d`, `segments`, `keypoints`                                           |
 
 Intersect a field's row with the payloads its slot reads
 ([per component](#view-components)):
@@ -118,7 +118,7 @@ needs no library change:
    `normalizeSegments`), and a built-in component with a slot that reads it.
 
 The same registries extend the other axes: `registerFormat` for a new
-dataset layout, `registerStorage` for a new backend — including *composite*
+dataset layout, `registerStorage` for a new backend — including _composite_
 backends (an overlay bucket layered over a read-only base is just another
 two-method `Storage` whose `list` merges and whose `resolveUrl` checks the
 overlay first).
@@ -150,7 +150,13 @@ type Payload =
   | { kind: 'transform3d'; timestamps: number[]; values: Float32Array; layout: TransformLayout }
   // Per-frame vertex positions for a deforming mesh, fetched lazily;
   // topology comes from the paired mesh3d node.
-  | { kind: 'vertices3d'; count: number; fps?: number; vertexCount: number; at: (i: number) => Promise<Float32Array> }
+  | {
+      kind: 'vertices3d'
+      count: number
+      fps?: number
+      vertexCount: number
+      at: (i: number) => Promise<Float32Array>
+    }
   // Raw values, never pre-colorized — the component owns the colormap.
   | { kind: 'depth'; count: number; fps?: number; at: (i: number) => Promise<DepthFrame> }
   | { kind: 'pointcloud'; count: number; fps?: number; at: (i: number) => Promise<CloudFrame> }
@@ -216,12 +222,12 @@ Declared in a standalone file's `storage:` block, or injected by the host for
 a file at its dataset root ([who writes it](reference/dataset-viz-spec.md#storage--where-the-dataset-lives)).
 Configs carry identifiers only — never credentials.
 
-| driver | config keys | notes |
-| --- | --- | --- |
-| `http` | `url` **required** — the dataset root URL (absolute, or site-relative when co-hosted) | `resolveUrl` joins `url` + path. Listing reads a co-located `index.json` manifest per directory — a static host cannot enumerate itself, so glob enumeration needs the manifests; `episodes: auto` formats don't. |
-| `hf` | `repo` **required** (e.g. `lerobot/pusht`) · `root` subpath within the repo · `revision` (default `main`) · `repoType` (default `datasets`) | Public HuggingFace repos, credential-free. Listing walks the Hub tree API; resolved URLs support CORS + Range, so parquet/zarr reads work in-browser. |
-| `dlSource` | `slug` (namespace) · `sourceId` · `root` subpath | **Registered by the DreamLake app** — a source browsed in the platform (S3, GCS, …). Listing via the source browse API, URLs via presign; the session token is injected at registration, never configured. |
-| `dlProject` | `namespace` + `project`, or `root` (a node id) | **Registered by the DreamLake app** — a project folder as the dataset root. |
+| driver      | config keys                                                                                                                                 | notes                                                                                                                                                                                                             |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `http`      | `url` **required** — the dataset root URL (absolute, or site-relative when co-hosted)                                                       | `resolveUrl` joins `url` + path. Listing reads a co-located `index.json` manifest per directory — a static host cannot enumerate itself, so glob enumeration needs the manifests; `episodes: auto` formats don't. |
+| `hf`        | `repo` **required** (e.g. `lerobot/pusht`) · `root` subpath within the repo · `revision` (default `main`) · `repoType` (default `datasets`) | Public HuggingFace repos, credential-free. Listing walks the Hub tree API; resolved URLs support CORS + Range, so parquet/zarr reads work in-browser.                                                             |
+| `dlSource`  | `slug` (namespace) · `sourceId` · `root` subpath                                                                                            | **Registered by the DreamLake app** — a source browsed in the platform (S3, GCS, …). Listing via the source browse API, URLs via presign; the session token is injected at registration, never configured.        |
+| `dlProject` | `namespace` + `project`, or `root` (a node id)                                                                                              | **Registered by the DreamLake app** — a project folder as the dataset root.                                                                                                                                       |
 
 Hosts add drivers with `registerStorage(name, factory)`; the whole contract is
 `list(path)` + `resolveUrl(path)`. (The legacy schema-viz pages use
@@ -263,11 +269,11 @@ merged in by the core — never a per-format concern.
 
 LeRobot v2.0 / v2.1 / v3.0. The entry file is `meta/info.json`.
 
-| | |
-| --- | --- |
+|                 |                                                                                                            |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
 | expected layout | `meta/info.json` + `meta/tasks*` + `data/…parquet` + `videos/…mp4` (the paths `info.json` itself declares) |
-| episodes | `auto` — `total_episodes` from `info.json`. A glob is never needed. |
-| config keys | none |
+| episodes        | `auto` — `total_episodes` from `info.json`. A glob is never needed.                                        |
+| config keys     | none                                                                                                       |
 
 The inventory is `meta/info.json`'s `features`, verbatim — one entry per
 feature, carrying its `dtype`, `shape` and `names` as found. `dtype` is the
@@ -287,11 +293,11 @@ per-episode length at the dataset's `fps`.
 
 Folder-per-episode, no manifest — the directory layout is the contract.
 
-| | |
-| --- | --- |
-| expected layout | anything: each matched folder is one episode, its files are the fields |
-| episodes | a glob, e.g. `"episodes/*/"` — `auto` errors (a bare folder cannot enumerate itself) |
-| config keys | `fps` — the clock for numbered still runs and depth stills (default 30). A directory of JPEGs states no frame rate, so the author does; without it, tracks that carry a real clock (a COCO file's `fps`, parquet timestamps) drift away from the pictures. |
+|                 |                                                                                                                                                                                                                                                            |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| expected layout | anything: each matched folder is one episode, its files are the fields                                                                                                                                                                                     |
+| episodes        | a glob, e.g. `"episodes/*/"` — `auto` errors (a bare folder cannot enumerate itself)                                                                                                                                                                       |
+| config keys     | `fps` — the clock for numbered still runs and depth stills (default 30). A directory of JPEGs states no frame rate, so the author does; without it, tracks that carry a real clock (a COCO file's `fps`, parquet timestamps) drift away from the pictures. |
 
 The inventory is the directory listing and nothing more: one field per file,
 addressed by its basename, with `path`, `ext` and `size` in `meta`. The
@@ -311,11 +317,11 @@ components probe durations themselves.
 
 Zarr stores, two modes detected from the store itself.
 
-| | |
-| --- | --- |
+|                 |                                                                                                                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | expected layout | a `*.zarr.zip` ReplayBuffer (UMI: `data/` arrays + `meta/episode_ends`) **or** a `*.zarr` v3 directory store with a root `zarr.json` manifest (EgoVerse-style, one episode per store) |
-| episodes | `auto` — `episode_ends` slices the ReplayBuffer; a directory store is a single episode |
-| config keys | `path` — store path when not at the root or ambiguous (default: first `*.zarr.zip` / `*.zarr` found) · `fps` — ReplayBuffer clock (default 60) |
+| episodes        | `auto` — `episode_ends` slices the ReplayBuffer; a directory store is a single episode                                                                                                |
+| config keys     | `path` — store path when not at the root or ambiguous (default: first `*.zarr.zip` / `*.zarr` found) · `fps` — ReplayBuffer clock (default 60)                                        |
 
 The inventory reads each array's own metadata. An **image codec** is the store
 declaring that one chunk is one encoded image, so that array is `frames`
@@ -331,11 +337,11 @@ are omitted with a warning. Timeline from frame counts at `fps`.
 MCAP v1 indexed containers — one episode per `*.mcap` file, read in place
 over HTTP range requests (a 512MB file costs ~130KB before any field is read).
 
-| | |
-| --- | --- |
-| expected layout | `*.mcap` files at the dataset root — indexed/chunked, lz4- or zstd-compressed chunks |
-| episodes | `auto` — one per `*.mcap` at the root, name-sorted (the `http` driver needs its `index.json` manifest to list); a glob (`"runs/*.mcap"`) also works |
-| config keys | `path` — a single `.mcap` at a subpath (skips listing) |
+|                 |                                                                                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| expected layout | `*.mcap` files at the dataset root — indexed/chunked, lz4- or zstd-compressed chunks                                                                |
+| episodes        | `auto` — one per `*.mcap` at the root, name-sorted (the `http` driver needs its `index.json` manifest to list); a glob (`"runs/*.mcap"`) also works |
+| config keys     | `path` — a single `.mcap` at a subpath (skips listing)                                                                                              |
 
 The inventory is the channel list, each channel carrying its `schema` name and
 encoding in `meta`. Addressing follows what the schema says a message IS: json
@@ -369,7 +375,7 @@ failure mode this design removes.
 
 Whether a binding needs an `as:` follows from the field, not from the
 view — [the rule](#which-payloads-a-field-can-serve--and-when-you-write-as).
-The media/geometry slots (`cameras`, `cloud`, `geometry`) take bare refs with
+The media/geometry slots (`cameras`, `cloud`, `geometry`) take bare field names with
 nowhere to write one, so they are always settled by the field's own
 addressing kind; `series`, `tracks` and `overlays` take `{ field, as }`
 entries. A `*` glob selects only the fields whose addressing kind can serve
@@ -393,19 +399,19 @@ its aspect, charts fill their slot, and overflow scrolls horizontally,
 synced across episodes under a `SyncScrollProvider`. "row" marks components that render in the compact
 `layout="row"` strips (dataset lists); the rest appear in grid layout only.
 
-| view | binds | slot → payload | keys of note | row |
-| --- | --- | --- | --- | --- |
-| `videoStack` | `cameras` (a `*` glob expands to the container's media fields) · `overlays: [ { field, as, on? } ]` — `as` picks skeleton or captions, `on` pins one to a specific camera | `cameras` → `video`, `image` · `overlays` → `keypoints`, `segments` | `columns` (default 3) · `tileAspect` — force one ratio; by default each tile uses its video's intrinsic ratio. Plus [EpisodeVideoStack](reference/components-episode-video-stack.md) props. Probes video durations when the format has no timeline. | ✓ |
-| `frameStack` | `cameras` · `overlays` (same form as `videoStack` — the tiles take the same layer) | `cameras` → `frames` · `overlays` → `keypoints`, `segments` | `columns` (default 3) | ✓ |
-| `depthStack` | `cameras` — name the depth columns; a bare `*` would ask every tensor in the episode for a depth map · `overlays` | `cameras` → `depth` · `overlays` → `keypoints`, `segments` | `colormap: turbo \| gray` (default `turbo`) · `min` / `max` (raw units) pin the color range; by default each frame maps its own min/max over valid readings (>0), invalid renders transparent · `columns` (default 3). Corner chip shows the mapped range — metres when the format knows the depth scale, raw units otherwise | ✓ |
-| `lineChart` | `series: [ ref \| { field, label?, color?, dash?, … } ]` — field is `feature` (all dims) or `[feature, dim]`; `*` globs work in both halves | `series` → `series` | `height` (default 180) · `title`, `caption` + [EpisodeLineChart](reference/components-episode-line-chart.md) props | ✓ |
-| `trajectory2d` | `series: [ ref \| { field, label?, color? } ]` — each entry is one path; x/y dims are the columns named `x`/`y` (case-insensitive) or the first two | `series` → `series` | `invertY: false` — math convention (y up); default is image convention (top-left origin) · `window: { ahead?, behind? }` — pin the drawn path to the seconds around the cursor (defaults 1 / 0 when given; omitted, the full path draws) · `height` (default 260) | ✓ |
-| `timeline` | `tracks` — required; nothing in an inventory says a column holds spans | `tracks` → `segments` | [EpisodeTimeline](reference/components-episode-timeline.md) props | — |
-| `bandTrack` | `series: [ ref \| { field, label? } ]` — same field addressing as `lineChart`; each resolved column becomes one band row | `series` → `series` | `maxLevels` (default 12) — a column is discrete when its unique values (rounded to 6 decimals) fit, busier columns get a one-line "use lineChart" note · `bandHeight` (default 18) per-band px. Runs of equal value become colored rects; value→color legend below; natural height. | — |
-| `metaPanel` | — (renders `EpisodeInfo`: name, duration, frames, fps, task strings) | — | `note` — a free-text line · `showTasks: false` hides the task strings (single-task datasets repeat one sentence per episode otherwise) | — |
-| `fields` | — | — (prints the inventory itself) | `title` (default `Fields`) | — |
-| `recon3d` | `geometry` — the geometry file(s) that make the scene · `tracks` — the per-frame motion, each entry naming its `as`; a track binds to the glTF node whose name matches its ref | `geometry` → `mesh3d` · `tracks` → `transform3d`, `vertices3d`, `pose3d` | `up` — gravity vector in the data's own frame (uprights the grid; default `[0, -1, 0]`, the OpenCV camera frame's up — y points down there) · `trail: { ahead?, behind? }` — motion-trail window in seconds around the playhead (default `{ ahead: 1, behind: 0 }` — pure future, so the trail runs out exactly when the clip does; `behind` opts into a dim past tail; `false` turns it off) · `height` (default 360) | — |
-| `pointCloud` | `cloud` — name the column; the first bound field renders (one cloud per panel in v1) | `cloud` → `pointcloud` | `up: y \| z` (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360). Per-point color when the data carries rgb; camera auto-fits the first frame | — |
+| view           | binds                                                                                                                                                                          | slot → payload                                                           | keys of note                                                                                                                                                                                                                                                                                                                                                                                                               | row |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| `videoStack`   | `cameras` (a `*` glob expands to the container's media fields) · `overlays: [ { field, as, on? } ]` — `as` picks skeleton or captions, `on` pins one to a specific camera      | `cameras` → `video`, `image` · `overlays` → `keypoints`, `segments`      | `columns` (default 3) · `tileAspect` — force one ratio; by default each tile uses its video's intrinsic ratio. Plus [EpisodeVideoStack](reference/components-episode-video-stack.md) props. Probes video durations when the format has no timeline.                                                                                                                                                                                    | ✓   |
+| `frameStack`   | `cameras` · `overlays` (same form as `videoStack` — the tiles take the same layer)                                                                                             | `cameras` → `frames` · `overlays` → `keypoints`, `segments`              | `columns` (default 3) · `tileAspect` — force one ratio; by default each frame’s own                                                                                                                                                                                                                                                                                                                                        | ✓   |
+| `depthStack`   | `cameras` — name the depth columns; a bare `*` would ask every tensor in the episode for a depth map · `overlays`                                                              | `cameras` → `depth` · `overlays` → `keypoints`, `segments`               | `colormap: turbo \| gray` (default `turbo`) · `min` / `max` (raw units) pin the color range; by default each frame maps its own min/max over valid readings (>0), invalid renders transparent · `columns` (default 3). Corner chip shows the mapped range — metres when the format knows the depth scale, raw units otherwise · `tileAspect` — force one ratio (the frame letterboxes inside); by default each frame’s own | ✓   |
+| `lineChart`    | `series: [ ref \| { field, label?, color?, dash?, … } ]` — field is `feature` (all dims) or `[feature, dim]`; `*` globs work in both halves                                    | `series` → `series`                                                      | `height` (default 180) · `title`, `caption` + [EpisodeLineChart](reference/components-episode-line-chart.md) props                                                                                                                                                                                                                                                                                                                     | ✓   |
+| `trajectory2d` | `series: [ ref \| { field, label?, color? } ]` — each entry is one path; x/y dims are the columns named `x`/`y` (case-insensitive) or the first two                            | `series` → `series`                                                      | `invertY: false` — math convention (y up); default is image convention (top-left origin) · `window: { ahead?, behind? }` — pin the drawn path to the seconds around the cursor (defaults 1 / 0 when given; omitted, the full path draws) · `height` (default 260)                                                                                                                                                          | ✓   |
+| `timeline`     | `tracks` — required; nothing in an inventory says a column holds spans                                                                                                         | `tracks` → `segments`                                                    | [EpisodeTimeline](reference/components-episode-timeline.md) props                                                                                                                                                                                                                                                                                                                                                                      | —   |
+| `bandTrack`    | `series: [ ref \| { field, label? } ]` — same field addressing as `lineChart`; each resolved column becomes one band row                                                       | `series` → `series`                                                      | `maxLevels` (default 12) — a column is discrete when its unique values (rounded to 6 decimals) fit, busier columns get a one-line "use lineChart" note · `bandHeight` (default 18) per-band px. Runs of equal value become colored rects; value→color legend below; natural height.                                                                                                                                        | —   |
+| `metaPanel`    | — (renders `EpisodeInfo`: name, duration, frames, fps, task strings)                                                                                                           | —                                                                        | `note` — a free-text line · `showTasks: false` hides the task strings (single-task datasets repeat one sentence per episode otherwise)                                                                                                                                                                                                                                                                                     | —   |
+| `fields`       | —                                                                                                                                                                              | — (prints the inventory itself)                                          | `title` (default `Fields`)                                                                                                                                                                                                                                                                                                                                                                                                 | —   |
+| `recon3d`      | `geometry` — the geometry file(s) that make the scene · `tracks` — the per-frame motion, each entry naming its `as`; a track binds to the glTF node whose name matches its ref | `geometry` → `mesh3d` · `tracks` → `transform3d`, `vertices3d`, `pose3d` | `up` — gravity vector in the data's own frame (uprights the grid; default `[0, -1, 0]`, the OpenCV camera frame's up — y points down there) · `trail: { ahead?, behind? }` — motion-trail window in seconds around the playhead (default `{ ahead: 1, behind: 0 }` — pure future, so the trail runs out exactly when the clip does; `behind` opts into a dim past tail; `false` turns it off) · `height` (default 360)     | —   |
+| `pointCloud`   | `cloud` — name the column; the first bound field renders (one cloud per panel in v1)                                                                                           | `cloud` → `pointcloud`                                                   | `up: y \| z` (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360). Per-point color when the data carries rgb; camera auto-fits the first frame                                                                                                                                                                                                                                                   | —   |
 
 Hosts add views with
 `registerComponent({ name, component, reads, slotNames?, rows? })` — `reads`
