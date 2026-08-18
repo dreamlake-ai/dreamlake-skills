@@ -12,6 +12,8 @@
     Real datasets, one grammar — every file is complete (its{' '}
     <code>storage:</code> inline): copy one and it runs anywhere. At a dataset
     root the file would drop <code>storage:</code> and inherit its location.
+    The address bar tracks the selected entry (<code>?example=…</code>) —
+    copy it to share one dataset directly.
   </p>
   <a
     href="/dataset-viz/spec"

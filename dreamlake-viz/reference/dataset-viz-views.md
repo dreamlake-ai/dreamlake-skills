@@ -193,10 +193,11 @@ The animated 3D scene, bound through two slots: `geometry` is the static
 scene, and `tracks` is the per-frame motion that moves it — a track binds to the glTF
 node whose name matches its ref. All three track kinds are parquet tables of
 numbers, so each entry names the one it is. Orbit with the mouse; playback
-follows the shared cursor. The bright motion trail is the **future** — the
-next `trail.ahead` seconds (default 5) of each object's path, with a dim
-1-second past tail; in robot learning the question at time t is what is
-about to happen, so that is the segment that glows:
+follows the shared cursor. The motion trail is the **future** — the next
+`trail.ahead` seconds (default 1) of each object's path, and nothing more:
+it runs out exactly when the clip does. In robot learning the question at
+time t is what is about to happen, so that is the segment that glows
+(`trail.behind` opts into a dim past tail):
 
 ```yaml file=".dreamrc.yaml"
 version: 1

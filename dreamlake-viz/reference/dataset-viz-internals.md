@@ -152,10 +152,10 @@ all about PLACEMENT: a directory is an episode, a basename is a track name,
 
 None of them says what a file contains, which is the property that matters —
 rename every file in a folder dataset and the parse result is identical,
-because no name was ever evidence. They are also not currently switchable:
-`folder` has no config keys at all now that `dataset.kinds` is gone. If your
-layout does not match, the answer is an explicit `dataset.annotations` path or
-a different `format`, not a knob. Worth revisiting if a real dataset turns up
+because no name was ever evidence. They are also not switchable: `folder`'s one config key (`fps`) states a
+fact the layout cannot carry — a frame rate — never a placement or a meaning.
+If your layout does not match, the answer is an explicit `dataset.annotations`
+path or a different `format`, not a knob. Worth revisiting if a real dataset turns up
 that the placement rules get wrong.
 
 One on-disk shape is genuinely ours and is named as such: the motion-track
