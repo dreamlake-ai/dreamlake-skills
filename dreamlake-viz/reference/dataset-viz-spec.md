@@ -1,36 +1,49 @@
-# The `.dreamrc` file
+# Write the `.dreamrc`
 
-**One `.dreamrc` at the root of a dataset renders every episode in it.** The file
-answers three questions — where the episodes are, how to parse them, and how to
-lay out the visualization — and nothing else. It is plain YAML, never contains
-credentials, and works unchanged on any storage backend. Why the system is
-shaped this way — views with declared input contracts, meaning stated in the
-config — is [the architecture](reference/dataset-viz-overview.md); this page is the
-grammar.
+**One `.dreamrc` at the root of a dataset renders every episode in it.**
+Plain YAML, no credentials, works unchanged on any storage backend. The
+file answers three questions — where the episodes are, how to parse them,
+how to lay out the visualization — and this page lists **every key** it
+can contain. (Haven't written one before? [Start here](reference/dataset-viz-start.md)
+walks the five steps.)
 
-```yaml
-# .dreamrc — at the dataset root
-version: 1
+## The file at a glance
+
+Every key that exists, in one annotated file. Only `version`, `dataset`
+and `views` are required:
+
+```yaml file=".dreamrc"
+version: 1                      # required — always 1
 name: Kitchen Manipulation v2   # optional display name
 
-dataset:                        # ── data entry + parsing ──
-  format: lerobot               # lerobot | folder | umi | mcap
-  episodes: auto                # ask the format adapter (default)
+storage:                        # ONLY in standalone files — a .dreamrc at
+  driver: hf                    # its dataset's root omits this block and
+  repo: my-name/kitchen-v2      # inherits the storage it sits in
 
-views:                          # ── visualization: compose views ──
-  - view: videoStack
-    cameras: ["observation.images.*"]
-  - view: lineChart
-    series:
-      - { field: [action, "*"] }
+dataset:
+  format: lerobot               # required: lerobot | folder | umi | mcap
+  episodes: auto                # auto (default) | "episodes/*/" | { glob, sort, limit }
+  fps: 15                       # folder/umi only — the clock for stills / ReplayBuffer
+  labels:                       # optional: display names, when the dataset's are unreadable
+    "observation.state[3]": wrist_flex
+  annotations:                  # optional: tracks in files BESIDE the data
+    subtasks: "annotations/subtasks/episode_{episode_index:06d}.vtt"
+
+views:                          # required — there is no default layout
+  - view: videoStack            # a view from the registry…
+    cameras: ["observation.images.*"]     # …with fields bound to its slots
+    overlays:
+      - { field: hand_keypoints, as: keypoints }
+    height: 320                 # every view takes width / height / aspectRatio
+  - split: row                  # layout node: row | column | grid
+    height: 240
+    children:
+      - view: lineChart
+        series: [{ field: [action, "*"] }]
+      - view: recon3d
+        tracks: [{ field: hand_3d, as: pose3d }]
+        aspectRatio: "16 / 9"
 ```
-
-That is a complete, working file. Note what it does **not** say: where the
-dataset lives. A `.dreamrc` at its dataset's root inherits the storage it sits
-in — the app injects it. A *standalone* file (a demo, a config pointing at
-another bucket) adds one more block, `storage:` — see
-[below](#storage--where-the-dataset-lives). Everything else is the reference
-for the blocks.
 
 <a
   href="/dataset-viz/gallery"
@@ -49,28 +62,223 @@ for the blocks.
 >
   <span>
     <span style={{ display: 'block', fontWeight: 650, fontSize: 15 }}>
-      Gallery — 10 real datasets, one grammar
+      Gallery — real datasets, one grammar, editable live
     </span>
     <span style={{ display: 'block', fontSize: 13, opacity: 0.65, marginTop: 2 }}>
-      LeRobot v2/v3 · depth maps · point clouds · UMI zarr · MCAP · annotations + 3D —
-      a full-screen two-pane switcher of complete .dreamrc files
+      13 complete .dreamrc files over public data — pick one, edit the YAML, watch the render follow
     </span>
   </span>
   <span style={{ fontSize: 20, opacity: 0.55, flexShrink: 0 }}>→</span>
 </a>
 
+## `dataset:` — which episodes, parsed how
+
+| key | values | default | meaning |
+| --- | --- | --- | --- |
+| `format` | `lerobot` \| `folder` \| `umi` \| `mcap` | **required** | the reader. [Which is mine?](reference/dataset-viz-start.md#1-match-your-data-to-a-format) |
+| `episodes` | `auto` | `auto` | ask the format — container formats know their own episode count |
+| | `"episodes/*/"` | | a glob over storage paths, one episode per match; trailing `/` matches directories only; one `*` per path segment |
+| | `{ glob?, sort?, limit? }` | | `sort`: `name` (numeric-aware) \| `name-desc` \| `none` · `limit` caps the count (a `{ limit }` alone previews a 300-episode container) |
+| `fps` | number | `folder`: 30 · `umi`: 60 | **`folder`**: the clock for numbered still runs — a directory of JPEGs states no frame rate, so declare it or annotation tracks drift. **`umi`**: the ReplayBuffer time axis (a v3 manifest's own fps wins) |
+| `path` | string | auto-detected | **`umi`**: the store when not at the root · **`mcap`**: a single file at a subpath |
+| `labels` | `{ "<name \| glob \| feature[dim]>": "Display" }` | — | display names only; bindings keep the real names ([below](#datasetlabels--names-the-container-got-wrong)) |
+| `annotations` | `{ <track>: <path> \| { path, kind? } }` | — | tracks in files beside the data ([below](#datasetannotations--tracks-that-live-beside-the-data)) |
+
+Container formats (`lerobot`, `umi`, `mcap`) use `auto`; `folder` needs a
+glob — the matched path becomes the episode root, and you never write
+per-episode config.
+
+### `dataset.labels` — names the container got wrong
+
+A camera keyed by its serial number, a 14-dim state whose `names` is
+`null`: the data is right, only the label is unreadable. Patterns match
+field names or one dimension (`feature[dim]`), first match wins:
+
+```yaml
+dataset:
+  format: lerobot
+  labels:
+    "observation.images.cam_035622060973": Front camera
+    "observation.state[3]": wrist_flex
+```
+
+`labels` changes what is **displayed** and nothing else — bindings still
+use the real names.
+
+### `dataset.annotations` — tracks that live beside the data
+
+For the two cases that cannot live inside the container — static geometry,
+and a dataset you cannot write into
+([where annotations belong](reference/dataset-viz-requirements.md#annotations-inside-the-container)):
+
+```yaml
+dataset:
+  format: lerobot
+  annotations:
+    subtasks: "annotations/subtasks/episode_{episode_index:06d}.vtt"
+    scene: { path: "recon/scene.glb" }
+```
+
+- **Paths** are dataset-root-relative; templates use LeRobot's own
+  `{var}` / `{var:06d}` style. Variables: `episode_index`,
+  `episode_name`, `episode_path` (glob mode).
+- A declaration is an **address, not a claim** — the file lands in the
+  catalog as `file`, and the binding (or an optional `kind` in the
+  declaration) says what to make of it.
+- A declaration **overrides** a native track of the same name — replacing
+  a dataset's coarse segments with a refined re-annotation is what that is
+  for.
+- The `folder` format auto-discovers each episode's `annotations/` dir, so
+  declaring is only needed for paths outside that convention.
+
+## `views:` — compose the visualization
+
+Each entry either names a **view** and binds fields to its slots, or is a
+**`split`** layout node. `views` is required — a dataset with no views is
+one nobody has described yet.
+
+### Binding fields to slots
+
+The slot's name says what it takes; binding a field to a slot is what
+decides how its bytes are decoded:
+
+| slot | on | takes | entry form |
+| --- | --- | --- | --- |
+| `cameras` | `videoStack` `frameStack` `depthStack` | camera fields | bare refs: `cameras: [cam_front, "observation.images.*"]` |
+| `series` | `lineChart` `trajectory2d` `bandTrack` | numeric columns | `ref` or `{ field, label?, color?, … }` ([styling](#series-entry-styling)) |
+| `tracks` | `timeline` | span columns / files | `ref` or `{ field, as }` |
+| `tracks` | `recon3d` | motion tracks | `{ field, as: transform3d \| vertices3d \| pose3d }` |
+| `overlays` | the camera views | keypoints / captions | `{ field, as: keypoints \| segments, on? }` |
+| `geometry` | `recon3d` | glTF/OBJ files | bare refs |
+| `cloud` | `pointCloud` | one cloud column | bare ref |
+
+- **Field references** are `"feature"` or `[feature, dim]` — a feature
+  name (never split on dots: `observation.state` is ONE name), optionally
+  drilled into one named dimension. `*` globs within a name, and a glob
+  binds only fields the slot can actually read.
+- **`as:`** — write it when the slot could read the field more than one
+  way; the validator tells you when. The common cases: `overlays` (a
+  `.json` is a skeleton file or captions), `timeline` `tracks` (an int
+  column becomes spans only when you say so), every `recon3d` track (all
+  three kinds are tensors of numbers). Wrong or missing `as` fails naming
+  the choice — nothing renders on a guess.
+- **`on:`** (overlays only) pins an overlay to one camera:
+  `{ field: hands, as: keypoints, on: cam_front }`. With one camera bound
+  there is nothing to disambiguate and `on` can be omitted.
+
+### `series` entry styling
+
+`lineChart` traces take per-entry styling (validated, all optional);
+`trajectory2d` and `bandTrack` take the addressing keys and `label`:
+
+| key | type | default | meaning |
+| --- | --- | --- | --- |
+| `label` | string | the dim's name | legend / readout label; on a multi-dim entry it prefixes each trace |
+| `color` | CSS color | palette | stroke color |
+| `dash` | string | solid | dash pattern, e.g. `"3 2"` — the convention for *command* vs actual |
+| `width` | number | 1.4 | stroke width |
+| `opacity` | 0–1 | 1 | stroke opacity |
+| `linecap` | `butt` \| `round` \| `square` | | stroke linecap |
+| `readout` | boolean | `true` | include in the cursor readout |
+| `ghost` | boolean | `false` | dim the readout row and suffix "tgt" — for target/reference traces |
+
+### Sizing — every view, three keys
+
+Every view entry takes `width`, `height` and `aspectRatio` (number or
+`"16 / 9"`). A sized view fills its box exactly like a row-strip child
+does — media at its aspect width behind a horizontal scroll, charts and 3D
+panes stretched to fit; `width` alone just constrains the flow width:
+
+```yaml
+views:
+  - view: recon3d
+    tracks: [{ field: hand_3d, as: pose3d }]
+    aspectRatio: "16 / 9"        # or: height: 360, or width: 480
+```
+
+Views also have their own defaults when unsized — each view's table on
+[view components](reference/dataset-viz-views.md) lists them.
+
+### `split:` — layout nodes
+
+Nest freely: `row` and `column` and `grid` compose.
+
+| key | on | default | meaning |
+| --- | --- | --- | --- |
+| `split` | | required | `row` \| `column` \| `grid` |
+| `children` | all | required | the nested views / splits |
+| `columns` | `grid` | 2 | grid column count |
+| `height` | `row` | 280 | the strip height in px |
+
+A **`row` is a fixed-height strip**: the layout never reflows as media
+loads — extra width overflows into a horizontal scrollbar that **syncs
+across episodes**. Per child, keep one dimension:
+
+| child key | meaning |
+| --- | --- |
+| *(nothing)* | keep the row height — media takes its aspect-derived width, everything else stretches to share the leftover |
+| `width` | a fixed-width box |
+| `aspectRatio` | width derived from the strip height |
+| `flex` | weight among the stretching children (default 1) |
+| `minWidth` | squish floor for a stretching child (default 220) — past it, the row scrolls |
+| `height` | that child's own strip height |
+
+### View options
+
+Binding slots and sizing aside, **every other key on a view entry passes
+through to the view** — `columns` on a camera grid, `colormap` on
+`depthStack`, `up` on the 3D views. The complete per-view tables live on
+[view components](reference/dataset-viz-views.md), next to each live demo.
+
+## `storage:` — where the dataset lives
+
+Every path in the file is relative to the dataset root; `storage:` says
+where that root is — and **who writes it** is the rule:
+
+- **At the dataset root, omit it.** The app injects the storage the file
+  sits in; moving the dataset never breaks it. This is the normal,
+  uploaded form.
+- **Standalone files declare it** — a config in another repo, a doc
+  example. A declaration always wins over an injected root.
+
+| driver | keys | notes |
+| --- | --- | --- |
+| `hf` | `repo` **required** · `root` · `revision` (default `main`) · `repoType` (default `datasets`) | public HuggingFace repos, credential-free |
+| `http` | `url` **required** — the dataset root URL | globs need per-directory [`index.json` manifests](reference/dataset-viz-reference.md#the-http-indexjson-manifest); `episodes: auto` formats don't |
+| `dlSource` / `dlProject` | identifiers only | registered by the DreamLake app; tokens come from the host, never the file |
+
+```yaml
+storage: { driver: hf, repo: lerobot/pusht }
+storage: { driver: http, url: https://my-cdn.example.com/kitchen-v2 }
+```
+
+## Validate, then trust the errors
+
+`check-dreamrc` resolves the file exactly as the app does — with no config
+it prints the inventory; with one it decodes every binding:
+
+```bash
+npx tsx scripts/check-dreamrc.mts ./draft.dreamrc
+npx tsx scripts/check-dreamrc.mts hf:your-name/your-dataset
+```
+
+Every error names the offending key, the allowed values, and the nearest
+registered name — a write → validate → fix loop a person or an agent can
+run without reading anything else:
+
+```
+.dreamrc: dataset.format 'lerobot3' is not a registered format (available: lerobot, folder, umi, mcap)
+.dreamrc: views[2].view 'lineChart2' is not registered (did you mean 'lineChart'?)
+.dreamrc: views[0].overlays[0].as 'keypoint' — did you mean 'keypoints'?
+.dreamrc: episodes glob "episodes/**" — '**' is not supported, use one '*' per path segment
+```
+
 ## Live example
 
-One file exercising most of the spec at once — glob enumeration,
-auto-discovered annotation tracks (COCO hand keypoints drawn over the video,
-WebVTT subtask cues on a timeline), and a real 3D hand–object reconstruction
-(glTF geometry + per-frame parquet tracks) driven by the shared cursor. It
-uses the `folder` format on
-purpose: the **zero-convention layout** — any files you can put in folders,
-no conversion, the easiest dataset there is to prepare. An *existing*
-LeRobot / zarr / MCAP dataset needs an even shorter file (`format:` +
-`episodes: auto` — see the gallery). The source pane is the complete
-standalone `.dreamrc`; copy it and it runs anywhere:
+One standalone file exercising most of the language at once — glob
+enumeration, auto-discovered annotations (COCO keypoints over video, WebVTT
+cues on a timeline), and a real 3D reconstruction driven by the shared
+cursor. Copy it; it runs anywhere:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -96,221 +304,6 @@ views:
           - { field: "hand_joints_*", as: pose3d }
   - view: timeline
     tracks: [subtasks]
-```
-
-## `dataset:` — which episodes, parsed how
-
-`format` names the dataset format; `episodes` says how to enumerate the episodes.
-Both live here and nowhere else.
-
-**Which format is mine?** List the dataset root and match the signature:
-
-| you see at the root | `format` | `episodes` |
-| --- | --- | --- |
-| `meta/info.json` | `lerobot` | `auto` |
-| a `*.zarr.zip` or a `.zarr/` directory | `umi` | `auto` |
-| `*.mcap` files | `mcap` | `auto` |
-| one folder per recording | `folder` | a glob, e.g. `"episodes/*/"` |
-
-If none matches, `folder` is the escape hatch: it asks nothing of the layout
-beyond one directory per episode, and reads whatever standard files it finds.
-HDF5 (RoboMimic, ManiSkill, AgiBotWorld) and RLDS/TFRecord (Open X-Embodiment)
-have no adapter yet — most publishers also ship a LeRobot export, which does.
-
-| key | values | meaning |
-| --- | --- | --- |
-| `format` | `lerobot` \| `folder` \| `umi` \| `mcap` | the format adapter. One name per format — no aliases. |
-| `episodes` | `auto` (default) | ask the format adapter. Container formats know their own episode count (LeRobot `meta/info.json` `total_episodes`, zarr `episode_ends`). |
-| | `"episodes/*"` | a glob over storage paths — one episode per match. A trailing `/` matches directories only. Only `*` is supported, one path segment per star. |
-| | `{ glob, sort?, limit? }` | glob with options. `sort`: `name` (numeric-aware, default) \| `name-desc` \| `none`. `limit`: cap per pattern (default 1000). |
-| `annotations` | `{ <track>: <path> \| { path, kind? } }` | extra annotation tracks merged into every episode's catalog — see below. `kind` is the author stating the payload once in the declaration instead of at every binding. |
-| `labels` | `{ "<name or glob>": "Display name" }` | rename a field, or one dimension of one (`"observation.state[3]"`), when the dataset's own names are serial numbers, `null`, or absent. |
-
-Use `auto` for container formats (`lerobot`, `umi`) and a glob for
-folder-per-episode layouts (`folder`):
-
-```yaml
-dataset:
-  format: folder
-  episodes: "episodes/*/"       # each matched folder is one episode
-```
-
-In glob mode the matched path is handed to the adapter as the episode root —
-you never write per-episode config. `{ limit }` on its own (no glob) caps what
-a container format enumerated, which is how you preview a 300-episode dataset.
-
-**Writing `views:` for a dataset you have not seen** — start with
-`view: fieldsCatalog` and nothing else. It prints the inventory: every
-field's address plus the `dtype`, `shape` and `names` the container reported,
-and no conclusion drawn from them. Reading that listing is where the judgment
-happens — you are the one who knows that `observation.environment_state` is a
-point cloud — and the bindings you write next are where it gets recorded.
-
-### `dataset.labels` — names the container got wrong
-
-A camera keyed by its serial number, a 14-dim state whose `names` is `null`:
-the data is right and only the label is unreadable. Patterns match field names
-(or a `feature[dim]` address), first match wins:
-
-```yaml
-dataset:
-  format: lerobot
-  labels:
-    "observation.images.cam_035622060973": Front camera
-    "observation.state[3]": wrist_flex
-```
-
-`labels` changes what is **displayed** and nothing else; bindings still use the
-real names. There is no companion key for meaning — nothing to correct, because
-nothing was guessed. What a field is gets stated where it is bound.
-
-### `dataset.annotations` — tracks that live beside the data
-
-Annotations belong **inside** your dataset's container — see
-[what your data must look like](reference/dataset-viz-requirements.md#annotations-belong-inside-the-container).
-This block is for the two cases that cannot: static geometry, which no
-container models, and a dataset you cannot write into.
-
-```yaml
-dataset:
-  format: lerobot
-  annotations:
-    scene: "recon/scene.glb"     # a path, nothing more
-```
-
-The merge happens after the format adapter runs, so a declared track lands in
-the same catalog as the dataset's own fields, and a declaration **overrides** a
-native track of the same name. Paths, formats and the rest:
-[files beside the data](reference/dataset-viz-requirements.md#files-beside-the-data).
-
-## `views:` — compose views
-
-Each entry names a **view** from the registry and binds fields to it.
-Everything that is not a binding key is passed through to the view as
-props — each view's reference section lists what it accepts. You own the
-layout: nest `split` nodes to build any arrangement.
-
-```yaml
-views:
-  - view: videoStack
-    cameras: ["observation.images.*"]  # binding — read as video
-    overlays:
-      - { field: observation.keypoints_2d.left.ego, as: keypoints }
-    columns: 2                         # passthrough prop
-  - view: timeline
-    tracks: [{ field: subtask_index, as: segments }]   # joins its label table
-  - split: row                         # layout node: row | column | grid
-    children:
-      - view: lineChart
-        series:
-          - { field: [action, left_waist], label: waist · cmd }
-          - { field: [observation.state, left_waist], label: waist · actual, dash: "3 2" }
-      - view: lineChart
-        series: [{ field: [action, right_waist] }]
-```
-
-Rules, all of them:
-
-- **One binding style per view, and the slot's name says what it takes.**
-  Camera views (`videoStack`, `frameStack`, `depthStack`) bind `cameras`,
-  `lineChart` binds `series`, `timeline` binds `tracks`, `pointCloud` binds
-  `cloud`; camera views also take `overlays`, and `recon3d` takes both
-  `geometry` (the glTF) and `tracks` (motion). A bare string in
-  `series`/`tracks`/`overlays` is shorthand for `{ field }`. A slot a view
-  does not read is an error, never ignored.
-- **The slot says what the bytes become.** Binding a field to a slot is what
-  decides how it is decoded — `series` reads numbers as traces, `tracks` on
-  `timeline` reads them as spans, `cloud` on `pointCloud` reads them as a
-  cloud. When the field's addressing kind leaves the slot only one possibility,
-  nothing is written. When it leaves several, the entry says which with `as`
-  (`overlays` draws a skeleton or captions; a `.json` could be either), and
-  until it does the panel refuses and prints the choice
-  ([the rule](reference/dataset-viz-reference.md#which-payloads-a-field-can-serve--and-when-you-write-as)).
-- **Field references** are `"feature"` or `[feature, dim]` — a feature name
-  (never split on dots: `observation.state` is one name), optionally drilled
-  into one named dimension. One glob rule: `*` matches within a name.
-- **Layout** is `split: row | column | grid` with `children`; nest freely.
-  `grid` accepts `columns`. A **`row` is a fixed-height strip** (`height`,
-  default 280): the layout never reflows as media loads — extra width
-  overflows into a horizontal scrollbar instead, and that scroll **syncs
-  across episodes** (the list renderer wraps episodes in
-  `SyncScrollProvider`). Per child you choose what to keep: nothing —
-  keep the row height (media takes its aspect-derived width, everything
-  else stretches to share the leftover, `flex` weighting it and `minWidth`
-  flooring it); `width` — a fixed-width box; `height` — that child's own
-  strip height.
-
-`views` is **required**. There is no default layout: a dataset with no views
-is one nobody has described yet, and inventing an arrangement for it would be
-the program deciding what its data means. To find out what there is to bind,
-resolve the dataset with no config and read the inventory — `check-dreamrc`
-prints every field with its `dtype` and `shape`.
-
-### The views
-
-The initial registry — it grows over time, and a host app can register its own
-with `registerComponent(spec)`:
-
-| view | renders | slot → payload it asks for |
-| --- | --- | --- |
-| `videoStack` | camera videos as a tile grid, with overlay support | `cameras` → `video` \| `image` · `overlays` → `keypoints` \| `segments` |
-| `frameStack` | per-frame image sequences (chunked cameras) | `cameras` → `frames` · `overlays` → `keypoints` \| `segments` |
-| `lineChart` | time series, styled per-dim traces, synced cursor | `series` → `series` |
-| `timeline` | ruler + labelled track blocks | `tracks` → `segments` |
-| `metaPanel` | episode name / duration / task strings header card | — (`note` prop) |
-| `fieldsCatalog` | the episode's inventory as a table | — |
-| `recon3d` | animated 3D scene: glTF geometry moved by per-frame tracks, plus point sets — orbit + cursor-driven playback | `geometry` → `mesh3d` · `tracks` → `transform3d` \| `vertices3d` \| `pose3d` |
-| `depthStack` | per-frame depth maps, turbo-colorized | `cameras` → `depth` · `overlays` → `keypoints` \| `segments` |
-| `trajectory2d` | planar series as a top-down xy path | `series` → `series` |
-| `bandTrack` | discrete series as categorical color bands | `series` → `series` |
-| `pointCloud` | per-frame 3D point clouds, orbitable | `cloud` → `pointcloud` |
-
-Every slot, its payload, and the shape that payload needs:
-[reference](reference/dataset-viz-reference.md#view-components).
-
-## `storage:` — where the dataset lives
-
-Every path in the file is **relative to the dataset root**; `storage:` says
-where that root is. It is optional, and *who writes it* is the design:
-
-- **At the dataset root, omit it.** The app that found the file injects the
-  storage it sits in — a DreamLake source, a project folder, any browsed
-  directory. This is the normal, uploaded form: the file never repeats what
-  its own location already says, and moving the dataset never breaks it.
-- **Standalone files declare it.** A docs example, a demo gallery, a config
-  that points at another bucket — anything not sitting at its data's root
-  names the root explicitly. Every live example on this page is this form:
-  copy the YAML and it resolves the same data anywhere.
-- **A declaration wins.** If a file with `storage:` is opened inside the app,
-  it renders as written (same rule as `dataset.annotations`: an explicit entry
-  is user intent). Omission — not override — is what makes a file portable.
-
-```yaml
-storage: { driver: hf, repo: lerobot/pusht }     # public HuggingFace repo
-storage: { driver: http, url: https://my-cdn.example.com/kitchen-v2 }
-```
-
-Built-in drivers are `http` (`url` — the dataset root URL) and `hf` (`repo`,
-plus optional `root`, `revision`, `repoType`) — both credential-free. Host
-apps register more: DreamLake registers `dlSource` and `dlProject`, whose
-configs carry **identifiers only** — a `.dreamrc` never contains credentials;
-drivers that need auth get their tokens from the host at registration time.
-Per-driver keys: [reference](reference/dataset-viz-reference.md#storage-drivers).
-
-The whole storage contract is two methods — `list(path)` and `resolveUrl(path)`
-— which is why any backend can be a root.
-
-## Validation
-
-`validateDreamrc(parsed)` checks the file before anything renders and throws
-errors written to be fixed mechanically — each names the offending key, the
-allowed values, and the episode where expansion failed. Typical messages:
-
-```
-.dreamrc: dataset.format 'lerobot3' is not a registered format (available: lerobot, folder, umi, mcap)
-.dreamrc: views[2].view 'lineChart2' is not registered (did you mean 'lineChart'?)
-.dreamrc: episodes glob "episodes/**" — '**' is not supported, use one '*' per path segment
-.dreamrc declares no 'storage:' and no host root storage was supplied — standalone files need storage: { driver, … }
 ```
 
 ## TypeScript API

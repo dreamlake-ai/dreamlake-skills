@@ -2,8 +2,8 @@
 
 This page is for people changing the library, not for people using it. The
 user-facing statement of the design is [the architecture](reference/dataset-viz-overview.md);
-if you are preparing a dataset, [the contract](reference/dataset-viz-requirements.md) is
-the page you want. This page goes underneath both.
+if you are preparing a dataset, [prepare your data](reference/dataset-viz-requirements.md)
+is the page you want. This page goes underneath both.
 
 ## The pipeline
 

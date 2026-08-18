@@ -1,5 +1,8 @@
 # The architecture
 
+*(This page is the design rationale — to get something on screen, go to
+[start here](reference/dataset-viz-start.md).)*
+
 **A viewer cannot generate itself.** We do not produce bespoke visualization
 code per dataset — the system ships **pre-built view components** (a video
 wall, a line chart, a timeline, an animated 3D scene) and one config file
@@ -90,7 +93,7 @@ Each contract is fed from the wire in a fixed order of preference:
    give the result its own spec section and a version, and keep it
    normalizable to and from neighbouring standards where possible. There is
    currently one on disk — the motion-track Parquet profile v1
-   ([which format to write](reference/dataset-viz-requirements.md#which-format-to-write))
+   ([which format to write](reference/dataset-viz-requirements.md#annotations-files-beside-the-data))
    — and one in memory: the payload contracts themselves, versioned with the
    library and [published in full](reference/dataset-viz-reference.md#payload-contracts-in-full).
 4. **A format we do not read yet gets an adapter, not a rule.** Nobody is
@@ -145,8 +148,9 @@ rest is [grammar](reference/dataset-viz-spec.md).
 
 | you are | read |
 | --- | --- |
-| writing a `.dreamrc` | [the .dreamrc file](reference/dataset-viz-spec.md), then [view components](reference/dataset-viz-views.md) |
-| preparing or publishing a dataset | [what your data must look like](reference/dataset-viz-requirements.md) |
-| looking up a name or a config key | [reference](reference/dataset-viz-reference.md) |
+| new — data in hand | [start here](reference/dataset-viz-start.md) |
+| writing a `.dreamrc` | [write the .dreamrc](reference/dataset-viz-spec.md), then [view components](reference/dataset-viz-views.md) |
+| preparing or publishing a dataset | [prepare your data](reference/dataset-viz-requirements.md) |
+| looking up a name or a contract | [reference](reference/dataset-viz-reference.md) |
 | wanting working examples | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md) |
 | changing the library | [library internals](reference/dataset-viz-internals.md) |

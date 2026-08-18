@@ -1,23 +1,29 @@
 # View components
 
-**Every registered component, each with a minimal `.dreamrc` and its live
-render** — this page answers "what do I *get* if I bind this?". Config keys
-and the payload each slot asks for are in the
-[reference](reference/dataset-viz-reference.md#view-components);
-full multi-component compositions in the [gallery](reference/dataset-viz-gallery.md).
-Each YAML below is complete and standalone — one component, one real public
-dataset, first episode only. **Interaction rule**: every component whose
-x-axis is time (videos, frames, depth, charts, bands, the timeline) scrubs
-the shared cursor on hover — hover any demo to move it. The 3D views leave
-the pointer to orbiting, so their demos pair a chart or timeline sibling as
-the time source.
+Every registered view: what you get if you bind it (a live render from a
+minimal `.dreamrc`) and **every option it takes**. The YAMLs are complete
+and standalone — copy any of them into the
+[gallery playground](reference/dataset-viz-gallery.md) and edit from there.
+
+Three things apply to every view, so the tables below don't repeat them:
+
+- **Sizing** — every view takes `width`, `height`, `aspectRatio`
+  ([how they behave](reference/dataset-viz-spec.md#sizing--every-view-three-keys));
+  each view's own default height, where it has one, is in its table.
+- **The shared cursor** — every view whose x-axis is time (videos, frames,
+  depth, charts, bands, the timeline) scrubs the episode's shared cursor on
+  hover; hover any demo to move it. The 3D views leave the pointer to
+  orbiting, so their demos pair a chart or timeline sibling as the time
+  source.
+- **Errors are named** — bind a field a slot cannot read and the panel
+  prints the mismatch and the fix; nothing renders on a guess.
 
 ## videoStack
 
 Camera videos as a tile grid, each tile at its video's own aspect ratio.
-`overlays` is the one slot that draws two different things, so each entry
-says which with `as` — here a COCO file `as: keypoints` becomes a hand
-skeleton and a WebVTT file `as: segments` becomes captions:
+`overlays` draws two different things, so each entry says which with `as` —
+here a COCO file `as: keypoints` becomes a hand skeleton and a WebVTT file
+`as: segments` becomes captions:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -32,11 +38,19 @@ views:
       - { field: subtasks, as: segments }          # says which one it is
 ```
 
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `cameras` | refs / globs | **required** | the camera fields (`video` or `image`); `"*"` takes every camera and skips everything else |
+| `overlays` | `[{ field, as, on? }]` | — | `as: keypoints` (skeleton) or `as: segments` (captions); `on:` pins an overlay to one camera when several are bound |
+| `columns` | number | 3 | tile grid columns |
+| `tileAspect` | number | each video's own | force one aspect ratio on every tile |
+
 ## frameStack
 
-Per-frame image sequences (cameras stored one frame per chunk) — each tile
-byte-ranges ONLY the frame under the shared cursor; scrub to step. JPEG-XL
-frames need Safari 17+ or Chrome's JXL flag:
+Per-frame image sequences (cameras stored one frame per file or chunk) —
+each tile fetches only the frame under the cursor, with background
+prefetch around it; scrub to step. JPEG-XL frames need Safari 17+ or
+Chrome's JXL flag:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -51,12 +65,17 @@ views:
     columns: 2
 ```
 
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `cameras` | refs / globs | **required** | the `frames` fields (image sequences) |
+| `overlays` | `[{ field, as, on? }]` | — | same as videoStack — a frames camera is a camera |
+| `columns` | number | 3 | tile grid columns |
+
 ## depthStack
 
-Per-frame depth maps colorized on the fly — turbo by default (`colormap: gray`
-for grayscale), each frame mapped over its own valid min/max unless pinned
-with `min`/`max`; 0/invalid readings stay transparent. The corner chip shows
-the mapped range in metres when the format knows the depth scale:
+Per-frame depth maps colorized on the fly; 0/invalid readings stay
+transparent. The corner chip shows the mapped range — metres when the
+format knows the depth scale:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -70,12 +89,19 @@ views:
     columns: 2
 ```
 
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `cameras` | refs | **required** | name the depth columns explicitly — a bare `*` would ask every tensor for a depth map |
+| `overlays` | `[{ field, as, on? }]` | — | a depth camera is a camera too |
+| `colormap` | `turbo` \| `gray` | `turbo` | the color mapping |
+| `min` / `max` | number (raw units) | per-frame | pin the color range; by default each frame maps its own min/max over valid readings (>0) |
+| `columns` | number | 3 | tile grid columns |
+
 ## pointCloud
 
 Per-frame 3D point clouds as an orbitable scene — per-point color when the
-data carries rgb, camera auto-fit from the first frame, playback follows the
-shared cursor. Default `up: z` (robot-lab convention); `up: y` for y-up
-clouds:
+data carries rgb, camera auto-fit from the first frame, playback follows
+the shared cursor:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -90,11 +116,16 @@ views:
     height: 140
 ```
 
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `cloud` | one ref | **required** | the `[N,3]` / `[N,6]` column — the author says it is a cloud, the name never does |
+| `up` | `x` \| `y` \| `z` \| `[x,y,z]` | `z` | the data's up axis (robot-lab clouds are z-up) |
+| `height` | number | 360 | panel height when not otherwise sized |
+
 ## lineChart
 
 Time series with a synced cursor — one `series` entry per trace,
-`[feature, dim]` drills into one dimension, `label` / `color` / `dash`
-style it:
+`[feature, dim]` drills into one dimension:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -107,12 +138,18 @@ views:
     height: 220
 ```
 
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `series` | `[ref \| { field, …style }]` | **required** | one entry per trace or per family; a `[n]` feature expands to one trace per named dim; `*` globs work in both halves of `[feature, dim]` |
+| *entry styling* | `label` `color` `dash` `width` `opacity` `linecap` `readout` `ghost` | — | [the full table](reference/dataset-viz-spec.md#series-entry-styling) — `dash` for command-vs-actual, `ghost` for reference traces |
+| `title` / `caption` | string | — | panel heading / footnote |
+| `height` | number | 180 | panel height when not otherwise sized |
+
 ## trajectory2d
 
-Planar series as a top-down xy path — for 2-dim position series (pusht's
-`action` target position) a spatial path reads far better than a line chart.
-Hover snaps the shared cursor to the nearest sample; the thick trail is the
-last 1.5 s; `invertY: false` flips to math convention:
+Planar series as a top-down xy path — for 2-dim positions a spatial path
+reads far better than two line charts. Hover snaps the cursor to the
+nearest sample:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -124,11 +161,19 @@ views:
     height: 260
 ```
 
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `series` | `[ref \| { field, label?, color? }]` | **required** | one entry per path; x/y are the columns named `x`/`y` (case-insensitive) or the first two |
+| `invertY` | boolean | `true` | image convention (top-left origin); `false` flips to math convention |
+| `window` | `{ ahead?, behind? }` | full path | draw only the seconds around the cursor (defaults 1 / 0 when given) |
+| `height` | number | 260 | panel height when not otherwise sized |
+
 ## timeline
 
-Anything you bind here is read as `segments` — tasks, subtasks, actions,
-phases, a `.vtt` file, an index column with its label table — and drawn as
-labelled blocks on a ruler. Hover to scrub every panel in the episode:
+Labelled blocks on a ruler. Anything bound here is read as spans — a
+`.vtt` file, a string column, an int column with its label table — and
+nothing in an inventory says a column holds spans, so the binding says it
+with `as: segments`:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -139,13 +184,15 @@ views:
     tracks: [subtasks]
 ```
 
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `tracks` | `[ref \| { field, as: segments }]` | **required** | one row of blocks per track; equal consecutive values merge into one span, an int column joins its label table |
+
 ## bandTrack
 
-Discrete series (gripper open/close, stage indices, success flags) as
-categorical color bands — one row per bound column, one colored rect per
-contiguous equal-value run, a value→color legend below. Columns busier
-than `maxLevels` (12 distinct values) get a one-line "use lineChart"
-note instead of a band:
+Discrete signals (gripper open/close, stage indices, success flags) as
+categorical color bands — one row per column, one rect per contiguous
+equal-value run, a value→color legend below:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -158,10 +205,16 @@ views:
       - { field: [cartesian_so3_dict.cartesian_pose_state, torso_state_8], label: torso_8 }
 ```
 
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `series` | `[ref \| { field, label? }]` | **required** | same addressing as lineChart; each resolved column is one band row |
+| `maxLevels` | number | 12 | a column is "discrete" when its unique values fit; busier columns get a one-line "use lineChart" note |
+| `bandHeight` | number | 18 | per-band height in px |
+
 ## metaPanel
 
-The episode header: name, duration, frame count, fps, the dataset's task
-strings — plus a free-text `note`:
+The episode header — name, duration, frame count, fps, the dataset's task
+strings:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -172,32 +225,39 @@ views:
     note: any free text rides along here
 ```
 
-## fieldsCatalog
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `note` | string | — | a free-text line — provenance, caveats, what the dataset is |
+| `showTasks` | boolean | `true` | `false` hides the task strings (single-task datasets repeat one sentence per episode) |
 
-The episode's inventory as a table — every field's address plus the `dtype`,
-`shape` and `names` the container reported, with nothing concluded from them.
-The exploration component: ship it first when you don't know what a dataset
-holds, decide what the columns are, write the bindings, then replace it:
+## fields
+
+The episode's inventory as a table — every field's address plus the
+`dtype`, `shape` and `names` the container reported, nothing concluded
+from them. **The exploration view**: ship it first when you don't know
+what a dataset holds, read the listing, write the real bindings, then
+replace it:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
 storage: { driver: hf, repo: live9080/dreamlake-ceramics }
 dataset: { format: folder, episodes: "episodes/*/" }
 views:
-  - view: fieldsCatalog
+  - view: fields
 ```
+
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `title` | string | `Fields` | the table heading |
 
 ## recon3d
 
 The animated 3D scene, bound through two slots: `geometry` is the static
-scene, and `tracks` is the per-frame motion that moves it — a track binds to the glTF
-node whose name matches its ref. All three track kinds are parquet tables of
-numbers, so each entry names the one it is. Orbit with the mouse; playback
-follows the shared cursor. The motion trail is the **future** — the next
-`trail.ahead` seconds (default 1) of each object's path, and nothing more:
-it runs out exactly when the clip does. In robot learning the question at
-time t is what is about to happen, so that is the segment that glows
-(`trail.behind` opts into a dim past tail):
+scene (a glTF whose **node names** are the join keys), `tracks` is the
+per-frame motion that moves it. All three track kinds are tensors of
+numbers, so every entry names its `as`. The motion trail is the
+**future** — the next second of each path, gone exactly when the clip
+ends:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
@@ -206,17 +266,20 @@ dataset: { format: folder, episodes: "episodes/*/" }
 views:
   - view: recon3d
     geometry: ["scene"]                              # the glTF file; node names join tracks
-    tracks:                                          # per-frame motion: all
-      - { field: "poses*", as: transform3d }         # three are parquet
-      - { field: "hand_verts_*", as: vertices3d }    # tables of numbers, so
-      - { field: "hand_joints_*", as: pose3d }       # each says what it is
+    tracks:                                          # per-frame motion, all parquet tables of
+      - { field: "poses[ruler]", as: transform3d }   # numbers, so each says what it is; a
+      - { field: "poses[toy]", as: transform3d }     # grouped poses table binds one track
+      - { field: "hand_verts_*", as: vertices3d }    # per object — [name] picks it, and the
+      - { field: "hand_joints_*", as: pose3d }       # name is also the glTF node it drives
     height: 360
   - view: timeline           # the pointer orbits the scene - scrub here
     tracks: [subtasks]
 ```
 
----
-
-Host apps can grow this registry — `registerComponent({ name, component })`
-makes a new name available to every `.dreamrc` the app renders
-([TypeScript API](reference/dataset-viz-spec.md#typescript-api)).
+| option | type / values | default | meaning |
+| --- | --- | --- | --- |
+| `geometry` | refs | `[]` | the glTF/GLB/OBJ file(s); empty for point-set-only scenes (hands without meshes) |
+| `tracks` | `[{ field, as }]` | **required** | `as: transform3d` (pose → same-named node) · `vertices3d` (deforming mesh → same-named node) · `pose3d` (point sets); a grouped poses parquet binds one track per object: `poses[ruler]` |
+| `up` | `x` \| `y` \| `z` \| `[x,y,z]` | `[0, -1, 0]` | the data frame's up vector — the default is the OpenCV camera frame's (y points down there) |
+| `trail` | `{ ahead?, behind? }` \| `false` | `{ ahead: 1, behind: 0 }` | motion-trail seconds around the playhead — pure future by default; `behind` opts into a dim past tail |
+| `height` | number | 360 | panel height when not otherwise sized |

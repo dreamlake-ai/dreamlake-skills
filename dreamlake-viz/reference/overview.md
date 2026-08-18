@@ -42,8 +42,9 @@ npx tsx scripts/check-dreamrc.mts hf:your-name/your-dataset
 Then open the dataset in the DreamLake app, or compare against the
 [gallery](reference/dataset-viz-gallery.md) — every entry there is a complete `.dreamrc`
 over a real public dataset. Copyable starting points:
-[templates](reference/dataset-viz-templates.md). The grammar:
-[the .dreamrc file](reference/dataset-viz-spec.md).
+[templates](reference/dataset-viz-templates.md). The workflow:
+[start here](reference/dataset-viz-start.md); the grammar:
+[write the .dreamrc](reference/dataset-viz-spec.md).
 
 ## The library path: render it yourself
 
@@ -88,8 +89,9 @@ their own ([TypeScript API](reference/dataset-viz-spec.md#typescript-api)).
 
 | you want | read |
 | --- | --- |
+| to get started, data in hand | [start here](reference/dataset-viz-start.md) |
+| to write a `.dreamrc` | [write the .dreamrc](reference/dataset-viz-spec.md) · [view components](reference/dataset-viz-views.md) · [reference](reference/dataset-viz-reference.md) |
+| to prepare a dataset | [prepare your data](reference/dataset-viz-requirements.md) |
 | to understand the design | [the architecture](reference/dataset-viz-overview.md) |
-| to write a `.dreamrc` | [the .dreamrc file](reference/dataset-viz-spec.md) · [view components](reference/dataset-viz-views.md) · [reference](reference/dataset-viz-reference.md) |
-| to prepare a dataset | [what your data must look like](reference/dataset-viz-requirements.md) |
 | working examples | [templates](reference/dataset-viz-templates.md) · [gallery](reference/dataset-viz-gallery.md) |
 | these docs, for your agent | [LLM-readable docs](reference/llm-readable.md) |

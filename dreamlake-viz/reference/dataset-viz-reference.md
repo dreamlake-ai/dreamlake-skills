@@ -93,7 +93,7 @@ label table.
 
 Where a payload comes from — a feature in the dataset's own container, or a
 standard file beside it (WebVTT/SRT, COCO, glTF, parquet) — is in the
-[contract](reference/dataset-viz-requirements.md#what-each-payload-needs).
+[contract](reference/dataset-viz-requirements.md#the-shape-each-payload-needs).
 **No payload requires a format of our own** — where a DreamLake structure
 exists (the motion-track Parquet profile v1), an existing standard carries
 the same payload.
@@ -381,12 +381,16 @@ Bindings are the keys the view interprets — its slot names (`cameras` /
 `cloud` / `geometry` / `series` / `tracks` / `overlays`); **every other key
 passes through as a prop** to the underlying `Episode*` component, so its
 documented props are all available.
-A `split: row` is a fixed-height strip (`height` on the split, default 280) —
-its sizing keys (`width` fixed box · `flex` stretch share · `minWidth` squish
-floor · child `height` override) are consumed by the layout, not the
-component; media sizes its width from its aspect, charts fill their slot,
-and overflow scrolls horizontally, synced across episodes under a
-`SyncScrollProvider`. "row" marks components that render in the compact
+**Every view takes `width` / `height` / `aspectRatio`** — a sized view
+fills its box with row-strip fill semantics
+([how](reference/dataset-viz-spec.md#sizing--every-view-three-keys)); the per-view
+`height` defaults below apply when nothing sizes the view. A `split: row`
+is a fixed-height strip (`height` on the split, default 280) — its
+per-child keys (`width` fixed box · `aspectRatio` width from strip height ·
+`flex` stretch share · `minWidth` squish floor · child `height` override)
+are consumed by the layout, not the component; media sizes its width from
+its aspect, charts fill their slot, and overflow scrolls horizontally,
+synced across episodes under a `SyncScrollProvider`. "row" marks components that render in the compact
 `layout="row"` strips (dataset lists); the rest appear in grid layout only.
 
 | view | binds | slot → payload | keys of note | row |
@@ -394,14 +398,14 @@ and overflow scrolls horizontally, synced across episodes under a
 | `videoStack` | `cameras` (a `*` glob expands to the container's media fields) · `overlays: [ { field, as, on? } ]` — `as` picks skeleton or captions, `on` pins one to a specific camera | `cameras` → `video`, `image` · `overlays` → `keypoints`, `segments` | `columns` (default 3) · `tileAspect` — force one ratio; by default each tile uses its video's intrinsic ratio. Plus [EpisodeVideoStack](reference/components-episode-video-stack.md) props. Probes video durations when the format has no timeline. | ✓ |
 | `frameStack` | `cameras` · `overlays` (same form as `videoStack` — the tiles take the same layer) | `cameras` → `frames` · `overlays` → `keypoints`, `segments` | `columns` (default 3) | ✓ |
 | `depthStack` | `cameras` — name the depth columns; a bare `*` would ask every tensor in the episode for a depth map · `overlays` | `cameras` → `depth` · `overlays` → `keypoints`, `segments` | `colormap: turbo \| gray` (default `turbo`) · `min` / `max` (raw units) pin the color range; by default each frame maps its own min/max over valid readings (>0), invalid renders transparent · `columns` (default 3). Corner chip shows the mapped range — metres when the format knows the depth scale, raw units otherwise | ✓ |
-| `lineChart` | `series: [ ref \| { field, label?, color?, dash?, … } ]` — field is `feature` (all dims) or `[feature, dim]`; `*` globs work in both halves | `series` → `series` | `height` (default 180) sizes a standalone panel; in a `split: row` slot the chart fills the strip automatically. Plus `title`, `caption` + [EpisodeLineChart](reference/components-episode-line-chart.md) props | ✓ |
-| `trajectory2d` | `series: [ ref \| { field, label?, color? } ]` — each entry is one path; x/y dims are the columns named `x`/`y` (case-insensitive) or the first two | `series` → `series` | `invertY: false` — math convention (y up); default is image convention (top-left origin) · `window: { ahead?, behind? }` — pin the drawn path to the seconds around the cursor (defaults 1 / 0 when given; omitted, the full path draws). `height` (default 260) sizes a standalone panel; in a `split: row` slot the plot fills the strip automatically | ✓ |
+| `lineChart` | `series: [ ref \| { field, label?, color?, dash?, … } ]` — field is `feature` (all dims) or `[feature, dim]`; `*` globs work in both halves | `series` → `series` | `height` (default 180) · `title`, `caption` + [EpisodeLineChart](reference/components-episode-line-chart.md) props | ✓ |
+| `trajectory2d` | `series: [ ref \| { field, label?, color? } ]` — each entry is one path; x/y dims are the columns named `x`/`y` (case-insensitive) or the first two | `series` → `series` | `invertY: false` — math convention (y up); default is image convention (top-left origin) · `window: { ahead?, behind? }` — pin the drawn path to the seconds around the cursor (defaults 1 / 0 when given; omitted, the full path draws) · `height` (default 260) | ✓ |
 | `timeline` | `tracks` — required; nothing in an inventory says a column holds spans | `tracks` → `segments` | [EpisodeTimeline](reference/components-episode-timeline.md) props | — |
 | `bandTrack` | `series: [ ref \| { field, label? } ]` — same field addressing as `lineChart`; each resolved column becomes one band row | `series` → `series` | `maxLevels` (default 12) — a column is discrete when its unique values (rounded to 6 decimals) fit, busier columns get a one-line "use lineChart" note · `bandHeight` (default 18) per-band px. Runs of equal value become colored rects; value→color legend below; natural height. | — |
 | `metaPanel` | — (renders `EpisodeInfo`: name, duration, frames, fps, task strings) | — | `note` — a free-text line · `showTasks: false` hides the task strings (single-task datasets repeat one sentence per episode otherwise) | — |
-| `fieldsCatalog` | — | — (prints the inventory itself) | — | — |
-| `recon3d` | `geometry` — the geometry file(s) that make the scene · `tracks` — the per-frame motion, each entry naming its `as`; a track binds to the glTF node whose name matches its ref | `geometry` → `mesh3d` · `tracks` → `transform3d`, `vertices3d`, `pose3d` | `up` — gravity vector in the data's own frame (uprights the grid) · `trail: { ahead?, behind? }` — motion-trail window in seconds around the playhead (default `{ ahead: 1, behind: 0 }` — pure future, so the trail runs out exactly when the clip does; `behind` opts into a dim past tail; `false` turns it off) · `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically | — |
-| `pointCloud` | `cloud` — name the column; the first bound field renders (one cloud per panel in v1) | `cloud` → `pointcloud` | `up: y \| z` (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360) sizes a standalone panel; in a `split: row` slot the scene fills the strip automatically. Per-point color when the data carries rgb; camera auto-fits the first frame | — |
+| `fields` | — | — (prints the inventory itself) | `title` (default `Fields`) | — |
+| `recon3d` | `geometry` — the geometry file(s) that make the scene · `tracks` — the per-frame motion, each entry naming its `as`; a track binds to the glTF node whose name matches its ref | `geometry` → `mesh3d` · `tracks` → `transform3d`, `vertices3d`, `pose3d` | `up` — gravity vector in the data's own frame (uprights the grid; default `[0, -1, 0]`, the OpenCV camera frame's up — y points down there) · `trail: { ahead?, behind? }` — motion-trail window in seconds around the playhead (default `{ ahead: 1, behind: 0 }` — pure future, so the trail runs out exactly when the clip does; `behind` opts into a dim past tail; `false` turns it off) · `height` (default 360) | — |
+| `pointCloud` | `cloud` — name the column; the first bound field renders (one cloud per panel in v1) | `cloud` → `pointcloud` | `up: y \| z` (default `z`, robot-lab convention → −90° X rotation) · `height` (default 360). Per-point color when the data carries rgb; camera auto-fits the first frame | — |
 
 Hosts add views with
 `registerComponent({ name, component, reads, slotNames?, rows? })` — `reads`

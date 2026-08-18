@@ -1,186 +1,130 @@
-# What your data must look like
+# Prepare your data
 
-This page is the **data side** of the
-[contract](reference/dataset-viz-overview.md): what your container must declare, the
-shape each payload demands, and where annotation tracks live. The program
-never decides what your data means — your `.dreamrc` does
-([the architecture](reference/dataset-viz-overview.md)) — so the requirements are much
-smaller than a list of naming rules. There are only two:
+The viewer reads datasets **as published** — there is no DreamLake file
+format and no conversion step. Preparing data therefore means one of three
+things, and route 1 means nothing at all. Whichever route you take, the
+per-column shape rules at the [bottom of this page](#the-shape-each-payload-needs)
+are the same.
 
-1. **The container must say which bytes are encoded media**, so they can be
-   addressed a frame at a time instead of being read as numbers. Every format
-   already does this — LeRobot's `dtype`, a zarr array's codec, an MCAP
-   channel's schema, a file's extension.
-2. **A column bound to a view must have the shape that view decodes.** Ask
-   for a skeleton and the numbers must be `[J,2]` or `[J,3]`. That is not a
-   rule we impose; it is what a skeleton is.
+## Route 1: an existing dataset — nothing to do
 
-Everything else — which camera a hand belongs to, whether a `[7]` column is a
-pose or a gripper command, what a `.json` beside your video contains — is
-stated in the `.dreamrc`. You never rename a feature to make it render.
+A LeRobot dataset, a zarr store, or MCAP logs render unmodified. Add the
+`.dreamrc` and go ([start here](reference/dataset-viz-start.md)). Per container, the one
+thing worth checking:
 
-## Which datasets can be read
-
-Four formats, named in `dataset.format`. Each is somebody else's
-specification, read as published:
-
-| `format` | the dataset is | episodes come from | how you recognize yours |
-| --- | --- | --- | --- |
-| `lerobot` | a [LeRobot](https://huggingface.co/docs/lerobot/main/en/lerobot-dataset-v3) dataset, v2.0 / v2.1 / v3.0 | `meta/episodes` (v3) or `meta/episodes.jsonl` (v2) | there is a `meta/info.json` at the root |
-| `umi` | a [Zarr](https://zarr-specs.readthedocs.io/) store — a v2 `.zarr.zip` ReplayBuffer or a v3 `.zarr/` directory | `meta/episode_ends`, or the store's attributes | there is a `*.zarr` or `*.zarr.zip` |
-| `mcap` | [MCAP](https://mcap.dev/) v1 logs, one file per episode | one `*.mcap` file each, listed or globbed | there are `*.mcap` files |
-| `folder` | no container at all — directories of files | a glob you write, e.g. `"episodes/*/"` | none of the above; one directory per recording |
-
-`folder` is the escape hatch and asks nothing of the layout beyond one
-directory per episode. HDF5 (RoboMimic, ManiSkill, AgiBotWorld) and
-RLDS/TFRecord (Open X-Embodiment) have no adapter yet — most publishers also
-ship a LeRobot export, which does. A format we do not read gets an adapter,
-not a conversion demand
-([the extension path](reference/dataset-viz-reference.md#data-the-library-does-not-know)).
-
-## What the viewer sees before you configure anything
-
-The catalog is an **inventory**, not a classification. Point the checker at
-any dataset and it lists what exists, with the facts the container reported
-and no conclusions drawn from them:
-
-```
-episode_000000  (7 fields)
-  video    observation.images.ego        h264 1080×1920
-  tensor   observation.keypoints_2d.left.ego   float32 [21,3]
-  tensor   observation.state             float32 [6]  names: shoulder_pan.pos, …
-  tensor   subtask_index                 int64 [1]
-  text     language_instruction
-  file     recon/scene.glb               ext: glb
-```
-
-The kinds describe **how the bytes are addressed**, never what they mean:
-
-| kind | means |
-| --- | --- |
-| `video` | an encoded stream, seekable |
-| `frames` / `image` | encoded images, one per frame or one file |
-| `tensor` | numbers, with `dtype` and `shape` as the container reported them |
-| `text` | strings |
-| `file` | an address, with its extension |
-
-**That listing is what you write the config against** — it is the raw truth,
-and an agent authoring a `.dreamrc` reads exactly this. Binding a field to a
-view slot is what states its meaning, and asking for something the bytes
-cannot become fails by name
-(`observation.state is float32 [6]; keypoints needs [J,2] or [J,3]`) instead
-of rendering a guess.
-
-## What each payload needs
-
-The shape requirements, in full. This is the whole contract on the data side:
-
-| ask for | the column must be | notes |
+| you have | `format` | the one thing to get right |
 | --- | --- | --- |
-| `series` | any numeric scalar or `[n]` | `names` in the container label the traces |
-| `keypoints` | float `[J,2]` or `[J,3]` | third component is a score; **NaN, not 0, for not-measured** |
-| `segments` | an int column **plus a label table**, or a string column, or a `.vtt` / `.srt` | equal consecutive values merge into one span |
-| `depth` | float `[H,W]` or `[H,W,1]` | metres or millimetres — declare the scale |
-| `pointcloud` | float `[N,3]` or `[N,6]` | xyz, or xyz + rgb |
-| `transform3d` | float `[7]` or `[N,7]` | translation + quaternion |
-| `vertices3d` | float `[V,3]` | topology comes from a bound glTF node |
-| `pose3d` | float `[J,3]` or a flat `[J*3]` | a point set per frame |
-| `frames` | encoded image bytes per row, or a per-frame path template | |
-| `mesh3d` | a `.glb` / `.gltf` / `.obj` | node names bind per-frame tracks |
+| [LeRobot](https://huggingface.co/docs/lerobot/main/en/lerobot-dataset-v3) v2.0 / v2.1 / v3.0 | `lerobot` | cameras must be `dtype: video` or `dtype: image` in `meta/info.json` — that is what addresses them as media |
+| [Zarr](https://zarr-specs.readthedocs.io/) — `*.zarr.zip` ReplayBuffer or `.zarr/` v3 directory | `umi` | camera arrays need an image codec (JPEG/JPEG-XL/PNG) — that is what makes one chunk one frame |
+| [MCAP](https://mcap.dev/) v1, one file per episode | `mcap` | channels need Foxglove or JSON schemas — `cdr`/`ros2msg` (a plain ROS 2 bag) has no decoder yet |
 
-> **Note:** Zero is a real coordinate — the top-left pixel, the origin. Nothing downstream
-> can tell a fabricated zero from a measured one, so a frame written as zeros
-> draws a collapsed skeleton in the corner. Write NaN and it renders as nothing,
-> because it is nothing.
+Adding annotations to a dataset you own? Put them **inside** the container
+as ordinary features — [below](#annotations-inside-the-container).
 
-## Annotations belong inside the container
+## Route 2: raw recordings — the `folder` layout
 
-A payload's preferred home is **inside** the dataset, expressed in the
-container's own idiom: a keypoint feature sits in the same parquet as your
-state and action columns, gets read by episode row range, and travels with
-the dataset.
+You have videos, image folders, CSVs, and no container. Arrange them like
+this and you are done — no manifest, no metadata file, nothing to generate:
+
+```
+my-dataset/
+├── .dreamrc                        ← episodes: "episodes/*/"
+└── episodes/
+    ├── run_001/                    ← one directory per episode
+    │   ├── cam_front.mp4           ← .mp4/.webm → a video track
+    │   ├── cam_wrist.mp4           ← several cameras: several files
+    │   ├── depth_00000.png         ← numbered stills → one frames track
+    │   ├── depth_00001.png            (16-bit PNGs can be a depth camera)
+    │   ├── joints.parquet          ← .csv/.parquet → numeric columns
+    │   └── annotations/            ← searched too; wins name collisions
+    │       ├── subtasks.vtt        ← WebVTT → labelled time spans
+    │       ├── hands.json          ← COCO → 2D keypoints
+    │       └── scene.glb           ← glTF → 3D geometry
+    └── run_002/
+        └── …
+```
+
+The three conventions, in full:
+
+1. **one directory per episode** — the glob in the `.dreamrc` finds them;
+2. **a file's basename is its track name** (`subtasks.vtt` → `subtasks`);
+   media keep the extension (`cam_front.mp4`);
+3. **`annotations/` inside an episode is searched too**, and a file there
+   wins a name collision with one at the episode root.
+
+Details that save a round trip:
+
+- **Consecutive numbered stills** (`rgb_00000.jpg`, `rgb_00001.jpg`, …)
+  collapse into ONE scrubbable track. Stills have no frame rate, so declare
+  it: `dataset.fps: 15` — without it every clock in the episode assumes 30
+  and annotation tracks drift off the pictures.
+- **Numeric tables** (`.csv` / `.parquet`) chart directly; a
+  `timestamp`-like column becomes the x-axis, row index otherwise.
+- **Episodes may differ.** Some annotated, some not; a camera missing from
+  one run — each episode renders what it has.
+
+## Route 3: a container we cannot read yet
+
+HDF5 (RoboMimic, ManiSkill, AgiBotWorld) and RLDS/TFRecord
+(Open X-Embodiment) have no reader. Your options, in order:
+
+1. most publishers also ship a **LeRobot export** — route 1;
+2. **export to the folder layout** — route 2, and the export is plain files
+   you already know how to write;
+3. a host app can register a reader for the foreign layout
+   ([the extension path](reference/dataset-viz-reference.md#data-the-library-does-not-know)) —
+   nothing is ever converted, an adapter is added.
+
+## The shape each payload needs
+
+Whatever the container, a column bound to a view must have the shape that
+view decodes. This is the whole contract on the data side — not rules we
+impose, but what a skeleton or a point cloud *is*:
+
+| to render | the data must be | notes |
+| --- | --- | --- |
+| line chart traces | any numeric scalar or `[n]` column | the container's `names` label the traces |
+| 2D keypoints | float `[J,2]` or `[J,3]` | third component is a score; **NaN, not 0, for not-measured** |
+| labelled time spans | an int column **plus a label table**, a string column, or a `.vtt`/`.srt` | equal consecutive values merge into one span |
+| depth maps | float `[H,W]` / `[H,W,1]`, or 16-bit PNGs | metres or millimetres — declare the scale |
+| point clouds | float `[N,3]` or `[N,6]` | xyz, or xyz + rgb |
+| an object's pose track | float `[7]` or `[N,7]` | translation + quaternion |
+| a deforming mesh | float `[V,3]` per frame | topology comes from a bound glTF node |
+| 3D keypoints | float `[J,3]` or flat `[J*3]` | a point set per frame |
+| 3D geometry | a `.glb` / `.gltf` / `.obj` file | node names bind the motion tracks |
+
+> **Note:** Zero is a real coordinate — the top-left pixel, the origin. Nothing
+> downstream can tell a fabricated zero from a measured one, so a frame
+> written as zeros draws a collapsed skeleton in the corner. Write NaN and it
+> renders as nothing, because it is nothing.
+
+## Annotations: inside the container
+
+When the dataset is yours, annotations belong **inside** it, as ordinary
+features in the container's own idiom — they travel with the dataset, read
+one episode at a time, with no second file to keep in sync.
 
 > **Note:** Measured on our own template: 150 frames of two hands cost **57.7 KB** as
-> parquet columns and **142.3 KB** as a JSON file next to them — and the
-> columns can be read one episode at a time while the file must be fetched and
-> parsed whole. One container, one round trip, no second thing to keep in sync.
+> parquet columns and **142.3 KB** as a JSON file next to them — and columns
+> read by episode row range while a file is fetched and parsed whole.
 
-What that looks like per container, and the one thing each must get right:
+Concretely, per container:
 
-**LeRobot** — `meta/info.json` `features` gives every column its `dtype`,
-`shape` and `names`, and those appear verbatim in the listing. The one thing
-to get right: **cameras must be `dtype: video` or `dtype: image`**, so they
-are addressed as media. Episode boundaries come from `meta/episodes` — v3
-packs many episodes into one parquet and one mp4 per camera, and each
-episode's row range and video window are read from there. A labelled span is
-an index column plus a label table (`meta/<name>s.jsonl` — LeRobot's own
-`task_index` + `meta/tasks.jsonl` pattern, one level down); hand keypoints
-are a `[J,2]` or `[J,3]` float feature like any other.
+- **LeRobot** — a keypoint track is a `float32 [J,2|3]` feature like any
+  other; a labelled span is an **index column plus a label table**
+  (`subtask_index` + `meta/subtasks.jsonl` — LeRobot's own
+  `task_index` + `meta/tasks.jsonl` pattern, one level down). Copy the
+  shape from the
+  [annotated template](reference/dataset-viz-templates.md#1-lerobot-with-annotation-features).
+- **Zarr** — another array in the store, same episode slicing.
+- **MCAP** — another channel with a schema.
 
-**MCAP** — every channel is listed with its schema name and encoding.
-Foxglove schemas (`PointCloud`, `FrameTransform`, `CompressedImage`,
-`SceneUpdate`, …) have decoders; `cdr` / `ros2msg` / `ros1msg` do not, so a
-plain ROS 2 bag currently yields nothing.
+## Annotations: files beside the data
 
-**Zarr** — an array's codec says whether it holds encoded images or numbers.
-Episodes come from `meta/episode_ends` or the store's attributes.
-
-**A folder of files** — one directory per episode; a file's basename is its
-track name; `annotations/` is searched. Three placement conventions, and none
-of them says what a file contains.
-
-## Files beside the data
-
-Two cases genuinely cannot go inside, and only two:
-
-1. **The container cannot model it.** Static geometry is the real example —
-   there is no LeRobot feature shape for a mesh.
-2. **The dataset is not yours.** A public mirror you cannot write into, so
-   any extra tracks (and the config itself) have to live elsewhere.
-
-For those, put a file beside the data **in an established format** and name
-it in the config. The original dataset is never modified — delete the extra
-files and it is untouched.
-
-### Declaring a track
-
-`dataset.annotations` maps a track name to a path. The merge happens *after*
-the format adapter runs, so a declared track lands in the same catalog as the
-dataset's own fields and binds the same way:
-
-```yaml
-dataset:
-  format: lerobot
-  episodes: auto
-  annotations:
-    subtasks: "annotations/subtasks/episode_{episode_index:06d}.vtt"
-    hands:    "annotations/hands/episode_{episode_index:06d}.json"
-    scene:    "recon/scene.glb"
-```
-
-- **Paths** are relative to the dataset root; templates use the same
-  `{var}` / `{var:06d}` style LeRobot itself uses. Variables:
-  `episode_index`, `episode_name`, `episode_path` (glob mode).
-- **A declaration is an address, not a claim.** The file lands in the catalog
-  as `file` with its extension recorded, and the view that binds it says what
-  to make of it. The extension gets its say at read time, where all it picks
-  is a PARSER: asked for `segments`, a `.vtt` goes through the WebVTT reader
-  and a `.json` through the COCO one.
-- **`{ path, kind }` is you saying it once, in the declaration** instead of
-  at every binding — legitimate because it is the author speaking, not the
-  library deducing. A binding's own `as:` still wins, and either way the
-  decoder checks the bytes and fails loudly when they cannot produce what was
-  asked.
-- **A declaration overrides a native track of the same name.** That is user
-  intent: replacing a dataset's coarse task segments with a refined
-  re-annotation is exactly what this is for. Undeclared native tracks stay.
-- The `folder` format auto-discovers anything in each episode's
-  `annotations/` folder, so declaring is never required when files live
-  there.
-
-### Which format to write
-
-Use the standard that already exists for the job — none of these is ours:
+Two cases genuinely cannot go inside: **static geometry** (no container
+models a mesh) and **a dataset you cannot write into**. For those, put a
+file beside the data in an established format and declare it in the
+`.dreamrc` ([the `annotations` key](reference/dataset-viz-spec.md#datasetannotations--tracks-that-live-beside-the-data)):
 
 | for | write | spec |
 | --- | --- | --- |
@@ -189,7 +133,7 @@ Use the standard that already exists for the job — none of these is ours:
 | geometry, and its motion | **glTF 2.0** `.glb` | [Khronos](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html) |
 | per-frame numbers | **Apache Parquet** | [Parquet](https://parquet.apache.org/docs/file-format/) |
 
-**Time spans — WebVTT**, the web's own "time range → text" format:
+**WebVTT** — the web's own "time range → text" format:
 
 ```text file="subtasks.vtt"
 WEBVTT
@@ -199,8 +143,8 @@ WEBVTT
 pick up shelf board
 ```
 
-**2D keypoints — COCO**, stock, plus a top-level `fps` because COCO indexes
-images and a player needs seconds (our one documented extension to COCO):
+**COCO keypoints** — stock COCO, plus a top-level `fps` because COCO
+indexes images and a player needs seconds (our one documented extension):
 
 ```json file="hands.coco.json"
 {
@@ -216,46 +160,34 @@ images and a player needs seconds (our one documented extension to COCO):
 }
 ```
 
-Every key is COCO's, including the 1-based `skeleton` pairs. A frame with no
-detection simply has **no annotation** — absence, not a zero coordinate.
+A frame with no detection simply has **no annotation** — absence, not a
+zero coordinate.
 
-**Geometry and motion — glTF.** Export one `.glb` with your objects as
-**named nodes**: the node name is the join key, so a node called `ruler`
-binds the per-frame pose track named `ruler`, and no side file describes the
-relationship. **If the objects move, animate the glTF** — per-node
-translation/rotation/scale channels with their own keyframe times are already
-standardized, so one animated `.glb` carries geometry AND motion in a file
-Blender, three.js and every other glTF tool reads. (The first clip's TRS
-channels are read; skinning, morph targets and multiple clips are not yet.)
+**glTF** — export one `.glb` with your objects as **named nodes**: the node
+name is the join key (a node called `ruler` binds the pose track named
+`ruler`). **If the objects move, animate the glTF** — per-node TRS channels
+carry geometry AND motion in one file Blender and three.js read. (First
+clip's TRS channels are read; skinning and morph targets are not yet.)
 
-**Per-frame numbers — Parquet**, when the motion is not in a glTF:
+**Parquet motion tracks** — when the motion is not in a glTF:
 
 | track | columns |
 | --- | --- |
-| object poses | `frame`, `timestamp`, `object`, `tx,ty,tz` + a quaternion — the `object` column splits it into one track per object |
+| object poses | `frame`, `timestamp`, `object`, `tx,ty,tz` + a quaternion — the `object` column splits it into one track per object, bound as `poses[ruler]` |
 | mesh vertices | `frame`, `timestamp`, and a **list-of-float** column of flat xyz |
 
-Quaternion order is read from the COLUMN ORDER: `qw` first means `w,x,y,z`,
-`qw` last means `x,y,z,w`. These column names are a **decoder's**
-requirement, consulted only once a binding has asked for `transform3d` or
-`vertices3d` — never evidence about what a file holds.
-
-> **Note:** Those column names are ours — Parquet is Apache's, but "`tx,ty,tz` plus a
-> quaternion plus a grouping column" is not written down anywhere else, so we
-> define it deliberately: the **motion-track Parquet profile v1**, currently
-> the one self-defined on-disk structure in the spec
-> ([when we define our own](reference/dataset-viz-overview.md#where-the-bytes-come-from--the-standards-ladder)).
-> An animated glTF carries the same information inside an existing standard
-> and opens in Blender and three.js; the profile is the columnar route when
-> your pipeline is already writing Parquet. Pick whichever it produces more
-> naturally.
+Quaternion order is read from the column order: `qw` first means `w,x,y,z`,
+`qw` last means `x,y,z,w`. (These column names are the **motion-track
+Parquet profile v1** — our one self-defined on-disk structure;
+[why it exists](reference/dataset-viz-overview.md#where-the-bytes-come-from--the-standards-ladder).
+An animated glTF carries the same information — pick whichever your
+pipeline writes more naturally.)
 
 ## Cameras: the encoding that actually matters
 
-The single most common cause of a sluggish dataset, and it applies to every
-container. Scrubbing means seeking, and a seek decodes forward from the
-previous keyframe — keyframes 10 seconds apart feel stuck no matter how fast
-the machine is:
+The single most common cause of a sluggish dataset. Scrubbing means
+seeking, and a seek decodes forward from the previous keyframe — keyframes
+10 seconds apart feel stuck no matter how fast the machine is:
 
 ```bash file="transcode.sh"
 ffmpeg -i raw.mp4 \
@@ -266,8 +198,8 @@ ffmpeg -i raw.mp4 \
 ```
 
 H.264 + `yuv420p` decodes everywhere; HEVC, AV1 and MPEG-4 Part 2 do not.
-**Independent frames scrub better than any video** — one fetch per frame, no
-decode chain, exact at any file size.
+**Independent frames scrub better than any video** — one fetch per frame,
+no decode chain, exact at any file size.
 
 ## Verify
 
@@ -277,9 +209,10 @@ npx tsx scripts/check-dreamrc.mts https://bucket/…/my-dataset # any object sto
 npx tsx scripts/check-dreamrc.mts ./draft.dreamrc             # before you upload
 ```
 
-It resolves the dataset exactly as the app does: reads the `.dreamrc`,
-decodes every bound field, and prints what came back. With no config it
-prints the inventory instead — which is how you find out what to write.
+It resolves the dataset exactly as the app does: with no config it prints
+the inventory (how you find out what to write); with one it decodes every
+binding and prints what came back — whether the `[21,3]` column you called
+a skeleton really is one, before anybody looks at a panel.
 
 ## Checklist
 
@@ -289,9 +222,10 @@ prints the inventory instead — which is how you find out what to write.
 - [ ] Every column you intend to render has the shape its payload needs
 - [ ] Not-measured is NaN, not zero
 - [ ] Span index columns have their label table
+- [ ] `folder` stills runs declare `dataset.fps`
 - [ ] Annotations live inside the container where it can hold them; sidecar
       files are established formats, declared in `dataset.annotations`
-- [ ] A `.dreamrc` at the dataset root, no `storage:` block — the app injects
-      it ([spec](reference/dataset-viz-spec.md#storage--where-the-dataset-lives))
-- [ ] Resolved once from a shell, with every binding reporting the payload you
-      expected
+- [ ] A `.dreamrc` at the dataset root, no `storage:` block — the app
+      injects it ([why](reference/dataset-viz-spec.md#storage--where-the-dataset-lives))
+- [ ] Resolved once from a shell, with every binding reporting the payload
+      you expected

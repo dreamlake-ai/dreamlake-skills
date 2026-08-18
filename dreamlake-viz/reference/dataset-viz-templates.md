@@ -11,7 +11,7 @@ into this page.
 | **Folder of video + sidecars** | you have recordings and files, and no container at all | [live9080/dreamlake-ceramics](https://huggingface.co/datasets/live9080/dreamlake-ceramics) |
 
 Neither template asks you to convert anything into a DreamLake format —
-[the contract](reference/dataset-viz-requirements.md) is entirely container idioms and
+[prepare your data](reference/dataset-viz-requirements.md) is entirely container idioms and
 existing standards. Copy the shapes; the numbers are ours.
 
 ## 1. LeRobot with annotation features
@@ -112,7 +112,7 @@ data; it never asks the data to change. Both render in the
 
 Two categories that need no template of ours, because the public dataset
 already has the shape — point a `.dreamrc` at them and read
-[the contract](reference/dataset-viz-requirements.md) for the rule each one satisfies:
+[prepare your data](reference/dataset-viz-requirements.md) for the rule each one satisfies:
 
 | you want | a real dataset that does it |
 | --- | --- |
