@@ -177,7 +177,9 @@ views:
 Labelled blocks on a ruler. Anything bound here is read as spans — a
 `.vtt` file, a string column, an int column with its label table — and
 nothing in an inventory says a column holds spans, so the binding says it
-with `as: segments`:
+with `as: segments`. A `timeline` with no tracks at all (or none that
+match) still renders the bare ruler whenever the episode's duration is
+known — the scrubbable time axis stands on its own:
 
 ```yaml file=".dreamrc.yaml"
 version: 1
