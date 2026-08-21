@@ -9,8 +9,8 @@ task correctly.
 
 | Skill | What it does |
 |---|---|
-| [`dreamlake-source`](./dreamlake-source/SKILL.md) | Upload a robot dataset (LeRobot/zarr/MCAP/raw folders) to object storage or DreamLake so a `.dreamrc` can visualize it; layout rules, listing manifests, verification |
-| [`dreamlake-viz`](./dreamlake-viz/SKILL.md) | Author the `.dreamrc` dataset-visualization file — formats, storage, view components, annotations. GENERATED from the viz docs (`scripts/sync-dreamlake-viz.sh` re-syncs; never hand-edit) |
+| [`dreamlake-source`](./dreamlake-source/SKILL.md) | Get a robot dataset into a DreamLake source — link third-party storage (S3/HF/Dropbox), or upload the bytes so it can be linked; layout rules, listing manifests, verification |
+| [`dreamlake-dataset-viz`](./dreamlake-dataset-viz/SKILL.md) | Visualize a DreamLake source by authoring its `.dreamrc` (LeRobot/zarr/MCAP/folders) — format matching, view bindings, the validate-and-iterate loop |
 | [`dreamlake-artifacts`](./dreamlake-artifacts/SKILL.md) | Publish, version, share, and view renderable artifacts (HTML/React/Markdown/SVG/Mermaid/code) via the `dreamlake artifact` CLI |
 | [`dreamlake-artifact-authoring`](./dreamlake-artifact-authoring/SKILL.md) | Write the artifact *content* so it renders in DreamLake's sandboxed frame — self-containedness, per-kind templates, design quality. Pairs with `dreamlake-artifacts` |
 | [`dreamlake-annotations`](./dreamlake-annotations/SKILL.md) | Upload annotated robot-training episodes (video + joints + subtasks, multi-camera) to a DreamLake annotation with the Python SDK, revise them, and search |
@@ -18,6 +18,20 @@ task correctly.
 | [`video-labeling-workflow`](./video-labeling-workflow/SKILL.md) | Create and publish a video subtask-labeling workflow — segment a manipulation video into subtasks, estimate hand pose, score against reference annotations, publish a dataset |
 | [`remote-source-check`](./remote-source-check/SKILL.md) | Verify a connected source really holds the files a workflow will read, before they are written into a spec |
 | [`workflow-publish`](./workflow-publish/SKILL.md) | Validate a WorkflowSpec file and push it to a namespace, then report the canvas URL |
+
+### The source pair
+
+`dreamlake-source` gets the bytes connected; `dreamlake-dataset-viz` makes
+them render. **Install both for the full "my data → visualized in DreamLake"
+flow** — source preps layout and linking, dataset-viz writes the `.dreamrc`,
+and each links to https://viz.dreamlake.ai for option-level detail (every
+docs page serves clean markdown at `<page-url>.md`), so the skills stay thin
+and can't drift from the docs.
+
+These are end-user skills. Developers integrating the `@dreamlake/viz`
+*library* (components, schema-viz, file-preview) don't need a skill — point
+your agent at the LLM-readable docs instead:
+https://viz.dreamlake.ai/llms.txt.
 
 ### The artifacts pair
 
