@@ -9,6 +9,7 @@ task correctly.
 
 | Skill | What it does |
 |---|---|
+| [`sim-to-mcap`](./sim-to-mcap/SKILL.md) | Turn a trained policy + physics sim (MuJoCo/mjlab/Isaac) into a DreamLake-ready MCAP — roll out and emit Foxglove `/tf` (poses), `/robot` (meshes), `/metrics` (scalars). The upstream half of "training result → visualized" |
 | [`dreamlake-source`](./dreamlake-source/SKILL.md) | Get a robot dataset into a DreamLake source — link third-party storage (S3/HF/Dropbox), or upload the bytes so it can be linked; layout rules, listing manifests, verification |
 | [`dreamlake-dataset-viz`](./dreamlake-dataset-viz/SKILL.md) | Visualize a DreamLake source by authoring its `.dreamrc` (LeRobot/zarr/MCAP/folders) — format matching, view bindings, the validate-and-iterate loop |
 | [`dreamlake-artifacts`](./dreamlake-artifacts/SKILL.md) | Publish, version, share, and view renderable artifacts (HTML/React/Markdown/SVG/Mermaid/code) via the `dreamlake artifact` CLI |
@@ -27,6 +28,20 @@ flow** — source preps layout and linking, dataset-viz writes the `.dreamrc`,
 and each links to https://viz.dreamlake.ai for option-level detail (every
 docs page serves clean markdown at `<page-url>.md`), so the skills stay thin
 and can't drift from the docs.
+
+### The sim-training trio
+
+For a *training result* there's no dataset yet — the bytes have to be made
+first. `sim-to-mcap` rolls the trained policy out and writes the MCAP; the
+source pair then uploads and renders it:
+
+```
+sim-to-mcap        →  dreamlake-source  →  dreamlake-dataset-viz
+emit tf+mesh+metrics   upload the .mcap      write the .dreamrc
+```
+
+**Install all three** to go from a checkpoint to an agent playing in DreamLake.
+`sim-to-mcap` hands off by name to the other two.
 
 These are end-user skills. Developers integrating the `@dreamlake/viz`
 *library* (components, schema-viz, file-preview) don't need a skill — point
