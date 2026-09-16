@@ -75,6 +75,7 @@ name you passed. The CLI names a note by slug or id; Python takes
 dreamlake notes read "$NOTE"                              # whole body
 dreamlake notes read "$NOTE" --section install            # one section
 dreamlake notes read "$NOTE" --start-line 40 --end-line 80 --numbered
+dreamlake notes read --note "$NOTE" --json                # body + revision
 dreamlake notes toc --note "$NOTE"                        # outline + ranges
 dreamlake notes toc --note "$NOTE" --json
 ```
@@ -84,7 +85,8 @@ note = dl.note("<namespace>/design-doc")
 note.text                                   # whole body
 note.read_section("install")
 part = note.read_lines(1, 40)               # part.truncated, part.total_lines
-note.read().toc()
+doc = note.read()
+doc.toc()                                   # anchor, title, level, line + ind ranges
 ```
 
 A **section** is a heading plus everything under it. Anchors are slugs of the
@@ -101,25 +103,56 @@ instead.
 ## Editing
 
 ```bash
-dreamlake notes grep "Draft" --note "$NOTE"          # where is it, how many
-dreamlake notes replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE" --dry-run
+dreamlake notes find "Draft" --note "$NOTE"
+dreamlake notes find --regex '\bTODO\b.*' --flags im --note "$NOTE"
+
+dreamlake notes replace "Draft" --text "Published" --all --note "$NOTE" --if-match "$REV"
+dreamlake notes replace --regex '(?<key>timeout|retries)=(?<value>\d+)' \
+  --text '$<key>: $<value>' --all --note "$NOTE" --if-match "$REV" --dry-run
 dreamlake notes insert --text "New line" --line 10 --note "$NOTE"
 dreamlake notes delete "obsolete paragraph" --note "$NOTE"
+
+# By position, when the text is awkward to name. Ranges use n:m.
+dreamlake notes replace --text "Updated line" --line 10 --note "$NOTE"
+dreamlake notes replace --text "New block" --line 10:15 --note "$NOTE"
+dreamlake notes replace --text "replacement" --ind 120:145 --note "$NOTE"
+dreamlake notes insert --text "inserted text" --ind 120 --note "$NOTE"
 ```
 
 ```python
 doc = dl.note("<uuid>").read()      # a local snapshot; nothing sent yet
-doc.find(regex=r"\bTODO\b", flags="i")
-doc.replace("$<key>: $<value>", regex=r"(?<key>\w+)=(?<value>\d+)", all=True)
+doc.find("Draft")
+doc.find(regex=r"\bTODO\b.*", flags="im")
+
+updated = doc.replace("Published", query="Draft", all=True)   # the full new source
+doc.replace("$<key>: $<value>", regex=r"(?<key>timeout|retries)=(?<value>\d+)", all=True)
 doc.insert("New line", line=10)
 doc.delete(query="obsolete paragraph")
+
+doc.replace("Updated line", line=10)        # by position
+doc.replace("New block", line=(10, 15))
+doc.replace("replacement", ind=(120, 145))
+doc.insert("inserted text", ind=120)
+
 print(doc.diff())                   # what would change
 doc.save()                          # one conditional write
 doc.revert()                        # throw the local edits away
 ```
 
-Patterns are **JavaScript** in both clients: `(?<name>…)`, `$1`, `$<name>`,
-`$&`. Expansion is automatic. `--dry-run` shows the result without writing.
+Replacement text is the **first** argument; `query` or `regex` names the
+target; `line` / `ind` come last. Each edit returns the whole updated source.
+
+Regex is explicit, never inferred. Patterns are **JavaScript** in both clients:
+`(?<name>…)`, `$1`, `$<name>`, `$&`, `$$` for a literal `$`. Expansion is
+automatic — there is no flag for it. `--dry-run` shows the result without
+writing.
+
+Exactly one match is expected; `--all` / `all=True` takes every match,
+`--count N` / `count=N` requires exactly N. A failed edit changes nothing.
+
+Lines are **1-based, inclusive**. `ind` is **0-based, end-exclusive**, counted
+in Unicode code points, so a CJK character or an emoji is one unit. `toc`
+returns both. A line edit keeps the line ending; a character edit adds none.
 
 Every Python edit is local until `save()`, which sends one patch against the
 revision the snapshot was read at. If the note moved meanwhile the save is
@@ -127,10 +160,13 @@ revision the snapshot was read at. If the note moved meanwhile the save is
 
 ### HTML
 
-Address an element instead of raw text:
+Markdown may contain HTML, and a note's body can be an HTML document outright.
+When it does, address an **element** rather than raw text — the same sentence
+often appears several times, and a plain query would refuse the edit as
+ambiguous. A selector must match **exactly one** element.
 
 ```bash
-dreamlake notes select "#contact" --note "$NOTE"
+dreamlake notes select "#contact" --note "$NOTE"   # reports only; changes nothing
 dreamlake notes replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE"
 dreamlake notes insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE"
 ```
