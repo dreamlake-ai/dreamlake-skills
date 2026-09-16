@@ -107,6 +107,7 @@ dreamlake notes find "Draft" --note "$NOTE"
 dreamlake notes find --regex '\bTODO\b.*' --flags im --note "$NOTE"
 
 dreamlake notes replace "Draft" --text "Published" --all --note "$NOTE" --if-match "$REV"
+dreamlake notes replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE" --if-match "$REV"
 dreamlake notes replace --regex '(?<key>timeout|retries)=(?<value>\d+)' \
   --text '$<key>: $<value>' --all --note "$NOTE" --if-match "$REV" --dry-run
 dreamlake notes insert --text "New line" --line 10 --note "$NOTE"
@@ -120,11 +121,15 @@ dreamlake notes insert --text "inserted text" --ind 120 --note "$NOTE"
 ```
 
 ```python
+import dreamlake as dl
+
 doc = dl.note("<uuid>").read()      # a local snapshot; nothing sent yet
 doc.find("Draft")
 doc.find(regex=r"\bTODO\b.*", flags="im")
 
-updated = doc.replace("Published", query="Draft", all=True)   # the full new source
+updated = doc.replace("Published", query="Draft", all=True)
+print(updated)                      # the full new source, not just the part changed
+doc.replace("$1: $2", regex=r"(\w+)=(\d+)", all=True)
 doc.replace("$<key>: $<value>", regex=r"(?<key>timeout|retries)=(?<value>\d+)", all=True)
 doc.insert("New line", line=10)
 doc.delete(query="obsolete paragraph")
