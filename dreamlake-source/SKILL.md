@@ -13,10 +13,17 @@ the storage in place. This skill covers getting data connected; writing the
 `.dreamrc` is the [`dreamlake-dataset-viz`](../dreamlake-dataset-viz/SKILL.md)
 skill.
 
-**There is no upload API for sources yet** (it is on the roadmap). Today the
-flow is always: put the bytes in third-party storage with that provider's own
-tools, then link that storage as a source. That is also the recommended way
-to test visualization end-to-end right now.
+**Two ways to get bytes in**: put them in third-party storage with that
+provider's own tools and link that storage as a source, or — for a source
+that already exists — upload straight into its managed layer with the CLI
+(v0.24+):
+
+```bash
+dreamlake source upload <path> --source <name> [-r] [--to <prefix>]
+```
+
+Either way, nothing passes through the DreamLake server — uploads go direct
+to storage with presigned operations.
 
 ## 1. Inspect FIRST — the user never needs to know formats
 
@@ -30,12 +37,24 @@ you have looked. Inspect the directory (`ls -R`, `head` the small files,
 | `meta/info.json` (with `codebase_version`, `features`) | a LeRobot export (v2.x / v3.0) | **as-is** → `format: lerobot`, `episodes: auto` |
 | `*.zarr.zip` or a `.zarr/` directory | UMI / ReplayBuffer zarr | **as-is** → `format: umi` |
 | `*.mcap` files | indexed MCAP logs | **as-is** → `format: mcap` |
+| `episodes/*/frames.parquet` + `episode.json` + `model/` | a DreamLake sim-playback dataset — `episode.json.sim` says the flavor: `"mujoco"` (MJCF teleop recording, `mujoco` view) or `"urdf"` (URDF + joint trajectory, `urdf` view) | **as-is** → `format: folder`, `episodes: "episodes/*/"` — the writer made the layout, zero conversion |
 | folders of recordings (mp4 / images / CSV / parquet / JSON) | raw runs | **one folder per run** → `format: folder`, `episodes: "episodes/*/"` — zero conversion |
 
 Containers with no reader yet (HDF5, RLDS/TFRecord, rosbag): offer the two
 real options — convert to LeRobot (most tools export it), or extract the
 per-episode media/logs into folders. Don't ship a container as-is and
 promise visualization.
+
+Raw **sim trajectories** (MuJoCo qpos logs, gym rollouts, retargeted
+mocap / joint trajectories over a URDF — NOT already in the sim-playback
+layout) have a third option: convert them into the sim-playback layout
+(`model/` MJCF-or-URDF snapshot + `episodes/*/frames.parquet` +
+`episode.json` channel map) and they replay as scrubbable 3D in the app's
+`mujoco` / `urdf` view. The exact format contract and generic conversion
+recipes (both flavors, incl. the URDF root-link freejoint and the
+xyzw→wxyz quaternion trap) live in the
+[`dreamlake-dataset-viz`](../dreamlake-dataset-viz/SKILL.md) skill,
+§"Converting ANY MuJoCo data into the sim-playback layout".
 
 Two preparation rules that bite people:
 
@@ -48,8 +67,9 @@ Two preparation rules that bite people:
 
 ## 2. Put the bytes in linkable storage
 
-Upload with the provider's own tools (there is no `dreamlake` upload into a
-source yet — check `dreamlake source --help` before inventing syntax):
+Upload with the provider's own tools (or, for an existing source's managed
+layer, `dreamlake source upload` from the intro — check
+`dreamlake source --help` before inventing syntax):
 
 ```bash
 # S3 (or any S3-compatible bucket)
