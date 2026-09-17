@@ -30,7 +30,7 @@ above them; text does not. And an edit whose query matches twice is
 diff is the one worth preventing.
 
 ```bash
-dreamlake notes replace "Draft" --text "Published" --all --note "$NOTE"
+dreamlake notes replace "Draft" --text "Published" --all --note "$NOTE_ID"
 ```
 
 ```python
@@ -66,18 +66,24 @@ dl.shared_with_me()
 ```
 
 Titles may repeat — the slug takes a suffix — so keep `note.id` rather than the
-name you passed. The CLI names a note by slug or id; Python takes
+name you passed. The CLI names a note by slug, id or exact title; Python takes
 `<namespace>/<slug>`, or a bare id.
+
+Every CLI example below uses `$NOTE_ID`. Set it once:
+
+```bash
+NOTE_ID=design-doc          # slug, id or exact title
+```
 
 ## Reading
 
 ```bash
-dreamlake notes read "$NOTE"                              # whole body
-dreamlake notes read "$NOTE" --section install            # one section
-dreamlake notes read "$NOTE" --start-line 40 --end-line 80 --numbered
-dreamlake notes read --note "$NOTE" --json                # body + revision
-dreamlake notes toc --note "$NOTE"                        # outline + ranges
-dreamlake notes toc --note "$NOTE" --json
+dreamlake notes read "$NOTE_ID"                              # whole body
+dreamlake notes read "$NOTE_ID" --section install            # one section
+dreamlake notes read "$NOTE_ID" --start-line 40 --end-line 80 --numbered
+dreamlake notes read --note "$NOTE_ID" --json                # body + revision
+dreamlake notes toc --note "$NOTE_ID"                        # outline + ranges
+dreamlake notes toc --note "$NOTE_ID" --json
 ```
 
 ```python
@@ -103,21 +109,21 @@ instead.
 ## Editing
 
 ```bash
-dreamlake notes find "Draft" --note "$NOTE"
-dreamlake notes find --regex '\bTODO\b.*' --flags im --note "$NOTE"
+dreamlake notes find "Draft" --note "$NOTE_ID"
+dreamlake notes find --regex '\bTODO\b.*' --flags im --note "$NOTE_ID"
 
-dreamlake notes replace "Draft" --text "Published" --all --note "$NOTE" --if-match "$REV"
-dreamlake notes replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE" --if-match "$REV"
+dreamlake notes replace "Draft" --text "Published" --all --note "$NOTE_ID" --if-match "$REV"
+dreamlake notes replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE_ID" --if-match "$REV"
 dreamlake notes replace --regex '(?<key>timeout|retries)=(?<value>\d+)' \
-  --text '$<key>: $<value>' --all --note "$NOTE" --if-match "$REV" --dry-run
-dreamlake notes insert --text "New line" --line 10 --note "$NOTE"
-dreamlake notes delete "obsolete paragraph" --note "$NOTE"
+  --text '$<key>: $<value>' --all --note "$NOTE_ID" --if-match "$REV" --dry-run
+dreamlake notes insert --text "New line" --line 10 --note "$NOTE_ID"
+dreamlake notes delete "obsolete paragraph" --note "$NOTE_ID"
 
 # By position, when the text is awkward to name. Ranges use n:m.
-dreamlake notes replace --text "Updated line" --line 10 --note "$NOTE"
-dreamlake notes replace --text "New block" --line 10:15 --note "$NOTE"
-dreamlake notes replace --text "replacement" --ind 120:145 --note "$NOTE"
-dreamlake notes insert --text "inserted text" --ind 120 --note "$NOTE"
+dreamlake notes replace --text "Updated line" --line 10 --note "$NOTE_ID"
+dreamlake notes replace --text "New block" --line 10:15 --note "$NOTE_ID"
+dreamlake notes replace --text "replacement" --ind 120:145 --note "$NOTE_ID"
+dreamlake notes insert --text "inserted text" --ind 120 --note "$NOTE_ID"
 ```
 
 ```python
@@ -171,9 +177,9 @@ often appears several times, and a plain query would refuse the edit as
 ambiguous. A selector must match **exactly one** element.
 
 ```bash
-dreamlake notes select "#contact" --note "$NOTE"   # reports only; changes nothing
-dreamlake notes replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE"
-dreamlake notes insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE"
+dreamlake notes select "#contact" --note "$NOTE_ID"   # reports only; changes nothing
+dreamlake notes replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE_ID"
+dreamlake notes insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE_ID"
 ```
 
 ```python
@@ -190,12 +196,12 @@ whitespace elsewhere survive, so the diff is the edit and nothing else.
 When the change is "replace this section" rather than "change this phrase":
 
 ```bash
-dreamlake notes write "$NOTE" --file whole.md
-dreamlake notes write "$NOTE" --section install --file install.md
-dreamlake notes append "$NOTE" --text "one more line"
-dreamlake notes append "$NOTE" --file more.md
-dreamlake notes add-section "$NOTE" --file trouble.md --after install
-dreamlake notes rm-section "$NOTE" troubleshooting
+dreamlake notes write "$NOTE_ID" --file whole.md
+dreamlake notes write "$NOTE_ID" --section install --file install.md
+dreamlake notes append "$NOTE_ID" --text "one more line"
+dreamlake notes append "$NOTE_ID" --file more.md
+dreamlake notes add-section "$NOTE_ID" --file trouble.md --after install
+dreamlake notes rm-section "$NOTE_ID" troubleshooting
 ```
 
 ```python
@@ -217,8 +223,8 @@ that moved rather than taking half of it. Reach for this when one change
 touches several places at once.
 
 ```bash
-diff -u before.md after.md | dreamlake notes patch "$NOTE" --file -
-dreamlake notes patch "$NOTE" --file change.patch --dry-run
+diff -u before.md after.md | dreamlake notes patch "$NOTE_ID" --file -
+dreamlake notes patch "$NOTE_ID" --file change.patch --dry-run
 ```
 
 ```python
@@ -231,7 +237,7 @@ note.patch(unified_diff, if_match=doc.etag)
 ```bash
 dreamlake notes grep "TODO" -C 2
 dreamlake notes grep --regex '\bFIXME\b' --case-sensitive --glob 'spec-*'
-dreamlake notes grep "Draft" --note "$NOTE"        # one note only
+dreamlake notes grep "Draft" --note "$NOTE_ID"        # one note only
 dreamlake notes grep "Draft" --json                # revision + character range
 ```
 
@@ -263,17 +269,17 @@ Files inherit the note's permissions, so an attachment on a private note stays
 private.
 
 ```bash
-dreamlake notes files upload ./report.html --note "$NOTE"
-dreamlake notes files write config.json --text '{}' --note "$NOTE"
-dreamlake notes files list --note "$NOTE"
-dreamlake notes files list 'assets/*.png' --note "$NOTE"
-dreamlake notes files cat config.json --note "$NOTE"
-dreamlake notes files download report.html --note "$NOTE" -o ./report.html
-dreamlake notes files mv old.txt new.txt --note "$NOTE"
-dreamlake notes files cp a.txt b.txt --note "$NOTE"
-dreamlake notes files rm old.txt --note "$NOTE"        # trash
-dreamlake notes files list --trashed --note "$NOTE"    # ids of trashed files
-dreamlake notes files restore <file-id> --note "$NOTE"
+dreamlake notes files upload ./report.html --note "$NOTE_ID"
+dreamlake notes files write config.json --text '{}' --note "$NOTE_ID"
+dreamlake notes files list --note "$NOTE_ID"
+dreamlake notes files list 'assets/*.png' --note "$NOTE_ID"
+dreamlake notes files cat config.json --note "$NOTE_ID"
+dreamlake notes files download report.html --note "$NOTE_ID" -o ./report.html
+dreamlake notes files mv old.txt new.txt --note "$NOTE_ID"
+dreamlake notes files cp a.txt b.txt --note "$NOTE_ID"
+dreamlake notes files rm old.txt --note "$NOTE_ID"        # trash
+dreamlake notes files list --trashed --note "$NOTE_ID"    # ids of trashed files
+dreamlake notes files restore <file-id> --note "$NOTE_ID"
 ```
 
 ```python
@@ -299,9 +305,9 @@ path, so the path alone would be ambiguous. `files list --trashed` prints ids.
 ### Looking at one
 
 ```bash
-dreamlake notes files preview report.html --note "$NOTE" --open
-dreamlake notes files preview report.html --note "$NOTE" --share
-dreamlake notes files preview report.html --note "$NOTE" --revoke
+dreamlake notes files preview report.html --note "$NOTE_ID" --open
+dreamlake notes files preview report.html --note "$NOTE_ID" --share
+dreamlake notes files preview report.html --note "$NOTE_ID" --revoke
 ```
 
 ```python
@@ -325,8 +331,8 @@ Every write carries the revision it was based on. If someone else wrote first,
 yours is refused rather than applied on top:
 
 ```bash
-REV=$(dreamlake notes read "$NOTE" --json | jq -r .etag)
-dreamlake notes write "$NOTE" --file new.md --if-match "$REV"
+REV=$(dreamlake notes read "$NOTE_ID" --json | jq -r .etag)
+dreamlake notes write "$NOTE_ID" --file new.md --if-match "$REV"
 ```
 
 Exit codes worth branching on: **3** stale revision (`NoteChanged`), **4** note
