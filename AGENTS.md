@@ -24,3 +24,7 @@ separately. Do not claim completion from a local build or a merged PR alone.
 Detailed procedure: https://docs.dreamlake.ai/dev/skills (publication pending
 until the companion workspace docs change is deployed). Existing handoff standard:
 https://github.com/dreamlake-ai/dreamlake-workspace/issues/240#charlie-documentation-and-handoff-checklist
+
+Use explicit push refs, such as `git push origin HEAD:refs/heads/<branch>`.
+Do not use a bare `git push`: developer machines may have `push.default=matching`,
+which can publish unrelated branches. Do not change global Git settings.
