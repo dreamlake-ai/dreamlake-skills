@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Artifact title</title>
+<style>
+/* ── PASTE house-style.css HERE, verbatim. ────────────────────────────
+   The `html` kind renders in its own nested iframe: no injected base
+   styles, no Tailwind. This <style> block is the artifact's only CSS,
+   and the CSP forbids @import/url() — so it has to be inlined.
+   The rules below are page-specific additions on top of it.
+   ─────────────────────────────────────────────────────────────────── */
+
+.page {
+  max-width: 54rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dl-space-8);
+}
+
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dl-space-2);
+  padding-bottom: var(--dl-space-6);
+  border-bottom: 1px solid var(--dl-stroke);
+}
+.masthead-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dl-space-4);
+  flex-wrap: wrap;
+}
+
+/* ── PASTE the <style> block of theme-toggle.html HERE ─────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--dl-space-4);
+}
+
+.metric { font-size: var(--dl-text-2xl); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div class="masthead-top">
+        <span class="dl-chip dl-chip--accent">Real label, never lorem</span>
+        <!-- PASTE the markup block of theme-toggle.html HERE -->
+      </div>
+      <h1>The actual subject of this artifact</h1>
+      <p class="dl-caption">One line saying what a reader gets from it.</p>
+    </header>
+
+    <section class="grid">
+      <div class="dl-card">
+        <div class="dl-caption">Metric name</div>
+        <div class="metric">1,284</div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-caption">Metric name</div>
+        <div class="metric">98.2%</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>A section</h2>
+      <p>Body copy sits on the token scale, so every artifact shares one rhythm.</p>
+      <div class="dl-scroll-x">
+        <table>
+          <thead><tr><th>Column</th><th>Column</th></tr></thead>
+          <tbody>
+            <tr><td>Real value</td><td>Real value</td></tr>
+            <tr><td>Real value</td><td>Real value</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <button class="dl-btn dl-btn--primary">Primary action</button>
+  </main>
+
+  <!-- PASTE the <script> block of theme-toggle.html HERE -->
+</body>
+</html>

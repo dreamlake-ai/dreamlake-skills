@@ -47,9 +47,10 @@ Other facts that matter:
   own CSS.
 - **The frame fills its container** (100% width/height). Design responsive; let wide
   content (tables, code, diagrams) scroll in its own container, never the page.
-- **Light/dark**: a `theme` is chosen by the host. The injected base handles page
-  background/text. For your own colors, make both themes legible — prefer
-  `@media (prefers-color-scheme: ...)` or colors that work on either ground.
+- **Light/dark**: every artifact ships **both**, and ships the toggle. The host picks a
+  starting `theme`; the tokens in `house-style.css` already answer to it. Add the
+  three-state control from `reference/theme-toggle.html` so a reader can override.
+  See **Light and dark** below.
 
 ## Pick the right kind
 
@@ -136,21 +137,87 @@ flowchart LR
 The language is auto-detected and syntax-highlighted (GitHub theme). Don't wrap it in
 Markdown fences — the whole file *is* the code.
 
-## Design quality (make it look considered, not generic)
+## Design quality — use the house style
 
-- **Type first.** Set a clear hierarchy and one type scale; give headings
-  `text-wrap: balance` and body text room. The base font is fine; commit to weights and
-  spacing rather than leaving everything default.
-- **Choose a palette** of a few specific colors and one accent; don't scatter accents.
-  Make sure it reads on both the light and dark base.
-- **Real content, never lorem.** Use the actual data/labels the artifact is about.
-- **Layout does the spacing** — flex/grid + `gap`, not stray margins. Wide tables/code
-  get their own `overflow-x: auto` container.
+DreamLake artifacts share one visual system. **Do not invent a palette per artifact** —
+that is what makes a set of them look uncoordinated.
+
+**[`reference/house-style.css`](reference/house-style.css)** is the single source of
+truth: surfaces, ink, one accent (`#23aaff`), type scale, radii, spacing, and a small set
+of component classes (`.dl-card`, `.dl-chip`, `.dl-btn`, `.dl-codeblock`), with light and
+dark both defined. Its values mirror the product palette, so an artifact and the
+DreamLake app read as one system.
+
+**How to apply it**, per kind:
+
+| Kind | How the tokens get in |
+|---|---|
+| `html` | Paste the file into the `<style>` block — nothing else reaches this kind |
+| `react` | Paste it into a `<style>{HOUSE_STYLE}</style>` element; combine `.dl-*` classes with Tailwind for layout |
+| `svg` | Hard-code the token *values* (no cascade into an injected `<svg>`); keep the same accent |
+| `markdown` / `code` / `mermaid` | Nothing to do — the injected base already matches |
+
+Start from **[`reference/template.html`](reference/template.html)** or
+**[`reference/template.react.jsx`](reference/template.react.jsx)**, which are pre-wired
+for exactly this.
+
+Fonts are the one compromise: the CSP blocks web fonts, so the stack leads with
+Inter Tight / Fira Code (picked up when locally installed) and degrades to system faces.
+For an exact match, subset the real faces to data-URI `woff2` and `@font-face` them in
+the same `<style>` block — budget ~30-80KB.
+
+With the tokens carrying the palette, your judgment goes into the rest:
+
+- **Type first.** Commit to a hierarchy using the `--dl-text-*` scale. Headings get
+  `text-wrap: balance`; body text gets room.
+- **One accent, used sparingly, in the right job.** The brand blue is only 2.5:1 on the
+  light ground, so it comes in three tokens: `--dl-accent` decorates (borders, washes,
+  marks), `--dl-accent-ink` carries accent-colored *text*, icons and focus rings, and
+  `--dl-accent-solid` is the fill that sits behind white text. Using `--dl-accent` for
+  label text is the usual way an artifact ends up pretty and unreadable. Reach for
+  `--dl-muted` or a `--dl-faint` wash before adding a second color.
+- **Real content, never lorem.** Use the actual data and labels the artifact is about.
+- **Layout does the spacing** — flex/grid + `gap` on the `--dl-space-*` steps, not stray
+  margins. Wide tables/code get `.dl-scroll-x`.
 - **Avoid the default "AI" look** (cream + serif + terracotta; lone neon accent on
-  near-black; emoji section markers; everything centered and `rounded-lg`). Make
-  deliberate choices tied to the subject.
-- **Accessibility**: sufficient contrast, visible focus states, respect
-  `prefers-reduced-motion`.
+  near-black; emoji section markers; everything centered and `rounded-lg`). The tokens
+  already rule most of this out — don't reintroduce it.
+- **Accessibility**: sufficient contrast, visible focus states (the base ships a
+  `:focus-visible` ring), and `prefers-reduced-motion` respected.
+
+## Light and dark
+
+Both modes are not optional, and neither is the control. Artifacts get read in a dark
+dashboard and a bright doc on the same day.
+
+`house-style.css` already declares every colour twice — once on `:root`, once under
+`@media (prefers-color-scheme: dark)` guarded by `:root:not([data-theme='light'])`, and
+again under `:root[data-theme='dark']`. That triple is what makes three states possible:
+
+| State | What it does |
+|---|---|
+| `light` | sets `data-theme="light"`, which defeats the media query |
+| `system` | **removes** the attribute, letting the media query decide |
+| `dark` | sets `data-theme="dark"` |
+
+Paste **[`reference/theme-toggle.html`](reference/theme-toggle.html)** — style, markup and
+script — into the artifact. It matches the pill on the DreamLake app: sliding indicator
+filled with the page background so the active slot reads as a cutout, inactive icons
+tilted away, Lucide icons inlined because the CSP blocks the package. It persists the
+choice to `localStorage` inside try/catch, because storage throws in a private window and
+the page still has to render.
+
+Two things go wrong every time:
+
+- **Canvas, WebGL and chart code do not inherit CSS variables.** Anything drawing into a
+  bitmap has to re-read the tokens and repaint when the theme changes. The snippet calls
+  `window.onThemeChange()` for exactly this — define it. Read tokens by setting
+  `probe.style.color = 'var(--dl-ink)'` on a hidden element and parsing
+  `getComputedStyle`, rather than hard-coding a hex the theme can't reach.
+- **Do not invert content that lives on a surface you drew.** Page chrome flips; ink on a
+  white sheet, marks on a whiteboard, or a label on a product shot does not. Inverting
+  those in dark mode produces white-on-white. Ask what the mark sits *on*: if it is
+  artwork or scene geometry rather than the page, its colour is fixed.
 
 ## Common pitfalls (each = a blank or broken render)
 
@@ -161,14 +228,20 @@ Markdown fences — the whole file *is* the code.
 - ❌ No top-level `App` in a `react` artifact → nothing renders.
 - ❌ Inline HTML inside a `markdown` artifact → stripped. Use `html` kind instead.
 - ❌ Relying on Tailwind classes inside an `html` artifact → they don't apply there.
+- ❌ A canvas/WebGL view that keeps its old colours after a theme switch → it never
+  re-read the tokens. Repaint from `window.onThemeChange`.
 - ❌ Fetching data at runtime → no network. Embed the data in the file.
 
 ## Before you push — checklist
 
 1. Correct **kind** for the content.
 2. **Fully self-contained** — no external URLs of any sort.
-3. Renders and is **legible on both light and dark**.
-4. **Responsive**; wide content scrolls in its own container, not the page.
-5. `react`: defines `App`, no imports. `html`: ships its own CSS. `markdown`: no inline HTML.
+3. **House style applied** — `reference/house-style.css` pasted in (`html`/`react`),
+   no ad-hoc palette.
+4. **Light and dark both work, and the toggle ships** — `reference/theme-toggle.html` in
+   place; canvas/chart colours repaint on switch; nothing drawn on your own white surface
+   got inverted.
+5. **Responsive**; wide content scrolls in its own container, not the page.
+6. `react`: defines `App`, no imports. `html`: ships its own CSS. `markdown`: no inline HTML.
 
 Then publish with the `dreamlake-artifacts` skill (`dreamlake artifact push …`).
