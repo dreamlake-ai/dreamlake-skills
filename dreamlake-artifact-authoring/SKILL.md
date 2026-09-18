@@ -47,9 +47,10 @@ Other facts that matter:
   own CSS.
 - **The frame fills its container** (100% width/height). Design responsive; let wide
   content (tables, code, diagrams) scroll in its own container, never the page.
-- **Light/dark**: a `theme` is chosen by the host. The injected base handles page
-  background/text. For your own colors, make both themes legible — prefer
-  `@media (prefers-color-scheme: ...)` or colors that work on either ground.
+- **Light/dark**: every artifact ships **both**, and ships the toggle. The host picks a
+  starting `theme`; the tokens in `house-style.css` already answer to it. Add the
+  three-state control from `reference/theme-toggle.html` so a reader can override.
+  See **Light and dark** below.
 
 ## Pick the right kind
 
@@ -184,6 +185,40 @@ With the tokens carrying the palette, your judgment goes into the rest:
 - **Accessibility**: sufficient contrast, visible focus states (the base ships a
   `:focus-visible` ring), and `prefers-reduced-motion` respected.
 
+## Light and dark
+
+Both modes are not optional, and neither is the control. Artifacts get read in a dark
+dashboard and a bright doc on the same day.
+
+`house-style.css` already declares every colour twice — once on `:root`, once under
+`@media (prefers-color-scheme: dark)` guarded by `:root:not([data-theme='light'])`, and
+again under `:root[data-theme='dark']`. That triple is what makes three states possible:
+
+| State | What it does |
+|---|---|
+| `light` | sets `data-theme="light"`, which defeats the media query |
+| `system` | **removes** the attribute, letting the media query decide |
+| `dark` | sets `data-theme="dark"` |
+
+Paste **[`reference/theme-toggle.html`](reference/theme-toggle.html)** — style, markup and
+script — into the artifact. It matches the pill on the DreamLake app: sliding indicator
+filled with the page background so the active slot reads as a cutout, inactive icons
+tilted away, Lucide icons inlined because the CSP blocks the package. It persists the
+choice to `localStorage` inside try/catch, because storage throws in a private window and
+the page still has to render.
+
+Two things go wrong every time:
+
+- **Canvas, WebGL and chart code do not inherit CSS variables.** Anything drawing into a
+  bitmap has to re-read the tokens and repaint when the theme changes. The snippet calls
+  `window.onThemeChange()` for exactly this — define it. Read tokens by setting
+  `probe.style.color = 'var(--dl-ink)'` on a hidden element and parsing
+  `getComputedStyle`, rather than hard-coding a hex the theme can't reach.
+- **Do not invert content that lives on a surface you drew.** Page chrome flips; ink on a
+  white sheet, marks on a whiteboard, or a label on a product shot does not. Inverting
+  those in dark mode produces white-on-white. Ask what the mark sits *on*: if it is
+  artwork or scene geometry rather than the page, its colour is fixed.
+
 ## Common pitfalls (each = a blank or broken render)
 
 - ❌ External `<script src>` / `<link href>` / web font / remote image → **CSP-blocked**.
@@ -193,6 +228,8 @@ With the tokens carrying the palette, your judgment goes into the rest:
 - ❌ No top-level `App` in a `react` artifact → nothing renders.
 - ❌ Inline HTML inside a `markdown` artifact → stripped. Use `html` kind instead.
 - ❌ Relying on Tailwind classes inside an `html` artifact → they don't apply there.
+- ❌ A canvas/WebGL view that keeps its old colours after a theme switch → it never
+  re-read the tokens. Repaint from `window.onThemeChange`.
 - ❌ Fetching data at runtime → no network. Embed the data in the file.
 
 ## Before you push — checklist
@@ -200,8 +237,11 @@ With the tokens carrying the palette, your judgment goes into the rest:
 1. Correct **kind** for the content.
 2. **Fully self-contained** — no external URLs of any sort.
 3. **House style applied** — `reference/house-style.css` pasted in (`html`/`react`),
-   no ad-hoc palette — and legible on both light and dark.
-4. **Responsive**; wide content scrolls in its own container, not the page.
-5. `react`: defines `App`, no imports. `html`: ships its own CSS. `markdown`: no inline HTML.
+   no ad-hoc palette.
+4. **Light and dark both work, and the toggle ships** — `reference/theme-toggle.html` in
+   place; canvas/chart colours repaint on switch; nothing drawn on your own white surface
+   got inverted.
+5. **Responsive**; wide content scrolls in its own container, not the page.
+6. `react`: defines `App`, no imports. `html`: ships its own CSS. `markdown`: no inline HTML.
 
 Then publish with the `dreamlake-artifacts` skill (`dreamlake artifact push …`).
