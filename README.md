@@ -142,3 +142,39 @@ description: One or two sentences on what this skill does and when to use it.
 ```
 
 Keep skills accurate to the shipped CLI/UI, concrete, and command-first.
+
+## Docs-first maintenance
+
+Maintain procedures and executable examples in their owning docs. Notes and
+CLI references are now reproducible outputs, not independent writing surfaces:
+
+| Output | Source |
+|---|---|
+| `dreamlake-notes/SKILL.md` + `reference/notes.md` | `dreamlake-workspace/docs/pages/notes/+Page.mdx` |
+| `dreamlake-cli/**` | `dreamlake-cli/docs/pages/**/+Page.mdx` and its docs generator |
+
+With Git, Node and Python 3.12+, and authorized checkouts of the source repos:
+
+```bash
+python3 scripts/sync-docs.py --workspace /path/to/dreamlake-workspace --cli /path/to/dreamlake-cli
+python3 scripts/sync-docs.py --workspace /path/to/dreamlake-workspace --cli /path/to/dreamlake-cli --check
+python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/sync-docs.py --verify-files
+```
+
+Commit source docs first. Synchronization exports committed HEAD snapshots into
+scratch directories and runs the original generators; it never regenerates into
+those checkouts. Review and commit the generated skills with `sources.json` and
+`generated-files.json`. The latter defines owned files; unrelated resources survive.
+A changed generated file being removed requires manual reconciliation.
+
+`--check` checks current source HEADs. Add `--locked` to reproduce recorded source
+commits instead. Public CI runs offline tests and file-integrity verification;
+it does **not** read private source repos or prove upstream freshness. Run the
+full source check locally before merging. Publish companion source branches so
+reviewers can access the recorded commits. Other skills still need explicit
+paired docs/skill review until migrated; no automatic sync is claimed for them.
+
+A source synchronization is not a release. After publication, check live docs
+and a fresh installed skill, then report their URLs, source revisions, update
+command and evidence. See [AGENTS.md](AGENTS.md) for the maintenance policy.

@@ -1,12 +1,16 @@
 # Envs
 
-An **env** is a MuJoCo environment: one MJCF entry file plus the assets it
-references (meshes, textures, `<include>`d XMLs). `dreamlake env` pushes a
-directory as a new version of an env under your namespace, and every version
-opens as an interactive 3D viewer at `dreamlake.ai/<namespace>/envs/<name>`.
+An **env** is a simulation environment: one entry file — a MuJoCo MJCF scene
+or a URDF robot — plus the assets it references (meshes, textures,
+`<include>`d XMLs). `dreamlake env` pushes a directory as a new version of an
+env under your namespace, and every version opens as an interactive 3D viewer
+at `dreamlake.ai/<namespace>/envs/<name>`.
 
 Unchanged files are **never re-uploaded**: file content is content-addressed,
-so a new version only transfers what actually changed.
+so a new version only transfers what actually changed. A push with **no
+changes at all** (same entry, same files) does not create a version — it
+reports `no changes since vN — nothing to push` (any `--title`/`--visibility`
+flags still apply as a metadata update).
 
 ## Push a version
 
@@ -17,12 +21,16 @@ dreamlake env push ./scenes/cassie \
   --title "Agility Cassie" --visibility public
 ```
 
-- `--type` records the simulator family (`mujoco` by default; `isaaclab`,
-  `superdex`, … are accepted). Every type is stored, versioned and pullable —
-  the interactive web viewer currently exists for `mujoco` only; other types
-  show the version's file listing.
+- `--type` records the simulator family (`isaaclab`, `superdex`, … are
+  accepted as free strings). It is auto-detected from the entry file: an MJCF
+  is `mujoco`, a `*.urdf` is `urdf`. Every type is stored, versioned and
+  pullable — `mujoco` opens as a live simulation and `urdf` as a poseable
+  robot (joint sliders + drag-a-link posing); other types show the version's
+  file listing.
 - `--entry` is auto-detected when the directory has exactly one root-level
-  `*.xml`/`*.mjcf` containing `<mujoco>`; otherwise pass it explicitly.
+  `*.xml`/`*.mjcf` containing `<mujoco>` — or, when there is no MJCF, exactly
+  one root-level `*.urdf` containing `<robot>`. Otherwise pass it explicitly
+  (a `*.xml` URDF also needs `--type urdf`).
 - Paths are stored relative to the pushed directory, so relative
   `<mesh file="…"/>` and `<include file="…"/>` references keep working.
 - Dot-files, `node_modules` and symlinks are skipped. Limits: ≤ 1000 files,
