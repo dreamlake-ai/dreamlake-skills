@@ -136,21 +136,53 @@ flowchart LR
 The language is auto-detected and syntax-highlighted (GitHub theme). Don't wrap it in
 Markdown fences — the whole file *is* the code.
 
-## Design quality (make it look considered, not generic)
+## Design quality — use the house style
 
-- **Type first.** Set a clear hierarchy and one type scale; give headings
-  `text-wrap: balance` and body text room. The base font is fine; commit to weights and
-  spacing rather than leaving everything default.
-- **Choose a palette** of a few specific colors and one accent; don't scatter accents.
-  Make sure it reads on both the light and dark base.
-- **Real content, never lorem.** Use the actual data/labels the artifact is about.
-- **Layout does the spacing** — flex/grid + `gap`, not stray margins. Wide tables/code
-  get their own `overflow-x: auto` container.
+DreamLake artifacts share one visual system. **Do not invent a palette per artifact** —
+that is what makes a set of them look uncoordinated.
+
+**[`reference/house-style.css`](reference/house-style.css)** is the single source of
+truth: surfaces, ink, one accent (`#23aaff`), type scale, radii, spacing, and a small set
+of component classes (`.dl-card`, `.dl-chip`, `.dl-btn`, `.dl-codeblock`), with light and
+dark both defined. Its values mirror the product palette, so an artifact and the
+DreamLake app read as one system.
+
+**How to apply it**, per kind:
+
+| Kind | How the tokens get in |
+|---|---|
+| `html` | Paste the file into the `<style>` block — nothing else reaches this kind |
+| `react` | Paste it into a `<style>{HOUSE_STYLE}</style>` element; combine `.dl-*` classes with Tailwind for layout |
+| `svg` | Hard-code the token *values* (no cascade into an injected `<svg>`); keep the same accent |
+| `markdown` / `code` / `mermaid` | Nothing to do — the injected base already matches |
+
+Start from **[`reference/template.html`](reference/template.html)** or
+**[`reference/template.react.jsx`](reference/template.react.jsx)**, which are pre-wired
+for exactly this.
+
+Fonts are the one compromise: the CSP blocks web fonts, so the stack leads with
+Inter Tight / Fira Code (picked up when locally installed) and degrades to system faces.
+For an exact match, subset the real faces to data-URI `woff2` and `@font-face` them in
+the same `<style>` block — budget ~30-80KB.
+
+With the tokens carrying the palette, your judgment goes into the rest:
+
+- **Type first.** Commit to a hierarchy using the `--dl-text-*` scale. Headings get
+  `text-wrap: balance`; body text gets room.
+- **One accent, used sparingly, in the right job.** The brand blue is only 2.5:1 on the
+  light ground, so it comes in three tokens: `--dl-accent` decorates (borders, washes,
+  marks), `--dl-accent-ink` carries accent-colored *text*, icons and focus rings, and
+  `--dl-accent-solid` is the fill that sits behind white text. Using `--dl-accent` for
+  label text is the usual way an artifact ends up pretty and unreadable. Reach for
+  `--dl-muted` or a `--dl-faint` wash before adding a second color.
+- **Real content, never lorem.** Use the actual data and labels the artifact is about.
+- **Layout does the spacing** — flex/grid + `gap` on the `--dl-space-*` steps, not stray
+  margins. Wide tables/code get `.dl-scroll-x`.
 - **Avoid the default "AI" look** (cream + serif + terracotta; lone neon accent on
-  near-black; emoji section markers; everything centered and `rounded-lg`). Make
-  deliberate choices tied to the subject.
-- **Accessibility**: sufficient contrast, visible focus states, respect
-  `prefers-reduced-motion`.
+  near-black; emoji section markers; everything centered and `rounded-lg`). The tokens
+  already rule most of this out — don't reintroduce it.
+- **Accessibility**: sufficient contrast, visible focus states (the base ships a
+  `:focus-visible` ring), and `prefers-reduced-motion` respected.
 
 ## Common pitfalls (each = a blank or broken render)
 
@@ -167,7 +199,8 @@ Markdown fences — the whole file *is* the code.
 
 1. Correct **kind** for the content.
 2. **Fully self-contained** — no external URLs of any sort.
-3. Renders and is **legible on both light and dark**.
+3. **House style applied** — `reference/house-style.css` pasted in (`html`/`react`),
+   no ad-hoc palette — and legible on both light and dark.
 4. **Responsive**; wide content scrolls in its own container, not the page.
 5. `react`: defines `App`, no imports. `html`: ships its own CSS. `markdown`: no inline HTML.
 

@@ -1,0 +1,256 @@
+/* ═══════════════════════════════════════════════════════════════════
+   DreamLake house style — paste-ready, CSP-safe design tokens.
+
+   Copy this whole block into a <style> tag in any artifact. It is the
+   single source of truth for DreamLake artifact visuals; the values
+   mirror the product palette (dash-workspace docs + @dreamlake/uikit)
+   so an artifact and the app read as one system.
+
+   Two rules:
+     1. Copy it verbatim. Don't retune the values per artifact — that is
+        exactly what makes a set of artifacts look uncoordinated.
+     2. Use the tokens, not raw hex. If something needs a color that
+        isn't here, it almost certainly wants --dl-accent or a --dl-ink
+        at reduced opacity.
+
+   No @import, no url() — the frame's CSP blocks all external fetches.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ── Surfaces ──────────────────────────────────────────────────── */
+  --dl-bg:           #fffefa;  /* page ground — warm, not pure white  */
+  --dl-panel:        #fcfbf7;  /* cards, raised blocks                */
+  --dl-rail:         #fcfbf7;  /* sidebars, nav rails                 */
+  --dl-code:         #faf8f1;  /* code block wrapper                  */
+  --dl-search:       #f5f4f0;  /* inputs, wells                       */
+  --dl-selected:     #d9e6f7;  /* selected row / active state         */
+
+  /* ── Ink ───────────────────────────────────────────────────────── */
+  --dl-ink:          #1a1a1a;  /* body + headings                     */
+  --dl-muted:        #6b6b6b;  /* captions, labels, secondary text    */
+
+  /* ── Lines & washes (use instead of new grays) ─────────────────── */
+  --dl-faint:        rgb(0 0 0 / 0.08);  /* hairline borders          */
+  --dl-faint-strong: rgb(0 0 0 / 0.16);  /* emphasized borders        */
+  --dl-chip:         rgb(0 0 0 / 0.04);  /* chip / tag fill           */
+  --dl-stroke:       #d8d4c8;            /* rail + divider stroke     */
+
+  /* ── Accent — exactly one hue, in three jobs ──────────────────────
+     The brand blue is only 2.5:1 on the light ground, so it cannot carry
+     text or a focus ring on its own. Use:
+       --dl-accent        decoration — borders, washes, marks, 3D rim
+       --dl-accent-ink    accent-colored TEXT, icons, focus rings (AA)
+       --dl-accent-solid  a fill that sits behind white text (AA)
+     Same split for warn. Picking the wrong one is the usual way an
+     artifact ends up pretty and unreadable.                            */
+  --dl-accent:       #23aaff;
+  --dl-accent-ink:   #007ac6;   /* 4.5:1 on --dl-bg */
+  --dl-accent-solid: #007ac6;   /* 4.6:1 vs #fff    */
+  --dl-accent-soft:  rgb(35 170 255 / 0.09);
+  --dl-warn:         #d68b3a;
+  --dl-warn-ink:     #a66723;   /* 4.5:1 on --dl-bg */
+  --dl-warn-soft:    rgb(214 139 58 / 0.10);
+
+  /* ── Type ──────────────────────────────────────────────────────────
+     System stacks only. Web fonts are CSP-blocked; Inter Tight and
+     Fira Code lead the stack so they're picked up when locally
+     installed, and degrade cleanly when not. To match the product
+     exactly, subset the real faces to data-URI woff2 and @font-face
+     them here — costs ~30-80KB per artifact.                        */
+  --dl-font-ui:   "Inter Tight", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --dl-font-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --dl-text-xs:   0.75rem;
+  --dl-text-sm:   0.8125rem;
+  --dl-text-base: 0.9375rem;
+  --dl-text-lg:   1.125rem;
+  --dl-text-xl:   1.375rem;
+  --dl-text-2xl:  1.75rem;
+  --dl-text-3xl:  2.25rem;
+
+  --dl-leading-body: 1.6;
+  --dl-leading-head: 1.2;
+
+  /* ── Shape & rhythm ────────────────────────────────────────────── */
+  --dl-radius:    10px;
+  --dl-radius-sm: 6px;
+
+  --dl-space-1: 4px;
+  --dl-space-2: 8px;
+  --dl-space-3: 12px;
+  --dl-space-4: 16px;
+  --dl-space-6: 24px;
+  --dl-space-8: 32px;
+  --dl-space-12: 48px;
+}
+
+/* ── Dark theme ──────────────────────────────────────────────────────
+   Declared twice on purpose: the media query covers the host picking a
+   theme via the OS (the reliable signal inside the `html` kind's nested
+   iframe), the attribute covers a host that sets [data-theme] directly.
+   The :not([data-theme='light']) guard lets an explicit light theme win.
+   ────────────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --dl-bg:           #2e2e35;
+    --dl-panel:        #2e2e35;
+    --dl-rail:         #2b2b31;
+    --dl-code:         #2c2c33;
+    --dl-search:       #36363c;
+    --dl-selected:     #3d4856;
+    --dl-ink:          #ececec;
+    --dl-muted:        #8a8a8a;
+    --dl-faint:        rgb(255 255 255 / 0.09);
+    --dl-faint-strong: rgb(255 255 255 / 0.20);
+    --dl-chip:         rgb(255 255 255 / 0.05);
+    --dl-stroke:       #45454d;
+    --dl-accent-ink:   #23aaff;   /* 5.3:1 on dark --dl-bg */
+    --dl-accent-soft:  rgb(35 170 255 / 0.18);
+    --dl-warn-ink:     #d68b3a;   /* 4.9:1 on dark --dl-bg */
+    --dl-warn-soft:    rgb(214 139 58 / 0.18);
+  }
+}
+
+:root[data-theme='dark'] {
+  --dl-bg:           #2e2e35;
+  --dl-panel:        #2e2e35;
+  --dl-rail:         #2b2b31;
+  --dl-code:         #2c2c33;
+  --dl-search:       #36363c;
+  --dl-selected:     #3d4856;
+  --dl-ink:          #ececec;
+  --dl-muted:        #8a8a8a;
+  --dl-faint:        rgb(255 255 255 / 0.09);
+  --dl-faint-strong: rgb(255 255 255 / 0.20);
+  --dl-chip:         rgb(255 255 255 / 0.05);
+  --dl-stroke:       #45454d;
+  --dl-accent-ink:   #23aaff;
+  --dl-warn-ink:     #d68b3a;
+  --dl-accent-soft:  rgb(35 170 255 / 0.18);
+  --dl-warn-soft:    rgb(214 139 58 / 0.18);
+}
+
+/* ═══ Base ═══════════════════════════════════════════════════════════
+   For the `html` kind, which gets no injected base styles. Harmless to
+   keep for other kinds — it restates what the base already does.
+   ═════════════════════════════════════════════════════════════════ */
+
+body {
+  margin: 0;
+  padding: var(--dl-space-6);
+  background: var(--dl-bg);
+  color: var(--dl-ink);
+  font-family: var(--dl-font-ui);
+  font-size: var(--dl-text-base);
+  line-height: var(--dl-leading-body);
+  /* Matches the product's text rendering; Inter Tight reads chunky with
+     subpixel AA. ss01 = open digits, cv11 = single-storey g. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+h1, h2, h3, h4 {
+  line-height: var(--dl-leading-head);
+  text-wrap: balance;
+  font-weight: 600;
+  letter-spacing: -0.011em;
+  margin: 0 0 var(--dl-space-3);
+}
+h1 { font-size: var(--dl-text-3xl); letter-spacing: -0.021em; }
+h2 { font-size: var(--dl-text-xl); }
+h3 { font-size: var(--dl-text-lg); }
+
+p { margin: 0 0 var(--dl-space-4); }
+a { color: var(--dl-accent-ink); text-underline-offset: 2px; }
+
+small, .dl-caption {
+  font-size: var(--dl-text-sm);
+  color: var(--dl-muted);
+}
+
+code, pre, kbd {
+  font-family: var(--dl-font-mono);
+  font-size: 0.9em;
+}
+
+img, svg, video, canvas { max-width: 100%; height: auto; }
+
+:focus-visible {
+  outline: 2px solid var(--dl-accent-ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══ Components ═════════════════════════════════════════════════════
+   The handful of patterns most artifacts need. Layout (flex/grid+gap)
+   stays with the artifact; these only carry the look.
+   ═════════════════════════════════════════════════════════════════ */
+
+.dl-card {
+  background: var(--dl-panel);
+  border: 1px solid var(--dl-faint);
+  border-radius: var(--dl-radius);
+  padding: var(--dl-space-4);
+}
+
+.dl-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dl-space-1);
+  background: var(--dl-chip);
+  border-radius: var(--dl-radius-sm);
+  padding: 2px var(--dl-space-2);
+  font-size: var(--dl-text-xs);
+  color: var(--dl-muted);
+}
+.dl-chip--accent { background: var(--dl-accent-soft); color: var(--dl-accent-ink); }
+.dl-chip--warn   { background: var(--dl-warn-soft);   color: var(--dl-warn-ink); }
+
+.dl-btn {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--dl-faint-strong);
+  border-radius: var(--dl-radius-sm);
+  padding: var(--dl-space-2) var(--dl-space-4);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.dl-btn:hover { background: var(--dl-chip); }
+.dl-btn--primary {
+  background: var(--dl-accent-solid);
+  border-color: var(--dl-accent-solid);
+  color: #fff;
+}
+.dl-btn--primary:hover { filter: brightness(1.12); background: var(--dl-accent-solid); }
+
+/* Wide content scrolls in its own container, never the page. */
+.dl-scroll-x { overflow-x: auto; max-width: 100%; }
+
+.dl-codeblock {
+  background: var(--dl-code);
+  border: 1px solid var(--dl-faint);
+  border-radius: var(--dl-radius);
+  padding: var(--dl-space-4);
+  overflow-x: auto;
+}
+.dl-codeblock pre { margin: 0; }
+
+table { border-collapse: collapse; width: 100%; font-size: var(--dl-text-sm); }
+th, td {
+  text-align: left;
+  padding: var(--dl-space-2) var(--dl-space-3);
+  border-bottom: 1px solid var(--dl-faint);
+}
+th { color: var(--dl-muted); font-weight: 500; }
+
+hr { border: 0; border-top: 1px solid var(--dl-stroke); margin: var(--dl-space-8) 0; }
