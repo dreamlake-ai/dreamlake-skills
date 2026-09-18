@@ -333,3 +333,64 @@ access to this note". A note you cannot read at all reports as not found.
 
 Every one of them takes `--namespace`, `--json`, and the usual connection flags.
 `write`, `patch` and `append` take `--if-match` and `--force`.
+
+## Command-help recipes
+
+These examples are also shipped in each command's `--help`. Log in first.
+Replace `release-plan` with a note you can access. Shell recipes using `jq`
+require it locally. Each edit example captures the revision before the edit;
+a stale revision requires a fresh read and a reviewed edit, never a blind force.
+
+```bash cli-help="notes list"
+dreamlake notes list --limit 10
+dreamlake notes list --shared --json
+dreamlake notes list --namespace acme
+```
+
+```bash cli-help="notes search"
+dreamlake notes search "release plan"
+dreamlake notes search deploy --namespace acme --json
+```
+
+```bash cli-help="notes create"
+dreamlake notes create "Release plan" --text "Draft checklist"
+printf '# Release plan\n' | dreamlake notes create "Release plan" --file - --json
+```
+
+```bash cli-help="notes read"
+dreamlake notes read release-plan
+dreamlake notes read release-plan --start-line 1 --end-line 20 --numbered
+dreamlake notes read --note release-plan --json
+```
+
+```bash cli-help="notes write"
+NOTE=release-plan
+dreamlake notes read "$NOTE" --json > note-snapshot.json
+REV=$(jq -er .etag note-snapshot.json)
+jq -r .text note-snapshot.json > note.md
+# Edit note.md after reading the snapshot, then preview and apply.
+dreamlake notes write "$NOTE" --file note.md --if-match "$REV" --dry-run
+dreamlake notes write "$NOTE" --file note.md --if-match "$REV" --json
+```
+
+```bash cli-help="notes patch"
+NOTE=release-plan
+dreamlake notes read "$NOTE" --json > note-snapshot.json
+REV=$(jq -er .etag note-snapshot.json)
+jq -r .text note-snapshot.json > before.md
+cp before.md after.md
+# Edit after.md, then generate a diff. diff returns 1 when files differ.
+diff -u before.md after.md > change.patch
+dreamlake notes patch "$NOTE" --file change.patch --if-match "$REV" --dry-run
+dreamlake notes patch "$NOTE" --file change.patch --if-match "$REV" --json
+```
+
+```bash cli-help="notes sections"
+dreamlake notes sections release-plan
+dreamlake notes sections release-plan --json
+```
+
+```bash cli-help="notes files list"
+dreamlake notes files list --note release-plan
+dreamlake notes files list --note release-plan --json
+```

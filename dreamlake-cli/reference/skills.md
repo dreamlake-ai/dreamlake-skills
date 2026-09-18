@@ -70,11 +70,11 @@ stderr stays empty.
 ```json file="dreamlake skill list --json"
 {
   "status": "ok",
-  "source": "/usr/local/lib/dreamlake/skills",
+  "source": "embedded-skills",
   "skills": [
     {
       "name": "dreamlake-cli",
-      "files": 16,
+      "files": 37,
       "project": { "path": "/work/.claude/skills/dreamlake-cli", "state": "absent" },
       "global":  { "path": "/home/you/.claude/skills/dreamlake-cli", "state": "identical" }
     }
@@ -110,7 +110,7 @@ build overwrites it. Change the page, then regenerate:
 
 ```bash file="terminal"
 pnpm -C docs gen:llms          # rebuild skills/<name>/ from the pages
-pnpm -C docs check:llms        # exit 1 if the committed skill is stale
+pnpm -C docs check:llms        # fail on stale skill or committed command-help output
 ```
 
 The same generator writes the other machine-readable surfaces of this site:
@@ -128,3 +128,49 @@ A build that ships no `skills/` directory says so and names the escape hatch:
 
 `DREAMLAKE_SKILLS_DIR` also lets you install from a working copy of this
 repository without publishing anything.
+
+## Copyable command help
+
+These reviewed blocks also populate each command's `--help`. The native binary
+and npm platform package embed the CLI reference at build time starting with
+0.24.3. No checkout, runtime, network, or environment variable is needed to list
+or install it. This bundles `dreamlake-cli`, not every skill in the public catalog.
+Updating the executable does not overwrite an installed skill: rerun install,
+review any conflict, preserve local edits, and use `--force` only deliberately.
+
+```bash cli-help="skill list"
+# Inspect the bundle and installed state without changing files.
+dreamlake skill list
+dreamlake skill list --json
+```
+
+```bash cli-help="skill install"
+# Install into this project; an identical second install is a no-op.
+dreamlake skill install dreamlake-cli
+dreamlake skill install dreamlake-cli --dir ./my-project --json
+# Install for the current user instead.
+dreamlake skill install dreamlake-cli --global
+# After reviewing/backing up local edits, update owned files only.
+dreamlake skill install dreamlake-cli --force
+```
+
+## Release acceptance checklist
+
+- [ ] Edit docs first; regenerate the skill and command-help examples.
+- [ ] Run source tests and the isolated native packaging test in CI.
+- [ ] Compile all eight platforms from the reviewed commit. The build embeds
+      the freshly generated CLI skill and rejects an empty or incomplete bundle.
+- [ ] Test a copied binary outside the checkout with a temporary home and no
+      `DREAMLAKE_SKILLS_DIR`: list, install, byte readback, identical reinstall,
+      conflict refusal, and forced update preserving peer files.
+- [ ] Publish immutable versioned binaries and npm packages; verify downloaded
+      bytes before moving release pointers. Never re-upload an uncertain version.
+- [ ] Repeat skill installation from the public native download and npm package.
+- [ ] Synchronize the public skill repository from the merged source commit;
+      check current source freshness, not only integrity or locked reproduction.
+- [ ] Publish the versioned docs and record source, PR, release, checksums, public
+      URLs, and fresh-install results separately.
+
+`bun run scripts/verify-native-skills.ts` runs the isolated packaging gate locally.
+`DREAMLAKE_SKILLS_DIR` remains an explicit development override; an invalid path
+fails instead of silently falling back to a different bundle.
