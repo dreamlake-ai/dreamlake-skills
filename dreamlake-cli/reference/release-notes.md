@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.24.3 — native skills and docs-generated command help
+
+Native binaries now embed all 37 generated CLI skill files. `skill list` and
+`skill install` work without a checkout or environment override. Installed edits
+remain protected; updates require explicit installation and reviewed `--force`.
+Ten command help pages now include 26 command examples generated from reviewed docs,
+including revision-checked Notes writes and patches. CI and release builds test
+a copied native binary, byte readback, reinstall, conflict refusal and peer preservation.
+See the [release acceptance checklist](skills.md#release-acceptance-checklist).
+Publication and fresh-install receipts are recorded in the GitHub release.
+
 ## Unreleased — affected-entry preview pages
 
 `vault kms preview --affected-limit 100` requests one retained-entry metadata page. Use `--affected-cursor` for explicit continuation. Strict output validation retains only the supported metadata and refuses silent omission by an older server. No mutation or release is included. [Guide](/dev/notes/vault-policy-tree).
