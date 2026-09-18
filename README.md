@@ -29,8 +29,8 @@ task correctly.
 them render. **Install both for the full "my data → visualized in DreamLake"
 flow** — source preps layout and linking, dataset-viz writes the `.dreamrc`,
 and each links to https://viz.dreamlake.ai for option-level detail (every
-docs page serves clean markdown at `<page-url>.md`), so the skills stay thin
-and can't drift from the docs.
+docs page serves clean markdown at `<page-url>.md`), so the skills stay thin. Changes to task procedures still require an explicit
+docs/skill comparison until those skills are generated from docs.
 
 ### The sim-training trio
 
@@ -101,7 +101,8 @@ Use `.claude/skills/` instead of `~/.claude/skills/` to scope a skill to one pro
 Keep the trailing slash on the destination: `ln -s <src> ~/.claude/skills/` refuses to
 clobber an existing skill of the same name, whereas naming the destination explicitly
 (`…/skills/dreamlake-artifacts`) silently creates a nested link *inside* it when one
-already exists. If `ln` reports `File exists`, remove the old copy and re-run.
+already exists. If `ln` reports `File exists`, inspect the existing skill and preserve local
+edits before replacing it; do not blindly remove the old copy.
 
 Claude discovers each skill by its `name`/`description` frontmatter and invokes it when
 a task matches. **Skills that name each other must be installed together** — see the
@@ -142,3 +143,39 @@ description: One or two sentences on what this skill does and when to use it.
 ```
 
 Keep skills accurate to the shipped CLI/UI, concrete, and command-first.
+
+## Docs-first maintenance
+
+Maintain procedures and executable examples in their owning docs. Notes and
+CLI references are now reproducible outputs, not independent writing surfaces:
+
+| Output | Source |
+|---|---|
+| `dreamlake-notes/SKILL.md` + `reference/notes.md` | `dreamlake-workspace/docs/pages/notes/+Page.mdx` |
+| `dreamlake-cli/**` | `dreamlake-cli/docs/pages/**/+Page.mdx` and its docs generator |
+
+With Git, Node and Python 3.12+, and authorized checkouts of the source repos:
+
+```bash
+python3 scripts/sync-docs.py --workspace /path/to/dreamlake-workspace --cli /path/to/dreamlake-cli
+python3 scripts/sync-docs.py --workspace /path/to/dreamlake-workspace --cli /path/to/dreamlake-cli --check
+python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/sync-docs.py --verify-files
+```
+
+Commit source docs first. Synchronization exports committed HEAD snapshots into
+scratch directories and runs the original generators; it never regenerates into
+those checkouts. Review and commit the generated skills with `sources.json` and
+`generated-files.json`. The latter defines owned files; unrelated resources survive.
+A changed generated file being removed requires manual reconciliation.
+
+`--check` checks current source HEADs. Add `--locked` to reproduce recorded source
+commits instead. Public CI runs offline tests and file-integrity verification;
+it does **not** read private source repos or prove upstream freshness. Run the
+full source check locally before merging. Publish companion source branches so
+reviewers can access the recorded commits. Other skills still need explicit
+paired docs/skill review until migrated; no automatic sync is claimed for them.
+
+A source synchronization is not a release. After publication, check live docs
+and a fresh installed skill, then report their URLs, source revisions, update
+command and evidence. See [AGENTS.md](AGENTS.md) for the maintenance policy.

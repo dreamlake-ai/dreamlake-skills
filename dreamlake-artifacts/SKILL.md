@@ -15,9 +15,11 @@ mutation; the dashboard is for viewing and for the visibility/share controls.
 
 ## Prerequisites
 
-1. The `dreamlake` CLI is installed and on PATH (`pip install dreamlake` or
-   `uv tool install dreamlake`). Artifacts need **v0.4.10+** (`delete`), **v0.4.13+**
-   (`restore`), and **v0.4.14+** (`delete --permanent`).
+1. Install the standalone CLI using [the CLI guide](https://docs.dreamlake.ai/cli/)
+   (`curl -fsSL https://dl.dreamlake.ai/install.sh | bash`), then check
+   `dreamlake --version` and `dreamlake artifact --help`. The Python package
+   installs the SDK, not the supported CLI. Install the companion
+   `dreamlake-artifact-authoring` skill when creating artifact content.
 2. The user is authenticated: `dreamlake login` (device-auth flow). A push fails with
    `not authenticated. run 'dreamlake login' first.` otherwise.
 3. Pushing writes to the user's own namespace by default; use `--namespace <slug>` to

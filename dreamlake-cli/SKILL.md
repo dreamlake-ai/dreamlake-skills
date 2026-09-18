@@ -1,15 +1,10 @@
 ---
 name: dreamlake-cli
-description: dreamlake — a CLI for the DreamLake data warehouse: upload and download assets, manage projects, bindrs, and datasets, and administer organizations and teams from your terminal. Use when answering questions about DreamLake (Introduction, Installation, Quick start, Environments, Uploading, Downloading, Verify SSH passwords, Projects & data, Artifacts, Envs, Workflows, Pipelines, Declaration collections, External sources, and 22 more).
+description: "dreamlake — a CLI for the DreamLake data warehouse: upload and download assets, manage projects, bindrs, and datasets, and administer organizations and teams from your terminal. Use when answering questions about DreamLake (Introduction, Installation, Quick start, Environments, Uploading, Downloading, Verify SSH passwords, Projects & data, Artifacts, Envs, Workflows, Pipelines, Declaration collections, External sources, and 22 more)."
 ---
 # DreamLake
 
 dreamlake — a CLI for the DreamLake data warehouse: upload and download assets, manage projects, bindrs, and datasets, and administer organizations and teams from your terminal.
-
-GENERATED — do not edit here. The source is `docs/pages/**/+Page.mdx` in
-dreamlake-ai/dreamlake-cli; `node docs/scripts/gen-llms.mjs` rebuilds it and a
-copy is published here so it can be installed without npm. Editing this file
-is lost on the next regeneration.
 
 This skill bundles the DreamLake documentation. Read the reference
 file that matches the question; each is a self-contained markdown page.
@@ -36,7 +31,7 @@ file that matches the question; each is a self-contained markdown page.
 
 - `reference/projects.md` — Projects & data: Organize data with projects, bindrs, and datasets. Create, list, update, and delete — including hard-deleting episodes and files.
 - `reference/artifacts.md` — Artifacts: Push renderable HTML, React, Markdown, SVG, code, and Mermaid content as versioned artifacts, and control who can read them.
-- `reference/envs.md` — Envs: Push MuJoCo environments (an MJCF scene plus its assets) as versioned envs, pull them back byte-identical, and view them interactively on the web.
+- `reference/envs.md` — Envs: Push simulation environments (a MuJoCo MJCF scene or a URDF robot plus assets) as versioned envs, pull them back byte-identical, and view them interactively on the web.
 - `reference/workflows.md` — Workflows: Push and manage WorkflowSpec v1 definitions, and send run traces from an executing agent.
 - `reference/pipelines.md` — Pipelines: Manage Python pipelines and their versions, inspect node graphs, and write back node execution state.
 - `reference/collections.md` — Declaration collections: Declare runnables, run configs, providers, sources, and repos; register immutable versions keyed by sha256 of the source; and import a pinned version back onto disk.
