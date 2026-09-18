@@ -147,8 +147,9 @@ Four member families — pick the right one:
    version in the workflow's DreamDB dataset, registers the catalog, and
    prints the dashboard link. The open workflow page hot-reloads within
    ~2.5s of every push. (`dreamlake workflow list` shows versions.)
-   Not pushed = not finished. If the CLI is unavailable (`pip install
-   'dreamlake>=0.5.0'`), fall back to validating against
+   Not pushed = not finished. Install the standalone CLI from https://docs.dreamlake.ai/cli/ and check
+   `dreamlake workflow --help`; the Python package is the SDK, not the CLI.
+   If the CLI is unavailable, fall back to validating against
    `reference/workflow-spec.schema.json` and hand the user the file with
    the push command to run.
 3. Summarize the design in 3–5 bullets: stages, node choices (and WHY each

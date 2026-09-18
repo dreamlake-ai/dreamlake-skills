@@ -29,8 +29,8 @@ task correctly.
 them render. **Install both for the full "my data → visualized in DreamLake"
 flow** — source preps layout and linking, dataset-viz writes the `.dreamrc`,
 and each links to https://viz.dreamlake.ai for option-level detail (every
-docs page serves clean markdown at `<page-url>.md`), so the skills stay thin
-and can't drift from the docs.
+docs page serves clean markdown at `<page-url>.md`), so the skills stay thin. Changes to task procedures still require an explicit
+docs/skill comparison until those skills are generated from docs.
 
 ### The sim-training trio
 
@@ -101,7 +101,8 @@ Use `.claude/skills/` instead of `~/.claude/skills/` to scope a skill to one pro
 Keep the trailing slash on the destination: `ln -s <src> ~/.claude/skills/` refuses to
 clobber an existing skill of the same name, whereas naming the destination explicitly
 (`…/skills/dreamlake-artifacts`) silently creates a nested link *inside* it when one
-already exists. If `ln` reports `File exists`, remove the old copy and re-run.
+already exists. If `ln` reports `File exists`, inspect the existing skill and preserve local
+edits before replacing it; do not blindly remove the old copy.
 
 Claude discovers each skill by its `name`/`description` frontmatter and invokes it when
 a task matches. **Skills that name each other must be installed together** — see the
