@@ -38,6 +38,28 @@ The Notes skill's procedure is generated from this guide. Correct examples
 here first, then regenerate the docs reference and synchronize the public
 skills repository using the [docs-to-skills procedure](https://docs.dreamlake.ai/dev/skills).
 
+## Placeholders
+
+Use square brackets for text that still needs to be filled in: `[xxxxx]`,
+`[owner name]`, or `[launch date]`. Notes show these as blue highlighted inline
+boxes with visible brackets and inner spacing: `[ owner name ]`. Hover over
+a box to see **placeholder**. This works in the editor, table cells and
+read-only view. Keep the brackets until you replace
+the placeholder with its final value; the saved Markdown remains plain text.
+
+```markdown
+Owner: [owner name]
+Launch: [launch date]
+Review #note:6aa9951250d9de84058e8ebb before publishing.
+```
+
+References take precedence: Markdown links such as `[guide](https://docs.dreamlake.ai/notes/)`,
+reference links with a definition (`[guide][docs]` or `[docs]`), images, and
+`#note:<full-note-id>` keep their reference behavior. Do not turn a reference
+into a placeholder. Task markers (`[ ]` and `[x]`) and brackets inside code
+are not placeholders. Escape the opening bracket (`\[literal]`) when you want
+ordinary bracketed prose without a highlight.
+
 ## Create and list
 
 **CLI**
