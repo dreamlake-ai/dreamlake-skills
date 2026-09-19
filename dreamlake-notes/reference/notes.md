@@ -40,16 +40,19 @@ skills repository using the [docs-to-skills procedure](https://docs.dreamlake.ai
 
 ## Placeholders
 
-Use square brackets for text that still needs to be filled in: `[xxxxx]`,
-`[owner name]`, or `[launch date]`. Notes show these as blue highlighted inline
+Use square brackets with whitespace immediately inside both brackets for text
+that still needs to be filled in: `[ xxxxx ]`,
+`[ owner name ]`, or `[ launch date ]`. Notes show these as blue highlighted inline
 boxes with visible brackets and inner spacing: `[ owner name ]`. Hover over
 a box to see **placeholder**. This works in the editor, table cells and
 read-only view. Keep the brackets until you replace
-the placeholder with its final value; the saved Markdown remains plain text.
+the placeholder with its final value; the saved Markdown remains plain text. `[text]`, `[ text]`, and `[text ]`
+are plain text, not placeholders. Empty brackets and whitespace-only content
+are not placeholders.
 
 ```markdown
-Owner: [owner name]
-Launch: [launch date]
+Owner: [ owner name ]
+Launch: [ launch date ]
 Review #note:6aa9951250d9de84058e8ebb before publishing.
 ```
 
