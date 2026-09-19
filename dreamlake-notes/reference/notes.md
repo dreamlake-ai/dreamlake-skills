@@ -322,6 +322,56 @@ note.refresh()                   # re-read after someone else wrote
 Anyone with the note open **sees the change appear** — your edit merges with
 what they are typing. Nothing is locked.
 
+### Changes since a read or edit
+
+**Unreleased:** requires the revision-diff server endpoint and matching Python SDK/CLI.
+
+The CLI returns the same ref in `read --json` and accepts it via `--since`:
+
+```bash
+# Requires jq. Keep the snapshot and ref for a later shell session.
+NOTE_ID=design-doc
+dreamlake notes read "$NOTE_ID" --json > note-snapshot.json
+REV=$(jq -er .etag note-snapshot.json)
+dreamlake notes diff "$NOTE_ID" --since "$REV"
+dreamlake notes diff "$NOTE_ID" --since "$REV" --json
+# Apply a diff prepared against that saved body:
+dreamlake notes patch "$NOTE_ID" --file change.patch --if-match "$REV" --json
+```
+
+`notes diff` requires `--since`; it does not keep a hidden local baseline.
+Plain output is the diff on stdout and current ETag on stderr. `--json` also
+returns `from` and `to`. The CLI help includes this workflow:
+`dreamlake notes diff --help`, `notes read --help`, and `notes patch --help`.
+
+Reads return `doc.etag`, a quoted SHA-256 hash of the complete note text. Keep
+that ref to see changes since your own read or successful edit across sessions:
+
+```python
+note = dl.note("<note-id>")
+doc = note.read()
+ref = doc.etag
+
+print(note.diff(since=ref))          # current text versus that snapshot
+print(note.diff())                   # defaults to this handle's last ETag
+result = note.patch(my_diff, if_match=ref)
+ref = result.etag                   # reference for the successful edit
+```
+
+Fetching a diff does not advance the cached revision or write precondition.
+Call `read()` or `refresh()` to adopt the latest state. Identical text has the
+same hash; the ref identifies content, not an RTC operation index. Unknown refs
+return an error, including older refs whose snapshots were never retained.
+
+The HTTP endpoint is `GET /namespaces/:slug/notes/:noteId/diff?since=<etag>`.
+It returns `diff`, `from`, `to`, and `etag` (the current ref). Snapshots are
+scoped to the note and require current read access. Optional `context` accepts
+0–100 lines, default 3. Partial reads return a ref for the complete body.
+
+For local draft changes, use `doc.diff()` for all unsaved changes,
+`doc.diff(since="last_edit")` for the latest local operation, and
+`doc.patch(unified_diff)` to apply a patch before `doc.save()`.
+
 ### Patch
 
 A unified diff carries its own context, so it refuses to apply to a document

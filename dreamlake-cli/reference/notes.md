@@ -288,6 +288,37 @@ dreamlake notes write design-doc --file whole.md --force
 `--force` is the only way past the check. Overwriting a colleague should be
 something you typed, not something that happened.
 
+## Changes since your last read or edit
+
+**Unreleased:** requires the server revision-diff endpoint and a CLI build with
+`notes diff`. Check `dreamlake notes diff --help` for command availability.
+
+A read's `etag` is the quoted SHA-256 hash of the complete note. Keep that ref
+and pass it as `--since` to compare with the current body, including edits made
+by others. References are retained by the server and can be reused across
+shell sessions. Partial reads still identify the complete note.
+
+```bash
+NOTE=release-plan
+dreamlake notes read "$NOTE" --json > note-snapshot.json
+REV=$(jq -er .etag note-snapshot.json)
+dreamlake notes diff "$NOTE" --since "$REV"
+dreamlake notes diff "$NOTE" --since "$REV" --json > changes.json
+```
+
+These shell recipes use `jq`. Plain output writes only the unified diff to
+stdout and the current ETag to stderr. `--json` returns `diff`, `from`, `to`,
+and `etag` (same as `to`). `--context 0` removes context lines; the default is
+3 and the maximum is 100. No changes produce empty stdout and exit 0.
+
+`--since` is required: the CLI does not guess which earlier read you mean or
+maintain a hidden per-machine baseline. Keep the quoted ETag intact. Identical
+text has the same hash, regardless of RTC operations. Unknown or unretained
+refs return an error; refs issued before retention was deployed may be missing.
+Fetching a diff does not edit the note. Apply a patch you prepared from the
+saved body using `notes patch --if-match "$REV"`; stale refs are refused.
+A successful patch's JSON `etag` is the next ref you can save.
+
 ## Patching
 
 A unified diff carries its own precondition — the context has to match — so a
@@ -361,6 +392,10 @@ printf '# Release plan\n' | dreamlake notes create "Release plan" --file - --jso
 dreamlake notes read release-plan
 dreamlake notes read release-plan --start-line 1 --end-line 20 --numbered
 dreamlake notes read --note release-plan --json
+# Save the complete body and its content-hash reference (requires jq).
+dreamlake notes read release-plan --json > note-snapshot.json
+REV=$(jq -er .etag note-snapshot.json)
+# Use this ref with notes diff --since or notes patch --if-match.
 ```
 
 ```bash cli-help="notes write"
@@ -373,16 +408,28 @@ dreamlake notes write "$NOTE" --file note.md --if-match "$REV" --dry-run
 dreamlake notes write "$NOTE" --file note.md --if-match "$REV" --json
 ```
 
+```bash cli-help="notes diff"
+# Requires the revision-diff server endpoint and jq.
+NOTE=release-plan
+dreamlake notes read "$NOTE" --json > note-snapshot.json
+REV=$(jq -er .etag note-snapshot.json)
+# Later, inspect changes since that read without advancing its ref.
+dreamlake notes diff "$NOTE" --since "$REV"
+dreamlake notes diff "$NOTE" --since "$REV" --context 0 --json
+```
+
 ```bash cli-help="notes patch"
 NOTE=release-plan
 dreamlake notes read "$NOTE" --json > note-snapshot.json
 REV=$(jq -er .etag note-snapshot.json)
-jq -r .text note-snapshot.json > before.md
+jq -j .text note-snapshot.json > before.md
 cp before.md after.md
 # Edit after.md, then generate a diff. diff returns 1 when files differ.
-diff -u before.md after.md > change.patch
+diff -u before.md after.md > change.patch || test "$?" -eq 1
 dreamlake notes patch "$NOTE" --file change.patch --if-match "$REV" --dry-run
-dreamlake notes patch "$NOTE" --file change.patch --if-match "$REV" --json
+# The same saved ref guards this edit; a stale revision is refused.
+dreamlake notes patch "$NOTE" --file change.patch --if-match "$REV" --json > patch-result.json
+REV=$(jq -er .etag patch-result.json)  # ref for the successful edit
 ```
 
 ```bash cli-help="notes sections"
