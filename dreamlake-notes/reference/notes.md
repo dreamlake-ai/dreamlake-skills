@@ -62,6 +62,10 @@ Open **Out of sync ▾** beside the note title:
 3. Compare your downloaded draft with the note, then reapply any missing changes
    in the editor.
 
+**Download edit data** saves `note-edit-data.json` with the local editing and sync
+state for inspection. It does not send edits, discard the draft or load a server
+version. This is diagnostic data, not an automatic restore/import action.
+
 A retained draft normally survives refresh in the same browser tab. Browser
 storage can be unavailable; follow the warning to copy or download it before
 closing or refreshing. Do not clear browser storage as a recovery shortcut.
