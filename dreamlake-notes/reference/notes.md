@@ -23,6 +23,68 @@ Both read the same saved login. `pip install dreamlake` installs the Python
 SDK; install the standalone CLI using the CLI tab before running
 `dreamlake login`. The Python package is not the supported CLI installer.
 
+## Collaboration and sync
+
+People can edit the same note simultaneously. Edits merge through the existing
+CRDT; checking sync does not lock the note or wait for other editors to stop.
+The status beside the note title describes this tab:
+
+| Status | Meaning |
+|---|---|
+| **Synced** | This tab matched the server revision and text checksum. |
+| **Syncing** | Changes or verification are still in progress. |
+| **Out of sync** | Sending is paused; inspect the recovery dropdown. |
+
+A connected socket alone does not prove that text matches. The browser requests
+a checksum calculated by the RTC server and compares it only when both hold the
+same revision and no local changes are pending. Different revisions, slow
+acknowledgements and delayed checks remain **Syncing**; they are not proof of
+corruption. New edits invalidate the previous verification.
+
+Typing and selection replacement stay local while the edit is applied, so
+intermediate delete/insert events do not reset the cursor. Composition finishes
+before an incoming update changes the editor. Updates from other people continue
+to merge normally.
+
+### Reconnect and recovery
+
+During a temporary disconnect, the tab keeps pending operations and retries on
+reconnect. It replays their original identities only against a compatible server
+checkpoint. A proven text mismatch, an update that cannot be applied, or a changed
+checkpoint that prevents safe replay pauses sending and retains a local draft.
+It does not automatically send that held draft after a refresh.
+
+Open **Out of sync ▾** beside the note title:
+
+1. Choose **Download local draft** to save your text before discarding anything.
+2. Choose **Use server version** to discard the held local draft and fetch current
+   server content. This does not overwrite the server note.
+3. Compare your downloaded draft with the note, then reapply any missing changes
+   in the editor.
+
+A retained draft normally survives refresh in the same browser tab. Browser
+storage can be unavailable; follow the warning to copy or download it before
+closing or refreshing. Do not clear browser storage as a recovery shortcut.
+
+CLI and Python writes continue to use their conditional revision checks below.
+They cannot read or recover an unsent draft held in another browser tab. A fresh
+CLI read describes server content, not proof that every open editor matches it.
+
+## Time travel
+
+Click the **Time travel** history icon beside the title to open a near-full-screen,
+resizable viewer. Use **Play/Pause**, previous/next step, or the ticked slider to
+browse retained versions. Each tick selects one recorded edit; the slider snaps
+to those ticks.
+
+The viewer is **view only**. It captures the checkpoint and retained edits when
+opened, renders them separately, and does not replace the live editor or publish
+changes. Close and reopen it to include newer edits. There is no restore action.
+
+History starts at the retained checkpoint: compaction can remove older versions.
+This is not a complete archive, and playback is not a recovery tool for an unsent
+local draft. Download a held draft through the sync dropdown instead.
+
 ## For coding agents
 
 ```bash

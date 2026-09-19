@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.24.4 — Notes sync and recovery guidance
+
+The bundled CLI skill now explains browser sync states, local-draft recovery,
+and view-only history. CLI commands still read the server and keep their
+existing revision checks; they cannot clear a browser-held draft. This release
+updates guidance and packaging, with no new Notes command or protocol.
+Publication and fresh-install receipts are recorded in the GitHub release.
+
 ## 0.24.3 — native skills and docs-generated command help
 
 Native binaries now embed all 37 generated CLI skill files. `skill list` and
