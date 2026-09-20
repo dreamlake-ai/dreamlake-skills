@@ -8,6 +8,24 @@ The commands are pipe-friendly on purpose: `read` writes the body to stdout and
 nothing else, `write` takes text from a file or stdin, and `--json` is there
 wherever the readable form would be awkward to parse.
 
+## Browser sync and recovery
+
+The browser's **Synced**, **Syncing**, and **Out of sync** indicator checks the
+editor against the collaboration server. **Syncing** includes normal pending
+edits and reconnects; simultaneous editing remains supported.
+
+If a browser holds a draft after a mismatch, open **Out of sync ▾**, download
+the local draft, then choose **Use server version** when you are ready to
+discard that browser draft. The CLI reads the server version. It cannot read,
+clear, or recover a draft held in another browser tab. Do not force-write an
+old export to resolve the warning; compare it with a fresh read and make a
+revision-checked edit.
+
+The browser also offers view-only time travel: play or step through retained
+versions without changing the live note. There is no new CLI history or restore
+command. See the [Notes guide](https://docs.dreamlake.ai/notes/) for browser
+controls and recovery details.
+
 ## Finding a note
 
 ```bash file="terminal"
