@@ -29,6 +29,12 @@ Anonymous detail readers have no application sidebar. Signed-in readers keep
 their selected personal or organization workspace sidebar; the resource owner
 continues to come from the URL.
 
+Organization members see **Enter organization workspace** and Notes / Envs /
+Artifacts shortcuts on their organization profile. Owners also see organization
+settings and member management. Visiting a profile preserves the selected workspace;
+following an application shortcut switches to the organization. These controls do
+not load private resources or counts into the public profile.
+
 Source: [Envs guide](https://docs.dreamlake.ai/envs) and
 [Profiles and workspaces](https://docs.dreamlake.ai/workspaces). The companion
 workspace revision is recorded in `sources.json`. This section is paired with
