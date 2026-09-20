@@ -141,10 +141,11 @@ management, Shared with me and trash stay in the application. Signed-in viewers
 keep their selected personal or organization sidebar while browsing another
 owner's content. Anonymous detail readers have no application sidebar.
 
-Organization members see **Enter organization workspace** and Notes / Envs /
+Organization members see **Workspace** and Notes / Projects / Annotations / Envs /
 Artifacts shortcuts on their organization profile. Owners also see organization
 settings and member management. Visiting a profile preserves the selected workspace;
-following an application shortcut switches to the organization. These controls do
+the profile account selector stays on the selected profile tab, while following
+an application shortcut switches to the organization. These controls do
 not load private resources or counts into the public profile.
 
 This behavior is maintained in the [Artifacts guide](https://docs.dreamlake.ai/artifacts)

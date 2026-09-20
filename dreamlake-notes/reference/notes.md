@@ -11,9 +11,11 @@ Notes open directly at `/<namespace>/notes/<note-id>` without an application
 sidebar when signed out. Private note share links require sign-in according to
 the server's per-person grant rules.
 
-The Notes catalog API currently requires authentication, so public Profile
-pages do not embed it. The legacy `/<namespace>/profile?tab=notes` URL offers
-an **Open notes** link instead. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+`/<namespace>/profile?tab=notes` displays public notes, even for the owner.
+The namespace Notes list API supports anonymous reads; nonmembers only see
+public, non-deleted notes, with matching filtered totals. Supplied invalid tokens
+are rejected. Anonymous searches use the stored index without flushing RTC rooms.
+Private notes and shared-with-me results stay in the signed-in application. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
 
 ## Install
 
