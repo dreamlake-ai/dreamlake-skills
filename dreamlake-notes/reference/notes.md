@@ -3,6 +3,16 @@
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
+## Public catalog reads
+
+`GET /namespaces/:slug/notes` accepts requests without an Authorization header.
+Anonymous callers and authenticated nonmembers receive only live public notes;
+namespace members retain their existing catalog access. Pagination totals use
+the same visibility filter as the rows. A supplied invalid or expired token
+returns 401 rather than silently falling back to anonymous access. Anonymous
+searches do not activate or flush collaborative rooms. Creating, editing and
+sharing notes still require authentication and their existing permissions.
+
 ## Install
 
 **CLI**

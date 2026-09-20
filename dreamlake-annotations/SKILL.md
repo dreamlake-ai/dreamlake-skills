@@ -15,6 +15,18 @@ unknown types degrade to generic, never refuse.
 
 Full reference: https://docs.dreamlake.ai/annotations/reference
 
+## Public catalog reads
+
+`GET /namespaces/:slug/annotations` accepts requests without an Authorization
+header. Anonymous callers and authenticated nonmembers receive only live public
+annotation rows; namespace members retain access to their private rows. A supplied
+invalid or expired token returns 401. This change does not open protected detail,
+presigned-content, upload or mutation routes to anonymous callers.
+
+Source: [Annotations guide](https://docs.dreamlake.ai/annotations), paired with
+[workspace PR #663](https://github.com/dreamlake-ai/dreamlake-workspace/pull/663).
+The source revision is recorded in `sources.json`; SDK operations below are unchanged.
+
 ## Prerequisites
 
 ```bash
