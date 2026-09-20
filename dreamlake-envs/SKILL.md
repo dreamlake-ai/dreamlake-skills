@@ -17,6 +17,23 @@ Envs hold the *scene*, not recordings — teleop episodes and rollout logs
 belong in a **source** (`dreamlake-source` skill). Guide:
 https://docs.dreamlake.ai/envs/ · CLI: https://docs.dreamlake.ai/cli#envs
 
+## Browse and manage
+
+`/<namespace>/profile?tab=envs` is the public showcase; it excludes private
+resources even when the owner is signed in. `/<namespace>/envs` requires sign-in
+and retains the existing namespace permissions. A personal Envs catalog adds
+recent environments from member organizations as separate groups.
+
+Public environments and valid Env share-token links can open anonymously.
+Anonymous detail readers have no application sidebar. Signed-in readers keep
+their selected personal or organization workspace sidebar; the resource owner
+continues to come from the URL.
+
+Source: [Envs guide](https://docs.dreamlake.ai/envs) and
+[Profiles and workspaces](https://docs.dreamlake.ai/workspaces). The companion
+workspace revision is recorded in `sources.json`. This section is paired with
+the owning docs explicitly; the Env skill is not managed by the Notes/CLI generator.
+
 ## 1. Extract a self-contained directory
 
 One env = one scene. The pushed directory must contain the entry file at

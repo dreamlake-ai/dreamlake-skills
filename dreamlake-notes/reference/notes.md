@@ -3,6 +3,18 @@
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
+## Browsing in the app
+
+`/<namespace>/notes` is the signed-in catalog. Your own catalog also shows
+Shared with me and a separate section for recent organization notes. Public
+Notes open directly at `/<namespace>/notes/<note-id>` without an application
+sidebar when signed out. Private note share links require sign-in according to
+the server's per-person grant rules.
+
+The Notes catalog API currently requires authentication, so public Profile
+pages do not embed it. The legacy `/<namespace>/profile?tab=notes` URL offers
+an **Open notes** link instead. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+
 ## Install
 
 **CLI**
