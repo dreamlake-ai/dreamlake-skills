@@ -29,15 +29,14 @@ Anonymous detail readers have no application sidebar. Signed-in readers keep
 their selected personal or organization workspace sidebar; the resource owner
 continues to come from the URL.
 
-Your own profile and organization profiles you belong to show named resource
-shortcuts, each opening its corresponding application list. There is no generic
-Workspace button that defaults to Notes. When switching accounts in the app,
-Settings or an unavailable management destination falls back to Projects;
-resource pages keep the corresponding resource list. Organization members appear as avatars;
-profile owners edit identity and avatars in dialogs. Visiting a profile preserves the selected workspace;
-the profile account selector stays on the selected profile tab, while following
-an application shortcut switches to the organization. These controls do
-not load private resources or counts into the public profile.
+Your own profile and organization profiles you belong to show **Enter workspace**,
+a single text link to `/<namespace>/projects`. Choose other resources from the
+application sidebar. Switching accounts from Settings or an unavailable management
+page also falls back to Projects; resource pages keep the matching list. Profile
+switching preserves its tab. Overview previews at most six public projects without
+querying every resource catalog. Member avatars and profile-edit dialogs remain.
+Cmd+Shift+D preserves the global developer-discovery preference without granting
+access to private resources. No extra owner breadcrumb is added above app pages.
 
 Source: [Envs guide](https://docs.dreamlake.ai/envs) and
 [Profiles and workspaces](https://docs.dreamlake.ai/workspaces). The companion
