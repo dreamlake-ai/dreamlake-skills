@@ -29,9 +29,10 @@ Anonymous detail readers have no application sidebar. Signed-in readers keep
 their selected personal or organization workspace sidebar; the resource owner
 continues to come from the URL.
 
-Organization members see **Workspace** and Notes / Projects / Annotations / Envs /
-Artifacts shortcuts on their organization profile. Owners also see organization
-settings and member management. Visiting a profile preserves the selected workspace;
+Your own profile and organization profiles you belong to show named resource
+shortcuts, each opening its corresponding application list. There is no generic
+Workspace button that defaults to Notes. Organization members appear as avatars;
+profile owners edit identity and avatars in dialogs. Visiting a profile preserves the selected workspace;
 the profile account selector stays on the selected profile tab, while following
 an application shortcut switches to the organization. These controls do
 not load private resources or counts into the public profile.
