@@ -31,7 +31,9 @@ continues to come from the URL.
 
 Your own profile and organization profiles you belong to show named resource
 shortcuts, each opening its corresponding application list. There is no generic
-Workspace button that defaults to Notes. Organization members appear as avatars;
+Workspace button that defaults to Notes. When switching accounts in the app,
+Settings or an unavailable management destination falls back to Projects;
+resource pages keep the corresponding resource list. Organization members appear as avatars;
 profile owners edit identity and avatars in dialogs. Visiting a profile preserves the selected workspace;
 the profile account selector stays on the selected profile tab, while following
 an application shortcut switches to the organization. These controls do
