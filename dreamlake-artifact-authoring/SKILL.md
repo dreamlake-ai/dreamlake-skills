@@ -47,10 +47,11 @@ Other facts that matter:
   own CSS.
 - **The frame fills its container** (100% width/height). Design responsive; let wide
   content (tables, code, diagrams) scroll in its own container, never the page.
-- **Light/dark**: every artifact ships **both**, and ships the toggle. The host picks a
-  starting `theme`; the tokens in `house-style.css` already answer to it. Add the
-  three-state control from `reference/theme-toggle.html` so a reader can override.
-  See **Light and dark** below.
+- **Light/dark**: every artifact ships **both**, and ships the toggle. The host drives
+  the `theme` — live: switching the app theme reaches an already-rendered artifact as a
+  `prefers-color-scheme` flip, without a re-render. The tokens in `house-style.css`
+  already answer to it. Add the three-state control from `reference/theme-toggle.html`
+  so a reader can override. See **Light and dark** below.
 
 ## Pick the right kind
 
@@ -199,6 +200,12 @@ again under `:root[data-theme='dark']`. That triple is what makes three states p
 | `light` | sets `data-theme="light"`, which defeats the media query |
 | `system` | **removes** the attribute, letting the media query decide |
 | `dark` | sets `data-theme="dark"` |
+
+`system` is live twice over: the media query follows the OS, and it follows the app's
+own theme switch — the host forwards a flip into the frame as `prefers-color-scheme`
+while the artifact keeps running (no re-render, state survives). A reader's explicit
+`light`/`dark` outranks both, which is exactly the point of the toggle. The snippet's
+`matchMedia` listener already repaints canvas content when the signal flips.
 
 Paste **[`reference/theme-toggle.html`](reference/theme-toggle.html)** — style, markup and
 script — into the artifact. It matches the pill on the DreamLake app: sliding indicator
