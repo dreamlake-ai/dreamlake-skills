@@ -145,10 +145,17 @@ Your own profile and organization profiles you belong to show **Enter workspace*
 a single text link to `/<namespace>/projects`. Choose other resources from the
 application sidebar. Switching accounts from Settings or an unavailable management
 page also falls back to Projects; resource pages keep the matching list. Profile
-switching preserves its tab. Overview previews at most six public projects without
-querying every resource catalog. Member avatars and profile-edit dialogs remain.
-Cmd+Shift+D preserves the global developer-discovery preference without granting
-access to private resources. No extra owner breadcrumb is added above app pages.
+switching preserves its tab. Overview has list/grid controls and previews at most
+six public projects and six recent public annotations. Projects requests six rows;
+the existing Annotation API returns its public catalog, which the client sorts
+and truncates. Other catalogs are not fetched for totals. Organization member
+avatars and read-only Members/Teams tabs remain; secret teams are excluded from
+the public display. Workspace Teams opens the existing owner-governed editor.
+Public-only resource lists omit redundant All/Public visibility chips. Project
+cards share workspace descriptions and footer spacing; unavailable internal counts
+show —, not zero. Cmd+Shift+D reveals the existing empty Jobs/Pipelines overview
+sections without loading private catalogs. No extra owner breadcrumb is added
+above app pages.
 
 This behavior is maintained in the [Artifacts guide](https://docs.dreamlake.ai/artifacts)
 and [Profiles and workspaces](https://docs.dreamlake.ai/workspaces); see
