@@ -1,5 +1,13 @@
 # Release notes
 
+## Unreleased — Notes revision diffs
+
+`dreamlake notes diff <note> --since <etag>` compares the current body with a
+retained read/edit reference. `--json` includes both refs; plain output stays
+pipeable. Requires the revision-diff server endpoint. Read, diff, and patch
+help examples now document preserving and reusing the ETag. These examples
+also flow into the generated CLI skill. Release/publication is pending.
+
 ## 0.24.6 — Note file uploads no longer crash the native binary
 
 `dreamlake notes files upload` sent the `Bun.file()` object itself as the PUT
