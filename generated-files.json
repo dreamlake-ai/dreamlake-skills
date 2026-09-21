@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "a5ae04e9e0d5365f78a0283aa70d5192cc7b2537bb3e4905beb62866657d62ef",
+  "sourcesSha256": "e20e68a817481156855bd15f3bf76d1b6f7a33684e78f49b7c5f7c2ec843e114",
   "files": {
     "dreamlake-cli/SKILL.md": "ff7ab6c77f988665aa63262753c3d7e13a1ec72a36e416a30b25090e2525ec0b",
     "dreamlake-cli/reference/agents.md": "29b23321a4f10af056e7e2a4959feeb241ab1766ab69df1c91585ff0ba98445b",
@@ -25,7 +25,7 @@
     "dreamlake-cli/reference/providers.md": "33a632bb1fe989dc33d8694e977d8b04729aa306616810ec2e5958315a8b40c0",
     "dreamlake-cli/reference/queues.md": "5db8bbe7fa9f9c83ed606f6a7fe06da2d3db6ac31d863ef8ab37f23e972bbf22",
     "dreamlake-cli/reference/quick-start.md": "5fb0f9f7439ad80e0906ea25059436e851ec38e97b2fcb5375b0fd7008857a76",
-    "dreamlake-cli/reference/release-notes.md": "65504dac70a9a2ce8f03b8ad169cf660c6c42c5a0af1292f0be69ebec28ae540",
+    "dreamlake-cli/reference/release-notes.md": "86084bf544e082e3c8f395a85f336fdd60d58f382dcbac0524f5947a352b63fe",
     "dreamlake-cli/reference/runs.md": "9547660256e7e7f6822381273f32bd43fb87527c15f9ce8639636868ad3bf789",
     "dreamlake-cli/reference/skills.md": "e1c10d67caebf898b81473ce7731ec2e47f32f0e685d293dbc75fd3dc795c20f",
     "dreamlake-cli/reference/snapshot-launch.md": "4f72a7a5722decb9bea76306add6f552ed56daccbb5a5b1897569493c5e551fc",
