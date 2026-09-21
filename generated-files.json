@@ -1,10 +1,6 @@
 {
   "version": 1,
-<<<<<<< HEAD
-  "sourcesSha256": "347f24115d3333f959e18e4e7902a6519b17a5eaa785bf69511245d2d935373e",
-=======
-  "sourcesSha256": "613e18941d2c4506d14f7d7bad8a94375d4337a6a6e10423b8cd3f2ae5162541",
->>>>>>> origin/main
+  "sourcesSha256": "886de21444382bac1d975ae36109b69411e36825aec3d906ceccda114f6b7f5b",
   "files": {
     "dreamlake-cli/SKILL.md": "ff7ab6c77f988665aa63262753c3d7e13a1ec72a36e416a30b25090e2525ec0b",
     "dreamlake-cli/reference/agents.md": "29b23321a4f10af056e7e2a4959feeb241ab1766ab69df1c91585ff0ba98445b",
