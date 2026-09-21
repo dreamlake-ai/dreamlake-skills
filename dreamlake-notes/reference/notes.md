@@ -13,6 +13,25 @@ returns 401 rather than silently falling back to anonymous access. Anonymous
 searches do not activate or flush collaborative rooms. Creating, editing and
 sharing notes still require authentication and their existing permissions.
 
+## Browsing in the app
+
+`/<namespace>/profile?tab=notes` and `/<namespace>/notes` reuse the same
+Notes catalog. Your own namespace and organizations you belong to show
+resources and actions allowed by your permissions. Signed-out visitors and
+signed-in visitors to other namespaces see public resources only, without
+creation or modification controls. Profile uses an avatar rail; the application
+uses resource navigation for the namespace in the URL.
+
+Your own Notes catalog retains Shared with me and recent organization notes. Private Note share links require sign-in under the server's per-person grant rules.
+
+The application sidebar shows the resource owner's avatar and links, including
+for anonymous public readers. Your signed-in identity and personal/organization
+switcher are separate from that owner. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+
+The detail header returns anonymous readers to `/<namespace>/profile?tab=notes`
+and signed-in readers to `/<namespace>/notes`. Details opened inside a project
+retain their return-to-project action. There is no extra sign-in navigation bar.
+
 ## Install
 
 **CLI**
