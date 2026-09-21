@@ -1,5 +1,23 @@
 # Release notes
 
+## 0.24.5 — DreamDB 0.5.7 and half-open byte ranges
+
+The bundled `@dreamlake/dreamdb` moves from `^0.4.0` to `^0.5.7`. That release
+passes read ranges as half-open `[start, end)`, where the end byte is excluded.
+The S3 backend previously forwarded such a range straight into an HTTP `Range`
+header, whose end *is* inclusive, so every ranged read fetched one byte too
+many. It now translates the bound and requests `bytes=start-(end - 1)`.
+
+Because genesis objects in 0.5.7 carry a random nonce, two datasets created
+from the same schema no longer share a genesis hash. A genesis hash is
+therefore an object identity, not a schema identity — do not compare one
+across SDKs to infer compatibility.
+
+**Migrate a legacy dataset before writing to it.** Datasets written by the
+older DreamDB stay readable, but this release performs no automatic migration
+and rewrites no existing store, so appending to an unmigrated dataset with the
+new SDK is not supported. No command, flag or output shape changes.
+
 ## 0.24.4 — Notes sync and recovery guidance
 
 The bundled CLI skill now explains browser sync states, local-draft recovery,
