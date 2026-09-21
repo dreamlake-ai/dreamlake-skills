@@ -1,5 +1,31 @@
 # Release notes
 
+## 0.24.6 — Note file uploads no longer crash the native binary
+
+`dreamlake notes files upload` sent the `Bun.file()` object itself as the PUT
+body. On Bun 1.3.14 on Linux, in a compiled standalone binary, that crashed the
+runtime with a SIGSEGV once the response had arrived, when a GET on the same
+host had run first — the shape this command takes, because it resolves the note
+before uploading. The body is now `Bun.file(path).stream()`: the same file, read
+lazily rather than loaded into memory. The observed run was against a loopback
+server on this machine, not a remote deployment: the upload exited 0 and stored
+the expected 2048 bytes there.
+
+Whether the crash reproduces on every upload, or on other runtimes, platforms or
+build modes, was not established; the fix was verified on the configuration
+above. No Content-Length is set under Bun, unchanged from 0.24.5, but this
+release does not prove behavior against a production HTTP/2 endpoint — whether
+the HTTP/2 upload hang of 0.23.0 can recur is pending a focused test. Node keeps
+its existing `createReadStream` body.
+
+The DreamDB 0.5.7 upgrade was prepared in 0.24.5, which was not completed as a
+release: only two Darwin binaries were uploaded, with no manifest and no npm
+publication. It carries forward unchanged here: half-open
+`[start, end)` read ranges translated to inclusive HTTP `Range` bounds,
+nonce-bearing genesis objects, and the requirement to migrate a legacy dataset
+before writing to it. No dependency, command, flag or output shape changes in
+this release.
+
 ## 0.24.5 — DreamDB 0.5.7 and half-open byte ranges
 
 The bundled `@dreamlake/dreamdb` moves from `^0.4.0` to `^0.5.7`. That release
