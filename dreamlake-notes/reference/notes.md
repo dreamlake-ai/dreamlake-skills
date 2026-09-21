@@ -15,23 +15,22 @@ sharing notes still require authentication and their existing permissions.
 
 ## Browsing in the app
 
-`/<namespace>/notes` is the signed-in catalog. Your own catalog also shows
-Shared with me and a separate section for recent organization notes. Public
-Notes open directly at `/<namespace>/notes/<note-id>` without an application
-sidebar when signed out. Private note share links require sign-in according to
-the server's per-person grant rules.
+`/<namespace>/profile?tab=notes` and `/<namespace>/notes` reuse the same
+Notes catalog. Your own namespace and organizations you belong to show
+resources and actions allowed by your permissions. Signed-out visitors and
+signed-in visitors to other namespaces see public resources only, without
+creation or modification controls. Profile uses an avatar rail; the application
+uses resource navigation for the namespace in the URL.
 
-`/<namespace>/profile?tab=notes` displays public notes, even for the owner.
-The namespace Notes list API supports anonymous reads; nonmembers only see
-public, non-deleted notes, with matching filtered totals. Supplied invalid tokens
-are rejected. Anonymous searches use the stored index without flushing RTC rooms.
-Private notes and shared-with-me results stay in the signed-in application. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+Your own Notes catalog retains Shared with me and recent organization notes. Private Note share links require sign-in under the server's per-person grant rules.
+
+The application sidebar shows the resource owner's avatar and links, including
+for anonymous public readers. Your signed-in identity and personal/organization
+switcher are separate from that owner. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
 
 The detail header returns anonymous readers to `/<namespace>/profile?tab=notes`
-and signed-in readers to `/<namespace>/notes`, using the resource owner's
-namespace rather than the selected workspace. Details opened inside a project
-retain their return-to-project action. Anonymous readers have no extra sign-in
-navigation bar.
+and signed-in readers to `/<namespace>/notes`. Details opened inside a project
+retain their return-to-project action. There is no extra sign-in navigation bar.
 
 ## Install
 
