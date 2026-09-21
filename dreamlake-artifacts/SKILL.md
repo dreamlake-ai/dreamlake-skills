@@ -118,23 +118,48 @@ Artifacts are **private by default** — only members of the owning namespace ca
 - **Share link** (`--share`, or the **Share** button in the dashboard on a private
   artifact): produces a URL of the form
   `https://dreamlake.ai/<namespace>/artifacts/<id>?share=<token>`.
-  Opening a share link **requires the viewer to be a signed-in DreamLake user** — any
-  authenticated account works, but anonymous/incognito visitors are sent to log in.
+  Opening a valid share-token link does not require sign-in: the server accepts
+  the token itself as read authorization. Invalid or revoked tokens do not grant access.
   Public artifacts just use the plain URL (no token).
 
 To stop sharing, clear the token (the dashboard's "stop sharing", or push without
 `--share` after setting it) — this invalidates every existing share link at once.
 
-> Sharing is currently **link-based, not per-person**: anyone signed in who has the
-> link can view. There is no per-recipient grant, no "shared with me" inbox, no
-> per-person revoke, and no link expiry.
+> The share token itself is a read capability, not a per-person grant. Anyone
+> with a valid token can open the link. Revocation invalidates that capability.
 
 ## View / render
 
-Open `https://dreamlake.ai/<namespace>/artifacts` to browse a namespace's gallery, and
+Open `https://dreamlake.ai/<namespace>/profile?tab=artifacts` for the public showcase.
+`/<namespace>/artifacts` is the signed-in application catalog, and
 `/<namespace>/artifacts/<id>` for the full-screen viewer (with a version picker and, for
 members, the visibility/share controls). Artifacts render inside a dedicated, sandboxed
 frame origin, so each one is isolated and self-contained.
+
+Public profiles contain only public resources, even for the owner; resource
+management, Shared with me and trash stay in the application. Signed-in viewers
+keep their selected personal or organization sidebar while browsing another
+owner's content. Anonymous detail readers have no application sidebar.
+
+Your own profile and organization profiles you belong to show **Enter workspace**,
+a single text link to `/<namespace>/projects`. Choose other resources from the
+application sidebar. Switching accounts from Settings or an unavailable management
+page also falls back to Projects; resource pages keep the matching list. Profile
+switching preserves its tab. Overview has list/grid controls and previews at most
+six public projects and six recent public annotations. Projects requests six rows;
+the existing Annotation API returns its public catalog, which the client sorts
+and truncates. Other catalogs are not fetched for totals. Organization member
+avatars and read-only Members/Teams tabs remain; secret teams are excluded from
+the public display. Workspace Teams opens the existing owner-governed editor.
+Public-only resource lists omit redundant All/Public visibility chips. Project
+cards share workspace descriptions and footer spacing; unavailable internal counts
+show —, not zero. Cmd+Shift+D reveals the existing empty Jobs/Pipelines overview
+sections without loading private catalogs. No extra owner breadcrumb is added
+above app pages.
+
+This behavior is maintained in the [Artifacts guide](https://docs.dreamlake.ai/artifacts)
+and [Profiles and workspaces](https://docs.dreamlake.ai/workspaces); see
+`sources.json` for this companion change's workspace source revision.
 
 ## Notes & gotchas
 

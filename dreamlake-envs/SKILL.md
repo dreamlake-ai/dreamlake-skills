@@ -17,6 +17,39 @@ Envs hold the *scene*, not recordings — teleop episodes and rollout logs
 belong in a **source** (`dreamlake-source` skill). Guide:
 https://docs.dreamlake.ai/envs/ · CLI: https://docs.dreamlake.ai/cli#envs
 
+## Browse and manage
+
+`/<namespace>/profile?tab=envs` is the public showcase; it excludes private
+resources even when the owner is signed in. `/<namespace>/envs` requires sign-in
+and retains the existing namespace permissions. A personal Envs catalog adds
+recent environments from member organizations as separate groups.
+
+Public environments and valid Env share-token links can open anonymously.
+Anonymous detail readers have no application sidebar. Signed-in readers keep
+their selected personal or organization workspace sidebar; the resource owner
+continues to come from the URL.
+
+Your own profile and organization profiles you belong to show **Enter workspace**,
+a single text link to `/<namespace>/projects`. Choose other resources from the
+application sidebar. Switching accounts from Settings or an unavailable management
+page also falls back to Projects; resource pages keep the matching list. Profile
+switching preserves its tab. Overview has list/grid controls and previews at most
+six public projects and six recent public annotations. Projects requests six rows;
+the existing Annotation API returns its public catalog, which the client sorts
+and truncates. Other catalogs are not fetched for totals. Organization member
+avatars and read-only Members/Teams tabs remain; secret teams are excluded from
+the public display. Workspace Teams opens the existing owner-governed editor.
+Public-only resource lists omit redundant All/Public visibility chips. Project
+cards share workspace descriptions and footer spacing; unavailable internal counts
+show —, not zero. Cmd+Shift+D reveals the existing empty Jobs/Pipelines overview
+sections without loading private catalogs. No extra owner breadcrumb is added
+above app pages.
+
+Source: [Envs guide](https://docs.dreamlake.ai/envs) and
+[Profiles and workspaces](https://docs.dreamlake.ai/workspaces). The companion
+workspace revision is recorded in `sources.json`. This section is paired with
+the owning docs explicitly; the Env skill is not managed by the Notes/CLI generator.
+
 ## 1. Extract a self-contained directory
 
 One env = one scene. The pushed directory must contain the entry file at

@@ -3,6 +3,30 @@
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
+## Public catalog reads
+
+`GET /namespaces/:slug/notes` accepts requests without an Authorization header.
+Anonymous callers and authenticated nonmembers receive only live public notes;
+namespace members retain their existing catalog access. Pagination totals use
+the same visibility filter as the rows. A supplied invalid or expired token
+returns 401 rather than silently falling back to anonymous access. Anonymous
+searches do not activate or flush collaborative rooms. Creating, editing and
+sharing notes still require authentication and their existing permissions.
+
+## Browsing in the app
+
+`/<namespace>/notes` is the signed-in catalog. Your own catalog also shows
+Shared with me and a separate section for recent organization notes. Public
+Notes open directly at `/<namespace>/notes/<note-id>` without an application
+sidebar when signed out. Private note share links require sign-in according to
+the server's per-person grant rules.
+
+`/<namespace>/profile?tab=notes` displays public notes, even for the owner.
+The namespace Notes list API supports anonymous reads; nonmembers only see
+public, non-deleted notes, with matching filtered totals. Supplied invalid tokens
+are rejected. Anonymous searches use the stored index without flushing RTC rooms.
+Private notes and shared-with-me results stay in the signed-in application. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+
 ## Install
 
 **CLI**
