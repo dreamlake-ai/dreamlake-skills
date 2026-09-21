@@ -27,7 +27,10 @@ recent environments from member organizations as separate groups.
 Public environments and valid Env share-token links can open anonymously.
 Anonymous detail readers have no application sidebar. Signed-in readers keep
 their selected personal or organization workspace sidebar; the resource owner
-continues to come from the URL.
+continues to come from the URL. The detail header returns to
+`/<namespace>/profile?tab=envs` when signed out and `/<namespace>/envs` when
+signed in. Embedded details keep their return-to-project action. Anonymous
+readers have no extra sign-in navigation bar.
 
 Your own profile and organization profiles you belong to show **Enter workspace**,
 a single text link to `/<namespace>/projects`. Choose other resources from the
