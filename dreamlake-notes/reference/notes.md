@@ -27,6 +27,12 @@ public, non-deleted notes, with matching filtered totals. Supplied invalid token
 are rejected. Anonymous searches use the stored index without flushing RTC rooms.
 Private notes and shared-with-me results stay in the signed-in application. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
 
+The detail header returns anonymous readers to `/<namespace>/profile?tab=notes`
+and signed-in readers to `/<namespace>/notes`, using the resource owner's
+namespace rather than the selected workspace. Details opened inside a project
+retain their return-to-project action. Anonymous readers have no extra sign-in
+navigation bar.
+
 ## Install
 
 **CLI**

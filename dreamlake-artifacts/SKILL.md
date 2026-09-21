@@ -139,7 +139,10 @@ frame origin, so each one is isolated and self-contained.
 Public profiles contain only public resources, even for the owner; resource
 management, Shared with me and trash stay in the application. Signed-in viewers
 keep their selected personal or organization sidebar while browsing another
-owner's content. Anonymous detail readers have no application sidebar.
+owner's content. Anonymous detail readers have no application sidebar or extra
+sign-in navigation bar. The detail header returns to the resource owner's
+`/<namespace>/profile?tab=artifacts` when signed out, and `/<namespace>/artifacts`
+when signed in. Embedded viewers return to their containing project.
 
 Your own profile and organization profiles you belong to show **Enter workspace**,
 a single text link to `/<namespace>/projects`. Choose other resources from the

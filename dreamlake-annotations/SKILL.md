@@ -20,8 +20,16 @@ Full reference: https://docs.dreamlake.ai/annotations/reference
 `/<namespace>/profile?tab=annotations` shows the public catalog. The namespace
 annotation list API accepts anonymous reads and filters out private and deleted
 rows for anonymous/nonmember callers. Authenticated members retain their catalog
-access. This does not change authorization for upload, mutation or content-read
-operations. Application lists still require sign-in.
+access. Public annotation details and `POST .../presign-read` also accept anonymous
+requests and check current visibility. Private, missing and deleted annotations
+return 404 to callers without access. Upload and mutation operations remain
+member-gated; supplied invalid or expired tokens return 401. Application lists
+still require sign-in.
+
+Anonymous detail readers have no application sidebar or extra sign-in navigation
+bar. The header returns to `/<namespace>/profile?tab=annotations` when signed out,
+and `/<namespace>/annotations` when signed in. Embedded viewers return to their
+containing project.
 
 Source: [Annotations guide](https://docs.dreamlake.ai/annotations) and
 [Profiles and workspaces](https://docs.dreamlake.ai/workspaces). See `sources.json`
