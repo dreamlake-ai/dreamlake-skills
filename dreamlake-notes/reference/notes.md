@@ -190,6 +190,25 @@ dl.shared_with_me()
 Titles may repeat — the slug takes a suffix — so keep `note.id` rather than
 the name you passed.
 
+## Link to a note in the browser
+
+Use the note's full `id` in browser links:
+
+```text
+https://dreamlake.ai/<namespaceSlug>/notes/<noteId>
+```
+
+Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
+`dreamlake notes list --json`. Do not substitute the title or human-readable
+slug in this URL: the browser detail route expects the ID, even though the
+CLI accepts slugs and titles. Use the returned owner namespace rather than
+assuming your personal namespace. The ID is sometimes called the note hash;
+it is a path segment, not a `#` URL fragment.
+
+Inside another DreamLake note, use `#note:<full-note-id>` for a native note
+reference. A browser link does not change visibility or grant access to a
+private note.
+
 ## Name a note
 
 **CLI**
