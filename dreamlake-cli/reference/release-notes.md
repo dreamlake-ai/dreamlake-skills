@@ -1,5 +1,14 @@
 # Release notes
 
+## Unreleased — Notes v2 Bash contract
+
+Full reads emit source with SHA-256 and opaque revision metadata. Incremental
+reads and multiline stdin uploads select inline or line diff. Uploads require
+the saved revision, and verification reads preserve that exact token. Explicit
+`--legacy` retains the prior text/ETag interface. Requires the matching v2
+server; no package release, deployment, or live verification is claimed.
+Tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+
 ## Unreleased — Notes revision diffs
 
 `dreamlake notes diff <note> --since <etag>` compares the current body with a
