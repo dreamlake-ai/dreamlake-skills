@@ -14,11 +14,15 @@ flags still apply as a metadata update).
 
 ## Push a version
 
-```bash file="terminal"
+```bash cli-help="env push"
 dreamlake env push ./cartpole                 # name defaults to the dir name
 dreamlake env push ./scenes/cassie \
   --name cassie --entry scene.mjcf \
   --title "Agility Cassie" --visibility public
+# A composed env whose stack still references local layers is refused —
+# push the layers as envs first, or push anyway with marked provenance.
+dreamlake env push ./kitchen-g1 --push-layers
+dreamlake env push ./kitchen-g1 --allow-local
 ```
 
 - `--type` records the simulator family (`isaaclab`, `superdex`, … are
@@ -35,6 +39,13 @@ dreamlake env push ./scenes/cassie \
   `<mesh file="…"/>` and `<include file="…"/>` references keep working.
 - Dot-files, `node_modules` and symlinks are skipped. Limits: ≤ 1000 files,
   ≤ 100 MiB per file, ≤ 1 GiB per version.
+- `--thumbnail <path>` uploads a PNG (≤ 512 KiB) as the env's cover image in
+  the app's env grid. It is recorded as a *manual* cover, so the web viewer
+  won't auto-overwrite it for this version. Without the flag, the viewer
+  renders a cover automatically the first time a member opens the env —
+  framed from the scene's own `<camera>` / `<visual global>` / `<statistic>`
+  when authored (see the app docs). Works on a no-change push too
+  (thumbnail-only update, no new version).
 - `env create` is `push` that refuses a name that already exists.
 
 Each push prints what was uploaded vs reused, and the web URL:
@@ -60,6 +71,52 @@ content hash, so the reconstructed directory is byte-identical to what was
 pushed. It needs no special tooling server-side — any HTTP client can follow
 the same two REST calls (`GET …/envs/:name/versions` and
 `GET …/envs/:name/versions/:version`).
+
+## Compose a layered env
+
+A **stack** — `dreamlake.layers.json`, schema `dreamlake.env-layers/v2` —
+builds one env out of ordered layers: a base scene, an attached robot, an
+override patch. `env compose` materializes it into a runnable env directory:
+
+```bash cli-help="env compose"
+dreamlake env compose                         # stack: ./dreamlake.layers.json
+dreamlake env compose ./kitchen-g1/dreamlake.layers.json -o ./composed
+dreamlake env compose --force                 # write into a non-empty out dir
+```
+
+- The stack file defaults to `./dreamlake.layers.json`. `-o/--out` defaults
+  to `./<the stack's "name", else the stack directory's basename>`; a
+  non-empty output directory is refused without `--force`.
+- Registry layers (`{"env": "ns/name[@version]"}`) resolve through the
+  immutable, hash-verified version cache at `~/.dreamlake/cache/envs/`, so a
+  pinned ref with a cache hit costs zero network. Public envs resolve
+  without login.
+- The CLI validates the stack's shape and resolves layer sources;
+  **composition itself** (merge / attach / override, URDF import, compile
+  validation) **runs in the reference engine** — Python,
+  `dreamlake.envlayer`, shipped by the Python SDK:
+  `pip install "dreamlake[compose]"` (dreamlake ≥ 0.19.0 on PyPI). The CLI
+  tries `python3`, then `python`; `DREAMLAKE_PYTHON` pins a specific
+  interpreter.
+
+The composed directory carries a fully **pinned** copy of the stack as
+provenance, so anyone can re-open its composition later. Stack schema,
+compose modes and worked examples:
+[Env layers reference](https://docs.dreamlake.ai/envs/layers).
+
+### Pushing a composed env
+
+A pushed env should carry a fully pinned stack — one that still references
+local `{"path"}` layers exists only on your machine, so nobody else could
+recompose it. Like cargo and npm with path-only dependencies, `env push`
+(and `env create`) **refuses** such a directory unless told otherwise:
+
+- `--push-layers` pushes each local layer directory as its own env (named
+  by the directory's basename), then stops so you can pin them in
+  `dreamlake.layers.json` (`{"env": "ns/name@version"}`), recompose, and
+  push again. The composed env itself is *not* pushed.
+- `--allow-local` pushes anyway; the provenance stays marked
+  non-resolvable.
 
 ## Visibility
 
