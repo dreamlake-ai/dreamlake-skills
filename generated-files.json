@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "be00a0a539c848ef609de619785f3863c95bfba406cfce6350f5bea7b3f5710f",
+  "sourcesSha256": "03d930dd20264745601f26cddde9d9c2b54868ca4ab02fe952f7082c79382abf",
   "files": {
     "dreamlake-cli/SKILL.md": "ff7ab6c77f988665aa63262753c3d7e13a1ec72a36e416a30b25090e2525ec0b",
     "dreamlake-cli/reference/agents.md": "29b23321a4f10af056e7e2a4959feeb241ab1766ab69df1c91585ff0ba98445b",
@@ -16,7 +16,7 @@
     "dreamlake-cli/reference/host-enrollment.md": "97e06ea2e8e0a08e75a044a62b3ea96fa78e1816a967087f975a73e9464b0812",
     "dreamlake-cli/reference/installation.md": "5a8b79cfc51a73287a3df3d583856ba40c77abc5c39eed3a8c9992fd390366d8",
     "dreamlake-cli/reference/lakeshore.md": "2752e2e67a8ec3d963cc6e06e67de0a18397ca5ef607dbb02c8fca5aeab00877",
-    "dreamlake-cli/reference/notes.md": "b02b2378da04fcfe3be36f64f961de92428848400e5cbf723b173eb068f3e4b8",
+    "dreamlake-cli/reference/notes.md": "5bb50eeee3d02aacfb122be7d91e2f7048169a8b3a3158509b1da2feed7864e1",
     "dreamlake-cli/reference/organizations.md": "3c62552f46378bc68e60f186f7e6575e11e1c438c1018a0c96eafbc04a1a69e2",
     "dreamlake-cli/reference/overview.md": "aed9df87c34a996c615b6ab368bb9ebc9a83de68e60cbfef52a167ba6234814c",
     "dreamlake-cli/reference/pipelines.md": "80ed19ea97a1640aa5dafc6f448e5777dee50e4b81726d68c444683223259b9d",

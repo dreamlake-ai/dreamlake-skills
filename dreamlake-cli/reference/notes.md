@@ -420,11 +420,12 @@ access to this note". A note you cannot read at all reports as not found.
 | `notes list [--shared]` | Notes in the namespace, or shared with you |
 | `notes search <query>` | Match note titles and bodies |
 | `notes sections <note>` | The outline, with anchors |
-| `notes read <note> [--section <anchor>]` | Body or one section, to stdout |
+| `notes read <note> [--since <ref>] [--format <format>]` | Exact source or selected patch with hash/revision metadata |
+| `notes read <note> --legacy [--section <anchor>]` | Previous body-only or section output |
 | `notes write <note> [--section <anchor>]` | Replace body or section |
 | `notes insert <note> [--before\|--after]` | Add a section |
 | `notes rm-section <note> <anchor>` | Remove a section and its subtree |
-| `notes patch <note>` | Apply a unified diff |
+| `notes patch <note> --if-match <revision> [--format <format>]` | Upload inline or line patch from stdin |
 | `notes append <note>` | Add to the end |
 | `notes find <query> --note` | Where the text is, in one note |
 | `notes grep <query>` | Where it is, across every note you can see |
