@@ -1,6 +1,6 @@
 ---
 name: dreamlake-envs
-description: Push a MuJoCo scene (MJCF) or URDF robot to DreamLake as an env — extract a self-contained directory from a repo, verify it compiles, push it versioned with `dreamlake env push`, and get an interactive 3D viewer page. Use when a user wants to upload, publish, share, or version a simulation environment, scene, or robot model on DreamLake, or pull one back byte-identical.
+description: Push a MuJoCo scene (MJCF) or URDF robot to DreamLake as an env — extract a self-contained directory from a repo, verify it compiles, push it versioned with `dreamlake env push`, and get an interactive 3D viewer page — or compose a layered env from other envs by authoring a `dreamlake.layers.json` stack (merge / attach / override) and running `dreamlake env compose`. Use when a user wants to upload, publish, share, or version a simulation environment, scene, or robot model on DreamLake, pull one back byte-identical, or combine scene + robot + patch layers into one composed env (put a gripper in a kitchen, swap embodiments, scatter props, tweak physics or lighting, delete fixtures).
 ---
 
 # DreamLake Envs — push a sim scene, get a live 3D page
@@ -145,6 +145,40 @@ dreamlake env delete my-scene --permanent   # purge storage + catalog — IRREVE
 ```
 
 Never pass `--permanent` unless the user explicitly asked to erase storage.
+
+## 5. Compose layered envs (`dreamlake.layers.json`)
+
+An env can be **composed from other envs**: an ordered layer stack, each
+layer carrying its own compose rule — `merge` (union; name collision is an
+error), `attach` (graft a subtree at a target under a name prefix, with
+mount pose + joint mode, optionally N instances), `override` (sparse MJCF
+attribute opinions; the rule may also delete elements). Later layers win.
+Materialization produces an ordinary `mujoco` env whose pushed version
+carries the flat artifact and the pinned stack side by side.
+
+**Read `reference/layers.md` before authoring a stack** — it maps
+natural-language requests to stack constructs, gives the full field
+reference, the six canonical stack shapes, and the error table. Owning
+docs: https://docs.dreamlake.ai/envs/layers.
+
+```bash
+pip install "dreamlake[compose]"   # once — the CLI delegates materialization to dreamlake-py
+dreamlake env compose              # materialize ./dreamlake.layers.json (or: compose <path>)
+dreamlake env push <out-dir>       # artifact + pinned stack as one version
+```
+
+Push discipline: a stack containing local `{"path": …}` sources is refused
+on push — pass `--push-layers` to push those layers as their own envs first
+(prefer this; provenance stays resolvable), or `--allow-local` to push
+anyway with the provenance permanently marked non-resolvable (only when the
+user accepts that).
+
+Three caveats to hold in mind while authoring (details in the reference):
+overrides after an `attach` must target the **prefixed** names
+(`right:palm`); override matching is **strict** (an unknown name is a
+compose error, not a no-op); a `urdf` layer is attach-only and imports
+**unactuated** (`nu = 0` — pair it with an actuator/damping override layer
+or present it as visualization-grade).
 
 ## Traps
 
