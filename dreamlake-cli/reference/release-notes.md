@@ -1,12 +1,44 @@
 # Release notes
 
-## Unreleased — Notes revision diffs
+## 0.25.0 — Layered env stacks: `env compose`
+
+`dreamlake env compose [stack]` materializes a layered env stack —
+`dreamlake.layers.json`, schema `dreamlake.env-layers/v2` — into a runnable
+env directory. The stack defaults to `./dreamlake.layers.json`; `-o/--out`
+names the output directory and `--force` writes into a non-empty one. The
+CLI owns stack shape validation and source resolution: registry refs
+(`{"env": "ns/name[@version]"}`) fill the immutable, hash-verified cache at
+`~/.dreamlake/cache/envs/`, so pinned refs with a cache hit cost zero
+network, and public envs resolve without login.
+
+Composition semantics (merge / attach / override, URDF import, compile
+validation) are delegated to the Python reference engine
+`dreamlake.envlayer`, installable as `pip install "dreamlake[compose]"`
+(dreamlake 0.19.0 on PyPI). `DREAMLAKE_PYTHON` overrides the interpreter;
+otherwise `python3`, then `python`. `env push`/`pull`/`list` need no Python.
+
+Push discipline lands with it: `env push` (and `env create`) now refuses a
+directory whose root `dreamlake.layers.json` still references local,
+unpinned layers — the pushed provenance would not be re-openable.
+`--push-layers` pushes each local layer directory as its own env first
+(named by its basename) and stops for pinning + recompose; `--allow-local`
+pushes anyway with the provenance marked non-resolvable.
+
+Deep reference: [Env layers](https://docs.dreamlake.ai/envs/layers).
+
+## 0.24.7 — Notes revision diffs
 
 `dreamlake notes diff <note> --since <etag>` compares the current body with a
 retained read/edit reference. `--json` includes both refs; plain output stays
 pipeable. Requires the revision-diff server endpoint. Read, diff, and patch
 help examples now document preserving and reusing the ETag. These examples
-also flow into the generated CLI skill. Release/publication is pending.
+also flow into the generated CLI skill.
+
+The feature merged in #114 without shipping: the published 0.24.6 binary
+answers `error: unknown command 'diff'`. 0.24.7 is the version bump that
+ships it. Published on the native channel (`latest` and `stable` both resolve
+to 0.24.7 on dl.dreamlake.ai); as of 2026-09-23 the npm registry's newest
+version is still 0.24.6, so npm users first get `notes diff` with 0.25.0.
 
 ## 0.24.6 — Note file uploads no longer crash the native binary
 

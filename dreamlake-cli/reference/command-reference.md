@@ -150,6 +150,20 @@ See [External sources](sources.md).
 | `source fetch <path> --source <n>` | Mint a short-lived public download URL for one file |
 | `source download <path> --source <n> [-o <dir>] [-r]` | Write bytes to local disk |
 
+## Envs
+
+See [Envs](envs.md).
+
+| Command | What it does |
+| --- | --- |
+| `env push <dir> [--name] [--entry] [--type] [--visibility] [--thumbnail <png>]` | Push a directory as a new env version (unchanged files are not re-uploaded); `--thumbnail` sets the cover image |
+| `env push <dir> --push-layers \| --allow-local` | Push a composed env whose stack still references local layers — see [Envs](envs.md) |
+| `env create <dir> [...]` | Push the FIRST version — fails if the name already exists |
+| `env list [--namespace <ns>] [--json]` | List envs in a namespace |
+| `env pull <name>[@<version>] [-o <dir>] [--force]` | Download a version, hash-verified |
+| `env compose [stack] [-o <dir>] [--force]` | Materialize a layered stack (`dreamlake.layers.json`) into a runnable env directory (needs `pip install "dreamlake[compose]"`) |
+| `env delete <name> [--permanent]` / `env restore <name>` | Soft-delete / restore; `--permanent` purges storage |
+
 ## Skills
 
 See [Agent skills](skills.md).
