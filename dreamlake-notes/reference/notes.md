@@ -653,3 +653,66 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
     Every `dreamlake notes` command and flag.
 
     The endpoints underneath, if you need them directly.
+
+## Notes v2 preview: Bash patches
+
+This interface is implemented in draft milestone PRs tracked by
+[the Notes master plan](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+It requires a compatible conditional RTC server and the matching CLI release;
+these docs do not claim it is deployed. Existing installed clients keep their
+current interface until upgraded.
+
+A v2 source read returns `note`, `hash`, `revision` and `content`. `hash` is
+`sha256:` plus the exact UTF-8 source digest. `revision` is an opaque RTC write
+baseline; equal text does not imply an equal revision. Keep the original source
+and token together until the edit is verified. Never fetch a fresh token merely
+to make an old patch pass.
+
+```bash
+set -euo pipefail
+NOTE_ID=design-doc
+dreamlake notes read "$NOTE_ID" --json > baseline.json
+BASE_HASH=$(jq -er '.hash' baseline.json)
+BASE=$(jq -er '.revision' baseline.json)
+jq -jr '.content' baseline.json > base.md
+
+dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format inline-dff
+dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format diff
+
+# Example requires saved source exactly Hello world. without a final newline.
+dreamlake notes patch "$NOTE_ID" --format inline-dff --if-match "$BASE" --json > committed.json <<'PATCH'
+@@ chars 0:12 @@
+~ Hello [-world-]{+team+}.
+PATCH
+
+REVISION=$(jq -er '.revision' committed.json)
+dreamlake notes read "$NOTE_ID" --if-match "$REVISION" --json > verified.json
+```
+
+Use a quoted heredoc delimiter absent from the patch body. Multiline stdin is
+the default; `--file` is optional. Both reads and uploads select `inline-dff` or
+`diff` independently. Full reads and incremental reads have self-contained text
+metadata by default; JSON is opt-in. `--legacy` selects the previous text/ETag
+contract. `notes diff` is the incremental-read alias in the matching CLI.
+
+Inline ranges count Unicode code points, zero-based and end-exclusive. Literal
+marker punctuation uses backslash escaping, with `\n`, `\r`, `\t` and `\\`
+for controls/backslashes. Unified line patches preserve exact line endings and
+`\ No newline at end of file` markers. Invalid or stale batches apply nothing.
+A successful patch produces one conditional native RTC commit. RTC outages
+produce errors, never an archive-only replacement.
+
+`--since` accepts a retained hash, ISO timestamp/date, or positive integer
+`second(s)`, `minute(s)`, `hour(s)` or `day(s) ago`. Unzoned timestamps and dates
+use UTC; relative times resolve once at server request time. Time lookups select
+the latest **retained source observation** at or before that instant, not every
+browser keystroke or an audit history of all commits. Retention starts when this
+interface records snapshots; no earlier history is invented. Unknown or expired
+bases return an explicit error. Apply a returned patch only to its exact `base`
+source, and verify the resulting hash. A no-op source diff may carry a newer RTC
+token; it never advances an existing draft automatically.
+
+Stop on failure and preserve the patch, working copy and original baseline.
+A missing acknowledgement can mean a commit occurred: inspect server content
+before retrying. Exact readback can itself return a conflict if another writer
+has already changed the acknowledged revision.
