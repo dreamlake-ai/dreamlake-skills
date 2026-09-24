@@ -214,9 +214,9 @@ private note.
 **CLI**
 
 ```bash
-dreamlake notes read design-doc                     # slug
-dreamlake notes read 6aa948b3fea6e541282b747e       # id
-dreamlake notes read "Design Doc"                   # exact title
+dreamlake notes read --legacy design-doc                     # slug
+dreamlake notes read --legacy 6aa948b3fea6e541282b747e       # id
+dreamlake notes read --legacy "Design Doc"                   # exact title
 
 # Every example below uses $NOTE_ID. Set it once — any of the three forms:
 NOTE_ID=design-doc
@@ -233,14 +233,18 @@ A note you may not read answers exactly as one that does not exist.
 
 ## Read
 
+The existing examples below use the explicit `--legacy` CLI contract (source
+`text` and content-hash `etag`). The v2 preview later in this guide uses
+`content`, `hash` and an opaque RTC `revision`. Do not mix their tokens.
+
 **CLI**
 
 ```bash
-dreamlake notes read "$NOTE_ID"                                    # whole body
-dreamlake notes read "$NOTE_ID" --section install                  # one section
-dreamlake notes read "$NOTE_ID" --start-line 40 --end-line 80
-dreamlake notes read "$NOTE_ID" --start-line 40 --end-line 80 --numbered
-dreamlake notes read --note "$NOTE_ID" --json                      # body + revision
+dreamlake notes read --legacy "$NOTE_ID"                                    # whole body
+dreamlake notes read --legacy "$NOTE_ID" --section install                  # one section
+dreamlake notes read --legacy "$NOTE_ID" --start-line 40 --end-line 80
+dreamlake notes read --legacy "$NOTE_ID" --start-line 40 --end-line 80 --numbered
+dreamlake notes read --legacy --note "$NOTE_ID" --json                      # body + revision
 dreamlake notes toc --note "$NOTE_ID"                              # the outline
 dreamlake notes toc --note "$NOTE_ID" --json
 ```
@@ -278,7 +282,7 @@ Before each revision-checked edit, read the note and capture its revision
 (the CLI recipe uses `jq`):
 
 ```bash
-REV=$(dreamlake notes read "$NOTE_ID" --json | jq -er .etag)
+REV=$(dreamlake notes read --legacy "$NOTE_ID" --json | jq -er .etag)
 ```
 
 Inspect the returned body before choosing the edit. After a successful write,
@@ -445,18 +449,18 @@ The CLI returns the same ref in `read --json` and accepts it via `--since`:
 ```bash
 # Requires jq. Keep the snapshot and ref for a later shell session.
 NOTE_ID=design-doc
-dreamlake notes read "$NOTE_ID" --json > note-snapshot.json
+dreamlake notes read --legacy "$NOTE_ID" --json > note-snapshot.json
 REV=$(jq -er .etag note-snapshot.json)
-dreamlake notes diff "$NOTE_ID" --since "$REV"
-dreamlake notes diff "$NOTE_ID" --since "$REV" --json
+dreamlake notes diff --legacy "$NOTE_ID" --since "$REV"
+dreamlake notes diff --legacy "$NOTE_ID" --since "$REV" --json
 # Apply a diff prepared against that saved body:
-dreamlake notes patch "$NOTE_ID" --file change.patch --if-match "$REV" --json
+dreamlake notes patch --legacy "$NOTE_ID" --file change.patch --if-match "$REV" --json
 ```
 
 `notes diff` requires `--since`; it does not keep a hidden local baseline.
 Plain output is the diff on stdout and current ETag on stderr. `--json` also
 returns `from` and `to`. The CLI help includes this workflow:
-`dreamlake notes diff --help`, `notes read --help`, and `notes patch --help`.
+`dreamlake notes diff --legacy --help`, `notes read --help`, and `notes patch --help`.
 
 Reads return `doc.etag`, a quoted SHA-256 hash of the complete note text. Keep
 that ref to see changes since your own read or successful edit across sessions:
@@ -495,8 +499,8 @@ touches several places at once.
 **CLI**
 
 ```bash
-diff -u before.md after.md | dreamlake notes patch "$NOTE_ID" --file -
-dreamlake notes patch "$NOTE_ID" --file change.patch --dry-run
+diff -u before.md after.md | dreamlake notes patch --legacy "$NOTE_ID" --file -
+dreamlake notes patch --legacy "$NOTE_ID" --file change.patch --dry-run
 ```
 
 **Python**
@@ -611,7 +615,7 @@ between is **refused** rather than overwritten:
 **CLI**
 
 ```bash
-REV=$(dreamlake notes read "$NOTE_ID" --json | jq -r .etag)
+REV=$(dreamlake notes read --legacy "$NOTE_ID" --json | jq -r .etag)
 dreamlake notes write "$NOTE_ID" --file new.md --if-match "$REV"
 ```
 
@@ -716,3 +720,90 @@ Stop on failure and preserve the patch, working copy and original baseline.
 A missing acknowledgement can mean a commit occurred: inspect server content
 before retrying. Exact readback can itself return a conflict if another writer
 has already changed the acknowledged revision.
+
+### HTML snapshot preview
+
+With the compatible v2 server and CLI, `dreamlake notes read "$NOTE_ID" --view html`
+returns a complete inert HTML document. Root `data-note`, `data-hash`,
+`data-revision`, `data-source-type`, `data-offset-unit` and `data-source`
+attributes contain the exact canonical source and its baseline. Element
+`data-start`/`data-end` ranges address that source in Unicode code points;
+`data-map` marks linear text, atomic syntax or generated presentation.
+
+Decode the source attribute once to recover canonical source, including original
+entity spelling and line endings. Patch that source using the embedded revision;
+never upload generated wrappers or mapping attributes. HTML reads are full
+snapshots; `--view html --since` is rejected. HTML-looking source is rendered as
+HTML, other source as Markdown. Rich or restricted structures may map atomically;
+no editable range is guessed from generated text. Scripts, active attributes and
+network-loaded media are excluded from this static preview.
+
+### Rich tokens in the draft HTML read representation
+
+The unreleased v2 HTML renderer recognizes strict Markdown source tokens for
+`:placeholder{text="owner"}`, `:asset-reference{id="asset-id" caption="plot"}`,
+`:note{id="note-id"}`, `:bindr{id="bindr-id"}` and
+`:chatgpt-content-reference{index="0"}`. Attribute values use double quotes;
+unknown/duplicate attributes and malformed tokens remain literal source.
+Code, escaped punctuation, Markdown links and URL paths keep their ordinary
+interpretation. Existing `[ owner ]` placeholders retain blue boxes, visible
+brackets, inner spacing and the **placeholder** hover label.
+
+Recognized components carry atomic `data-start`, `data-end` and `data-map`
+attributes addressing the complete token in canonical Unicode-code-point
+source. The root `data-source` remains exact. When Markdown normalizes a region
+so an exact token range cannot be proven, its enclosing block remains atomic;
+the renderer never guesses an editable token range.
+
+Static previews show assets, Notes and bindrs as unresolved labels. They perform
+no metadata lookup and include no download URL or authorization capability.
+Labels come only from source the reader can already read. The interactive
+application separately resolves resources through authorized APIs. Imported
+ChatGPT citation tags render as unresolved broken-link icons with their original
+source in the hover label. Neither form implies that the reference is valid or
+accessible. Placeholder CSS is static and hash-authorized by the preview's CSP;
+source-provided styles and active HTML remain inert.
+
+This source capability is tracked in [master #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706)
+and requires the corresponding server/client releases and deployment before
+hosted use. Browser rich components are reviewed separately in
+[UI PR #415](https://github.com/dreamlake-ai/dreamlake-ai/pull/415).
+
+### Heading numbering in draft HTML reads
+
+Markdown Notes can place the following options in an initial YAML front-matter
+block. The same policy is used by the editor/outline and the server HTML preview:
+
+```markdown
+---
+render:
+  headings:
+    numbering: hierarchical
+    startLevel: 2
+---
+# Design notes
+
+## First
+#### Deeper
+### Next
+## Last
+```
+
+The displayed numbers are `1`, `1.1`, `1.2`, `2`. Number only actual ancestors:
+skipping a heading level does not insert zero components. A heading above
+`startLevel` stays unnumbered and resets the sequence. `numbering` accepts `off`
+or `hierarchical` (default `off`); `startLevel` is an integer from 1 through 6
+(default 2). ATX and setext headings share the policy; code fences do not count.
+
+Front matter remains part of canonical source, source hashes and patch offsets,
+but does not render as body text. Unknown YAML fields survive unchanged. Invalid
+supported values or malformed YAML produce a visible diagnostic and default
+options; no source rewrite occurs. Unterminated front matter stays literal body
+source with a diagnostic.
+
+Numbers are display-only spans marked `data-map="generated"` with no editable
+source range. Heading source/anchor behavior stays unchanged. Body and rich-token
+source ranges still count from the start of the full document, including front
+matter and CRLF. These options apply to Markdown source; canonical HTML is not
+interpreted as Markdown front matter. This remains unreleased work tracked in
+[master #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).

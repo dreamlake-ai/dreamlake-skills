@@ -1,5 +1,14 @@
 # Release notes
 
+## Unreleased — Notes mapped HTML reads
+
+`notes read --view html` emits the complete server snapshot without added
+headers or newline. Embedded canonical source, identity, SHA-256 and revision
+are validated before stdout; `--if-match` is guarded on both request and
+readback. HTML rejects incompatible history, JSON, legacy and slicing options.
+Requires the matching server HTML milestone; release and live verification
+remain pending. Tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+
 ## Unreleased — Notes v2 Bash contract
 
 Full reads emit source with SHA-256 and opaque revision metadata. Incremental
