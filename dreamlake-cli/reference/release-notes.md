@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.26.1 — Notes mapped HTML reads (release candidate)
+
+`notes read --view html` emits the complete server snapshot without added
+headers or newline. Embedded canonical source, identity, SHA-256 and revision
+are validated before stdout; `--if-match` is guarded on both request and
+readback. HTML rejects incompatible history, JSON, legacy and slicing options.
+Requires the matching server HTML milestone; release and live verification
+remain pending. Tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+
 ## 0.26.0 — Notes v2 Bash contract (release candidate)
 
 Compatibility change: Notes commands default to the v2 server contract. Deploy
