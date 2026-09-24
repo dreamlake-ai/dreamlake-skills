@@ -1,5 +1,46 @@
 # Release notes
 
+## 0.26.2 — per-request EXACT patches
+
+Notes command handlers now allow stdout to drain before process exit, preserving
+large piped JSON/source responses. Regression tests cover delayed pipe readers
+with more than 128 KiB of Unicode content.
+
+Notes v2 patches default to ordinary native CRDT synchronization against the
+original snapshot identified by `--base-revision`. `--exact` explicitly selects EXACT mode for that request; `--if-match` is a compatibility alias. The CLI never fetches a newer baseline
+to hide a conflict, and rejected requests leave local drafts and baselines intact.
+The matching Notes v2 API retains original RTC identities. This release also
+includes complete mapped HTML reads with canonical-source/hash/revision checks.
+Use `--legacy` explicitly with older servers. Package and deployed acceptance
+receipts are tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+
+Versions 0.26.0 and 0.26.1 are superseded candidates. The 0.26.0 workflow was
+cancelled before publishing the npm wrapper or moving native channels; immutable
+versioned R2 objects and platform package uploads remain. Active install channels
+stayed at 0.25.0. Version 0.26.1 was never published, and neither candidate docs
+site was promoted.
+
+## 0.26.1 — superseded, never published
+
+`notes read --view html` emits the complete server snapshot without added
+headers or newline. Embedded canonical source, identity, SHA-256 and revision
+are validated before stdout; `--if-match` is guarded on both request and
+readback. HTML rejects incompatible history, JSON, legacy and slicing options.
+These changes ship in 0.26.2 with the matching Notes HTML server contract. Tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+
+## 0.26.0 — superseded, publication cancelled
+
+Historical candidate: Notes commands changed to the v2 server contract. This
+candidate was superseded by 0.26.2 and must not be republished. The current
+MERGE/EXACT contract above replaces its required-guard interface.
+
+Full reads emit source with SHA-256 and opaque revision metadata. Incremental
+reads and multiline stdin uploads select inline or line diff. Uploads require
+the saved revision, and verification reads preserve that exact token. Explicit
+`--legacy` retains the prior text/ETag interface. Requires the matching v2
+server; no package release, deployment, or live verification is claimed.
+Tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+
 ## 0.25.0 — Layered env stacks: `env compose`
 
 `dreamlake env compose [stack]` materializes a layered env stack —

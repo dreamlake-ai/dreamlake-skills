@@ -4,9 +4,278 @@ A note is a collaborative Markdown document. People edit it in the browser in
 real time; `dreamlake notes` is how a script or an agent reads and edits the
 same document from a shell.
 
-The commands are pipe-friendly on purpose: `read` writes the body to stdout and
-nothing else, `write` takes text from a file or stdin, and `--json` is there
-wherever the readable form would be awkward to parse.
+CLI 0.26.2 and later default to a read/patch contract carrying exact source,
+hashes and opaque write revisions together. It requires the matching Notes v2
+server contract. Use `--legacy` explicitly against older servers; upgrading
+the CLI alone does not upgrade the server. The compatibility examples below
+retain existing body-only reads and ETag behavior. Check the [release notes](release-notes.md)
+for publication and verification status.
+
+## Original-snapshot Bash workflow (v2)
+
+Both reads and uploads select `--format inline-dff` (default) or `--format diff`.
+`notes diff --since` is an alias for incremental `notes read --since`. Reading
+one format does not constrain the upload format. The backend owns strict parsing
+and compiles validated edits to native RTC operations; the CLI does not apply
+DMP or guess an alignment.
+
+Text stdout contains `note`, `hash`, `revision`, a blank line and exact source.
+An incremental response adds `format`, `base`, `unit` and the patch. `--json`
+uses `content` for full reads or `base`/`patch` for incremental reads. Diagnostics
+go to stderr. The CLI verifies the SHA-256 of full source before emitting it. Patch receipts
+carry `note`, `mode` (`merge` or `exact`), the original `baseRevision`, and the
+acknowledged `hash`/`revision` on stdout and in JSON.
+A malformed or legacy response is an error, never a silent downgrade.
+
+```bash file="terminal"
+set -euo pipefail
+NOTE_ID=design-doc
+# Login first; add --namespace <slug> for an organization's Note.
+dreamlake notes read "$NOTE_ID" --json > baseline.json
+BASE_HASH=$(jq -er .hash baseline.json)
+BASE=$(jq -er .revision baseline.json)
+jq -jr .content baseline.json > base.md
+
+dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format inline-dff
+dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format diff
+
+# This example requires exact base source: Hello world. (no trailing LF).
+dreamlake notes patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
+@@ chars 0:12 @@
+~ Hello [-world-]{+team+}.
+PATCH
+REVISION=$(jq -er .revision committed.json)
+dreamlake notes read "$NOTE_ID" --if-match "$REVISION" --json > verified.json
+```
+
+The quoted here-document preserves variables, backticks, newlines and Unicode
+literally. Choose a delimiter absent as a standalone patch line. Input defaults
+to stdin; pipes and `--file -` work. Optional `--file path` or `--diff string`
+conflicts with redirected stdin and with each other. Interactive stdin is
+refused. Empty input is a no-op patch, not a whole-body deletion. `--dry-run`
+prints the proposed request without uploading it.
+
+Uploads require the original saved `--base-revision`. The default patch validates
+against that original source, maps edits to its original RTC identities, and
+uses ordinary native CRDT synchronization. It sends no `If-Match` header and
+does not require the current document to still equal the baseline. Concurrent
+edits outside those original identities are preserved by the existing CRDT
+merge behavior; there is no fuzzy rebase onto current text.
+
+MERGE is the default. To require the current revision to equal the saved
+baseline, add `--exact` to that patch command. EXACT is scoped to this request.
+Explicit `--if-match "$BASE"` remains a compatibility alias for EXACT and can
+supply the original baseline when `--base-revision` is absent. When both flags are present, their tokens must match. There is
+no permanent EXACT document mode. `--force` is unnecessary and refused for
+v2 patches. No preflight read silently replaces the original token. After success, read with the
+acknowledged revision before advancing a local sidecar or replacing an immutable
+base snapshot. Keep local drafts and their original baselines on errors. A
+separately fetched diff does not advance a draft baseline. Exit 3 means stale,
+4 means RTC unavailable, and 5 means a rejected patch. The CLI does not retry
+HTTP patch requests. If an acknowledgment is lost or the outcome is ambiguous,
+keep the original draft and baseline, read the resulting state, and reconcile
+before resubmitting. Separate HTTP requests do not share an idempotency receipt.
+
+Hash references use `sha256:<hex>`. Time references are passed unchanged to the
+server, including timestamps, dates and `"2 hours ago"`; server retention and
+timezone rules apply. Unknown bases fail explicitly. Partial/numbered reads
+remain available with `--legacy`; they are not v2 source snapshots.
+
+### Concurrent edit walkthrough: MERGE versus EXACT
+
+Use a test Note whose exact source is `Hello world.` with no final newline.
+The patch below changes only the original `world` identities. Keep both files;
+none of these commands overwrites the baseline or draft after an error.
+
+```bash
+NOTE_ID=your-test-note
+dreamlake notes read "$NOTE_ID" --json > original.json
+BASE=$(jq -er .revision original.json)
+jq -e '.content == "Hello world."' original.json
+cat > original.patch <<'PATCH'
+@@ chars 0:12 @@
+~ Hello [-world-]{+team+}.
+PATCH
+# In the browser, prepend "Human: " and wait for that edit to sync.
+# Do not replace original.json or BASE with a newer read.
+set +e
+dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" --exact \
+  --file original.patch --json > exact.stdout 2> exact.stderr
+EXACT_EXIT=$?
+set -e
+test "$EXACT_EXIT" -eq 3
+test ! -s exact.stdout
+cat exact.stderr
+# EXACT rejected the intervening revision without submitting patch operations.
+dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" \
+  --file original.patch --json > merge-receipt.json
+jq '{note, mode, baseRevision, hash, revision}' merge-receipt.json
+dreamlake notes read "$NOTE_ID" --json > merged.json
+jq -e '.content == "Human: Hello team."' merged.json
+```
+
+The successful receipt has `mode: "merge"`, `baseRevision` equal to the saved
+`BASE`, and the content `hash` and RTC `revision` observed coherently after the
+patch acknowledgment. These do not claim that every peer is synchronized or
+that nobody can edit afterward. Text mode prints those same five fields as
+labelled lines; `--json` emits one JSON object. Success diagnostics do not mix
+with stdout. HTTP 412 produces exit 3, empty stdout, and a stderr explanation
+that retains the original baseline and draft. There is no silent downgrade
+from EXACT to MERGE and no automatic resubmission.
+
+The server applies MERGE operations to the identities captured by the original
+snapshot. The browser's prefix has different identities and is preserved.
+Unavailable snapshots and malformed patches are errors; they never select the
+latest source automatically. The API/RTC acceptance fixtures verify identity
+preservation and zero patch writes on EXACT rejection separately from these
+user-facing text checks.
+
+### Successful EXACT and the next MERGE request
+
+Continue from the merged fixture. This separate edit takes a fresh baseline;
+if another writer intervenes again, preserve these files and inspect the note
+before deciding on another request. EXACT does not silently select MERGE.
+
+```bash
+dreamlake notes read "$NOTE_ID" --json > exact-base.json
+EXACT_BASE=$(jq -er .revision exact-base.json)
+jq -e '.content == "Human: Hello team."' exact-base.json
+cat > exact-success.patch <<'PATCH'
+@@ chars 18:18 @@
+~ {+!+}
+PATCH
+dreamlake notes patch "$NOTE_ID" --base-revision "$EXACT_BASE" --exact \
+  --file exact-success.patch --json > exact-receipt.json
+jq '{note, mode, baseRevision, hash, revision}' exact-receipt.json
+jq -e --arg base "$EXACT_BASE" '.mode == "exact" and .baseRevision == $base' exact-receipt.json
+dreamlake notes read "$NOTE_ID" --json > after-exact.json
+jq -e '.content == "Human: Hello team.!"' after-exact.json
+
+# EXACT applies to one request. This separate no-op uses the MERGE default.
+NEXT_BASE=$(jq -er .revision after-exact.json)
+printf '' | dreamlake notes patch "$NOTE_ID" --base-revision "$NEXT_BASE" \
+  --file - --json > next-merge.json
+jq -e --arg base "$NEXT_BASE" '.mode == "merge" and .baseRevision == $base and .revision == $base' next-merge.json
+```
+
+Successful EXACT has the same five receipt fields as MERGE, with `mode: "exact"`.
+Omitting `--json` on a separate request prints the same values as labelled text.
+Do not repeat a successful patch simply to request a different output format.
+
+### Recorded fixture output
+
+These exact outputs were replayed through the candidate CLI from an isolated
+API + RTC + Mongo fixture (authentication, catalog, and S3 projections mocked).
+They are test evidence, not a production or published-package transcript.
+The fixture changed `Hello world.` to `Human: Hello team.` and recorded zero
+patch writes for the rejected EXACT request.
+
+Text stdout (exit 0; stderr empty):
+
+```text
+note: 507f1f77bcf86cd799439099
+hash: sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf
+revision: rtc:94c1a7696f6bcd27fa880e4b38b3f73cdd3971f28b44edf9018fadf817df0f3f
+mode: merge
+baseRevision: rtc:9a67f239fc8b862aa557dd10dd6512a7669861287ac8fe262d9c80afebcd18e7
+```
+
+`--json` stdout (exit 0; stderr empty):
+
+```json
+{
+  "note": "507f1f77bcf86cd799439099",
+  "hash": "sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf",
+  "revision": "rtc:94c1a7696f6bcd27fa880e4b38b3f73cdd3971f28b44edf9018fadf817df0f3f",
+  "baseRevision": "rtc:9a67f239fc8b862aa557dd10dd6512a7669861287ac8fe262d9c80afebcd18e7",
+  "mode": "merge"
+}
+```
+
+EXACT failure (exit 3; stdout empty; stderr):
+
+```text
+✗ the original revision or RTC identities are no longer valid for this request; keep the original baseline and draft, inspect the note before resubmitting ((412) stale)
+```
+
+The same fixture returned HTTP 404 with `error: "revision_not_found"` and
+`message: "Original RTC baseline is not retained"` for a missing baseline.
+A malformed inline patch returned HTTP 422 with `error: "patch_failed"` and
+`message: "Expected inline header and one record"`. These are errors, not
+instructions to fetch a replacement baseline or downgrade the requested mode.
+
+### Recorded successful EXACT output
+
+A separate run of the isolated API/RTC/Mongo fixture above produced these
+receipts, replayed through the candidate CLI. This remains bounded test evidence,
+not a published-package or production transcript. Each command exited 0 with
+empty stderr. Text and JSON are alternative renderings, not instructions to
+submit the same patch twice.
+
+Text stdout for successful EXACT:
+
+```text
+note: 507f1f77bcf86cd799439099
+hash: sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5
+revision: rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484
+mode: exact
+baseRevision: rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e
+```
+
+The same successful EXACT receipt as `--json` stdout:
+
+```json
+{
+  "note": "507f1f77bcf86cd799439099",
+  "hash": "sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5",
+  "revision": "rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484",
+  "baseRevision": "rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e",
+  "mode": "exact"
+}
+```
+
+A subsequent empty patch without `--exact` selected MERGE again, preserving the
+successful EXACT revision and hash:
+
+```json
+{
+  "note": "507f1f77bcf86cd799439099",
+  "hash": "sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5",
+  "revision": "rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484",
+  "baseRevision": "rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484",
+  "mode": "merge"
+}
+```
+
+### Complete mapped HTML through Bash
+
+```bash
+NOTE_ID=design-doc
+dreamlake notes read "$NOTE_ID" --view html > design-doc.preview.html
+# committed.json is the successful patch response from the workflow above.
+REVISION=$(jq -er .revision committed.json)
+dreamlake notes read "$NOTE_ID" --view html --if-match "$REVISION" > verified.preview.html
+```
+
+`--view html` returns the complete server-rendered HTML, byte-for-byte, with no
+CLI metadata prefix, JSON wrapper or added newline. The root `data-note`,
+`data-hash`, `data-revision`, `data-source-type`, `data-offset-unit` and
+`data-source` attributes carry the snapshot contract; element `data-start`,
+`data-end` and `data-map` attributes carry source mappings. Decode the root's
+source attribute exactly once to recover canonical source. Offsets count Unicode
+code points, not DOM UTF-16 units. Atomic mappings require whole-range edits;
+generated content has no editable source range. Never upload preview wrappers
+or metadata as canonical Note content.
+
+The CLI checks the root Note identity, canonical-source SHA-256 and write token
+before writing any stdout. `--if-match` is sent to the server and verified again
+against the response's embedded revision. A mismatch exits 3 without output.
+HTML reads are full snapshots: `--since`, `--format`, `--json`, `--legacy`,
+section/line slicing and numbered output cannot be combined with this view.
+`--view source` explicitly selects the default canonical-source interface.
+HTML reads are available in CLI 0.26.2 and later and the matching Notes HTML server
+contract. Check the [release notes](release-notes.md) for publication and
+verification status; an installed CLI alone does not establish server support.
 
 ## Browser sync and recovery
 
@@ -92,10 +361,10 @@ prints the slug and id it actually made rather than the title you asked for.
 ## Reading
 
 ```bash file="terminal"
-dreamlake notes read design-doc                 # the whole body, to stdout
-dreamlake notes read design-doc > local.md      # …which means this works
+dreamlake notes read --legacy design-doc                 # the whole body, to stdout
+dreamlake notes read --legacy design-doc > local.md      # …which means this works
 dreamlake notes sections design-doc             # the outline
-dreamlake notes read design-doc --section install
+dreamlake notes read --legacy design-doc --section install
 ```
 
 `sections` lists what you can address:
@@ -116,8 +385,8 @@ slug of the title, with a numeric suffix when titles repeat (`setup`,
 For a long note, read a range of lines:
 
 ```bash file="terminal"
-dreamlake notes read design-doc --start-line 40 --end-line 80
-dreamlake notes read design-doc --start-line 40 --end-line 80 --numbered
+dreamlake notes read --legacy design-doc --start-line 40 --end-line 80
+dreamlake notes read --legacy design-doc --start-line 40 --end-line 80 --numbered
 ```
 
 A partial read says so on stderr, so a redirected body stays a body. The
@@ -245,7 +514,7 @@ The default link needs the reader signed in. `--share` opens without signing
 in and does not expire; `--revoke` withdraws it everywhere at once. Uploaded
 HTML renders in a separate origin, never the dashboard's.
 
-## Writing while other people are in the note
+## Legacy whole-body and section writes while others edit
 
 Every write is a **real-time collaborative edit**. The server joins the note's
 collaboration room and applies your change there, so anyone with the note open
@@ -289,10 +558,10 @@ esac
 
 ### Pinning a version yourself
 
-`read --json` gives you the validator, which you can hold across a longer edit:
+`read --legacy --json` gives you the content validator, which you can hold across a longer edit:
 
 ```bash file="terminal"
-ETAG=$(dreamlake notes read design-doc --json | jq -r .etag)
+ETAG=$(dreamlake notes read --legacy design-doc --json | jq -r .etag)
 # …edit…
 dreamlake notes write design-doc --file new.md --if-match "$ETAG"
 ```
@@ -306,10 +575,12 @@ dreamlake notes write design-doc --file whole.md --force
 `--force` is the only way past the check. Overwriting a colleague should be
 something you typed, not something that happened.
 
-## Changes since your last read or edit
+## Legacy changes since your last read or edit
 
-**Unreleased:** requires the server revision-diff endpoint and a CLI build with
-`notes diff`. Check `dreamlake notes diff --help` for command availability.
+Legacy revision diffs require the server revision-diff endpoint and CLI 0.25.0
+or later on both native and npm channels. In CLI 0.26.2 and later, select this
+ETag interface with `--legacy`. Check `dreamlake notes diff --legacy --help`
+for command availability.
 
 A read's `etag` is the quoted SHA-256 hash of the complete note. Keep that ref
 and pass it as `--since` to compare with the current body, including edits made
@@ -318,10 +589,10 @@ shell sessions. Partial reads still identify the complete note.
 
 ```bash
 NOTE=release-plan
-dreamlake notes read "$NOTE" --json > note-snapshot.json
+dreamlake notes read --legacy "$NOTE" --json > note-snapshot.json
 REV=$(jq -er .etag note-snapshot.json)
-dreamlake notes diff "$NOTE" --since "$REV"
-dreamlake notes diff "$NOTE" --since "$REV" --json > changes.json
+dreamlake notes diff --legacy "$NOTE" --since "$REV"
+dreamlake notes diff --legacy "$NOTE" --since "$REV" --json > changes.json
 ```
 
 These shell recipes use `jq`. Plain output writes only the unified diff to
@@ -334,19 +605,19 @@ maintain a hidden per-machine baseline. Keep the quoted ETag intact. Identical
 text has the same hash, regardless of RTC operations. Unknown or unretained
 refs return an error; refs issued before retention was deployed may be missing.
 Fetching a diff does not edit the note. Apply a patch you prepared from the
-saved body using `notes patch --if-match "$REV"`; stale refs are refused.
+saved body using `notes patch --legacy --if-match "$REV"`; stale refs are refused.
 A successful patch's JSON `etag` is the next ref you can save.
 
-## Patching
+## Legacy unified patching
 
 A unified diff carries its own precondition — the context has to match — so a
 document that moved refuses the patch instead of taking half of it.
 
 ```bash file="terminal"
-dreamlake notes read design-doc > before.md
+dreamlake notes read --legacy design-doc > before.md
 cp before.md after.md
 # …edit after.md…
-diff -u before.md after.md | dreamlake notes patch design-doc --file -
+diff -u before.md after.md | dreamlake notes patch --legacy design-doc --file -
 ```
 
 ## Permissions
@@ -363,11 +634,12 @@ access to this note". A note you cannot read at all reports as not found.
 | `notes list [--shared]` | Notes in the namespace, or shared with you |
 | `notes search <query>` | Match note titles and bodies |
 | `notes sections <note>` | The outline, with anchors |
-| `notes read <note> [--section <anchor>]` | Body or one section, to stdout |
+| `notes read <note> [--view source\|html] [--since <ref>] [--format <format>]` | Exact source or selected patch with hash/revision metadata |
+| `notes read <note> --legacy [--section <anchor>]` | Previous body-only or section output |
 | `notes write <note> [--section <anchor>]` | Replace body or section |
 | `notes insert <note> [--before\|--after]` | Add a section |
 | `notes rm-section <note> <anchor>` | Remove a section and its subtree |
-| `notes patch <note>` | Apply a unified diff |
+| `notes patch <note> --base-revision <revision> [--exact] [--format <format>]` | Upload a patch against its original snapshot; EXACT is opt-in |
 | `notes append <note>` | Add to the end |
 | `notes find <query> --note` | Where the text is, in one note |
 | `notes grep <query>` | Where it is, across every note you can see |
@@ -381,14 +653,18 @@ access to this note". A note you cannot read at all reports as not found.
 | `notes files preview [--share]` | A link that renders the file |
 
 Every one of them takes `--namespace`, `--json`, and the usual connection flags.
-`write`, `patch` and `append` take `--if-match` and `--force`.
+V2 `patch` requires an original `--base-revision`; `--exact` opts in to EXACT
+for that request. Explicit `--if-match` also selects EXACT and can supply the
+baseline when used alone. It rejects
+`--force`; legacy mutation commands retain their previous flags.
 
 ## Command-help recipes
 
 These examples are also shipped in each command's `--help`. Log in first.
 Replace `release-plan` with a note you can access. Shell recipes using `jq`
 require it locally. Each edit example captures the revision before the edit;
-a stale revision requires a fresh read and a reviewed edit, never a blind force.
+an unavailable original snapshot requires a fresh read and a reviewed edit.
+A concurrent edit alone does not require rebasing an merge patch.
 
 ```bash cli-help="notes list"
 dreamlake notes list --limit 10
@@ -408,17 +684,18 @@ printf '# Release plan\n' | dreamlake notes create "Release plan" --file - --jso
 
 ```bash cli-help="notes read"
 dreamlake notes read release-plan
-dreamlake notes read release-plan --start-line 1 --end-line 20 --numbered
-dreamlake notes read --note release-plan --json
-# Save the complete body and its content-hash reference (requires jq).
-dreamlake notes read release-plan --json > note-snapshot.json
-REV=$(jq -er .etag note-snapshot.json)
-# Use this ref with notes diff --since or notes patch --if-match.
+dreamlake notes read release-plan --json > baseline.json
+BASE_HASH=$(jq -er .hash baseline.json)
+BASE=$(jq -er .revision baseline.json)
+dreamlake notes read release-plan --since "$BASE_HASH" --format inline-dff
+dreamlake notes read release-plan --view html --if-match "$BASE" > release-plan.preview.html
+# Partial reads use the explicit compatibility interface.
+dreamlake notes read release-plan --legacy --start-line 1 --end-line 20 --numbered
 ```
 
 ```bash cli-help="notes write"
 NOTE=release-plan
-dreamlake notes read "$NOTE" --json > note-snapshot.json
+dreamlake notes read --legacy "$NOTE" --json > note-snapshot.json
 REV=$(jq -er .etag note-snapshot.json)
 jq -r .text note-snapshot.json > note.md
 # Edit note.md after reading the snapshot, then preview and apply.
@@ -427,27 +704,25 @@ dreamlake notes write "$NOTE" --file note.md --if-match "$REV" --json
 ```
 
 ```bash cli-help="notes diff"
-# Requires the revision-diff server endpoint and jq.
-NOTE=release-plan
-dreamlake notes read "$NOTE" --json > note-snapshot.json
-REV=$(jq -er .etag note-snapshot.json)
-# Later, inspect changes since that read without advancing its ref.
-dreamlake notes diff "$NOTE" --since "$REV"
-dreamlake notes diff "$NOTE" --since "$REV" --context 0 --json
+dreamlake notes read release-plan --json > baseline.json
+BASE_HASH=$(jq -er .hash baseline.json)
+dreamlake notes diff release-plan --since "$BASE_HASH" --format diff
+# Keep the original baseline.json while preparing an edit.
 ```
 
 ```bash cli-help="notes patch"
-NOTE=release-plan
-dreamlake notes read "$NOTE" --json > note-snapshot.json
-REV=$(jq -er .etag note-snapshot.json)
-jq -j .text note-snapshot.json > before.md
-cp before.md after.md
-# Edit after.md, then generate a diff. diff returns 1 when files differ.
-diff -u before.md after.md > change.patch || test "$?" -eq 1
-dreamlake notes patch "$NOTE" --file change.patch --if-match "$REV" --dry-run
-# The same saved ref guards this edit; a stale revision is refused.
-dreamlake notes patch "$NOTE" --file change.patch --if-match "$REV" --json > patch-result.json
-REV=$(jq -er .etag patch-result.json)  # ref for the successful edit
+# Requires the exact saved base: Hello world. (no trailing newline).
+NOTE_ID=release-plan
+dreamlake notes read "$NOTE_ID" --json > baseline.json
+BASE=$(jq -er .revision baseline.json)
+dreamlake notes patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
+@@ chars 0:12 @@
+~ Hello [-world-]{+team+}.
+PATCH
+REVISION=$(jq -er .revision committed.json)
+dreamlake notes read "$NOTE_ID" --if-match "$REVISION" --json
+# For a separate patch, select EXACT for this request only:
+# dreamlake notes patch "$NOTE_ID" --file draft.diff --base-revision "$BASE" --exact
 ```
 
 ```bash cli-help="notes sections"
