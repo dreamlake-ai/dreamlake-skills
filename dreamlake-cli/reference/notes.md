@@ -130,6 +130,38 @@ latest source automatically. The API/RTC acceptance fixtures verify identity
 preservation and zero patch writes on EXACT rejection separately from these
 user-facing text checks.
 
+### Successful EXACT and the next MERGE request
+
+Continue from the merged fixture. This separate edit takes a fresh baseline;
+if another writer intervenes again, preserve these files and inspect the note
+before deciding on another request. EXACT does not silently select MERGE.
+
+```bash
+dreamlake notes read "$NOTE_ID" --json > exact-base.json
+EXACT_BASE=$(jq -er .revision exact-base.json)
+jq -e '.content == "Human: Hello team."' exact-base.json
+cat > exact-success.patch <<'PATCH'
+@@ chars 18:18 @@
+~ {+!+}
+PATCH
+dreamlake notes patch "$NOTE_ID" --base-revision "$EXACT_BASE" --exact \
+  --file exact-success.patch --json > exact-receipt.json
+jq '{note, mode, baseRevision, hash, revision}' exact-receipt.json
+jq -e --arg base "$EXACT_BASE" '.mode == "exact" and .baseRevision == $base' exact-receipt.json
+dreamlake notes read "$NOTE_ID" --json > after-exact.json
+jq -e '.content == "Human: Hello team.!"' after-exact.json
+
+# EXACT applies to one request. This separate no-op uses the MERGE default.
+NEXT_BASE=$(jq -er .revision after-exact.json)
+printf '' | dreamlake notes patch "$NOTE_ID" --base-revision "$NEXT_BASE" \
+  --file - --json > next-merge.json
+jq -e --arg base "$NEXT_BASE" '.mode == "merge" and .baseRevision == $base and .revision == $base' next-merge.json
+```
+
+Successful EXACT has the same five receipt fields as MERGE, with `mode: "exact"`.
+Omitting `--json` on a separate request prints the same values as labelled text.
+Do not repeat a successful patch simply to request a different output format.
+
 ### Recorded fixture output
 
 These exact outputs were replayed through the candidate CLI from an isolated
@@ -171,6 +203,49 @@ The same fixture returned HTTP 404 with `error: "revision_not_found"` and
 A malformed inline patch returned HTTP 422 with `error: "patch_failed"` and
 `message: "Expected inline header and one record"`. These are errors, not
 instructions to fetch a replacement baseline or downgrade the requested mode.
+
+### Recorded successful EXACT output
+
+A separate run of the isolated API/RTC/Mongo fixture above produced these
+receipts, replayed through the candidate CLI. This remains bounded test evidence,
+not a published-package or production transcript. Each command exited 0 with
+empty stderr. Text and JSON are alternative renderings, not instructions to
+submit the same patch twice.
+
+Text stdout for successful EXACT:
+
+```text
+note: 507f1f77bcf86cd799439099
+hash: sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5
+revision: rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484
+mode: exact
+baseRevision: rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e
+```
+
+The same successful EXACT receipt as `--json` stdout:
+
+```json
+{
+  "note": "507f1f77bcf86cd799439099",
+  "hash": "sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5",
+  "revision": "rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484",
+  "baseRevision": "rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e",
+  "mode": "exact"
+}
+```
+
+A subsequent empty patch without `--exact` selected MERGE again, preserving the
+successful EXACT revision and hash:
+
+```json
+{
+  "note": "507f1f77bcf86cd799439099",
+  "hash": "sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5",
+  "revision": "rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484",
+  "baseRevision": "rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484",
+  "mode": "merge"
+}
+```
 
 ### Complete mapped HTML through Bash
 
@@ -439,7 +514,7 @@ The default link needs the reader signed in. `--share` opens without signing
 in and does not expire; `--revoke` withdraws it everywhere at once. Uploaded
 HTML renders in a separate origin, never the dashboard's.
 
-## Writing while other people are in the note
+## Legacy whole-body and section writes while others edit
 
 Every write is a **real-time collaborative edit**. The server joins the note's
 collaboration room and applies your change there, so anyone with the note open
@@ -483,7 +558,7 @@ esac
 
 ### Pinning a version yourself
 
-`read --json` gives you the validator, which you can hold across a longer edit:
+`read --legacy --json` gives you the content validator, which you can hold across a longer edit:
 
 ```bash file="terminal"
 ETAG=$(dreamlake notes read --legacy design-doc --json | jq -r .etag)
@@ -500,7 +575,7 @@ dreamlake notes write design-doc --file whole.md --force
 `--force` is the only way past the check. Overwriting a colleague should be
 something you typed, not something that happened.
 
-## Changes since your last read or edit
+## Legacy changes since your last read or edit
 
 Legacy revision diffs require the server revision-diff endpoint and CLI 0.25.0
 or later on both native and npm channels. In CLI 0.26.2 and later, select this
@@ -533,7 +608,7 @@ Fetching a diff does not edit the note. Apply a patch you prepared from the
 saved body using `notes patch --legacy --if-match "$REV"`; stale refs are refused.
 A successful patch's JSON `etag` is the next ref you can save.
 
-## Patching
+## Legacy unified patching
 
 A unified diff carries its own precondition — the context has to match — so a
 document that moved refuses the patch instead of taking half of it.

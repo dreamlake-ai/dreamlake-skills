@@ -473,7 +473,7 @@ ref = doc.etag
 
 print(note.diff(since=ref))          # current text versus that snapshot
 print(note.diff())                   # defaults to this handle's last ETag
-result = note.patch(my_diff, if_match=ref)
+result = note.patch(my_diff, if_match=ref, legacy=True)
 ref = result.etag                   # reference for the successful edit
 ```
 
@@ -493,9 +493,10 @@ For local draft changes, use `doc.diff()` for all unsaved changes,
 
 ### Patch
 
-A unified diff carries its own context, so it refuses to apply to a document
-that moved rather than taking half of it. Reach for this when one change
-touches several places at once.
+This legacy patch helper validates unified-diff context against current text
+and rejects mismatched context. Its optional ETag rejects any intervening
+revision. The v2 merge workflow below instead addresses the saved original
+native identities and preserves compatible concurrent edits.
 
 **CLI**
 
@@ -507,8 +508,8 @@ dreamlake notes patch --legacy "$NOTE_ID" --file change.patch --dry-run
 **Python**
 
 ```python
-note.patch(unified_diff)
-note.patch(unified_diff, if_match=doc.etag)
+note.patch(unified_diff, legacy=True)
+note.patch(unified_diff, if_match=doc.etag, legacy=True)
 ```
 
 ## Search
@@ -631,7 +632,7 @@ doc.save()                       # refused if the note moved since read()
 | Python | CLI exit | Means | Do |
 |---|:---:|---|---|
 | `NoteChanged` | `3` | It changed since you read it | Re-read, redo. Retrying fails again. |
-| `NoteBusy` | `4` | The realtime service is unavailable | Wait a few seconds, retry. |
+| `NoteBusy` | `4` | The realtime outcome is unavailable | Preserve the draft and baseline; read and reconcile before resubmitting. |
 | `PatchFailed` | `5` | Your diff no longer applies | Re-read, regenerate it. |
 | `NoMatch` | `6` | Nothing matched | Widen the query. |
 | — | `7` | Refused to overwrite a local file | Pass `--overwrite`. |
@@ -642,7 +643,7 @@ colleague is something you typed rather than something that happened.
 Verify a write landed by reading it back against the revision it produced:
 
 ```python
-rev = note.patch(diff, if_match=doc.etag)
+rev = note.patch(diff, if_match=doc.etag, legacy=True)
 check = note.read(if_match=rev.etag)      # refused if anything changed since
 ```
 
@@ -659,13 +660,13 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
 
     The endpoints underneath, if you need them directly.
 
-## Notes v2 preview: Bash patches
+## Notes v2: merge and exact patches
 
-This interface is implemented in draft milestone PRs tracked by
+Use CLI 0.26.2 or Python SDK 0.20.0 with a v2-capable API backed by RTC server
+0.5.1. The API retains native baselines and the authority supplies unlocked
+baseline observations. Upgrade older clients before using these examples.
+Deployment and manual acceptance are tracked separately in
 [the Notes master plan](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
-It requires a compatible RTC server with unlocked baseline observations and the matching CLI release;
-these docs do not claim it is deployed. Existing installed clients keep their
-current interface until upgraded.
 
 A v2 source read returns `note`, `hash`, `revision` and `content`. `hash` is
 `sha256:` plus the exact UTF-8 source digest. `revision` is an opaque RTC write
@@ -824,6 +825,101 @@ print(json.dumps(receipt.to_dict(), indent=2))
 assert note.read_snapshot().content == "Human: Hello team."
 ```
 
+### Complete an exact edit and return to merge mode
+
+Continue with the fixture above, now containing `Human: Hello team.`. Read a
+fresh baseline before making this new edit. Exact mode applies only to its
+individual request; the following empty patch uses the default merge mode.
+
+**CLI**
+
+```bash
+dreamlake notes read "$NOTE_ID" --json > exact-baseline.json
+EXACT_BASE=$(jq -er '.revision' exact-baseline.json)
+cat > exact.patch <<'PATCH'
+@@ chars 18:18 @@
+~ {+!+}
+PATCH
+dreamlake notes patch "$NOTE_ID" --base-revision "$EXACT_BASE" --exact \
+  --file exact.patch --json > exact-success.json
+jq '{note, mode, baseRevision, hash, revision}' exact-success.json
+
+dreamlake notes read "$NOTE_ID" --json > after-exact.json
+NEXT_BASE=$(jq -er '.revision' after-exact.json)
+printf '' | dreamlake notes patch "$NOTE_ID" --base-revision "$NEXT_BASE" \
+  --json > merge-after-exact.json
+jq -er '.mode == "merge"' merge-after-exact.json
+```
+
+**Python**
+
+```python
+exact_baseline = note.read_snapshot()
+exact_patch = "@@ chars 18:18 @@\n~ {+!+}\n"
+Path("exact-baseline.json").write_text(
+    json.dumps(exact_baseline.to_dict(), indent=2), encoding="utf-8")
+Path("exact.patch").write_text(exact_patch, encoding="utf-8")
+exact_receipt = note.patch(exact_patch, base_revision=exact_baseline.revision,
+                           exact=True)
+print(exact_receipt.mode)  # exact
+print(json.dumps(exact_receipt.to_dict(), indent=2))
+after_exact = note.read_snapshot()
+assert after_exact.content == "Human: Hello team.!"
+merge_receipt = note.patch("", base_revision=after_exact.revision)
+assert merge_receipt.mode == "merge"
+assert merge_receipt.hash == after_exact.hash
+assert merge_receipt.revision == after_exact.revision
+```
+
+If another writer changes the exact baseline first, stop on the conflict and
+retain these files. The examples do not retry the HTTP request or switch modes
+after a failure. The successful follow-up merge above is a separate no-op
+request with its own saved baseline.
+
+Successful exact output captured from the matching isolated API fixture with
+the candidate CLI (exit 0, empty stderr; these are fixture tokens):
+
+```text
+note: 507f1f77bcf86cd799439099
+hash: sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5
+revision: rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484
+mode: exact
+baseRevision: rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e
+```
+
+With `--json`, the same exact receipt is:
+
+```json
+{
+  "note": "507f1f77bcf86cd799439099",
+  "hash": "sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5",
+  "revision": "rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484",
+  "baseRevision": "rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e",
+  "mode": "exact"
+}
+```
+
+Python's captured `PatchReceipt` attributes match that JSON:
+
+```text
+mode: exact
+base_revision: rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e
+hash: sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5
+revision: rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484
+```
+
+The following empty patch defaults back to merge and returns this actual CLI
+text receipt (exit 0, empty stderr). Python reports `.mode == "merge"`, and
+`.to_dict()` returns the same fields with `baseRevision` in JSON:
+
+```text
+note: 507f1f77bcf86cd799439099
+hash: sha256:2b8c0f5475f23494272f3800abb11a7680b3360bc2e927763c10aec9cf4398f5
+revision: rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484
+mode: merge
+baseRevision: rtc:63834c3821f7b76779815f3a670449268711811e69f86f6b208fb52236713484
+```
+
 The local API/RTC/Mongo fixture verifies `Hello world.` → `Human: Hello team.`:
 the unrelated prefix survives, original native identities address the replaced
 word, and the exact rejection appends zero operation batches. The matching
@@ -842,9 +938,9 @@ empty stderr; these IDs are fixture values, not production):
 ```text
 note: 507f1f77bcf86cd799439099
 hash: sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf
-revision: rtc:94c1a7696f6bcd27fa880e4b38b3f73cdd3971f28b44edf9018fadf817df0f3f
+revision: rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e
 mode: merge
-baseRevision: rtc:9a67f239fc8b862aa557dd10dd6512a7669861287ac8fe262d9c80afebcd18e7
+baseRevision: rtc:870fa6d8ca75e1ae8c89b0e4abf08fd8a2c222c99ac698227f25c94b8f5b41e7
 ```
 
 With `--json`, the corresponding stdout is:
@@ -853,8 +949,8 @@ With `--json`, the corresponding stdout is:
 {
   "note": "507f1f77bcf86cd799439099",
   "hash": "sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf",
-  "revision": "rtc:94c1a7696f6bcd27fa880e4b38b3f73cdd3971f28b44edf9018fadf817df0f3f",
-  "baseRevision": "rtc:9a67f239fc8b862aa557dd10dd6512a7669861287ac8fe262d9c80afebcd18e7",
+  "revision": "rtc:71371be6e3227abca241161ebb7d8d65e2d851b8872b5a5d51ce7ec80369d95e",
+  "baseRevision": "rtc:870fa6d8ca75e1ae8c89b0e4abf08fd8a2c222c99ac698227f25c94b8f5b41e7",
   "mode": "merge"
 }
 ```
