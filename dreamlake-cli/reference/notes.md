@@ -4,11 +4,12 @@ A note is a collaborative Markdown document. People edit it in the browser in
 real time; `dreamlake notes` is how a script or an agent reads and edits the
 same document from a shell.
 
-The new default read/patch contract carries exact source, hashes and opaque
-write revisions together. This source change requires the Notes v2 server
-contract; it is not a released client or deployed compatibility claim. Use
-`--legacy` explicitly against older servers. The compatibility examples below
-retain existing body-only reads and ETag behavior.
+CLI 0.26.0 and later default to a read/patch contract carrying exact source,
+hashes and opaque write revisions together. It requires the matching Notes v2
+server contract. Use `--legacy` explicitly against older servers; upgrading
+the CLI alone does not upgrade the server. The compatibility examples below
+retain existing body-only reads and ETag behavior. Check the [release notes](release-notes.md)
+for publication and verification status.
 
 ## Revision-safe Bash workflow (v2)
 
@@ -62,36 +63,8 @@ separately fetched diff does not advance a draft baseline. Exit 3 means stale,
 Hash references use `sha256:<hex>`. Time references are passed unchanged to the
 server, including timestamps, dates and `"2 hours ago"`; server retention and
 timezone rules apply. Unknown bases fail explicitly. Partial/numbered reads
-remain available with `--legacy`; they are not v2 source snapshots.
-
-### Complete mapped HTML through Bash
-
-```bash
-NOTE_ID=design-doc
-dreamlake notes read "$NOTE_ID" --view html > design-doc.preview.html
-# committed.json is the successful patch response from the workflow above.
-REVISION=$(jq -er .revision committed.json)
-dreamlake notes read "$NOTE_ID" --view html --if-match "$REVISION" > verified.preview.html
-```
-
-`--view html` returns the complete server-rendered HTML, byte-for-byte, with no
-CLI metadata prefix, JSON wrapper or added newline. The root `data-note`,
-`data-hash`, `data-revision`, `data-source-type`, `data-offset-unit` and
-`data-source` attributes carry the snapshot contract; element `data-start`,
-`data-end` and `data-map` attributes carry source mappings. Decode the root's
-source attribute exactly once to recover canonical source. Offsets count Unicode
-code points, not DOM UTF-16 units. Atomic mappings require whole-range edits;
-generated content has no editable source range. Never upload preview wrappers
-or metadata as canonical Note content.
-
-The CLI checks the root Note identity, canonical-source SHA-256 and write token
-before writing any stdout. `--if-match` is sent to the server and verified again
-against the response's embedded revision. A mismatch exits 3 without output.
-HTML reads are full snapshots: `--since`, `--format`, `--json`, `--legacy`,
-section/line slicing and numbered output cannot be combined with this view.
-`--view source` explicitly selects the default canonical-source interface.
-This source requires the matching Notes HTML server release; no live support or
-installed-client propagation is implied by these draft docs.
+remain available with `--legacy`; they are not v2 source snapshots. HTML source
+mapping is a separate milestone and is not enabled by this CLI change.
 
 ## Browser sync and recovery
 
@@ -393,8 +366,10 @@ something you typed, not something that happened.
 
 ## Changes since your last read or edit
 
-**Unreleased:** requires the server revision-diff endpoint and a CLI build with
-`notes diff`. Check `dreamlake notes diff --legacy --help` for command availability.
+Legacy revision diffs require the server revision-diff endpoint and CLI 0.25.0
+or later on both native and npm channels. In CLI 0.26.0 and later, select this
+ETag interface with `--legacy`. Check `dreamlake notes diff --legacy --help`
+for command availability.
 
 A read's `etag` is the quoted SHA-256 hash of the complete note. Keep that ref
 and pass it as `--since` to compare with the current body, including edits made
@@ -448,7 +423,7 @@ access to this note". A note you cannot read at all reports as not found.
 | `notes list [--shared]` | Notes in the namespace, or shared with you |
 | `notes search <query>` | Match note titles and bodies |
 | `notes sections <note>` | The outline, with anchors |
-| `notes read <note> [--view source\|html] [--since <ref>] [--format <format>]` | Exact source or selected patch with hash/revision metadata |
+| `notes read <note> [--since <ref>] [--format <format>]` | Exact source or selected patch with hash/revision metadata |
 | `notes read <note> --legacy [--section <anchor>]` | Previous body-only or section output |
 | `notes write <note> [--section <anchor>]` | Replace body or section |
 | `notes insert <note> [--before\|--after]` | Add a section |
@@ -498,7 +473,6 @@ dreamlake notes read release-plan --json > baseline.json
 BASE_HASH=$(jq -er .hash baseline.json)
 BASE=$(jq -er .revision baseline.json)
 dreamlake notes read release-plan --since "$BASE_HASH" --format inline-dff
-dreamlake notes read release-plan --view html --if-match "$BASE" > release-plan.preview.html
 # Partial reads use the explicit compatibility interface.
 dreamlake notes read release-plan --legacy --start-line 1 --end-line 20 --numbered
 ```
