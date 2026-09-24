@@ -31,7 +31,7 @@ file that matches the question; each is a self-contained markdown page.
 
 - `reference/projects.md` — Projects & data: Organize data with projects, bindrs, and datasets. Create, list, update, and delete — including hard-deleting episodes and files.
 - `reference/artifacts.md` — Artifacts: Push renderable HTML, React, Markdown, SVG, code, and Mermaid content as versioned artifacts, and control who can read them.
-- `reference/envs.md` — Envs: Push simulation environments (a MuJoCo MJCF scene or a URDF robot plus assets) as versioned envs, pull them back byte-identical, and view them interactively on the web.
+- `reference/envs.md` — Envs: Push simulation environments (a MuJoCo MJCF scene or a URDF robot plus assets) as versioned envs, pull them back byte-identical, compose layered env stacks, and view them interactively on the web.
 - `reference/workflows.md` — Workflows: Push and manage WorkflowSpec v1 definitions, and send run traces from an executing agent.
 - `reference/pipelines.md` — Pipelines: Manage Python pipelines and their versions, inspect node graphs, and write back node execution state.
 - `reference/collections.md` — Declaration collections: Declare runnables, run configs, providers, sources, and repos; register immutable versions keyed by sha256 of the source; and import a pinned version back onto disk.
