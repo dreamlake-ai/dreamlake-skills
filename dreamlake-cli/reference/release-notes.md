@@ -1,5 +1,23 @@
 # Release notes
 
+## Unreleased — 0.26.2: per-request EXACT patches
+
+Notes command handlers now allow stdout to drain before process exit, preserving
+large piped JSON/source responses. Regression tests cover delayed pipe readers
+with more than 128 KiB of Unicode content.
+
+Notes v2 patches default to ordinary native CRDT synchronization against the
+original snapshot identified by `--base-revision`. `--exact` explicitly selects EXACT mode for that request; `--if-match` is a compatibility alias. The CLI never fetches a newer baseline
+to hide a conflict, and rejected requests leave local drafts and baselines intact.
+The matching API must retain original RTC identities; publication and deployment
+of this correction remain pending.
+
+Versions 0.26.0 and 0.26.1 are superseded candidates. The 0.26.0 workflow was
+cancelled before publishing the npm wrapper or moving native channels; immutable
+versioned R2 objects and platform package uploads remain. Active install channels
+stayed at 0.25.0. Version 0.26.1 was never published, and neither candidate docs
+site was promoted.
+
 ## 0.26.1 — Notes mapped HTML reads (release candidate)
 
 `notes read --view html` emits the complete server snapshot without added

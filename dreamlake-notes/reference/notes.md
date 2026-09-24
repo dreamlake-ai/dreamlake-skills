@@ -99,7 +99,8 @@ A retained draft normally survives refresh in the same browser tab. Browser
 storage can be unavailable; follow the warning to copy or download it before
 closing or refreshing. Do not clear browser storage as a recovery shortcut.
 
-CLI and Python writes continue to use their conditional revision checks below.
+Legacy CLI/Python edit helpers retain their conditional revision checks below.
+The v2 patch interface uses merge mode by default and opt-in exact mode.
 They cannot read or recover an unsent draft held in another browser tab. A fresh
 CLI read describes server content, not proof that every open editor matches it.
 
@@ -607,9 +608,9 @@ Uploaded HTML renders in a separate origin, never the dashboard's. Markdown,
 SVG, code and images render too; anything else offers a download. A file with
 no rendered form is refused rather than linked.
 
-## Don't overwrite anyone
+## Legacy revision-checked edit helpers
 
-Every write carries the revision it was based on. A note that changed in
+The legacy whole-body/local-document helpers below carry the revision they were based on. A note that changed in
 between is **refused** rather than overwritten:
 
 **CLI**
@@ -662,7 +663,7 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
 
 This interface is implemented in draft milestone PRs tracked by
 [the Notes master plan](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
-It requires a compatible conditional RTC server and the matching CLI release;
+It requires a compatible RTC server with unlocked baseline observations and the matching CLI release;
 these docs do not claim it is deployed. Existing installed clients keep their
 current interface until upgraded.
 
@@ -684,7 +685,7 @@ dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format inline-dff
 dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format diff
 
 # Example requires saved source exactly Hello world. without a final newline.
-dreamlake notes patch "$NOTE_ID" --format inline-dff --if-match "$BASE" --json > committed.json <<'PATCH'
+dreamlake notes patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
@@ -702,9 +703,26 @@ contract. `notes diff` is the incremental-read alias in the matching CLI.
 Inline ranges count Unicode code points, zero-based and end-exclusive. Literal
 marker punctuation uses backslash escaping, with `\n`, `\r`, `\t` and `\\`
 for controls/backslashes. Unified line patches preserve exact line endings and
-`\ No newline at end of file` markers. Invalid or stale batches apply nothing.
-A successful patch produces one conditional native RTC commit. RTC outages
-produce errors, never an archive-only replacement.
+`\ No newline at end of file` markers. Invalid patches apply nothing. The default patch sends `{format, patch, baseRevision, mode: "merge"}`
+without `If-Match`: the server retrieves the original identity-bearing snapshot
+and journal, validates the original source, and compiles the sparse edits into
+ordinary native RTC operations. Concurrent changes merge by native character
+identity; the server never re-diffs an old target against freshly read text.
+The source hash alone cannot identify this baseline. Missing or expired native
+baselines fail explicitly and require a new read and a reviewed patch. A room
+reset invalidates prior generations even in merge mode.
+
+The default mode is `merge`. Add `--exact --base-revision "$BASE"` to require
+the original authoritative revision at commit (`mode: "exact"` in the API). For compatibility, `--if-match`
+alone supplies both the original baseline and exact mode; if both flags are
+provided they must agree. An explicit API `mode: "merge"` conflicts with
+`If-Match` and is rejected. Python uses `base_revision=BASE` with optional
+`exact=True`. Patch receipts include `mode` (`merge` or `exact`), the original
+`baseRevision`, and the observed resulting `hash` and `revision`. That observation
+may already include later concurrent edits. Only exact mode uses the conditional commit
+protocol and may return 412 when another writer changed the room. Merge-mode
+patches use the existing `crdt`/`ack` protocol. RTC outages produce errors,
+never an archive-only replacement.
 
 `--since` accepts a retained hash, ISO timestamp/date, or positive integer
 `second(s)`, `minute(s)`, `hour(s)` or `day(s) ago`. Unzoned timestamps and dates
@@ -717,9 +735,162 @@ source, and verify the resulting hash. A no-op source diff may carry a newer RTC
 token; it never advances an existing draft automatically.
 
 Stop on failure and preserve the patch, working copy and original baseline.
-A missing acknowledgement can mean a commit occurred: inspect server content
-before retrying. Exact readback can itself return a conflict if another writer
+A missing acknowledgement can mean a commit occurred. The backend reconnects
+at most once within the same request and resends the identical native message
+and operation IDs. The CLI does not automatically retry the HTTP patch. A new
+HTTP invocation is an independent operation, with no cross-request idempotency
+receipt: read and reconcile the result before resubmitting. Exact readback can itself return a conflict if another writer
 has already changed the acknowledged revision.
+
+### Reproduce a concurrent merge and an exact conflict
+
+Use a new private fixture with the compatible releases, an authenticated CLI,
+`jq`, and Python `dreamlake` configured for the same account/namespace. These
+examples deliberately issue an exact request first, inspect its rejection, and
+then make a separate, explicit merge request. There is no automatic downgrade.
+
+**CLI**
+
+```bash
+set -euo pipefail
+dreamlake notes create "Merge/exact example" --text 'Hello world.' --json > fixture.json
+NOTE_ID=$(jq -er '.id' fixture.json)
+dreamlake notes read "$NOTE_ID" --json > baseline.json
+BASE=$(jq -er '.revision' baseline.json)
+jq -jr '.content' baseline.json > original.md
+cat > agent.patch <<'PATCH'
+@@ chars 0:12 @@
+~ Hello [-world-]{+team+}.
+PATCH
+
+# Simulate a second participant inserting a prefix after the agent's read.
+dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" --json > human.json <<'PATCH'
+@@ chars 0:0 @@
+~ {+Human: +}
+PATCH
+
+# Expected conflict: stdout stays empty; stderr explains the failure; exit is 3.
+set +e
+dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" --exact \
+  --file agent.patch --json > exact.stdout 2> exact.stderr
+STATUS=$?
+set -e
+test "$STATUS" -eq 3
+test ! -s exact.stdout
+cat exact.stderr
+
+# A separate explicit choice to merge the ORIGINAL patch and identities.
+dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" \
+  --file agent.patch --json > merged.json
+jq '{note, mode, baseRevision, hash, revision}' merged.json
+dreamlake notes read "$NOTE_ID" --json > observed.json
+jq -er '.content == "Human: Hello team."' observed.json
+```
+
+**Python**
+
+```python
+import json
+import os
+from pathlib import Path
+import dreamlake as dl
+from dreamlake import NoteChanged
+
+note = dl.create_note(os.environ["NAMESPACE"], "Merge/exact example",
+                      text="Hello world.")
+baseline = note.read_snapshot()
+patch = "@@ chars 0:12 @@\n~ Hello [-world-]{+team+}.\n"
+Path("baseline.json").write_text(json.dumps(baseline.to_dict(), indent=2), encoding="utf-8")
+Path("original.md").write_text(baseline.content, encoding="utf-8")
+Path("agent.patch").write_text(patch, encoding="utf-8")
+
+# A separate native edit arrives after this baseline.
+note.patch("@@ chars 0:0 @@\n~ {+Human: +}\n",
+           base_revision=baseline.revision)
+try:
+    note.patch(patch, base_revision=baseline.revision, exact=True)
+except NoteChanged:
+    print("Exact request rejected; original files retained.")
+else:
+    raise AssertionError("Expected a stale exact request")
+
+# Explicitly choose merge; never do this automatically inside the except block.
+receipt = note.patch(patch, base_revision=baseline.revision)
+print(receipt.mode)           # merge
+print(receipt.base_revision)  # the ORIGINAL opaque token
+print(receipt.hash)           # observed resulting source hash
+print(receipt.revision)       # observed resulting RTC revision
+print(json.dumps(receipt.to_dict(), indent=2))
+assert note.read_snapshot().content == "Human: Hello team."
+```
+
+The local API/RTC/Mongo fixture verifies `Hello world.` → `Human: Hello team.`:
+the unrelated prefix survives, original native identities address the replaced
+word, and the exact rejection appends zero operation batches. The matching
+source hashes observed in that fixture are:
+
+```json
+{
+  "originalHash": "sha256:aa3ec16e6acc809d8b2818662276256abfd2f1b441cb51574933f3d4bd115d11",
+  "mergedHash": "sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf"
+}
+```
+
+Candidate CLI output captured by replaying that isolated API fixture (exit 0,
+empty stderr; these IDs are fixture values, not production):
+
+```text
+note: 507f1f77bcf86cd799439099
+hash: sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf
+revision: rtc:94c1a7696f6bcd27fa880e4b38b3f73cdd3971f28b44edf9018fadf817df0f3f
+mode: merge
+baseRevision: rtc:9a67f239fc8b862aa557dd10dd6512a7669861287ac8fe262d9c80afebcd18e7
+```
+
+With `--json`, the corresponding stdout is:
+
+```json
+{
+  "note": "507f1f77bcf86cd799439099",
+  "hash": "sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf",
+  "revision": "rtc:94c1a7696f6bcd27fa880e4b38b3f73cdd3971f28b44edf9018fadf817df0f3f",
+  "baseRevision": "rtc:9a67f239fc8b862aa557dd10dd6512a7669861287ac8fe262d9c80afebcd18e7",
+  "mode": "merge"
+}
+```
+
+The exact conflict replay exits 3 with empty stdout and this stderr:
+
+```text
+✗ the original revision or RTC identities are no longer valid for this request; keep the original baseline and draft, inspect the note before resubmitting ((412) stale)
+```
+
+Opaque note/revision values vary. A successful JSON receipt contains exactly
+`note`, `mode`, `baseRevision`, `hash`, and `revision`; normal CLI text prints
+those metadata fields. Python exposes the corresponding attributes, with
+`base_revision` in Python and `baseRevision` in `to_dict()`.
+These describe a coherent authoritative observation after persistence was
+acknowledged. They do not mean every peer has synchronized or that the document
+will remain unchanged. Another edit can arrive before the verification read;
+`read --if-match "$REVISION"` / `read_snapshot(if_match=receipt.revision)` makes
+that verification exact rather than silently accepting a newer state.
+
+The fixture observed these HTTP errors (no success receipt on failure):
+
+```json
+{"error":"stale","message":"The RTC baseline changed"}
+{"error":"revision_not_found","message":"Original RTC baseline is not retained"}
+{"error":"patch_failed","message":"Expected inline header and one record"}
+```
+
+They correspond to exact conflict **412**, missing original identity baseline
+**404**, and malformed patch **422**. CLI exact conflicts return exit **3**,
+empty stdout and explanatory stderr; Python raises `NoteChanged`. The CLI also
+reports malformed patches on stderr (exit **5**), without replacing local files.
+The baseline, draft and patch remain the caller's files on all failures. Neither
+client retries a failed HTTP patch or silently changes exact mode to merge.
+A transport/acknowledgement failure can be ambiguous even when a write persisted:
+read, reconcile, and deliberately decide what remains to be submitted.
 
 ### HTML snapshot preview
 

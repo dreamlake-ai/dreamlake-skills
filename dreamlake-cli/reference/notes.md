@@ -4,14 +4,14 @@ A note is a collaborative Markdown document. People edit it in the browser in
 real time; `dreamlake notes` is how a script or an agent reads and edits the
 same document from a shell.
 
-CLI 0.26.0 and later default to a read/patch contract carrying exact source,
+CLI 0.26.2 and later default to a read/patch contract carrying exact source,
 hashes and opaque write revisions together. It requires the matching Notes v2
 server contract. Use `--legacy` explicitly against older servers; upgrading
 the CLI alone does not upgrade the server. The compatibility examples below
 retain existing body-only reads and ETag behavior. Check the [release notes](release-notes.md)
 for publication and verification status.
 
-## Revision-safe Bash workflow (v2)
+## Original-snapshot Bash workflow (v2)
 
 Both reads and uploads select `--format inline-dff` (default) or `--format diff`.
 `notes diff --since` is an alias for incremental `notes read --since`. Reading
@@ -22,7 +22,9 @@ DMP or guess an alignment.
 Text stdout contains `note`, `hash`, `revision`, a blank line and exact source.
 An incremental response adds `format`, `base`, `unit` and the patch. `--json`
 uses `content` for full reads or `base`/`patch` for incremental reads. Diagnostics
-go to stderr. The CLI verifies the SHA-256 of full source before emitting it.
+go to stderr. The CLI verifies the SHA-256 of full source before emitting it. Patch receipts
+carry `note`, `mode` (`merge` or `exact`), the original `baseRevision`, and the
+acknowledged `hash`/`revision` on stdout and in JSON.
 A malformed or legacy response is an error, never a silent downgrade.
 
 ```bash file="terminal"
@@ -38,7 +40,7 @@ dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format inline-dff
 dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format diff
 
 # This example requires exact base source: Hello world. (no trailing LF).
-dreamlake notes patch "$NOTE_ID" --format inline-dff --if-match "$BASE" --json > committed.json <<'PATCH'
+dreamlake notes patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
@@ -53,17 +55,122 @@ conflicts with redirected stdin and with each other. Interactive stdin is
 refused. Empty input is a no-op patch, not a whole-body deletion. `--dry-run`
 prints the proposed request without uploading it.
 
-Uploads require the original saved `--if-match` revision; `--force` is refused.
-No preflight read silently replaces that token. After success, read with the
+Uploads require the original saved `--base-revision`. The default patch validates
+against that original source, maps edits to its original RTC identities, and
+uses ordinary native CRDT synchronization. It sends no `If-Match` header and
+does not require the current document to still equal the baseline. Concurrent
+edits outside those original identities are preserved by the existing CRDT
+merge behavior; there is no fuzzy rebase onto current text.
+
+MERGE is the default. To require the current revision to equal the saved
+baseline, add `--exact` to that patch command. EXACT is scoped to this request.
+Explicit `--if-match "$BASE"` remains a compatibility alias for EXACT and can
+supply the original baseline when `--base-revision` is absent. When both flags are present, their tokens must match. There is
+no permanent EXACT document mode. `--force` is unnecessary and refused for
+v2 patches. No preflight read silently replaces the original token. After success, read with the
 acknowledged revision before advancing a local sidecar or replacing an immutable
 base snapshot. Keep local drafts and their original baselines on errors. A
 separately fetched diff does not advance a draft baseline. Exit 3 means stale,
-4 means RTC unavailable, and 5 means a rejected patch.
+4 means RTC unavailable, and 5 means a rejected patch. The CLI does not retry
+HTTP patch requests. If an acknowledgment is lost or the outcome is ambiguous,
+keep the original draft and baseline, read the resulting state, and reconcile
+before resubmitting. Separate HTTP requests do not share an idempotency receipt.
 
 Hash references use `sha256:<hex>`. Time references are passed unchanged to the
 server, including timestamps, dates and `"2 hours ago"`; server retention and
 timezone rules apply. Unknown bases fail explicitly. Partial/numbered reads
 remain available with `--legacy`; they are not v2 source snapshots.
+
+### Concurrent edit walkthrough: MERGE versus EXACT
+
+Use a test Note whose exact source is `Hello world.` with no final newline.
+The patch below changes only the original `world` identities. Keep both files;
+none of these commands overwrites the baseline or draft after an error.
+
+```bash
+NOTE_ID=your-test-note
+dreamlake notes read "$NOTE_ID" --json > original.json
+BASE=$(jq -er .revision original.json)
+jq -e '.content == "Hello world."' original.json
+cat > original.patch <<'PATCH'
+@@ chars 0:12 @@
+~ Hello [-world-]{+team+}.
+PATCH
+# In the browser, prepend "Human: " and wait for that edit to sync.
+# Do not replace original.json or BASE with a newer read.
+set +e
+dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" --exact \
+  --file original.patch --json > exact.stdout 2> exact.stderr
+EXACT_EXIT=$?
+set -e
+test "$EXACT_EXIT" -eq 3
+test ! -s exact.stdout
+cat exact.stderr
+# EXACT rejected the intervening revision without submitting patch operations.
+dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" \
+  --file original.patch --json > merge-receipt.json
+jq '{note, mode, baseRevision, hash, revision}' merge-receipt.json
+dreamlake notes read "$NOTE_ID" --json > merged.json
+jq -e '.content == "Human: Hello team."' merged.json
+```
+
+The successful receipt has `mode: "merge"`, `baseRevision` equal to the saved
+`BASE`, and the content `hash` and RTC `revision` observed coherently after the
+patch acknowledgment. These do not claim that every peer is synchronized or
+that nobody can edit afterward. Text mode prints those same five fields as
+labelled lines; `--json` emits one JSON object. Success diagnostics do not mix
+with stdout. HTTP 412 produces exit 3, empty stdout, and a stderr explanation
+that retains the original baseline and draft. There is no silent downgrade
+from EXACT to MERGE and no automatic resubmission.
+
+The server applies MERGE operations to the identities captured by the original
+snapshot. The browser's prefix has different identities and is preserved.
+Unavailable snapshots and malformed patches are errors; they never select the
+latest source automatically. The API/RTC acceptance fixtures verify identity
+preservation and zero patch writes on EXACT rejection separately from these
+user-facing text checks.
+
+### Recorded fixture output
+
+These exact outputs were replayed through the candidate CLI from an isolated
+API + RTC + Mongo fixture (authentication, catalog, and S3 projections mocked).
+They are test evidence, not a production or published-package transcript.
+The fixture changed `Hello world.` to `Human: Hello team.` and recorded zero
+patch writes for the rejected EXACT request.
+
+Text stdout (exit 0; stderr empty):
+
+```text
+note: 507f1f77bcf86cd799439099
+hash: sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf
+revision: rtc:94c1a7696f6bcd27fa880e4b38b3f73cdd3971f28b44edf9018fadf817df0f3f
+mode: merge
+baseRevision: rtc:9a67f239fc8b862aa557dd10dd6512a7669861287ac8fe262d9c80afebcd18e7
+```
+
+`--json` stdout (exit 0; stderr empty):
+
+```json
+{
+  "note": "507f1f77bcf86cd799439099",
+  "hash": "sha256:163af32ec4bc25f27e3b9ae68fe85c75e5b4436a769cc82a4050692643ce92cf",
+  "revision": "rtc:94c1a7696f6bcd27fa880e4b38b3f73cdd3971f28b44edf9018fadf817df0f3f",
+  "baseRevision": "rtc:9a67f239fc8b862aa557dd10dd6512a7669861287ac8fe262d9c80afebcd18e7",
+  "mode": "merge"
+}
+```
+
+EXACT failure (exit 3; stdout empty; stderr):
+
+```text
+✗ the original revision or RTC identities are no longer valid for this request; keep the original baseline and draft, inspect the note before resubmitting ((412) stale)
+```
+
+The same fixture returned HTTP 404 with `error: "revision_not_found"` and
+`message: "Original RTC baseline is not retained"` for a missing baseline.
+A malformed inline patch returned HTTP 422 with `error: "patch_failed"` and
+`message: "Expected inline header and one record"`. These are errors, not
+instructions to fetch a replacement baseline or downgrade the requested mode.
 
 ### Complete mapped HTML through Bash
 
@@ -396,7 +503,7 @@ something you typed, not something that happened.
 ## Changes since your last read or edit
 
 Legacy revision diffs require the server revision-diff endpoint and CLI 0.25.0
-or later on both native and npm channels. In CLI 0.26.0 and later, select this
+or later on both native and npm channels. In CLI 0.26.2 and later, select this
 ETag interface with `--legacy`. Check `dreamlake notes diff --legacy --help`
 for command availability.
 
@@ -423,7 +530,7 @@ maintain a hidden per-machine baseline. Keep the quoted ETag intact. Identical
 text has the same hash, regardless of RTC operations. Unknown or unretained
 refs return an error; refs issued before retention was deployed may be missing.
 Fetching a diff does not edit the note. Apply a patch you prepared from the
-saved body using `notes patch --if-match "$REV"`; stale refs are refused.
+saved body using `notes patch --legacy --if-match "$REV"`; stale refs are refused.
 A successful patch's JSON `etag` is the next ref you can save.
 
 ## Patching
@@ -457,7 +564,7 @@ access to this note". A note you cannot read at all reports as not found.
 | `notes write <note> [--section <anchor>]` | Replace body or section |
 | `notes insert <note> [--before\|--after]` | Add a section |
 | `notes rm-section <note> <anchor>` | Remove a section and its subtree |
-| `notes patch <note> --if-match <revision> [--format <format>]` | Upload inline or line patch from stdin |
+| `notes patch <note> --base-revision <revision> [--exact] [--format <format>]` | Upload a patch against its original snapshot; EXACT is opt-in |
 | `notes append <note>` | Add to the end |
 | `notes find <query> --note` | Where the text is, in one note |
 | `notes grep <query>` | Where it is, across every note you can see |
@@ -471,14 +578,18 @@ access to this note". A note you cannot read at all reports as not found.
 | `notes files preview [--share]` | A link that renders the file |
 
 Every one of them takes `--namespace`, `--json`, and the usual connection flags.
-V2 `patch` requires `--if-match` and rejects `--force`; legacy mutation commands retain their previous flags.
+V2 `patch` requires an original `--base-revision`; `--exact` opts in to EXACT
+for that request. Explicit `--if-match` also selects EXACT and can supply the
+baseline when used alone. It rejects
+`--force`; legacy mutation commands retain their previous flags.
 
 ## Command-help recipes
 
 These examples are also shipped in each command's `--help`. Log in first.
 Replace `release-plan` with a note you can access. Shell recipes using `jq`
 require it locally. Each edit example captures the revision before the edit;
-a stale revision requires a fresh read and a reviewed edit, never a blind force.
+an unavailable original snapshot requires a fresh read and a reviewed edit.
+A concurrent edit alone does not require rebasing an merge patch.
 
 ```bash cli-help="notes list"
 dreamlake notes list --limit 10
@@ -529,12 +640,14 @@ dreamlake notes diff release-plan --since "$BASE_HASH" --format diff
 NOTE_ID=release-plan
 dreamlake notes read "$NOTE_ID" --json > baseline.json
 BASE=$(jq -er .revision baseline.json)
-dreamlake notes patch "$NOTE_ID" --format inline-dff --if-match "$BASE" --json > committed.json <<'PATCH'
+dreamlake notes patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
 REVISION=$(jq -er .revision committed.json)
 dreamlake notes read "$NOTE_ID" --if-match "$REVISION" --json
+# For a separate patch, select EXACT for this request only:
+# dreamlake notes patch "$NOTE_ID" --file draft.diff --base-revision "$BASE" --exact
 ```
 
 ```bash cli-help="notes sections"
