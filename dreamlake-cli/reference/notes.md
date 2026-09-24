@@ -273,7 +273,7 @@ against the response's embedded revision. A mismatch exits 3 without output.
 HTML reads are full snapshots: `--since`, `--format`, `--json`, `--legacy`,
 section/line slicing and numbered output cannot be combined with this view.
 `--view source` explicitly selects the default canonical-source interface.
-HTML reads require CLI 0.26.1 or later and the matching Notes HTML server
+HTML reads are available in CLI 0.26.2 and later and the matching Notes HTML server
 contract. Check the [release notes](release-notes.md) for publication and
 verification status; an installed CLI alone does not establish server support.
 

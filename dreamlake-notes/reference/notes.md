@@ -235,7 +235,7 @@ A note you may not read answers exactly as one that does not exist.
 ## Read
 
 The existing examples below use the explicit `--legacy` CLI contract (source
-`text` and content-hash `etag`). The v2 preview later in this guide uses
+`text` and content-hash `etag`). The v2 interface later in this guide uses
 `content`, `hash` and an opaque RTC `revision`. Do not mix their tokens.
 
 **CLI**
@@ -443,7 +443,7 @@ what they are typing. Nothing is locked.
 
 ### Changes since a read or edit
 
-**Unreleased:** requires the revision-diff server endpoint and matching Python SDK/CLI.
+**Legacy ETag interface:** available alongside v2 in CLI 0.26.2 and Python SDK 0.20.0. Select `--legacy` for these CLI recipes and `legacy=True` for remote Python patches.
 
 The CLI returns the same ref in `read --json` and accepts it via `--since`:
 
@@ -662,10 +662,10 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
 
 ## Notes v2: merge and exact patches
 
-Use CLI 0.26.2 or Python SDK 0.20.0 with a v2-capable API backed by RTC server
-0.5.1. The API retains native baselines and the authority supplies unlocked
-baseline observations. Upgrade older clients before using these examples.
-Deployment and manual acceptance are tracked separately in
+Released September 24, 2026 with CLI 0.26.2, Python SDK 0.20.0 and the Notes API
+backed by RTC server 0.5.1. The API retains native baselines and the authority
+supplies unlocked baseline observations. Upgrade older clients before using
+these examples. Deployment evidence and manual acceptance are tracked in
 [the Notes master plan](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
 
 A v2 source read returns `note`, `hash`, `revision` and `content`. `hash` is
@@ -979,10 +979,15 @@ The fixture observed these HTTP errors (no success receipt on failure):
 {"error":"patch_failed","message":"Expected inline header and one record"}
 ```
 
-They correspond to exact conflict **412**, missing original identity baseline
-**404**, and malformed patch **422**. CLI exact conflicts return exit **3**,
-empty stdout and explanatory stderr; Python raises `NoteChanged`. The CLI also
-reports malformed patches on stderr (exit **5**), without replacing local files.
+They correspond to exact conflict **412** (CLI exit **3**, Python `NoteChanged`),
+missing original identity baseline **404** (CLI exit **1**, Python `NoteNotFound`),
+and malformed patch **422** (CLI exit **5**, Python `PatchFailed`). CLI failures
+leave stdout empty and explain the failure on stderr, without replacing local files.
+A destructive room reset or history rewrite can expire native identities even
+when the retained baseline envelope still exists; merge then returns **412**
+(`stale`, CLI exit **3**, Python `NoteChanged`) without applying the patch.
+Ordinary concurrent editing alone does not cause that merge rejection. A missing
+retained envelope instead returns **404**; malformed patches return **422**.
 The baseline, draft and patch remain the caller's files on all failures. Neither
 client retries a failed HTTP patch or silently changes exact mode to merge.
 A transport/acknowledgement failure can be ambiguous even when a write persisted:
@@ -1005,9 +1010,9 @@ HTML, other source as Markdown. Rich or restricted structures may map atomically
 no editable range is guessed from generated text. Scripts, active attributes and
 network-loaded media are excluded from this static preview.
 
-### Rich tokens in the draft HTML read representation
+### Rich tokens in HTML reads
 
-The unreleased v2 HTML renderer recognizes strict Markdown source tokens for
+The v2 HTML renderer recognizes strict Markdown source tokens for
 `:placeholder{text="owner"}`, `:asset-reference{id="asset-id" caption="plot"}`,
 `:note{id="note-id"}`, `:bindr{id="bindr-id"}` and
 `:chatgpt-content-reference{index="0"}`. Attribute values use double quotes;
@@ -1031,12 +1036,11 @@ source in the hover label. Neither form implies that the reference is valid or
 accessible. Placeholder CSS is static and hash-authorized by the preview's CSP;
 source-provided styles and active HTML remain inert.
 
-This source capability is tracked in [master #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706)
-and requires the corresponding server/client releases and deployment before
-hosted use. Browser rich components are reviewed separately in
+This capability is included in the September 24 release. Browser rich
+components were delivered separately in
 [UI PR #415](https://github.com/dreamlake-ai/dreamlake-ai/pull/415).
 
-### Heading numbering in draft HTML reads
+### Heading numbering in HTML reads
 
 Markdown Notes can place the following options in an initial YAML front-matter
 block. The same policy is used by the editor/outline and the server HTML preview:
@@ -1072,5 +1076,5 @@ Numbers are display-only spans marked `data-map="generated"` with no editable
 source range. Heading source/anchor behavior stays unchanged. Body and rich-token
 source ranges still count from the start of the full document, including front
 matter and CRLF. These options apply to Markdown source; canonical HTML is not
-interpreted as Markdown front matter. This remains unreleased work tracked in
-[master #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+interpreted as Markdown front matter. Server HTML reads and the browser
+editor/outline support this policy in the September 24 release.
