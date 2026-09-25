@@ -32,6 +32,51 @@ The detail header returns anonymous readers to `/<namespace>/profile?tab=notes`
 and signed-in readers to `/<namespace>/notes`. Details opened inside a project
 retain their return-to-project action. There is no extra sign-in navigation bar.
 
+### Project and bindr associations
+
+Adding a project or bindr from a note changes membership while keeping the
+current note, URL, search and panes open. Choose a destination project inside
+the association picker. Bindrs belong to that project; identical bindr names in
+different projects are separate destinations. A bindr association uses the
+existing mounted note node, not a new copy or arbitrary filesystem placement.
+
+Pending operations disable duplicate submissions. A failed bindr addition may
+leave a successfully added project association; retry the bindr addition after
+reviewing the inline status. Removing an association uses the same context
+preservation behavior and retains the last-project guard. Use the separate
+**Open project** or **Open bindr** links when you want to navigate.
+
+### Matching passages
+
+Searching the Notes catalog shows up to two distinct matching passages beneath
+each result title, with matching words highlighted. Hover or focus a passage to
+open a line-based popover, or use **Preview matches** from the keyboard. The
+popover shows multiple matching paragraphs with their line breaks and all query
+highlights. Repeated excerpts appear once with an occurrence count; expand them
+to choose the exact section and occurrence. Selecting a
+passage opens the note in the existing pane and selects the matching occurrence
+when its current source still agrees with the result. Identical wording at
+different source positions remains distinct. A changed source reports **Match
+changed** and asks you to choose a current occurrence instead of using stale
+offsets. Title-only matches open the note normally.
+
+The current catalog query and list scroll survive opening a passage. Source-only
+matches that cannot be mapped safely to rendered Markdown remain visible in the
+explicit source excerpt; the interface does not guess a rendered position.
+
+### Resource subviews
+
+Project file and folder details use native draggable sibling view tabs. Files
+offer **Preview** and **Details**; folders offer their available **Files**,
+**README**, **Visualize** and **Episodes** views. Each tab identifies its resource
+and subview. Selecting another resource opens or reuses its views in the detail
+region. Drag a tab to an edge to compare views side by side, or into a panel's
+center to group it. Closing a subview leaves its siblings open; **Views** reopens
+closed views. Tab switches retain mounted view state. Existing source-browser
+URL-owned view controls keep their navigation behavior. ML-Dash run inspectors
+use the same native tabs for **Params** and **Log**, while detail pages keep
+their existing separate log panel.
+
 ## Install
 
 **CLI**
