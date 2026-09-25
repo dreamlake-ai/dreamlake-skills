@@ -133,11 +133,16 @@ To stop sharing, clear the token (the dashboard's "stop sharing", or push withou
 Prefer the Notes rich-component form:
 
 ```markdown
-:artifact{namespace="geyang" id="pitch-deck"}
+:artifact[geyang/pitch-deck]
 ```
 
-Use the owner namespace and stable artifact ID returned by the CLI. The shorthand
-`#artifact:geyang/pitch-deck` is also accepted by the local development UI/API.
+Use the owner namespace and stable artifact ID returned by the CLI. Brackets hold
+primary content; optional named attributes belong in braces. This follows the
+[remark-directive extension](https://github.com/remarkjs/remark-directive), not core
+CommonMark; resource semantics remain DreamLake-specific. Saved
+`:artifact{namespace="geyang" id="pitch-deck"}` and `#artifact:geyang/pitch-deck`
+remain accepted by the local development UI/API. Do not bulk-rewrite saved references.
+Bare `:artifact{namespace/id}` is invalid.
 The tag resolves its title through authorized metadata and opens the artifact;
 it does not upload content, grant access, or change sharing. Preserve the complete
 source token. Static API HTML keeps it unresolved and maps the whole token atomically;
