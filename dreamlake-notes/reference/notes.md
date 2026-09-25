@@ -229,6 +229,9 @@ hold optional named attributes. Resource semantics are DreamLake-specific.
 The namespace and artifact ID are both required because artifact IDs are scoped
 to their owner; note IDs resolve globally. The Note picker, extraction and copy
 reference button now prefer `:note[<full-note-id>]` in the development UI.
+Both Note and artifact headers show a clickable `#…` badge with the last six ID
+characters. Clicking copies the complete bracket reference, including the owner
+namespace for artifacts; it does not create a share link or change access.
 
 Saved `#note:<full-note-id>`, `#artifact:geyang/pitch-deck`,
 `:note{id="note-id"}`, `:artifact{namespace="geyang" id="pitch-deck"}` and all

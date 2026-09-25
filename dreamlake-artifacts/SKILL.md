@@ -136,6 +136,10 @@ Prefer the Notes rich-component form:
 :artifact[geyang/pitch-deck]
 ```
 
+Click the development artifact header’s `#…` badge to copy the full bracket
+reference. The badge shows the last six ID characters, but copying retains the
+namespace and complete ID. This does not create a share link or change access.
+
 Use the owner namespace and stable artifact ID returned by the CLI. Brackets hold
 primary content; optional named attributes belong in braces. This follows the
 [remark-directive extension](https://github.com/remarkjs/remark-directive), not core
