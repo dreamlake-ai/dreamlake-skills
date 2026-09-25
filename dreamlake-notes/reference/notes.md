@@ -866,6 +866,58 @@ HTTP invocation is an independent operation, with no cross-request idempotency
 receipt: read and reconcile the result before resubmitting. Exact readback can itself return a conflict if another writer
 has already changed the acknowledged revision.
 
+### AI read activity and recent additions (development preview)
+
+An agent can identify its Notes operations using a stable, task-specific session
+ID. This is opt-in: ordinary CLI and Python calls do not imply AI activity.
+The server associates the declared agent session with the authenticated user;
+the agent name is a client-provided label, not a verified model identity.
+
+```bash
+# Use a distinct ID for each agent task; keep it stable across commands.
+export DREAMLAKE_AGENT_ID="notes-review-session-1"
+export DREAMLAKE_AGENT_NAME="Codex"
+dreamlake notes read "$NOTE_ID" --json
+```
+
+The matching CLI and Python SDK send `X-DreamLake-Agent-Id` and optional
+`X-DreamLake-Agent-Name` on direct Notes body, section, and diff requests.
+Python reads the same environment variables. IDs accept 1–128 ASCII letters,
+digits, dots, colons, underscores and hyphens. Names accept at most 64 printable ASCII characters. Unset these variables after the task.
+
+Successful full reads indicate **read this note**. Ranged/section reads identify
+the returned passage, and incremental reads indicate **read changes** without
+pretending to have read the whole current source. These observations expire
+after 30 seconds. They indicate explicit read operations, not private model
+attention or continuous reading between calls. Failed reads publish nothing.
+
+Acknowledged edits indicate **added text**, with inserted/replacement spans
+highlighted green for up to 15 seconds. A deletion-only edit indicates
+**updated note**. Reading is shown separately in blue. Multiple agent sessions
+remain separate; each session retains its latest read and latest update.
+The browser polls every three seconds while visible. Names and operation labels
+make the meaning available without relying on color; reduced-motion mode uses
+a static highlight until expiry.
+
+Precise ranges are bound to the exact source hash and count Unicode code points
+on the wire. The editor converts them to its UTF-16 offsets. Any source change
+clears precise highlights immediately; a new matching observation can restore
+them. If concurrent edits make the acknowledged source differ from the agent's
+isolated patch target, show an update label with no guessed insertion range.
+This initial version does not rebase activity through CRDT identities. Rich
+widgets that replace source text may hide inline marks; activity labels remain
+available. Read-only rendered Notes show the labels, while source-range marks
+are currently available in the live editor.
+
+Activity is ephemeral, bounded, and separate from canonical text and revision
+history. Namespace members and explicitly shared authenticated readers can
+request `GET /namespaces/:slug/notes/:noteId/agent-activity`; public note visibility
+alone does not grant activity access. Events include session/owner identity,
+source hash, ranges, kind, and expiry, but no note text. Store failures do not
+fail an otherwise successful note operation. No explicit heartbeat or fake
+cursor is generated. This preview requires the matching server, UI, CLI/SDK;
+updating docs or skills alone does not activate it on installed clients.
+
 ### Keep incremental reads compact
 
 For an agent following a note, save one full `read --json` baseline, then use
