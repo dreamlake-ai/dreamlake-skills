@@ -269,6 +269,31 @@ Inside another DreamLake note, prefer `:note[<full-note-id>]` (development previ
 reference. A browser link does not change visibility or grant access to a
 private note.
 
+## Inline text color
+
+Use a color directive to style an inline span in Notes previews, table cells,
+and the app’s rendered Markdown:
+
+```markdown
+:color[Important]{color="#ef4444"}
+:color[Ready]{color="green"}
+:color{text="Review needed" color="#f90"}
+```
+
+The content is plain text, including any Markdown markers. Escape brackets and
+backslashes with a backslash in bracket content. Color values must be quoted:
+3, 4, 6 or 8-digit hex colors, or `black`, `silver`, `gray`, `white`, `maroon`,
+`red`, `purple`, `fuchsia`, `green`, `lime`, `olive`, `yellow`, `navy`, `blue`,
+`teal`, `aqua`, `orange` or `rebeccapurple`. Unknown attributes and invalid colors
+remain literal. Code, escaped directives and Markdown links remain literal too.
+Selecting a directive in the editor reveals its original editable source;
+saved Markdown is unchanged. This adds text color only; raw HTML and arbitrary
+CSS styles are not enabled.
+
+See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) for formatting examples,
+color choices, tables and portability. CLI/API HTML snapshots currently keep
+color directives as source text.
+
 ### Artifact references (development preview)
 
 Use Markdown directive notation for new references:
@@ -880,7 +905,7 @@ export DREAMLAKE_AGENT_NAME="Codex"
 dreamlake notes read "$NOTE_ID" --json
 ```
 
-The matching CLI and Python SDK send `X-DreamLake-Agent-Id` and optional
+CLI **0.27.0+** and Python SDK **0.21.0+** send `X-DreamLake-Agent-Id` and optional
 `X-DreamLake-Agent-Name` on direct Notes body, section, and diff requests.
 Python reads the same environment variables. IDs accept 1–128 ASCII letters,
 digits, dots, colons, underscores and hyphens. Names accept at most 64 printable ASCII characters. Unset these variables after the task.
