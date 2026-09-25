@@ -858,7 +858,7 @@ For an agent following a note, save one full `read --json` baseline, then use
 `read --since "$BASE_HASH"` for subsequent checks. The default `inline-dff`
 returns only character edits and is the preferred compact response for agents.
 Use `--format diff` when line context or a standard unified patch is useful.
-With the localized unified-diff server fix (Unreleased), this returns changed
+On servers with localized unified-diff generation, this returns changed
 lines with up to three unchanged context lines on each side; nearby changes
 share a hunk and distant changes use separate hunks. Older servers may still
 return a whole-document replacement; a docs or skill update alone does not
