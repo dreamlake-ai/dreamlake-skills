@@ -291,7 +291,7 @@ export DREAMLAKE_AGENT_NAME="Codex"
 dreamlake notes read "$NOTE_ID" --json
 ```
 
-The matching CLI and Python SDK send `X-DreamLake-Agent-Id` and optional
+CLI **0.27.0+** and Python SDK **0.21.0+** send `X-DreamLake-Agent-Id` and optional
 `X-DreamLake-Agent-Name` on direct Notes body, section, and diff requests.
 Python reads the same environment variables. IDs accept 1–128 ASCII letters,
 digits, dots, colons, underscores and hyphens. Names accept at most 64 printable ASCII characters. Unset these variables after the task.
