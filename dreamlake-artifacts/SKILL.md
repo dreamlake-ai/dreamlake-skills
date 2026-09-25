@@ -128,6 +128,24 @@ To stop sharing, clear the token (the dashboard's "stop sharing", or push withou
 > The share token itself is a read capability, not a per-person grant. Anyone
 > with a valid token can open the link. Revocation invalidates that capability.
 
+## Reference in Notes (development preview)
+
+Prefer the Notes rich-component form:
+
+```markdown
+:artifact{namespace="geyang" id="pitch-deck"}
+```
+
+Use the owner namespace and stable artifact ID returned by the CLI. The shorthand
+`#artifact:geyang/pitch-deck` is also accepted by the local development UI/API.
+The tag resolves its title through authorized metadata and opens the artifact;
+it does not upload content, grant access, or change sharing. Preserve the complete
+source token. Static API HTML keeps it unresolved and maps the whole token atomically;
+it does not embed a share-token URL or private content. Production deployment of
+artifact tags is not yet verified; do not promise support in older clients.
+See the owning [artifact guide](https://docs.dreamlake.ai/artifacts/#reference-an-artifact-from-a-note-development-preview)
+and [Notes grammar](https://docs.dreamlake.ai/notes/#artifact-references-development-preview).
+
 ## Browsing in the app
 
 `/<namespace>/profile?tab=artifacts` and `/<namespace>/artifacts` reuse the same
