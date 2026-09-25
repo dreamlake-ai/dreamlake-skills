@@ -172,3 +172,84 @@ Markdown fences — the whole file *is* the code.
 5. `react`: defines `App`, no imports. `html`: ships its own CSS. `markdown`: no inline HTML.
 
 Then publish with the `dreamlake-artifacts` skill (`dreamlake artifact push …`).
+
+## Artifact-local routing (development preview)
+
+The dedicated artifact page accepts **only explicitly namespaced route data**:
+
+```text
+https://dreamlake.ai/geyang/artifacts/pitch-deck?art.slide=3&art.view=chart#art=overview
+```
+
+Inside HTML and React artifacts this becomes `dreamlake.route.search ===
+'?slide=3&view=chart'` and `dreamlake.route.hash === '#overview'`. Read strings
+with `new URLSearchParams(dreamlake.route.search)`. Values can contain Unicode,
+spaces, JSON text, or other strings; use `URLSearchParams` to encode queries
+and `encodeURIComponent` for the fragment after `#art=`. Repeated keys and
+empty values are supported. Parse numbers/JSON and validate their meaning in
+your artifact. Route data is public, user-controlled state, never a secret.
+
+```html
+<div id="slide"></div>
+<button id="next">Next slide</button>
+<script>
+  const route = window.dreamlake.route;
+  function render() {
+    const params = new URLSearchParams(route.search);
+    document.getElementById('slide').textContent = params.get('slide') || '1';
+  }
+  const unsubscribe = route.subscribe(render);
+  render();
+  document.getElementById('next').onclick = async () => {
+    const params = new URLSearchParams(route.search);
+    params.set('slide', String((Number(params.get('slide')) || 1) + 1));
+    await route.navigate({ search: params.toString(), hash: '#overview' });
+  };
+</script>
+```
+
+`navigate({search?, hash?}, {replace?: boolean})` merges omitted fields with
+the current route and returns a Promise. Set a field to `''` to clear it.
+It pushes browser history by default; `{replace: true}` replaces the current
+entry. `subscribe(callback)` returns an unsubscribe function; callbacks read
+the new snapshot using `getSnapshot()` or the `search`/`hash` getters. React
+artifacts can use `React.useSyncExternalStore(route.subscribe, route.getSnapshot)`.
+Use an effect cleanup for other subscriptions.
+
+Back/forward and incoming route changes update the running artifact without
+reloading its iframe or resetting forms, React state, or WebGL scenes. The
+frame's own `location.hash` is **reserved for the handshake ID**; its query
+and the opaque HTML child's `about:srcdoc` URL are not the public route API.
+Do not use `location`, `history`, or `window.parent` to read the host URL or
+change this route. Ordinary native anchor links retain their existing behavior
+and are not automatically mirrored into the host URL; use `route.navigate`
+when a route should survive sharing.
+
+Only the standalone artifact detail page binds this API to browser history.
+Gallery thumbnails, file/Note previews, and project-embedded viewers do not
+inherit the surrounding page's query/fragment. Interactive previews can use
+the route API locally. The detail Share/Copy link includes the current route.
+Public links contain no share token; private sharing adds only the intended
+read-capability token. Updating a route preserves host authorization in the
+address bar but never exposes it to artifact code.
+
+Parameter names (after removing `art.`) must match
+`[A-Za-z][A-Za-z0-9_.-]{0,63}`. Reserved names, case-insensitively, are `share`,
+`token`, `auth`, `authorization`, `cookie`, `project`, `namespace`, `instanceId`,
+`__proto__`, `prototype`, `constructor`, and `dreamlake`, including names
+followed by `.`, `_`, or `-`. Search plus hash is limited to 8192 characters.
+Invalid API navigation rejects; invalid link parameters are ignored and an
+oversized link route becomes empty. Host parameters such as `share`, auth,
+and project fields are never blanket-forwarded. A parameter is ordinary data,
+not permission to query private resources or escape the sandbox. The existing
+query/download bridge and its authorization/confirmation rules still apply.
+
+For a deep link from a Note, use an ordinary Markdown link with this URL.
+Rich `:artifact[namespace/id]` references remain resource references; route
+attributes are not part of their grammar in this change. Do not put a share
+token inside rich-reference attributes.
+
+This contract requires the companion frame and app changes. Deploy the frame
+first when release is authorized; older frames ignore the optional route
+payload. Older hosts return an unknown-method error for navigation. Source
+validation does not mean this feature is deployed.
