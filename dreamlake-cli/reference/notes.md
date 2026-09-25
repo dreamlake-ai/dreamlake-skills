@@ -277,6 +277,26 @@ HTML reads are available in CLI 0.26.2 and later and the matching Notes HTML ser
 contract. Check the [release notes](release-notes.md) for publication and
 verification status; an installed CLI alone does not establish server support.
 
+### Keep incremental reads compact
+
+For an agent following a note, save one full `read --json` baseline, then use
+`read --since "$BASE_HASH"` for subsequent checks. The default `inline-dff`
+returns only character edits and is the preferred compact response for agents.
+Use `--format diff` when line context or a standard unified patch is useful.
+With the localized unified-diff server fix (Unreleased), this returns changed
+lines with up to three unchanged context lines on each side; nearby changes
+share a hunk and distant changes use separate hunks. Older servers may still
+return a whole-document replacement; a docs or skill update alone does not
+change server output. The default inline format already avoids that expansion.
+
+Both formats preserve exact source, including CRLF and a missing final newline.
+An unchanged source returns an empty `patch`, possibly with a newer RTC
+`revision`. Keep `base`, `hash`, and `revision` with the response. Apply the patch
+only to the saved source matching `base`, verify its resulting hash, and never
+replace an existing draft's original revision just to make it pass. Unknown or
+expired bases remain errors. Use `--json` and extract `.patch` when a consumer
+needs patch text alone; normal text output includes metadata.
+
 ## Browser sync and recovery
 
 The browser's **Synced**, **Syncing**, and **Out of sync** indicator checks the
