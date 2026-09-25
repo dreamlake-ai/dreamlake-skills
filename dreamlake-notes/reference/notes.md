@@ -160,6 +160,20 @@ The viewer is **view only**. It captures the checkpoint and retained edits when
 opened, renders them separately, and does not replace the live editor or publish
 changes. Close and reopen it to include newer edits. There is no restore action.
 
+When you step or play through versions, added rendered text briefly glows green.
+Removed text appears in red with a strikethrough, fades, then disappears. Colors
+compare the view you left with the view you entered: stepping backward reverses
+which text appears and disappears. A jump compares the two selected views rather
+than replaying every intermediate edit. Formatting-only changes update normally.
+
+Pausing playback freezes an active highlight; resuming continues it. Stepping or
+scrubbing cancels the old transition so ghosts never pile up. Faster playback
+uses shorter fades. Reduced-motion preferences use static highlights that clear
+without fading. Very large comparisons display the version without highlights
+to keep navigation responsive. Deleted ghosts are presentation-only, excluded
+from accessibility output, selection, and the code-copy action. They never alter
+saved text or the live editor. Scroll position stays under your control.
+
 History starts at the retained checkpoint: compaction can remove older versions.
 This is not a complete archive, and playback is not a recovery tool for an unsent
 local draft. Download a held draft through the sync dropdown instead.
