@@ -210,6 +210,34 @@ Inside another DreamLake note, use `#note:<full-note-id>` for a native note
 reference. A browser link does not change visibility or grant access to a
 private note.
 
+### Artifact references (development preview)
+
+Use the rich-component notation for new artifact references:
+
+```markdown
+:artifact{namespace="geyang" id="pitch-deck"}
+```
+
+The namespace and artifact ID are both required because artifact IDs are scoped
+to their owner. The shorthand `#artifact:geyang/pitch-deck` remains accepted.
+Both render a clickable title tag in the development UI. Neither notation
+uploads content, grants access, or changes sharing. Missing/inaccessible artifacts
+remain visibly unavailable. Code, escapes and Markdown links stay literal.
+
+This extends the Notes rich-component grammar (`:note{id="…"}`,
+`:bindr{id="…"}`, `:asset-reference{id="…"}`). Existing `#note:<full-note-id>`
+references remain supported and are still emitted by the Note picker; do not
+bulk-rewrite stored notes or replace references with cached titles/short hashes.
+Artifact attribute values are double-quoted JSON strings; unknown or duplicate
+attributes, missing fields and invalid IDs stay literal. Preserve exact source
+when reading, copying or patching either notation.
+
+The browser resolves titles through authorized artifact metadata. API HTML
+previews map each full token atomically and leave it unresolved, without fetching
+private metadata or embedding capability URLs. Artifact tags are implemented in
+the local development UI/API; production deployment is not yet verified. There
+is no artifact insertion picker yet: type/paste the complete token.
+
 ## Name a note
 
 **CLI**
