@@ -253,6 +253,27 @@ private metadata or embedding capability URLs. Artifact tags are implemented in
 the local development UI/API; production deployment is not yet verified. There
 is no artifact insertion picker yet: type/paste the complete token.
 
+### Fragment reference syntax (development preview)
+
+A reference can retain a slide or section target as a URL fragment:
+
+```markdown
+:note[6ab5aaeed3b4339ea2f4c162#overview]
+:artifact[geyang/pitch-deck#slide-3]
+:artifact[geyang/pitch-deck#/3]
+```
+
+The optional named form `:note[id]{fragment="overview"}` is also accepted.
+Specify the fragment only once. The parser separates it from the resource ID and
+preserves the exact raw token, including percent encoding. Malformed fragments
+remain literal. Static API HTML maps the complete reference atomically without
+fetching metadata or creating capabilities.
+
+This release accepts and preserves target syntax only. Reference-click target
+navigation, scrolling and artifact-frame routing are deferred to the tab/view
+workstream. An existing artifact ID or an author-defined hash route must supply
+the target; do not infer slide numbering or invent a section.
+
 ## Name a note
 
 **CLI**

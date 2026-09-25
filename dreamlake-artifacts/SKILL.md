@@ -155,6 +155,15 @@ artifact tags is not yet verified; do not promise support in older clients.
 See the owning [artifact guide](https://docs.dreamlake.ai/artifacts/#reference-an-artifact-from-a-note-development-preview)
 and [Notes grammar](https://docs.dreamlake.ai/notes/#artifact-references-development-preview).
 
+## Fragment reference syntax
+
+`:artifact[namespace/id#slide-3]` preserves a target inside the artifact;
+`#/3` is valid only if the artifact defines that route. The named form
+`:artifact[namespace/id]{fragment="slide-3"}` is also accepted. Preserve exact
+source and percent encoding; do not supply the fragment twice or infer slide
+numbering. This release accepts target syntax only. Click-target navigation and
+scrolling remain deferred to the common tab/view work.
+
 ## Browsing in the app
 
 `/<namespace>/profile?tab=artifacts` and `/<namespace>/artifacts` reuse the same
