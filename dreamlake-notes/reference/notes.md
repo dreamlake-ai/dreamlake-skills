@@ -206,9 +206,73 @@ CLI accepts slugs and titles. Use the returned owner namespace rather than
 assuming your personal namespace. The ID is sometimes called the note hash;
 it is a path segment, not a `#` URL fragment.
 
-Inside another DreamLake note, use `#note:<full-note-id>` for a native note
+Inside another DreamLake note, prefer `:note[<full-note-id>]` (development preview) for a native note
 reference. A browser link does not change visibility or grant access to a
 private note.
+
+### Artifact references (development preview)
+
+Use Markdown directive notation for new references:
+
+```markdown
+:note[6ab5aaeed3b4339ea2f4c162]
+:artifact[geyang/pitch-deck]
+:bindr[bindr-id]
+:asset-reference[asset-id]{caption="plot"}
+:placeholder[owner name]
+:chatgpt-content-reference[0]
+```
+
+This follows the [remark-directive convention](https://github.com/remarkjs/remark-directive),
+a Markdown extension, not core CommonMark. Brackets hold primary content; braces
+hold optional named attributes. Resource semantics are DreamLake-specific.
+The namespace and artifact ID are both required because artifact IDs are scoped
+to their owner; note IDs resolve globally. The Note picker, extraction and copy
+reference button now prefer `:note[<full-note-id>]` in the development UI.
+Both Note and artifact headers show a clickable `#…` badge with the last six ID
+characters. Clicking copies the complete bracket reference, including the owner
+namespace for artifacts; it does not create a share link or change access.
+
+Saved `#note:<full-note-id>`, `#artifact:geyang/pitch-deck`,
+`:note{id="note-id"}`, `:artifact{namespace="geyang" id="pitch-deck"}` and all
+existing attribute-only rich components remain accepted. Do not bulk-rewrite
+stored notes. Bare `:note{ID}` and `:artifact{namespace/id}` are invalid.
+Secondary attributes currently include asset `caption`; values are double-quoted
+JSON strings. Unknown/duplicate attributes, conflicting primary values, missing
+fields and invalid IDs remain literal. Preserve exact source on reads and patches.
+Placeholder content can escape brackets and backslashes with a backslash.
+
+References grant no access and never change sharing. Missing/inaccessible resources
+remain unavailable. Code, escapes and Markdown links stay literal. Imported ChatGPT
+citation forms stay unresolved and retain their original source; never invent a
+Note or artifact to replace them. Existing `[ owner name ]` placeholders remain supported.
+
+The browser resolves titles through authorized artifact metadata. API HTML
+previews map each full token atomically and leave it unresolved, without fetching
+private metadata or embedding capability URLs. Artifact tags are implemented in
+the local development UI/API; production deployment is not yet verified. There
+is no artifact insertion picker yet: type/paste the complete token.
+
+### Fragment reference syntax (development preview)
+
+A reference can retain a slide or section target as a URL fragment:
+
+```markdown
+:note[6ab5aaeed3b4339ea2f4c162#overview]
+:artifact[geyang/pitch-deck#slide-3]
+:artifact[geyang/pitch-deck#/3]
+```
+
+The optional named form `:note[id]{fragment="overview"}` is also accepted.
+Specify the fragment only once. The parser separates it from the resource ID and
+preserves the exact raw token, including percent encoding. Malformed fragments
+remain literal. Static API HTML maps the complete reference atomically without
+fetching metadata or creating capabilities.
+
+This release accepts and preserves target syntax only. Reference-click target
+navigation, scrolling and artifact-frame routing are deferred to the tab/view
+workstream. An existing artifact ID or an author-defined hash route must supply
+the target; do not infer slide numbering or invent a section.
 
 ## Name a note
 
@@ -1013,9 +1077,9 @@ network-loaded media are excluded from this static preview.
 ### Rich tokens in HTML reads
 
 The v2 HTML renderer recognizes strict Markdown source tokens for
-`:placeholder{text="owner"}`, `:asset-reference{id="asset-id" caption="plot"}`,
-`:note{id="note-id"}`, `:bindr{id="bindr-id"}` and
-`:chatgpt-content-reference{index="0"}`. Attribute values use double quotes;
+`:placeholder[owner]`, `:asset-reference[asset-id]{caption="plot"}`,
+`:note[note-id]`, `:artifact[geyang/pitch-deck]`, `:bindr[bindr-id]` and
+`:chatgpt-content-reference[0]` in the development preview, plus every saved legacy form. Attribute values use double quotes;
 unknown/duplicate attributes and malformed tokens remain literal source.
 Code, escaped punctuation, Markdown links and URL paths keep their ordinary
 interpretation. Existing `[ owner ]` placeholders retain blue boxes, visible

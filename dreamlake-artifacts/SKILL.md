@@ -128,6 +128,42 @@ To stop sharing, clear the token (the dashboard's "stop sharing", or push withou
 > The share token itself is a read capability, not a per-person grant. Anyone
 > with a valid token can open the link. Revocation invalidates that capability.
 
+## Reference in Notes (development preview)
+
+Prefer the Notes rich-component form:
+
+```markdown
+:artifact[geyang/pitch-deck]
+```
+
+Click the development artifact header’s `#…` badge to copy the full bracket
+reference. The badge shows the last six ID characters, but copying retains the
+namespace and complete ID. This does not create a share link or change access.
+
+Use the owner namespace and stable artifact ID returned by the CLI. Brackets hold
+primary content; optional named attributes belong in braces. This follows the
+[remark-directive extension](https://github.com/remarkjs/remark-directive), not core
+CommonMark; resource semantics remain DreamLake-specific. Saved
+`:artifact{namespace="geyang" id="pitch-deck"}` and `#artifact:geyang/pitch-deck`
+remain accepted by the local development UI/API. Do not bulk-rewrite saved references.
+Bare `:artifact{namespace/id}` is invalid.
+The tag resolves its title through authorized metadata and opens the artifact;
+it does not upload content, grant access, or change sharing. Preserve the complete
+source token. Static API HTML keeps it unresolved and maps the whole token atomically;
+it does not embed a share-token URL or private content. Production deployment of
+artifact tags is not yet verified; do not promise support in older clients.
+See the owning [artifact guide](https://docs.dreamlake.ai/artifacts/#reference-an-artifact-from-a-note-development-preview)
+and [Notes grammar](https://docs.dreamlake.ai/notes/#artifact-references-development-preview).
+
+## Fragment reference syntax
+
+`:artifact[namespace/id#slide-3]` preserves a target inside the artifact;
+`#/3` is valid only if the artifact defines that route. The named form
+`:artifact[namespace/id]{fragment="slide-3"}` is also accepted. Preserve exact
+source and percent encoding; do not supply the fragment twice or infer slide
+numbering. This release accepts target syntax only. Click-target navigation and
+scrolling remain deferred to the common tab/view work.
+
 ## Browsing in the app
 
 `/<namespace>/profile?tab=artifacts` and `/<namespace>/artifacts` reuse the same
