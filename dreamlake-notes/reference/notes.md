@@ -1106,14 +1106,16 @@ agent-account identity is not yet part of the wire contract. Deployment and
 client release status must be checked independently of this source documentation.
 
 CLI 0.27.0+ and Python SDK 0.21.0+ support attributed reads and edits.
-CLI 0.28.0+ adds explicit presence controls. These are separate capabilities:
-a successful read does not prove that the server supports the presence endpoint.
+CLI 0.29.0+ adds `visit` and `read --linger`; CLI 0.31.0+ adds the read-only
+`presence` command and event-driven selections. These require matching server
+capabilities; a successful read does not prove presence or event support.
 The CLI uses the active login's API; running a locally installed binary does not
 select a local server. Use `--remote <url>` to test a specific API or `--debug`
 for the local development server.
 
 To check a matching API, use an accessible test note and the stable task identity
-below. Run a read, then join, heartbeat, clear and leave. Verify patch support
+below. Run a read, inspect `notes presence`, then start `read --linger` and stop
+it with Ctrl-C to verify automatic session cleanup. Verify patch support
 separately on a disposable note with a merge patch, an exact readback, and a stale
 exact request that must fail without changing the source. Do not use an existing
 user document as a write-test fixture.
@@ -1243,21 +1245,32 @@ dreamlake notes visit "$NOTE_ID"
 ```
 
 `visit` uses the existing join lease (60 seconds unless renewed by an attributed
-operation), returns immediately and does not read content. Legacy
-`notes presence ...` controls remain available for compatibility; use
-`read --linger` when you want ongoing updates rather than silent keepalive.
+operation), returns immediately and does not read content. Use
+`read --linger` when you want ongoing updates. CLI 0.31.0 removes the old
+manual `notes presence <note> <action>` and `join --watch` controls.
 
 `read --linger` manages joining, heartbeats, and leaving automatically. Stop it
 with Ctrl-C when finished; one-shot reads and `visit` expire naturally. There is
 no manual lifecycle sequence to run alongside it. Never start an untracked
 helper that outlives the task.
 
-##### Compatibility: low-level presence API
+##### Read who is present
 
-The older CLI command remains available for existing integrations; see the
-[CLI compatibility reference](https://cli.dreamlake.ai/notes/legacy#presence-compatibility).
-Its actions are arguments to `notes presence`, not direct Notes commands. Prefer
-`read --linger` and `visit` for new CLI workflows.
+In CLI 0.31.0+, `presence` reads the current roster without joining or refreshing
+your session. It does not require an agent ID. Text is the default:
+
+```bash cli-help="notes presence"
+dreamlake notes presence "$NOTE_ID"
+```
+
+Add `--json` only for a program consuming the roster. There are no direct
+`notes join`, `notes heartbeat`, or `notes leave` commands. Use `visit`,
+`read --linger`, and Ctrl-C for participation.
+
+##### Low-level HTTP lease protocol
+
+SDK integrations and linger use the HTTP protocol below internally. It is not
+a manual CLI workflow.
 
 API: `POST /namespaces/:slug/notes/:noteId/presence` accepts
 `{action, hash?, ranges?: [{start,end}]}`, bearer authentication,
@@ -1319,8 +1332,9 @@ range (409), expired heartbeat (410), and unavailable relay (503).
 Identity values accept 1–128 ASCII letters, digits, dots, colons, underscores and
 hyphens; names accept at most 64 printable ASCII characters. CLI 0.27.0+ and
 Python SDK 0.21.0+ attach identity headers to Notes body/section/diff operations
-when the environment variables below are set. Explicit presence commands require
-CLI 0.28.0+ and the matching server, and an active collaborative room.
+when the environment variables below are set. `visit` and `read --linger` require
+CLI 0.29.0+ and an active collaborative room; read-only `presence` requires
+CLI 0.31.0+. The old manual action commands were removed in 0.31.0.
 Updating a skill does not update a binary or deploy a server. Python has no
 presence convenience method yet; use the HTTP contract when available.
 The authorized agent-activity feed retains operation observations, not an online
