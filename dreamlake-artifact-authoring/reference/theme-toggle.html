@@ -1,0 +1,131 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     DreamLake theme toggle — light / system / dark.
+
+     Paste all three blocks into an artifact that uses house-style.css.
+     Mirrors the control on the DreamLake app: three states, a sliding
+     indicator filled with the page background so the active slot reads as
+     a cutout, and inactive icons tilted away (sun left, moon right).
+
+     The tokens already answer to this — house-style.css declares dark
+     under BOTH `@media (prefers-color-scheme: dark)` (guarded by
+     `:root:not([data-theme='light'])`) and `:root[data-theme='dark']`.
+     So "system" simply removes the attribute and lets the media query win.
+
+     Icons are Lucide (sun / monitor / moon) inlined: the frame's CSP blocks
+     the icon package, as it blocks every other external request.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<!-- ── 1. STYLE ──────────────────────────────────────────────────────── -->
+<style>
+.theme-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px;
+  background: transparent;
+  transition: background 160ms ease-out;
+}
+.theme-pill:hover { background: var(--dl-chip); }
+
+/* Filled with the PAGE background: invisible at rest, reads as a punched-out
+   cutout once the container picks up its hover tint. */
+.theme-pill .indicator {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  background: var(--dl-bg);
+  z-index: 0;
+  will-change: transform;
+  transition: transform .42s cubic-bezier(.34,1.45,.55,1);
+}
+.theme-pill button {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  padding: 0; margin: 0;
+  border: 0; border-radius: 999px;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+.theme-pill button:hover,
+.theme-pill button[aria-pressed="true"] { color: var(--dl-ink); }
+.theme-pill svg {
+  width: 13px; height: 13px;
+  opacity: .7;
+  transition: transform .42s cubic-bezier(.34,1.45,.55,1), opacity .25s ease;
+}
+.theme-pill button[aria-pressed="true"] svg { opacity: 1; transform: scale(1) !important; }
+</style>
+
+<!-- ── 2. MARKUP (drop it in a header row) ───────────────────────────── -->
+<div class="theme-pill" id="themePill" role="group" aria-label="Theme">
+  <span class="indicator" aria-hidden="true" id="themeDot"></span>
+  <button type="button" data-theme-value="light" aria-label="Light mode" title="Light mode">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" style="transform:scale(.85) rotate(-18deg)">
+      <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/>
+      <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+      <path d="M2 12h2"/><path d="M20 12h2"/>
+      <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+    </svg>
+  </button>
+  <button type="button" data-theme-value="system" aria-label="System mode" title="System mode">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" style="transform:scale(.85)">
+      <rect width="20" height="14" x="2" y="3" rx="2"/>
+      <line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>
+    </svg>
+  </button>
+  <button type="button" data-theme-value="dark" aria-label="Dark mode" title="Dark mode">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" style="transform:scale(.85) rotate(18deg)">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+    </svg>
+  </button>
+</div>
+
+<!-- ── 3. SCRIPT ─────────────────────────────────────────────────────── -->
+<script>
+(function () {
+  var THEMES = ['light', 'system', 'dark'];
+  var pill = document.getElementById('themePill');
+  if (!pill) return;
+  var dot  = document.getElementById('themeDot');
+  var btns = pill.querySelectorAll('button');
+
+  // Wrapped: storage throws in a private window, and an artifact must still render.
+  function get() { try { return localStorage.getItem('dl-theme'); } catch (e) { return null; } }
+  function set(v) { try { localStorage.setItem('dl-theme', v); } catch (e) {} }
+
+  function apply(t) {
+    if (t === 'system') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', t);
+    if (dot) dot.style.transform = 'translateX(' + (THEMES.indexOf(t) * 22) + 'px)';
+    Array.prototype.forEach.call(btns, function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-theme-value') === t ? 'true' : 'false');
+    });
+    set(t);
+    // Canvas/WebGL/chart code does NOT inherit CSS variables — repaint it here.
+    if (window.onThemeChange) window.onThemeChange();
+  }
+
+  Array.prototype.forEach.call(btns, function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-theme-value')); });
+  });
+
+  var saved = get();
+  apply(THEMES.indexOf(saved) >= 0 ? saved : 'system');
+
+  // In "system" the attribute is absent, so the OS can still flip underneath us.
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+    if (window.onThemeChange) window.onThemeChange();
+  });
+})();
+</script>
