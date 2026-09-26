@@ -1130,9 +1130,11 @@ note you can access as a member or explicitly shared reader.
 ```bash
 # NOTE_ID and the stable task identity must already be set.
 dreamlake notes read "$NOTE_ID" --linger
-# Alternative: newline-delimited JSON for a runner consuming the stream.
-dreamlake notes read "$NOTE_ID" --linger --json
 ```
+
+**Use the default text output for people and coding agents.** It shows readable
+diffs, participants, and quoted selections. JSON is optional and intended only
+for a program that explicitly needs to parse structured events.
 
 The command registers presence automatically, prints the complete source with
 its hash/revision and the other current participants, and stays in the foreground.
@@ -1162,8 +1164,8 @@ values are rejected before presence registration. For example:
 ```bash
 # One second of edit quiet; no more than one output batch every two seconds.
 dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
-# Slower output for an agent runner; each line is a complete JSON event.
-dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s --json
+# Slower text output for a coding agent or a quieter session.
+dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s
 ```
 
 **Unreleased event-stream update:** the candidate CLI subscribes to authenticated
@@ -1208,6 +1210,15 @@ produce no net content diff. Human edits appear in content diffs; the activity f
 currently attributes agent reads and edits only. Reading updates does not prove
 human attention, and it does not reserve or lock the note.
 
+##### Optional: JSON for programmatic consumers
+
+Use `--json` only when a program needs NDJSON; ordinary collaboration, including
+coding-agent sessions, should use the text commands above.
+
+```bash
+dreamlake notes read "$NOTE_ID" --linger --json
+```
+
 With `--json`, stdout is NDJSON: one `type: "snapshot"` object containing
 `observedAt`, `note`, `content`, `hash`, `revision`, `selectionHash`, and `participants`, followed
 by `type: "update"` objects containing `observedAt`, `joined`, `left`, and
@@ -1236,23 +1247,17 @@ operation), returns immediately and does not read content. Legacy
 `notes presence ...` controls remain available for compatibility; use
 `read --linger` when you want ongoing updates rather than silent keepalive.
 
-CLI 0.28.0+ and the matching server expose these low-level compatibility controls:
+`read --linger` manages joining, heartbeats, and leaving automatically. Stop it
+with Ctrl-C when finished; one-shot reads and `visit` expire naturally. There is
+no manual lifecycle sequence to run alongside it. Never start an untracked
+helper that outlives the task.
 
-```bash cli-help="notes presence"
-# NOTE_ID and the stable task identity must already be set.
-dreamlake notes presence "$NOTE_ID" join
-dreamlake notes presence "$NOTE_ID" heartbeat
-dreamlake notes presence "$NOTE_ID" clear
-dreamlake notes presence "$NOTE_ID" leave
-# Compatibility: a silent foreground lease keeper; prefer read --linger in CLI 0.29.0+.
-dreamlake notes presence "$NOTE_ID" join --watch
-```
+##### Compatibility: low-level presence API
 
-`join --watch` does not stream updates; it heartbeats every 20 seconds and leaves when interrupted. It is
-optional, not the standard recipe. `clear` clears activity without leaving;
-`leave` removes presence. A heartbeat does not create a missing session or revive
-an expired one (410); join or a normal attributed interaction can establish
-presence again. Never start an untracked helper that outlives the task.
+The older CLI command remains available for existing integrations; see the
+[CLI compatibility reference](https://cli.dreamlake.ai/notes/legacy#presence-compatibility).
+Its actions are arguments to `notes presence`, not direct Notes commands. Prefer
+`read --linger` and `visit` for new CLI workflows.
 
 API: `POST /namespaces/:slug/notes/:noteId/presence` accepts
 `{action, hash?, ranges?: [{start,end}]}`, bearer authentication,
@@ -1386,11 +1391,10 @@ The conditional patch and exact-readback examples elsewhere in this guide remain
 required; presence does not relax concurrency checks. Do not retry an old patch
 with a newly fetched revision merely to force it through.
 
-When finished, optionally call `dreamlake notes presence "$NOTE_ID" leave` on a
-matching installation. Otherwise let presence expire. Do not forget the
-session ID between commands, and do not require the agent to remember cleanup for
-correctness. Stop any optional watch helper and remove the task identity from the
-runner's environment when the task ends.
+When finished, stop `read --linger` with Ctrl-C; it sends leave automatically.
+One-shot operations expire naturally. Keep the same session ID between commands,
+and remove the task identity from the runner's environment when the task ends.
+Lease expiry handles abrupt exits without requiring remembered cleanup.
 
 ### Keep incremental reads compact
 

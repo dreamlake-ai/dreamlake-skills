@@ -2,13 +2,16 @@
 
 Use `read --linger` when you want to stay with someone in a note. It registers
 your presence, prints the initial source and participants, and streams updates
-until you stop it. It requires CLI **0.29.0+** and compatible presence and activity
+until you stop it. **Use the default text output for people and coding agents:**
+it shows readable diffs, participants, and quoted selections. Add `--json` only
+when a program explicitly needs to parse structured events.
+
+It requires CLI **0.29.0+** and compatible presence and activity
 endpoints, in addition to the Notes read endpoint.
 
-**Unreleased:** the candidate CLI additionally requires the Notes `/events` SSE
-endpoint for event-driven selections. Deploy the matching server first. Released
-CLI 0.29.0 polls and does not expose human highlights; there is no polling fallback
-in the candidate.
+**CLI 0.31.0+:** event-driven selections require the Notes `/events` SSE
+endpoint. Deploy the matching server first. CLI 0.29.x–0.30.x polls and does
+not expose human highlights; there is no polling fallback in 0.31.0+.
 
 ## One identity per task
 
@@ -74,7 +77,10 @@ Changes are computed from the last **emitted** content baseline, so a burst is
 not reduced to only its final keystroke. Brief visits or activity can be missed;
 this is an observation stream, not an audit log.
 
-## Consume JSON events
+## Optional: JSON for programmatic consumers
+
+Use this only when a program needs NDJSON. Ordinary collaboration, including
+coding-agent sessions, should use the text commands above.
 
 ```bash
 dreamlake notes read "$NOTE_ID" --linger --json
@@ -130,23 +136,11 @@ NOTE_ID=release-plan
 dreamlake notes visit "$NOTE_ID"
 ```
 
-For lower-level control (CLI 0.28.0+):
-
-```bash cli-help="notes presence"
-# Requires the stable task identity configured above.
-NOTE_ID=release-plan
-dreamlake notes presence "$NOTE_ID" join
-dreamlake notes presence "$NOTE_ID" heartbeat
-dreamlake notes presence "$NOTE_ID" clear
-dreamlake notes presence "$NOTE_ID" leave
-```
-
-`clear` removes activity without leaving. A heartbeat cannot revive an expired
-session (HTTP 410); join or interact again. `presence ... join --watch` is a
-silent foreground lease keeper, heartbeating every 20 seconds. Prefer linger
-when you need updates. Explicit `read`, `edit`, and `seek` presence actions take
-`--hash` and `--range start:end`; ranges use exact-source Unicode code points.
-These actions report activity, not document mutations.
+`read --linger` manages the session lifecycle: start it to join, let it maintain
+its heartbeat, and stop it with Ctrl-C to leave. No manual join, heartbeat,
+clear, or leave sequence is needed. One-shot reads and `visit` expire naturally.
+The older `notes presence` command remains available for existing integrations;
+see the [compatibility reference](notes-legacy.md#presence-compatibility).
 
 ## If joining fails
 

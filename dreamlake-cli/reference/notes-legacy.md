@@ -108,3 +108,23 @@ Keep your draft when a request fails. Do not assume a lost acknowledgment means
 nothing was written, or use a forced archive replacement to recover.
 
 For new agent workflows, prefer [Editing with patches](/notes/editing/).
+
+## Presence compatibility
+
+CLI 0.28.0+ retains `notes presence <note> <action>` for existing integrations.
+For new work use `notes read <note> --linger` for a maintained session, Ctrl-C to
+leave, or `notes visit <note>` for a brief visit. Presence is automatic during
+attributed reads and edits. The manual lifecycle is not the normal workflow.
+
+```bash cli-help="notes presence"
+# Compatibility command reference; new sessions use read --linger or visit.
+dreamlake notes presence --help
+```
+
+Supported actions remain `join`, `heartbeat`, `read`, `edit`, `seek`, `clear`,
+and `leave`. These are arguments to `presence`, not top-level Notes commands.
+`clear` removes activity without leaving. A heartbeat cannot revive an expired
+session (HTTP 410). `join --watch` is a silent foreground lease keeper that
+heartbeats every 20 seconds; it does not stream updates. Explicit `read`, `edit`,
+and `seek` activity requires an exact source `--hash` and optional Unicode
+code-point `--range start:end`. No presence action edits the note.
