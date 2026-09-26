@@ -314,8 +314,11 @@ Open a web page beside a Note with a preview tag:
 
 The URL is required; the title is optional. Tags work in the editor, tables and
 rendered Markdown. A normal click opens the built-in web preview panel beside
-the Note. Reopening the exact URL reuses its tab; different URL fragments retain
-separate preview targets. Modified clicks keep ordinary browser link behavior.
+the Note. New targets open as tabs in the existing panel on the right; a right
+panel is created only when one is absent. Reopening the exact URL reuses its tab;
+different URL fragments retain separate preview tabs. Note references follow the
+same rule. References opened from a side Note add tabs in that same side panel,
+preserving the current Note and its edits. Modified clicks keep ordinary browser link behavior.
 Only absolute HTTP(S) URLs without embedded credentials are accepted. Invalid
 syntax, duplicate or unknown attributes, unsafe schemes, code and escaped tags
 remain literal text. The saved source is unchanged by rendering.
