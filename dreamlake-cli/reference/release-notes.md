@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.31.0 — Live Notes selections
+
+- `notes read --linger` observes server events instead of polling the note and roster. Requires the matching Notes events endpoint.
+- Reports human selections and clears with source hashes and Unicode code-point offsets; unchanged selections and lease heartbeats stay silent.
+- Coalesces the latest selection per participant, limits output with `--throttle` (default 2s), and debounces content diffs separately.
+- Agent activity highlights expire after 8s and disconnected agent presence after 60s. Human selections clear on deselection, editor blur, or departure.
+- Stream gaps and stalled output fail explicitly rather than silently reconnecting.
+
 ## 0.30.0 — Layout control
 
 - Added explicit local-browser layout listing, inspection, read-only resolution and guarded application.
