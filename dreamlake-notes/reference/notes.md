@@ -995,8 +995,7 @@ user document as a write-test fixture.
 
 #### Read and linger in the foreground
 
-The next CLI release adds `notes read --linger` and `notes visit`; these are not
-available in CLI 0.28.0. They use the deployed Notes v2, presence-roster and
+CLI 0.29.0+ adds `notes read --linger` and `notes visit`. They use the deployed Notes v2, presence-roster and
 agent-activity endpoints. Python has no corresponding convenience method yet.
 
 Set `DREAMLAKE_AGENT_ID` once to a unique, stable task-session identity (and
@@ -1096,7 +1095,7 @@ dreamlake notes presence "$NOTE_ID" join
 dreamlake notes presence "$NOTE_ID" heartbeat
 dreamlake notes presence "$NOTE_ID" clear
 dreamlake notes presence "$NOTE_ID" leave
-# Compatibility: a silent foreground lease keeper; prefer read --linger in the next CLI release.
+# Compatibility: a silent foreground lease keeper; prefer read --linger in CLI 0.29.0+.
 dreamlake notes presence "$NOTE_ID" join --watch
 ```
 
@@ -1224,7 +1223,7 @@ without agent identity does not invent or register an agent session.
 | `notes read "$NOTE_ID" --linger` | Initial source and ongoing updates | Registers automatically and maintains presence until stopped |
 | `notes visit "$NOTE_ID"` | No | Registers once, returns immediately, then the lease expires naturally |
 
-The last two commands require the next CLI release as noted above. A normal
+The last two commands require CLI 0.29.0+. A normal
 read does not mean the agent remains actively reading between commands.
 
 ```bash
