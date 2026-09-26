@@ -147,7 +147,8 @@ CommonMark; resource semantics remain DreamLake-specific. Saved
 `:artifact{namespace="geyang" id="pitch-deck"}` and `#artifact:geyang/pitch-deck`
 remain accepted by the local development UI/API. Do not bulk-rewrite saved references.
 Bare `:artifact{namespace/id}` is invalid.
-The tag resolves its title through authorized metadata and opens the artifact;
+The tag resolves its title through authorized metadata and opens the reusable
+artifact panel to the right of the Note, including in project views;
 it does not upload content, grant access, or change sharing. Preserve the complete
 source token. Static API HTML keeps it unresolved and maps the whole token atomically;
 it does not embed a share-token URL or private content. Production deployment of
@@ -161,8 +162,10 @@ and [Notes grammar](https://docs.dreamlake.ai/notes/#artifact-references-develop
 `#/3` is valid only if the artifact defines that route. The named form
 `:artifact[namespace/id]{fragment="slide-3"}` is also accepted. Preserve exact
 source and percent encoding; do not supply the fragment twice or infer slide
-numbering. This release accepts target syntax only. Click-target navigation and
-scrolling remain deferred to the common tab/view work.
+numbering. Clicking sends the fragment to the panel through `dreamlake.route.hash`.
+Another reference to the same artifact reuses its panel and updates its local
+route without reloading the iframe or changing the Note/project URL. This requires
+the companion UI deployment; a skill update does not deploy panel behavior.
 
 ## Browsing in the app
 
@@ -301,10 +304,9 @@ and project fields are never blanket-forwarded. A parameter is ordinary data,
 not permission to query private resources or escape the sandbox. The existing
 query/download bridge and its authorization/confirmation rules still apply.
 
-For a deep link from a Note, use an ordinary Markdown link with this URL.
-Rich `:artifact[namespace/id]` references remain resource references; route
-attributes are not part of their grammar in this change. Do not put a share
-token inside rich-reference attributes.
+For a deep link from a Note, use an ordinary Markdown link with this URL, or
+`:artifact[namespace/id#slide-3]` to open its hash route in a right-hand panel.
+Do not put a share token inside rich-reference attributes.
 
 This contract requires the companion frame and app changes. Release the frame
 first, including its SPA fallback (`/* /index.html 200`), then the app. The new

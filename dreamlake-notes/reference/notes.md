@@ -338,6 +338,14 @@ remain unavailable. Code, escapes and Markdown links stay literal. Imported Chat
 citation forms stay unresolved and retain their original source; never invent a
 Note or artifact to replace them. Existing `[ owner name ]` placeholders remain supported.
 
+Click an artifact tag in a Note or a project's Note pane to open the reusable
+artifact panel to the right of that note. The note stays open. Clicking another
+reference to the same artifact reuses its panel, including references to a different
+slide. Panels retain the artifact viewer's preview, version, zoom and authorized
+sharing controls, and use the common draggable tabs and close controls.
+Control/Command-click keeps the ordinary artifact link behavior. The current
+implementation is a development preview until the companion UI is deployed.
+
 The browser resolves titles through authorized artifact metadata. API HTML
 previews map each full token atomically and leave it unresolved, without fetching
 private metadata or embedding capability URLs. Artifact tags are implemented in
@@ -360,9 +368,11 @@ preserves the exact raw token, including percent encoding. Malformed fragments
 remain literal. Static API HTML maps the complete reference atomically without
 fetching metadata or creating capabilities.
 
-This release accepts and preserves target syntax only. Reference-click target
-navigation, scrolling and artifact-frame routing are deferred to the tab/view
-workstream. An existing artifact ID or an author-defined hash route must supply
+Artifact references pass their fragment to the panel's local `dreamlake.route`.
+For example, `:artifact[geyang/landing-pages#slide-3]` opens the landing-page copy
+at stage 3. Selecting another slide updates the existing iframe without reloading
+it or changing the surrounding Note/project URL. Note-section scrolling remains
+separate from this artifact behavior. An existing artifact ID or an author-defined hash route must supply
 the target; do not infer slide numbering or invent a section.
 
 ## Name a note
