@@ -1,6 +1,6 @@
 ---
 name: dreamlake-cli
-description: "dreamlake — a CLI for the DreamLake data warehouse: upload and download assets, manage projects, bindrs, and datasets, and administer organizations and teams from your terminal. Use when answering questions about DreamLake (Introduction, Installation, Quick start, Environments, Uploading, Downloading, Verify SSH passwords, Projects & data, Artifacts, Envs, Workflows, Pipelines, Declaration collections, External sources, and 28 more)."
+description: "dreamlake — a CLI for the DreamLake data warehouse: upload and download assets, manage projects, bindrs, and datasets, and administer organizations and teams from your terminal. Use when answering questions about DreamLake (Introduction, Installation, Quick start, Environments, Uploading, Downloading, Verify SSH passwords, Projects & data, Artifacts, Envs, Workflows, Pipelines, Declaration collections, External sources, and 22 more)."
 ---
 # DreamLake
 
@@ -37,17 +37,8 @@ file that matches the question; each is a self-contained markdown page.
 - `reference/collections.md` — Declaration collections: Declare runnables, run configs, providers, sources, and repos; register immutable versions keyed by sha256 of the source; and import a pinned version back onto disk.
 - `reference/sources.md` — External sources: Browse and read data out of connected external sources — S3, Dropbox, HuggingFace — without copying it into DreamLake first.
 - `reference/agents.md` — Agents: Declare an agent — a named prompt, optionally with tools, permissions, typed arguments and a machine to run on — from a Claude agent file, a heredoc, or $EDITOR.
+- `reference/notes.md` — Notes: Read, search, and edit collaborative notes from the terminal — by section, with a diff, and without overwriting whoever is typing at the other end.
 - `reference/tasks.md` — Tasks: Track project task folders, progress, actual timing and linked Notes.
-
-**Notes**
-
-- `reference/notes.md` — Notes: Find a note, read what changed, and edit alongside people from your terminal.
-- `reference/notes-reading.md` — Reading and changes: Read exact source, inspect changes since a saved hash, and find a passage.
-- `reference/notes-editing.md` — Editing with patches: Read a baseline, submit a targeted merge or exact patch, and verify the acknowledged result.
-- `reference/notes-collaboration.md` — Live collaboration: Join a note with one task identity and follow batched edits in the foreground.
-- `reference/notes-rich-content.md` — Rich content and HTML: Use supported Markdown directives and inspect exact source mappings in rendered HTML.
-- `reference/notes-attachments.md` — Attachments: Upload, download, manage, and preview files attached to a note.
-- `reference/notes-legacy.md` — Legacy commands: Maintain ETag-based section, text, and whole-body scripts without mixing them with snapshot patches.
 
 **Org & teams**
 
