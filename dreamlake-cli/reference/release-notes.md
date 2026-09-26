@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.31.1 — Simpler Notes notifications
+
+- Show names, actions and quoted selections in default linger output. Keep IDs,
+  connection details, offsets and source hashes in JSON.
+- Label agents and keep cursor moves, selection clears and syncing states
+  silent in text. Print one timestamp per nonempty batch. JSON retains every
+  state change; throttling is unchanged.
+- Add notification examples to the collaboration guide and `notes read --help`.
+
 ## 0.31.0 — Live Notes selections
 
 - Complete the simplified session interface: `presence <note>` reads the roster; `visit` registers once; `read --linger` maintains the session. Remove the old `presence <note> <action>` and `--watch` controls.

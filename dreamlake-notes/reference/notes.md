@@ -1185,7 +1185,26 @@ or after a content event becomes eligible for delivery. Agent activity is read
 only when its RTC fingerprint changes. Heartbeats remain silent and maintain the
 agent lease approximately every 20 seconds.
 
-Human selections resolve native CRDT anchors against the observed source. Each
+**CLI 0.31.1+ text notifications** show names, actions and quoted text. These
+are representative lines from separate batches; a timestamp appears once per batch.
+
+```text
++ "Alice" joined
++ "Reviewer" (agent) joined
+* "Reviewer" (agent) read the note
+* "Reviewer" (agent) edited the note
+* "Alice" selected "## The center"
+- "Alice" left
+```
+
+Agents are labeled; humans need no extra label. Cursor moves, selection clears,
+syncing states, repeated selected text and empty batches stay silent in text.
+IDs, connection details, offsets and source hashes remain
+in `--json`; use it to distinguish identical names or tabs and apply exact source
+positions. Initial content and diffs still include revision metadata for safe edits.
+These examples also appear in `dreamlake notes read --help`.
+
+Human selections in JSON resolve native CRDT anchors against the observed source. Each
 selection carries `anchor`, `head`, `start`, `end`, `unit: "unicode-code-point"`,
 `text` (at most 4096 code points), and `truncated`, with `status: "resolved"`.
 A collapsed range is a caret. An explicit `null` clears a selection (including
