@@ -269,7 +269,7 @@ Inside another DreamLake note, prefer `:note[<full-note-id>]` (development previ
 reference. A browser link does not change visibility or grant access to a
 private note.
 
-## Inline text color
+## Inline text color and highlights
 
 Use a color directive to style an inline span in Notes previews, table cells,
 and the app’s rendered Markdown:
@@ -277,6 +277,8 @@ and the app’s rendered Markdown:
 ```markdown
 :color[Important]{color="#ef4444"}
 :color[Ready]{color="green"}
+:highlight[Review needed]
+:highlight[Key finding]{color="#60a5fa"}
 :color{text="Review needed" color="#f90"}
 ```
 
@@ -287,8 +289,13 @@ backslashes with a backslash in bracket content. Color values must be quoted:
 `teal`, `aqua`, `orange` or `rebeccapurple`. Unknown attributes and invalid colors
 remain literal. Code, escaped directives and Markdown links remain literal too.
 Selecting a directive in the editor reveals its original editable source;
-saved Markdown is unchanged. This adds text color only; raw HTML and arbitrary
-CSS styles are not enabled.
+saved Markdown is unchanged. `:color` changes the foreground; `:highlight` adds
+a translucent background tint and keeps the surrounding text color. Omit the
+`color` attribute to use yellow: `:highlight[Important]` or
+`:highlight{text="Important"}`. Highlights
+accept the same colors and plain-text content as color directives, including the
+attribute-only form `:highlight{text="Review needed" color="yellow"}`.
+Raw HTML and arbitrary CSS styles are not enabled.
 
 See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) for formatting examples,
 color choices, tables and portability. CLI/API HTML snapshots currently keep
