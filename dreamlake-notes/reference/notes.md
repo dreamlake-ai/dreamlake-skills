@@ -419,13 +419,19 @@ key for retry safety. Nonempty, closed drafts save after 800 ms of inactivity or
 when the caret leaves; IME composition defers writes. Saving never moves the
 caret or replaces active text. Once the caret leaves and the latest body is
 acknowledged, source becomes `:comment[cmt_...]{user="..."}` (the optional user
-attribute is retained when supplied). **Save as comment** promotes bracket text
-through the same flow. Opening a saved chip edits its object while the reference
-stays fixed. Comments have no replies; conversations belong in chats.
+attribute is retained when supplied). Newly typed comment brackets and brace
+drafts automatically include the signed-in user's namespace as `user`. Opening
+a saved comment edits its object while the reference stays fixed. In Sidebar
+view the borderless editor and its Done action share the comment container;
+Done waits for the latest save before closing. Comments have no replies; conversations belong in chats.
 
 **Comments → Inline / Sidebar** changes the current view, independently of
-storage. Sidebar boxes follow source anchors with dashed connectors and flow
-around one another. Narrow panes fall back to Inline while retaining the
+storage. Inline comments show the author label and italic text in the author's
+collaboration color, with faint brackets around the body. Sidebar comments use
+`[…]` anchors, plain author labels, black body text, and faint enclosing square
+brackets with no filled background. Hovering or focusing either the anchor or
+comment reveals the full dashed connection, routed above the anchor text.
+Sidebar comments flow around one another without overlap. Narrow panes fall back to Inline while retaining the
 Sidebar preference. Read-only readers can open accessible saved comments but
 cannot change them. Rendering, loading, and remote text replay never create
 comment objects. A brace draft pasted by a script without an editor creation
@@ -434,7 +440,8 @@ key remains source text; use the API to create a saved object deliberately.
 The same completion menu handles supported tag names after `:`, accessible
 resource targets within `[`, and supported attributes within `{`. The `user`
 attribute offers people lookup. Free text stays valid; searching does not save
-or convert it. Comment search is scoped to the origin note.
+or convert it. Comment bodies are free text: typing inside `:comment[` does not
+search saved comments. Existing saved-comment references still render normally.
 
 ### Collection API
 
