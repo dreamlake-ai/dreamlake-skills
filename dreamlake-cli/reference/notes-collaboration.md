@@ -79,20 +79,20 @@ this is an observation stream, not an audit log.
 
 ## Text notifications
 
-CLI 0.31.1+ keeps notifications short. These are representative lines from
+CLI 0.31.2+ keeps notifications short. These are representative lines from
 separate update batches; each batch has one timestamp above it.
 
 ```text cli-help-output="notes read"
-+ "Alice" joined
-+ "Reviewer" (agent) joined
-* "Reviewer" (agent) read the note
-* "Reviewer" (agent) edited the note
-* "Alice" selected "## The center"
-- "Alice" left
++ @alice joined
++ Reviewer (agent) joined
+* Reviewer (agent) read the note
+* Reviewer (agent) edited the note
+* @alice selected "## The center"
+- @alice left
 ```
 
-Names and selected text are quoted so embedded newlines stay on one line.
-Agents are labeled; humans need no extra label. Cursor moves, selection clears,
+People appear as `@username`; agents use their configured name and `(agent)`.
+Only selected text is quoted. Embedded newlines are escaped to keep each notification on one line. Cursor moves, selection clears,
 and selections still syncing stay silent in text. Leaving prints only the
 departure. Repeated selected text, unchanged events and empty batches also stay silent.
 IDs, browser connections, selection offsets and source hashes remain in JSON.
