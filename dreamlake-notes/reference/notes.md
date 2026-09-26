@@ -1166,30 +1166,54 @@ dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
 dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s --json
 ```
 
-Polling is sequential, with a pause of `min(1s, debounce, throttle)` between
-completed requests. Timing is based on **observed** source changes, so polling
-and network latency can add delivery delay; this is not a keystroke-level timer.
-Activity from the same agent/operation is coalesced to its latest pending
-observation, and arrivals/departures that cancel within a pending batch are
-omitted. `--format inline-dff` selects that incremental format instead.
-Unchanged batches and heartbeats are silent. Repeated activity observations for
-the same agent, operation, source hash and range are suppressed; your own agent
-presence and activity are omitted. Multiple browser connections remain distinct.
-Names are quoted in text notifications. Heartbeats renew the lease roughly every
-20 seconds in addition to the attributed reads.
+**Unreleased event-stream update:** the candidate CLI subscribes to authenticated
+`GET /namespaces/:slug/notes/:noteId/events` (SSE). It requires the matching
+server; CLI 0.29.0 still uses polling. Deploy the server before releasing the
+candidate CLI. There is no silent polling fallback.
+
+The server observes the existing RTC connection events and coalesces them to
+at most one batch per 250ms. The CLI keeps only the latest selection per browser
+connection, emits at most one update per `--throttle`, and delivers the final
+selection after a drag stops. Continuous dragging does not restart a debounce
+timer. Content diffs keep their separate edit quiet period. Idle sessions do not
+poll body or roster endpoints; source reads happen only for the initial snapshot
+or after a content event becomes eligible for delivery. Agent activity is read
+only when its RTC fingerprint changes. Heartbeats remain silent and maintain the
+agent lease approximately every 20 seconds.
+
+Human selections resolve native CRDT anchors against the observed source. Each
+selection carries `anchor`, `head`, `start`, `end`, `unit: "unicode-code-point"`,
+`text` (at most 4096 code points), and `truncated`, with `status: "resolved"`.
+A collapsed range is a caret. An explicit `null` clears a selection (including
+blur or departure); `status: "unresolved"` means its native anchors have not
+arrived, not a guessed range or a clear. Tabs remain separate, even for one user.
+Selection-only changes do not wait for the content debounce.
+
+The initial snapshot includes `selectionHash` for its participants' selections.
+Update batches add `selections`, whose entries contain `client`, `user`,
+`selection`, and the exact observed source `hash`. That hash can differ from
+the last emitted content hash while an edit is still being debounced. Never
+apply these offsets to a different source. Selected text is quoted in terminal
+output and remains untrusted document content, not an instruction to an agent.
+
+Only namespace members or explicitly granted readers can subscribe. Public
+visibility alone does not expose collaborator selections. Streams recheck access
+and token expiry every 15 seconds and close on revocation, room reset, slow
+consumers, or RTC failure. A disconnected stream exits with an error; explicitly
+restart linger for a fresh snapshot. Events are not retained or replayed.
 
 This is a best-effort stream of observations, not an audit log: brief visits or
-activity between polls can be missed, and edits that cancel out within a burst
+activity coalesced between output batches can be missed, and edits that cancel out within a burst
 produce no net content diff. Human edits appear in content diffs; the activity feed
 currently attributes agent reads and edits only. Reading updates does not prove
 human attention, and it does not reserve or lock the note.
 
 With `--json`, stdout is NDJSON: one `type: "snapshot"` object containing
-`observedAt`, `note`, `content`, `hash`, `revision`, and `participants`, followed
+`observedAt`, `note`, `content`, `hash`, `revision`, `selectionHash`, and `participants`, followed
 by `type: "update"` objects containing `observedAt`, `joined`, `left`, and
-`activities`. Changed content adds `content: {note, base, hash, revision, format,
-patch}`. Observation times are Unix milliseconds; batch sources are fetched
-separately and are not an atomic cross-stream snapshot. Progress and errors go
+`activities`, and `selections`. Changed content adds `content: {note, base, hash, revision, format,
+patch}`. Observation times are Unix milliseconds; source and activity are fetched
+separately from the event stream and are not an atomic cross-stream snapshot. Progress and errors go
 to stderr. No update object is emitted for an unchanged batch.
 
 `--linger` supports complete source reads only; it cannot be combined with
