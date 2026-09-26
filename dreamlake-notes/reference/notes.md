@@ -1170,10 +1170,10 @@ dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
 dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s
 ```
 
-**Unreleased event-stream update:** the candidate CLI subscribes to authenticated
-`GET /namespaces/:slug/notes/:noteId/events` (SSE). It requires the matching
-server; CLI 0.29.0 still uses polling. Deploy the server before releasing the
-candidate CLI. There is no silent polling fallback.
+**CLI 0.31.0+:** linger subscribes to authenticated
+`GET /namespaces/:slug/notes/:noteId/events` (SSE). CLI 0.29.0–0.30.0 used
+polling. The event stream requires a matching server; there is no silent
+polling fallback.
 
 The server observes the existing RTC connection events and coalesces them to
 at most one batch per 250ms. The CLI keeps only the latest selection per browser
