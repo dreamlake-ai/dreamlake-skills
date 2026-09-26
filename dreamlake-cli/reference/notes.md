@@ -396,10 +396,37 @@ leave. No background daemon is spawned. Presence expires after its server lease
 if the process is killed or cannot send leave. Use one linger process per
 note/task identity; multiple keepers using the same identity share one lease.
 
-Updates are polled in sequential batches, with a two-second pause between
-completed batches. Each batch combines source changes since the last observed
-hash into **one unified diff**, plus participant arrivals/departures and new
-agent activity. `--format inline-dff` selects that incremental format instead.
+Edit delivery is **debounced**: wait until the observed source has been quiet
+for `--debounce` (default `2s`), then deliver **one unified diff** from the last
+emitted content baseline through the end of the burst. Each newly observed edit
+restarts that quiet timer. Continuous editing keeps the diff pending; there is
+no forced maximum-wait flush. Stopping before the quiet period ends discards the
+pending notification, not any document edits.
+
+All output batches are **throttled** by `--throttle` (default `2s`): no two update
+batches are emitted closer together than that interval. Presence and activity
+can still be delivered while edits continue; they do not reset the edit quiet
+timer. Once a diff is ready it joins the next eligible output batch, so a recent
+presence batch can delay it until the throttle expires. The first source snapshot
+is immediate. No new batch is emitted merely because a timer elapsed.
+
+Both flags require `--linger` and accept explicit `ms`, `s` or `m` units, including
+fractions, from `250ms` through `5m`. Bare numbers, zero, negatives and out-of-range
+values are rejected before presence registration. For example:
+
+```bash
+# One second of edit quiet; no more than one output batch every two seconds.
+dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
+# Slower output for an agent runner; each line is a complete JSON event.
+dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s --json
+```
+
+Polling is sequential, with a pause of `min(1s, debounce, throttle)` between
+completed requests. Timing is based on **observed** source changes, so polling
+and network latency can add delivery delay; this is not a keystroke-level timer.
+Activity from the same agent/operation is coalesced to its latest pending
+observation, and arrivals/departures that cancel within a pending batch are
+omitted. `--format inline-dff` selects that incremental format instead.
 Unchanged batches and heartbeats are silent. Repeated activity observations for
 the same agent, operation, source hash and range are suppressed; your own agent
 presence and activity are omitted. Multiple browser connections remain distinct.
@@ -407,8 +434,8 @@ Names are quoted in text notifications. Heartbeats renew the lease roughly every
 20 seconds in addition to the attributed reads.
 
 This is a best-effort stream of observations, not an audit log: brief visits or
-activity between polls can be missed, and edits that cancel out within a batch
-produce no net diff. Human edits appear in content diffs; the activity feed
+activity between polls can be missed, and edits that cancel out within a burst
+produce no net content diff. Human edits appear in content diffs; the activity feed
 currently attributes agent reads and edits only. Reading updates does not prove
 human attention, and it does not reserve or lock the note.
 
@@ -422,7 +449,8 @@ to stderr. No update object is emitted for an unchanged batch.
 
 `--linger` supports complete source reads only; it cannot be combined with
 `--legacy`, `--view html`, `--since`, sections, line ranges or numbered output.
-`--if-match` checks the **initial** read only. Transport/capability errors or an
+`--if-match` checks the **initial** read only. `--format` applies to the emitted
+diff, not the initial complete source snapshot. Transport/capability errors or an
 unavailable retained baseline end the command with a nonzero status and a
 best-effort leave; they are never treated as an empty room. For edits, preserve
 the original source and revision used to prepare your draft: a later streamed
@@ -951,9 +979,27 @@ dreamlake notes read release-plan --since "$BASE_HASH" --format inline-dff
 dreamlake notes read release-plan --view html --if-match "$BASE" > release-plan.preview.html
 # Partial reads use the explicit compatibility interface.
 dreamlake notes read release-plan --legacy --start-line 1 --end-line 20 --numbered
-# Requires DREAMLAKE_AGENT_ID set once for this task. Stop with Ctrl-C.
+# Foreground collaboration (requires the next CLI release, after 0.28.0).
+# Set a unique DREAMLAKE_AGENT_ID once per task; DREAMLAKE_AGENT_NAME is optional.
+# Requires membership or an explicit read share. A separate visit is optional.
+# Prints the initial complete source and roster immediately; never edits the note.
 dreamlake notes read release-plan --linger
-dreamlake notes read release-plan --linger --json
+# Defaults: 2s of observed edit quiet, at least 2s between output batches.
+# New edits reset debounce. Continuous editing waits; there is no forced flush.
+# Presence/activity can arrive during a burst; unchanged polls stay silent.
+dreamlake notes read release-plan --linger --debounce 1s --throttle 2s
+# Timing flags require --linger. Durations: 250ms–5m, with ms/s/m units.
+# Sequential polling (up to once per second by default) adds network/poll latency.
+# Unified diffs are default; choose --format inline-dff when needed.
+# --json is NDJSON: one snapshot, then update objects; stderr holds progress/errors.
+dreamlake notes read release-plan --linger --debounce 2s --throttle 5s --json
+# Ctrl-C/SIGTERM stops and sends leave; no daemon. Abrupt termination uses lease expiry.
+# Pending notifications are discarded on stop; document edits are never discarded.
+# One keeper per note/task identity. Your own activity/presence is filtered out.
+# Best-effort observations, not an audit log; brief activity between polls may be missed.
+# Complete source only: no --legacy, --view html, --since, sections or line options.
+# --if-match checks only the initial snapshot. Keep original write baselines for drafts.
+# Errors stop with nonzero status and best-effort leave, never a fabricated empty roster.
 ```
 
 ```bash cli-help="notes write"
