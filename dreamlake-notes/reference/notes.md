@@ -3,6 +3,9 @@
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
+See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
+and programmable native layouts.
+
 ## Public catalog reads
 
 `GET /namespaces/:slug/notes` accepts requests without an Authorization header.

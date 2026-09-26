@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.30.0 — Layout control
+
+- Added explicit local-browser layout listing, inspection, read-only resolution and guarded application.
+- Agents select a browser page and layout ID; declarative requests use the page’s shared controller and authorization.
+- Added loopback transport validation, JSON-only request arguments, timeout uncertainty reporting, and embedded command-help recipes.
+
 ## 0.26.2 — per-request EXACT patches
 
 Notes command handlers now allow stdout to drain before process exit, preserving

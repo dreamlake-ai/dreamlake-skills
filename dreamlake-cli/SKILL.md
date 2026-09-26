@@ -1,6 +1,6 @@
 ---
 name: dreamlake-cli
-description: "dreamlake — a CLI for the DreamLake data warehouse: upload and download assets, manage projects, bindrs, and datasets, and administer organizations and teams from your terminal. Use when answering questions about DreamLake (Introduction, Installation, Quick start, Environments, Uploading, Downloading, Verify SSH passwords, Projects & data, Artifacts, Envs, Workflows, Pipelines, Declaration collections, External sources, and 28 more)."
+description: "dreamlake — a CLI for the DreamLake data warehouse: upload and download assets, manage projects, bindrs, and datasets, and administer organizations and teams from your terminal. Use when answering questions about DreamLake (Introduction, Installation, Quick start, Environments, Uploading, Downloading, Verify SSH passwords, Projects & data, Artifacts, Envs, Workflows, Pipelines, Declaration collections, External sources, and 29 more)."
 ---
 # DreamLake
 
@@ -38,6 +38,7 @@ file that matches the question; each is a self-contained markdown page.
 - `reference/sources.md` — External sources: Browse and read data out of connected external sources — S3, Dropbox, HuggingFace — without copying it into DreamLake first.
 - `reference/agents.md` — Agents: Declare an agent — a named prompt, optionally with tools, permissions, typed arguments and a machine to run on — from a Claude agent file, a heredoc, or $EDITOR.
 - `reference/tasks.md` — Tasks: Track project task folders, progress, actual timing and linked Notes.
+- `reference/layout.md` — Layout control: Inspect, resolve and apply declarative layout requests in an explicitly selected browser page.
 
 **Notes**
 
