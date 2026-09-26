@@ -346,20 +346,33 @@ People and agents share participant-color rules, not action-specific colors.
 Use an agent icon and agent/owner labels to distinguish them; do not rely on color
 alone. Concurrent sessions must remain distinguishable even when names match.
 
-The proposed defaults are a 60-second recent-presence timeout and a 5-second
+The defaults are a 60-second recent-presence timeout and a 5-second
 completed-edit fade. Optional passage activity has an independent 8-second
 expiry. These are DreamLake choices, not asserted Google Docs, iMessage, or
 Claude Tag timing constants.
 
 #### Availability and optional controls
 
-The local implementation uses the lifecycle above: an attributed operation
+An attributed operation uses the lifecycle above and
 implicitly joins or renews the same 60-second presence entry. Anonymous agent
 identity is not inferred from ordinary API calls. A separate persistent
 agent-account identity is not yet part of the wire contract. Deployment and
 client release status must be checked independently of this source documentation.
 
-CLI 0.28.0 and the matching server expose these optional controls:
+CLI 0.27.0+ and Python SDK 0.21.0+ support attributed reads and edits.
+CLI 0.28.0+ adds explicit presence controls. These are separate capabilities:
+a successful read does not prove that the server supports the presence endpoint.
+The CLI uses the active login's API; running a locally installed binary does not
+select a local server. Use `--remote <url>` to test a specific API or `--debug`
+for the local development server.
+
+To check a matching API, use an accessible test note and the stable task identity
+below. Run a read, then join, heartbeat, clear and leave. Verify patch support
+separately on a disposable note with a merge patch, an exact readback, and a stale
+exact request that must fail without changing the source. Do not use an existing
+user document as a write-test fixture.
+
+CLI 0.28.0+ and the matching server expose these optional controls:
 
 ```bash cli-help="notes presence"
 # NOTE_ID and the stable task identity must already be set.
@@ -397,13 +410,13 @@ Identity values accept 1–128 ASCII letters, digits, dots, colons, underscores 
 hyphens; names accept at most 64 printable ASCII characters. CLI 0.27.0+ and
 Python SDK 0.21.0+ attach identity headers to Notes body/section/diff operations
 when the environment variables below are set. Explicit presence commands require
-CLI 0.28.0 and the matching server, and an active collaborative room.
+CLI 0.28.0+ and the matching server, and an active collaborative room.
 Updating a skill does not update a binary or deploy a server. Python has no
 presence convenience method yet; use the HTTP contract when available.
 The authorized agent-activity feed retains operation observations, not an online
 roster. Observation failures must not turn an acknowledged edit into an apparent
 failed edit. Live source-range decorations currently require the collaborative
-editor; this preview does not add a read-only RTC client.
+editor; read-only views do not run an RTC client.
 
 #### Agentic usage pattern: one identity, normal commands
 
