@@ -403,6 +403,66 @@ it or changing the surrounding Note/project URL. Note-section scrolling remains
 separate from this artifact behavior. An existing artifact ID or an author-defined hash route must supply
 the target; do not infer slide numbering or invent a section.
 
+## Comments (development preview)
+
+Comments use `:comment[text]` for text stored in the note and
+`:comment[cmt_<24 hex digits>]` for a saved comment reference. Both accept optional
+`{user="geyang"}` attribution. Braces after a bracket contain metadata only;
+there is no `type`, `text`, `ref`, or `userId` field. Attribution is a display
+label; the server records the authenticated creator separately. Escape brackets
+and backslashes with a backslash. Use `\cmt_...` inside brackets when an ID-shaped
+string should be literal text. Code spans and fenced code remain literal.
+
+In the rich editor, typing `:comment{` starts a saved-comment draft. Keep typing
+in the note: its side box mirrors the body. The editor supplies a hidden draft
+key for retry safety. Nonempty, closed drafts save after 800 ms of inactivity or
+when the caret leaves; IME composition defers writes. Saving never moves the
+caret or replaces active text. Once the caret leaves and the latest body is
+acknowledged, source becomes `:comment[cmt_...]{user="..."}` (the optional user
+attribute is retained when supplied). **Save as comment** promotes bracket text
+through the same flow. Opening a saved chip edits its object while the reference
+stays fixed. Comments have no replies; conversations belong in chats.
+
+**Comments → Inline / Sidebar** changes the current view, independently of
+storage. Sidebar boxes follow source anchors with dashed connectors and flow
+around one another. Narrow panes fall back to Inline while retaining the
+Sidebar preference. Read-only readers can open accessible saved comments but
+cannot change them. Rendering, loading, and remote text replay never create
+comment objects. A brace draft pasted by a script without an editor creation
+key remains source text; use the API to create a saved object deliberately.
+
+The same completion menu handles supported tag names after `:`, accessible
+resource targets within `[`, and supported attributes within `{`. The `user`
+attribute offers people lookup. Free text stays valid; searching does not save
+or convert it. Comment search is scoped to the origin note.
+
+### Collection API
+
+These endpoints require the matching server version. They are not a CLI release
+claim. Paths are relative to the DreamLake API base.
+
+| Method and path | Contract |
+|---|---|
+| `POST /namespaces/:slug/notes/:noteId/comments` | Body `{body, creationKey, user?}`; authenticated origin-note writer only. Key is 16–128 ASCII letters, digits, `_`, or `-`. |
+| `GET /namespaces/:slug/notes/:noteId/comments?q=...` | Up to 30 accessible origin-note comments, newest first; optional body substring search. |
+| `GET /namespaces/:slug/comments/:commentId` | Read the object under its original note's permissions. |
+| `PATCH /namespaces/:slug/comments/:commentId` | Body `{body, revision}`; compare-and-swap update; stale revision returns 409. |
+
+Returned objects include `id`, `noteId`, `body`, optional `user`, `createdBy`,
+`revision`, timestamps and `canEdit`. Bodies are nonempty and at most 20,000
+characters. Retrying creation with the same note/key returns the existing object
+without overwriting it. A different key deliberately creates a different object.
+Reads of public origin notes allow anonymous callers; private origins and deleted
+origins do not become visible through a copied reference. Invalid credentials
+are rejected, and mutations still require authentication and write permission.
+
+Retain local text on a failed save or revision conflict. Retry uncertain creation
+with the same key, and never overwrite a newer object from an older draft.
+The editor retains recovery state for the current browser session; the keyed
+body remains in the note until acknowledged and collapsed. A changed object
+requires reconciliation, with the local draft available to copy. A lost response
+can safely be retried. Deleting an anchor does not delete its saved object.
+
 ## Name a note
 
 **CLI**
