@@ -513,6 +513,33 @@ roster. Observation failures must not turn an acknowledged edit into an apparent
 failed edit. Live source-range decorations currently require the collaborative
 editor; read-only views do not run an RTC client.
 
+#### Identity, names and photos
+
+Use a readable agent prefix plus a UUID as the task ID, for example
+`codex:7b52e4d1-3ac9-4d88-b2a6-61f03c927ea5`. Generate it once per task and reuse
+it across reads, edits and linger sessions. Concurrent tasks need different IDs;
+a display name such as `Codex` does not distinguish their sessions. The CLI sends
+`DREAMLAKE_AGENT_ID` as `X-DreamLake-Agent-Id` and `DREAMLAKE_AGENT_NAME` as
+`X-DreamLake-Agent-Name`. No separate identity-registration request is required.
+
+| Display field | Humans | Agents |
+| --- | --- | --- |
+| Presence identity | User namespace slug | `agent:<authenticated-owner-id>:<task-id>` |
+| Display name | Profile name from `/auth/me`, falling back to namespace slug | `DREAMLAKE_AGENT_NAME`, falling back to `AI agent` |
+| Header avatar | Profile photo, or initials when absent | Bot icon |
+| Tooltip | Name and presence | Agent name, owner name, activity and task/session ID |
+
+The server derives an agent's owner from authentication and looks up the owner's
+profile name/photo; an agent cannot assign an owner through these headers. The
+owner's photo is carried in metadata but is not currently rendered as the agent's
+header avatar. Owner attribution does not mean that the owner is present.
+
+The header deduplicates connections by identity: multiple browser tabs show one
+human avatar, while unique agent task IDs show separate agent avatars. It shows
+up to four avatars plus an overflow chip. Colors are derived from identity.
+The HTTP roster still returns one entry per connection. Browser awareness names
+and photos are display metadata, not an authorization source.
+
 #### Agentic usage pattern: one identity, normal commands
 
 For agents that opt into presence, initialize once in the runner's task environment. For separate shell tool calls,
@@ -525,8 +552,18 @@ export DREAMLAKE_AGENT_NAME="Codex"
 NOTE_ID="<full-note-id>"
 ```
 
-Run ordinary commands with that identity. Reading establishes/refreshes presence;
-it does not mean the agent remains actively reading between commands.
+Run ordinary commands with that identity. An attributed `read` automatically
+registers or refreshes presence; a preceding `visit` is never required. Reading
+without agent identity does not invent or register an agent session.
+
+| Command | Reads content | Presence lifetime |
+| --- | --- | --- |
+| `notes read "$NOTE_ID"` | Once | Registers/refreshes presence, then the lease expires naturally |
+| `notes read "$NOTE_ID" --linger` | Initial source and ongoing updates | Registers automatically and maintains presence until stopped |
+| `notes visit "$NOTE_ID"` | No | Registers once, returns immediately, then the lease expires naturally |
+
+The last two commands require the next CLI release as noted above. A normal
+read does not mean the agent remains actively reading between commands.
 
 ```bash
 dreamlake notes read "$NOTE_ID" --json > baseline.json
@@ -980,7 +1017,12 @@ dreamlake notes read release-plan --view html --if-match "$BASE" > release-plan.
 # Partial reads use the explicit compatibility interface.
 dreamlake notes read release-plan --legacy --start-line 1 --end-line 20 --numbered
 # Foreground collaboration (requires the next CLI release, after 0.28.0).
-# Set a unique DREAMLAKE_AGENT_ID once per task; DREAMLAKE_AGENT_NAME is optional.
+# Generate identity ONCE per task; reuse these saved values in every tool shell.
+export DREAMLAKE_AGENT_ID="codex:$(python3 -c 'import uuid; print(uuid.uuid4())')"
+export DREAMLAKE_AGENT_NAME="Codex"
+# Attributed read registers/refreshes presence automatically; visit reads no content.
+# Agent name is the label; UUID distinguishes sessions. Owner comes from authentication.
+# UI shows a bot icon for agents, profile photo/initials for humans, and owner attribution.
 # Requires membership or an explicit read share. A separate visit is optional.
 # Prints the initial complete source and roster immediately; never edits the note.
 dreamlake notes read release-plan --linger
