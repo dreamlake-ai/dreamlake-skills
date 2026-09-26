@@ -139,8 +139,18 @@ dreamlake notes visit "$NOTE_ID"
 `read --linger` manages the session lifecycle: start it to join, let it maintain
 its heartbeat, and stop it with Ctrl-C to leave. No manual join, heartbeat,
 clear, or leave sequence is needed. One-shot reads and `visit` expire naturally.
-The older `notes presence` command remains available for existing integrations;
-see the [compatibility reference](notes-legacy.md#presence-compatibility).
+In CLI 0.31.0+, `presence` only reads who is there; it does not join or refresh
+your session and does not require an agent ID.
+
+```bash cli-help="notes presence"
+# Read the participant roster without joining. Text is the default.
+NOTE_ID=release-plan
+dreamlake notes presence "$NOTE_ID"
+```
+
+Add `--json` only for a program consuming the roster. The old action arguments
+(`join`, `heartbeat`, `clear`, `leave`, and `--watch`) are removed. Use `visit`,
+`read --linger`, and Ctrl-C instead.
 
 ## If joining fails
 
@@ -153,7 +163,7 @@ room. Do not claim to have joined until the command succeeds.
 
 IDs accept 1–128 ASCII letters, digits, dots, colons, underscores, or hyphens;
 names accept at most 64 printable ASCII characters. Attributed body operations
-require CLI 0.27.0+; explicit controls require 0.28.0+; visit/linger require 0.29.0+.
+require CLI 0.27.0+; visit/linger require 0.29.0+; read-only `presence` requires 0.31.0+.
 Each also needs matching server support.
 
 Next: [Editing with patches](/notes/editing/).

@@ -2,6 +2,8 @@
 
 ## 0.31.0 — Live Notes selections
 
+- Complete the simplified session interface: `presence <note>` reads the roster; `visit` registers once; `read --linger` maintains the session. Remove the old `presence <note> <action>` and `--watch` controls.
+
 - `notes read --linger` observes server events instead of polling the note and roster. Requires the matching Notes events endpoint.
 - Reports human selections and clears with source hashes and Unicode code-point offsets; unchanged selections and lease heartbeats stay silent.
 - Coalesces the latest selection per participant, limits output with `--throttle` (default 2s), and debounces content diffs separately.
