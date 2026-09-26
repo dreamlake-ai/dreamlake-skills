@@ -1028,7 +1028,21 @@ member or explicitly shared reader. Public visibility alone is insufficient.
 Agent identity headers are not required, and the observer does not publish
 presence, renew an agent lease, or edit the note.
 
-The JSON response is `{participants, observedAt}`. `observedAt` is Unix time in
+Successful reads default to `text/plain; charset=utf-8` (also available with
+`?format=text`):
+
+```text
+Observed at: 2026-09-26T08:00:00.000Z
+- human: "Ge" (id: "ge"; client: "browser-session-123")
+- agent: "Codex" (id: "agent:owner-id:agent-id"; client: "note-agent-session-456"); owner: "Ge" (id: "owner-id"); expiresAt: 1790409660000
+```
+
+An empty text roster says `No participants present.` after the observation time.
+Client-declared strings are quoted and escaped to keep each connection on one
+line. Use `?format=json` for structured output; other format values return
+400 `invalid_format`. Error responses remain JSON for either format.
+
+The opt-in JSON response is `{participants, observedAt}`. `observedAt` is Unix time in
 milliseconds. Each participant has `client` (connection ID) and `user` with
 `id`, `name`, and `kind` (`human` or `agent`), plus optional `color` and `avatar`.
 Agents can include `user.owner` and their lease's `expiresAt`. Expired agent
