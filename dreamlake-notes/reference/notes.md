@@ -1020,6 +1020,33 @@ explicitly shared readers may publish; `edit` also requires write permission.
 Public visibility alone does not grant presence access. Controls do not mutate
 document content or revision. Owner metadata comes from authenticated lookup.
 
+#### Read who is present (HTTP API)
+
+`GET /namespaces/:slug/notes/:noteId/presence` returns the current RTC awareness
+roster, including humans and agents. Use bearer authentication as a namespace
+member or explicitly shared reader. Public visibility alone is insufficient.
+Agent identity headers are not required, and the observer does not publish
+presence, renew an agent lease, or edit the note.
+
+The JSON response is `{participants, observedAt}`. `observedAt` is Unix time in
+milliseconds. Each participant has `client` (connection ID) and `user` with
+`id`, `name`, and `kind` (`human` or `agent`), plus optional `color` and `avatar`.
+Agents can include `user.owner` and their lease's `expiresAt`. Expired agent
+leases and internal observer connections are excluded. Multiple browser tabs
+remain separate entries. To identify other agents, compare `user.id` against
+`agent:<authenticated-owner-id>:<agent-id>`; the caller is not automatically
+excluded. Human identities without a kind field are normalized to `human`.
+These are client-declared display identities, not verified authorization claims.
+
+An inactive note returns an empty roster. An active room whose connection fails
+or times out returns 503 `presence_unavailable`, not an empty roster. Responses
+are not cached. This requires a server with the GET endpoint and an RTC server
+supporting awareness rosters; a 404 can also mean the caller lacks access.
+There is no CLI or Python convenience method for roster reads yet. Using any
+HTTP client, send an authenticated GET to the path above. The roster is an
+observation of presence, not a lock or a guarantee that another editor is idle;
+continue to use the normal conditional-write contract.
+
 Explicit ranges require the exact source SHA-256 and zero-based, end-exclusive
 Unicode code point offsets. Stale or out-of-bounds locations are refused. A
 collapsed seek is a caret, not a claim that text was read. Source changes invalidate
