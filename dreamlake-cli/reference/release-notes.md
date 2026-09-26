@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.31.2 — Clearer participant names
+
+- Show people as `@username` and agents by their configured name, without surrounding quotes. Keep quotes around selected text.
+
 ## 0.31.1 — Simpler Notes notifications
 
 - Show names, actions and quoted selections in default linger output. Keep IDs,
