@@ -993,7 +993,102 @@ separately on a disposable note with a merge patch, an exact readback, and a sta
 exact request that must fail without changing the source. Do not use an existing
 user document as a write-test fixture.
 
-CLI 0.28.0+ and the matching server expose these optional controls:
+#### Read and linger in the foreground
+
+The next CLI release adds `notes read --linger` and `notes visit`; these are not
+available in CLI 0.28.0. They use the deployed Notes v2, presence-roster and
+agent-activity endpoints. Python has no corresponding convenience method yet.
+
+Set `DREAMLAKE_AGENT_ID` once to a unique, stable task-session identity (and
+optionally `DREAMLAKE_AGENT_NAME`) as described below. `NOTE_ID` must identify a
+note you can access as a member or explicitly shared reader.
+
+```bash
+# NOTE_ID and the stable task identity must already be set.
+dreamlake notes read "$NOTE_ID" --linger
+# Alternative: newline-delimited JSON for a runner consuming the stream.
+dreamlake notes read "$NOTE_ID" --linger --json
+```
+
+The command registers presence automatically, prints the complete source with
+its hash/revision and the other current participants, and stays in the foreground.
+A separate `visit` is optional. Interrupt with Ctrl-C or SIGTERM to stop and send
+leave. No background daemon is spawned. Presence expires after its server lease
+if the process is killed or cannot send leave. Use one linger process per
+note/task identity; multiple keepers using the same identity share one lease.
+
+Edit delivery is **debounced**: wait until the observed source has been quiet
+for `--debounce` (default `2s`), then deliver **one unified diff** from the last
+emitted content baseline through the end of the burst. Each newly observed edit
+restarts that quiet timer. Continuous editing keeps the diff pending; there is
+no forced maximum-wait flush. Stopping before the quiet period ends discards the
+pending notification, not any document edits.
+
+All output batches are **throttled** by `--throttle` (default `2s`): no two update
+batches are emitted closer together than that interval. Presence and activity
+can still be delivered while edits continue; they do not reset the edit quiet
+timer. Once a diff is ready it joins the next eligible output batch, so a recent
+presence batch can delay it until the throttle expires. The first source snapshot
+is immediate. No new batch is emitted merely because a timer elapsed.
+
+Both flags require `--linger` and accept explicit `ms`, `s` or `m` units, including
+fractions, from `250ms` through `5m`. Bare numbers, zero, negatives and out-of-range
+values are rejected before presence registration. For example:
+
+```bash
+# One second of edit quiet; no more than one output batch every two seconds.
+dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
+# Slower output for an agent runner; each line is a complete JSON event.
+dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s --json
+```
+
+Polling is sequential, with a pause of `min(1s, debounce, throttle)` between
+completed requests. Timing is based on **observed** source changes, so polling
+and network latency can add delivery delay; this is not a keystroke-level timer.
+Activity from the same agent/operation is coalesced to its latest pending
+observation, and arrivals/departures that cancel within a pending batch are
+omitted. `--format inline-dff` selects that incremental format instead.
+Unchanged batches and heartbeats are silent. Repeated activity observations for
+the same agent, operation, source hash and range are suppressed; your own agent
+presence and activity are omitted. Multiple browser connections remain distinct.
+Names are quoted in text notifications. Heartbeats renew the lease roughly every
+20 seconds in addition to the attributed reads.
+
+This is a best-effort stream of observations, not an audit log: brief visits or
+activity between polls can be missed, and edits that cancel out within a burst
+produce no net content diff. Human edits appear in content diffs; the activity feed
+currently attributes agent reads and edits only. Reading updates does not prove
+human attention, and it does not reserve or lock the note.
+
+With `--json`, stdout is NDJSON: one `type: "snapshot"` object containing
+`observedAt`, `note`, `content`, `hash`, `revision`, and `participants`, followed
+by `type: "update"` objects containing `observedAt`, `joined`, `left`, and
+`activities`. Changed content adds `content: {note, base, hash, revision, format,
+patch}`. Observation times are Unix milliseconds; batch sources are fetched
+separately and are not an atomic cross-stream snapshot. Progress and errors go
+to stderr. No update object is emitted for an unchanged batch.
+
+`--linger` supports complete source reads only; it cannot be combined with
+`--legacy`, `--view html`, `--since`, sections, line ranges or numbered output.
+`--if-match` checks the **initial** read only. `--format` applies to the emitted
+diff, not the initial complete source snapshot. Transport/capability errors or an
+unavailable retained baseline end the command with a nonzero status and a
+best-effort leave; they are never treated as an empty room. For edits, preserve
+the original source and revision used to prepare your draft: a later streamed
+revision is not a replacement baseline for an older draft.
+
+```bash cli-help="notes visit"
+# Optional one-shot registration: does not fetch the note body or keep a daemon.
+# NOTE_ID and the stable task identity must already be set.
+dreamlake notes visit "$NOTE_ID"
+```
+
+`visit` uses the existing join lease (60 seconds unless renewed by an attributed
+operation), returns immediately and does not read content. Legacy
+`notes presence ...` controls remain available for compatibility; use
+`read --linger` when you want ongoing updates rather than silent keepalive.
+
+CLI 0.28.0+ and the matching server expose these low-level compatibility controls:
 
 ```bash cli-help="notes presence"
 # NOTE_ID and the stable task identity must already be set.
@@ -1001,11 +1096,11 @@ dreamlake notes presence "$NOTE_ID" join
 dreamlake notes presence "$NOTE_ID" heartbeat
 dreamlake notes presence "$NOTE_ID" clear
 dreamlake notes presence "$NOTE_ID" leave
-# Alternative: a blocking foreground helper; stop it when the task ends.
+# Compatibility: a silent foreground lease keeper; prefer read --linger in the next CLI release.
 dreamlake notes presence "$NOTE_ID" join --watch
 ```
 
-`join --watch` heartbeats every 20 seconds and leaves when interrupted. It is
+`join --watch` does not stream updates; it heartbeats every 20 seconds and leaves when interrupted. It is
 optional, not the standard recipe. `clear` clears activity without leaving;
 `leave` removes presence. A heartbeat does not create a missing session or revive
 an expired one (410); join or a normal attributed interaction can establish
@@ -1080,6 +1175,33 @@ roster. Observation failures must not turn an acknowledged edit into an apparent
 failed edit. Live source-range decorations currently require the collaborative
 editor; read-only views do not run an RTC client.
 
+#### Identity, names and photos
+
+Use a readable agent prefix plus a UUID as the task ID, for example
+`codex:7b52e4d1-3ac9-4d88-b2a6-61f03c927ea5`. Generate it once per task and reuse
+it across reads, edits and linger sessions. Concurrent tasks need different IDs;
+a display name such as `Codex` does not distinguish their sessions. The CLI sends
+`DREAMLAKE_AGENT_ID` as `X-DreamLake-Agent-Id` and `DREAMLAKE_AGENT_NAME` as
+`X-DreamLake-Agent-Name`. No separate identity-registration request is required.
+
+| Display field | Humans | Agents |
+| --- | --- | --- |
+| Presence identity | User namespace slug | `agent:<authenticated-owner-id>:<task-id>` |
+| Display name | Profile name from `/auth/me`, falling back to namespace slug | `DREAMLAKE_AGENT_NAME`, falling back to `AI agent` |
+| Header avatar | Profile photo, or initials when absent | Bot icon |
+| Tooltip | Name and presence | Agent name, owner name, activity and task/session ID |
+
+The server derives an agent's owner from authentication and looks up the owner's
+profile name/photo; an agent cannot assign an owner through these headers. The
+owner's photo is carried in metadata but is not currently rendered as the agent's
+header avatar. Owner attribution does not mean that the owner is present.
+
+The header deduplicates connections by identity: multiple browser tabs show one
+human avatar, while unique agent task IDs show separate agent avatars. It shows
+up to four avatars plus an overflow chip. Colors are derived from identity.
+The HTTP roster still returns one entry per connection. Browser awareness names
+and photos are display metadata, not an authorization source.
+
 #### Agentic usage pattern: one identity, normal commands
 
 For agents that opt into presence, initialize once in the runner's task environment. For separate shell tool calls,
@@ -1092,8 +1214,18 @@ export DREAMLAKE_AGENT_NAME="Codex"
 NOTE_ID="<full-note-id>"
 ```
 
-Run ordinary commands with that identity. Reading establishes/refreshes presence;
-it does not mean the agent remains actively reading between commands.
+Run ordinary commands with that identity. An attributed `read` automatically
+registers or refreshes presence; a preceding `visit` is never required. Reading
+without agent identity does not invent or register an agent session.
+
+| Command | Reads content | Presence lifetime |
+| --- | --- | --- |
+| `notes read "$NOTE_ID"` | Once | Registers/refreshes presence, then the lease expires naturally |
+| `notes read "$NOTE_ID" --linger` | Initial source and ongoing updates | Registers automatically and maintains presence until stopped |
+| `notes visit "$NOTE_ID"` | No | Registers once, returns immediately, then the lease expires naturally |
+
+The last two commands require the next CLI release as noted above. A normal
+read does not mean the agent remains actively reading between commands.
 
 ```bash
 dreamlake notes read "$NOTE_ID" --json > baseline.json
