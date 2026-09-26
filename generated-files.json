@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "c034a5d72a06e26e446bdc0a43d568f99ad55cbb0af46b472c34a13b6c79802a",
+  "sourcesSha256": "876111ff17b4bb5a0293bff61e231b608a1d5ebba611fbe5c1937d912717ec88",
   "files": {
     "dreamlake-cli/SKILL.md": "a64d8333f5c7b6af3d049bdd06d1dca2487eb9354745366d511bff33fd566ed7",
     "dreamlake-cli/reference/agents.md": "29b23321a4f10af056e7e2a4959feeb241ab1766ab69df1c91585ff0ba98445b",
@@ -18,7 +18,7 @@
     "dreamlake-cli/reference/lakeshore.md": "2752e2e67a8ec3d963cc6e06e67de0a18397ca5ef607dbb02c8fca5aeab00877",
     "dreamlake-cli/reference/layout.md": "36360442b8cc6e76e5cd34582c8a15e7fc3368377b91de636564b3180ad7d98f",
     "dreamlake-cli/reference/notes-attachments.md": "fb373a0b684787e43034a801d973e59024f35b60134d2dfbade7dc0c862fac03",
-    "dreamlake-cli/reference/notes-collaboration.md": "2fd8582969c8a71eb97931fec0611ef9c58f336936e2717eed6742a37fe68572",
+    "dreamlake-cli/reference/notes-collaboration.md": "2568631fa9e8d6a59aa2c093c492b4d62e30a049ce6aa241f44bb016262e54c2",
     "dreamlake-cli/reference/notes-editing.md": "2063918f38fadfff3648bb6dc94b5a177309412b9022de4229d13e836bfdbf4e",
     "dreamlake-cli/reference/notes-legacy.md": "a95210c72511595cc38b53042621ed9b2c2367e5adbbb9dca8c3e4caa7310ca5",
     "dreamlake-cli/reference/notes-reading.md": "f6521a804dd962140ef99a3edc7f123b7bac21dd27a7a5545e09d444f79344c1",
@@ -47,6 +47,6 @@
     "dreamlake-cli/reference/vault-write-recovery.md": "ca3f5702991d3f17b819b723188dca3f40e565de4a6048324853bf8a15d11780",
     "dreamlake-cli/reference/workflows.md": "33854319791cd5eee1efe97d136719c393a3753ec102e8031d796338ed0265ed",
     "dreamlake-notes/SKILL.md": "74569a03f70cd78e7c74170b96c69d19baa960a7f9dd05f4d886606e1036e61e",
-    "dreamlake-notes/reference/notes.md": "7d06cc54bcb92d119cbe980c27635659b5e1c0adc50e0bfedfbd346347aefdb2"
+    "dreamlake-notes/reference/notes.md": "a6b909a4b1b679acde74e9db0ae694d922ffebe5223aa61ffbc58cb1b12b8496"
   }
 }
