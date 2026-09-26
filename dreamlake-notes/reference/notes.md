@@ -304,6 +304,28 @@ See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) fo
 color choices, tables and portability. CLI/API HTML snapshots currently keep
 color directives as source text.
 
+### Web preview tags
+
+Open a web page beside a Note with a preview tag:
+
+```markdown
+:preview[https://example.com/deck/#slide-3]{title="Slide 3"}
+```
+
+The URL is required; the title is optional. Tags work in the editor, tables and
+rendered Markdown. A normal click opens the built-in web preview panel beside
+the Note. Reopening the exact URL reuses its tab; different URL fragments retain
+separate preview targets. Modified clicks keep ordinary browser link behavior.
+Only absolute HTTP(S) URLs without embedded credentials are accepted. Invalid
+syntax, duplicate or unknown attributes, unsafe schemes, code and escaped tags
+remain literal text. The saved source is unchanged by rendering.
+
+A target must allow iframe embedding. Its own authentication and framing policy
+still apply. A temporary tunnel URL works only while its tunnel and server run.
+Browser static rendering retains an inert label before hydration; server CLI
+HTML snapshots currently leave preview directives as literal source with the
+existing source mapping. They do not load the target or create a panel.
+
 ### Artifact references (development preview)
 
 Use Markdown directive notation for new references:
@@ -401,6 +423,33 @@ dl.note("6aa948b3fea6e541282b747e")                  # id alone, no namespace
 A note you may not read answers exactly as one that does not exist.
 
 ## Read
+
+### Prefer the smallest relevant read
+
+For a targeted question or edit, read the relevant section or passage instead
+of the entire note. Use `toc` or `find` to locate it when needed, then request
+that section or line range. Read the whole document when reviewing the whole
+document, establishing a required v2 baseline, or recovering a missing or expired
+baseline — not on every small edit or verification.
+
+Keep the baseline and its tokens across calls. Once a v2 baseline is available,
+use [incremental reads](#keep-incremental-reads-compact) to refresh the cached
+source and check edits; inspect only the relevant changed passages. A section
+read is not a complete v2 baseline. Do not replace the whole body with a partial
+read, or substitute a legacy ETag for an opaque v2 revision.
+
+With the current CLI, `--section`, `--start-line`, `--end-line` and `--numbered`
+require `--legacy`. V2 supports complete source and `--since` deltas, not section
+snapshots. Prefer the scoped compatibility read for inspection; obtain one full
+v2 baseline only when the planned patch workflow needs it and none is cached.
+
+Attributed reads also affect what collaborators see. A full-body read selects
+the full source; a scoped read selects its returned passage, and a delta read
+does not claim a whole-document selection. Match the requested range to the
+work you are doing. Do not issue repeated full reads just to refresh presence;
+use a heartbeat for an active session or let recent presence expire.
+
+### Read commands
 
 The existing examples below use the explicit `--legacy` CLI contract (source
 `text` and content-hash `etag`). The v2 interface later in this guide uses
@@ -1258,9 +1307,12 @@ runner's environment when the task ends.
 
 ### Keep incremental reads compact
 
-For an agent following a note, save one full `read --json` baseline, then use
-`read --since "$BASE_HASH"` for subsequent checks. The default `inline-dff`
-returns only character edits and is the preferred compact response for agents.
+For an agent following a note, reuse the saved full `read --json` baseline;
+obtain one only if none is available. Then use `read --since "$BASE_HASH"` for
+subsequent checks instead of repeatedly downloading the full document. For
+one-off passage inspection, use the scoped reads above without fetching a full
+baseline. The default `inline-dff` returns only character edits and is the
+preferred compact response for agents.
 Use `--format diff` when line context or a standard unified patch is useful.
 On servers with localized unified-diff generation, this returns changed
 lines with up to three unchanged context lines on each side; nearby changes
@@ -1275,6 +1327,38 @@ only to the saved source matching `base`, verify its resulting hash, and never
 replace an existing draft's original revision just to make it pass. Unknown or
 expired bases remain errors. Use `--json` and extract `.patch` when a consumer
 needs patch text alone; normal text output includes metadata.
+
+#### Verify edits without rereading the whole note
+
+After a successful v2 patch, verify the acknowledged revision with a delta from
+your saved baseline. This uses the existing `baseline.json` from the pre-edit
+read and `receipt.json` from the successful patch; `NOTE_ID` is the same note
+used for both operations, as set in [Name a note](#name-a-note).
+
+```bash
+BASE_HASH=$(jq -er .hash baseline.json)
+ACK_REVISION=$(jq -er .revision receipt.json)
+dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" \
+  --if-match "$ACK_REVISION" --json > verified-delta.json
+```
+
+Check that the returned `base` matches the cached source hash and its `hash`
+matches the receipt. Apply the returned patch to that cached source, verify the
+resulting hash, and inspect the intended changes. Preserve unrelated changes
+when the write used merge mode. Save the reconstructed source and returned
+revision as the next baseline only after verification succeeds.
+
+An empty delta from the receipt's hash checks for changes after the write; it
+does not by itself verify the edited text. A stale `--if-match` fails rather than
+silently accepting a newer revision: retain the receipt and original baseline,
+then inspect an incremental read without that condition to reconcile later
+edits. Do not retry the write using a newly fetched revision merely to force it
+through. If the cached source or retained base is unavailable, take a new full
+snapshot explicitly; do not claim exact verification of an expired revision.
+
+The full-read examples below remain useful as standalone demonstrations and
+recovery checks. They are not a requirement to reread the entire note after
+every targeted edit.
 
 ### Reproduce a concurrent merge and an exact conflict
 
