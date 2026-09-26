@@ -301,6 +301,28 @@ See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) fo
 color choices, tables and portability. CLI/API HTML snapshots currently keep
 color directives as source text.
 
+### Web preview tags
+
+Open a web page beside a Note with a preview tag:
+
+```markdown
+:preview[https://example.com/deck/#slide-3]{title="Slide 3"}
+```
+
+The URL is required; the title is optional. Tags work in the editor, tables and
+rendered Markdown. A normal click opens the built-in web preview panel beside
+the Note. Reopening the exact URL reuses its tab; different URL fragments retain
+separate preview targets. Modified clicks keep ordinary browser link behavior.
+Only absolute HTTP(S) URLs without embedded credentials are accepted. Invalid
+syntax, duplicate or unknown attributes, unsafe schemes, code and escaped tags
+remain literal text. The saved source is unchanged by rendering.
+
+A target must allow iframe embedding. Its own authentication and framing policy
+still apply. A temporary tunnel URL works only while its tunnel and server run.
+Browser static rendering retains an inert label before hydration; server CLI
+HTML snapshots currently leave preview directives as literal source with the
+existing source mapping. They do not load the target or create a panel.
+
 ### Artifact references (development preview)
 
 Use Markdown directive notation for new references:
