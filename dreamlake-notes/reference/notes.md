@@ -269,7 +269,7 @@ Inside another DreamLake note, prefer `:note[<full-note-id>]` (development previ
 reference. A browser link does not change visibility or grant access to a
 private note.
 
-## Inline text color
+## Inline text color and highlights
 
 Use a color directive to style an inline span in Notes previews, table cells,
 and the app’s rendered Markdown:
@@ -277,6 +277,8 @@ and the app’s rendered Markdown:
 ```markdown
 :color[Important]{color="#ef4444"}
 :color[Ready]{color="green"}
+:highlight[Review needed]
+:highlight[Key finding]{color="#60a5fa"}
 :color{text="Review needed" color="#f90"}
 ```
 
@@ -287,8 +289,13 @@ backslashes with a backslash in bracket content. Color values must be quoted:
 `teal`, `aqua`, `orange` or `rebeccapurple`. Unknown attributes and invalid colors
 remain literal. Code, escaped directives and Markdown links remain literal too.
 Selecting a directive in the editor reveals its original editable source;
-saved Markdown is unchanged. This adds text color only; raw HTML and arbitrary
-CSS styles are not enabled.
+saved Markdown is unchanged. `:color` changes the foreground; `:highlight` adds
+a translucent background tint and keeps the surrounding text color. Omit the
+`color` attribute to use yellow: `:highlight[Important]` or
+`:highlight{text="Important"}`. Highlights
+accept the same colors and plain-text content as color directives, including the
+attribute-only form `:highlight{text="Review needed" color="yellow"}`.
+Raw HTML and arbitrary CSS styles are not enabled.
 
 See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) for formatting examples,
 color choices, tables and portability. CLI/API HTML snapshots currently keep
@@ -891,57 +898,165 @@ HTTP invocation is an independent operation, with no cross-request idempotency
 receipt: read and reconcile the result before resubmitting. Exact readback can itself return a conflict if another writer
 has already changed the acknowledged revision.
 
-### AI read activity and recent additions (development preview)
+### Agent presence and activity (development preview)
 
-An agent can identify its Notes operations using a stable, task-specific session
-ID. This is opt-in: ordinary CLI and Python calls do not imply AI activity.
-The server associates the declared agent session with the authenticated user;
-the agent name is a client-provided label, not a verified model identity.
+#### Agreed lifecycle and identity
 
-```bash
-# Use a distinct ID for each agent task; keep it stable across commands.
-export DREAMLAKE_AGENT_ID="notes-review-session-1"
-export DREAMLAKE_AGENT_NAME="Codex"
-dreamlake notes read "$NOTE_ID" --json
+**Presence is opt-in.** Agents can read and edit using normal authentication and
+revision checks without any agent ID, join, heartbeat, or leave. A runner opts in
+by supplying a stable session ID. The client generates it (a UUID once per task),
+not the server. Names and IDs are self-reported, grant no permissions, and are not
+verified audit identity. Two clients under the same authenticated owner can reuse
+an ID; random UUIDs prevent accidental collisions, not deliberate impersonation.
+
+Presence means **active in this note recently**, for both humans and agents. It is
+not proof that an agent is continuously watching, reading, or typing. Reuse the
+existing RTC awareness channel and header badge; do not add a status row below
+the bindr row.
+
+Keep three identities separate:
+
+| Identity | Purpose |
+|---|---|
+| Agent identity / display name | Identifies the agent; its name is a supplied label, not verified model identity. |
+| Task/session ID | Stable across all CLI calls in one task; distinct for concurrent sessions, even for the same agent. |
+| Human owner | Derived from authentication, not an agent-supplied owner field; attribution does not imply the owner is present. |
+
+The runner creates the task/session ID once, retains it across tool invocations,
+and passes it to every Notes command. Do not generate an ID on every command or
+use a shared display name as the session key. Resume the same ID for the same
+task; use a new ID for a new or concurrent task. Socket reconnections have their
+own transport IDs and must not create a new logical participant.
+
+The current `DREAMLAKE_AGENT_ID` / `X-DreamLake-Agent-Id` field carries this
+**task/session ID**, despite its name. It does not yet represent a separate,
+persistent agent-account ID. The roster key is scoped by note, authenticated
+owner, and session ID; the display name is never the key.
+
+| Event | Intended behavior |
+|---|---|
+| First attributed read/edit | Implicitly join and start the recent-presence timeout. |
+| Later read/edit with the same session ID | Refresh the existing badge, without adding another participant. |
+| Inactivity | Remove the badge after expiry; no cleanup command is required. |
+| Explicit leave/unjoin | Remove that session from that note immediately; do not erase its identity. |
+| Interaction after leave or expiry | Implicitly rejoin using the same session ID. |
+| Optional explicit join or maintained session | Support clients that need sustained presence; ordinary CLI use does not require it. |
+
+Human clients can send leave on navigation away or note closure. Abrupt tab close,
+crash, or network loss may prevent delivery, so expiry is still required. Agents
+have the same optional leave and expiry fallback. A session ID is identity, not a
+live lease: storing the ID does not keep a badge alive. Neither a TUI nor a
+continuous edit stream is required for recent presence.
+
+Read activity uses the **existing human selection and cursor display**, with the
+agent label and participant color. It selects the returned source range; a
+full-body read selects the full source, and incremental changes do not claim a
+whole-source selection. New read/focus activity replaces the previous selection.
+Search does not add a separate seek event. Do not render a second agent-specific
+selection style or a tool-call log.
+
+Insertion/replacement text uses a fading highlight only after acknowledgement.
+Deletion has no special marker in this iteration. Failed writes and dry runs never
+produce success highlights. Selections expire after 8 seconds; completed edit
+highlights fade over 5 seconds. Neither heartbeat nor badge renewal extends those
+lifetimes. A completed edit may finish fading after its author leaves. Human
+cursors retain relative CRDT anchoring; CLI selections are exact-source-hash bound
+and disappear on source changes, rather than guessing a new position.
+
+People and agents share participant-color rules, not action-specific colors.
+Use an agent icon and agent/owner labels to distinguish them; do not rely on color
+alone. Concurrent sessions must remain distinguishable even when names match.
+
+The proposed defaults are a 60-second recent-presence timeout and a 5-second
+completed-edit fade. Optional passage activity has an independent 8-second
+expiry. These are DreamLake choices, not asserted Google Docs, iMessage, or
+Claude Tag timing constants.
+
+#### Current preview limitations and optional controls
+
+The local implementation uses the lifecycle above: an attributed operation
+implicitly joins or renews the same 60-second presence entry. Anonymous agent
+identity is not inferred from ordinary API calls. A separate persistent
+agent-account identity is not yet part of the wire contract. Deployment and
+client release status must be checked independently of this source documentation.
+
+The matching unreleased CLI/server exposes these optional controls:
+
+```bash cli-help="notes presence"
+# NOTE_ID and the stable task identity must already be set.
+dreamlake notes presence "$NOTE_ID" join
+dreamlake notes presence "$NOTE_ID" heartbeat
+dreamlake notes presence "$NOTE_ID" clear
+dreamlake notes presence "$NOTE_ID" leave
+# Alternative: a blocking foreground helper; stop it when the task ends.
+dreamlake notes presence "$NOTE_ID" join --watch
 ```
 
-CLI **0.27.0+** and Python SDK **0.21.0+** send `X-DreamLake-Agent-Id` and optional
-`X-DreamLake-Agent-Name` on direct Notes body, section, and diff requests.
-Python reads the same environment variables. IDs accept 1–128 ASCII letters,
-digits, dots, colons, underscores and hyphens. Names accept at most 64 printable ASCII characters. Unset these variables after the task.
+`join --watch` heartbeats every 20 seconds and leaves when interrupted. It is
+optional, not the standard recipe. `clear` clears activity without leaving;
+`leave` removes presence. A heartbeat does not create a missing session or revive
+an expired one (410); join or a normal attributed interaction can establish
+presence again. Never start an untracked helper that outlives the task.
 
-Successful full reads indicate **read this note**. Ranged/section reads identify
-the returned passage, and incremental reads indicate **read changes** without
-pretending to have read the whole current source. These observations expire
-after 30 seconds. They indicate explicit read operations, not private model
-attention or continuous reading between calls. Failed reads publish nothing.
+API: `POST /namespaces/:slug/notes/:noteId/presence` accepts
+`{action, hash?, ranges?: [{start,end}]}`, bearer authentication,
+`X-DreamLake-Agent-Id`, and optional `X-DreamLake-Agent-Name`.
+Actions are `join`, `heartbeat`, `read`, `edit`, `seek`, `clear`, `leave`.
+Response is `{state}` or `{state:null}` after leave. Only authenticated members or
+explicitly shared readers may publish; `edit` also requires write permission.
+Public visibility alone does not grant presence access. Controls do not mutate
+document content or revision. Owner metadata comes from authenticated lookup.
 
-Acknowledged edits indicate **added text**, with inserted/replacement spans
-highlighted green for up to 15 seconds. A deletion-only edit indicates
-**updated note**. Reading is shown separately in blue. Multiple agent sessions
-remain separate; each session retains its latest read and latest update.
-The browser polls every three seconds while visible. Names and operation labels
-make the meaning available without relying on color; reduced-motion mode uses
-a static highlight until expiry.
+Explicit ranges require the exact source SHA-256 and zero-based, end-exclusive
+Unicode code point offsets. Stale or out-of-bounds locations are refused. A
+collapsed seek is a caret, not a claim that text was read. Source changes invalidate
+hash-bound markers. Deletion-only edits do not invent insertion ranges.
+Errors include missing identity/invalid input (400), denied access (404), stale
+range (409), expired heartbeat (410), and unavailable relay (503).
 
-Precise ranges are bound to the exact source hash and count Unicode code points
-on the wire. The editor converts them to its UTF-16 offsets. Any source change
-clears precise highlights immediately; a new matching observation can restore
-them. If concurrent edits make the acknowledged source differ from the agent's
-isolated patch target, show an update label with no guessed insertion range.
-This initial version does not rebase activity through CRDT identities. Rich
-widgets that replace source text may hide inline marks; activity labels remain
-available. Read-only rendered Notes show the labels, while source-range marks
-are currently available in the live editor.
+Identity values accept 1–128 ASCII letters, digits, dots, colons, underscores and
+hyphens; names accept at most 64 printable ASCII characters. CLI 0.27.0+ and
+Python SDK 0.21.0+ attach identity headers to Notes body/section/diff operations
+when the environment variables below are set. Explicit presence commands require
+the matching unreleased source and server, and an active collaborative room.
+Updating a skill does not update a binary or deploy a server. Python has no
+presence convenience method yet; use the HTTP contract when available.
+The authorized agent-activity feed retains operation observations, not an online
+roster. Observation failures must not turn an acknowledged edit into an apparent
+failed edit. Live source-range decorations currently require the collaborative
+editor; this preview does not add a read-only RTC client.
 
-Activity is ephemeral, bounded, and separate from canonical text and revision
-history. Namespace members and explicitly shared authenticated readers can
-request `GET /namespaces/:slug/notes/:noteId/agent-activity`; public note visibility
-alone does not grant activity access. Events include session/owner identity,
-source hash, ranges, kind, and expiry, but no note text. Store failures do not
-fail an otherwise successful note operation. No explicit heartbeat or fake
-cursor is generated. This preview requires the matching server, UI, CLI/SDK;
-updating docs or skills alone does not activate it on installed clients.
+#### Agentic usage pattern: one identity, normal commands
+
+For agents that opt into presence, initialize once in the runner's task environment. For separate shell tool calls,
+the runner must inject the same saved values each time; an export in one shell
+does not propagate into later independent shells. No explicit join is required.
+
+```bash
+export DREAMLAKE_AGENT_ID="codex:$(python3 -c 'import uuid; print(uuid.uuid4())')"
+export DREAMLAKE_AGENT_NAME="Codex"
+NOTE_ID="<full-note-id>"
+```
+
+Run ordinary commands with that identity. Reading establishes/refreshes presence;
+it does not mean the agent remains actively reading between commands.
+
+```bash
+dreamlake notes read "$NOTE_ID" --json > baseline.json
+dreamlake notes find lighthouse --note "$NOTE_ID" --json
+# Draft a reviewed patch against baseline.json, using the patch workflow below.
+# Retain its revision, apply the patch, and read back the acknowledged revision.
+```
+
+The conditional patch and exact-readback examples elsewhere in this guide remain
+required; presence does not relax concurrency checks. Do not retry an old patch
+with a newly fetched revision merely to force it through.
+
+When finished, optionally call `dreamlake notes presence "$NOTE_ID" leave` on a
+matching preview installation. Otherwise let presence expire. Do not forget the
+session ID between commands, and do not require the agent to remember cleanup for
+correctness. Stop any optional watch helper and remove the task identity from the
+runner's environment when the task ends.
 
 ### Keep incremental reads compact
 
