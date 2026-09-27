@@ -314,7 +314,12 @@ Attach optional `user` and `comment` strings to a highlight:
 :highlight[重点 🤖]{comment="First line\nSecond line"}
 ```
 
-Hover or Tab to a metadata-bearing highlight to read its author and comment.
+Highlight annotations reuse the Notes inline/sidebar comments toggle. In inline
+mode, click the small comment button beside a highlight (or Tab to it and press
+Enter) to open the uikit popover. In sidebar mode, read the same metadata in the
+comment rail. Narrow panes fall back to inline mode. The popover and sidebar
+edit action reveals the original directive; clicking highlighted text also
+reveals its editable source. Read-only notes show metadata without edit controls.
 The author is a supplied label, not a verified account identity or permission.
 These are plain-text annotations on a highlight, not saved comment threads.
 Either field may be omitted; empty strings add no label. Existing plain highlights
@@ -333,13 +338,20 @@ For example, set `NOTE_ID` to the target note ID and read its legacy ETag
 (the replacement helper uses an ETag, not a v2 `rtc:` revision):
 
 ```bash
-dreamlake notes read --legacy --note "$NOTE_ID" --json
-# Set REV to the etag returned above, preserving its quotes.
+# NOTE_ID is the ID returned by create/list; this edits an existing highlight.
+SNAPSHOT=$(mktemp)
+dreamlake notes read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
+REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
 dreamlake notes replace ':highlight[Review needed]' \
   --text ':highlight[Review needed]{user="Research agent" comment="Check the source"}' \
   --note "$NOTE_ID" --if-match "$REV"
-dreamlake notes read "$NOTE_ID"
+dreamlake notes read "$NOTE_ID" --json
+rm "$SNAPSHOT"
 ```
+
+The existing `notes create --text` / `--file` commands also accept this syntax.
+There is no dedicated highlight command: these are ordinary Markdown directives,
+so matching text with `notes replace` is enough; no line numbers are needed.
 
 Do not overwrite the whole note to update one annotation. CLI/SDK storage already
 accepts this Markdown; no new client method or package version is required.
