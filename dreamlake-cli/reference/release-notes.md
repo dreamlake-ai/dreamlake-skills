@@ -1,5 +1,54 @@
 # Release notes
 
+## Unreleased — Addressed Notes snapshots
+
+Snapshot reads add `--at`, `--toc`, section views and `--tag` element lookup.
+Nested semantic sections and paragraphs carry revision-local IDs, code-point
+ranges and line ranges. `--since` defaults to line diffs; linger retains its
+source/SSE contract. Local validation only; not yet released or deployed.
+
+## 0.32.4 — Share-link management
+
+Notes and artifacts now expose `share get/create/revoke` and `visibility` commands
+for existing resources. Notes also support accepted-access listing/removal and
+optional revocation of accepted grants. Link inspection never enables sharing.
+
+## 0.32.3 — Task-based Notes examples
+
+Notes help now demonstrates finding and reading a note, previewing a precise
+wording change, verifying it, and collaborating with distinct agent identities.
+Normal reads use no JSON or view flags. Patch help retains revisions from normal
+text output, and the local-editor recipe avoids zsh’s read-only `status` variable.
+
+## 0.32.2 — Notes quick-start help
+
+`dreamlake notes --help` now includes practical examples for finding, reading,
+following, and creating notes, inspecting sections and attachments, and finding
+revision-safe edit recipes. The same examples ship in the bundled CLI skill.
+
+## 0.32.1 — Highlight handles and hover guidance
+
+The bundled skill uses canonical public user handles for highlight attribution
+and documents the minimal hover/focus popover, without an extra icon. Exact
+profile resolution is self-declared attribution; legacy names remain unresolved.
+The revision-safe matching-text example uses the same existing CLI commands.
+
+## 0.32.0 — Agent selection by text
+
+`notes select --text "passage" --note NOTE` resolves literal source and publishes
+an agent selection through RTC. Ambiguous matches require `--section` or
+`--occurrence` (`-o`); negative values count from the end (`-o -1` selects
+the last match). Stale hashes fail without guessing. CSS lookup remains compatible.
+Section mode requires the server update adding a source hash and global
+code-point range. Plain-text receipts include the selected text, scope, resolved
+match and expiry times. JSON remains opt-in for explicit integrations.
+
+## 0.31.3 — Highlight annotation guidance
+
+The bundled CLI skill documents `user` and `comment` highlight metadata, the
+shared inline/sidebar comment UI, click-to-edit, and a tested revision-safe
+matching-text example. No CLI command or storage behavior changes.
+
 ## 0.31.2 — Clearer participant names
 
 - Show people as `@username` and agents by their configured name, without surrounding quotes. Keep quotes around selected text.

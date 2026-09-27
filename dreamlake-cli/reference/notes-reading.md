@@ -43,8 +43,8 @@ dreamlake notes read "$NOTE_ID" --since "$HASH" --format diff --json > changes.j
 jq -jr .patch changes.json > changes.diff
 ```
 
-`inline-dff` is the current spelling and the default for one-shot incremental
-reads. It shows character edits. `diff` shows a unified line diff, normally with
+`diff` is the default for differential reads. `inline-dff` is an explicit
+character-diff option. `diff` shows a unified line diff, normally with
 three context lines around changes. Nearby edits share a hunk; distant edits
 remain separate. Older servers may generate broader hunks.
 
@@ -119,3 +119,51 @@ read and reconcile before making another edit.
 
 Next: [Editing with patches](/notes/editing/) or
 [Live collaboration](/notes/collaboration/).
+
+### Focused and historical reads (unreleased)
+
+`read` returns the current snapshot. Use `--at REVISION` for a retained snapshot;
+`--since HASH` remains a unified line-diff read. Snapshot selectors are mutually
+exclusive, and cannot combine with `--since` or `--linger`:
+
+```bash
+# NOTE_ID identifies an accessible note; copy REVISION from its read receipt.
+dreamlake notes read "$NOTE_ID"
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --toc
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1.1
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
+```
+
+Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
+`data-index="s1.1"`; headings use `s1.1.h`, paragraphs `s1.1.p1`. Paragraph numbering
+restarts per section. `--tag` is an exact element ID; a section ID selects its
+entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
+return 404; every read checks current permissions.
+
+`data-start`/`data-end` are absolute, zero-based, end-exclusive Unicode code-point
+ranges in original source. `data-lines` is one-based and inclusive. A scoped root
+contains only the selected `data-source`, with its global `data-source-start` and
+`data-source-end` and its own `data-source-hash`. The root's `data-hash` and
+`data-revision` still identify the complete document. Subtract `data-source-start`
+when slicing local source; keep absolute offsets in the patch. TOCs carry exact
+heading source on each heading and empty root source. Never upload a slice or
+rendered HTML as the complete note.
+
+```bash
+# edit.dff is prepared from the exact source at REVISION.
+dreamlake notes patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
+# NEXT_REVISION comes from that write receipt.
+dreamlake notes read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
+```
+
+Exact mode refuses concurrent edits with 412; native merge mode remains available
+by omitting `--exact`. `--if-match` checks the current revision, while `--at`
+retrieves history: do not combine them. Preserve an existing draft's original
+baseline even after another read or linger update. Linger continues to emit source
+snapshots and line diffs; inspect a streamed revision using a separate pinned read.
+Pinned reads do not overwrite live presence with historical offsets.
+
+See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
+for ID generation, ranges, examples, efficiency limits, and the executable
+acceptance harness. This is an unreleased contract; the linked page is local
+until the docs deployment ships it.
