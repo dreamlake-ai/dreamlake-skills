@@ -191,3 +191,58 @@ require CLI 0.27.0+; visit/linger require 0.29.0+; read-only `presence` requires
 Each also needs matching server support.
 
 Next: [Editing with patches](/notes/editing/).
+
+## Select a passage by text
+
+**Unreleased:** requires a CLI build containing `notes select --text`. Section
+selection also requires the server's section `hash` and code-point `range`
+fields. Source changes and local skill generation do not publish either release.
+
+Set one stable identity for the task, authenticate normally, and use a dedicated
+test note when trying examples. Replace the note ID and exact source passage:
+
+```bash cli-help="notes select"
+export DREAMLAKE_AGENT_ID="review-session-42"
+export DREAMLAKE_AGENT_NAME="Codex"
+NOTE_ID="your-note-id"
+dreamlake notes select --text "The next step is tested in simulation." --note "$NOTE_ID"
+```
+
+The command matches literal canonical source (including Markdown or HTML markup),
+then publishes an agent selection through the existing RTC presence channel.
+It does not change note content or the human's cursor. The human sees a collaborator
+selection and can use the agent's location control to navigate to it. The receipt
+confirms server acceptance; it does not prove a particular browser rendered it.
+
+Zero matches or multiple matches fail without publishing. Narrow the scope to a
+section anchor, or explicitly choose a 1-based occurrence within that scope:
+
+```bash
+# Use the heading anchor from notes sections; this fetches only that section.
+dreamlake notes select --text "simulation" --section next-steps --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+```
+
+Section resolution uses one section read with a global code-point range and the
+whole-source hash; it never downloads the rest of the note. Older servers lacking
+that metadata fail explicitly. Existing section `start`/`end` fields remain UTF-16;
+only the new `range` is in code points. A whole-note selection uses one v2 body read
+internally but does not print the body. Matching reads do not publish broad read
+highlights. Exact matching preserves whitespace and Unicode normalization.
+
+The server rechecks the source hash before accepting the range. `stale_range`
+means the note changed: re-read the relevant section and retry against its current
+text. No automatic retry guesses a new location. Optionally pass `--hash "$HASH"`
+using a retained `sha256:…` source hash to require that exact source. This is an
+observation precondition, not a content write or a saved revision.
+
+Normal output is a short publication receipt with a half-open code-point range
+and separate selection/presence expiry times. `--json` adds `note`, `hash`, `range`,
+`occurrence`, `matches`, `published`, `selectionExpiresAt` and `presenceExpiresAt`
+(epoch milliseconds). Selection activity currently expires after eight seconds;
+the participant lease lasts sixty seconds. Heartbeats maintain presence, not the
+selection. Re-run selection to draw attention to the passage again.
+
+`notes select "#contact" --note "$NOTE_ID"` retains its CSS lookup behavior:
+it reports element text and ranges without publishing a seek. Do not combine CSS
+with `--text`, `--section`, `--occurrence` or `--hash`. `notes find` remains a lookup.

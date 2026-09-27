@@ -1,5 +1,13 @@
 # Release notes
 
+## Unreleased — Agent selection by text
+
+`notes select --text "passage" --note NOTE` resolves literal source and publishes
+an agent selection through RTC. Ambiguous matches require `--section` or
+`--occurrence`; stale hashes fail without guessing. CSS lookup remains compatible.
+Section reads add a source hash and global code-point range. CLI/server release,
+docs deployment and public skill publication are pending.
+
 ## 0.31.2 — Clearer participant names
 
 - Show people as `@username` and agents by their configured name, without surrounding quotes. Keep quotes around selected text.
