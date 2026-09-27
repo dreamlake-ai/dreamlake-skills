@@ -2049,3 +2049,9 @@ source changes before publication, `stale_range` fails without a guessed retry:
 read the section again and select its current text. Duplicate/missing matches
 publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 `notes find` remain lookup operations, not explicit visible seek commands.
+
+For address hints while reading Markdown, use `read NOTE --view markdown` with
+the addressed-read CLI/server build. It preserves the selected source text and
+inserts generated address/character/line comments. List-item targets use
+section-local `s1.li1` IDs, including nested items. This reading view is not
+canonical source and must not be written back as a complete note.
