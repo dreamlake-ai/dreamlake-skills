@@ -2047,19 +2047,21 @@ private. Use `--namespace <slug>` for another namespace.
 
 Only the namespace owner or an eligible Note creator may manage sharing.
 `create --role write` enables editing; the default is `read`. Updating the role
-reuses the token and affects future admissions; accepted users retain their
-accepted roles. Note IDs resolve their owning namespace automatically.
+reuses the token and changes the role evaluated on subsequent requests for
+everyone admitted through the link. Note IDs resolve their owning namespace automatically.
 
 ```bash
 dreamlake notes share revoke "$RESOURCE" --revoke-accepted
 ```
 
-Ordinary revocation clears only the link. `--revoke-accepted` also removes
-accepted grants. A collaborator who already has the room address may keep
+Ordinary revocation clears the link and blocks subsequent link-derived access,
+including for prior recipients. Their acceptance records remain: enabling
+sharing again restores access under the current link role. `--revoke-accepted`
+also deletes those records, so recipients must accept a valid link again. A collaborator who already has the room address may keep
 editing until the room is rotated; this command does not rotate rooms.
 
 ```bash
-# Lists accepted users, their user ids, and roles as JSON.
+# Lists acceptance records, user ids, and stored roles as JSON.
 dreamlake notes share access "$RESOURCE"
 ```
 
@@ -2068,5 +2070,8 @@ USER_ID="user-id-from-access-list"
 dreamlake notes share remove "$RESOURCE" "$USER_ID"
 ```
 
-Removing a grant does not invalidate a circulating link; that link can admit
+The access list returns stored roles, which may lag behind the live link role.
+Use `share get` to inspect the current link role.
+
+Removing an acceptance record does not invalidate a circulating link; that link can admit
 the user again. Membership and public access are unaffected.
