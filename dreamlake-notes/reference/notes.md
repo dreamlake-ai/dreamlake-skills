@@ -304,6 +304,47 @@ See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) fo
 color choices, tables and portability. CLI/API HTML snapshots currently keep
 color directives as source text.
 
+### Highlight metadata
+
+Attach optional `user` and `comment` strings to a highlight:
+
+```markdown
+:highlight[Review needed]{user="Ge" comment="Confirm the delivery date"}
+:highlight[Key finding]{color="#60a5fa" user="Research agent" comment="Check the source"}
+:highlight[重点 🤖]{comment="First line\nSecond line"}
+```
+
+Hover or Tab to a metadata-bearing highlight to read its author and comment.
+The author is a supplied label, not a verified account identity or permission.
+These are plain-text annotations on a highlight, not saved comment threads.
+Either field may be omitted; empty strings add no label. Existing plain highlights
+and colors keep their behavior. Select the directive in the editor to edit its
+source, including metadata. Metadata does not change the highlighted text or
+its source offsets, including in table cells and read-only app views.
+
+Attribute values use JSON string escaping: `\"` for a quote, `\\` for a
+backslash and `\n` for a newline. HTML in metadata stays text. Unknown or duplicate
+attributes and malformed quoting leave the whole directive literal. Use `user`,
+not `author`; only `color`, `user` and `comment` are accepted secondary attributes.
+
+Agents should first read the note and retain its revision, then replace the exact
+existing directive using `--if-match` and read it back.
+For example, set `NOTE_ID` to the target note ID and read its legacy ETag
+(the replacement helper uses an ETag, not a v2 `rtc:` revision):
+
+```bash
+dreamlake notes read --legacy --note "$NOTE_ID" --json
+# Set REV to the etag returned above, preserving its quotes.
+dreamlake notes replace ':highlight[Review needed]' \
+  --text ':highlight[Review needed]{user="Research agent" comment="Check the source"}' \
+  --note "$NOTE_ID" --if-match "$REV"
+dreamlake notes read "$NOTE_ID"
+```
+
+Do not overwrite the whole note to update one annotation. CLI/SDK storage already
+accepts this Markdown; no new client method or package version is required.
+CLI/API HTML snapshots retain rich directives as source text; the app renders them.
+
 ### Web preview tags
 
 Open a web page beside a Note with a preview tag:
