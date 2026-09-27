@@ -1870,7 +1870,7 @@ With the compatible v2 server and CLI, `dreamlake notes read "$NOTE_ID" --view h
 returns a complete inert HTML document. Root `data-note`, `data-hash`,
 `data-revision`, `data-source-type`, `data-offset-unit` and `data-source`
 attributes contain the exact canonical source and its baseline. Element
-`data-start`/`data-end` ranges address that source in Unicode code points;
+`data-char="start:end"` ranges address that source in Unicode code points;
 `data-map` marks linear text, atomic syntax or generated presentation.
 
 Decode the source attribute once to recover canonical source, including original
@@ -1901,7 +1901,7 @@ restarts per section. `--tag` is an exact element ID; a section ID selects its
 entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
 return 404; every read checks current permissions.
 
-`data-start`/`data-end` are absolute, zero-based, end-exclusive Unicode code-point
+`data-char="start:end"` are absolute, zero-based, end-exclusive Unicode code-point
 ranges in original source. `data-lines` is one-based and inclusive. A scoped root
 contains only the selected `data-source`, with its global `data-source-start` and
 `data-source-end` and its own `data-source-hash`. The root's `data-hash` and
@@ -1940,7 +1940,7 @@ Code, escaped punctuation, Markdown links and URL paths keep their ordinary
 interpretation. Existing `[ owner ]` placeholders retain blue boxes, visible
 brackets, inner spacing and the **placeholder** hover label.
 
-Recognized components carry atomic `data-start`, `data-end` and `data-map`
+Recognized components carry atomic `data-char` and `data-map`
 attributes addressing the complete token in canonical Unicode-code-point
 source. The root `data-source` remains exact. When Markdown normalizes a region
 so an exact token range cannot be proven, its enclosing block remains atomic;

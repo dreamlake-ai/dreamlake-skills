@@ -140,7 +140,7 @@ restarts per section. `--tag` is an exact element ID; a section ID selects its
 entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
 return 404; every read checks current permissions.
 
-`data-start`/`data-end` are absolute, zero-based, end-exclusive Unicode code-point
+`data-char="start:end"` are absolute, zero-based, end-exclusive Unicode code-point
 ranges in original source. `data-lines` is one-based and inclusive. A scoped root
 contains only the selected `data-source`, with its global `data-source-start` and
 `data-source-end` and its own `data-source-hash`. The root's `data-hash` and
