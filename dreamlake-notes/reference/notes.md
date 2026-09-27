@@ -2014,3 +2014,64 @@ source changes before publication, `stale_range` fails without a guessed retry:
 read the section again and select its current text. Duplicate/missing matches
 publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 `notes find` remain lookup operations, not explicit visible seek commands.
+
+## Manage existing share links
+
+These commands require CLI 0.32.4 or later; check
+`dreamlake notes share --help` before using them.
+
+Requires an authenticated login and an existing resource. These commands change
+metadata only; they do not upload content or create a new version.
+
+```bash
+# Set this to your existing Note id.
+RESOURCE="your-note-id"
+dreamlake notes share get "$RESOURCE"
+dreamlake notes share create "$RESOURCE" --role read
+dreamlake notes share revoke "$RESOURCE"
+```
+
+`get` never enables sharing. It reports the resource URL, visibility, and
+existing share URL. A resource URL alone does not grant access. `--json` provides
+structured link metadata; `shareStatus: unavailable` means the server did not
+expose the token to this caller, not that sharing is disabled.
+
+```bash
+dreamlake notes visibility "$RESOURCE" public
+dreamlake notes visibility "$RESOURCE" private
+```
+
+Visibility and sharing are independent. Making a resource private does not
+revoke links or accepted access. Revoking a link does not make a public resource
+private. Use `--namespace <slug>` for another namespace.
+
+Only the namespace owner or an eligible Note creator may manage sharing.
+`create --role write` enables editing; the default is `read`. Updating the role
+reuses the token and changes the role evaluated on subsequent requests for
+everyone admitted through the link. Note IDs resolve their owning namespace automatically.
+
+```bash
+dreamlake notes share revoke "$RESOURCE" --revoke-accepted
+```
+
+Ordinary revocation clears the link and blocks subsequent link-derived access,
+including for prior recipients. Their acceptance records remain: enabling
+sharing again restores access under the current link role. `--revoke-accepted`
+also deletes those records, so recipients must accept a valid link again. A collaborator who already has the room address may keep
+editing until the room is rotated; this command does not rotate rooms.
+
+```bash
+# Lists acceptance records, user ids, and stored roles as JSON.
+dreamlake notes share access "$RESOURCE"
+```
+
+```bash
+USER_ID="user-id-from-access-list"
+dreamlake notes share remove "$RESOURCE" "$USER_ID"
+```
+
+The access list returns stored roles, which may lag behind the live link role.
+Use `share get` to inspect the current link role.
+
+Removing an acceptance record does not invalidate a circulating link; that link can admit
+the user again. Membership and public access are unaffected.
