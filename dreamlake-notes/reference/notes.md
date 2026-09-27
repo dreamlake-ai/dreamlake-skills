@@ -403,6 +403,41 @@ it or changing the surrounding Note/project URL. Note-section scrolling remains
 separate from this artifact behavior. An existing artifact ID or an author-defined hash route must supply
 the target; do not infer slide numbering or invent a section.
 
+## Suggested edits
+
+Use three tags for reviewable edits stored directly in the note:
+
+```markdown
+:insert[new text]{user="geyang"}
+:delete[existing text]{user="geyang"}
+:replace[existing text]{with="replacement text" user="geyang"}
+```
+
+`user` is optional display attribution. `replace` requires `with`; an empty
+replacement is allowed. Add optional `reason="Why this change helps"` to explain
+a suggestion. Attribute values are JSON strings. Escape literal brackets and
+backslashes in the bracket body with a backslash. Insertion-menu choices fill
+the signed-in user's name; scripts can supply attribution explicitly.
+
+Insertions are underlined and deletions struck through in the note. A replacement
+shows both. Review actions live in a bracketed sidebar card alongside comments,
+with the author, proposed change or explanation, and **accept · reject** inside.
+Hovering or focusing a suggestion/card reveals its connection. Suggestions stay
+visible inline regardless of the comment-view toggle. In narrow panes, review
+cards stack below the note so their actions remain available.
+
+Accept applies the proposed text: insert keeps new text, delete removes old
+text, and replace substitutes its `with` value. Reject removes an insertion or
+restores the original text of a deletion/replacement. Each decision replaces
+only that exact tag in one undoable editor operation and uses the note's normal
+collaborative save. If the source changed before the action, it refuses the stale
+operation. Note writers can accept/reject; read-only views show the proposal
+without write controls. No separate suggestion collection or replies are added.
+
+Incomplete or malformed tags remain literal. Tags inside code, Markdown links,
+or comments do not become suggested edits. Supported kinds are intentionally
+limited to insert, delete, and replace; use comments for questions or discussion.
+
 ## Comments (development preview)
 
 Comments use `:comment[text]` for text stored in the note and

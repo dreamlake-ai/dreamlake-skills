@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "f164784f641d77824af3313fd945cd61c9783c9382258ee12483c364153378d8",
+  "sourcesSha256": "42ec5e6726721f3c879c354384a6336da94e901cd696405a7a84f5df78547504",
   "files": {
     "dreamlake-cli/SKILL.md": "a64d8333f5c7b6af3d049bdd06d1dca2487eb9354745366d511bff33fd566ed7",
     "dreamlake-cli/reference/agents.md": "29b23321a4f10af056e7e2a4959feeb241ab1766ab69df1c91585ff0ba98445b",
@@ -47,6 +47,6 @@
     "dreamlake-cli/reference/vault-write-recovery.md": "ca3f5702991d3f17b819b723188dca3f40e565de4a6048324853bf8a15d11780",
     "dreamlake-cli/reference/workflows.md": "33854319791cd5eee1efe97d136719c393a3753ec102e8031d796338ed0265ed",
     "dreamlake-notes/SKILL.md": "74569a03f70cd78e7c74170b96c69d19baa960a7f9dd05f4d886606e1036e61e",
-    "dreamlake-notes/reference/notes.md": "652089b45ff88478bf28e723f4284a0594ab738bb8706f693cc0278e862ee7af"
+    "dreamlake-notes/reference/notes.md": "f1214cbcebb0f077d70bcf5a3cd08e49b940fcdb9580f3df8f3d0b3ac621c2d9"
   }
 }
