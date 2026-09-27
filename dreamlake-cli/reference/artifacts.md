@@ -83,15 +83,24 @@ be undone and it reports how many objects it purged.
 
 Available in CLI 0.32.4 and later; check `dreamlake artifact share --help` for installed support.
 
-Requires an authenticated login and an existing resource. These commands change
+Requires an authenticated login, an existing resource, and permission to
+manage its sharing. Run these mutation steps only when the user has asked
+to grant or revoke access. These commands change
 metadata only; they do not upload content or create a new version.
 
 ```bash cli-help="artifact share"
-# Set this to your existing artifact id.
-RESOURCE="q1-dashboard"
-dreamlake artifact share get "$RESOURCE"
-dreamlake artifact share create "$RESOURCE"
-dreamlake artifact share revoke "$RESOURCE"
+# Find the dashboard you already uploaded; no new version is needed.
+dreamlake artifact list
+ARTIFACT="q1-dashboard" # Replace with the id from list.
+dreamlake artifact share get "$ARTIFACT"
+
+# Give signed-in recipients read access, then verify the returned link.
+dreamlake artifact share create "$ARTIFACT"
+dreamlake artifact share get "$ARTIFACT"
+
+# When link access is no longer needed, revoke it and verify.
+dreamlake artifact share revoke "$ARTIFACT"
+dreamlake artifact share get "$ARTIFACT"
 ```
 
 `get` never enables sharing. It reports the resource URL, visibility, and
@@ -100,8 +109,9 @@ structured link metadata; `shareStatus: unavailable` means the server did not
 expose the token to this caller, not that sharing is disabled.
 
 ```bash cli-help="artifact visibility"
-dreamlake artifact visibility "$RESOURCE" public
-dreamlake artifact visibility "$RESOURCE" private
+ARTIFACT="q1-dashboard" # Your existing artifact id.
+dreamlake artifact visibility "$ARTIFACT" public
+dreamlake artifact visibility "$ARTIFACT" private
 ```
 
 Visibility and sharing are independent. Making a resource private does not
