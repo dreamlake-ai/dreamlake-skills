@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.32.2 — Notes quick-start help
+
+`dreamlake notes --help` now includes practical examples for finding, reading,
+following, and creating notes, inspecting sections and attachments, and finding
+revision-safe edit recipes. The same examples ship in the bundled CLI skill.
+
 ## 0.32.1 — Highlight handles and hover guidance
 
 The bundled skill uses canonical public user handles for highlight attribution
