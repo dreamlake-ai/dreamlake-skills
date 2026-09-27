@@ -56,40 +56,49 @@ dreamlake delete file /camera/front/clip.mp4 --episode my-robots:run-001
 
 ## Transfer a project between namespaces (server rollout pending)
 
-`transfer project` previews an explicit server-backed operation. Both namespaces
-must be owned by the authenticated user (personal owner or active organization
-owner). Preview does not move anything. Exit status is 0 for an eligible plan,
-2 for a blocked plan, and 1 for a request or argument error.
+`transfer project` previews a server-backed operation. Both namespaces must be
+owned by the authenticated user (personal owner or active organization owner).
+The current implementation exports **personal** projects; organization exports
+remain blocked because they can revoke inherited access and live RTC sessions.
+Preview never moves data. Exit status is 0 for an eligible plan, 2 for blockers,
+and 1 for a request or argument error.
 
 ```bash cli-help="transfer project"
-# First authenticate and select the intended server.
 dreamlake login
-# Preview the proposed move; inspect counts, blockers, grants and planId.
-dreamlake transfer project dreamlake@geyang --to fortyfive
-# Only after the server operator enables a quiesced transfer window:
-# Replace PLAN_ID with the exact planId returned by a fresh reviewed preview.
-dreamlake transfer project dreamlake@geyang --to fortyfive --apply --expected-plan PLAN_ID
+# Preview the project, tasks and all mounted/task-linked Notes.
+dreamlake transfer project dreamlake@geyang --to fortyfive --notes move
+# Review the complete Note list, other project mounts, grants and blockers.
+# Replace PLAN_ID with the planId returned by that reviewed preview.
+dreamlake transfer project dreamlake@geyang --to fortyfive --notes move --apply --expected-plan PLAN_ID
 ```
 
-This initial implementation is deliberately limited to structural project trees:
-projects, folders, and episodes, including deleted descendants. Bindrs, datasets,
-direct user grants, IDs, paths, and visibility remain intact. Destination namespace
-ownership replaces source ownership. Existing direct grantees retain access.
-Team grants, mounted resources (including Notes and artifacts), asset nodes,
-sources, task records, tracks, and embedding jobs block execution. These resources
-have independent ownership, storage, credentials, or history; they are not copied,
-unmounted, or silently reassigned. A blocked populated project needs a further
-migration implementation, not removal of its data to bypass the check.
+`--notes move` explicitly transfers ownership of mounted and task-linked Notes,
+including their attachment catalogs and share records. Without it, Notes block
+apply. Task IDs, event history, Note IDs, content, storage keys, RTC rooms, Bindrs,
+datasets, project visibility and direct user grants remain intact. Destination
+namespace ownership replaces personal namespace ownership.
 
-Execution is disabled by default. This is not yet a general online transfer feature.
-The server operator must stop all other writers before enabling the transfer
-endpoint; a MongoDB transaction alone does not fence existing concurrent writers.
-A fresh preview is required after enablement. The apply request rechecks ownership,
-collisions (including tombstones), dependencies, and the plan in its transaction.
-Any failure rolls back the entire database update; there is no partial copy.
+A Note mounted in another project remains there. Its old namespace-qualified URL
+continues to resolve under the **current owner's permissions**; an old namespace
+never grants access to a moved Note. Existing share tokens retain their existing
+semantics, and accepted-share catalog entries point at the destination. Moving a
+Note does not copy its body or attachments, and does not rewrite links in its body.
 
-Old namespace-qualified project URLs have no redirect. Use the destination
-namespace and the unchanged project slug. IDs stay the same. After a successful
-move, rollback is a new preview and transfer in the opposite direction, subject
-to the same checks; it is not an unconditional undo. This command requires the
-companion server endpoint; an older server returns an error without a fallback.
+Assets, non-Note resource mounts, sources/namespace-bound credentials, tracks,
+embedding jobs and team grants still block apply. The plan lists each blocker;
+no dependency is deleted or silently detached. Destination project and Note slug
+collisions, including tombstones, also block the operation.
+
+Apply requires the server rollout flag after **all** API replicas and workers
+have the transactional ownership fences. Once enabled, ordinary writes may
+continue: child creation fences its project or Note in the same transaction.
+A stale writer is rejected and must resolve the new namespace. The apply request
+rechecks the reviewed plan and commits all ownership changes together. Any failure
+rolls back the database transaction; there is no partial-copy fallback.
+
+Project URLs do not redirect. The old project slug is reserved so delayed uploads
+cannot recreate it accidentally. Use the destination namespace and unchanged
+project slug. Reverse transfer requires a new eligible plan; organization export
+is not supported yet, so an organization-bound move has no automatic CLI undo.
+Older servers return an error without attempting a copy. No release or live
+transfer is implied by these draft docs.
