@@ -81,7 +81,7 @@ be undone and it reports how many objects it purged.
 
 ## Manage existing share links
 
-Unreleased: check `dreamlake artifact share --help` for installed support.
+Available in CLI 0.32.4 and later; check `dreamlake artifact share --help` for installed support.
 
 Requires an authenticated login and an existing resource. These commands change
 metadata only; they do not upload content or create a new version.

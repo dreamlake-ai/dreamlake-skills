@@ -2017,7 +2017,7 @@ publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 
 ## Manage existing share links
 
-These commands require the forthcoming share-management CLI release; check
+These commands require CLI 0.32.4 or later; check
 `dreamlake notes share --help` before using them.
 
 Requires an authenticated login and an existing resource. These commands change

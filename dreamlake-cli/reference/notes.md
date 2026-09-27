@@ -138,7 +138,7 @@ content; it cannot recover an unsynced draft held in someone else's browser.
 
 ## Manage existing share links
 
-Unreleased: check `dreamlake notes share --help` for installed support.
+Available in CLI 0.32.4 and later; check `dreamlake notes share --help` for installed support.
 
 Requires an authenticated login and an existing resource. These commands change
 metadata only; they do not upload content or create a new version.

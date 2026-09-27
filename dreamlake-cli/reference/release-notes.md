@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.32.4 — Share-link management
+
+Notes and artifacts now expose `share get/create/revoke` and `visibility` commands
+for existing resources. Notes also support accepted-access listing/removal and
+optional revocation of accepted grants. Link inspection never enables sharing.
+
 ## 0.32.3 — Task-based Notes examples
 
 Notes help now demonstrates finding and reading a note, previewing a precise
