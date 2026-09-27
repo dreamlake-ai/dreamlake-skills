@@ -16,6 +16,28 @@ Log in with `dreamlake login`. These guides target **CLI 0.29.0 or later** and a
 compatible DreamLake server. Check your binary with `dreamlake --version`;
 [installation](/installation/) explains how to update it.
 
+```bash cli-help="notes"
+# Log in first. Replace release-plan with a note ID, slug, or title you can access.
+# Discover your notes, shared notes, or notes in a team namespace.
+dreamlake notes list --limit 10
+dreamlake notes list --shared
+dreamlake notes search "release plan" --namespace acme
+# Read a note, save a revision-bearing snapshot, or follow live edits (Ctrl-C to stop).
+dreamlake notes read release-plan
+# Save the exact content, hash, and write revision for later comparison or edits.
+dreamlake notes read release-plan --json > baseline.json
+# Live presence requires a stable ID for this task session.
+DREAMLAKE_AGENT_ID=release-review dreamlake notes read release-plan --linger
+# Create a private note from Markdown on stdin.
+printf '# Release plan\n\n- [ ] Ship the CLI\n' | dreamlake notes create "Release plan" --file -
+# Inspect sections and attachments.
+dreamlake notes sections release-plan
+dreamlake notes files list --note release-plan
+# See complete revision-safe edit recipes before changing an existing note.
+dreamlake notes patch --help
+dreamlake notes write --help
+```
+
 ```bash cli-help="notes list"
 dreamlake notes list --limit 10
 dreamlake notes list --shared
