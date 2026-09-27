@@ -6,6 +6,8 @@
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
 
+Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
+
 ## Output for people and agents
 
 Use plain-text CLI output by default, including coding-agent workflows and

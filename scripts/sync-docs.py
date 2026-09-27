@@ -120,7 +120,7 @@ def collect_sources(paths, locked=None):
                 outputs['dreamlake-notes/SKILL.md'] = (
                     '---\nname: dreamlake-notes\ndescription: ' + json.dumps(description, ensure_ascii=False) + '\n---\n\n'
                     '# DreamLake Notes\n\n'
-                    'Read [the Notes guide](reference/notes.md) before using the CLI or Python SDK\n'
+                    'Read [the Notes guide](reference/notes.md) before using the DreamLake CLI\n'
                     'to create, read, edit, search or attach files to a collaborative note.\n\n'
                     'GENERATED from the [Notes docs](https://docs.dreamlake.ai/notes/).\n'
                     'Correct procedures and examples in the source docs, then run\n'

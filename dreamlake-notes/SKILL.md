@@ -1,11 +1,11 @@
 ---
 name: dreamlake-notes
-description: "Create, read, edit, search and attach files to collaborative notes from Python or the CLI — name the text instead of counting lines, and never overwrite anyone."
+description: "Read, search, create and edit DreamLake Notes with the CLI, including focused section reads, revision-safe patches and live collaboration. Use Python or TypeScript APIs only when the CLI cannot perform the required operation or SDK integration is explicitly requested."
 ---
 
 # DreamLake Notes
 
-Read [the Notes guide](reference/notes.md) before using the CLI or Python SDK
+Read [the Notes guide](reference/notes.md) before using the DreamLake CLI
 to create, read, edit, search or attach files to a collaborative note.
 
 GENERATED from the [Notes docs](https://docs.dreamlake.ai/notes/).

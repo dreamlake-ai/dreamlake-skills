@@ -8,6 +8,8 @@ datasets, and administer organizations and teams — all from your terminal.
 > (big-streaming-server). It ships with two built-in environments —
 > **staging** and **prod** — so you can switch targets with one command.
 
+Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
+
 ## Get started
 
 | I want to… | Start here |

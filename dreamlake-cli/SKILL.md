@@ -1,6 +1,6 @@
 ---
 name: dreamlake-cli
-description: "dreamlake — a CLI for the DreamLake data warehouse: upload and download assets, manage projects, bindrs, and datasets, and administer organizations and teams from your terminal. Use when answering questions about DreamLake (Introduction, Installation, Quick start, Environments, Uploading, Downloading, Verify SSH passwords, Projects & data, Artifacts, Envs, Workflows, Pipelines, Declaration collections, External sources, and 29 more)."
+description: "Use the DreamLake CLI to manage data, notes, artifacts, workflows and workspace resources. Use for DreamLake commands, setup and troubleshooting; use Python or TypeScript APIs only when the CLI cannot perform the required operation or SDK integration is explicitly requested."
 ---
 # DreamLake
 
@@ -13,7 +13,7 @@ file that matches the question; each is a self-contained markdown page.
 
 **Getting started**
 
-- `reference/overview.md` — Introduction: dreamlake — a CLI for the DreamLake data warehouse. Upload and download assets, manage projects/bindrs/datasets, and administer organizations and teams from your terminal.
+- `reference/overview.md` — Introduction: Use the DreamLake CLI to manage data, notes, artifacts, workflows and workspace resources. Use for DreamLake commands, setup and troubleshooting; use Python or TypeScript APIs only when the CLI cannot perform the required operation or SDK integration is explicitly requested.
 - `reference/installation.md` — Installation: Install the dreamlake CLI with one command — a native binary that needs no Node or Python and keeps itself up to date.
 - `reference/quick-start.md` — Quick start: Log in, create a project, upload a file, list it, and download it back — the full round-trip in a handful of commands.
 - `reference/environments.md` — Environments: Switch the CLI between staging, prod, and custom deployments. Built-in environments need no URLs; each keeps its own token.
