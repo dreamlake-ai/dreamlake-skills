@@ -53,3 +53,43 @@ dreamlake delete file /camera/front/clip.mp4 --episode my-robots:run-001
 ```
 
 `delete file` also accepts a folder path to remove a whole subtree.
+
+## Transfer a project between namespaces (server rollout pending)
+
+`transfer project` previews an explicit server-backed operation. Both namespaces
+must be owned by the authenticated user (personal owner or active organization
+owner). Preview does not move anything. Exit status is 0 for an eligible plan,
+2 for a blocked plan, and 1 for a request or argument error.
+
+```bash cli-help="transfer project"
+# First authenticate and select the intended server.
+dreamlake login
+# Preview the proposed move; inspect counts, blockers, grants and planId.
+dreamlake transfer project dreamlake@geyang --to fortyfive
+# Only after the server operator enables a quiesced transfer window:
+# Replace PLAN_ID with the exact planId returned by a fresh reviewed preview.
+dreamlake transfer project dreamlake@geyang --to fortyfive --apply --expected-plan PLAN_ID
+```
+
+This initial implementation is deliberately limited to structural project trees:
+projects, folders, and episodes, including deleted descendants. Bindrs, datasets,
+direct user grants, IDs, paths, and visibility remain intact. Destination namespace
+ownership replaces source ownership. Existing direct grantees retain access.
+Team grants, mounted resources (including Notes and artifacts), asset nodes,
+sources, task records, tracks, and embedding jobs block execution. These resources
+have independent ownership, storage, credentials, or history; they are not copied,
+unmounted, or silently reassigned. A blocked populated project needs a further
+migration implementation, not removal of its data to bypass the check.
+
+Execution is disabled by default. This is not yet a general online transfer feature.
+The server operator must stop all other writers before enabling the transfer
+endpoint; a MongoDB transaction alone does not fence existing concurrent writers.
+A fresh preview is required after enablement. The apply request rechecks ownership,
+collisions (including tombstones), dependencies, and the plan in its transaction.
+Any failure rolls back the entire database update; there is no partial copy.
+
+Old namespace-qualified project URLs have no redirect. Use the destination
+namespace and the unchanged project slug. IDs stay the same. After a successful
+move, rollback is a new preview and transfer in the opposite direction, subject
+to the same checks; it is not an unconditional undo. This command requires the
+companion server endpoint; an older server returns an error without a fallback.
