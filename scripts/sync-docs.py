@@ -90,6 +90,28 @@ def absolute_reference_links(body, pages):
     return ''.join(chunks).encode()
 
 
+def skill_entrypoint(page):
+    """Copy the docs-owned entrypoint guidance; older source revisions omit it."""
+    start = '<!-- skill-entrypoint:start -->'
+    end = '<!-- skill-entrypoint:end -->'
+    if start not in page and end not in page:
+        return ''
+    if page.count(start) != 1 or page.count(end) != 1:
+        raise ValueError('Expected one complete skill-entrypoint marker pair in Notes docs')
+    def marker_line(marker):
+        return re.search(r'^\s*(?:' + re.escape(marker) + r'|\{/\*\s*'
+                         + re.escape(marker) + r'\s*\*/\})[ \t]*$', page, re.M)
+    opening, closing = marker_line(start), marker_line(end)
+    if not opening or not closing:
+        raise ValueError('Notes skill-entrypoint markers must occupy complete lines')
+    if opening.end() > closing.start():
+        raise ValueError('Notes skill-entrypoint markers are out of order')
+    body = page[opening.end():closing.start()].strip()
+    if not body:
+        raise ValueError('Notes skill-entrypoint guidance is empty')
+    return body + '\n\n'
+
+
 def collect_sources(paths, locked=None):
     outputs, sources = {}, {}
     with tempfile.TemporaryDirectory(prefix='dreamlake-skills-sync-') as tmp:
@@ -111,7 +133,8 @@ def collect_sources(paths, locked=None):
                         outputs['dreamlake-cli/' + path.relative_to(dest / 'skills/dreamlake-cli').as_posix()] = path.read_bytes()
             else:
                 page = dest / 'docs/pages/notes/+Page.mdx'
-                description = re.search(r'^description: (.+)$', page.read_text(), re.M).group(1)
+                page_text = page.read_text()
+                description = re.search(r'^description: (.+)$', page_text, re.M).group(1)
                 sources[name]['page'] = 'docs/pages/notes/+Page.mdx'
                 sources[name]['pageSha256'] = sha(page.read_bytes())
                 body = (dest / 'skills/dreamlake/reference/notes.md').read_bytes()
@@ -120,7 +143,8 @@ def collect_sources(paths, locked=None):
                 outputs['dreamlake-notes/SKILL.md'] = (
                     '---\nname: dreamlake-notes\ndescription: ' + json.dumps(description, ensure_ascii=False) + '\n---\n\n'
                     '# DreamLake Notes\n\n'
-                    'Read [the Notes guide](reference/notes.md) before using the CLI or Python SDK\n'
+                    + skill_entrypoint(page_text)
+                    + 'Read [the Notes guide](reference/notes.md) before using the CLI or Python SDK\n'
                     'to create, read, edit, search or attach files to a collaborative note.\n\n'
                     'GENERATED from the [Notes docs](https://docs.dreamlake.ai/notes/).\n'
                     'Correct procedures and examples in the source docs, then run\n'

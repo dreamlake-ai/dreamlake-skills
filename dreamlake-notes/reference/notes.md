@@ -6,14 +6,28 @@
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
 
-## Output for people and agents
+{/* <!-- skill-entrypoint:start --> */}
 
-Use plain-text CLI output by default, including coding-agent workflows and
-command examples. Do not add `--json` merely because an agent is calling the CLI.
-Normal read, collaboration and selection receipts are intended to be read directly.
-Use JSON only for an explicit machine integration that must parse structured
-fields, revision tokens or events. The scripted concurrency examples below use
-JSON for that concrete purpose; they are not the default for ordinary interaction.
+## Read Notes directly
+
+**For normal reads, run the bare command and inspect its output directly:**
+
+```bash
+# Set NOTE_ID to the note ID, slug, or exact title you want to read.
+dreamlake notes read "$NOTE_ID"
+```
+
+Do not add `--json` or `--view` for ordinary human or agent reads. The default
+output includes canonical source, a revision, and a content hash. Retain the
+revision and hash with the source when preparing safe edits; agent convenience
+is not a reason to switch to JSON.
+
+Use JSON only for an explicitly requested structured integration. The scripted
+concurrency examples below demonstrate that compatibility path; they are not
+the default reading procedure. Read normal collaboration and selection receipts
+directly too.
+
+{/* <!-- skill-entrypoint:end --> */}
 
 ## Public catalog reads
 

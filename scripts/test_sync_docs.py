@@ -65,6 +65,32 @@ class SyncTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unresolved'):
             sync.absolute_reference_links(b'[bad](unknown.md)', pages)
 
+    def test_skill_entrypoint_copies_docs_guidance_without_markers(self):
+        guidance = ('## Read notes\n\nUse the normal command:\n\n'
+                    '```bash\ndreamlake notes read <note>\n```\n\n'
+                    'Do not add output flags.')
+        page = ('# Notes\n\n<!-- skill-entrypoint:start -->\n' + guidance
+                + '\n<!-- skill-entrypoint:end -->\nOther reference material.')
+        self.assertEqual(sync.skill_entrypoint(page), guidance + '\n\n')
+
+    def test_skill_entrypoint_strips_mdx_comment_wrappers(self):
+        page = ('# Notes\n\n{/* <!-- skill-entrypoint:start --> */}\n'
+                '## Read directly\n\n`dreamlake notes read <note>`\n'
+                '{/* <!-- skill-entrypoint:end --> */}\nOther docs.')
+        self.assertEqual(sync.skill_entrypoint(page),
+                         '## Read directly\n\n`dreamlake notes read <note>`\n\n')
+
+    def test_skill_entrypoint_absent_in_older_docs(self):
+        self.assertEqual(sync.skill_entrypoint('# Notes\nExisting fixture.'), '')
+
+    def test_skill_entrypoint_rejects_incomplete_or_ambiguous_guidance(self):
+        start = '<!-- skill-entrypoint:start -->'
+        end = '<!-- skill-entrypoint:end -->'
+        for page in (start, end, end + start, start + start + 'Read' + end,
+                     start + 'Read' + end + end, start + '\n \n' + end):
+            with self.subTest(page=page), self.assertRaises(ValueError):
+                sync.skill_entrypoint(page)
+
     def test_owned_paths_cannot_escape(self):
         for name in ('../outside', '/tmp/outside', 'README.md', 'dreamlake-cli/../../outside'):
             with self.assertRaises(ValueError):
