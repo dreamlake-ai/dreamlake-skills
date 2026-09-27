@@ -2089,3 +2089,43 @@ Use `share get` to inspect the current link role.
 
 Removing an acceptance record does not invalidate a circulating link; that link can admit
 the user again. Membership and public access are unaffected.
+
+## Saved versions
+
+In the note toolbar, open **Saved versions** (the bookmark icon). Enter an
+optional version tag such as `v1` or `Investor review` and a short summary of
+what changed, then choose **Save version**. Notes continues to autosave while
+you work. Tags and summaries are metadata; they do not appear in the note body.
+
+Each saved version retains the exact server-confirmed text, author and date.
+It remains available after collaboration history is compacted or a room is
+recreated. Select a version to read it, use **Compare with** to view two saved
+versions side by side, or **Copy version link** to link to that milestone.
+Saving never replaces the current note. Tags may repeat; the version ID is the
+unique, immutable identifier. Summaries are written by the person saving the
+version; automatic AI drafting is not included.
+
+Saved history requires edit access, including accepted write-share access.
+A public note or read-only share does not expose earlier text that may have
+been removed. Version links do not grant access. If the note changes or is still
+syncing while you save, review the current text and retry; no version is created
+from a mismatched browser/server state.
+
+### Version API
+
+These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
+
+- `POST /versions` accepts `{hash, tag?, summary?}`. `hash` is the lowercase
+  SHA-256 of the UTF-8 body the user intends to save. The server compares it
+  with a coherent current read and returns `409 note_changed` on mismatch.
+  Tags are at most 80 characters and summaries at most 2,000 characters.
+  A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
+  `createdBy`, and `author`.
+- `GET /versions` returns `{versions, nextCursor}` with up to 50 metadata
+  entries, newest first. Send `?before=<nextCursor>` for older entries.
+- `GET /versions/:versionId` returns the metadata plus `text`.
+
+The content hash identifies text, not the identity-bearing RTC baseline used
+for collaborative patches. Saving a version is a retained snapshot operation,
+not a content write. There are no new CLI flags or Python SDK methods for this
+surface yet; use the UI or authenticated REST API.
