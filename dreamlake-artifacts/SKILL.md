@@ -118,15 +118,17 @@ Artifacts are **private by default** — only members of the owning namespace ca
 - **Share link** (`--share`, or the **Share** button in the dashboard on a private
   artifact): produces a URL of the form
   `https://dreamlake.ai/<namespace>/artifacts/<id>?share=<token>`.
-  Opening a valid share-token link does not require sign-in: the server accepts
-  the token itself as read authorization. Invalid or revoked tokens do not grant access.
+  Opening a private share-token link requires the recipient to sign in.
+  Invalid or revoked tokens do not grant access.
   Public artifacts just use the plain URL (no token).
 
-To stop sharing, clear the token (the dashboard's "stop sharing", or push without
-`--share` after setting it) — this invalidates every existing share link at once.
+To stop sharing, use `dreamlake artifact share revoke <id>` (CLI 0.32.4+)
+or the dashboard's stop-sharing action. Omitting `--share` on a later push
+preserves an existing token; it does not revoke it.
 
-> The share token itself is a read capability, not a per-person grant. Anyone
-> with a valid token can open the link. Revocation invalidates that capability.
+> Sharing grants read access to signed-in recipients. Revocation blocks
+> link-derived access while sharing is disabled; recorded recipients may regain
+> access if sharing is enabled again. Public visibility and membership are independent.
 
 ## Reference in Notes (development preview)
 
@@ -176,7 +178,7 @@ signed-in visitors to other namespaces see public resources only, without
 creation or modification controls. Profile uses an avatar rail; the application
 uses resource navigation for the namespace in the URL.
 
-Shared with me, trash and modification controls remain restricted to permitted member views. Public artifacts and valid capability links can be read without sign-in.
+Shared with me, trash and modification controls remain restricted to permitted member views. Public artifacts can be read without sign-in; private share links require sign-in.
 
 The application sidebar shows the resource owner's avatar and links, including
 for anonymous public readers. Your signed-in identity and personal/organization

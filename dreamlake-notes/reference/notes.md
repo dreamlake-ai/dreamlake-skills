@@ -2017,18 +2017,27 @@ publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 
 ## Manage existing share links
 
-These commands require CLI 0.32.4 or later; check
-`dreamlake notes share --help` before using them.
+Available in CLI 0.32.4 and later; check `dreamlake notes share --help` for installed support.
 
-Requires an authenticated login and an existing resource. These commands change
+Requires an authenticated login, an existing resource, and permission to
+manage its sharing. Run these mutation steps only when the user has asked
+to grant or revoke access. These commands change
 metadata only; they do not upload content or create a new version.
 
 ```bash
-# Set this to your existing Note id.
-RESOURCE="your-note-id"
-dreamlake notes share get "$RESOURCE"
-dreamlake notes share create "$RESOURCE" --role read
-dreamlake notes share revoke "$RESOURCE"
+# Find the release plan and inspect its source and current sharing.
+dreamlake notes search "release plan"
+NOTE="release-plan" # Replace with the id or slug from search.
+dreamlake notes read "$NOTE"
+dreamlake notes share get "$NOTE"
+
+# Give signed-in recipients read access, then verify the returned link.
+dreamlake notes share create "$NOTE" --role read
+dreamlake notes share get "$NOTE"
+
+# When link access is no longer needed, revoke it and verify.
+dreamlake notes share revoke "$NOTE"
+dreamlake notes share get "$NOTE"
 ```
 
 `get` never enables sharing. It reports the resource URL, visibility, and
@@ -2037,8 +2046,9 @@ structured link metadata; `shareStatus: unavailable` means the server did not
 expose the token to this caller, not that sharing is disabled.
 
 ```bash
-dreamlake notes visibility "$RESOURCE" public
-dreamlake notes visibility "$RESOURCE" private
+NOTE="release-plan" # Your existing note id or slug.
+dreamlake notes visibility "$NOTE" public
+dreamlake notes visibility "$NOTE" private
 ```
 
 Visibility and sharing are independent. Making a resource private does not
@@ -2051,7 +2061,8 @@ reuses the token and changes the role evaluated on subsequent requests for
 everyone admitted through the link. Note IDs resolve their owning namespace automatically.
 
 ```bash
-dreamlake notes share revoke "$RESOURCE" --revoke-accepted
+NOTE="release-plan" # Your existing note id or slug.
+dreamlake notes share revoke "$NOTE" --revoke-accepted
 ```
 
 Ordinary revocation clears the link and blocks subsequent link-derived access,
@@ -2061,16 +2072,19 @@ also deletes those records, so recipients must accept a valid link again. A coll
 editing until the room is rotated; this command does not rotate rooms.
 
 ```bash
-# Lists acceptance records, user ids, and stored roles as JSON.
-dreamlake notes share access "$RESOURCE"
+NOTE="release-plan" # Your existing note id or slug.
+# List acceptance records and stored roles as a readable table.
+dreamlake notes share access "$NOTE"
 ```
 
 ```bash
+NOTE="release-plan" # Your existing note id or slug.
 USER_ID="user-id-from-access-list"
-dreamlake notes share remove "$RESOURCE" "$USER_ID"
+dreamlake notes share remove "$NOTE" "$USER_ID"
 ```
 
-The access list returns stored roles, which may lag behind the live link role.
+The access list defaults to a readable table; use `--json` for a structured
+integration. It returns stored roles, which may lag behind the live link role.
 Use `share get` to inspect the current link role.
 
 Removing an acceptance record does not invalidate a circulating link; that link can admit
