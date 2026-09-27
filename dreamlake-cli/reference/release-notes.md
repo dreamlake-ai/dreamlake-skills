@@ -1,5 +1,11 @@
 # Release notes
 
+## Unreleased
+
+Notes and artifacts now expose `share get/create/revoke` and `visibility` commands
+for existing resources. Notes also support accepted-access listing/removal and
+optional revocation of accepted grants. Link inspection never enables sharing.
+
 ## 0.32.2 — Notes quick-start help
 
 `dreamlake notes --help` now includes practical examples for finding, reading,

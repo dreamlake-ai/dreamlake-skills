@@ -11,7 +11,7 @@ that you push from the command line and view rendered in the DreamLake dashboard
 `/<namespace>/artifacts`. Re-pushing under the same id creates a new **version**.
 
 Use this skill to help a user publish and manage artifacts. Prefer the CLI for every
-mutation; the dashboard is for viewing and for the visibility/share controls.
+mutation; the dashboard is for viewing.
 
 ## Prerequisites
 
@@ -321,3 +321,11 @@ The new host can answer an old frame's ready message if that renderer loads,
 but older frame deployments may lack the clean-path fallback and route API.
 Do not deploy the host before the new frame is verified. Source validation
 does not mean this feature is deployed. No server API or CLI change is required.
+
+## Existing-link management (unreleased)
+
+Check `dreamlake artifact share --help` for installed support. The forthcoming
+CLI supports inspecting, creating and revoking existing links without uploading
+a version, plus independent visibility changes. Follow the docs-owned command
+reference in `../dreamlake-cli/reference/artifacts.md`, section "Manage existing
+share links", for commands, permission limits and concurrency caveats.

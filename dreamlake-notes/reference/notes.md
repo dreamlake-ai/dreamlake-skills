@@ -2014,3 +2014,59 @@ source changes before publication, `stale_range` fails without a guessed retry:
 read the section again and select its current text. Duplicate/missing matches
 publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 `notes find` remain lookup operations, not explicit visible seek commands.
+
+## Manage existing share links
+
+These commands require the forthcoming share-management CLI release; check
+`dreamlake notes share --help` before using them.
+
+Requires an authenticated login and an existing resource. These commands change
+metadata only; they do not upload content or create a new version.
+
+```bash
+# Set this to your existing Note id.
+RESOURCE="your-note-id"
+dreamlake notes share get "$RESOURCE"
+dreamlake notes share create "$RESOURCE" --role read
+dreamlake notes share revoke "$RESOURCE"
+```
+
+`get` never enables sharing. It reports the resource URL, visibility, and
+existing share URL. A resource URL alone does not grant access. `--json` provides
+structured link metadata; `shareStatus: unavailable` means the server did not
+expose the token to this caller, not that sharing is disabled.
+
+```bash
+dreamlake notes visibility "$RESOURCE" public
+dreamlake notes visibility "$RESOURCE" private
+```
+
+Visibility and sharing are independent. Making a resource private does not
+revoke links or accepted access. Revoking a link does not make a public resource
+private. Use `--namespace <slug>` for another namespace.
+
+Only the namespace owner or an eligible Note creator may manage sharing.
+`create --role write` enables editing; the default is `read`. Updating the role
+reuses the token and affects future admissions; accepted users retain their
+accepted roles. Note IDs resolve their owning namespace automatically.
+
+```bash
+dreamlake notes share revoke "$RESOURCE" --revoke-accepted
+```
+
+Ordinary revocation clears only the link. `--revoke-accepted` also removes
+accepted grants. A collaborator who already has the room address may keep
+editing until the room is rotated; this command does not rotate rooms.
+
+```bash
+# Lists accepted users, their user ids, and roles as JSON.
+dreamlake notes share access "$RESOURCE"
+```
+
+```bash
+USER_ID="user-id-from-access-list"
+dreamlake notes share remove "$RESOURCE" "$USER_ID"
+```
+
+Removing a grant does not invalidate a circulating link; that link can admit
+the user again. Membership and public access are unaffected.
