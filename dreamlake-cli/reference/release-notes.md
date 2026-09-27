@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.32.1 — Highlight handles and hover guidance
+
+The bundled skill uses canonical public user handles for highlight attribution
+and documents the minimal hover/focus popover, without an extra icon. Exact
+profile resolution is self-declared attribution; legacy names remain unresolved.
+The revision-safe matching-text example uses the same existing CLI commands.
+
 ## 0.32.0 — Agent selection by text
 
 `notes select --text "passage" --note NOTE` resolves literal source and publishes

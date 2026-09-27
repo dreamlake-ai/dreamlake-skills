@@ -318,18 +318,26 @@ color directives as source text.
 Attach optional `user` and `comment` strings to a highlight:
 
 ```markdown
-:highlight[Review needed]{user="Ge" comment="Confirm the delivery date"}
-:highlight[Key finding]{color="#60a5fa" user="Research agent" comment="Check the source"}
+:highlight[Review needed]{user="geyang" comment="Confirm the delivery date"}
+:highlight[Key finding]{color="#60a5fa" user="geyang" comment="Check the source"}
 :highlight[重点 🤖]{comment="First line\nSecond line"}
 ```
 
 Highlight annotations reuse the Notes inline/sidebar comments toggle. In inline
-mode, click the small comment button beside a highlight (or Tab to it and press
-Enter) to open the uikit popover. In sidebar mode, read the same metadata in the
-comment rail. Narrow panes fall back to inline mode. The popover and sidebar
-edit action reveals the original directive; clicking highlighted text also
-reveals its editable source. Read-only notes show metadata without edit controls.
-The author is a supplied label, not a verified account identity or permission.
+mode, hover over the highlighted text or focus it with the keyboard to show a
+small uikit popover containing the handle and comment. There is no extra icon or
+edit button. Click the highlighted text to reveal its editable source. Sidebar
+mode uses the existing comment cards and their edit action. Narrow panes fall
+back to inline mode. Read-only notes show metadata without edit controls.
+
+`user` is the canonical public user handle, such as `geyang`, not an internal
+user ID or a display name. A single leading `@` is accepted for lookup and display;
+the saved source is not rewritten. Autocomplete inserts the canonical handle.
+Sidebar cards resolve an exact personal-profile handle to its public name and
+avatar. Missing profiles and legacy display-name values remain unresolved;
+the app never guesses an account from a name. Attribution is self-declared and
+does not verify authorship or grant access.
+
 These are plain-text annotations on a highlight, not saved comment threads.
 Either field may be omitted; empty strings add no label. Existing plain highlights
 and colors keep their behavior. Select the directive in the editor to edit its
@@ -352,7 +360,7 @@ SNAPSHOT=$(mktemp)
 dreamlake notes read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
 REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
 dreamlake notes replace ':highlight[Review needed]' \
-  --text ':highlight[Review needed]{user="Research agent" comment="Check the source"}' \
+  --text ':highlight[Review needed]{user="geyang" comment="Check the source"}' \
   --note "$NOTE_ID" --if-match "$REV"
 dreamlake notes read "$NOTE_ID" --json
 rm "$SNAPSHOT"
