@@ -6,16 +6,28 @@
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
 
-Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
+{/* <!-- skill-entrypoint:start --> */}
 
-## Output for people and agents
+## Read Notes directly
 
-Use plain-text CLI output by default, including coding-agent workflows and
-command examples. Do not add `--json` merely because an agent is calling the CLI.
-Normal read, collaboration and selection receipts are intended to be read directly.
-Use JSON only for an explicit machine integration that must parse structured
-fields, revision tokens or events. The scripted concurrency examples below use
-JSON for that concrete purpose; they are not the default for ordinary interaction.
+**For normal reads, run the bare command and inspect its output directly:**
+
+```bash
+# Set NOTE_ID to the note ID, slug, or exact title you want to read.
+dreamlake notes read "$NOTE_ID"
+```
+
+Do not add `--json` or `--view` for ordinary human or agent reads. The default
+output includes canonical source, a revision, and a content hash. Retain the
+revision and hash with the source when preparing safe edits; agent convenience
+is not a reason to switch to JSON.
+
+Use JSON only for an explicitly requested structured integration. The scripted
+concurrency examples below demonstrate that compatibility path; they are not
+the default reading procedure. Read normal collaboration and selection receipts
+directly too.
+
+{/* <!-- skill-entrypoint:end --> */}
 
 ## Public catalog reads
 
@@ -1382,7 +1394,7 @@ separately from the event stream and are not an atomic cross-stream snapshot. Pr
 to stderr. No update object is emitted for an unchanged batch.
 
 `--linger` supports complete source reads only; it cannot be combined with
-`--legacy`, `--view html`, `--at`, `--toc`, `--tag`, `--since`, sections, line ranges or numbered output.
+`--legacy`, `--view html`, `--since`, sections, line ranges or numbered output.
 `--if-match` checks the **initial** read only. `--format` applies to the emitted
 diff, not the initial complete source snapshot. Transport/capability errors or an
 unavailable retained baseline end the command with a nonzero status and a
@@ -1568,13 +1580,14 @@ For an agent following a note, reuse the saved full `read --json` baseline;
 obtain one only if none is available. Then use `read --since "$BASE_HASH"` for
 subsequent checks instead of repeatedly downloading the full document. For
 one-off passage inspection, use the scoped reads above without fetching a full
-baseline. Differential reads default to unified line diffs.
-Use `--format inline-dff` explicitly when character edits are useful.
+baseline. The default `inline-dff` returns only character edits and is the
+preferred compact response for agents.
+Use `--format diff` when line context or a standard unified patch is useful.
 On servers with localized unified-diff generation, this returns changed
 lines with up to three unchanged context lines on each side; nearby changes
 share a hunk and distant changes use separate hunks. Older servers may still
 return a whole-document replacement; a docs or skill update alone does not
-change server output.
+change server output. The default inline format already avoids that expansion.
 
 Both formats preserve exact source, including CRLF and a missing final newline.
 An unchanged source returns an empty `patch`, possibly with a newer RTC
@@ -1872,64 +1885,16 @@ With the compatible v2 server and CLI, `dreamlake notes read "$NOTE_ID" --view h
 returns a complete inert HTML document. Root `data-note`, `data-hash`,
 `data-revision`, `data-source-type`, `data-offset-unit` and `data-source`
 attributes contain the exact canonical source and its baseline. Element
-`data-char="start:end"` ranges address that source in Unicode code points;
+`data-start`/`data-end` ranges address that source in Unicode code points;
 `data-map` marks linear text, atomic syntax or generated presentation.
 
 Decode the source attribute once to recover canonical source, including original
 entity spelling and line endings. Patch that source using the embedded revision;
-never upload generated wrappers or mapping attributes. HTML reads are snapshot
-views; `--view html --since` is rejected. HTML-looking source is rendered as
+never upload generated wrappers or mapping attributes. HTML reads are full
+snapshots; `--view html --since` is rejected. HTML-looking source is rendered as
 HTML, other source as Markdown. Rich or restricted structures may map atomically;
 no editable range is guessed from generated text. Scripts, active attributes and
 network-loaded media are excluded from this static preview.
-
-### Focused and historical reads (unreleased)
-
-`read` returns the current snapshot. Use `--at REVISION` for a retained snapshot;
-`--since HASH` remains a unified line-diff read. Snapshot selectors are mutually
-exclusive, and cannot combine with `--since` or `--linger`:
-
-```bash
-# NOTE_ID identifies an accessible note; copy REVISION from its read receipt.
-dreamlake notes read "$NOTE_ID"
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --toc
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1.1
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
-```
-
-Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
-`data-index="s1.1"`; headings use `s1.1.h`, paragraphs `s1.1.p1`. Paragraph numbering
-restarts per section. `--tag` is an exact element ID; a section ID selects its
-entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
-return 404; every read checks current permissions.
-
-`data-char="start:end"` are absolute, zero-based, end-exclusive Unicode code-point
-ranges in original source. `data-lines` is one-based and inclusive. A scoped root
-contains only the selected `data-source`, with its global `data-source-start` and
-`data-source-end` and its own `data-source-hash`. The root's `data-hash` and
-`data-revision` still identify the complete document. Subtract `data-source-start`
-when slicing local source; keep absolute offsets in the patch. TOCs carry exact
-heading source on each heading and empty root source. Never upload a slice or
-rendered HTML as the complete note.
-
-```bash
-# edit.dff is prepared from the exact source at REVISION.
-dreamlake notes patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
-# NEXT_REVISION comes from that write receipt.
-dreamlake notes read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
-```
-
-Exact mode refuses concurrent edits with 412; native merge mode remains available
-by omitting `--exact`. `--if-match` checks the current revision, while `--at`
-retrieves history: do not combine them. Preserve an existing draft's original
-baseline even after another read or linger update. Linger continues to emit source
-snapshots and line diffs; inspect a streamed revision using a separate pinned read.
-Pinned reads do not overwrite live presence with historical offsets.
-
-See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
-for ID generation, ranges, examples, efficiency limits, and the executable
-acceptance harness. This is an unreleased contract; the linked page is local
-until the docs deployment ships it.
 
 ### Rich tokens in HTML reads
 
@@ -1942,7 +1907,7 @@ Code, escaped punctuation, Markdown links and URL paths keep their ordinary
 interpretation. Existing `[ owner ]` placeholders retain blue boxes, visible
 brackets, inner spacing and the **placeholder** hover label.
 
-Recognized components carry atomic `data-char` and `data-map`
+Recognized components carry atomic `data-start`, `data-end` and `data-map`
 attributes addressing the complete token in canonical Unicode-code-point
 source. The root `data-source` remains exact. When Markdown normalizes a region
 so an exact token range cannot be proven, its enclosing block remains atomic;
@@ -2050,8 +2015,117 @@ read the section again and select its current text. Duplicate/missing matches
 publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 `notes find` remain lookup operations, not explicit visible seek commands.
 
-For address hints while reading Markdown, use `read NOTE --view markdown` with
-the addressed-read CLI/server build. It preserves the selected source text and
-inserts generated address/character/line comments. List-item targets use
-section-local `s1.li1` IDs, including nested items. This reading view is not
-canonical source and must not be written back as a complete note.
+## Manage existing share links
+
+Available in CLI 0.32.4 and later; check `dreamlake notes share --help` for installed support.
+
+Requires an authenticated login, an existing resource, and permission to
+manage its sharing. Run these mutation steps only when the user has asked
+to grant or revoke access. These commands change
+metadata only; they do not upload content or create a new version.
+
+```bash
+# Find the release plan and inspect its source and current sharing.
+dreamlake notes search "release plan"
+NOTE="release-plan" # Replace with the id or slug from search.
+dreamlake notes read "$NOTE"
+dreamlake notes share get "$NOTE"
+
+# Give signed-in recipients read access, then verify the returned link.
+dreamlake notes share create "$NOTE" --role read
+dreamlake notes share get "$NOTE"
+
+# When link access is no longer needed, revoke it and verify.
+dreamlake notes share revoke "$NOTE"
+dreamlake notes share get "$NOTE"
+```
+
+`get` never enables sharing. It reports the resource URL, visibility, and
+existing share URL. A resource URL alone does not grant access. `--json` provides
+structured link metadata; `shareStatus: unavailable` means the server did not
+expose the token to this caller, not that sharing is disabled.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+dreamlake notes visibility "$NOTE" public
+dreamlake notes visibility "$NOTE" private
+```
+
+Visibility and sharing are independent. Making a resource private does not
+revoke links or accepted access. Revoking a link does not make a public resource
+private. Use `--namespace <slug>` for another namespace.
+
+Only the namespace owner or an eligible Note creator may manage sharing.
+`create --role write` enables editing; the default is `read`. Updating the role
+reuses the token and changes the role evaluated on subsequent requests for
+everyone admitted through the link. Note IDs resolve their owning namespace automatically.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+dreamlake notes share revoke "$NOTE" --revoke-accepted
+```
+
+Ordinary revocation clears the link and blocks subsequent link-derived access,
+including for prior recipients. Their acceptance records remain: enabling
+sharing again restores access under the current link role. `--revoke-accepted`
+also deletes those records, so recipients must accept a valid link again. A collaborator who already has the room address may keep
+editing until the room is rotated; this command does not rotate rooms.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+# List acceptance records and stored roles as a readable table.
+dreamlake notes share access "$NOTE"
+```
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+USER_ID="user-id-from-access-list"
+dreamlake notes share remove "$NOTE" "$USER_ID"
+```
+
+The access list defaults to a readable table; use `--json` for a structured
+integration. It returns stored roles, which may lag behind the live link role.
+Use `share get` to inspect the current link role.
+
+Removing an acceptance record does not invalidate a circulating link; that link can admit
+the user again. Membership and public access are unaffected.
+
+## Saved versions
+
+In the note toolbar, open **Saved versions** (the bookmark icon). Enter an
+optional version tag such as `v1` or `Investor review` and a short summary of
+what changed, then choose **Save version**. Notes continues to autosave while
+you work. Tags and summaries are metadata; they do not appear in the note body.
+
+Each saved version retains the exact server-confirmed text, author and date.
+It remains available after collaboration history is compacted or a room is
+recreated. Select a version to read it, use **Compare with** to view two saved
+versions side by side, or **Copy version link** to link to that milestone.
+Saving never replaces the current note. Tags may repeat; the version ID is the
+unique, immutable identifier. Summaries are written by the person saving the
+version; automatic AI drafting is not included.
+
+Saved history requires edit access, including accepted write-share access.
+A public note or read-only share does not expose earlier text that may have
+been removed. Version links do not grant access. If the note changes or is still
+syncing while you save, review the current text and retry; no version is created
+from a mismatched browser/server state.
+
+### Version API
+
+These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
+
+- `POST /versions` accepts `{hash, tag?, summary?}`. `hash` is the lowercase
+  SHA-256 of the UTF-8 body the user intends to save. The server compares it
+  with a coherent current read and returns `409 note_changed` on mismatch.
+  Tags are at most 80 characters and summaries at most 2,000 characters.
+  A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
+  `createdBy`, and `author`.
+- `GET /versions` returns `{versions, nextCursor}` with up to 50 metadata
+  entries, newest first. Send `?before=<nextCursor>` for older entries.
+- `GET /versions/:versionId` returns the metadata plus `text`.
+
+The content hash identifies text, not the identity-bearing RTC baseline used
+for collaborative patches. Saving a version is a retained snapshot operation,
+not a content write. There are no new CLI flags or Python SDK methods for this
+surface yet; use the UI or authenticated REST API.

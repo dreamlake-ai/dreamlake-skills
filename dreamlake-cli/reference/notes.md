@@ -38,6 +38,29 @@ dreamlake notes read release-plan --linger
 dreamlake notes patch --help
 ```
 
+```bash cli-help="notes"
+# Find a note, then read it directly (use the ID or slug from search).
+dreamlake notes search "release plan"
+dreamlake notes read release-plan
+
+# Change one phrase: preview, apply, then read back. Exactly one match is required.
+dreamlake notes replace "Draft checklist" --text "Ready for review" --note release-plan --dry-run
+dreamlake notes replace "Draft checklist" --text "Ready for review" --note release-plan
+dreamlake notes read release-plan
+
+# Create a private note from a Markdown draft you have written.
+dreamlake notes create "Release plan" --file release-plan.md
+
+# Collaborate on the same note; every agent uses its own stable task ID and name.
+export DREAMLAKE_AGENT_ID=release-reviewer-a
+export DREAMLAKE_AGENT_NAME="Release reviewer A"
+dreamlake notes select --text "Ready for review" --note release-plan
+dreamlake notes read release-plan --linger
+# Ctrl-C stops following. A second agent uses a different identity on the same note.
+# For edits prepared from an earlier read, use an original-baseline merge patch:
+dreamlake notes patch --help
+```
+
 ```bash cli-help="notes list"
 dreamlake notes list --limit 10
 dreamlake notes list --shared
@@ -59,6 +82,21 @@ dreamlake notes search deploy --namespace acme --json
 Search matches titles and indexed bodies by case-insensitive substring. Results
 include matching sections. For exact locations across notes, use
 [`notes grep`](notes-reading.md#search-passages).
+
+## Make a small wording change
+
+```bash cli-help="notes replace"
+# Read first. Replace exactly one phrase; review the dry run before applying.
+dreamlake notes read release-plan
+dreamlake notes replace "Draft checklist" --text "Ready for review" --note release-plan --dry-run
+dreamlake notes replace "Draft checklist" --text "Ready for review" --note release-plan
+dreamlake notes read release-plan
+```
+
+Zero or multiple matches fail without changing the note. This helper guards its
+own read/write window. An edit prepared from an older snapshot should use
+`notes patch` with that snapshot's original `--base-revision`; a dry run does
+not reserve the note or pin a later replacement to that preview.
 
 ## Make a small wording change
 
