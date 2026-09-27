@@ -1,11 +1,13 @@
 # Release notes
 
-## Unreleased — Addressed Notes snapshots
+## 0.33.0 — Addressed Notes reads
 
-Snapshot reads add `--at`, `--toc`, section views and `--tag` element lookup.
-Nested semantic sections and paragraphs carry revision-local IDs, code-point
-ranges and line ranges. `--since` defaults to line diffs; linger retains its
-source/SSE contract. Local validation only; not yet released or deployed.
+`dreamlake notes read` can pin a retained snapshot with `--at`, inspect its
+outline with `--toc`, and retrieve a section or exact tagged element with
+`--section` and `--tag`. HTML reads expose revision-local section, paragraph,
+and list-item IDs with source character and line ranges. `--view markdown`
+adds address hints while preserving the original Markdown text. `--since`
+continues to default to line diffs, and linger retains its source/SSE contract.
 
 ## 0.32.4 — Share-link management
 

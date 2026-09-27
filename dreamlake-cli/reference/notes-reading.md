@@ -120,7 +120,7 @@ read and reconcile before making another edit.
 Next: [Editing with patches](notes-editing.md) or
 [Live collaboration](notes-collaboration.md).
 
-### Focused and historical reads (unreleased)
+### Focused and historical reads
 
 `read` returns the current snapshot. Use `--at REVISION` for a retained snapshot;
 `--since HASH` remains a unified line-diff read. Snapshot selectors are mutually
@@ -165,10 +165,9 @@ Pinned reads do not overwrite live presence with historical offsets.
 
 See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
 for ID generation, ranges, examples, efficiency limits, and the executable
-acceptance harness. This is an unreleased contract; the linked page is local
-until the docs deployment ships it.
+acceptance harness. These addressed read options are available in CLI 0.33.0 and require the matching Notes server support. The linked page provides the detailed ID and range contract.
 
-For Markdown with address hints (addressed-read build), select the annotated view:
+For Markdown with address hints (CLI 0.33.0), select the annotated view:
 
 ```bash
 # REVISION is the original read revision; NOTE_ID identifies an accessible note.
