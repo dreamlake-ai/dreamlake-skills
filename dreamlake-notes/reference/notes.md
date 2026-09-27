@@ -323,20 +323,20 @@ Attach optional `user` and `comment` strings to a highlight:
 :highlight[重点 🤖]{comment="First line\nSecond line"}
 ```
 
-Highlight annotations reuse the Notes inline/sidebar comments toggle. In inline
-mode, hover over the highlighted text or focus it with the keyboard to show a
-small uikit popover containing the handle and comment. There is no extra icon or
-edit button. Click the highlighted text to reveal its editable source. Sidebar
-mode uses the existing comment cards and their edit action. Narrow panes fall
-back to inline mode. Read-only notes show metadata without edit controls.
+Highlight annotations reuse the Notes inline/sidebar comments toggle. Inline
+mode shows no annotation cards or hover popups. Click highlighted text in the
+editor to reveal its editable source. Sidebar mode shows the handle and comment
+in compact cards in the table-of-contents column, with an edit action for writers.
+Cards follow the passages visible in the current viewport; a dense group scrolls
+inside the column. Narrow panes fall back to inline mode. Read-only sidebar
+cards show metadata without edit controls.
 
 `user` is the canonical public user handle, such as `geyang`, not an internal
-user ID or a display name. A single leading `@` is accepted for lookup and display;
-the saved source is not rewritten. Autocomplete inserts the canonical handle.
-Sidebar cards resolve an exact personal-profile handle to its public name and
-avatar. Missing profiles and legacy display-name values remain unresolved;
-the app never guesses an account from a name. Attribution is self-declared and
-does not verify authorship or grant access.
+user ID or a display name. A single leading `@` is accepted; the saved source is
+not rewritten. Autocomplete inserts the canonical handle. Compact sidebar cards
+show the handle. Legacy display-name values remain literal; the app never guesses
+an account from a name. Attribution is self-declared and does not verify authorship
+or grant access.
 
 These are plain-text annotations on a highlight, not saved comment threads.
 Either field may be omitted; empty strings add no label. Existing plain highlights
@@ -489,12 +489,29 @@ a suggestion. Attribute values are JSON strings. Escape literal brackets and
 backslashes in the bracket body with a backslash. Insertion-menu choices fill
 the signed-in user's name; scripts can supply attribution explicitly.
 
+The bracket form is canonical. The browser also accepts a curly-body alias for
+all three kinds; optional named attributes follow in a separate pair of braces:
+
+```markdown
+and I:insert[ think this works]
+and I:insert{ think this works}
+:delete{old text}{reason="No longer needed"}
+:replace{old text}{with="new text" user="geyang"}
+```
+
+A suggestion can directly follow ordinary text without an intervening space.
+Leading and trailing spaces inside its body are preserved when accepted.
+Curly bodies support balanced nested braces; escape a literal brace or backslash
+with a backslash. Canonical bracket bodies retain their existing bracket escaping.
+These aliases apply to suggested edits, not other directive types.
+
 Insertions are underlined and deletions struck through in the note. A replacement
-shows both. Review actions live in a bracketed sidebar card alongside comments,
-with the author, proposed change or explanation, and **accept · reject** inside.
-Hovering or focusing a suggestion/card reveals its connection. Suggestions stay
-visible inline regardless of the comment-view toggle. In narrow panes, review
-cards stack below the note so their actions remain available.
+shows both. Inline mode shows these text changes without cards or hover popups.
+Switch to Sidebar in a wide pane for **accept · reject** actions. Compact cards
+replace the table of contents in its existing column and follow passages visible
+in the current viewport. Dense groups scroll inside that column. Hovering or
+focusing a card or text anchor highlights the corresponding annotation. Narrow
+panes fall back to Inline while retaining the Sidebar preference.
 
 Accept applies the proposed text: insert keeps new text, delete removes old
 text, and replace substitutes its `with` value. Reject removes an insertion or
@@ -533,11 +550,12 @@ Done waits for the latest save before closing. Comments have no replies; convers
 **Comments → Inline / Sidebar** changes the current view, independently of
 storage. Inline comments show the author label and italic text in the author's
 collaboration color, with faint brackets around the body. Sidebar comments use
-`[…]` anchors, plain author labels, black body text, and faint enclosing square
-brackets with no filled background. Hovering or focusing either the anchor or
-comment reveals the full dashed connection, routed above the anchor text.
-Sidebar comments flow around one another without overlap. Narrow panes fall back to Inline while retaining the
-Sidebar preference. Read-only readers can open accessible saved comments but
+`[…]` anchors and compact cards with a single colored left edge. Cards replace
+the table of contents in the same column, follow visible passages, and scroll
+within the column when densely packed. Hovering or focusing the anchor or card
+highlights its matching annotation. Inline mode has no annotation cards or hover
+popups; explicitly opening a saved comment still opens its editor. Narrow panes
+fall back to Inline while retaining the Sidebar preference. Read-only readers can open accessible saved comments but
 cannot change them. Rendering, loading, and remote text replay never create
 comment objects. A brace draft pasted by a script without an editor creation
 key remains source text; use the API to create a saved object deliberately.
