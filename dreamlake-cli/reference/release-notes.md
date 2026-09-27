@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.31.3 — Highlight annotation guidance
+
+The bundled CLI skill documents `user` and `comment` highlight metadata, the
+shared inline/sidebar comment UI, click-to-edit, and a tested revision-safe
+matching-text example. No CLI command or storage behavior changes.
+
 ## 0.31.2 — Clearer participant names
 
 - Show people as `@username` and agents by their configured name, without surrounding quotes. Keep quotes around selected text.
