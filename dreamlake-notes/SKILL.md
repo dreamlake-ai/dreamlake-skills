@@ -1,33 +1,22 @@
 ---
 name: dreamlake-notes
-description: "Create, read, edit, search and attach files to collaborative notes from Python or the CLI — name the text instead of counting lines, and never overwrite anyone."
+description: "Use the DreamLake CLI to find, read, edit, follow, or attach files to collaborative Notes. Use the Python SDK only when the task requires SDK integration or an operation the CLI does not support."
 ---
 
 # DreamLake Notes
 
-## Read Notes directly
+Start with `dreamlake notes list` to identify an accessible note, then use the
+matching CLI action guide:
 
-**For normal reads, run the bare command and inspect its output directly:**
+- [Read a note](actions/read.md) for focused reads, search, and snapshots.
+- [Edit a note](actions/edit.md) for revision-safe text changes.
+- [Follow collaboration](actions/watch.md) for live read presence and updates.
+- [Manage attachments](actions/attachments.md) for note files and previews.
+- [Create a note](actions/create.md) for a new collaborative document.
 
-```bash
-# Set NOTE_ID to the note ID, slug, or exact title you want to read.
-dreamlake notes read "$NOTE_ID"
-```
+Use the bundled [Notes reference](reference/notes.md) for full behavior. Python
+examples are included for explicit SDK integration; this skill routes normal
+Notes work to the CLI.
 
-Do not add `--json` or `--view` for ordinary human or agent reads. The default
-output includes canonical source, a revision, and a content hash. Retain the
-revision and hash with the source when preparing safe edits; agent convenience
-is not a reason to switch to JSON.
-
-Use JSON only for an explicitly requested structured integration. The scripted
-concurrency examples below demonstrate that compatibility path; they are not
-the default reading procedure. Read normal collaboration and selection receipts
-directly too.
-
-Read [the Notes guide](reference/notes.md) before using the CLI or Python SDK
-to create, read, edit, search or attach files to a collaborative note.
-
-GENERATED from the [Notes docs](https://docs.dreamlake.ai/notes/).
-Correct procedures and examples in the source docs, then run
-`scripts/sync-docs.py`. Source revision and generator are recorded in
-`sources.json` at the repository root. Do not maintain a second procedure here.
+Generated from the workspace Notes guide and action guides. Procedures belong
+in source docs; the public sync records their commits and hashes.

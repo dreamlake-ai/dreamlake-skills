@@ -17,6 +17,15 @@ REPOS = {
     'cli': 'https://github.com/dreamlake-ai/dreamlake-cli',
 }
 SCOPES = ('dreamlake-notes/', 'dreamlake-cli/')
+NOTES_REFERENCES_FROM_CLI = ('notes-reading', 'notes-editing', 'notes-collaboration', 'notes-attachments', 'notes-legacy')
+NOTES_REFERENCE_ROUTES = {
+    '/notes/': 'notes.md',
+    '/notes/reading/': 'notes-reading.md',
+    '/notes/editing/': 'notes-editing.md',
+    '/notes/collaboration/': 'notes-collaboration.md',
+    '/notes/attachments/': 'notes-attachments.md',
+    '/notes/legacy/': 'notes-legacy.md',
+}
 
 
 def run(*args, cwd=None, env=None):
@@ -29,6 +38,19 @@ def sha(data):
 
 def read_json(path):
     return json.loads(path.read_text()) if path.exists() else {}
+
+
+def action_guide_hashes(source_root, guide_name):
+    guide_root = source_root / 'docs/skill-guides' / guide_name
+    if not guide_root.is_dir():
+        raise ValueError(f'missing action-guide source directory: {guide_root.relative_to(source_root)}')
+    files = {
+        path.relative_to(source_root).as_posix(): sha(path.read_bytes())
+        for path in sorted(guide_root.rglob('*')) if path.is_file()
+    }
+    if not any(path.endswith('/SKILL.md') for path in files) or not any('/actions/' in path for path in files):
+        raise ValueError(f'action-guide source needs SKILL.md and actions/*.md: {guide_root.relative_to(source_root)}')
+    return files
 
 
 def owned_path(root, name):
@@ -90,26 +112,24 @@ def absolute_reference_links(body, pages):
     return ''.join(chunks).encode()
 
 
-def skill_entrypoint(page):
-    """Copy the docs-owned entrypoint guidance; older source revisions omit it."""
-    start = '<!-- skill-entrypoint:start -->'
-    end = '<!-- skill-entrypoint:end -->'
-    if start not in page and end not in page:
-        return ''
-    if page.count(start) != 1 or page.count(end) != 1:
-        raise ValueError('Expected one complete skill-entrypoint marker pair in Notes docs')
-    def marker_line(marker):
-        return re.search(r'^\s*(?:' + re.escape(marker) + r'|\{/\*\s*'
-                         + re.escape(marker) + r'\s*\*/\})[ \t]*$', page, re.M)
-    opening, closing = marker_line(start), marker_line(end)
-    if not opening or not closing:
-        raise ValueError('Notes skill-entrypoint markers must occupy complete lines')
-    if opening.end() > closing.start():
-        raise ValueError('Notes skill-entrypoint markers are out of order')
-    body = page[opening.end():closing.start()].strip()
-    if not body:
-        raise ValueError('Notes skill-entrypoint guidance is empty')
-    return body + '\n\n'
+def notes_reference_links(body, docs_url):
+    """Resolve CLI Notes routes to sibling bundled pages or canonical docs URLs."""
+    chunks = re.split(r'(^```[^\n]*\n[\s\S]*?^```[^\n]*(?:\n|$))', body.decode(), flags=re.M)
+    bundled_files = {'notes.md', *(name + '.md' for name in NOTES_REFERENCES_FROM_CLI)}
+    def replace(match):
+        path, anchor = match[1], match[2] or ''
+        bundled = NOTES_REFERENCE_ROUTES.get(path)
+        return '](' + (bundled if bundled else docs_url.rstrip('/') + path) + anchor + ')'
+    for i in range(0, len(chunks), 2):
+        chunks[i] = re.sub(r'\]\((/notes/[^)#\s]*)(#[^)]*)?\)', replace, chunks[i])
+        def replace_sibling(match):
+            filename, anchor = match[1], match[2] or ''
+            if filename in bundled_files:
+                return match[0]
+            slug = filename.removeprefix('notes-')[:-3]
+            return '](' + docs_url.rstrip('/') + '/notes/' + slug + '/' + anchor + ')'
+        chunks[i] = re.sub(r'\]\((notes-[^/)#]+\.md)(#[^)]*)?\)', replace_sibling, chunks[i])
+    return ''.join(chunks).encode()
 
 
 def collect_sources(paths, locked=None):
@@ -127,30 +147,35 @@ def collect_sources(paths, locked=None):
             commit = snapshot(source, revision, dest)
             generator = dest / 'docs/scripts/gen-llms.mjs'
             sources[name] = {'repository': repo, 'commit': commit, 'generatorSha256': sha(generator.read_bytes())}
+            guide_name = 'notes' if name == 'workspace' else 'cli'
+            sources[name]['actionGuides'] = action_guide_hashes(dest, guide_name)
+            sources[name]['docsPages'] = (
+                'docs/pages/notes/+Page.mdx' if name == 'workspace' else 'docs/pages/**/+Page.mdx'
+            )
             if name == 'cli':
-                for path in sorted((dest / 'skills/dreamlake-cli').rglob('*')):
+                cli_skill = dest / 'skills/dreamlake-cli'
+                for path in sorted(cli_skill.rglob('*')):
                     if path.is_file():
-                        outputs['dreamlake-cli/' + path.relative_to(dest / 'skills/dreamlake-cli').as_posix()] = path.read_bytes()
+                        outputs['dreamlake-cli/' + path.relative_to(cli_skill).as_posix()] = path.read_bytes()
+                # Notes' task-specific CLI references live in the CLI docs repo;
+                # bundle only the pages the Notes action guides link to.
+                for reference in NOTES_REFERENCES_FROM_CLI:
+                    path = cli_skill / 'reference' / f'{reference}.md'
+                    site_config = (dest / 'docs/site.config.ts').read_text()
+                    docs_url = re.search(r"\burl:\s*['\"]([^'\"]+)", site_config).group(1)
+                    outputs[f'dreamlake-notes/reference/{reference}.md'] = notes_reference_links(path.read_bytes(), docs_url)
             else:
+                guide_root = dest / 'docs/skill-guides/notes'
+                for path in sorted(guide_root.rglob('*')):
+                    if path.is_file() and (path.name == 'SKILL.md' or path.relative_to(guide_root).parts[0] == 'actions'):
+                        outputs['dreamlake-notes/' + path.relative_to(guide_root).as_posix()] = path.read_bytes()
                 page = dest / 'docs/pages/notes/+Page.mdx'
-                page_text = page.read_text()
-                description = re.search(r'^description: (.+)$', page_text, re.M).group(1)
                 sources[name]['page'] = 'docs/pages/notes/+Page.mdx'
                 sources[name]['pageSha256'] = sha(page.read_bytes())
-                body = (dest / 'skills/dreamlake/reference/notes.md').read_bytes()
-                body = absolute_reference_links(body, dest / 'docs/pages')
-                outputs['dreamlake-notes/reference/notes.md'] = body
-                outputs['dreamlake-notes/SKILL.md'] = (
-                    '---\nname: dreamlake-notes\ndescription: ' + json.dumps(description, ensure_ascii=False) + '\n---\n\n'
-                    '# DreamLake Notes\n\n'
-                    + skill_entrypoint(page_text)
-                    + 'Read [the Notes guide](reference/notes.md) before using the CLI or Python SDK\n'
-                    'to create, read, edit, search or attach files to a collaborative note.\n\n'
-                    'GENERATED from the [Notes docs](https://docs.dreamlake.ai/notes/).\n'
-                    'Correct procedures and examples in the source docs, then run\n'
-                    '`scripts/sync-docs.py`. Source revision and generator are recorded in\n'
-                    '`sources.json` at the repository root. Do not maintain a second procedure here.\n'
-                ).encode()
+                generated = dest / 'skills/dreamlake/reference/notes.md'
+                outputs['dreamlake-notes/reference/notes.md'] = absolute_reference_links(
+                    generated.read_bytes(), dest / 'docs/pages'
+                )
     if not outputs.get('dreamlake-cli/SKILL.md'):
         raise ValueError('CLI generator did not produce its expected skill')
     return outputs, {'version': 1, 'sources': sources}

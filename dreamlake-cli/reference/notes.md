@@ -13,7 +13,7 @@ for an explicitly requested structured integration, not agent convenience.
 
 Log in with `dreamlake login`. These guides target **CLI 0.29.0 or later** and a
 compatible DreamLake server. Check your binary with `dreamlake --version`;
-[installation](/installation/) explains how to update it.
+[installation](installation.md) explains how to update it.
 
 ```bash cli-help="notes"
 # Find a note, then read it directly (use the ID or slug from search).
@@ -58,7 +58,7 @@ dreamlake notes search deploy --namespace acme --json
 
 Search matches titles and indexed bodies by case-insensitive substring. Results
 include matching sections. For exact locations across notes, use
-[`notes grep`](/notes/reading/#search-passages).
+[`notes grep`](notes-reading.md#search-passages).
 
 ## Make a small wording change
 
@@ -122,12 +122,12 @@ newlines: use `printf`, a file, or a quoted here-document for multiline source.
 
 | Task | Guide |
 | --- | --- |
-| Read a section, inspect changes, or search passages | [Reading and changes](/notes/reading/) |
-| Apply an edit while preserving concurrent work | [Editing with patches](/notes/editing/) |
-| Join someone and follow their edits | [Live collaboration](/notes/collaboration/) |
-| Write highlights, references, or inspect rendered HTML | [Rich content and HTML](/notes/rich-content/) |
-| Upload a file or share its preview | [Attachments](/notes/attachments/) |
-| Maintain an older script using body/section writes | [Legacy commands](/notes/legacy/) |
+| Read a section, inspect changes, or search passages | [Reading and changes](notes-reading.md) |
+| Apply an edit while preserving concurrent work | [Editing with patches](notes-editing.md) |
+| Join someone and follow their edits | [Live collaboration](notes-collaboration.md) |
+| Write highlights, references, or inspect rendered HTML | [Rich content and HTML](notes-rich-content.md) |
+| Upload a file or share its preview | [Attachments](notes-attachments.md) |
+| Maintain an older script using body/section writes | [Legacy commands](notes-legacy.md) |
 
 Reads require read access; mutations require write access. A read share does not
 grant permission to edit. An inaccessible note may report as not found.

@@ -1,7 +1,7 @@
 # Rich content and HTML
 
 Notes store source text. Use the supported Markdown syntax for rich content,
-and patch that source through the [normal editing workflow](/notes/editing/).
+and patch that source through the [normal editing workflow](notes-editing.md).
 Saving source and verifying its visible rendering are separate checks.
 
 ## Highlights and text color
@@ -123,4 +123,4 @@ revision to prepare a patch. Never upload preview wrappers or metadata as the
 note body.
 
 For attaching an HTML file with its own preview URL, see
-[Attachments](/notes/attachments/).
+[Attachments](notes-attachments.md).

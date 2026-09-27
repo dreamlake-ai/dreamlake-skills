@@ -151,8 +151,15 @@ CLI references are now reproducible outputs, not independent writing surfaces:
 
 | Output | Source |
 |---|---|
-| `dreamlake-notes/SKILL.md` + `reference/notes.md` | `dreamlake-workspace/docs/pages/notes/+Page.mdx` |
+| `dreamlake-notes/SKILL.md`, `actions/*`, selected references | `dreamlake-workspace/docs/skill-guides/notes/` plus generated Notes docs |
 | `dreamlake-cli/**` | `dreamlake-cli/docs/pages/**/+Page.mdx` and its docs generator |
+
+Task routing is maintained separately from product facts: Notes uses
+`dreamlake-workspace/docs/skill-guides/notes/`, and CLI uses
+`dreamlake-cli/docs/skill-guides/cli/`. Entrypoints route to independent action
+files; selected generated references remain available for deeper lookup. Source
+provenance records guide hashes with source commits and generator hashes. Only
+Notes and CLI are migrated; all remaining skills need explicit review.
 
 With Git, Node and Python 3.12+, and authorized checkouts of the source repos:
 
@@ -168,6 +175,10 @@ scratch directories and runs the original generators; it never regenerates into
 those checkouts. Review and commit the generated skills with `sources.json` and
 `generated-files.json`. The latter defines owned files; unrelated resources survive.
 A changed generated file being removed requires manual reconciliation.
+Before publication, run both source generators and checks, public offline sync
+tests and integrity checks, then evaluate representative actions and capability
+boundaries offline. Current-source `--check` is the drift check; locked
+reproduction and integrity checks do not prove freshness.
 
 `--check` checks current source HEADs. Add `--locked` to reproduce recorded source
 commits instead. Public CI runs offline tests and file-integrity verification;

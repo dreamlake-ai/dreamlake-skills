@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.33.0 — Addressed Notes reads
+
+`dreamlake notes read` can pin a retained snapshot with `--at`, inspect its
+outline with `--toc`, and retrieve a section or exact tagged element with
+`--section` and `--tag`. HTML reads expose revision-local section, paragraph,
+and list-item IDs with source character and line ranges. `--view markdown`
+adds address hints while preserving the original Markdown text. `--since`
+continues to default to line diffs, and linger retains its source/SSE contract.
+
 ## 0.32.4 — Share-link management
 
 Notes and artifacts now expose `share get/create/revoke` and `visibility` commands

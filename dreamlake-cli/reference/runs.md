@@ -33,7 +33,7 @@ See the repository's `scripts/RUNS_INTEGRATION.md` for a copy-paste configuratio
 
 ## Provider placement (unreleased)
 
-See [provider checks and placed runs](/providers/) for the explicit check, association
+See [provider checks and placed runs](providers.md) for the explicit check, association
 and resource flags. This requires the draft server API in workspace PR #389.
 
 ## Private repository setup (requires an enabled compatible server)
