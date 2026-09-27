@@ -1,10 +1,11 @@
 # Release notes
 
-## Unreleased
+## 0.32.3 — Task-based Notes examples
 
-Notes and artifacts now expose `share get/create/revoke` and `visibility` commands
-for existing resources. Notes also support accepted-access listing/removal and
-optional revocation of accepted grants. Link inspection never enables sharing.
+Notes help now demonstrates finding and reading a note, previewing a precise
+wording change, verifying it, and collaborating with distinct agent identities.
+Normal reads use no JSON or view flags. Patch help retains revisions from normal
+text output, and the local-editor recipe avoids zsh’s read-only `status` variable.
 
 ## 0.32.2 — Notes quick-start help
 

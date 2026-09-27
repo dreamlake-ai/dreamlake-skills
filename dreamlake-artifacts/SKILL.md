@@ -322,10 +322,9 @@ but older frame deployments may lack the clean-path fallback and route API.
 Do not deploy the host before the new frame is verified. Source validation
 does not mean this feature is deployed. No server API or CLI change is required.
 
-## Existing-link management (unreleased)
+## Existing-link management (CLI 0.32.4+)
 
-Check `dreamlake artifact share --help` for installed support. The forthcoming
-CLI supports inspecting, creating and revoking existing links without uploading
+Check `dreamlake artifact share --help` for installed support. CLI 0.32.4 and later supports inspecting, creating and revoking existing links without uploading
 a version, plus independent visibility changes. Follow the docs-owned command
 reference in `../dreamlake-cli/reference/artifacts.md`, section "Manage existing
 share links", for commands, permission limits and concurrency caveats.
