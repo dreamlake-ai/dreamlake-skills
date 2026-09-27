@@ -4,7 +4,8 @@ Use `read --linger` when you want to stay with someone in a note. It registers
 your presence, prints the initial source and participants, and streams updates
 until you stop it. **Use the default text output for people and coding agents:**
 it shows readable diffs, participants, and quoted selections. Add `--json` only
-when a program explicitly needs to parse structured events.
+when a program explicitly needs to parse structured events. An agent using the
+CLI interactively is not, by itself, a reason to request JSON.
 
 It requires CLI **0.29.0+** and compatible presence and activity
 endpoints, in addition to the Notes read endpoint.
@@ -241,10 +242,13 @@ text. No automatic retry guesses a new location. Optionally pass `--hash "$HASH"
 using a retained `sha256:…` source hash to require that exact source. This is an
 observation precondition, not a content write or a saved revision.
 
-Normal output is a publication receipt with the quoted matched text, scope, resolved
+**Plain text is the default for selection commands and agent workflows.** Omit
+`--json` in normal examples and tool calls. The publication receipt already
+returns the quoted matched text, scope, resolved
 match number/count, a half-open code-point range and separate selection/presence
 expiry times. Multiline text uses escaped newlines to keep the excerpt on one line.
-`--json` returns `note`, `hash`, `text`, `scope`, `range`,
+Use `--json` only when an explicit machine integration needs structured fields.
+That optional receipt returns `note`, `hash`, `text`, `scope`, `range`,
 `occurrence`, `matches`, `published`, `selectionExpiresAt` and `presenceExpiresAt`
 (epoch milliseconds). `scope` is `{kind:"note"}` or
 `{kind:"section",anchor:"next-steps"}`; `text` is the exact matched source, not the

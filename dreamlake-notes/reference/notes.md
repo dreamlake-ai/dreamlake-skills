@@ -6,6 +6,15 @@
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
 
+## Output for people and agents
+
+Use plain-text CLI output by default, including coding-agent workflows and
+command examples. Do not add `--json` merely because an agent is calling the CLI.
+Normal read, collaboration and selection receipts are intended to be read directly.
+Use JSON only for an explicit machine integration that must parse structured
+fields, revision tokens or events. The scripted concurrency examples below use
+JSON for that concrete purpose; they are not the default for ordinary interaction.
+
 ## Public catalog reads
 
 `GET /namespaces/:slug/notes` accepts requests without an Authorization header.
@@ -1882,7 +1891,7 @@ Use a stable task identity and your normal authenticated Notes access. The comma
 matches exact canonical source text, including whitespace and markup. It refuses
 missing or ambiguous matches. `-o` aliases `--occurrence`: `1` selects the first
 match, `-1` the last, and `-2` the second-last within the chosen scope. Zero and
-out-of-range values fail without publishing. JSON receipts report the resolved
+out-of-range values fail without publishing. Receipts report the resolved
 positive 1-based occurrence.
 A section match downloads only that section, not the entire document. A whole-note
 match reads source internally without printing it. Target resolution suppresses
@@ -1895,9 +1904,11 @@ in code points and the whole-source `hash`; legacy `start`/`end` stay UTF-16.
 Old servers without section metadata fail explicitly. The server validates current
 source and collaboration access. No source write or human-cursor change occurs.
 
-The plain-text receipt confirms server acceptance and returns the quoted matched
+**Plain text is the default for selection commands and agent workflows.** Omit
+`--json` in normal tool calls and examples. The receipt confirms server acceptance and returns the quoted matched
 text, scope, resolved match number/count, code-point range and separate expiry
-times. Multiline excerpts escape newlines. `--json` also includes exact `text` and
+times. Multiline excerpts escape newlines. Only an explicit machine integration
+should request `--json`; that optional receipt includes exact `text` and
 `scope` (`{kind:"note"}` or `{kind:"section",anchor:"next-steps"}`), alongside
 `note`, `hash`, `range`, `occurrence`, `matches`, `published`, `selectionExpiresAt`
 and `presenceExpiresAt`. It does not return the surrounding section or document. Browser rendering still
