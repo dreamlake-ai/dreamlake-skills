@@ -1,13 +1,20 @@
 # Release notes
 
-## Unreleased — Agent selection by text
+## 0.32.0 — Agent selection by text
 
 `notes select --text "passage" --note NOTE` resolves literal source and publishes
 an agent selection through RTC. Ambiguous matches require `--section` or
 `--occurrence` (`-o`); negative values count from the end (`-o -1` selects
 the last match). Stale hashes fail without guessing. CSS lookup remains compatible.
-Section reads add a source hash and global code-point range. CLI/server release,
-docs deployment and public skill publication are pending.
+Section mode requires the server update adding a source hash and global
+code-point range. Plain-text receipts include the selected text, scope, resolved
+match and expiry times. JSON remains opt-in for explicit integrations.
+
+## 0.31.3 — Highlight annotation guidance
+
+The bundled CLI skill documents `user` and `comment` highlight metadata, the
+shared inline/sidebar comment UI, click-to-edit, and a tested revision-safe
+matching-text example. No CLI command or storage behavior changes.
 
 ## 0.31.2 — Clearer participant names
 

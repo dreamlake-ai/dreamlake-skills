@@ -9,6 +9,7 @@ Saving source and verifying its visible rendering are separate checks.
 ```markdown
 :highlight[Review this sentence]
 :highlight[Key finding]{color="#60a5fa"}
+:highlight[Review needed]{user="Research agent" comment="Check the source"}
 :color[Important]{color="red"}
 ```
 
@@ -30,6 +31,38 @@ Rendering support differs by surface. The app supports these directives; CLI/API
 HTML snapshots currently preserve color directives as source text. Check the
 [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) for supported
 colors, tables, references, and current rendering limits.
+
+### Highlight metadata from the CLI
+
+`user` and `comment` are optional quoted strings. Author labels are supplied text,
+not verified account identity or authority. Metadata is plain text; JSON escaping
+supports `\"`, `\\` and `\n`. Duplicate or unknown attributes and malformed
+quoting keep the directive literal. Existing colors and plain highlights are unchanged.
+
+The app reuses the inline/sidebar comments toggle: inline mode opens a uikit
+comment popover; sidebar mode shows existing comment cards. Tab to the comment
+button and press Enter to open it. Click highlighted text or the edit action to
+reveal its Markdown. Read-only notes expose no edit controls.
+
+No dedicated highlight command is needed. `notes create --text` or `--file` stores
+the syntax, and `notes replace` edits it by matching text. Set `NOTE_ID` to the
+ID returned by create/list. This complete example annotates an existing highlight:
+
+```bash
+SNAPSHOT=$(mktemp)
+dreamlake notes read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
+REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
+dreamlake notes replace ':highlight[Review needed]' \
+  --text ':highlight[Review needed]{user="Research agent" comment="Check the source"}' \
+  --note "$NOTE_ID" --if-match "$REV"
+dreamlake notes read "$NOTE_ID" --json
+rm "$SNAPSHOT"
+```
+
+The replacement helper needs the legacy ETag, not a v2 `rtc:` revision. Exactly one
+match is expected; if the note changed, read again before retrying. Do not rewrite
+the whole note to edit one annotation. These commands already support the syntax;
+CLI 0.31.3 updates the bundled guidance, not the note storage API.
 
 ## References and placeholders
 

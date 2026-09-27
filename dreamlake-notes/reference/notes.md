@@ -313,6 +313,59 @@ See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) fo
 color choices, tables and portability. CLI/API HTML snapshots currently keep
 color directives as source text.
 
+### Highlight metadata
+
+Attach optional `user` and `comment` strings to a highlight:
+
+```markdown
+:highlight[Review needed]{user="Ge" comment="Confirm the delivery date"}
+:highlight[Key finding]{color="#60a5fa" user="Research agent" comment="Check the source"}
+:highlight[重点 🤖]{comment="First line\nSecond line"}
+```
+
+Highlight annotations reuse the Notes inline/sidebar comments toggle. In inline
+mode, click the small comment button beside a highlight (or Tab to it and press
+Enter) to open the uikit popover. In sidebar mode, read the same metadata in the
+comment rail. Narrow panes fall back to inline mode. The popover and sidebar
+edit action reveals the original directive; clicking highlighted text also
+reveals its editable source. Read-only notes show metadata without edit controls.
+The author is a supplied label, not a verified account identity or permission.
+These are plain-text annotations on a highlight, not saved comment threads.
+Either field may be omitted; empty strings add no label. Existing plain highlights
+and colors keep their behavior. Select the directive in the editor to edit its
+source, including metadata. Metadata does not change the highlighted text or
+its source offsets, including in table cells and read-only app views.
+
+Attribute values use JSON string escaping: `\"` for a quote, `\\` for a
+backslash and `\n` for a newline. HTML in metadata stays text. Unknown or duplicate
+attributes and malformed quoting leave the whole directive literal. Use `user`,
+not `author`; only `color`, `user` and `comment` are accepted secondary attributes.
+
+Agents should first read the note and retain its revision, then replace the exact
+existing directive using `--if-match` and read it back.
+For example, set `NOTE_ID` to the target note ID and read its legacy ETag
+(the replacement helper uses an ETag, not a v2 `rtc:` revision):
+
+```bash
+# NOTE_ID is the ID returned by create/list; this edits an existing highlight.
+SNAPSHOT=$(mktemp)
+dreamlake notes read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
+REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
+dreamlake notes replace ':highlight[Review needed]' \
+  --text ':highlight[Review needed]{user="Research agent" comment="Check the source"}' \
+  --note "$NOTE_ID" --if-match "$REV"
+dreamlake notes read "$NOTE_ID" --json
+rm "$SNAPSHOT"
+```
+
+The existing `notes create --text` / `--file` commands also accept this syntax.
+There is no dedicated highlight command: these are ordinary Markdown directives,
+so matching text with `notes replace` is enough; no line numbers are needed.
+
+Do not overwrite the whole note to update one annotation. CLI/SDK storage already
+accepts this Markdown; no new client method or package version is required.
+CLI/API HTML snapshots retain rich directives as source text; the app renders them.
+
 ### Web preview tags
 
 Open a web page beside a Note with a preview tag:
@@ -1874,9 +1927,9 @@ editor/outline support this policy in the September 24 release.
 
 ## Select an agent passage by matching text
 
-**Unreleased:** `notes select --text` requires the matching CLI update; section
+**CLI 0.32.0+:** `notes select --text` publishes an agent selection; section
 selection requires the server update adding `hash` and `range` to section reads.
-These source changes do not imply a package release or production deployment.
+Older server responses fail explicitly.
 
 ```bash
 export DREAMLAKE_AGENT_ID="review-session-42"

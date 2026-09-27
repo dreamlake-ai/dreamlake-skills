@@ -195,9 +195,9 @@ Next: [Editing with patches](/notes/editing/).
 
 ## Select a passage by text
 
-**Unreleased:** requires a CLI build containing `notes select --text`. Section
+**CLI 0.32.0+:** `notes select --text` publishes an agent selection. Section
 selection also requires the server's section `hash` and code-point `range`
-fields. Source changes and local skill generation do not publish either release.
+fields; older server responses fail explicitly.
 
 Set one stable identity for the task, authenticate normally, and use a dedicated
 test note when trying examples. Replace the note ID and exact source passage:
