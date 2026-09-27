@@ -4,7 +4,8 @@
 
 `notes select --text "passage" --note NOTE` resolves literal source and publishes
 an agent selection through RTC. Ambiguous matches require `--section` or
-`--occurrence`; stale hashes fail without guessing. CSS lookup remains compatible.
+`--occurrence` (`-o`); negative values count from the end (`-o -1` selects
+the last match). Stale hashes fail without guessing. CSS lookup remains compatible.
 Section reads add a source hash and global code-point range. CLI/server release,
 docs deployment and public skill publication are pending.
 

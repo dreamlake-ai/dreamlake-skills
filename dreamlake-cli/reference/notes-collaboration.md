@@ -206,6 +206,8 @@ export DREAMLAKE_AGENT_ID="review-session-42"
 export DREAMLAKE_AGENT_NAME="Codex"
 NOTE_ID="your-note-id"
 dreamlake notes select --text "The next step is tested in simulation." --note "$NOTE_ID"
+# Select the last occurrence of a repeated passage.
+dreamlake notes select --text "simulation" --note "$NOTE_ID" -o -1
 ```
 
 The command matches literal canonical source (including Markdown or HTML markup),
@@ -215,12 +217,15 @@ selection and can use the agent's location control to navigate to it. The receip
 confirms server acceptance; it does not prove a particular browser rendered it.
 
 Zero matches or multiple matches fail without publishing. Narrow the scope to a
-section anchor, or explicitly choose a 1-based occurrence within that scope:
+section anchor, or explicitly choose an occurrence within that scope. `-o` is short for
+`--occurrence`: positive values count from the start (`1` is first), negative
+values count from the end (`-1` is last, `-2` is second-last). Zero is invalid:
 
 ```bash
 # Use the heading anchor from notes sections; this fetches only that section.
 dreamlake notes select --text "simulation" --section next-steps --note "$NOTE_ID"
 dreamlake notes select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
 ```
 
 Section resolution uses one section read with a global code-point range and the
@@ -236,10 +241,16 @@ text. No automatic retry guesses a new location. Optionally pass `--hash "$HASH"
 using a retained `sha256:…` source hash to require that exact source. This is an
 observation precondition, not a content write or a saved revision.
 
-Normal output is a short publication receipt with a half-open code-point range
-and separate selection/presence expiry times. `--json` adds `note`, `hash`, `range`,
+Normal output is a publication receipt with the quoted matched text, scope, resolved
+match number/count, a half-open code-point range and separate selection/presence
+expiry times. Multiline text uses escaped newlines to keep the excerpt on one line.
+`--json` returns `note`, `hash`, `text`, `scope`, `range`,
 `occurrence`, `matches`, `published`, `selectionExpiresAt` and `presenceExpiresAt`
-(epoch milliseconds). Selection activity currently expires after eight seconds;
+(epoch milliseconds). `scope` is `{kind:"note"}` or
+`{kind:"section",anchor:"next-steps"}`; `text` is the exact matched source, not the
+whole section or document. `occurrence` in the receipt is the resolved positive 1-based
+position, even when the request counts from the end. Out-of-range positive or
+negative occurrences fail without publishing. Selection activity currently expires after eight seconds;
 the participant lease lasts sixty seconds. Heartbeats maintain presence, not the
 selection. Re-run selection to draw attention to the passage again.
 

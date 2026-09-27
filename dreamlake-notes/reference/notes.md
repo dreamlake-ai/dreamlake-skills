@@ -1875,11 +1875,15 @@ export DREAMLAKE_AGENT_NAME="Codex"
 NOTE_ID="your-note-id"
 dreamlake notes select --text "The next step is tested in simulation." --note "$NOTE_ID"
 dreamlake notes select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
 ```
 
 Use a stable task identity and your normal authenticated Notes access. The command
 matches exact canonical source text, including whitespace and markup. It refuses
-missing or ambiguous matches; `--occurrence` is 1-based within the chosen scope.
+missing or ambiguous matches. `-o` aliases `--occurrence`: `1` selects the first
+match, `-1` the last, and `-2` the second-last within the chosen scope. Zero and
+out-of-range values fail without publishing. JSON receipts report the resolved
+positive 1-based occurrence.
 A section match downloads only that section, not the entire document. A whole-note
 match reads source internally without printing it. Target resolution suppresses
 read highlighting until a unique match is found.
@@ -1891,8 +1895,12 @@ in code points and the whole-source `hash`; legacy `start`/`end` stay UTF-16.
 Old servers without section metadata fail explicitly. The server validates current
 source and collaboration access. No source write or human-cursor change occurs.
 
-The plain-text receipt confirms server acceptance and prints separate expiry times;
-`--json` provides the receipt fields for integrations. Browser rendering still
+The plain-text receipt confirms server acceptance and returns the quoted matched
+text, scope, resolved match number/count, code-point range and separate expiry
+times. Multiline excerpts escape newlines. `--json` also includes exact `text` and
+`scope` (`{kind:"note"}` or `{kind:"section",anchor:"next-steps"}`), alongside
+`note`, `hash`, `range`, `occurrence`, `matches`, `published`, `selectionExpiresAt`
+and `presenceExpiresAt`. It does not return the surrounding section or document. Browser rendering still
 requires an active compatible RTC room and editor. Selection activity lasts eight
 seconds and presence lasts sixty; a heartbeat renews presence only. Users can
 navigate to the agent's selected passage through its location control.
