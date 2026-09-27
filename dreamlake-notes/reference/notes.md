@@ -2146,18 +2146,35 @@ the user again. Membership and public access are unaffected.
 
 ## Saved versions
 
-In the note toolbar, open **Saved versions** (the bookmark icon). Enter an
-optional version tag such as `v1` or `Investor review` and a short summary of
-what changed, then choose **Save version**. Notes continues to autosave while
-you work. Tags and summaries are metadata; they do not appear in the note body.
+The version tag in the toolbar opens the same revision graph shown in the right
+sidebar. **Working Draft** sits directly above its base version, with an edit
+count and a save icon on that row. Choose the icon, enter an optional title/tag
+and summary, then save. Notes continues to autosave while you work; metadata
+does not appear in the note body. New milestones receive stable numbers such
+as `v3`, independent of their titles. Numbers can have gaps after failed saves.
 
-Each saved version retains the exact server-confirmed text, author and date.
-It remains available after collaboration history is compacted or a room is
-recreated. Select a version to read it, use **Compare with** to view two saved
-versions side by side, or **Copy version link** to link to that milestone.
-Saving never replaces the current note. Tags may repeat; the version ID is the
-unique, immutable identifier. Summaries are written by the person saving the
-version; automatic AI drafting is not included.
+Saved versions show their parent connections, including forks from a shared
+base. The save form defaults to your draft's base; choose another **Base version**
+to record a different ancestry. This records the relationship without replacing
+or merging the live draft. The browser remembers the draft's base for the session;
+another user's save does not silently change it. Older versions without recorded
+parents remain unconnected.
+
+Small dots represent retained intermediate edits. Open a dot to choose an edit.
+Hover or keyboard focus locally magnifies graph spacing without changing the
+note. Scrolling previews nearby snapshots; clicking version text or activating it
+with the keyboard selects that revision. Leaving a transient preview restores
+the last selection. **Back to draft** returns to the still-mounted live editor.
+The sidebar's **Contents** view provides section popovers and navigation.
+
+Each saved version retains the exact server-confirmed text, author and date,
+plus the available collaboration checkpoint and journal. It remains readable
+after live history is compacted or a room is recreated. Compacted edits that were
+already missing at save time cannot be recovered; partial counts say **retained
+edits**. In a saved-version preview, **Compare / link** opens side-by-side
+comparison and **Copy version link**. Saving never replaces the current note.
+Tags may repeat; the version ID is unique and immutable. Summaries are written
+by the person saving the version; automatic AI drafting is not included.
 
 Saved history requires edit access, including accepted write-share access.
 A public note or read-only share does not expose earlier text that may have
@@ -2169,15 +2186,22 @@ from a mismatched browser/server state.
 
 These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
 
-- `POST /versions` accepts `{hash, tag?, summary?}`. `hash` is the lowercase
+- `POST /versions` accepts `{hash, tag?, summary?, parentId?}`. `hash` is the lowercase
   SHA-256 of the UTF-8 body the user intends to save. The server compares it
   with a coherent current read and returns `409 note_changed` on mismatch.
   Tags are at most 80 characters and summaries at most 2,000 characters.
   A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
-  `createdBy`, and `author`.
+  `createdBy`, `author`, `number`, and `parentId`. The optional nullable
+  `parentId` must identify a version in this note; a missing/foreign parent
+  returns `404 parent_not_found`. Omitting it records no parent. RTC-backed
+  versions also include `revision`, `clock`, `editCount`, and `historyComplete`.
+  The count measures retained content-edit messages, not keystrokes.
 - `GET /versions` returns `{versions, nextCursor}` with up to 50 metadata
   entries, newest first. Send `?before=<nextCursor>` for older entries.
 - `GET /versions/:versionId` returns the metadata plus `text`.
+- `GET /versions/:versionId/history` returns the retained `{snapshot, journal}`
+  for read-only replay, with the same editor access requirement. Legacy versions
+  return `{snapshot: null, journal: []}`. This is not a content-write endpoint.
 
 The content hash identifies text, not the identity-bearing RTC baseline used
 for collaborative patches. Saving a version is a retained snapshot operation,
