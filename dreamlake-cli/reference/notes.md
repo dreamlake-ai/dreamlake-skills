@@ -4,6 +4,12 @@ Read and edit the same document people have open in DreamLake. Start with a
 snapshot, make a targeted patch, and read back the result. To work alongside
 someone, keep the note open in your terminal with `--linger`.
 
+Use plain-text output by default, including in coding-agent workflows and
+command examples. Do not add `--json` just because an agent is calling the CLI.
+Reserve it for an explicit machine consumer, such as a script that must parse
+revision tokens or structured events. Those integration examples keep their
+required JSON handling; ordinary reading, collaboration and selection use text.
+
 ## Start here
 
 Log in with `dreamlake login`. These guides target **CLI 0.29.0 or later** and a
@@ -12,7 +18,7 @@ compatible DreamLake server. Check your binary with `dreamlake --version`;
 
 ```bash cli-help="notes list"
 dreamlake notes list --limit 10
-dreamlake notes list --shared --json
+dreamlake notes list --shared
 dreamlake notes list --namespace acme
 ```
 
