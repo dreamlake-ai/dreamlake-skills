@@ -1,5 +1,9 @@
 # Release notes
 
+## Unreleased
+
+- Add `notes media upload <file>`: upload an image or video and print its embeddable URL directly. Saved login credentials are reused; `--json` is optional. Media URLs allow access to anyone holding them; private note attachments remain separate.
+
 ## 0.33.0 — Addressed Notes reads
 
 `dreamlake notes read` can pin a retained snapshot with `--at`, inspect its

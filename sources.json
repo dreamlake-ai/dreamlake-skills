@@ -3,29 +3,31 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "4e625e6ee182a2ae3684fb77bfa05709386f0468",
+      "commit": "d86da7618a26bff87758daefe2410d6abdd8e476",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
-        "docs/skill-guides/notes/SKILL.md": "fc9a185cd90b38dc441e744fe3506faa423aa1b7f21ca2cb1f040e3a1d8c51b7",
-        "docs/skill-guides/notes/actions/attachments.md": "4a1f5f950d51c59c69d1519635ffa88dd08d6fee11de309fef7de5bbb834fcb3",
+        "docs/skill-guides/notes/SKILL.md": "e2fd7e768462d68e93d696a643d3a59f64ca6a1ffcbbe78ec92e601f7a2ae494",
+        "docs/skill-guides/notes/actions/attachments.md": "e8b65126dd4f4c4c25fe8b9a6a768296e583b5047034a74c2be4880775ba5fa0",
         "docs/skill-guides/notes/actions/create.md": "c7b05467c117f7d22388b427331a6df04a06166bb99b338a8fda65490e22386a",
         "docs/skill-guides/notes/actions/edit.md": "feee5d26df26ccad67c4125334f3c3f5529f3da7ce31ed231f6749856dcf577b",
+        "docs/skill-guides/notes/actions/media.md": "6748537fcf7c6ad0fbafb4fca27fd736b5c311e69dfd5a128260a4f6b5000b81",
         "docs/skill-guides/notes/actions/read.md": "4fd4030359e2cc204a6f8d4e4bea11d096a674bd3e458ab81adb7fd22b7acc59",
         "docs/skill-guides/notes/actions/watch.md": "bf75418435688225c9f66640b4e50814cf64f0da332ea70c76d9449366fccd99"
       },
       "docsPages": "docs/pages/notes/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "4abd0a95ffe16f531d176cc507b67197745af837a0bfb939c15f28a30ceea3d4"
+      "pageSha256": "86b5c2acae9511c208b15dafd0a2f6ae9bdd328aae5dbd5bc6112f6e11958d05"
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "6488dc8756a9051b21746a52b1f2bfff502684cb",
+      "commit": "8c9bda8818d37cd05d298d6324f1532be6f9d5a8",
       "generatorSha256": "fbeb216d7f0fdfc9cf1cbfa1ee7871d3a7c57a244fe6ace0d0ea0270ccf83a18",
       "actionGuides": {
-        "docs/skill-guides/cli/SKILL.md": "07673b0df5f2f0dca3a9a8e507a6e7ce9bfcc66f2ab54684fb6d50fc7090c5f8",
+        "docs/skill-guides/cli/SKILL.md": "8424edbf0bb95493a3b8d6648b9ca2476b7c4bbafa6f262752313b9e26a16e8d",
         "docs/skill-guides/cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
         "docs/skill-guides/cli/actions/data.md": "a61da3e333b2e7894650d2ea941e56807ef0f7bfe8cabf10d20527a3dcef63e3",
-        "docs/skill-guides/cli/actions/notes.md": "e12ce1bbe1fa34558f30f62330cfcc54d41d8d18cfed4656334ea3bc51ea5bf5",
+        "docs/skill-guides/cli/actions/media.md": "5fa4a2d54cf2ecacb05836ad3e1ca938bc21fb3867e4d4f697489917ddbda6b1",
+        "docs/skill-guides/cli/actions/notes.md": "2b675875dd2962d8927390c46c273409396df982089adae01c8259dd68604dc4",
         "docs/skill-guides/cli/actions/setup.md": "6842f49abdb5031cfaf91f12d597676de9ea5b3230aaeeab23719e7218d57150",
         "docs/skill-guides/cli/actions/workflows.md": "570a51f04fdb7cf0e5317b959fa67ac352eefaabc6beb5f00867db6cc51e3a7e"
       },

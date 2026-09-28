@@ -11,6 +11,7 @@ options and limits:
 - [Install, authenticate, and choose an environment](actions/setup.md)
 - [Upload or download data](actions/data.md)
 - [Work with Notes](actions/notes.md)
+- [Upload an inline image](actions/media.md)
 - [Publish an artifact](actions/artifacts.md)
 - [Manage workflows](actions/workflows.md)
 

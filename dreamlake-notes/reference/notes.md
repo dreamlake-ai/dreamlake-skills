@@ -1010,6 +1010,134 @@ mojibake.
 two trashed files can share a path, so the path alone would be ambiguous.
 `files list --trashed` prints the ids.
 
+### Attach an image and get its path
+
+With the CLI installed and signed in, set `NOTE_ID` to your note's full ID and
+upload a local PNG. No JSON flag or parsing is needed for interactive use:
+
+```bash
+dreamlake notes files upload ./diagram.png --note "$NOTE_ID" --path assets/diagram.png
+```
+
+The output shows `assets/diagram.png`, the size, content type and file ID.
+You chose that logical path with `--path`; without it, the path defaults to
+`diagram.png`. To get just the authenticated **preview page URL** on stdout:
+
+```bash
+dreamlake notes files preview assets/diagram.png --note "$NOTE_ID"
+```
+
+For scripts that need to capture the returned attachment path, use the
+structured response below (`jq` required):
+
+```bash
+set -e
+NOTE_ID="<full-note-id>"
+dreamlake notes files upload ./diagram.png --note "$NOTE_ID" \
+  --path assets/diagram.png --json > attachment.json
+IMAGE_PATH=$(jq -er '.path' attachment.json)
+printf '%s\n' "$IMAGE_PATH"  # assets/diagram.png
+```
+
+The Python equivalent returns a file object with the same logical path:
+
+```python
+import dreamlake as dl
+
+note = dl.note("<full-note-id>")
+image = note.files.upload("./diagram.png", path="assets/diagram.png")
+print(image.path)  # assets/diagram.png
+```
+
+`path` is relative to the note's attachment collection, not a browser image
+URL. Uploading an attachment does not insert it into the note body. The file
+preview link is a viewer page, not a URL to use in an image's `src`.
+
+### Get an image URL for Markdown or HTML
+
+For an inline image, upload the bytes to the media endpoint and keep the
+returned `url`. This is a separate upload from the permission-inheriting
+attachment above; you can skip the attachment step if you only need an inline
+image. Media is not listed by `notes files list`.
+
+The upcoming CLI command returns that URL directly using your saved login:
+
+```bash
+dreamlake notes media upload ./diagram.png
+```
+
+Or capture it for insertion into a document:
+
+```bash
+IMAGE_URL=$(dreamlake notes media upload ./diagram.png)
+printf '\n![Architecture diagram](%s)\n' "${IMAGE_URL:?Upload the image first}" > image.md
+printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the image first}" > image.html
+```
+
+Choose either the direct upload or the capture command; each call uploads a
+new media object. No note ID or namespace is needed, and upload alone does not
+edit a note. Optional `--json` returns the full receipt. This command is
+**unreleased**; check `dreamlake notes media upload --help` for availability.
+For installed versions without it, use the HTTP example below.
+
+Set `DREAMLAKE_TOKEN` to a valid bearer token for the API environment you are
+using. The following uses `curl`, `jq` and an existing `./diagram.png`; set
+`API_URL` for another environment before running it:
+
+```bash
+set -e
+: "${DREAMLAKE_TOKEN:?Set a valid DreamLake API bearer token}"
+API_URL="${API_URL:-https://api.dreamlake.ai}"
+curl --fail-with-body --silent --show-error \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" \
+  -F 'file=@./diagram.png;type=image/png' \
+  "${API_URL%/}/notes/media" > media.json
+IMAGE_URL=$(jq -er '.url' media.json)
+printf '%s\n' "$IMAGE_URL"
+
+# Save snippets to local files, ready to paste or insert.
+printf '\n![Architecture diagram](%s)\n' "$IMAGE_URL" > image.md
+printf '<img src="%s" alt="Architecture diagram">\n' "$IMAGE_URL" > image.html
+```
+
+For one-liners without `--json` or an intermediate JSON file, use the same
+token and local image setup above. The upload response is still JSON;
+`jq` extracts its URL. This is the fallback for CLI versions without
+`notes media upload`.
+
+```bash
+IMAGE_URL=$(set -o pipefail; curl --fail-with-body --silent --show-error -H "Authorization: Bearer ${DREAMLAKE_TOKEN:?Set a valid DreamLake API bearer token}" -F 'file=@./diagram.png;type=image/png' "${API_URL:-https://api.dreamlake.ai}/notes/media" | jq -er '.url')
+```
+
+After that upload succeeds, choose either one-liner to write the image markup:
+
+```bash
+printf '\n![Architecture diagram](%s)\n' "${IMAGE_URL:?Upload the image first}" > image.md
+printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the image first}" > image.html
+```
+
+The response contains `url`, `contentType` and `sizeBytes`. The URL has the form
+`https://api.dreamlake.ai/notes/media/<media-id>`. Keep that returned URL rather
+than the temporary storage URL it redirects to. Do not construct it from the
+attachment path or ID.
+
+Insert the Markdown snippet into your existing note with the append helper:
+
+```bash
+dreamlake notes append "$NOTE_ID" --file image.md
+```
+
+Use `image.html` in an HTML document; for the Notes Markdown body, use
+`image.md`. Raw HTML is not enabled in the Notes Markdown renderer. Attaching
+an HTML file with `notes files upload` is also separate from editing the note
+body. The static `notes read --view html` preview excludes network-loaded
+media, so verify the image in the interactive app.
+
+Anyone holding a media URL can load it without signing in. Making a note
+private does not revoke that URL. For an image that must inherit the note's
+permissions, keep it as a file attachment and use the authenticated file
+preview instead of publishing an inline media URL.
+
 ### Look at one
 
 **CLI**

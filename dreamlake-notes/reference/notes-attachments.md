@@ -24,6 +24,45 @@ dreamlake notes files list 'assets/*.png' --note release-plan --limit 50
 dreamlake notes files list --note release-plan --json
 ```
 
+## Upload an inline image and return its URL (unreleased)
+
+Check `dreamlake notes media upload --help` for availability. This command is
+unreleased. If unavailable in your installed CLI, use the
+[HTTP upload example](https://docs.dreamlake.ai/notes/#get-an-image-url-for-markdown-or-html)
+with a valid API bearer token.
+
+After `dreamlake login`, upload an image and print only its embeddable URL:
+
+```bash cli-help="notes media upload"
+dreamlake notes media upload ./diagram.png
+IMAGE_URL=$(dreamlake notes media upload ./diagram.png)
+```
+
+Choose one of those commands: each invocation uploads a new media object.
+No note ID, namespace, `curl`, `jq` or `--json` is required. The command uses
+saved login credentials and supports `--remote` and `--token`. Images and
+videos are accepted; the server detects the type from the bytes. Optional
+`--json` returns `url`, `contentType` and `sizeBytes`.
+
+Use the returned URL in a Markdown or HTML file:
+
+```bash
+printf '\n![Architecture diagram](%s)\n' "${IMAGE_URL:?Upload the image first}" > image.md
+printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the image first}" > image.html
+```
+
+To append the Markdown to an existing note, set `NOTE_ID` to its ID and run
+`dreamlake notes append "$NOTE_ID" --file image.md`. Uploading media alone
+does not edit a note. Use Markdown for the Notes body; HTML markup is for an
+HTML document. Keep the returned media URL, not its temporary storage redirect.
+
+Anyone holding a media URL can load it without signing in. Making a note
+private does not revoke that URL. To keep an image under a note's permissions,
+use `notes files upload ./diagram.png --note "$NOTE_ID"` instead. That stores
+an attachment with a logical path, not an embeddable URL. `notes files preview`
+returns a viewer page, not an image `src`. Media uploads are not included in
+`notes files list`.
+
 ## Manage files
 
 ```bash
