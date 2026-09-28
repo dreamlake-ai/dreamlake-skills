@@ -1988,6 +1988,28 @@ See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addre
 for ID generation, ranges, examples, efficiency limits, and the executable
 acceptance harness. Use a CLI/server build supporting the addressed-read options.
 
+### Comment targets in HTML reads
+
+Closed comment directives render as individually addressable elements with
+`data-rich-kind="comment"`. Their `id` uses `sN.cK` (for example, `s1.c2`),
+sharing the section's reading-order counter with paragraphs, lists and items.
+Use the returned ID with `--view html --at "$REVISION" --tag s1.c2` to read one
+comment's exact canonical directive. The atomic `data-char` and `data-lines`
+cover the complete directive, including attribution attributes. These HTML
+addresses are revision-local; read them from the snapshot, rather than guessing.
+
+Saved references such as `:comment[cmt_0123456789abcdef01234567]` additionally
+carry `data-comment-id="cmt_0123456789abcdef01234567"`. That persistent resource
+ID survives moves and edits and can be used with the comment API. Repeated
+references to the same saved comment get distinct HTML target IDs but retain
+the same `data-comment-id`. Keyed drafts expose `data-comment-key`; inline text
+comments have a target address but no invented persistent resource ID.
+
+Static HTML shows source text or the saved reference ID; it does not fetch a
+comment's private body. Code examples, escaped directives, malformed comments
+and Markdown links remain literal. When normalization prevents an exact range,
+the surrounding block remains the edit target instead of a guessed comment range.
+
 ### Rich tokens in HTML reads
 
 The v2 HTML renderer recognizes strict Markdown source tokens for
