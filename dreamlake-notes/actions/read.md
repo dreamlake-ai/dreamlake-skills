@@ -1,5 +1,7 @@
 # Read a note
 
+First complete [task identity setup](identity.md); reuse it in every shell call.
+
 Set `NOTE_ID` to an ID or slug from `dreamlake notes list`. Add
 `--namespace <slug>` when the note belongs to an organization. Check the
 installed CLI before choosing a read contract:

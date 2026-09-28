@@ -1,5 +1,7 @@
 # Edit a note
 
+First complete [task identity setup](identity.md); reuse it in every shell call.
+
 Prefer a targeted edit that uses source text and its retained revision. First
 check the installed client and inspect the exact passage:
 

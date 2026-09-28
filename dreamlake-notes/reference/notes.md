@@ -1551,19 +1551,37 @@ and photos are display metadata, not an authorization source.
 
 #### Agentic usage pattern: one identity, normal commands
 
-For agents that opt into presence, initialize once in the runner's task environment. For separate shell tool calls,
+For agent-driven Notes work, set both identity variables before the first live
+read or edit, unless the user explicitly requests unattributed work. This is a
+workflow prerequisite for attribution, not a requirement for saving content.
+Without `DREAMLAKE_AGENT_ID`, an edit can save successfully while producing no
+agent presence or attributed fading edit highlight. `DREAMLAKE_AGENT_NAME`
+provides the readable label.
+
+Initialize once in the runner's task environment. For separate shell tool calls,
 the runner must inject the same saved values each time; an export in one shell
 does not propagate into later independent shells. No explicit join is required.
 
 ```bash
-export DREAMLAKE_AGENT_ID="codex:$(python3 -c 'import uuid; print(uuid.uuid4())')"
-export DREAMLAKE_AGENT_NAME="Codex"
+export DREAMLAKE_AGENT_ID="${DREAMLAKE_AGENT_ID:-codex:$(python3 -c 'import uuid; print(uuid.uuid4())')}"
+export DREAMLAKE_AGENT_NAME="${DREAMLAKE_AGENT_NAME:-Codex}"
 NOTE_ID="<full-note-id>"
 ```
 
 Run ordinary commands with that identity. An attributed `read` automatically
 registers or refreshes presence; a preceding `visit` is never required. Reading
-without agent identity does not invent or register an agent session.
+without agent identity does not invent or register an agent session. Retain the generated ID in the task context and inject that same literal value into each later shell; rerunning the UUID fallback in a new shell would create a different session.
+
+After the first intended live read, verify attribution with
+`dreamlake notes presence "$NOTE_ID"` (CLI 0.31.0+). This only inspects the roster;
+it does not register an agent. Check the task ID and display name, not merely
+another session named Codex. If absent, check the environment passed to the
+actual read/edit process before diagnosing a UI regression. Do not repeat a
+successful edit to trigger its highlight. Presence expires about 60 seconds
+after the last activity; completed edit highlights fade over 5 seconds and
+require an exact matching live document revision. A roster entry verifies
+presence only: report a highlight as visually verified only after observing it
+in the collaborative editor.
 
 | Command | Reads content | Presence lifetime |
 | --- | --- | --- |
