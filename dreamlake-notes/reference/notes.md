@@ -1184,6 +1184,13 @@ failures return `503 diff_unavailable`. Preserve the original baseline on failur
 A display diff does not guarantee that a later merge patch fits the write limits;
 merge remains the default and exact mode remains opt-in.
 
+Native CLI 0.33.0 has a redirected-file input defect: `--file - < edit.dff`
+can send an empty patch and receive a successful no-op receipt. Until a release
+containing the stdin fix is installed, use `--file edit.dff` and inspect
+`--dry-run --json` to verify `payload.patch`. The corrected reader preserves
+redirected input and rejects empty patches before sending. This does not change
+merge semantics; always verify the requested text in the acknowledged snapshot.
+
 Stop on failure and preserve the patch, working copy and original baseline.
 A missing acknowledgement can mean a commit occurred. The backend reconnects
 at most once within the same request and resends the identical native message
