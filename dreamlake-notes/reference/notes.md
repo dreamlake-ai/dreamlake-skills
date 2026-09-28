@@ -1175,6 +1175,15 @@ bases return an explicit error. Apply a returned patch only to its exact `base`
 source, and verify the resulting hash. A no-op source diff may carry a newer RTC
 token; it never advances an existing draft automatically.
 
+The default `diff` read aligns source lines directly, so substantial rewrites do
+not consume the character-alignment budget used for merge-safe write patches.
+`inline-dff` still requires bounded character alignment. Invalid references
+return `400 bad_reference`, missing retained snapshots return `404 revision_not_found`,
+diff-generation limits return `422 diff_failed`, and retained-storage or observation
+failures return `503 diff_unavailable`. Preserve the original baseline on failure.
+A display diff does not guarantee that a later merge patch fits the write limits;
+merge remains the default and exact mode remains opt-in.
+
 Stop on failure and preserve the patch, working copy and original baseline.
 A missing acknowledgement can mean a commit occurred. The backend reconnects
 at most once within the same request and resends the identical native message
