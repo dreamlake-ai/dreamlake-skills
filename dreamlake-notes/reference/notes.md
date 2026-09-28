@@ -283,7 +283,7 @@ the name you passed.
 Use the note's full `id` in browser links:
 
 ```text
-https://dreamlake.ai/<namespaceSlug>/notes/<noteId>
+https://dreamlake.ai/<namespaceSlug>/notes?note=<noteId>
 ```
 
 Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
@@ -291,7 +291,21 @@ Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
 slug in this URL: the browser detail route expects the ID, even though the
 CLI accepts slugs and titles. Use the returned owner namespace rather than
 assuming your personal namespace. The ID is sometimes called the note hash;
-it is a path segment, not a `#` URL fragment.
+it is the `note` query parameter, not a `#` URL fragment.
+
+In the development preview, the path controls the list pane independently of the
+active note:
+
+- `/<namespace>/notes` lists notes.
+- `/<namespace>/projects` lists projects; `/projects/<project>` opens a project.
+- `/<namespace>/bindrs` lists Bindrs; `/bindrs/<bindrId>` opens a Bindr.
+
+Append `?note=<full-note-id>` to any of these paths to open a note. Switching
+list context keeps that note open. The note header's contextual list button
+hides or restores the list pane. Older note and project links redirect to these
+routes. List search includes ordering; default status/category chips are omitted
+from the compact panes. Project and Bindr member ordering is applied before
+pagination so it covers the entire result set.
 
 Inside another DreamLake note, prefer `:note[<full-note-id>]` (development preview) for a native note
 reference. A browser link does not change visibility or grant access to a
