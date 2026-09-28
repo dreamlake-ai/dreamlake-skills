@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.34.4
+
+Read literal Markdown inside agent markup without added HTML or Unicode escaping.
+Accept the text transport and use trusted address metadata. Bundled skills explain
+literal source edits and unified diffs without manual inline-DFF escaping.
+
 ## 0.34.3 — 2026-09-28
 
 - Fix native Notes patches read from redirected stdin silently submitting empty input; reject empty patches before sending.

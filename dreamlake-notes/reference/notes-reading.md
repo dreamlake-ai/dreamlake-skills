@@ -155,6 +155,38 @@ Read IDs from the returned snapshot, including after a server renderer upgrade. 
 entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
 return 404; every read checks current permissions.
 
+### Literal Markdown for agents
+
+With CLI 0.34.4 and a compatible server, `--view html` on a Markdown note is
+an **agent format**: HTML-like tags supply structure and addresses; their
+contents are the exact original Markdown. There is one `data-char` source
+range, including the construct's syntax. There is no inner/outer split.
+
+```text
+<li id="s0.ul1.li2" data-char="0:11">- [ ] Ship
+</li>
+```
+
+Keep Markdown literal: `- [ ]`, `**bold**`, `:comment[...]`, backslashes,
+`<`, `&`, and Unicode remain exactly as saved. Do not add HTML escapes,
+Markdown escapes, or Unicode escape sequences to element contents. Do not
+strip escapes that are already present in canonical source. No display-text
+index conversion is needed: ranges address the source text inside the wrappers.
+A parent item's range includes its nested source.
+
+This is not browser HTML. Do not render it or use a DOM parser to recover its
+body. CLI 0.34.4 requests `contentFormat=literal-markdown` automatically; direct API clients add that parameter to a v2 HTML read. Existing clients keep the prior rendered contract. The API serves Markdown agent markup as `text/plain` and marks the root
+`data-content-format="literal-markdown"`. Generated heading numbers and other
+preview decoration are absent. The separate visual preview is unchanged.
+
+Metadata attributes still use transport encoding: decode the root `data-source`
+attribute once for an exact machine-readable source slice, and use the trusted
+root `data-addresses` index rather than finding tags inside arbitrary Markdown.
+CLI `--view markdown` handles this and prints literal source with address hints.
+Keep the original revision with the source and verify the acknowledged edit.
+Older servers may return rendered HTML; do not assume literal bodies without the
+format marker. Canonical HTML notes retain their existing HTML source mapping.
+
 `data-char="start:end"` are absolute, zero-based, end-exclusive Unicode code-point
 ranges in original source. `data-lines` is one-based and inclusive. A scoped root
 contains only the selected `data-source`, with its global `data-source-start` and
