@@ -19,3 +19,10 @@ For edits, retain the correct baseline and use the documented patch contract;
 read the acknowledged revision back. `--legacy` uses ETags; v2 patches use an
 opaque revision. See [Notes](../reference/notes.md),
 [reading](../reference/notes-reading.md), and [editing](../reference/notes-editing.md).
+
+For Markdown agent markup, element bodies are literal Markdown, including `<`,
+`&`, backslashes and Unicode. Do not HTML-render or DOM-parse these bodies; use
+canonical source metadata for machines. Keep a single source range and the
+original revision. For literal edits without inline-DFF delimiter escaping,
+generate a unified diff from baseline and edited files; see
+[editing with patches](../reference/notes-editing.md#literal-text-without-inline-dff-escaping).

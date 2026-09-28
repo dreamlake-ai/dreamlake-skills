@@ -175,3 +175,29 @@ details are printed alongside their error code. A 422 may indicate an alignment
 limit as well as an invalid patch; it does not by itself prove a baseline mismatch.
 Keep the baseline and draft on any failure. Default merge and opt-in exact mode
 are unchanged. Verify the intended edits in the acknowledged `--at` snapshot.
+
+## Literal text without inline-DFF escaping
+
+To avoid hand-writing `\[`, `\-` and other inline-DFF escapes, prepare an edited
+copy of the exact canonical baseline and generate a unified diff. Keep Unicode,
+`$`, `<`, `&` and backslashes literal in those files. Do not copy generated
+address hints into either file. Preserve the baseline's original revision and
+line endings. This uses the existing source patch API, not a new semantic edit API.
+
+```bash
+# base.md is the exact canonical source read at BASE; edit only edited.md.
+cp base.md edited.md
+# Apply the intended edit to edited.md with your file-editing tool.
+# diff exits 1 when it successfully finds differences; 2 means failure.
+DIFF_STATUS=0
+diff -u base.md edited.md > edit.diff || DIFF_STATUS=$?
+if [ "$DIFF_STATUS" -gt 1 ]; then exit "$DIFF_STATUS"; fi
+if [ "$DIFF_STATUS" -eq 1 ]; then
+  dreamlake notes patch "$NOTE_ID" --format diff --file edit.diff --base-revision "$BASE"
+fi
+# Read the resulting receipt revision with --at to verify the exact source.
+```
+
+The patcher checks the old source against the retained baseline. Keep any
+Markdown escapes needed in the actual saved source; the diff transport does not
+require extra escaping of its line contents. Existing merge/exact semantics apply.

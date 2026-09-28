@@ -37,3 +37,20 @@ not fetch a fresh revision just to retry the same patch. Use JSON only when a
 program needs structured receipts. If the installed CLI lacks addressed
 Markdown reads, use the explicitly documented [legacy conditional edits](../reference/notes-legacy.md);
 never pass a legacy ETag as a v2 revision.
+
+## Literal agent markup
+
+For Markdown notes on the literal-markdown contract, HTML-like wrappers provide
+IDs and ranges; their contents are **verbatim Markdown**, including list markers,
+checkboxes and comment directives. Use one `data-char` range for that source;
+do not invent inner/outer ranges. Keep `<`, `&`, backslashes and Unicode literal.
+Do not add escapes and do not remove escapes already in the saved Markdown.
+This is for agents, not browsers: do not render it or DOM-parse its body.
+Use `--view markdown` for ordinary reads; machine integrations decode canonical
+source metadata once and use its address index. Preserve the original revision.
+
+For punctuation-heavy changes, generate a unified diff from the unchanged
+baseline file and an edited copy, then submit it with `patch --format diff
+--base-revision "$BASE"`. This avoids manually escaping inline-DFF delimiters.
+A literal read does not change the patch format's syntax. See
+[editing with patches](../reference/notes-editing.md#literal-text-without-inline-dff-escaping).
