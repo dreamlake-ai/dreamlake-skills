@@ -2150,7 +2150,7 @@ The version tag in the toolbar opens a compact revision graph. The right sidebar
 uses one toolbar toggle for **Comments**, **Table of contents**, and **History**.
 Choose **History** (the GitGraph icon) to see the graph there. Contents is the
 default; the note remembers your chosen sidebar. **Working Draft** sits directly above its base version, with an edit
-count and a GitCommitVertical save icon on that row. The draft has no graph dot. Choose the icon, enter an optional title/tag
+count and a GitCommitVertical save icon on that row. A small solid dot marks the draft endpoint; saved-version waypoints are hollow. Choose the icon, enter an optional title/tag
 and summary, then save. Notes continues to autosave while you work; metadata
 does not appear in the note body. New milestones receive stable numbers such
 as `v3`, independent of their titles. Numbers can have gaps after failed saves.
@@ -2167,9 +2167,11 @@ Hover or keyboard focus locally magnifies graph spacing without changing the
 note. Scrolling previews nearby snapshots; clicking version text or activating it
 with the keyboard selects that revision. Leaving a transient preview restores
 the last selection. **Back to draft** returns to the still-mounted live editor.
-The sidebar's **Contents** view uses the familiar indented heading list, highlights
-the active heading, and jumps directly to a section when clicked. The separate
-minimap rail is omitted.
+The sidebar's **Contents** view follows Dockit's **On this page** format: compact
+heading links, monospace subheadings, an accent-colored active heading, and a
+curved progress rail. Section chevrons collapse or expand their child headings;
+clicking heading text jumps directly to that section. The separate minimap
+column is omitted.
 
 Each saved version retains the exact server-confirmed text, author and date,
 plus the available collaboration checkpoint and journal. It remains readable

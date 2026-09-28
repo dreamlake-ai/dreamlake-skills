@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "3773f583828769a0fcd751beeae83754a7894e7ab684b724eac749fc65945278",
+  "sourcesSha256": "c4b8adcb706cc2320d304adf89439f8a1cfc872fc29ceeffaade59fae2db28b2",
   "files": {
     "dreamlake-cli/SKILL.md": "07673b0df5f2f0dca3a9a8e507a6e7ce9bfcc66f2ab54684fb6d50fc7090c5f8",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -62,6 +62,6 @@
     "dreamlake-notes/reference/notes-editing.md": "140a9c8b24a326b3802a0f42c700b427d6005d5def75878a3a0fbd81745225b7",
     "dreamlake-notes/reference/notes-legacy.md": "51e809608dd8de526d79d8fd2d8c39d7af5cfe212cde034100db0cf3c90fd303",
     "dreamlake-notes/reference/notes-reading.md": "422cbe3c269d295f9df4c7cd705a62c72b64977f84f29857c2f04ccce95c48a7",
-    "dreamlake-notes/reference/notes.md": "430e18f1214cfc07c20cc001151b53b1b8a15a809da588f27a470abee8782d0b"
+    "dreamlake-notes/reference/notes.md": "b4a955ebe070ba4495c4073355fb42117dc839787f8b1b4f00a80b4f9098f778"
   }
 }
