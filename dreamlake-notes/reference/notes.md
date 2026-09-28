@@ -8,14 +8,28 @@ and programmable native layouts.
 
 Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
 
-## Output for people and agents
+{/* <!-- skill-entrypoint:start --> */}
 
-Use plain-text CLI output by default, including coding-agent workflows and
-command examples. Do not add `--json` merely because an agent is calling the CLI.
-Normal read, collaboration and selection receipts are intended to be read directly.
-Use JSON only for an explicit machine integration that must parse structured
-fields, revision tokens or events. The scripted concurrency examples below use
-JSON for that concrete purpose; they are not the default for ordinary interaction.
+## Read Notes directly
+
+**For normal reads, run the bare command and inspect its output directly:**
+
+```bash
+# Set NOTE_ID to the note ID, slug, or exact title you want to read.
+dreamlake notes read "$NOTE_ID"
+```
+
+Do not add `--json` or `--view` for ordinary human or agent reads. The default
+output includes canonical source, a revision, and a content hash. Retain the
+revision and hash with the source when preparing safe edits; agent convenience
+is not a reason to switch to JSON.
+
+Use JSON only for an explicitly requested structured integration. The scripted
+concurrency examples below demonstrate that compatibility path; they are not
+the default reading procedure. Read normal collaboration and selection receipts
+directly too.
+
+{/* <!-- skill-entrypoint:end --> */}
 
 ## Public catalog reads
 
@@ -1897,7 +1911,7 @@ HTML, other source as Markdown. Rich or restricted structures may map atomically
 no editable range is guessed from generated text. Scripts, active attributes and
 network-loaded media are excluded from this static preview.
 
-### Focused and historical reads (unreleased)
+### Focused and historical reads
 
 `read` returns the current snapshot. Use `--at REVISION` for a retained snapshot;
 `--since HASH` remains a unified line-diff read. Snapshot selectors are mutually
@@ -1942,8 +1956,7 @@ Pinned reads do not overwrite live presence with historical offsets.
 
 See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
 for ID generation, ranges, examples, efficiency limits, and the executable
-acceptance harness. This is an unreleased contract; the linked page is local
-until the docs deployment ships it.
+acceptance harness. Use a CLI/server build supporting the addressed-read options.
 
 ### Rich tokens in HTML reads
 
@@ -2069,3 +2082,152 @@ the addressed-read CLI/server build. It preserves the selected source text and
 inserts generated address/character/line comments. List-item targets use
 section-local `s1.li1` IDs, including nested items. This reading view is not
 canonical source and must not be written back as a complete note.
+
+## Manage existing share links
+
+Available in CLI 0.32.4 and later; check `dreamlake notes share --help` for installed support.
+
+Requires an authenticated login, an existing resource, and permission to
+manage its sharing. Run these mutation steps only when the user has asked
+to grant or revoke access. These commands change
+metadata only; they do not upload content or create a new version.
+
+```bash
+# Find the release plan and inspect its source and current sharing.
+dreamlake notes search "release plan"
+NOTE="release-plan" # Replace with the id or slug from search.
+dreamlake notes read "$NOTE"
+dreamlake notes share get "$NOTE"
+
+# Give signed-in recipients read access, then verify the returned link.
+dreamlake notes share create "$NOTE" --role read
+dreamlake notes share get "$NOTE"
+
+# When link access is no longer needed, revoke it and verify.
+dreamlake notes share revoke "$NOTE"
+dreamlake notes share get "$NOTE"
+```
+
+`get` never enables sharing. It reports the resource URL, visibility, and
+existing share URL. A resource URL alone does not grant access. `--json` provides
+structured link metadata; `shareStatus: unavailable` means the server did not
+expose the token to this caller, not that sharing is disabled.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+dreamlake notes visibility "$NOTE" public
+dreamlake notes visibility "$NOTE" private
+```
+
+Visibility and sharing are independent. Making a resource private does not
+revoke links or accepted access. Revoking a link does not make a public resource
+private. Use `--namespace <slug>` for another namespace.
+
+Only the namespace owner or an eligible Note creator may manage sharing.
+`create --role write` enables editing; the default is `read`. Updating the role
+reuses the token and changes the role evaluated on subsequent requests for
+everyone admitted through the link. Note IDs resolve their owning namespace automatically.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+dreamlake notes share revoke "$NOTE" --revoke-accepted
+```
+
+Ordinary revocation clears the link and blocks subsequent link-derived access,
+including for prior recipients. Their acceptance records remain: enabling
+sharing again restores access under the current link role. `--revoke-accepted`
+also deletes those records, so recipients must accept a valid link again. A collaborator who already has the room address may keep
+editing until the room is rotated; this command does not rotate rooms.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+# List acceptance records and stored roles as a readable table.
+dreamlake notes share access "$NOTE"
+```
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+USER_ID="user-id-from-access-list"
+dreamlake notes share remove "$NOTE" "$USER_ID"
+```
+
+The access list defaults to a readable table; use `--json` for a structured
+integration. It returns stored roles, which may lag behind the live link role.
+Use `share get` to inspect the current link role.
+
+Removing an acceptance record does not invalidate a circulating link; that link can admit
+the user again. Membership and public access are unaffected.
+
+## Saved versions
+
+The version tag in the toolbar opens a compact revision graph. The right sidebar
+uses one toolbar toggle for **Comments**, **Table of contents**, and **History**.
+Choose **History** (the GitGraph icon) to see the graph there. Contents is the
+default; the note remembers your chosen sidebar. **Working Draft** sits directly above its base version, with an edit
+count and a GitCommitVertical save icon on that row. A small solid dot marks the draft endpoint; saved-version waypoints are hollow. Choose the icon, enter an optional title/tag
+and summary, then save. Notes continues to autosave while you work; metadata
+does not appear in the note body. New milestones receive stable numbers such
+as `v3`, independent of their titles. Numbers can have gaps after failed saves.
+
+Saved versions show their parent connections, including forks from a shared
+base. The save form defaults to your draft's base; choose another **Base version**
+to record a different ancestry. This records the relationship without replacing
+or merging the live draft. The browser remembers the draft's base for the session;
+another user's save does not silently change it. Older versions without recorded
+parents remain unconnected.
+
+Each small dot represents one retained intermediate edit; all retained edits
+are shown. Hover or keyboard-focus a dot to preview its exact text directly in
+the main body. The historical preview is read-only and isolated from live sync;
+editor controls and saving are disabled while it is displayed. Leaving the dot
+restores the prior selection, while clicking the dot keeps that edit selected.
+There is no separate edit list. A larger magnified region spreads nearby dots
+apart for selection. Scrolling previews nearby snapshots; clicking version text or activating it
+with the keyboard selects that revision. Leaving a transient preview restores
+the last selection. **Back to draft** returns to the still-mounted live editor.
+The sidebar's **Contents** view follows Dockit's **On this page** format: compact
+heading links, monospace subheadings, an accent-colored active heading, and a
+curved progress rail. Section chevrons collapse or expand their child headings;
+clicking heading text jumps directly to that section. The separate minimap
+column is omitted.
+
+Each saved version retains the exact server-confirmed text, author and date,
+plus the available collaboration checkpoint and journal. It remains readable
+after live history is compacted or a room is recreated. Compacted edits that were
+already missing at save time cannot be recovered; partial counts say **retained
+edits**. In a saved-version preview, **Compare / link** opens side-by-side
+comparison and **Copy version link**. Saving never replaces the current note.
+Tags may repeat; the version ID is unique and immutable. Summaries are written
+by the person saving the version; automatic AI drafting is not included.
+
+Saved history requires edit access, including accepted write-share access.
+A public note or read-only share does not expose earlier text that may have
+been removed. Version links do not grant access. If the note changes or is still
+syncing while you save, review the current text and retry; no version is created
+from a mismatched browser/server state.
+
+### Version API
+
+These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
+
+- `POST /versions` accepts `{hash, tag?, summary?, parentId?}`. `hash` is the lowercase
+  SHA-256 of the UTF-8 body the user intends to save. The server compares it
+  with a coherent current read and returns `409 note_changed` on mismatch.
+  Tags are at most 80 characters and summaries at most 2,000 characters.
+  A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
+  `createdBy`, `author`, `number`, and `parentId`. The optional nullable
+  `parentId` must identify a version in this note; a missing/foreign parent
+  returns `404 parent_not_found`. Omitting it records no parent. RTC-backed
+  versions also include `revision`, `clock`, `editCount`, and `historyComplete`.
+  The count measures retained content-edit messages, not keystrokes.
+- `GET /versions` returns `{versions, nextCursor}` with up to 50 metadata
+  entries, newest first. Send `?before=<nextCursor>` for older entries.
+- `GET /versions/:versionId` returns the metadata plus `text`.
+- `GET /versions/:versionId/history` returns the retained `{snapshot, journal}`
+  for read-only replay, with the same editor access requirement. Legacy versions
+  return `{snapshot: null, journal: []}`. This is not a content-write endpoint.
+
+The content hash identifies text, not the identity-bearing RTC baseline used
+for collaborative patches. Saving a version is a retained snapshot operation,
+not a content write. There are no new CLI flags or Python SDK methods for this
+surface yet; use the UI or authenticated REST API.
