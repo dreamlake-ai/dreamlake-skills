@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.34.1 — Shared list ordering
+
+Annotated Markdown includes list containers alongside paragraphs and items.
+The server assigns `p`, `l`, `li` and `cli` IDs from one section counter; use
+returned IDs and retain the snapshot revision for focused reads and edits.
+
 ## 0.33.0 — Addressed Notes reads
 
 `dreamlake notes read` can pin a retained snapshot with `--at`, inspect its

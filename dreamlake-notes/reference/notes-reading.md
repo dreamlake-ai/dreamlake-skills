@@ -135,8 +135,13 @@ dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
-`data-index="s1.1"`; headings use `s1.1.h`, paragraphs `s1.1.p1`. Paragraph numbering
-restarts per section. `--tag` is an exact element ID; a section ID selects its
+`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), lists (`l`),
+regular items (`li`) and checklist items (`cli`) share one counter per section:
+`s1.p1 → s1.l2 → s1.li3 → s1.cli4 → s1.p5`. Lists consume a number before their
+items; nested lists and items follow depth-first reading order. Item paragraph
+wrappers do not consume another number. The preamble uses `s0`. Both `ul` and
+`ol` use `l`; checklist `li` elements expose `data-checked="true|false"`.
+Read IDs from the returned snapshot, including after a server renderer upgrade. `--tag` is an exact element ID; a section ID selects its
 entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
 return 404; every read checks current permissions.
 
@@ -172,11 +177,12 @@ For Markdown with address hints (CLI 0.33.0), select the annotated view:
 ```bash
 # REVISION is the original read revision; NOTE_ID identifies an accessible note.
 dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1 --view markdown
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.li1 --view markdown
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.li3 --view markdown
 ```
 
-List items have section-local `s1.li1` IDs; a parent item includes its nested list.
-The CLI inserts comments such as `<!-- s1.li1 chars=11:29 lines=3:4 -->` before
+Lists and items use the shared section-local order above; a list or parent item
+includes its nested content. CLI 0.34.1 adds list-container hints to Markdown reads.
+The CLI inserts comments such as `<!-- s1.li3 chars=11:29 lines=3:4 -->` before
 original Markdown blocks. These hints are reading metadata, not article content;
 all offsets refer to the original source. Do not write annotated output back.
 Default source reads remain unchanged. The annotated view supports snapshot

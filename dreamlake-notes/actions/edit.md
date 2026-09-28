@@ -16,7 +16,7 @@ code-point offsets shown in its hints, and submit a v2 patch against that same
 revision:
 
 ```bash
-dreamlake notes read "$NOTE_ID" --view markdown --tag s1.li1
+dreamlake notes read "$NOTE_ID" --view markdown --tag s1.li3
 BASE='revision from the scoped read'
 dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" --exact --file edit.dff
 ```

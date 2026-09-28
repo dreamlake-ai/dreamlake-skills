@@ -1944,8 +1944,20 @@ dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
-`data-index="s1.1"`; headings use `s1.1.h`, paragraphs `s1.1.p1`. Paragraph numbering
-restarts per section. `--tag` is an exact element ID; a section ID selects its
+`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), lists (`l`),
+regular list items (`li`) and checklist items (`cli`) share one counter per
+section, in document reading order. For example: `s1.p1`, `s1.l2`, `s1.li3`,
+`s1.cli4`, `s1.p5`. Both unordered and ordered lists use `l`; their HTML tags
+remain `ul` and `ol`. Checklist items remain `li` elements and expose
+`data-checked="false"` or `data-checked="true"`.
+
+A list consumes a number before its items; nested lists and items continue
+that same counter depth-first. Paragraph wrappers inside list items do not
+consume another number. Numbering restarts in each section; content before
+the first heading uses `s0`. A list target includes its entire subtree, and an
+item target includes its continuation lines and nested lists. Markdown task
+markers (`[ ]`, `[x]`, `[X]`) and leading HTML checkbox inputs identify checklist
+items. Read IDs from the returned snapshot rather than calculating them. `--tag` is an exact element ID; a section ID selects its
 entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
 return 404; every read checks current permissions.
 
@@ -2098,7 +2110,9 @@ publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 For address hints while reading Markdown, use `read NOTE --view markdown` with
 the addressed-read CLI/server build. It preserves the selected source text and
 inserts generated address/character/line comments. List-item targets use
-section-local `s1.li1` IDs, including nested items. This reading view is not
+section-local `li` or `cli` IDs, including nested items; list containers use `l`.
+Their numeric suffixes share paragraph reading order (for example `s1.p1`,
+`s1.l2`, `s1.li3`, `s1.cli4`, `s1.p5`). This reading view is not
 canonical source and must not be written back as a complete note.
 
 ## Manage existing share links
