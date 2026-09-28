@@ -6,6 +6,17 @@
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
 
+Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
+
+## Output for people and agents
+
+Use plain-text CLI output by default, including coding-agent workflows and
+command examples. Do not add `--json` merely because an agent is calling the CLI.
+Normal read, collaboration and selection receipts are intended to be read directly.
+Use JSON only for an explicit machine integration that must parse structured
+fields, revision tokens or events. The scripted concurrency examples below use
+JSON for that concrete purpose; they are not the default for ordinary interaction.
+
 ## Public catalog reads
 
 `GET /namespaces/:slug/notes` accepts requests without an Authorization header.
@@ -258,7 +269,7 @@ the name you passed.
 Use the note's full `id` in browser links:
 
 ```text
-https://dreamlake.ai/<namespaceSlug>/notes/<noteId>
+https://dreamlake.ai/<namespaceSlug>/notes?note=<noteId>
 ```
 
 Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
@@ -266,7 +277,21 @@ Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
 slug in this URL: the browser detail route expects the ID, even though the
 CLI accepts slugs and titles. Use the returned owner namespace rather than
 assuming your personal namespace. The ID is sometimes called the note hash;
-it is a path segment, not a `#` URL fragment.
+it is the `note` query parameter, not a `#` URL fragment.
+
+In the development preview, the path controls the list pane independently of the
+active note:
+
+- `/<namespace>/notes` lists notes.
+- `/<namespace>/projects` lists projects; `/projects/<project>` opens a project.
+- `/<namespace>/bindrs` lists Bindrs; `/bindrs/<bindrId>` opens a Bindr.
+
+Append `?note=<full-note-id>` to any of these paths to open a note. Switching
+list context keeps that note open. The note header's contextual list button
+hides or restores the list pane. Older note and project links redirect to these
+routes. List search includes ordering; default status/category chips are omitted
+from the compact panes. Project and Bindr member ordering is applied before
+pagination so it covers the entire result set.
 
 Inside another DreamLake note, prefer `:note[<full-note-id>]` (development preview) for a native note
 reference. A browser link does not change visibility or grant access to a
@@ -303,6 +328,67 @@ Raw HTML and arbitrary CSS styles are not enabled.
 See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) for formatting examples,
 color choices, tables and portability. CLI/API HTML snapshots currently keep
 color directives as source text.
+
+### Highlight metadata
+
+Attach optional `user` and `comment` strings to a highlight:
+
+```markdown
+:highlight[Review needed]{user="geyang" comment="Confirm the delivery date"}
+:highlight[Key finding]{color="#60a5fa" user="geyang" comment="Check the source"}
+:highlight[重点 🤖]{comment="First line\nSecond line"}
+```
+
+Highlight annotations reuse the Notes inline/sidebar comments toggle. Inline
+mode shows no annotation cards or hover popups. Click highlighted text in the
+editor to reveal its editable source. Sidebar mode shows the handle and comment
+in compact cards in the table-of-contents column, with an edit action for writers.
+Cards follow the passages visible in the current viewport; a dense group scrolls
+inside the column. Narrow panes fall back to inline mode. Read-only sidebar
+cards show metadata without edit controls.
+
+`user` is the canonical public user handle, such as `geyang`, not an internal
+user ID or a display name. A single leading `@` is accepted; the saved source is
+not rewritten. Autocomplete inserts the canonical handle. Compact sidebar cards
+show the handle. Legacy display-name values remain literal; the app never guesses
+an account from a name. Attribution is self-declared and does not verify authorship
+or grant access.
+
+These are plain-text annotations on a highlight, not saved comment threads.
+Either field may be omitted; empty strings add no label. Existing plain highlights
+and colors keep their behavior. Select the directive in the editor to edit its
+source, including metadata. Metadata does not change the highlighted text or
+its source offsets, including in table cells and read-only app views.
+
+Attribute values use JSON string escaping: `\"` for a quote, `\\` for a
+backslash and `\n` for a newline. HTML in metadata stays text. Unknown or duplicate
+attributes and malformed quoting leave the whole directive literal. Use `user`,
+not `author`; only `color`, `user` and `comment` are accepted secondary attributes.
+
+Agents should first read the note and retain its revision, then replace the exact
+existing directive using `--if-match` and read it back.
+For example, set `NOTE_ID` to the target note ID and read its legacy ETag
+(the replacement helper uses an ETag, not a v2 `rtc:` revision):
+
+```bash
+# NOTE_ID is the ID returned by create/list; this edits an existing highlight.
+SNAPSHOT=$(mktemp)
+dreamlake notes read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
+REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
+dreamlake notes replace ':highlight[Review needed]' \
+  --text ':highlight[Review needed]{user="geyang" comment="Check the source"}' \
+  --note "$NOTE_ID" --if-match "$REV"
+dreamlake notes read "$NOTE_ID" --json
+rm "$SNAPSHOT"
+```
+
+The existing `notes create --text` / `--file` commands also accept this syntax.
+There is no dedicated highlight command: these are ordinary Markdown directives,
+so matching text with `notes replace` is enough; no line numbers are needed.
+
+Do not overwrite the whole note to update one annotation. CLI/SDK storage already
+accepts this Markdown; no new client method or package version is required.
+CLI/API HTML snapshots retain rich directives as source text; the app renders them.
 
 ### Web preview tags
 
@@ -419,12 +505,29 @@ a suggestion. Attribute values are JSON strings. Escape literal brackets and
 backslashes in the bracket body with a backslash. Insertion-menu choices fill
 the signed-in user's name; scripts can supply attribution explicitly.
 
+The bracket form is canonical. The browser also accepts a curly-body alias for
+all three kinds; optional named attributes follow in a separate pair of braces:
+
+```markdown
+and I:insert[ think this works]
+and I:insert{ think this works}
+:delete{old text}{reason="No longer needed"}
+:replace{old text}{with="new text" user="geyang"}
+```
+
+A suggestion can directly follow ordinary text without an intervening space.
+Leading and trailing spaces inside its body are preserved when accepted.
+Curly bodies support balanced nested braces; escape a literal brace or backslash
+with a backslash. Canonical bracket bodies retain their existing bracket escaping.
+These aliases apply to suggested edits, not other directive types.
+
 Insertions are underlined and deletions struck through in the note. A replacement
-shows both. Review actions live in a bracketed sidebar card alongside comments,
-with the author, proposed change or explanation, and **accept · reject** inside.
-Hovering or focusing a suggestion/card reveals its connection. Suggestions stay
-visible inline regardless of the comment-view toggle. In narrow panes, review
-cards stack below the note so their actions remain available.
+shows both. Inline mode shows these text changes without cards or hover popups.
+Switch to Sidebar in a wide pane for **accept · reject** actions. Compact cards
+replace the table of contents in its existing column and follow passages visible
+in the current viewport. Dense groups scroll inside that column. Hovering or
+focusing a card or text anchor highlights the corresponding annotation. Narrow
+panes fall back to Inline while retaining the Sidebar preference.
 
 Accept applies the proposed text: insert keeps new text, delete removes old
 text, and replace substitutes its `with` value. Reject removes an insertion or
@@ -463,11 +566,12 @@ Done waits for the latest save before closing. Comments have no replies; convers
 **Comments → Inline / Sidebar** changes the current view, independently of
 storage. Inline comments show the author label and italic text in the author's
 collaboration color, with faint brackets around the body. Sidebar comments use
-`[…]` anchors, plain author labels, black body text, and faint enclosing square
-brackets with no filled background. Hovering or focusing either the anchor or
-comment reveals the full dashed connection, routed above the anchor text.
-Sidebar comments flow around one another without overlap. Narrow panes fall back to Inline while retaining the
-Sidebar preference. Read-only readers can open accessible saved comments but
+`[…]` anchors and compact cards with a single colored left edge. Cards replace
+the table of contents in the same column, follow visible passages, and scroll
+within the column when densely packed. Hovering or focusing the anchor or card
+highlights its matching annotation. Inline mode has no annotation cards or hover
+popups; explicitly opening a saved comment still opens its editor. Narrow panes
+fall back to Inline while retaining the Sidebar preference. Read-only readers can open accessible saved comments but
 cannot change them. Rendering, loading, and remote text replay never create
 comment objects. A brace draft pasted by a script without an editor creation
 key remains source text; use the API to create a saved object deliberately.
@@ -1292,7 +1396,7 @@ separately from the event stream and are not an atomic cross-stream snapshot. Pr
 to stderr. No update object is emitted for an unchanged batch.
 
 `--linger` supports complete source reads only; it cannot be combined with
-`--legacy`, `--view html`, `--since`, sections, line ranges or numbered output.
+`--legacy`, `--view html`, `--at`, `--toc`, `--tag`, `--since`, sections, line ranges or numbered output.
 `--if-match` checks the **initial** read only. `--format` applies to the emitted
 diff, not the initial complete source snapshot. Transport/capability errors or an
 unavailable retained baseline end the command with a nonzero status and a
@@ -1478,14 +1582,13 @@ For an agent following a note, reuse the saved full `read --json` baseline;
 obtain one only if none is available. Then use `read --since "$BASE_HASH"` for
 subsequent checks instead of repeatedly downloading the full document. For
 one-off passage inspection, use the scoped reads above without fetching a full
-baseline. The default `inline-dff` returns only character edits and is the
-preferred compact response for agents.
-Use `--format diff` when line context or a standard unified patch is useful.
+baseline. Differential reads default to unified line diffs.
+Use `--format inline-dff` explicitly when character edits are useful.
 On servers with localized unified-diff generation, this returns changed
 lines with up to three unchanged context lines on each side; nearby changes
 share a hunk and distant changes use separate hunks. Older servers may still
 return a whole-document replacement; a docs or skill update alone does not
-change server output. The default inline format already avoids that expansion.
+change server output.
 
 Both formats preserve exact source, including CRLF and a missing final newline.
 An unchanged source returns an empty `patch`, possibly with a newer RTC
@@ -1783,16 +1886,64 @@ With the compatible v2 server and CLI, `dreamlake notes read "$NOTE_ID" --view h
 returns a complete inert HTML document. Root `data-note`, `data-hash`,
 `data-revision`, `data-source-type`, `data-offset-unit` and `data-source`
 attributes contain the exact canonical source and its baseline. Element
-`data-start`/`data-end` ranges address that source in Unicode code points;
+`data-char="start:end"` ranges address that source in Unicode code points;
 `data-map` marks linear text, atomic syntax or generated presentation.
 
 Decode the source attribute once to recover canonical source, including original
 entity spelling and line endings. Patch that source using the embedded revision;
-never upload generated wrappers or mapping attributes. HTML reads are full
-snapshots; `--view html --since` is rejected. HTML-looking source is rendered as
+never upload generated wrappers or mapping attributes. HTML reads are snapshot
+views; `--view html --since` is rejected. HTML-looking source is rendered as
 HTML, other source as Markdown. Rich or restricted structures may map atomically;
 no editable range is guessed from generated text. Scripts, active attributes and
 network-loaded media are excluded from this static preview.
+
+### Focused and historical reads (unreleased)
+
+`read` returns the current snapshot. Use `--at REVISION` for a retained snapshot;
+`--since HASH` remains a unified line-diff read. Snapshot selectors are mutually
+exclusive, and cannot combine with `--since` or `--linger`:
+
+```bash
+# NOTE_ID identifies an accessible note; copy REVISION from its read receipt.
+dreamlake notes read "$NOTE_ID"
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --toc
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1.1
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
+```
+
+Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
+`data-index="s1.1"`; headings use `s1.1.h`, paragraphs `s1.1.p1`. Paragraph numbering
+restarts per section. `--tag` is an exact element ID; a section ID selects its
+entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
+return 404; every read checks current permissions.
+
+`data-char="start:end"` are absolute, zero-based, end-exclusive Unicode code-point
+ranges in original source. `data-lines` is one-based and inclusive. A scoped root
+contains only the selected `data-source`, with its global `data-source-start` and
+`data-source-end` and its own `data-source-hash`. The root's `data-hash` and
+`data-revision` still identify the complete document. Subtract `data-source-start`
+when slicing local source; keep absolute offsets in the patch. TOCs carry exact
+heading source on each heading and empty root source. Never upload a slice or
+rendered HTML as the complete note.
+
+```bash
+# edit.dff is prepared from the exact source at REVISION.
+dreamlake notes patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
+# NEXT_REVISION comes from that write receipt.
+dreamlake notes read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
+```
+
+Exact mode refuses concurrent edits with 412; native merge mode remains available
+by omitting `--exact`. `--if-match` checks the current revision, while `--at`
+retrieves history: do not combine them. Preserve an existing draft's original
+baseline even after another read or linger update. Linger continues to emit source
+snapshots and line diffs; inspect a streamed revision using a separate pinned read.
+Pinned reads do not overwrite live presence with historical offsets.
+
+See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
+for ID generation, ranges, examples, efficiency limits, and the executable
+acceptance harness. This is an unreleased contract; the linked page is local
+until the docs deployment ships it.
 
 ### Rich tokens in HTML reads
 
@@ -1805,7 +1956,7 @@ Code, escaped punctuation, Markdown links and URL paths keep their ordinary
 interpretation. Existing `[ owner ]` placeholders retain blue boxes, visible
 brackets, inner spacing and the **placeholder** hover label.
 
-Recognized components carry atomic `data-start`, `data-end` and `data-map`
+Recognized components carry atomic `data-char` and `data-map`
 attributes addressing the complete token in canonical Unicode-code-point
 source. The root `data-source` remains exact. When Markdown normalizes a region
 so an exact token range cannot be proven, its enclosing block remains atomic;
@@ -1862,3 +2013,59 @@ source ranges still count from the start of the full document, including front
 matter and CRLF. These options apply to Markdown source; canonical HTML is not
 interpreted as Markdown front matter. Server HTML reads and the browser
 editor/outline support this policy in the September 24 release.
+
+## Select an agent passage by matching text
+
+**CLI 0.32.0+:** `notes select --text` publishes an agent selection; section
+selection requires the server update adding `hash` and `range` to section reads.
+Older server responses fail explicitly.
+
+```bash
+export DREAMLAKE_AGENT_ID="review-session-42"
+export DREAMLAKE_AGENT_NAME="Codex"
+NOTE_ID="your-note-id"
+dreamlake notes select --text "The next step is tested in simulation." --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
+```
+
+Use a stable task identity and your normal authenticated Notes access. The command
+matches exact canonical source text, including whitespace and markup. It refuses
+missing or ambiguous matches. `-o` aliases `--occurrence`: `1` selects the first
+match, `-1` the last, and `-2` the second-last within the chosen scope. Zero and
+out-of-range values fail without publishing. Receipts report the resolved
+positive 1-based occurrence.
+A section match downloads only that section, not the entire document. A whole-note
+match reads source internally without printing it. Target resolution suppresses
+read highlighting until a unique match is found.
+
+It then sends `POST /namespaces/:slug/notes/:noteId/presence` with
+`{action:"seek", hash, ranges:[{start,end}]}`. Ranges are half-open Unicode code-point
+offsets in the whole canonical source. Section reads now return an additive `range`
+in code points and the whole-source `hash`; legacy `start`/`end` stay UTF-16.
+Old servers without section metadata fail explicitly. The server validates current
+source and collaboration access. No source write or human-cursor change occurs.
+
+**Plain text is the default for selection commands and agent workflows.** Omit
+`--json` in normal tool calls and examples. The receipt confirms server acceptance and returns the quoted matched
+text, scope, resolved match number/count, code-point range and separate expiry
+times. Multiline excerpts escape newlines. Only an explicit machine integration
+should request `--json`; that optional receipt includes exact `text` and
+`scope` (`{kind:"note"}` or `{kind:"section",anchor:"next-steps"}`), alongside
+`note`, `hash`, `range`, `occurrence`, `matches`, `published`, `selectionExpiresAt`
+and `presenceExpiresAt`. It does not return the surrounding section or document. Browser rendering still
+requires an active compatible RTC room and editor. Selection activity lasts eight
+seconds and presence lasts sixty; a heartbeat renews presence only. Users can
+navigate to the agent's selected passage through its location control.
+
+Pass a retained `--hash "$HASH"` (`sha256:…`) to require the same source. If the
+source changes before publication, `stale_range` fails without a guessed retry:
+read the section again and select its current text. Duplicate/missing matches
+publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
+`notes find` remain lookup operations, not explicit visible seek commands.
+
+For address hints while reading Markdown, use `read NOTE --view markdown` with
+the addressed-read CLI/server build. It preserves the selected source text and
+inserts generated address/character/line comments. List-item targets use
+section-local `s1.li1` IDs, including nested items. This reading view is not
+canonical source and must not be written back as a complete note.
