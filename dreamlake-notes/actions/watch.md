@@ -1,12 +1,13 @@
 # Follow collaboration
 
+First complete [task identity setup](identity.md); reuse it in every shell call.
+
 Use `read --linger` when a foreground task should maintain presence and receive
 batched edits. Set one stable task identity per session and stop the process
 with Ctrl-C when finished.
 
 ```bash
-export DREAMLAKE_AGENT_ID="review-session-42"
-export DREAMLAKE_AGENT_NAME="Codex"
+# Reuse the identity from task setup; do not generate a second one here.
 NOTE_ID=release-plan
 dreamlake notes read "$NOTE_ID" --linger
 ```

@@ -16,6 +16,25 @@ not expose human highlights; there is no polling fallback in 0.31.0+.
 
 ## One identity per task
 
+Set both identity variables before ordinary agent reads and edits, not only
+`--linger`, unless the user requests unattributed work. A successful edit without
+`DREAMLAKE_AGENT_ID` can save without producing agent presence or attributed edit
+highlights. The display name provides a readable label; it is not the identity.
+
+Exports in one shell tool call do not persist into separate calls. Save the
+initial values in task context and inject the same literal values into every
+later Notes command environment. Never generate a new UUID per command.
+
+After the first intended live read, use `dreamlake notes presence "$NOTE_ID"`
+(CLI 0.31.0+) to match the task ID and name in the roster. This command only
+observes presence; it does not join. If absent, check the environment of the
+actual read/edit process before diagnosing a UI regression. Do not repeat a
+successful edit merely to trigger a highlight.
+
+Presence expires about 60 seconds after the last activity; completed edit
+highlights fade over 5 seconds on an exact matching live revision. Roster
+verification is separate from visual verification of a browser highlight.
+
 Generate an ID once, give it a readable name, and reuse both for that task:
 
 ```bash
