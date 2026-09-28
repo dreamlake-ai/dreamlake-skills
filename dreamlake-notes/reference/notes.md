@@ -2162,9 +2162,13 @@ or merging the live draft. The browser remembers the draft's base for the sessio
 another user's save does not silently change it. Older versions without recorded
 parents remain unconnected.
 
-Small dots represent retained intermediate edits. Open a dot to choose an edit.
-Hover or keyboard focus locally magnifies graph spacing without changing the
-note. Scrolling previews nearby snapshots; clicking version text or activating it
+Each small dot represents one retained intermediate edit; all retained edits
+are shown. Hover or keyboard-focus a dot to preview its exact text directly in
+the main body. The historical preview is read-only and isolated from live sync;
+editor controls and saving are disabled while it is displayed. Leaving the dot
+restores the prior selection, while clicking the dot keeps that edit selected.
+There is no separate edit list. A larger magnified region spreads nearby dots
+apart for selection. Scrolling previews nearby snapshots; clicking version text or activating it
 with the keyboard selects that revision. Leaving a transient preview restores
 the last selection. **Back to draft** returns to the still-mounted live editor.
 The sidebar's **Contents** view follows Dockit's **On this page** format: compact
