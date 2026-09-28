@@ -135,12 +135,22 @@ dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
-`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), lists (`l`),
-regular items (`li`) and checklist items (`cli`) share one counter per section:
-`s1.p1 → s1.l2 → s1.li3 → s1.cli4 → s1.p5`. Lists consume a number before their
-items; nested lists and items follow depth-first reading order. Item paragraph
-wrappers do not consume another number. The preamble uses `s0`. Both `ul` and
-`ol` use `l`; checklist `li` elements expose `data-checked="true|false"`.
+`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), unordered lists
+(`ul`), ordered lists (`ol`) and all list items (`li`) share one counter per
+section, in document reading order. List and item IDs include their containing
+list/item path: `s1.p1 → s1.ul2 → s1.ul2.li3 → s1.ul2.li4 → s1.p5`.
+A nested ordered list under the fourth element is `s1.ul2.li4.ol5`, and its
+next item is `s1.ul2.li4.ol5.li6`. The suffix is the shared section counter,
+not an item-local position.
+
+Checklist items use the same `li` prefix and expose `data-checked="false"` or
+`data-checked="true"`; ordinary items omit that attribute. Adding, checking or
+removing a checkbox does not change the item's prefix or its container's type.
+There is no `tl`, `tli` or `cli` type. HTML tags remain `ul`, `ol` and `li`.
+
+Lists consume a number before their items; nested lists and items follow
+depth-first reading order. Item paragraph wrappers do not consume another
+number. The preamble uses `s0`.
 Read IDs from the returned snapshot, including after a server renderer upgrade. `--tag` is an exact element ID; a section ID selects its
 entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
 return 404; every read checks current permissions.
@@ -177,12 +187,12 @@ For Markdown with address hints (CLI 0.33.0), select the annotated view:
 ```bash
 # REVISION is the original read revision; NOTE_ID identifies an accessible note.
 dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1 --view markdown
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.li3 --view markdown
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.ul2.li3 --view markdown
 ```
 
 Lists and items use the shared section-local order above; a list or parent item
 includes its nested content. CLI 0.34.1 adds list-container hints to Markdown reads.
-The CLI inserts comments such as `<!-- s1.li3 chars=11:29 lines=3:4 -->` before
+The CLI inserts comments such as `<!-- s1.ul2.li3 chars=11:29 lines=3:4 -->` before
 original Markdown blocks. These hints are reading metadata, not article content;
 all offsets refer to the original source. Do not write annotated output back.
 Default source reads remain unchanged. The annotated view supports snapshot

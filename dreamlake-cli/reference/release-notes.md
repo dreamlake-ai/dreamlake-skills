@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.34.2 — Hierarchical list addresses
+
+Notes references now describe standard `ul`/`ol` list prefixes and one `li`
+item type. Addresses include their parent list/item paths while retaining the
+shared section counter. Checkbox state remains an attribute. Existing 0.34.1
+read commands already accept these server-issued IDs.
+
 ## 0.34.1 — Shared list ordering
 
 Annotated Markdown includes list containers alongside paragraphs and items.
