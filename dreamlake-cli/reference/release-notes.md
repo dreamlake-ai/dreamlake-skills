@@ -1,5 +1,10 @@
 # Release notes
 
+## 0.34.3 — 2026-09-28
+
+- Fix native Notes patches read from redirected stdin silently submitting empty input; reject empty patches before sending.
+- Preserve server patch error details and explain that legacy conditional edits require the quoted ETag rather than an RTC revision.
+
 ## 0.34.2 — Hierarchical list addresses
 
 Notes references now describe standard `ul`/`ol` list prefixes and one `li`

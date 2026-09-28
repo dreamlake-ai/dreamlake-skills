@@ -156,3 +156,18 @@ prove whether an earlier ambiguous request committed.
 
 Next: [Live collaboration](notes-collaboration.md). For existing section/text
 mutation scripts, see [Legacy commands](notes-legacy.md).
+
+## Native stdin and error diagnostics
+
+Use `--file edit.dff` for a saved patch. Native CLI 0.33.0 can incorrectly read
+`--file - < edit.dff` as empty input and receive a successful no-op receipt; this
+is an input-transport defect, not a merge conflict. The fix is unreleased. Until
+upgrading to a release containing it, pass the file path directly and inspect
+`--dry-run --json` to verify `payload.patch` before submission.
+
+The corrected native reader preserves redirected-file and pipe bytes, rejects
+empty patch input before sending, and retains UTF-8 and 8 MB limits. Server error
+details are printed alongside their error code. A 422 may indicate an alignment
+limit as well as an invalid patch; it does not by itself prove a baseline mismatch.
+Keep the baseline and draft on any failure. Default merge and opt-in exact mode
+are unchanged. Verify the intended edits in the acknowledged `--at` snapshot.
