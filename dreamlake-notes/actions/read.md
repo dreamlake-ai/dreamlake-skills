@@ -46,3 +46,7 @@ For a whole-source delta, retain the plain-text read's `hash` and pass it to
 `--since`; `hash` and opaque write `revision` are different tokens. Use
 `--json` only when a program needs parsed fields. See [reading and changes](../reference/notes-reading.md)
 and [the full Notes guide](../reference/notes.md).
+
+For comment targeting in HTML reads, use the emitted `sN.cK` ID with `--tag` and
+the same revision. Saved comments also expose persistent `data-comment-id`;
+HTML target IDs are revision-local. See [comment targets](../reference/notes.md#comment-targets-in-html-reads).
