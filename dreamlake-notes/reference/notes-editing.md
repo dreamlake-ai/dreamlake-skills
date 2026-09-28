@@ -120,6 +120,10 @@ diff_status=0
 diff -u before.md after.md > draft.diff || diff_status=$?
 # diff exits 1 when differences exist; values above 1 are errors.
 test "$diff_status" -le 1
+if [ "$diff_status" -eq 0 ]; then
+  echo "No changes; no patch sent."
+  exit 0
+fi
 dreamlake notes patch "$NOTE_ID" --format diff --base-revision "$BASE" \
   --file draft.diff --json > line-receipt.json
 ACK=$(jq -er .revision line-receipt.json)
@@ -129,7 +133,7 @@ dreamlake notes read "$NOTE_ID" --if-match "$ACK" \
 
 Only a single-file unified patch is accepted. Preserve context, line counts,
 CRLF, and `\ No newline at end of file` markers. File labels do not select the
-note. An empty patch is a no-op, not a deletion of the document.
+note. If the files match, stop without sending a patch. Empty patch input is rejected.
 
 ## Preview and input
 
