@@ -2146,9 +2146,11 @@ the user again. Membership and public access are unaffected.
 
 ## Saved versions
 
-The version tag in the toolbar opens the same revision graph shown in the right
-sidebar. **Working Draft** sits directly above its base version, with an edit
-count and a save icon on that row. Choose the icon, enter an optional title/tag
+The version tag in the toolbar opens a compact revision graph. The right sidebar
+uses one toolbar toggle for **Comments**, **Table of contents**, and **History**.
+Choose **History** (the GitGraph icon) to see the graph there. Contents is the
+default; the note remembers your chosen sidebar. **Working Draft** sits directly above its base version, with an edit
+count and a GitCommitVertical save icon on that row. The draft has no graph dot. Choose the icon, enter an optional title/tag
 and summary, then save. Notes continues to autosave while you work; metadata
 does not appear in the note body. New milestones receive stable numbers such
 as `v3`, independent of their titles. Numbers can have gaps after failed saves.
@@ -2165,7 +2167,9 @@ Hover or keyboard focus locally magnifies graph spacing without changing the
 note. Scrolling previews nearby snapshots; clicking version text or activating it
 with the keyboard selects that revision. Leaving a transient preview restores
 the last selection. **Back to draft** returns to the still-mounted live editor.
-The sidebar's **Contents** view provides section popovers and navigation.
+The sidebar's **Contents** view uses the familiar indented heading list, highlights
+the active heading, and jumps directly to a section when clicked. The separate
+minimap rail is omitted.
 
 Each saved version retains the exact server-confirmed text, author and date,
 plus the available collaboration checkpoint and journal. It remains readable
