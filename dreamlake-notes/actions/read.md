@@ -21,17 +21,18 @@ REVISION='revision from the outline result'
 dreamlake notes read "$NOTE_ID" --view markdown --at "$REVISION" --section s1.1
 # Or target one passage or list item instead of reading the whole section:
 dreamlake notes read "$NOTE_ID" --view markdown --at "$REVISION" --tag s1.1.p1
-dreamlake notes read "$NOTE_ID" --view markdown --at "$REVISION" --tag s1.li3
+dreamlake notes read "$NOTE_ID" --view markdown --at "$REVISION" --tag s1.ul2.li3
 ```
 
 Use the smallest read that answers the question. The Markdown view adds
-address, character and line hints as comments before headings, paragraphs and
+address, character and line hints as comments before headings, paragraphs,
 lists and list items. Read the actual IDs from the snapshot: paragraphs `p`,
-lists `l`, regular items `li` and checklist items `cli` share one counter per
-section, e.g. `s1.p1 → s1.l2 → s1.li3 → s1.cli4 → s1.p5`. Nested lists and items
-consume numbers in reading order; a list/item target includes its subtree.
-HTML checklist items expose `data-checked="true|false"`. Hints are not saved note text. Keep the revision with the passage. Do not
-combine `--at` with `--since` or
+unordered lists `ul`, ordered lists `ol` and all items `li` share one counter
+per section: `s1.p1 → s1.ul2 → s1.ul2.li3 → s1.ul2.li4 → s1.p5`.
+Nested lists extend the parent path, e.g. `s1.ul2.li4.ol5.li6`. A list/item
+target includes its subtree. Checkbox state is an item attribute
+(`data-checked="true|false"`), not a different ID type. Hints are not saved note text.
+Keep the revision with the passage. Do not combine `--at` with `--since` or
 `--if-match`, or combine multiple scope selectors. If the installed CLI lacks
 these options, use the compatible legacy reads below and do not infer HTML
 addresses:

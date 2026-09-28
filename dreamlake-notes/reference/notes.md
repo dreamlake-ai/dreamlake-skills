@@ -1960,12 +1960,18 @@ dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
-`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), lists (`l`),
-regular list items (`li`) and checklist items (`cli`) share one counter per
-section, in document reading order. For example: `s1.p1`, `s1.l2`, `s1.li3`,
-`s1.cli4`, `s1.p5`. Both unordered and ordered lists use `l`; their HTML tags
-remain `ul` and `ol`. Checklist items remain `li` elements and expose
-`data-checked="false"` or `data-checked="true"`.
+`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), unordered lists
+(`ul`), ordered lists (`ol`) and all list items (`li`) share one counter per
+section, in document reading order. List and item IDs include their containing
+list/item path: `s1.p1 → s1.ul2 → s1.ul2.li3 → s1.ul2.li4 → s1.p5`.
+A nested ordered list under the fourth element is `s1.ul2.li4.ol5`, and its
+next item is `s1.ul2.li4.ol5.li6`. The suffix is the shared section counter,
+not an item-local position.
+
+Checklist items use the same `li` prefix and expose `data-checked="false"` or
+`data-checked="true"`; ordinary items omit that attribute. Adding, checking or
+removing a checkbox does not change the item's prefix or its container's type.
+There is no `tl`, `tli` or `cli` type. HTML tags remain `ul`, `ol` and `li`.
 
 A list consumes a number before its items; nested lists and items continue
 that same counter depth-first. Paragraph wrappers inside list items do not
@@ -2148,9 +2154,9 @@ publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 For address hints while reading Markdown, use `read NOTE --view markdown` with
 the addressed-read CLI/server build. It preserves the selected source text and
 inserts generated address/character/line comments. List-item targets use
-section-local `li` or `cli` IDs, including nested items; list containers use `l`.
-Their numeric suffixes share paragraph reading order (for example `s1.p1`,
-`s1.l2`, `s1.li3`, `s1.cli4`, `s1.p5`). This reading view is not
+hierarchical `li` IDs, such as `s1.ul2.li3`, including nested items. Containers
+use `ul` or `ol`; every numeric suffix shares paragraph reading order. This
+reading view is not
 canonical source and must not be written back as a complete note.
 
 ## Manage existing share links
