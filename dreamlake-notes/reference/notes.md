@@ -6,6 +6,16 @@
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
 
+In the browser's live preview, an opening H1 with content below it starts above
+the note viewport. When scrolling stops in that title area, the viewport settles
+back below the H1 with a spring motion. Selecting or editing the title keeps it
+visible; raw Markdown and title-only notes are unaffected. Reduced-motion
+preferences use an immediate snap.
+
+History timeline previews return to the current working draft when the pointer
+leaves the timeline. An explicitly placed edit marker or selected change range
+keeps its historical view open; clicking a version label alone does not pin it.
+
 Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
 
 {/* <!-- skill-entrypoint:start --> */}
@@ -283,7 +293,7 @@ the name you passed.
 Use the note's full `id` in browser links:
 
 ```text
-https://dreamlake.ai/<namespaceSlug>/notes/<noteId>
+https://dreamlake.ai/<namespaceSlug>/notes?note=<noteId>
 ```
 
 Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
@@ -291,7 +301,21 @@ Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
 slug in this URL: the browser detail route expects the ID, even though the
 CLI accepts slugs and titles. Use the returned owner namespace rather than
 assuming your personal namespace. The ID is sometimes called the note hash;
-it is a path segment, not a `#` URL fragment.
+it is the `note` query parameter, not a `#` URL fragment.
+
+In the development preview, the path controls the list pane independently of the
+active note:
+
+- `/<namespace>/notes` lists notes.
+- `/<namespace>/projects` lists projects; `/projects/<project>` opens a project.
+- `/<namespace>/bindrs` lists Bindrs; `/bindrs/<bindrId>` opens a Bindr.
+
+Append `?note=<full-note-id>` to any of these paths to open a note. Switching
+list context keeps that note open. The note header's contextual list button
+hides or restores the list pane. Older note and project links redirect to these
+routes. List search includes ordering; default status/category chips are omitted
+from the compact panes. Project and Bindr member ordering is applied before
+pagination so it covers the entire result set.
 
 Inside another DreamLake note, prefer `:note[<full-note-id>]` (development preview) for a native note
 reference. A browser link does not change visibility or grant access to a
@@ -1161,6 +1185,22 @@ bases return an explicit error. Apply a returned patch only to its exact `base`
 source, and verify the resulting hash. A no-op source diff may carry a newer RTC
 token; it never advances an existing draft automatically.
 
+The default `diff` read aligns source lines directly, so substantial rewrites do
+not consume the character-alignment budget used for merge-safe write patches.
+`inline-dff` still requires bounded character alignment. Invalid references
+return `400 bad_reference`, missing retained snapshots return `404 revision_not_found`,
+diff-generation limits return `422 diff_failed`, and retained-storage or observation
+failures return `503 diff_unavailable`. Preserve the original baseline on failure.
+A display diff does not guarantee that a later merge patch fits the write limits;
+merge remains the default and exact mode remains opt-in.
+
+Native CLI 0.33.0 has a redirected-file input defect: `--file - < edit.dff`
+can send an empty patch and receive a successful no-op receipt. Until a release
+containing the stdin fix is installed, use `--file edit.dff` and inspect
+`--dry-run --json` to verify `payload.patch`. The corrected reader preserves
+redirected input and rejects empty patches before sending. This does not change
+merge semantics; always verify the requested text in the acknowledged snapshot.
+
 Stop on failure and preserve the patch, working copy and original baseline.
 A missing acknowledgement can mean a commit occurred. The backend reconnects
 at most once within the same request and resends the identical native message
@@ -1537,19 +1577,37 @@ and photos are display metadata, not an authorization source.
 
 #### Agentic usage pattern: one identity, normal commands
 
-For agents that opt into presence, initialize once in the runner's task environment. For separate shell tool calls,
+For agent-driven Notes work, set both identity variables before the first live
+read or edit, unless the user explicitly requests unattributed work. This is a
+workflow prerequisite for attribution, not a requirement for saving content.
+Without `DREAMLAKE_AGENT_ID`, an edit can save successfully while producing no
+agent presence or attributed fading edit highlight. `DREAMLAKE_AGENT_NAME`
+provides the readable label.
+
+Initialize once in the runner's task environment. For separate shell tool calls,
 the runner must inject the same saved values each time; an export in one shell
 does not propagate into later independent shells. No explicit join is required.
 
 ```bash
-export DREAMLAKE_AGENT_ID="codex:$(python3 -c 'import uuid; print(uuid.uuid4())')"
-export DREAMLAKE_AGENT_NAME="Codex"
+export DREAMLAKE_AGENT_ID="${DREAMLAKE_AGENT_ID:-codex:$(python3 -c 'import uuid; print(uuid.uuid4())')}"
+export DREAMLAKE_AGENT_NAME="${DREAMLAKE_AGENT_NAME:-Codex}"
 NOTE_ID="<full-note-id>"
 ```
 
 Run ordinary commands with that identity. An attributed `read` automatically
 registers or refreshes presence; a preceding `visit` is never required. Reading
-without agent identity does not invent or register an agent session.
+without agent identity does not invent or register an agent session. Retain the generated ID in the task context and inject that same literal value into each later shell; rerunning the UUID fallback in a new shell would create a different session.
+
+After the first intended live read, verify attribution with
+`dreamlake notes presence "$NOTE_ID"` (CLI 0.31.0+). This only inspects the roster;
+it does not register an agent. Check the task ID and display name, not merely
+another session named Codex. If absent, check the environment passed to the
+actual read/edit process before diagnosing a UI regression. Do not repeat a
+successful edit to trigger its highlight. Presence expires about 60 seconds
+after the last activity; completed edit highlights fade over 5 seconds and
+require an exact matching live document revision. A roster entry verifies
+presence only: report a highlight as visually verified only after observing it
+in the collaborative editor.
 
 | Command | Reads content | Presence lifetime |
 | --- | --- | --- |
@@ -1897,6 +1955,38 @@ HTML, other source as Markdown. Rich or restricted structures may map atomically
 no editable range is guessed from generated text. Scripts, active attributes and
 network-loaded media are excluded from this static preview.
 
+### Literal Markdown for agents
+
+With CLI 0.34.4 and a compatible server, `--view html` on a Markdown note is
+an **agent format**: HTML-like tags supply structure and addresses; their
+contents are the exact original Markdown. There is one `data-char` source
+range, including the construct's syntax. There is no inner/outer split.
+
+```text
+<li id="s0.ul1.li2" data-char="0:11">- [ ] Ship
+</li>
+```
+
+Keep Markdown literal: `- [ ]`, `**bold**`, `:comment[...]`, backslashes,
+`<`, `&`, and Unicode remain exactly as saved. Do not add HTML escapes,
+Markdown escapes, or Unicode escape sequences to element contents. Do not
+strip escapes that are already present in canonical source. No display-text
+index conversion is needed: ranges address the source text inside the wrappers.
+A parent item's range includes its nested source.
+
+This is not browser HTML. Do not render it or use a DOM parser to recover its
+body. CLI 0.34.4 requests `contentFormat=literal-markdown` automatically; direct API clients add that parameter to a v2 HTML read. Existing clients keep the prior rendered contract. The API serves Markdown agent markup as `text/plain` and marks the root
+`data-content-format="literal-markdown"`. Generated heading numbers and other
+preview decoration are absent. The separate visual preview is unchanged.
+
+Metadata attributes still use transport encoding: decode the root `data-source`
+attribute once for an exact machine-readable source slice, and use the trusted
+root `data-addresses` index rather than finding tags inside arbitrary Markdown.
+CLI `--view markdown` handles this and prints literal source with address hints.
+Keep the original revision with the source and verify the acknowledged edit.
+Older servers may return rendered HTML; do not assume literal bodies without the
+format marker. Canonical HTML notes retain their existing HTML source mapping.
+
 ### Focused and historical reads
 
 `read` returns the current snapshot. Use `--at REVISION` for a retained snapshot;
@@ -1912,8 +2002,26 @@ dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
-`data-index="s1.1"`; headings use `s1.1.h`, paragraphs `s1.1.p1`. Paragraph numbering
-restarts per section. `--tag` is an exact element ID; a section ID selects its
+`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), unordered lists
+(`ul`), ordered lists (`ol`) and all list items (`li`) share one counter per
+section, in document reading order. List and item IDs include their containing
+list/item path: `s1.p1 → s1.ul2 → s1.ul2.li3 → s1.ul2.li4 → s1.p5`.
+A nested ordered list under the fourth element is `s1.ul2.li4.ol5`, and its
+next item is `s1.ul2.li4.ol5.li6`. The suffix is the shared section counter,
+not an item-local position.
+
+Checklist items use the same `li` prefix and expose `data-checked="false"` or
+`data-checked="true"`; ordinary items omit that attribute. Adding, checking or
+removing a checkbox does not change the item's prefix or its container's type.
+There is no `tl`, `tli` or `cli` type. HTML tags remain `ul`, `ol` and `li`.
+
+A list consumes a number before its items; nested lists and items continue
+that same counter depth-first. Paragraph wrappers inside list items do not
+consume another number. Numbering restarts in each section; content before
+the first heading uses `s0`. A list target includes its entire subtree, and an
+item target includes its continuation lines and nested lists. Markdown task
+markers (`[ ]`, `[x]`, `[X]`) and leading HTML checkbox inputs identify checklist
+items. Read IDs from the returned snapshot rather than calculating them. `--tag` is an exact element ID; a section ID selects its
 entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
 return 404; every read checks current permissions.
 
@@ -1943,6 +2051,28 @@ Pinned reads do not overwrite live presence with historical offsets.
 See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
 for ID generation, ranges, examples, efficiency limits, and the executable
 acceptance harness. Use a CLI/server build supporting the addressed-read options.
+
+### Comment targets in HTML reads
+
+Closed comment directives render as individually addressable elements with
+`data-rich-kind="comment"`. Their `id` uses `sN.cK` (for example, `s1.c2`),
+sharing the section's reading-order counter with paragraphs, lists and items.
+Use the returned ID with `--view html --at "$REVISION" --tag s1.c2` to read one
+comment's exact canonical directive. The atomic `data-char` and `data-lines`
+cover the complete directive, including attribution attributes. These HTML
+addresses are revision-local; read them from the snapshot, rather than guessing.
+
+Saved references such as `:comment[cmt_0123456789abcdef01234567]` additionally
+carry `data-comment-id="cmt_0123456789abcdef01234567"`. That persistent resource
+ID survives moves and edits and can be used with the comment API. Repeated
+references to the same saved comment get distinct HTML target IDs but retain
+the same `data-comment-id`. Keyed drafts expose `data-comment-key`; inline text
+comments have a target address but no invented persistent resource ID.
+
+Static HTML shows source text or the saved reference ID; it does not fetch a
+comment's private body. Code examples, escaped directives, malformed comments
+and Markdown links remain literal. When normalization prevents an exact range,
+the surrounding block remains the edit target instead of a guessed comment range.
 
 ### Rich tokens in HTML reads
 
@@ -2066,7 +2196,9 @@ publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
 For address hints while reading Markdown, use `read NOTE --view markdown` with
 the addressed-read CLI/server build. It preserves the selected source text and
 inserts generated address/character/line comments. List-item targets use
-section-local `s1.li1` IDs, including nested items. This reading view is not
+hierarchical `li` IDs, such as `s1.ul2.li3`, including nested items. Containers
+use `ul` or `ol`; every numeric suffix shares paragraph reading order. This
+reading view is not
 canonical source and must not be written back as a complete note.
 
 ## Manage existing share links

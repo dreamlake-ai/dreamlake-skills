@@ -5,7 +5,8 @@ description: "Use the DreamLake CLI to find, read, edit, follow, or attach files
 
 # DreamLake Notes
 
-Start with `dreamlake notes list` to identify an accessible note, then use the
+Before the first live read or edit, [set and reuse the task identity](actions/identity.md).
+Then start with `dreamlake notes list` to identify an accessible note, then use the
 matching CLI action guide:
 
 - [Read a note](actions/read.md) for focused reads, search, and snapshots.
