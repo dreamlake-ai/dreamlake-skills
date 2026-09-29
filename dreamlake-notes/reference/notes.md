@@ -15,7 +15,7 @@ above the viewport once, before interaction. Scrolling back to the title keeps i
 visible; typing, blur, and idle time do not automatically hide it again. Raw
 Markdown, title-only notes, and explicit search or section navigation retain
 their existing behavior. Formatting remains enabled while editing. Vim visual
-selections remain visible in both rich and raw views. Each connected browser session shares its cursor and selection, including other sessions of the same account. Switching focus keeps the last position visible until that session leaves the Note. Cursor labels size to their names, capped at 20 characters of display width with ellipsis. Remote text updates preserve the
+selections remain visible in both rich and raw views. Each connected browser session shares its cursor and selection, including other sessions of the same account. Clearing a selection updates it immediately; leaving editor focus removes its shared cursor and selection. Hidden tabs leave visible presence. Visible sessions renew presence every 30 seconds; peers expire after 90 seconds without renewal. Cursor labels size to their names, capped at 20 characters of display width with ellipsis. Remote text updates preserve the
 visible text position in the note pane; a new scroll gesture, keystroke, or
 selection takes precedence over a pending viewport correction.
 
