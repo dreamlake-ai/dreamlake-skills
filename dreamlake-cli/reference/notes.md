@@ -40,6 +40,10 @@ dreamlake notes read "$NOTE_ID"
 dreamlake notes read "$NOTE_ID" --json > baseline.json
 HASH=$(jq -er .hash baseline.json)
 dreamlake notes read "$NOTE_ID" --since "$HASH"
+# Follow others using a stable identity for this task.
+export DREAMLAKE_AGENT_ID="codex:$(python3 -c 'import uuid; print(uuid.uuid4())')"
+export DREAMLAKE_AGENT_NAME="Codex"
+dreamlake notes read "$NOTE_ID" --linger --throttle 2s
 ```
 
 Text output includes the note ID, content hash, write revision, and source.

@@ -3,14 +3,14 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "a787ca2ec65abd52cca90473a59b781c8a8f63d2",
-      "generatorSha256": "1a6d2f74fa74db14bb7b5c6f511d9b0074bc3e128c7d99136462823fe5078b11",
+      "commit": "bb3e20c9c2934b4341f31782fa16037e844c15c4",
+      "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "15bc1c67b2827c0e6755f2df5a47fc4f798c9b82d75006c0cfd6f700f234fa96"
+      "pageSha256": "2f79b9bf0fc4c707a6c145e9f973d76e8f672bce8894cb6e7abada23e631466d"
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "f86f38db3761e1b459aca08dce3179e1e9f0e940",
+      "commit": "726ccb2b6776ca88030e3e72141fa905ce5cf3ee",
       "generatorSha256": "479b623dd7e9217e99c801ae0bd6873765fe9542d7e02e64ee2a9fa13c260148"
     }
   }

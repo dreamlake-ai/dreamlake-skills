@@ -108,3 +108,16 @@ Keep your draft when a request fails. Do not assume a lost acknowledgment means
 nothing was written, or use a forced archive replacement to recover.
 
 For new agent workflows, prefer [Editing with patches](/notes/editing/).
+
+## Presence command migration
+
+CLI 0.28.x–0.30.x exposed `notes presence <note> <action>` and `join --watch`.
+CLI 0.31.0 removes those manual session controls. Use `notes read <note> --linger`
+for maintained participation, Ctrl-C to leave, or `notes visit <note>` for a
+brief visit. Attributed reads and edits register or refresh presence automatically.
+
+`notes presence <note>` now reads the participant roster without joining. It
+prints text by default; `--json` is an explicit programmatic option. There are
+no direct `notes join`, `notes heartbeat`, or `notes leave` commands. The HTTP
+presence lease protocol remains available to SDK integrations and is used
+internally by linger; it is not a sequence CLI users need to manage.
