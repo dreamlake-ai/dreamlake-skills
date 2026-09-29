@@ -6,6 +6,16 @@
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
 
+In the browser's live preview, an opening H1 with content below it starts above
+the note viewport. When scrolling stops in that title area, the viewport settles
+back below the H1 with a spring motion. Selecting or editing the title keeps it
+visible; raw Markdown and title-only notes are unaffected. Reduced-motion
+preferences use an immediate snap.
+
+History timeline previews return to the current working draft when the pointer
+leaves the timeline. An explicitly placed edit marker or selected change range
+keeps its historical view open; clicking a version label alone does not pin it.
+
 Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
 
 {/* <!-- skill-entrypoint:start --> */}
