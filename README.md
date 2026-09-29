@@ -12,7 +12,7 @@ task correctly.
 | [`sim-to-mcap`](./sim-to-mcap/SKILL.md) | Turn a trained policy + physics sim (MuJoCo/mjlab/Isaac) into a DreamLake-ready MCAP — roll out and emit Foxglove `/tf` (poses), `/robot` (meshes), `/metrics` (scalars). The upstream half of "training result → visualized" |
 | [`dreamlake-source`](./dreamlake-source/SKILL.md) | Get a robot dataset into a DreamLake source — link third-party storage (S3/HF/Dropbox), or upload the bytes so it can be linked; layout rules, listing manifests, verification |
 | [`dreamlake-dataset-viz`](./dreamlake-dataset-viz/SKILL.md) | Visualize a DreamLake source by authoring its `.dreamrc` (LeRobot/zarr/MCAP/folders) — format matching, view bindings, the validate-and-iterate loop |
-| [`dreamlake-envs`](./dreamlake-envs/SKILL.md) | Push a MuJoCo scene or URDF robot as a versioned env — extract a self-contained directory from a repo, verify it compiles, push it, get an interactive 3D viewer page — or compose a layered env from a `dreamlake.layers.json` stack (merge / attach / override) |
+| [`dreamlake-envs`](./dreamlake-envs/SKILL.md) | Push a MuJoCo scene or URDF robot as a versioned env — extract a self-contained directory from a repo, verify it compiles, push it, get an interactive 3D viewer page — or compose a layered env from a `dreamlake.layers.json` stack (Merge / Attach / Update / Remove / Patch) |
 | [`dreamlake-artifacts`](./dreamlake-artifacts/SKILL.md) | Publish, version, share, and view renderable artifacts (HTML/React/Markdown/SVG/Mermaid/code) via the `dreamlake artifact` CLI |
 | [`dreamlake-artifact-authoring`](./dreamlake-artifact-authoring/SKILL.md) | Write the artifact *content* so it renders in DreamLake's sandboxed frame — self-containedness, per-kind templates, design quality. Pairs with `dreamlake-artifacts` |
 | [`dreamlake-notes`](./dreamlake-notes/SKILL.md) | The whole notes surface — create and list, read a section or a line range, replace text by name rather than line number, grep across every note for where a phrase is, attach files and get a link that renders them |
@@ -151,8 +151,15 @@ CLI references are now reproducible outputs, not independent writing surfaces:
 
 | Output | Source |
 |---|---|
-| `dreamlake-notes/SKILL.md` + `reference/notes.md` | `dreamlake-workspace/docs/pages/notes/+Page.mdx` |
+| `dreamlake-notes/SKILL.md`, `actions/*`, selected references | `dreamlake-workspace/docs/skill-guides/notes/` plus generated Notes docs |
 | `dreamlake-cli/**` | `dreamlake-cli/docs/pages/**/+Page.mdx` and its docs generator |
+
+Task routing is maintained separately from product facts: Notes uses
+`dreamlake-workspace/docs/skill-guides/notes/`, and CLI uses
+`dreamlake-cli/docs/skill-guides/cli/`. Entrypoints route to independent action
+files; selected generated references remain available for deeper lookup. Source
+provenance records guide hashes with source commits and generator hashes. Only
+Notes and CLI are migrated; all remaining skills need explicit review.
 
 With Git, Node and Python 3.12+, and authorized checkouts of the source repos:
 
@@ -168,6 +175,10 @@ scratch directories and runs the original generators; it never regenerates into
 those checkouts. Review and commit the generated skills with `sources.json` and
 `generated-files.json`. The latter defines owned files; unrelated resources survive.
 A changed generated file being removed requires manual reconciliation.
+Before publication, run both source generators and checks, public offline sync
+tests and integrity checks, then evaluate representative actions and capability
+boundaries offline. Current-source `--check` is the drift check; locked
+reproduction and integrity checks do not prove freshness.
 
 `--check` checks current source HEADs. Add `--locked` to reproduce recorded source
 commits instead. Public CI runs offline tests and file-integrity verification;

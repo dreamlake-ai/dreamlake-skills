@@ -78,3 +78,53 @@ be undone and it reports how many objects it purged.
 > object storage itself. The file never passes through the API server, so there
 > is no request size limit — but the credentials only cover your own namespace's
 > prefix.
+
+## Manage existing share links
+
+Available in CLI 0.32.4 and later; check `dreamlake artifact share --help` for installed support.
+
+Requires an authenticated login, an existing resource, and permission to
+manage its sharing. Run these mutation steps only when the user has asked
+to grant or revoke access. These commands change
+metadata only; they do not upload content or create a new version.
+
+```bash cli-help="artifact share"
+# Find the dashboard you already uploaded; no new version is needed.
+dreamlake artifact list
+ARTIFACT="q1-dashboard" # Replace with the id from list.
+dreamlake artifact share get "$ARTIFACT"
+
+# Give signed-in recipients read access, then verify the returned link.
+dreamlake artifact share create "$ARTIFACT"
+dreamlake artifact share get "$ARTIFACT"
+
+# When link access is no longer needed, revoke it and verify.
+dreamlake artifact share revoke "$ARTIFACT"
+dreamlake artifact share get "$ARTIFACT"
+```
+
+`get` never enables sharing. It reports the resource URL, visibility, and
+existing share URL. A resource URL alone does not grant access. `--json` provides
+structured link metadata; `shareStatus: unavailable` means the server did not
+expose the token to this caller, not that sharing is disabled.
+
+```bash cli-help="artifact visibility"
+ARTIFACT="q1-dashboard" # Your existing artifact id.
+dreamlake artifact visibility "$ARTIFACT" public
+dreamlake artifact visibility "$ARTIFACT" private
+```
+
+Visibility and sharing are independent. Making a resource private does not
+revoke links or accepted access. Revoking a link does not make a public resource
+private. Use `--namespace <slug>` for another namespace.
+
+Artifact sharing grants read access and requires the recipient to sign in.
+Public artifacts can be read anonymously. Namespace members manage artifact
+sharing. There are no artifact link roles or per-user revocation endpoints.
+Clearing the token disables accepted share access while sharing is disabled;
+retained access records can become usable again if sharing is re-enabled.
+The existing `artifact push --share` remains available for a new upload.
+
+The catalog mutation API is an upsert without a conditional-write validator.
+The CLI first checks that the artifact exists and is manageable, but a concurrent
+delete between that check and mutation can restore its catalog row.

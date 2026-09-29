@@ -1,5 +1,9 @@
 # Notes
 
+Read [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/), [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/),
+[Panels](https://docs.dreamlake.ai/notes/panels/), and [Linked note items](https://docs.dreamlake.ai/notes/linked-items/) for focused guides.
+This page retains the complete CLI/API reference and existing section links.
+
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
@@ -11,7 +15,7 @@ above the viewport once, before interaction. Scrolling back to the title keeps i
 visible; typing, blur, and idle time do not automatically hide it again. Raw
 Markdown, title-only notes, and explicit search or section navigation retain
 their existing behavior. Formatting remains enabled while editing. Vim visual
-selections remain visible in both rich and raw views. Remote text updates preserve the
+selections remain visible in both rich and raw views. Each connected browser session shares its cursor and selection, including other sessions of the same account. Clearing a selection updates it immediately; leaving editor focus removes its shared cursor and selection. Hidden tabs leave visible presence. Visible sessions renew presence every 30 seconds; peers expire after 90 seconds without renewal. Cursor labels size to their names, capped at 20 characters of display width with ellipsis. Remote text updates preserve the
 visible text position in the note pane; a new scroll gesture, keystroke, or
 selection takes precedence over a pending viewport correction.
 
@@ -442,6 +446,11 @@ still apply. A temporary tunnel URL works only while its tunnel and server run.
 Browser static rendering retains an inert label before hydration; server CLI
 HTML snapshots currently leave preview directives as literal source with the
 existing source mapping. They do not load the target or create a panel.
+
+### Inline embeds (unreleased)
+
+See [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/) for responsive ratios, fixed
+sizes, zoom, and the artifact/preview query API. These arguments are unreleased.
 
 ### Artifact references (development preview)
 
