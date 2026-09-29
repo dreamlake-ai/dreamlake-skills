@@ -56,6 +56,17 @@ embedded agent that runs the
    versions, untouched (details in the
    [Quickstart](https://docs.dreamlake.ai/scene-generation/quickstart)).
 
+The env chat opens in **Auto** permission mode, so one prompt can carry
+through the whole workflow — the agent runs the scene tools and
+`dreamlake env push` without per-command approval. The composer's
+permission control still works as usual: switch to **Ask permissions** or
+**Plan mode** for a read-only conversation (the agent inspects and answers
+but does not generate or push), and switch back to Auto when you want it
+to build. A read-only choice is respected for as long as you keep it — the
+page sets the mode only once, on open, and never overrides your selection.
+Env membership still governs what a push may touch: the mode routes what
+the agent may *run*, not what your account may *write*.
+
 The install-and-use guide for the same workflow from a local agent —
 ordinary create / edit / reuse prompts included — is the
 [Scene Generation Quickstart](https://docs.dreamlake.ai/scene-generation/quickstart).
