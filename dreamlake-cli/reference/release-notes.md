@@ -1,5 +1,12 @@
 # Release notes
 
+## Unreleased — skill update reminders
+
+- After CLI updates, remind users when installed Codex or Claude Code skills
+  differ from the new bundle, with the exact update command. Reminders preserve
+  local edits, stay out of automatic JSON/piped runs, and appear once per skill
+  path per CLI version.
+
 ## Unreleased — agent skill setup
 
 - `dreamlake init` guides agent selection and project/global skill installation.

@@ -67,6 +67,22 @@ Each bundle contains `SKILL.md` and `reference/*.md`. Codex's supported
 Updating the CLI does not update installed skills automatically; rerun the
 installation command and review conflicts before choosing `--force`.
 
+## Reminders after updating
+
+After an explicit native install or self-update, the CLI compares installed
+skills with the **new binary's** bundled content. Following a background or npm
+update, it checks on your next terminal invocation. It checks both Claude Code
+and Codex, in the current project and your global skill directories. Custom
+`--dir` installations are checked when you run the CLI from that project root.
+
+If an installed skill differs, the CLI prints its path and an update command
+on stderr, at most once per installed path per CLI version. A difference can
+mean stale content or your own edits; review those edits before using the
+suggested `--force` command. Skills that are missing or already match stay quiet.
+No skill is changed automatically. Automatic reminders stay out of JSON,
+piped, and background invocations, and read/check failures never block your
+command or turn a successful update into a failure.
+
 ## It will not overwrite your edits
 
 Both `.claude/skills/` and `.agents/skills/` are **shared** directories. Yours probably already holds
