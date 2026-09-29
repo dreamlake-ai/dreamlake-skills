@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "4e625e6ee182a2ae3684fb77bfa05709386f0468",
+      "commit": "d9c97e920155b0100dbc24f30efda283cab02fc9",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "fc9a185cd90b38dc441e744fe3506faa423aa1b7f21ca2cb1f040e3a1d8c51b7",
@@ -19,7 +19,7 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "6488dc8756a9051b21746a52b1f2bfff502684cb",
+      "commit": "458953af00b3c72e280f758916ddf6bbe777027a",
       "generatorSha256": "fbeb216d7f0fdfc9cf1cbfa1ee7871d3a7c57a244fe6ace0d0ea0270ccf83a18",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "07673b0df5f2f0dca3a9a8e507a6e7ce9bfcc66f2ab54684fb6d50fc7090c5f8",
