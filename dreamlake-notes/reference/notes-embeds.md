@@ -1,11 +1,18 @@
 # Embeds and query arguments
 
-This feature is **unreleased**. Existing references continue to open side panels.
+Artifacts and previews have three presentation states:
+
+- **Inline:** a compact reference in the text flow, with no embedded content.
+- **Embed:** a block of content inside the Note, enabled with `embed="4:3"` or another supported aspect.
+- **Open:** the standalone artifact page or destination page, opened in the preview/browser.
+
+These states apply to every supported artifact content type; the directive argument
+is always `embed`, independent of the content language.
 
 Use `embed="4:3"` or `embed="16:9"` to render an artifact or web page inside
 the Note. The value both enables the embed and sets its aspect ratio.
 `embed="true"` is shorthand for `embed="16:9"`. Omit `embed` (or set it to
-`"false"`) to keep the existing click-to-open panel tag.
+`"false"`) to keep an inline reference.
 
 ## Sizing models
 
@@ -50,18 +57,19 @@ outer dimensions; 75% provides a larger internal layout viewport.
 | `border` | `"true"` or `"false"` | `"false"` |
 
 Ratio terms are integers from 1 through 999. Sizing, zoom and border arguments
-require an enabled inline embed; invalid sizing values remain literal source. CSS and sandbox permissions cannot
+require an enabled embed; invalid sizing values remain literal source. CSS and sandbox permissions cannot
 be changed through these arguments. Use a standalone line for larger
-embeds. Hover or focus a reference, then choose the pin + **Embed** bubble below it to make it inline. The bubble contains only the pin icon and **Embed**. In an inline web preview, hovering or focusing its header shows the destination URL beside the preview tag. Drag the
+embeds. Hover or focus a reference, then choose the pin + **Embed** bubble below it to embed it as a block. The bubble contains only the pin icon and **Embed**. In an embedded web preview, hovering or focusing its header shows the destination URL beside the preview tag. Drag the
 bottom capsule to change height, or the left/right capsules to change width.
-Capsules appear when the pointer reaches their edge or they receive keyboard focus.
-Capsules also accept arrow keys (16px steps; Shift for 64px). A drag saves pixel
+A curved bottom-right handle resizes width and height together.
+All handles appear when the pointer reaches their edge or they receive keyboard focus.
+Handles also accept arrow keys (16px steps; Shift for 64px). On the corner handle, left/right change width and up/down change height. A drag saves pixel
 dimensions and preserves content query arguments. The preview header shows a pinned icon at rest; hovering or focusing it reveals a red unpin icon. Click it to collapse the embed back to a reference;
-content query arguments are preserved and inline sizing is removed. Edit the
+content query arguments are preserved and embed sizing is removed. Edit the
 directive in source to return to percentage width or ratio sizing. Read-only views do
 not expose editing controls.
 
-Inline artifacts use the isolated, content-only artifact renderer with the
+Embedded artifacts use the isolated, content-only artifact renderer with the
 current reader's existing access; embedding does not grant access or create a
 share link. Web pages must allow iframe embedding. Static HTML snapshots retain
 inert references and never load embedded content.
