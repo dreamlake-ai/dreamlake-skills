@@ -2,9 +2,9 @@
 
 This feature is **unreleased**. Existing references continue to open side panels.
 
-Use `inline="4:3"` or `inline="16:9"` to render an artifact or web page inside
+Use `embed="4:3"` or `embed="16:9"` to render an artifact or web page inside
 the Note. The value both enables the embed and sets its aspect ratio.
-`inline="true"` is shorthand for `inline="16:9"`. Omit `inline` (or set it to
+`embed="true"` is shorthand for `embed="16:9"`. Omit `embed` (or set it to
 `"false"`) to keep the existing click-to-open panel tag.
 
 ## Sizing models
@@ -13,23 +13,23 @@ the Note. The value both enables the embed and sets its aspect ratio.
 the ratio. This is the default model; it responds when the Note panel resizes.
 
 ```markdown
-:artifact[geyang/dashboard]{inline="4:3"}
-:artifact[geyang/pitch-deck#slide-3]{inline="16:9"}
+:artifact[geyang/dashboard]{embed="4:3"}
+:artifact[geyang/pitch-deck#slide-3]{embed="16:9"}
 ```
 
 **Fixed width with ratio:** request a pixel width and derive height from the
 ratio. Width still shrinks to fit a narrower document.
 
 ```markdown
-:artifact[geyang/dashboard]{inline="4:3" width="640"}
+:artifact[geyang/dashboard]{embed="4:3" width="640"}
 ```
 
 **Fixed height:** use an explicit height for a scrollable report or web page.
 Height overrides the ratio; width remains responsive unless specified.
 
 ```markdown
-:preview[https://example.com/report]{title="Report" inline="true" height="480"}
-:artifact[geyang/dashboard]{inline="4:3" width="640" height="400"}
+:preview[https://example.com/report]{title="Report" embed="true" height="480"}
+:artifact[geyang/dashboard]{embed="4:3" width="640" height="400"}
 ```
 
 **Content zoom:** the default `zoom="fit"` gives responsive content the embed's
@@ -38,12 +38,12 @@ third-party page. Use a percentage to scale its content independently of the
 outer dimensions; 75% provides a larger internal layout viewport.
 
 ```markdown
-:preview[https://example.com/report]{inline="16:9" zoom="75%" border="false"}
+:preview[https://example.com/report]{embed="16:9" zoom="75%" border="false"}
 ```
 
 | Argument | Values | Default |
 | --- | --- | --- |
-| `inline` | `"true"`, `"false"`, or a positive integer ratio such as `"4:3"` | `"false"` |
+| `embed` | `"true"`, `"false"`, or a positive integer ratio such as `"4:3"` | `"false"` |
 | `width` | Positive pixels (bare number or `px`, up to 4096), or 1–100% | `"100%"` |
 | `height` | Positive pixels (bare number or `px`, up to 4096) | From ratio |
 | `zoom` | `"fit"` or integer percentages from `"25%"` through `"200%"` | `"fit"` |
@@ -72,14 +72,14 @@ Keep the artifact reference or page URL in brackets. Put embed options and
 content-specific query arguments together in braces:
 
 ```markdown
-:artifact[geyang/video-viewer]{inline="4:3" view="contact-sheet" columns="4" frames="12"}
-:preview[https://example.com/video]{inline="16:9" view="storyboard" start="30"}
+:artifact[geyang/video-viewer]{embed="4:3" view="contact-sheet" columns="4" frames="12"}
+:preview[https://example.com/video]{embed="16:9" view="storyboard" start="30"}
 ```
 
 These resource names are examples, not preinstalled artifacts. The referenced
 artifact or website must implement the requested views.
 
-Notes consumes `inline`, `width`, `height`, `zoom`, and `border`. Resource identity
+Notes consumes `embed`, `width`, `height`, `zoom`, and `border`. Earlier `inline` arguments remain readable for compatibility; new embeds use `embed`. Neither key is forwarded to the renderer. Resource identity
 fields (`namespace`, `id`, `fragment` for artifacts; `url` and `title` for previews)
 also belong to Notes. All other valid arguments become public query parameters;
 they are never interpreted as HTML attributes, CSS, or sandbox flags.
@@ -90,7 +90,7 @@ For the first example, the artifact receives
 `art.`; do not prefix directive arguments. A fragment stays in the reference:
 
 ```markdown
-:artifact[geyang/video-viewer#scene-3]{inline="16:9" view="player" start="30"}
+:artifact[geyang/video-viewer#scene-3]{embed="16:9" view="player" start="30"}
 ```
 
 Preview arguments are merged into the URL query. Brace arguments replace an
@@ -99,10 +99,10 @@ intact. Values use quoted strings and are URL-encoded automatically, including
 nested URLs. Do not pre-encode them:
 
 ```markdown
-:preview[https://example.com/viewer?theme=dark]{inline="16:9" src="https://example.com/clip.mp4?a=1&b=2" view="contact-sheet"}
+:preview[https://example.com/viewer?theme=dark]{embed="16:9" src="https://example.com/clip.mp4?a=1&b=2" view="contact-sheet"}
 ```
 
-The same arguments work on clickable tags without `inline`: opening the side
+The same arguments work on clickable tags without `embed`: opening the side
 panel or the ordinary viewer link carries the query to the renderer.
 
 ### Read and update configuration inside an artifact
