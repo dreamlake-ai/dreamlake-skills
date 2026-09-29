@@ -6,10 +6,33 @@ acknowledgment. **MERGE is the default; EXACT is an option for one request.**
 
 ## Try a complete edit
 
-This creates a new private test note. It requires login, write access, and `jq`.
+This creates a new private test note and uses normal text output throughout.
+It requires login and write access. The initial source is exactly `Hello world.`
+without a trailing newline. Keep the baseline unchanged while preparing the patch.
+
+```bash cli-help="notes patch"
+set -euo pipefail
+dreamlake notes create "Patch tutorial" --text 'Hello world.' > created.txt
+NOTE_ID=$(sed -n 's/^  id //p' created.txt)
+dreamlake notes read "$NOTE_ID" > baseline.txt
+# Normal reads print note, hash, and revision before the source.
+BASE=$(sed -n '3s/^revision: //p' baseline.txt)
+dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" > receipt.txt <<'PATCH'
+@@ chars 0:12 @@
+~ Hello [-world-]{+team+}.
+PATCH
+ACK=$(sed -n '3s/^revision: //p' receipt.txt)
+dreamlake notes read "$NOTE_ID" --if-match "$ACK"
+# Expect Hello team. Inspect the result; do not repeat a successful patch.
+```
+
+## Explicit structured integration
+
+Use this alternative only when a structured integration has been requested.
+It requires login, write access, and `jq`.
 The initial source is exactly `Hello world.` without a trailing newline.
 
-```bash cli-help="notes patch" notes-example="inline-roundtrip"
+```bash notes-example="inline-roundtrip"
 set -euo pipefail
 dreamlake notes create "Patch tutorial" \
   --text 'Hello world.' --json > created.json
@@ -93,10 +116,14 @@ BASE=$(jq -er .revision line-baseline.json)
 jq -jr .content line-baseline.json > before.md
 cp before.md after.md
 # Edit after.md in your editor, then continue below.
-status=0
-diff -u before.md after.md > draft.diff || status=$?
+diff_status=0
+diff -u before.md after.md > draft.diff || diff_status=$?
 # diff exits 1 when differences exist; values above 1 are errors.
-test "$status" -le 1
+test "$diff_status" -le 1
+if [ "$diff_status" -eq 0 ]; then
+  echo "No changes; no patch sent."
+  exit 0
+fi
 dreamlake notes patch "$NOTE_ID" --format diff --base-revision "$BASE" \
   --file draft.diff --json > line-receipt.json
 ACK=$(jq -er .revision line-receipt.json)
@@ -106,7 +133,7 @@ dreamlake notes read "$NOTE_ID" --if-match "$ACK" \
 
 Only a single-file unified patch is accepted. Preserve context, line counts,
 CRLF, and `\ No newline at end of file` markers. File labels do not select the
-note. An empty patch is a no-op, not a deletion of the document.
+note. If the files match, stop without sending a patch. Empty patch input is rejected.
 
 ## Preview and input
 
@@ -131,5 +158,46 @@ baseline and draft, inspect the note, and reconcile. Never attach a newer revisi
 to an old patch merely to make it pass. A later successful read does not by itself
 prove whether an earlier ambiguous request committed.
 
-Next: [Live collaboration](/notes/collaboration/). For existing section/text
-mutation scripts, see [Legacy commands](/notes/legacy/).
+Next: [Live collaboration](notes-collaboration.md). For existing section/text
+mutation scripts, see [Legacy commands](notes-legacy.md).
+
+## Native stdin and error diagnostics
+
+Use `--file edit.dff` for a saved patch. Native CLI 0.33.0 can incorrectly read
+`--file - < edit.dff` as empty input and receive a successful no-op receipt; this
+is an input-transport defect, not a merge conflict. The fix is unreleased. Until
+upgrading to a release containing it, pass the file path directly and inspect
+`--dry-run --json` to verify `payload.patch` before submission.
+
+The corrected native reader preserves redirected-file and pipe bytes, rejects
+empty patch input before sending, and retains UTF-8 and 8 MB limits. Server error
+details are printed alongside their error code. A 422 may indicate an alignment
+limit as well as an invalid patch; it does not by itself prove a baseline mismatch.
+Keep the baseline and draft on any failure. Default merge and opt-in exact mode
+are unchanged. Verify the intended edits in the acknowledged `--at` snapshot.
+
+## Literal text without inline-DFF escaping
+
+To avoid hand-writing `\[`, `\-` and other inline-DFF escapes, prepare an edited
+copy of the exact canonical baseline and generate a unified diff. Keep Unicode,
+`$`, `<`, `&` and backslashes literal in those files. Do not copy generated
+address hints into either file. Preserve the baseline's original revision and
+line endings. This uses the existing source patch API, not a new semantic edit API.
+
+```bash
+# base.md is the exact canonical source read at BASE; edit only edited.md.
+cp base.md edited.md
+# Apply the intended edit to edited.md with your file-editing tool.
+# diff exits 1 when it successfully finds differences; 2 means failure.
+DIFF_STATUS=0
+diff -u base.md edited.md > edit.diff || DIFF_STATUS=$?
+if [ "$DIFF_STATUS" -gt 1 ]; then exit "$DIFF_STATUS"; fi
+if [ "$DIFF_STATUS" -eq 1 ]; then
+  dreamlake notes patch "$NOTE_ID" --format diff --file edit.diff --base-revision "$BASE"
+fi
+# Read the resulting receipt revision with --at to verify the exact source.
+```
+
+The patcher checks the old source against the retained baseline. Keep any
+Markdown escapes needed in the actual saved source; the diff transport does not
+require extra escaping of its line contents. Existing merge/exact semantics apply.

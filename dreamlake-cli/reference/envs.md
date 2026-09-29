@@ -74,9 +74,11 @@ the same two REST calls (`GET …/envs/:name/versions` and
 
 ## Compose a layered env
 
-A **stack** — `dreamlake.layers.json`, schema `dreamlake.env-layers/v2` —
-builds one env out of ordered layers: a base scene, an attached robot, an
-override patch. `env compose` materializes it into a runnable env directory:
+A **stack** — `dreamlake.layers.json`, schema `dreamlake.env-layers/v3` —
+builds one env out of ordered ops: `Merge` a base scene, `Attach` a robot
+under a key, `Update` an element inline, `Remove` one, `Patch` from a
+sparse-MJCF file. `env compose` materializes it into a runnable env
+directory:
 
 ```bash cli-help="env compose"
 dreamlake env compose                         # stack: ./dreamlake.layers.json
@@ -87,13 +89,13 @@ dreamlake env compose --force                 # write into a non-empty out dir
 - The stack file defaults to `./dreamlake.layers.json`. `-o/--out` defaults
   to `./<the stack's "name", else the stack directory's basename>`; a
   non-empty output directory is refused without `--force`.
-- Registry layers (`{"env": "ns/name[@version]"}`) resolve through the
-  immutable, hash-verified version cache at `~/.dreamlake/cache/envs/`, so a
-  pinned ref with a cache hit costs zero network. Public envs resolve
-  without login.
-- The CLI validates the stack's shape and resolves layer sources;
-  **composition itself** (merge / attach / override, URDF import, compile
-  validation) **runs in the reference engine** — Python,
+- A registry `src` (`"ns/name[@version]"`) resolves through the immutable,
+  hash-verified version cache at `~/.dreamlake/cache/envs/`, so a pinned
+  ref with a cache hit costs zero network. Public envs resolve without
+  login. A `"./"`-prefixed `src` is a local directory or file.
+- The CLI validates the stack's shape and resolves layer srcs;
+  **composition itself** (Merge / Attach / Update / Remove / Patch, URDF
+  import, compile validation) **runs in the reference engine** — Python,
   `dreamlake.envlayer`, shipped by the Python SDK:
   `pip install "dreamlake[compose]"` (dreamlake ≥ 0.19.0 on PyPI). The CLI
   tries `python3`, then `python`; `DREAMLAKE_PYTHON` pins a specific
@@ -101,19 +103,20 @@ dreamlake env compose --force                 # write into a non-empty out dir
 
 The composed directory carries a fully **pinned** copy of the stack as
 provenance, so anyone can re-open its composition later. Stack schema,
-compose modes and worked examples:
+the five ops and worked examples:
 [Env layers reference](https://docs.dreamlake.ai/envs/layers).
 
 ### Pushing a composed env
 
 A pushed env should carry a fully pinned stack — one that still references
-local `{"path"}` layers exists only on your machine, so nobody else could
-recompose it. Like cargo and npm with path-only dependencies, `env push`
-(and `env create`) **refuses** such a directory unless told otherwise:
+local (`"./"`-prefixed) srcs exists only on your machine, so nobody else
+could recompose it. Like cargo and npm with path-only dependencies,
+`env push` (and `env create`) **refuses** such a directory unless told
+otherwise:
 
 - `--push-layers` pushes each local layer directory as its own env (named
   by the directory's basename), then stops so you can pin them in
-  `dreamlake.layers.json` (`{"env": "ns/name@version"}`), recompose, and
+  `dreamlake.layers.json` (`"src": "ns/name@version"`), recompose, and
   push again. The composed env itself is *not* pushed.
 - `--allow-local` pushes anyway; the provenance stays marked
   non-resolvable.

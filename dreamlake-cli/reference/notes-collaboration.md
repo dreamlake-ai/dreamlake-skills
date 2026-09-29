@@ -4,7 +4,8 @@ Use `read --linger` when you want to stay with someone in a note. It registers
 your presence, prints the initial source and participants, and streams updates
 until you stop it. **Use the default text output for people and coding agents:**
 it shows readable diffs, participants, and quoted selections. Add `--json` only
-when a program explicitly needs to parse structured events.
+when a program explicitly needs to parse structured events. An agent using the
+CLI interactively is not, by itself, a reason to request JSON.
 
 It requires CLI **0.29.0+** and compatible presence and activity
 endpoints, in addition to the Notes read endpoint.
@@ -14,6 +15,25 @@ endpoint. Deploy the matching server first. CLI 0.29.x–0.30.x polls and does
 not expose human highlights; there is no polling fallback in 0.31.0+.
 
 ## One identity per task
+
+Set both identity variables before ordinary agent reads and edits, not only
+`--linger`, unless the user requests unattributed work. A successful edit without
+`DREAMLAKE_AGENT_ID` can save without producing agent presence or attributed edit
+highlights. The display name provides a readable label; it is not the identity.
+
+Exports in one shell tool call do not persist into separate calls. Save the
+initial values in task context and inject the same literal values into every
+later Notes command environment. Never generate a new UUID per command.
+
+After the first intended live read, use `dreamlake notes presence "$NOTE_ID"`
+(CLI 0.31.0+) to match the task ID and name in the roster. This command only
+observes presence; it does not join. If absent, check the environment of the
+actual read/edit process before diagnosing a UI regression. Do not repeat a
+successful edit merely to trigger a highlight.
+
+Presence expires about 60 seconds after the last activity; completed edit
+highlights fade over 5 seconds on an exact matching live revision. Roster
+verification is separate from visual verification of a browser highlight.
 
 Generate an ID once, give it a readable name, and reuse both for that task:
 
@@ -143,7 +163,9 @@ reset, RTC failure, or a slow consumer closes it. Disconnects are explicit error
 restart linger to get a new full snapshot. Events are not retained or replayed.
 
 Linger accepts full source only. Do not combine it with `--since`, `--legacy`,
-HTML, sections, line ranges, or numbered output. `--if-match` checks only the
+`--at`, `--toc`, `--tag`, HTML, sections, line ranges, or numbered output.
+Use a separate `read NOTE --at REVISION --tag s1.1.p1` command to inspect a
+paragraph from a revision emitted by linger. `--if-match` checks only the
 initial read. Streamed revisions do not replace the original baseline of a
 patch you are already preparing.
 
@@ -190,4 +212,73 @@ names accept at most 64 printable ASCII characters. Attributed body operations
 require CLI 0.27.0+; visit/linger require 0.29.0+; read-only `presence` requires 0.31.0+.
 Each also needs matching server support.
 
-Next: [Editing with patches](/notes/editing/).
+Next: [Editing with patches](notes-editing.md).
+
+## Select a passage by text
+
+**CLI 0.32.0+:** `notes select --text` publishes an agent selection. Section
+selection also requires the server's section `hash` and code-point `range`
+fields; older server responses fail explicitly.
+
+Set one stable identity for the task, authenticate normally, and use a dedicated
+test note when trying examples. Replace the note ID and exact source passage:
+
+```bash cli-help="notes select"
+export DREAMLAKE_AGENT_ID="review-session-42"
+export DREAMLAKE_AGENT_NAME="Codex"
+NOTE_ID="your-note-id"
+dreamlake notes select --text "The next step is tested in simulation." --note "$NOTE_ID"
+# Select the last occurrence of a repeated passage.
+dreamlake notes select --text "simulation" --note "$NOTE_ID" -o -1
+```
+
+The command matches literal canonical source (including Markdown or HTML markup),
+then publishes an agent selection through the existing RTC presence channel.
+It does not change note content or the human's cursor. The human sees a collaborator
+selection and can use the agent's location control to navigate to it. The receipt
+confirms server acceptance; it does not prove a particular browser rendered it.
+
+Zero matches or multiple matches fail without publishing. Narrow the scope to a
+section anchor, or explicitly choose an occurrence within that scope. `-o` is short for
+`--occurrence`: positive values count from the start (`1` is first), negative
+values count from the end (`-1` is last, `-2` is second-last). Zero is invalid:
+
+```bash
+# Use the heading anchor from notes sections; this fetches only that section.
+dreamlake notes select --text "simulation" --section next-steps --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
+```
+
+Section resolution uses one section read with a global code-point range and the
+whole-source hash; it never downloads the rest of the note. Older servers lacking
+that metadata fail explicitly. Existing section `start`/`end` fields remain UTF-16;
+only the new `range` is in code points. A whole-note selection uses one v2 body read
+internally but does not print the body. Matching reads do not publish broad read
+highlights. Exact matching preserves whitespace and Unicode normalization.
+
+The server rechecks the source hash before accepting the range. `stale_range`
+means the note changed: re-read the relevant section and retry against its current
+text. No automatic retry guesses a new location. Optionally pass `--hash "$HASH"`
+using a retained `sha256:…` source hash to require that exact source. This is an
+observation precondition, not a content write or a saved revision.
+
+**Plain text is the default for selection commands and agent workflows.** Omit
+`--json` in normal examples and tool calls. The publication receipt already
+returns the quoted matched text, scope, resolved
+match number/count, a half-open code-point range and separate selection/presence
+expiry times. Multiline text uses escaped newlines to keep the excerpt on one line.
+Use `--json` only when an explicit machine integration needs structured fields.
+That optional receipt returns `note`, `hash`, `text`, `scope`, `range`,
+`occurrence`, `matches`, `published`, `selectionExpiresAt` and `presenceExpiresAt`
+(epoch milliseconds). `scope` is `{kind:"note"}` or
+`{kind:"section",anchor:"next-steps"}`; `text` is the exact matched source, not the
+whole section or document. `occurrence` in the receipt is the resolved positive 1-based
+position, even when the request counts from the end. Out-of-range positive or
+negative occurrences fail without publishing. Selection activity currently expires after eight seconds;
+the participant lease lasts sixty seconds. Heartbeats maintain presence, not the
+selection. Re-run selection to draw attention to the passage again.
+
+`notes select "#contact" --note "$NOTE_ID"` retains its CSS lookup behavior:
+it reports element text and ranges without publishing a seek. Do not combine CSS
+with `--text`, `--section`, `--occurrence` or `--hash`. `notes find` remains a lookup.

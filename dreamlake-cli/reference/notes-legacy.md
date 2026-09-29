@@ -2,7 +2,7 @@
 
 These commands remain available for existing scripts and targeted section/text
 operations. Their ETag checks differ from the current
-[original-snapshot patch workflow](/notes/editing/). Use this page when you need
+[original-snapshot patch workflow](notes-editing.md). Use this page when you need
 `write`, `append`, `replace`, section mutation, or body-only reads.
 
 ## Read and replace a body
@@ -24,6 +24,17 @@ exactly as returned, including quotes. Without an explicit `--if-match`, these
 mutations normally fetch a current ETag just before writing. That protects the
 request race, **not** the time spent editing an older local file. Always retain
 the ETag from the read that produced your draft.
+
+`insert`, `replace`, and `delete` accept that quoted legacy ETag, **not** a modern
+`rtc:` revision. The CLI rejects that token mismatch before sending an edit.
+An actual changed ETag still returns a conflict; keep the draft and reconcile it.
+For concurrent merging, use `notes patch --base-revision "$BASE_REVISION"`;
+its default is merge, while `--exact` is opt-in. Legacy insert also uses RTC
+internally; successful insertion does not establish that a modern merge patch
+was saved correctly. Always verify the acknowledged snapshot and intended text.
+
+Insertion `--ind` positions count Unicode code points in the exact retained
+source (Python `len`, JavaScript `Array.from(text).length`), not UTF-16 units.
 
 `--force` bypasses that check on supported legacy mutations. It can overwrite
 concurrent work; it is not a conflict-recovery recipe. V2 `patch` rejects it.
@@ -49,6 +60,17 @@ dreamlake notes rm-section "$NOTE_ID" troubleshooting --if-match "$ETAG"
 `--after` inserts after the section and its subsections. `rm-section` removes the
 whole subtree. The inserted heading determines its level; repeated titles get
 suffixed anchors. Inspect `notes sections` afterward.
+
+## Insert with a retained ETag
+
+```bash cli-help="notes insert"
+NOTE_ID=release-plan
+dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
+ETAG=$(jq -er .etag legacy-baseline.json)
+# Insert at the beginning of that exact source, with its original guard.
+dreamlake notes insert --note "$NOTE_ID" --ind 0 --text 'Review: ' --if-match "$ETAG"
+dreamlake notes read "$NOTE_ID" --json
+```
 
 ## Edit by text, pattern, or location
 
@@ -107,7 +129,7 @@ new edit. RTC unavailability is exit `4`, and rejected patches are exit `5`.
 Keep your draft when a request fails. Do not assume a lost acknowledgment means
 nothing was written, or use a forced archive replacement to recover.
 
-For new agent workflows, prefer [Editing with patches](/notes/editing/).
+For new agent workflows, prefer [Editing with patches](notes-editing.md).
 
 ## Presence command migration
 

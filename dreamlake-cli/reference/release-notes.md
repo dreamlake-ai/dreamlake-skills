@@ -1,5 +1,101 @@
 # Release notes
 
+## 0.36.0 — Agent skill setup and update reminders
+
+- After CLI updates, remind users when installed Codex or Claude Code skills
+  differ from the new bundle, with the exact update command. Reminders preserve
+  local edits, stay out of automatic JSON/piped runs, and appear once per skill
+  path per CLI version.
+
+- `dreamlake init` guides agent selection and project/global skill installation.
+- `skill install` and `skill list` support `--agent codex` (`.agents/skills`) and
+  `--agent claude` (`.claude/skills`, the compatibility default).
+- Top-level `-h`, `init -h`, and skill help include setup examples generated
+  from the agent skills guide. Existing modified skills still require `--force`.
+
+## 0.35.0 — Env layers v3 component grammar
+
+`dreamlake.layers.json` moves to schema `dreamlake.env-layers/v3`: every
+stack entry is one flat op — `Merge` / `Attach` / `Update` / `Remove` /
+`Patch` — with `src` as a single string (`ns/name[@v]` registry ref, or a
+`./`-prefixed local path). `Attach` takes an identity-root `key` instead
+of a prefix (one entry per placement); `Update` carries inline sparse
+opinions (`key` addresses an element, every other prop is an MJCF
+attribute); `Remove` is first-class. `env compose` requires
+`dreamlake ≥ 0.23.0` on the composing machine (`pip install
+"dreamlake[compose]"`). v2 stack files are refused with a migration map;
+composition semantics are unchanged. See the
+[Env Layers Reference](https://docs.dreamlake.ai/envs/layers).
+
+## 0.34.4
+
+Read literal Markdown inside agent markup without added HTML or Unicode escaping.
+Accept the text transport and use trusted address metadata. Bundled skills explain
+literal source edits and unified diffs without manual inline-DFF escaping.
+
+## 0.34.3 — 2026-09-28
+
+- Fix native Notes patches read from redirected stdin silently submitting empty input; reject empty patches before sending.
+- Preserve server patch error details and explain that legacy conditional edits require the quoted ETag rather than an RTC revision.
+
+## 0.34.2 — Hierarchical list addresses
+
+Notes references now describe standard `ul`/`ol` list prefixes and one `li`
+item type. Addresses include their parent list/item paths while retaining the
+shared section counter. Checkbox state remains an attribute. Existing 0.34.1
+read commands already accept these server-issued IDs.
+
+## 0.34.1 — Shared list ordering
+
+Annotated Markdown includes list containers alongside paragraphs and items.
+The server assigns `p`, `l`, `li` and `cli` IDs from one section counter; use
+returned IDs and retain the snapshot revision for focused reads and edits.
+
+## 0.33.0 — Addressed Notes reads
+
+`dreamlake notes read` can pin a retained snapshot with `--at`, inspect its
+outline with `--toc`, and retrieve a section or exact tagged element with
+`--section` and `--tag`. HTML reads expose revision-local section, paragraph,
+and list-item IDs with source character and line ranges. `--view markdown`
+adds address hints while preserving the original Markdown text. `--since`
+continues to default to line diffs, and linger retains its source/SSE contract.
+
+## 0.32.4 — Share-link management
+
+Notes and artifacts now expose `share get/create/revoke` and `visibility` commands
+for existing resources. Notes also support accepted-access listing/removal and
+optional revocation of accepted grants. Link inspection never enables sharing.
+
+## 0.32.3 — Task-based Notes examples
+
+Notes help now demonstrates finding and reading a note, previewing a precise
+wording change, verifying it, and collaborating with distinct agent identities.
+Normal reads use no JSON or view flags. Patch help retains revisions from normal
+text output, and the local-editor recipe avoids zsh’s read-only `status` variable.
+
+## 0.32.2 — Notes quick-start help
+
+`dreamlake notes --help` now includes practical examples for finding, reading,
+following, and creating notes, inspecting sections and attachments, and finding
+revision-safe edit recipes. The same examples ship in the bundled CLI skill.
+
+## 0.32.1 — Highlight handles and hover guidance
+
+The bundled skill uses canonical public user handles for highlight attribution
+and documents the minimal hover/focus popover, without an extra icon. Exact
+profile resolution is self-declared attribution; legacy names remain unresolved.
+The revision-safe matching-text example uses the same existing CLI commands.
+
+## 0.32.0 — Agent selection by text
+
+`notes select --text "passage" --note NOTE` resolves literal source and publishes
+an agent selection through RTC. Ambiguous matches require `--section` or
+`--occurrence` (`-o`); negative values count from the end (`-o -1` selects
+the last match). Stale hashes fail without guessing. CSS lookup remains compatible.
+Section mode requires the server update adding a source hash and global
+code-point range. Plain-text receipts include the selected text, scope, resolved
+match and expiry times. JSON remains opt-in for explicit integrations.
+
 ## 0.31.3 — Highlight annotation guidance
 
 The bundled CLI skill documents `user` and `comment` highlight metadata, the

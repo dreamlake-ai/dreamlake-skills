@@ -55,4 +55,4 @@ dreamlake notes files preview report.html --note "$NOTE_ID" --revoke
 A shared link opens without sign-in and does not expire. Revoking it withdraws
 all copies of that link. This is distinct from publishing the note itself.
 
-Next: [Notes](/notes/).
+Next: [Notes](notes.md).

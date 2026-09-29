@@ -4,33 +4,88 @@ Everything on this site is also shipped **as a skill** — a
 `SKILL.md` plus one markdown file per page — inside the CLI package. Installing
 it puts the corpus where an agent looks for it.
 
-```bash file="terminal"
-dreamlake skill list
-dreamlake skill install                       # → ./.claude/skills/dreamlake-cli/
-dreamlake skill install dreamlake-cli --global
+## Setup
+
+Run `dreamlake init` in a terminal to choose Codex or Claude Code and project
+or global scope. It installs the bundled CLI skill using the same installer
+as `dreamlake skill install`; no login or download is required.
+
+```bash file="terminal" cli-help="dreamlake"
+# Guided agent setup
+dreamlake init
+# Install directly for Codex in this project
+dreamlake skill install --agent codex
+# Install for Claude Code across projects
+dreamlake skill install --agent claude --global
 ```
 
-| Command | What it does |
-| --- | --- |
-| `skill list [--json]` | every bundled skill, and whether it is installed at project or global scope |
-| `skill install [name] [--global] [--dir <path>] [--force] [--json]` | copy one onto disk |
+```bash file="terminal" cli-help="init"
+dreamlake init
+dreamlake init --agent codex
+dreamlake init --agent claude --global
+```
 
-Omit `name` when the build bundles exactly one skill, which today it does.
+With any setup options, `init` runs without prompts; scope defaults to the
+current project. Non-interactive or `--json` usage requires `--agent codex`
+or `--agent claude`. Canceling the guided setup writes nothing.
+
+```bash file="terminal" cli-help="skill"
+dreamlake skill list --agent codex
+dreamlake skill install --agent codex
+dreamlake skill install --agent claude --global
+```
+
+```bash file="terminal" cli-help="skill install"
+dreamlake skill install --agent codex
+dreamlake skill install dreamlake-cli --agent claude --global
+# Explicitly replace modified bundled files
+dreamlake skill install --agent codex --force
+```
+
+```bash file="terminal" cli-help="skill list"
+dreamlake skill list --agent codex
+dreamlake skill list --agent claude --json
+```
+
+`skill install` and `skill list` default to `--agent claude` for compatibility.
+Omit the skill name when the build bundles exactly one skill, which today it does.
+Both installation commands accept `--global`, `--dir <path>`, `--force`, and
+`--json`. `skill list` accepts `--agent` and `--json` and reports project and
+global installation status for the selected agent.
 
 ## Where it goes
 
-| Scope | Path |
-| --- | --- |
-| project (default) | `<cwd>/.claude/skills/<name>/` |
-| `--global` | `~/.claude/skills/<name>/` |
-| `--dir <path>` | `<path>/.claude/skills/<name>/` |
+| Agent | Project (default) | `--global` |
+| --- | --- | --- |
+| `claude` | `<cwd>/.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
+| `codex` | `<cwd>/.agents/skills/<name>/` | `~/.agents/skills/<name>/` |
 
-`--dir` overrides `--global`. The layout is fixed — `SKILL.md` at the top,
-`reference/*.md` beneath it — because that is what Claude Code reads.
+`--dir <path>` replaces the project root and overrides `--global`, retaining
+the agent-specific subdirectory. It does not name the skill directory itself.
+Each bundle contains `SKILL.md` and `reference/*.md`. Codex's supported
+[skill locations](https://developers.openai.com/codex/skills) include `.agents/skills`.
+Updating the CLI does not update installed skills automatically; rerun the
+installation command and review conflicts before choosing `--force`.
+
+## Reminders after updating
+
+After an explicit native install or self-update, the CLI compares installed
+skills with the **new binary's** bundled content. Following a background or npm
+update, it checks on your next terminal invocation. It checks both Claude Code
+and Codex, in the current project and your global skill directories. Custom
+`--dir` installations are checked when you run the CLI from that project root.
+
+If an installed skill differs, the CLI prints its path and an update command
+on stderr, at most once per installed path per CLI version. A difference can
+mean stale content or your own edits; review those edits before using the
+suggested `--force` command. Skills that are missing or already match stay quiet.
+No skill is changed automatically. Automatic reminders stay out of JSON,
+piped, and background invocations, and read/check failures never block your
+command or turn a successful update into a failure.
 
 ## It will not overwrite your edits
 
-`.claude/skills/` is a **shared** directory. Yours probably already holds
+Both `.claude/skills/` and `.agents/skills/` are **shared** directories. Yours probably already holds
 hand-written skills next to anything you install. So:
 
 | Target | Behaviour | `status` | rc |
@@ -138,13 +193,13 @@ or install it. This bundles `dreamlake-cli`, not every skill in the public catal
 Updating the executable does not overwrite an installed skill: rerun install,
 review any conflict, preserve local edits, and use `--force` only deliberately.
 
-```bash cli-help="skill list"
+```bash
 # Inspect the bundle and installed state without changing files.
 dreamlake skill list
 dreamlake skill list --json
 ```
 
-```bash cli-help="skill install"
+```bash
 # Install into this project; an identical second install is a no-op.
 dreamlake skill install dreamlake-cli
 dreamlake skill install dreamlake-cli --dir ./my-project --json

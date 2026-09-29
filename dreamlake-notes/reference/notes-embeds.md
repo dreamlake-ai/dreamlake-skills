@@ -56,7 +56,7 @@ embeds. Hover or focus a reference, then choose the pin + **Embed** bubble below
 bottom capsule to change height, or the left/right capsules to change width.
 Capsules appear when the pointer reaches their edge or they receive keyboard focus.
 Capsules also accept arrow keys (16px steps; Shift for 64px). A drag saves pixel
-dimensions and preserves content query arguments. Use the unpin icon in the preview header to collapse it back to a reference;
+dimensions and preserves content query arguments. The preview header shows a pinned icon at rest; hovering or focusing it reveals a red unpin icon. Click it to collapse the embed back to a reference;
 content query arguments are preserved and inline sizing is removed. Edit the
 directive in source to return to percentage width or ratio sizing. Read-only views do
 not expose editing controls.

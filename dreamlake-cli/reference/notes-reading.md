@@ -43,8 +43,8 @@ dreamlake notes read "$NOTE_ID" --since "$HASH" --format diff --json > changes.j
 jq -jr .patch changes.json > changes.diff
 ```
 
-`inline-dff` is the current spelling and the default for one-shot incremental
-reads. It shows character edits. `diff` shows a unified line diff, normally with
+`diff` is the default for differential reads. `inline-dff` is an explicit
+character-diff option. `diff` shows a unified line diff, normally with
 three context lines around changes. Nearby edits share a hunk; distant edits
 remain separate. Older servers may generate broader hunks.
 
@@ -102,7 +102,7 @@ dreamlake notes toc --note "$NOTE_ID"
 `search` finds notes; `find` searches one note; `grep` returns locations across
 notes as `slug:line:column`. Literal queries are case-insensitive by default;
 regex queries are case-sensitive by default. JSON hits include the legacy ETag
-and character range. Use the [legacy editing interface](/notes/legacy/) with
+and character range. Use the [legacy editing interface](notes-legacy.md) with
 those validators, or capture a full current snapshot for a v2 patch.
 
 ## Verify a particular revision
@@ -117,5 +117,116 @@ stdout. After a successful patch, a later read conflict means someone changed
 the note again; it does not mean your acknowledged patch failed. Inspect a fresh
 read and reconcile before making another edit.
 
-Next: [Editing with patches](/notes/editing/) or
-[Live collaboration](/notes/collaboration/).
+Next: [Editing with patches](notes-editing.md) or
+[Live collaboration](notes-collaboration.md).
+
+### Focused and historical reads
+
+`read` returns the current snapshot. Use `--at REVISION` for a retained snapshot;
+`--since HASH` remains a unified line-diff read. Snapshot selectors are mutually
+exclusive, and cannot combine with `--since` or `--linger`:
+
+```bash
+# NOTE_ID identifies an accessible note; copy REVISION from its read receipt.
+dreamlake notes read "$NOTE_ID"
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --toc
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1.1
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
+```
+
+Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
+`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), unordered lists
+(`ul`), ordered lists (`ol`) and all list items (`li`) share one counter per
+section, in document reading order. List and item IDs include their containing
+list/item path: `s1.p1 → s1.ul2 → s1.ul2.li3 → s1.ul2.li4 → s1.p5`.
+A nested ordered list under the fourth element is `s1.ul2.li4.ol5`, and its
+next item is `s1.ul2.li4.ol5.li6`. The suffix is the shared section counter,
+not an item-local position.
+
+Checklist items use the same `li` prefix and expose `data-checked="false"` or
+`data-checked="true"`; ordinary items omit that attribute. Adding, checking or
+removing a checkbox does not change the item's prefix or its container's type.
+There is no `tl`, `tli` or `cli` type. HTML tags remain `ul`, `ol` and `li`.
+
+Lists consume a number before their items; nested lists and items follow
+depth-first reading order. Item paragraph wrappers do not consume another
+number. The preamble uses `s0`.
+Read IDs from the returned snapshot, including after a server renderer upgrade. `--tag` is an exact element ID; a section ID selects its
+entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
+return 404; every read checks current permissions.
+
+### Literal Markdown for agents
+
+With CLI 0.34.4 and a compatible server, `--view html` on a Markdown note is
+an **agent format**: HTML-like tags supply structure and addresses; their
+contents are the exact original Markdown. There is one `data-char` source
+range, including the construct's syntax. There is no inner/outer split.
+
+```text
+<li id="s0.ul1.li2" data-char="0:11">- [ ] Ship
+</li>
+```
+
+Keep Markdown literal: `- [ ]`, `**bold**`, `:comment[...]`, backslashes,
+`<`, `&`, and Unicode remain exactly as saved. Do not add HTML escapes,
+Markdown escapes, or Unicode escape sequences to element contents. Do not
+strip escapes that are already present in canonical source. No display-text
+index conversion is needed: ranges address the source text inside the wrappers.
+A parent item's range includes its nested source.
+
+This is not browser HTML. Do not render it or use a DOM parser to recover its
+body. CLI 0.34.4 requests `contentFormat=literal-markdown` automatically; direct API clients add that parameter to a v2 HTML read. Existing clients keep the prior rendered contract. The API serves Markdown agent markup as `text/plain` and marks the root
+`data-content-format="literal-markdown"`. Generated heading numbers and other
+preview decoration are absent. The separate visual preview is unchanged.
+
+Metadata attributes still use transport encoding: decode the root `data-source`
+attribute once for an exact machine-readable source slice, and use the trusted
+root `data-addresses` index rather than finding tags inside arbitrary Markdown.
+CLI `--view markdown` handles this and prints literal source with address hints.
+Keep the original revision with the source and verify the acknowledged edit.
+Older servers may return rendered HTML; do not assume literal bodies without the
+format marker. Canonical HTML notes retain their existing HTML source mapping.
+
+`data-char="start:end"` are absolute, zero-based, end-exclusive Unicode code-point
+ranges in original source. `data-lines` is one-based and inclusive. A scoped root
+contains only the selected `data-source`, with its global `data-source-start` and
+`data-source-end` and its own `data-source-hash`. The root's `data-hash` and
+`data-revision` still identify the complete document. Subtract `data-source-start`
+when slicing local source; keep absolute offsets in the patch. TOCs carry exact
+heading source on each heading and empty root source. Never upload a slice or
+rendered HTML as the complete note.
+
+```bash
+# edit.dff is prepared from the exact source at REVISION.
+dreamlake notes patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
+# NEXT_REVISION comes from that write receipt.
+dreamlake notes read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
+```
+
+Exact mode refuses concurrent edits with 412; native merge mode remains available
+by omitting `--exact`. `--if-match` checks the current revision, while `--at`
+retrieves history: do not combine them. Preserve an existing draft's original
+baseline even after another read or linger update. Linger continues to emit source
+snapshots and line diffs; inspect a streamed revision using a separate pinned read.
+Pinned reads do not overwrite live presence with historical offsets.
+
+See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
+for ID generation, ranges, examples, efficiency limits, and the executable
+acceptance harness. These addressed read options are available in CLI 0.33.0 and require the matching Notes server support. The linked page provides the detailed ID and range contract.
+
+For Markdown with address hints (CLI 0.33.0), select the annotated view:
+
+```bash
+# REVISION is the original read revision; NOTE_ID identifies an accessible note.
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1 --view markdown
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.ul2.li3 --view markdown
+```
+
+Lists and items use the shared section-local order above; a list or parent item
+includes its nested content. CLI 0.34.1 adds list-container hints to Markdown reads.
+The CLI inserts comments such as `<!-- s1.ul2.li3 chars=11:29 lines=3:4 -->` before
+original Markdown blocks. These hints are reading metadata, not article content;
+all offsets refer to the original source. Do not write annotated output back.
+Default source reads remain unchanged. The annotated view supports snapshot
+scopes and `--at`, but cannot combine with `--since`, `--linger`, or `--json`.
+HTML-source notes require `--view html`.
