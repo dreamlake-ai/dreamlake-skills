@@ -52,7 +52,7 @@ outer dimensions; 75% provides a larger internal layout viewport.
 Ratio terms are integers from 1 through 999. Sizing, zoom and border arguments
 require an enabled inline embed; invalid sizing values remain literal source. CSS and sandbox permissions cannot
 be changed through these arguments. Use a standalone line for larger
-embeds. Hover or focus a reference, then choose the pin + **Embed** bubble on its right to make it inline. The bubble contains only the pin icon and **Embed**. In an inline web preview, hovering or focusing its header shows the destination URL beside the preview tag. Drag the
+embeds. Hover or focus a reference, then choose the pin + **Embed** bubble below it to make it inline. The bubble contains only the pin icon and **Embed**. In an inline web preview, hovering or focusing its header shows the destination URL beside the preview tag. Drag the
 bottom capsule to change height, or the left/right capsules to change width.
 Capsules appear when the pointer reaches their edge or they receive keyboard focus.
 Capsules also accept arrow keys (16px steps; Shift for 64px). A drag saves pixel
