@@ -47,16 +47,18 @@ outer dimensions; 75% provides a larger internal layout viewport.
 | `width` | Positive pixels (bare number or `px`, up to 4096), or 1–100% | `"100%"` |
 | `height` | Positive pixels (bare number or `px`, up to 4096) | From ratio |
 | `zoom` | `"fit"` or integer percentages from `"25%"` through `"200%"` | `"fit"` |
-| `border` | `"true"` or `"false"` | `"true"` |
+| `border` | `"true"` or `"false"` | `"false"` |
 
 Ratio terms are integers from 1 through 999. Sizing, zoom and border arguments
 require an enabled inline embed; invalid sizing values remain literal source. CSS and sandbox permissions cannot
 be changed through these arguments. Use a standalone line for larger
-embeds. Click **Embed** beside a reference in the editor to make it inline. Drag the
+embeds. Hover or focus a reference, then choose the pin + **Embed** bubble on its right to make it inline. Preview popovers also show the destination URL. Drag the
 bottom capsule to change height, or the left/right capsules to change width.
+Capsules appear when the pointer reaches their edge or they receive keyboard focus.
 Capsules also accept arrow keys (16px steps; Shift for 64px). A drag saves pixel
-dimensions and preserves content query arguments. Click **Edit embed** to reveal
-the directive and return to percentage width or ratio sizing. Read-only views do
+dimensions and preserves content query arguments. Use the unpin icon in the preview header to collapse it back to a reference;
+content query arguments are preserved and inline sizing is removed. Edit the
+directive in source to return to percentage width or ratio sizing. Read-only views do
 not expose editing controls.
 
 Inline artifacts use the isolated, content-only artifact renderer with the
