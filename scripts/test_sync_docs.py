@@ -20,11 +20,14 @@ class SyncTests(unittest.TestCase):
             for name, repo in sync.REPOS.items()}}
 
     def test_roundtrip_and_tamper_detection(self):
-        outputs = {'dreamlake-notes/SKILL.md': b'original'}
+        outputs = {
+            'dreamlake-notes/SKILL.md': b'original',
+            'dreamlake-notes/actions/read.md': b'generated action',
+        }
         sync.synchronize(self.root, outputs, self.sources)
         sync.synchronize(self.root, outputs, self.sources, check=True)
         sync.verify_files(self.root)
-        (self.root / 'dreamlake-notes/SKILL.md').write_bytes(b'edited')
+        (self.root / 'dreamlake-notes/actions/read.md').write_bytes(b'edited')
         with self.assertRaisesRegex(ValueError, 'changed or missing'):
             sync.verify_files(self.root)
         with self.assertRaisesRegex(ValueError, 'propagation mismatch'):
@@ -64,6 +67,32 @@ class SyncTests(unittest.TestCase):
         self.assertIn(b'[example](unknown.md)', result)
         with self.assertRaisesRegex(ValueError, 'Unresolved'):
             sync.absolute_reference_links(b'[bad](unknown.md)', pages)
+
+    def test_action_guides_are_explicit_hashed_inputs(self):
+        guide = self.root / 'docs/skill-guides/notes'
+        (guide / 'actions').mkdir(parents=True)
+        (guide / 'SKILL.md').write_text('router')
+        action = guide / 'actions/read.md'
+        action.write_text('read flow')
+        hashes = sync.action_guide_hashes(self.root, 'notes')
+        self.assertEqual(set(hashes), {
+            'docs/skill-guides/notes/SKILL.md',
+            'docs/skill-guides/notes/actions/read.md',
+        })
+        self.assertEqual(hashes['docs/skill-guides/notes/actions/read.md'], sync.sha(b'read flow'))
+        (self.root / 'docs/skill-guides/empty').mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, 'SKILL.md and actions'):
+            sync.action_guide_hashes(self.root, 'empty')
+
+    def test_notes_reference_routes_resolve_bundled_and_external_links(self):
+        body = (b'[edit](/notes/editing/#patch) [rich](/notes/rich-content/) '
+                b'[other](notes-rich-content.md#tokens)\n'
+                b'```md\n[example](/notes/editing/)\n```\n')
+        result = sync.notes_reference_links(body, 'https://cli.dreamlake.ai')
+        self.assertIn(b'[edit](notes-editing.md#patch)', result)
+        self.assertIn(b'[rich](https://cli.dreamlake.ai/notes/rich-content/)', result)
+        self.assertIn(b'[other](https://cli.dreamlake.ai/notes/rich-content/#tokens)', result)
+        self.assertIn(b'[example](/notes/editing/)', result)
 
     def test_owned_paths_cannot_escape(self):
         for name in ('../outside', '/tmp/outside', 'README.md', 'dreamlake-cli/../../outside'):
