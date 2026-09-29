@@ -447,10 +447,12 @@ Browser static rendering retains an inert label before hydration; server CLI
 HTML snapshots currently leave preview directives as literal source with the
 existing source mapping. They do not load the target or create a panel.
 
-### Inline embeds (unreleased)
+### Embeds
 
 See [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/) for responsive ratios, fixed
-sizes, zoom, and the artifact/preview query API. These arguments are unreleased.
+sizes, zoom, and the artifact/preview query API. Inline references stay in the text
+flow; `embed` shows a content block; opening a reference shows its standalone
+page in the preview/browser.
 
 ### Artifact references (development preview)
 
