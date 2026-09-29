@@ -1107,7 +1107,7 @@ returned `url`. This is a separate upload from the permission-inheriting
 attachment above; you can skip the attachment step if you only need an inline
 image. Media is not listed by `notes files list`.
 
-The upcoming CLI command returns that URL directly using your saved login:
+CLI 0.37.0 and later return that URL directly using your saved login:
 
 ```bash
 dreamlake notes media upload ./diagram.png
@@ -1123,8 +1123,8 @@ printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the im
 
 Choose either the direct upload or the capture command; each call uploads a
 new media object. No note ID or namespace is needed, and upload alone does not
-edit a note. Optional `--json` returns the full receipt. This command is
-**unreleased**; check `dreamlake notes media upload --help` for availability.
+edit a note. Optional `--json` returns the full receipt. This command requires
+CLI 0.37.0 or later; check `dreamlake notes media upload --help` for availability.
 For installed versions without it, use the HTTP example below.
 
 Set `DREAMLAKE_TOKEN` to a valid bearer token for the API environment you are

@@ -5,7 +5,7 @@ attachment kept under a note's permissions, use `notes files upload` instead.
 An attachment path or preview page URL cannot be used as an image `src`.
 
 After signing in with `dreamlake login`, check
-`dreamlake notes media upload --help`. This command is unreleased; if missing,
+`dreamlake notes media upload --help`. Requires CLI 0.37.0 or later; if missing,
 use the documented HTTP fallback only when valid API credentials are available.
 Do not substitute a file-preview URL or upload the image twice.
 
@@ -21,4 +21,4 @@ URL. Uploading media does not edit a note. If insertion is requested, follow the
 Anyone holding the media URL can read it; making a note private does not revoke
 it. Use this route only when that access matches the user's request.
 
-See [image markup and upload details](../reference/notes-attachments.md#upload-an-inline-image-and-return-its-url-unreleased).
+See [image markup and upload details](../reference/notes-attachments.md#upload-an-inline-image-and-return-its-url).

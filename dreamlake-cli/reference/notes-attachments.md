@@ -24,10 +24,9 @@ dreamlake notes files list 'assets/*.png' --note release-plan --limit 50
 dreamlake notes files list --note release-plan --json
 ```
 
-## Upload an inline image and return its URL (unreleased)
+## Upload an inline image and return its URL
 
-Check `dreamlake notes media upload --help` for availability. This command is
-unreleased. If unavailable in your installed CLI, use the
+Check `dreamlake notes media upload --help` for availability. Requires CLI 0.37.0 or later. If unavailable in your installed CLI, use the
 [HTTP upload example](https://docs.dreamlake.ai/notes/#get-an-image-url-for-markdown-or-html)
 with a valid API bearer token.
 
