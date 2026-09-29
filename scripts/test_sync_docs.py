@@ -99,6 +99,79 @@ class SyncTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 sync.owned_path(self.root, name)
 
+    def _scene_snapshot(self, skill_md=None):
+        guide = self.root / 'docs/skill-guides/scene-generation'
+        (guide / 'actions').mkdir(parents=True)
+        (guide / 'tools').mkdir()
+        (guide / 'SKILL.md').write_text(skill_md if skill_md is not None else (
+            '---\nname: dreamlake-scene-generation\ndescription: "Create or edit '
+            'MuJoCo scenes with DreamLake libraries, layered envs and validation."\n---\n# S\n'
+        ))
+        (guide / 'actions/find-assets.md').write_text('search then pull')
+        (guide / 'tools/scene_report.py').write_text('print("report")')
+        (guide / 'tools/test_scene_tools.py').write_text('def test_ok(): pass')
+        reference = self.root / 'skills/dreamlake/reference'
+        reference.mkdir(parents=True)
+        for name in sync.SCENE_REFERENCES:
+            reference.mkdir(exist_ok=True)
+            (reference / f'{name}.md').write_text(
+                f'# {name}\nsee [layers](envs-layers.md#semantics-rules) and [cli](cli.md#envs)\n'
+            )
+        for route in ('scene-generation', 'libraries', 'envs', 'envs/layers', 'cli'):
+            page = self.root / 'docs/pages' / route / '+Page.mdx'
+            page.parent.mkdir(parents=True, exist_ok=True)
+            page.write_text('page')
+        return self.root
+
+    def test_scene_generation_bundle_includes_every_helper_file(self):
+        outputs = sync.scene_generation_outputs(self._scene_snapshot())
+        self.assertEqual(set(outputs), {
+            'dreamlake-scene-generation/SKILL.md',
+            'dreamlake-scene-generation/actions/find-assets.md',
+            'dreamlake-scene-generation/tools/scene_report.py',
+            'dreamlake-scene-generation/tools/test_scene_tools.py',
+            'dreamlake-scene-generation/reference/scene-generation.md',
+            'dreamlake-scene-generation/reference/libraries.md',
+            'dreamlake-scene-generation/reference/envs.md',
+            'dreamlake-scene-generation/reference/envs-layers.md',
+        })
+        # bundled reference links stay relative; non-bundled resolve to docs
+        body = outputs['dreamlake-scene-generation/reference/envs.md'].decode()
+        self.assertIn('](envs-layers.md#semantics-rules)', body)
+        self.assertIn('](https://docs.dreamlake.ai/cli#envs)', body)
+
+    def test_scene_generation_requires_frontmatter_and_tools(self):
+        root = self._scene_snapshot(skill_md='# no frontmatter\n')
+        with self.assertRaisesRegex(ValueError, 'frontmatter'):
+            sync.scene_generation_outputs(root)
+        (root / 'docs/skill-guides/scene-generation/SKILL.md').write_text(
+            '---\nname: dreamlake-scene-generation\ndescription: "Create or edit '
+            'MuJoCo scenes with DreamLake libraries, layered envs and validation."\n---\n'
+        )
+        for tool in (root / 'docs/skill-guides/scene-generation/tools').iterdir():
+            tool.unlink()
+        with self.assertRaisesRegex(ValueError, 'missing its tools'):
+            sync.scene_generation_outputs(root)
+
+    def test_scene_generation_missing_reference_is_actionable(self):
+        root = self._scene_snapshot()
+        (root / 'skills/dreamlake/reference/envs-layers.md').unlink()
+        with self.assertRaisesRegex(ValueError, 'reference/envs-layers.md'):
+            sync.scene_generation_outputs(root)
+
+    def test_scene_generation_outputs_roundtrip_through_manifest(self):
+        outputs = sync.scene_generation_outputs(self._scene_snapshot())
+        peer = self.root / 'dreamlake-envs/SKILL.md'
+        peer.parent.mkdir()
+        peer.write_text('hand-maintained peer skill')
+        sync.synchronize(self.root, outputs, self.sources)
+        sync.synchronize(self.root, outputs, self.sources, check=True)
+        sync.verify_files(self.root)
+        self.assertEqual(peer.read_text(), 'hand-maintained peer skill')
+        (self.root / 'dreamlake-scene-generation/tools/scene_report.py').write_text('edited')
+        with self.assertRaisesRegex(ValueError, 'changed or missing'):
+            sync.verify_files(self.root)
+
     def test_snapshot_uses_commit_not_dirty_worktree(self):
         source = self.root / 'source'
         source.mkdir()

@@ -17,6 +17,7 @@ task correctly.
 | [`dreamlake-artifact-authoring`](./dreamlake-artifact-authoring/SKILL.md) | Write the artifact *content* so it renders in DreamLake's sandboxed frame — self-containedness, per-kind templates, design quality. Pairs with `dreamlake-artifacts` |
 | [`dreamlake-notes`](./dreamlake-notes/SKILL.md) | The whole notes surface — create and list, read a section or a line range, replace text by name rather than line number, grep across every note for where a phrase is, attach files and get a link that renders them |
 | [`dreamlake-cli`](./dreamlake-cli/SKILL.md) | The whole `dreamlake` CLI reference, generated from its docs. Native and npm releases also bundle this skill; install their matching copy with `dreamlake skill install dreamlake-cli` |
+| [`dreamlake-scene-generation`](./dreamlake-scene-generation/SKILL.md) | Build and edit MuJoCo scenes with internet models, user files, procedural MJCF or optional DreamLake libraries: measure and place models, validate physics, render previews, publish and reuse versioned envs. [Install and use guide](https://docs.dreamlake.ai/scene-generation/quickstart) |
 | [`dreamlake-annotations`](./dreamlake-annotations/SKILL.md) | Upload annotated robot-training episodes (video + joints + subtasks, multi-camera) to a DreamLake annotation with the Python SDK, revise them, and search |
 | [`workflow-generator`](./workflow-generator/SKILL.md) | Generate DreamLake WorkflowSpec v1 JSON (stages, compute/agent/sampler/control nodes, typed edges) from a natural-language goal, then validate + push via `dreamlake workflow push` (CLI ≥ 0.5.0) |
 | [`video-labeling-workflow`](./video-labeling-workflow/SKILL.md) | Create and publish a video subtask-labeling workflow — segment a manipulation video into subtasks, estimate hand pose, score against reference annotations, publish a dataset |
@@ -146,20 +147,25 @@ Keep skills accurate to the shipped CLI/UI, concrete, and command-first.
 
 ## Docs-first maintenance
 
-Maintain procedures and executable examples in their owning docs. Notes and
-CLI references are now reproducible outputs, not independent writing surfaces:
+Maintain procedures and executable examples in their owning docs. Notes, CLI
+and scene-generation are now reproducible outputs, not independent writing
+surfaces:
 
 | Output | Source |
 |---|---|
 | `dreamlake-notes/SKILL.md`, `actions/*`, selected references | `dreamlake-workspace/docs/skill-guides/notes/` plus generated Notes docs |
 | `dreamlake-cli/**` | `dreamlake-cli/docs/pages/**/+Page.mdx` and its docs generator |
+| `dreamlake-scene-generation/**` | `dreamlake-workspace/docs/skill-guides/scene-generation/` (router, actions, tools) plus the generated scene-generation/libraries/envs/envs-layers references |
 
 Task routing is maintained separately from product facts: Notes uses
-`dreamlake-workspace/docs/skill-guides/notes/`, and CLI uses
-`dreamlake-cli/docs/skill-guides/cli/`. Entrypoints route to independent action
-files; selected generated references remain available for deeper lookup. Source
-provenance records guide hashes with source commits and generator hashes. Only
-Notes and CLI are migrated; all remaining skills need explicit review.
+`dreamlake-workspace/docs/skill-guides/notes/`, CLI uses
+`dreamlake-cli/docs/skill-guides/cli/`, and scene-generation uses
+`dreamlake-workspace/docs/skill-guides/scene-generation/` (whose `tools/`
+ship inside the skill and are hashed as guide source). Entrypoints route to
+independent action files; selected generated references remain available for
+deeper lookup. Source provenance records guide hashes with source commits and
+generator hashes. Only Notes, CLI and scene-generation are migrated; all
+remaining skills need explicit review.
 
 With Git, Node and Python 3.12+, and authorized checkouts of the source repos:
 
