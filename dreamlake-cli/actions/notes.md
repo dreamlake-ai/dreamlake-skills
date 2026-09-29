@@ -20,6 +20,9 @@ read the acknowledged revision back. `--legacy` uses ETags; v2 patches use an
 opaque revision. See [Notes](../reference/notes.md),
 [reading](../reference/notes-reading.md), and [editing](../reference/notes-editing.md).
 
+For image URLs to embed in Markdown or HTML, use [inline image upload](media.md).
+Use `notes files upload` for attachments that inherit the note's permissions.
+
 For Markdown agent markup, element bodies are literal Markdown, including `<`,
 `&`, backslashes and Unicode. Do not HTML-render or DOM-parse these bodies; use
 canonical source metadata for machines. Keep a single source range and the

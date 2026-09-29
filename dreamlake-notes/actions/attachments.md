@@ -1,5 +1,9 @@
 # Manage note attachments
 
+To insert an image into Markdown or HTML, use [inline image upload](media.md).
+These file commands store attachments alongside a note and do not insert them
+into its body.
+
 Files inherit the note's permissions. Set `NOTE_ID` to an accessible note; add
 `--namespace <slug>` when required.
 

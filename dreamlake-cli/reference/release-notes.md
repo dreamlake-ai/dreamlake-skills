@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.37.0 — Inline image upload
+
+- Add `notes media upload <file>`: upload an image or video and print its embeddable URL directly. Saved login credentials are reused; `--json` is optional. Media URLs allow access to anyone holding them; private note attachments remain separate.
+
 ## 0.36.0 — Agent skill setup and update reminders
 
 - After CLI updates, remind users when installed Codex or Claude Code skills
