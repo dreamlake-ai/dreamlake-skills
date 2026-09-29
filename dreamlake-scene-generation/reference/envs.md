@@ -33,11 +33,14 @@ embedded agent that runs the
 [scene-generation skill](https://docs.dreamlake.ai/scene-generation/quickstart) — this flow is in
 **source preview**, pending the hosted runtime and product release:
 
-1. In your namespace's Envs catalog, click **Generate environment** and
-   **name** the env. The env page opens as a *draft* — nothing exists on
-   the server until the agent's first successful push.
-2. **Describe the scene** in the composer; the agent sources assets,
-   measures, composes, validates, and publishes with `dreamlake env push`.
+1. In your namespace's Envs catalog, click **+ new env** — in the page
+   header next to the Environments/Libraries switch, and offered again by
+   the empty catalog's placeholder. One click opens a fresh *draft* with an
+   auto-minted name (`env_xxxxxx`) — no dialog, nothing to type first, and
+   nothing exists on the server until the agent's first successful push.
+2. The draft opens straight into the **intro composer** — describe the
+   scene there; the agent sources assets, measures, composes, validates,
+   and publishes with `dreamlake env push`.
 3. On the first successful push the draft becomes the **saved preview** —
    the interactive viewer on the pushed version, chat still beside it.
 4. **Follow-up prompts create new versions** of the same env. The viewer
@@ -48,9 +51,9 @@ embedded agent that runs the
    links, and anonymous visitors never see the chat.
 6. To grow a **new** env out of an existing one, start from the catalog,
    not from the source env's page — the chat edits the env whose page it
-   sits on. Create a new named draft with **Generate environment**, then
-   ask it to start from the source env at a pinned version; the source
-   env keeps its own versions, untouched (details in the
+   sits on. Click **+ new env** for a fresh draft, then ask it to start
+   from the source env at a pinned version; the source env keeps its own
+   versions, untouched (details in the
    [Quickstart](https://docs.dreamlake.ai/scene-generation/quickstart)).
 
 The install-and-use guide for the same workflow from a local agent —
