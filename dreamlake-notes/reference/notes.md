@@ -1,5 +1,9 @@
 # Notes
 
+Read [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/), [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/),
+[Panels](https://docs.dreamlake.ai/notes/panels/), and [Linked note items](https://docs.dreamlake.ai/notes/linked-items/) for focused guides.
+This page retains the complete CLI/API reference and existing section links.
+
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
@@ -11,7 +15,7 @@ above the viewport once, before interaction. Scrolling back to the title keeps i
 visible; typing, blur, and idle time do not automatically hide it again. Raw
 Markdown, title-only notes, and explicit search or section navigation retain
 their existing behavior. Formatting remains enabled while editing. Vim visual
-selections remain visible in both rich and raw views. Remote text updates preserve the
+selections remain visible in both rich and raw views. Each connected browser session shares its cursor and selection, including other sessions of the same account. Clearing a selection updates it immediately; leaving editor focus removes its shared cursor and selection. Hidden tabs leave visible presence. Visible sessions renew presence every 30 seconds; peers expire after 90 seconds without renewal. Cursor labels size to their names, capped at 20 characters of display width with ellipsis. Remote text updates preserve the
 visible text position in the note pane; a new scroll gesture, keystroke, or
 selection takes precedence over a pending viewport correction.
 
@@ -110,8 +114,9 @@ explicit source excerpt; the interface does not guess a rendered position.
 Project file and folder details use native draggable sibling view tabs. Files
 offer **Preview** and **Details**; folders offer their available **Files**,
 **README**, **Visualize** and **Episodes** views. Each tab identifies its resource
-and subview. Selecting another resource opens or reuses its views in the detail
-region. Drag a tab to an edge to compare views side by side, or into a panel's
+and subview. In the project view, selecting another resource reuses the existing
+resource tab slots instead of accumulating README/Files pairs for visited folders.
+Open note tabs remain in place. Drag a tab to an edge to compare views side by side, or into a panel's
 center to group it. Closing a subview leaves its siblings open; **Views** reopens
 closed views. Tab switches retain mounted view state. Existing source-browser
 URL-owned view controls keep their navigation behavior. ML-Dash run inspectors
@@ -442,6 +447,11 @@ Browser static rendering retains an inert label before hydration; server CLI
 HTML snapshots currently leave preview directives as literal source with the
 existing source mapping. They do not load the target or create a panel.
 
+### Inline embeds (unreleased)
+
+See [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/) for responsive ratios, fixed
+sizes, zoom, and the artifact/preview query API. These arguments are unreleased.
+
 ### Artifact references (development preview)
 
 Use Markdown directive notation for new references:
@@ -580,24 +590,34 @@ string should be literal text. Code spans and fenced code remain literal.
 
 In the rich editor, typing `:comment{` starts a saved-comment draft. Keep typing
 in the note: its side box mirrors the body. The editor supplies a hidden draft
-key for retry safety. Nonempty, closed drafts save after 800 ms of inactivity or
-when the caret leaves; IME composition defers writes. Saving never moves the
+key for retry safety; this key does not create a saved comment object. Closed
+drafts first save after 800 ms of inactivity once their body contains at least
+two non-whitespace characters, or with any nonempty body when the caret or focus
+leaves the comment. Empty and whitespace-only drafts never create objects.
+IME composition defers writes. Saving never moves the
 caret or replaces active text. Once the caret leaves and the latest body is
 acknowledged, source becomes `:comment[cmt_...]{user="..."}` (the optional user
 attribute is retained when supplied). Newly typed comment brackets and brace
 drafts automatically include the signed-in user's namespace as `user`. Opening
 a saved comment edits its object while the reference stays fixed. In Sidebar
-view the borderless editor and its Done action share the comment container;
-Done waits for the latest save before closing. Comments have no replies; conversations belong in chats.
+view the borderless editor and its Save action share the comment container;
+Save waits for the latest save before closing. Comments have no replies; conversations belong in chats.
 
 **Comments → Inline / Sidebar** changes the current view, independently of
 storage. Inline comments show the author label and italic text in the author's
 collaboration color, with faint brackets around the body. Sidebar comments use
-`[…]` anchors and compact cards with a single colored left edge. Cards replace
+`[…]` anchors and compact bracketed cards. Short comments wrap in full; longer
+comments show four lines with **Read more** to expand a scrollable reading view.
+**Edit** opens the saved-comment editor separately. The editor grows with its
+text up to a bounded height, then scrolls. Cards replace
 the table of contents in the same column, follow visible passages, and scroll
 within the column when densely packed. Hovering or focusing the anchor or card
 highlights its matching annotation. Inline mode has no annotation cards or hover
-popups; explicitly opening a saved comment still opens its editor. Narrow panes
+previews; explicitly opening a saved comment opens its editor beside the clicked
+comment, within the visible window, without scrolling the note to the top.
+The editor's **Resolve** action saves pending changes before removing that comment
+occurrence from the note; **Save** closes the editor without removing it.
+Readers without note-edit permission do not see the Resolve action. Narrow panes
 fall back to Inline while retaining the Sidebar preference. Read-only readers can open accessible saved comments but
 cannot change them. Rendering, loading, and remote text replay never create
 comment objects. A brace draft pasted by a script without an editor creation
@@ -2293,16 +2313,34 @@ as `v3`, independent of their titles. Numbers can have gaps after failed saves.
 Saved versions show their parent connections, including forks from a shared
 base. The save form defaults to your draft's base; choose another **Base version**
 to record a different ancestry. This records the relationship without replacing
-or merging the live draft. The browser remembers the draft's base for the session;
-another user's save does not silently change it. Older versions without recorded
+or merging the live draft. The working draft follows the newest saved version
+when history refreshes, including versions saved by another collaborator, so it
+stays at the top and its edit count uses the latest checkpoint. This changes
+only the history display and default save parent, not the note text or saved ancestry.
+Older versions without recorded
 parents remain unconnected.
+
+The current edit marker shows its one-based index and total within that version
+interval (for example, **Edit 439 of 443**), including when selected from a grouped tick.
+Historical previews use the title-row status slot: **e439**, **preview**
+for a saved version, or **e430–439** for a selected range. Version tags use a
+lowercase **v** and are hidden while an intermediate edit or range is displayed. Hovering the preview label turns it red with a strikethrough;
+clicking it returns to the working draft. The chevron opens history. The full preview label remains in the tooltip.
+The history dropdown fits its content, capped at the remaining viewport height
+with a 16px bottom gap; longer timelines scroll inside it. The sidebar and dropdown
+share the editor selection, including resets and selected ranges. The magnifier
+appears above the selected marker and displays its own red edit-index line on
+hover. Only an explicitly selected edit or range creates a persistent marker.
+The lens follows the pointer immediately; document and range previews settle
+after a short pause, reusing a bounded cache of recent historical text.
 
 Each small dot represents one retained intermediate edit; all retained edits
 are shown. Hover or keyboard-focus a dot to preview its exact text directly in
 the main body. The historical preview is read-only and isolated from live sync;
 editor controls and saving are disabled while it is displayed. Leaving the dot
 restores the prior selection, while clicking the dot keeps that edit selected.
-There is no separate edit list. A larger magnified region spreads nearby dots
+There is no separate edit list. The magnifier's right edge stays fixed against
+the timeline panel as the pointer moves horizontally. A larger magnified region spreads nearby dots
 apart for selection. Scrolling previews nearby snapshots; clicking version text or activating it
 with the keyboard selects that revision. Leaving a transient preview restores
 the last selection. **Back to draft** returns to the still-mounted live editor.

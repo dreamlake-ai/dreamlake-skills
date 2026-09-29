@@ -1,5 +1,32 @@
 # Release notes
 
+## 0.36.0 — Agent skill setup and update reminders
+
+- After CLI updates, remind users when installed Codex or Claude Code skills
+  differ from the new bundle, with the exact update command. Reminders preserve
+  local edits, stay out of automatic JSON/piped runs, and appear once per skill
+  path per CLI version.
+
+- `dreamlake init` guides agent selection and project/global skill installation.
+- `skill install` and `skill list` support `--agent codex` (`.agents/skills`) and
+  `--agent claude` (`.claude/skills`, the compatibility default).
+- Top-level `-h`, `init -h`, and skill help include setup examples generated
+  from the agent skills guide. Existing modified skills still require `--force`.
+
+## 0.35.0 — Env layers v3 component grammar
+
+`dreamlake.layers.json` moves to schema `dreamlake.env-layers/v3`: every
+stack entry is one flat op — `Merge` / `Attach` / `Update` / `Remove` /
+`Patch` — with `src` as a single string (`ns/name[@v]` registry ref, or a
+`./`-prefixed local path). `Attach` takes an identity-root `key` instead
+of a prefix (one entry per placement); `Update` carries inline sparse
+opinions (`key` addresses an element, every other prop is an MJCF
+attribute); `Remove` is first-class. `env compose` requires
+`dreamlake ≥ 0.23.0` on the composing machine (`pip install
+"dreamlake[compose]"`). v2 stack files are refused with a migration map;
+composition semantics are unchanged. See the
+[Env Layers Reference](https://docs.dreamlake.ai/envs/layers).
+
 ## 0.34.4
 
 Read literal Markdown inside agent markup without added HTML or Unicode escaping.

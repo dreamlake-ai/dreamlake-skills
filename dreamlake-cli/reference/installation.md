@@ -65,6 +65,11 @@ the version you asked for.
 On Windows there is no background updater at all: Windows locks a running
 `.exe`, so updates are always an explicit `dreamlake self-update`.
 
+After an update, installed agent skills are checked against the new bundled
+reference. If a local copy differs, the CLI reminds you with its path and an
+update command. Skills are never overwritten automatically. See
+[skill update reminders](skills.md#reminders-after-updating) for scope and behavior.
+
 > **Note:** `dreamlake update` edits bindrs, datasets, and projects. Updating the CLI
 > itself is `dreamlake self-update`.
 
