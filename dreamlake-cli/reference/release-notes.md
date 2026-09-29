@@ -1,5 +1,34 @@
 # Release notes
 
+## 0.31.3 — Highlight annotation guidance
+
+The bundled CLI skill documents `user` and `comment` highlight metadata, the
+shared inline/sidebar comment UI, click-to-edit, and a tested revision-safe
+matching-text example. No CLI command or storage behavior changes.
+
+## 0.31.2 — Clearer participant names
+
+- Show people as `@username` and agents by their configured name, without surrounding quotes. Keep quotes around selected text.
+
+## 0.31.1 — Simpler Notes notifications
+
+- Show names, actions and quoted selections in default linger output. Keep IDs,
+  connection details, offsets and source hashes in JSON.
+- Label agents and keep cursor moves, selection clears and syncing states
+  silent in text. Print one timestamp per nonempty batch. JSON retains every
+  state change; throttling is unchanged.
+- Add notification examples to the collaboration guide and `notes read --help`.
+
+## 0.31.0 — Live Notes selections
+
+- Complete the simplified session interface: `presence <note>` reads the roster; `visit` registers once; `read --linger` maintains the session. Remove the old `presence <note> <action>` and `--watch` controls.
+
+- `notes read --linger` observes server events instead of polling the note and roster. Requires the matching Notes events endpoint.
+- Reports human selections and clears with source hashes and Unicode code-point offsets; unchanged selections and lease heartbeats stay silent.
+- Coalesces the latest selection per participant, limits output with `--throttle` (default 2s), and debounces content diffs separately.
+- Agent activity highlights expire after 8s and disconnected agent presence after 60s. Human selections clear on deselection, editor blur, or departure.
+- Stream gaps and stalled output fail explicitly rather than silently reconnecting.
+
 ## 0.30.0 — Layout control
 
 - Added explicit local-browser layout listing, inspection, read-only resolution and guarded application.

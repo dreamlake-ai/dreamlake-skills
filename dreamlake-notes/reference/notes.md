@@ -1,10 +1,52 @@
 # Notes
 
+Read [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/), [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/),
+[Panels](https://docs.dreamlake.ai/notes/panels/), and [Linked note items](https://docs.dreamlake.ai/notes/linked-items/) for focused guides.
+This page retains the complete CLI/API reference and existing section links.
+
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
+
+In live preview, an opening H1 with content below it is positioned
+above the viewport once, before interaction. Scrolling back to the title keeps it
+visible; typing, blur, and idle time do not automatically hide it again. Raw
+Markdown, title-only notes, and explicit search or section navigation retain
+their existing behavior. Formatting remains enabled while editing. Vim visual
+selections remain visible in both rich and raw views. Remote text updates preserve the
+visible text position in the note pane; a new scroll gesture, keystroke, or
+selection takes precedence over a pending viewport correction.
+
+History timeline previews return to the current working draft when the pointer
+leaves the timeline. An explicitly placed edit marker or selected change range
+keeps its historical view open; clicking a version label alone does not pin it.
+
+Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
+
+{/* <!-- skill-entrypoint:start --> */}
+
+## Read Notes directly
+
+**For normal reads, run the bare command and inspect its output directly:**
+
+```bash
+# Set NOTE_ID to the note ID, slug, or exact title you want to read.
+dreamlake notes read "$NOTE_ID"
+```
+
+Do not add `--json` or `--view` for ordinary human or agent reads. The default
+output includes canonical source, a revision, and a content hash. Retain the
+revision and hash with the source when preparing safe edits; agent convenience
+is not a reason to switch to JSON.
+
+Use JSON only for an explicitly requested structured integration. The scripted
+concurrency examples below demonstrate that compatibility path; they are not
+the default reading procedure. Read normal collaboration and selection receipts
+directly too.
+
+{/* <!-- skill-entrypoint:end --> */}
 
 ## Public catalog reads
 
@@ -72,8 +114,9 @@ explicit source excerpt; the interface does not guess a rendered position.
 Project file and folder details use native draggable sibling view tabs. Files
 offer **Preview** and **Details**; folders offer their available **Files**,
 **README**, **Visualize** and **Episodes** views. Each tab identifies its resource
-and subview. Selecting another resource opens or reuses its views in the detail
-region. Drag a tab to an edge to compare views side by side, or into a panel's
+and subview. In the project view, selecting another resource reuses the existing
+resource tab slots instead of accumulating README/Files pairs for visited folders.
+Open note tabs remain in place. Drag a tab to an edge to compare views side by side, or into a panel's
 center to group it. Closing a subview leaves its siblings open; **Views** reopens
 closed views. Tab switches retain mounted view state. Existing source-browser
 URL-owned view controls keep their navigation behavior. ML-Dash run inspectors
@@ -258,7 +301,7 @@ the name you passed.
 Use the note's full `id` in browser links:
 
 ```text
-https://dreamlake.ai/<namespaceSlug>/notes/<noteId>
+https://dreamlake.ai/<namespaceSlug>/notes?note=<noteId>
 ```
 
 Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
@@ -266,7 +309,21 @@ Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
 slug in this URL: the browser detail route expects the ID, even though the
 CLI accepts slugs and titles. Use the returned owner namespace rather than
 assuming your personal namespace. The ID is sometimes called the note hash;
-it is a path segment, not a `#` URL fragment.
+it is the `note` query parameter, not a `#` URL fragment.
+
+In the development preview, the path controls the list pane independently of the
+active note:
+
+- `/<namespace>/notes` lists notes.
+- `/<namespace>/projects` lists projects; `/projects/<project>` opens a project.
+- `/<namespace>/bindrs` lists Bindrs; `/bindrs/<bindrId>` opens a Bindr.
+
+Append `?note=<full-note-id>` to any of these paths to open a note. Switching
+list context keeps that note open. The note header's contextual list button
+hides or restores the list pane. Older note and project links redirect to these
+routes. List search includes ordering; default status/category chips are omitted
+from the compact panes. Project and Bindr member ordering is applied before
+pagination so it covers the entire result set.
 
 Inside another DreamLake note, prefer `:note[<full-note-id>]` (development preview) for a native note
 reference. A browser link does not change visibility or grant access to a
@@ -304,6 +361,67 @@ See the [Markdown authoring guide](https://docs.dreamlake.ai/notes/markdown/) fo
 color choices, tables and portability. CLI/API HTML snapshots currently keep
 color directives as source text.
 
+### Highlight metadata
+
+Attach optional `user` and `comment` strings to a highlight:
+
+```markdown
+:highlight[Review needed]{user="geyang" comment="Confirm the delivery date"}
+:highlight[Key finding]{color="#60a5fa" user="geyang" comment="Check the source"}
+:highlight[重点 🤖]{comment="First line\nSecond line"}
+```
+
+Highlight annotations reuse the Notes inline/sidebar comments toggle. Inline
+mode shows no annotation cards or hover popups. Click highlighted text in the
+editor to reveal its editable source. Sidebar mode shows the handle and comment
+in compact cards in the table-of-contents column, with an edit action for writers.
+Cards follow the passages visible in the current viewport; a dense group scrolls
+inside the column. Narrow panes fall back to inline mode. Read-only sidebar
+cards show metadata without edit controls.
+
+`user` is the canonical public user handle, such as `geyang`, not an internal
+user ID or a display name. A single leading `@` is accepted; the saved source is
+not rewritten. Autocomplete inserts the canonical handle. Compact sidebar cards
+show the handle. Legacy display-name values remain literal; the app never guesses
+an account from a name. Attribution is self-declared and does not verify authorship
+or grant access.
+
+These are plain-text annotations on a highlight, not saved comment threads.
+Either field may be omitted; empty strings add no label. Existing plain highlights
+and colors keep their behavior. Select the directive in the editor to edit its
+source, including metadata. Metadata does not change the highlighted text or
+its source offsets, including in table cells and read-only app views.
+
+Attribute values use JSON string escaping: `\"` for a quote, `\\` for a
+backslash and `\n` for a newline. HTML in metadata stays text. Unknown or duplicate
+attributes and malformed quoting leave the whole directive literal. Use `user`,
+not `author`; only `color`, `user` and `comment` are accepted secondary attributes.
+
+Agents should first read the note and retain its revision, then replace the exact
+existing directive using `--if-match` and read it back.
+For example, set `NOTE_ID` to the target note ID and read its legacy ETag
+(the replacement helper uses an ETag, not a v2 `rtc:` revision):
+
+```bash
+# NOTE_ID is the ID returned by create/list; this edits an existing highlight.
+SNAPSHOT=$(mktemp)
+dreamlake notes read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
+REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
+dreamlake notes replace ':highlight[Review needed]' \
+  --text ':highlight[Review needed]{user="geyang" comment="Check the source"}' \
+  --note "$NOTE_ID" --if-match "$REV"
+dreamlake notes read "$NOTE_ID" --json
+rm "$SNAPSHOT"
+```
+
+The existing `notes create --text` / `--file` commands also accept this syntax.
+There is no dedicated highlight command: these are ordinary Markdown directives,
+so matching text with `notes replace` is enough; no line numbers are needed.
+
+Do not overwrite the whole note to update one annotation. CLI/SDK storage already
+accepts this Markdown; no new client method or package version is required.
+CLI/API HTML snapshots retain rich directives as source text; the app renders them.
+
 ### Web preview tags
 
 Open a web page beside a Note with a preview tag:
@@ -328,6 +446,11 @@ still apply. A temporary tunnel URL works only while its tunnel and server run.
 Browser static rendering retains an inert label before hydration; server CLI
 HTML snapshots currently leave preview directives as literal source with the
 existing source mapping. They do not load the target or create a panel.
+
+### Inline embeds (unreleased)
+
+See [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/) for responsive ratios, fixed
+sizes, zoom, and the artifact/preview query API. These arguments are unreleased.
 
 ### Artifact references (development preview)
 
@@ -402,6 +525,136 @@ at stage 3. Selecting another slide updates the existing iframe without reloadin
 it or changing the surrounding Note/project URL. Note-section scrolling remains
 separate from this artifact behavior. An existing artifact ID or an author-defined hash route must supply
 the target; do not infer slide numbering or invent a section.
+
+## Suggested edits
+
+Use three tags for reviewable edits stored directly in the note:
+
+```markdown
+:insert[new text]{user="geyang"}
+:delete[existing text]{user="geyang"}
+:replace[existing text]{with="replacement text" user="geyang"}
+```
+
+`user` is optional display attribution. `replace` requires `with`; an empty
+replacement is allowed. Add optional `reason="Why this change helps"` to explain
+a suggestion. Attribute values are JSON strings. Escape literal brackets and
+backslashes in the bracket body with a backslash. Insertion-menu choices fill
+the signed-in user's name; scripts can supply attribution explicitly.
+
+The bracket form is canonical. The browser also accepts a curly-body alias for
+all three kinds; optional named attributes follow in a separate pair of braces:
+
+```markdown
+and I:insert[ think this works]
+and I:insert{ think this works}
+:delete{old text}{reason="No longer needed"}
+:replace{old text}{with="new text" user="geyang"}
+```
+
+A suggestion can directly follow ordinary text without an intervening space.
+Leading and trailing spaces inside its body are preserved when accepted.
+Curly bodies support balanced nested braces; escape a literal brace or backslash
+with a backslash. Canonical bracket bodies retain their existing bracket escaping.
+These aliases apply to suggested edits, not other directive types.
+
+Insertions are underlined and deletions struck through in the note. A replacement
+shows both. Inline mode shows these text changes without cards or hover popups.
+Switch to Sidebar in a wide pane for **accept · reject** actions. Compact cards
+replace the table of contents in its existing column and follow passages visible
+in the current viewport. Dense groups scroll inside that column. Hovering or
+focusing a card or text anchor highlights the corresponding annotation. Narrow
+panes fall back to Inline while retaining the Sidebar preference.
+
+Accept applies the proposed text: insert keeps new text, delete removes old
+text, and replace substitutes its `with` value. Reject removes an insertion or
+restores the original text of a deletion/replacement. Each decision replaces
+only that exact tag in one undoable editor operation and uses the note's normal
+collaborative save. If the source changed before the action, it refuses the stale
+operation. Note writers can accept/reject; read-only views show the proposal
+without write controls. No separate suggestion collection or replies are added.
+
+Incomplete or malformed tags remain literal. Tags inside code, Markdown links,
+or comments do not become suggested edits. Supported kinds are intentionally
+limited to insert, delete, and replace; use comments for questions or discussion.
+
+## Comments (development preview)
+
+Comments use `:comment[text]` for text stored in the note and
+`:comment[cmt_<24 hex digits>]` for a saved comment reference. Both accept optional
+`{user="geyang"}` attribution. Braces after a bracket contain metadata only;
+there is no `type`, `text`, `ref`, or `userId` field. Attribution is a display
+label; the server records the authenticated creator separately. Escape brackets
+and backslashes with a backslash. Use `\cmt_...` inside brackets when an ID-shaped
+string should be literal text. Code spans and fenced code remain literal.
+
+In the rich editor, typing `:comment{` starts a saved-comment draft. Keep typing
+in the note: its side box mirrors the body. The editor supplies a hidden draft
+key for retry safety; this key does not create a saved comment object. Closed
+drafts first save after 800 ms of inactivity once their body contains at least
+two non-whitespace characters, or with any nonempty body when the caret or focus
+leaves the comment. Empty and whitespace-only drafts never create objects.
+IME composition defers writes. Saving never moves the
+caret or replaces active text. Once the caret leaves and the latest body is
+acknowledged, source becomes `:comment[cmt_...]{user="..."}` (the optional user
+attribute is retained when supplied). Newly typed comment brackets and brace
+drafts automatically include the signed-in user's namespace as `user`. Opening
+a saved comment edits its object while the reference stays fixed. In Sidebar
+view the borderless editor and its Save action share the comment container;
+Save waits for the latest save before closing. Comments have no replies; conversations belong in chats.
+
+**Comments → Inline / Sidebar** changes the current view, independently of
+storage. Inline comments show the author label and italic text in the author's
+collaboration color, with faint brackets around the body. Sidebar comments use
+`[…]` anchors and compact bracketed cards. Short comments wrap in full; longer
+comments show four lines with **Read more** to expand a scrollable reading view.
+**Edit** opens the saved-comment editor separately. The editor grows with its
+text up to a bounded height, then scrolls. Cards replace
+the table of contents in the same column, follow visible passages, and scroll
+within the column when densely packed. Hovering or focusing the anchor or card
+highlights its matching annotation. Inline mode has no annotation cards or hover
+previews; explicitly opening a saved comment opens its editor beside the clicked
+comment, within the visible window, without scrolling the note to the top.
+The editor's **Resolve** action saves pending changes before removing that comment
+occurrence from the note; **Save** closes the editor without removing it.
+Readers without note-edit permission do not see the Resolve action. Narrow panes
+fall back to Inline while retaining the Sidebar preference. Read-only readers can open accessible saved comments but
+cannot change them. Rendering, loading, and remote text replay never create
+comment objects. A brace draft pasted by a script without an editor creation
+key remains source text; use the API to create a saved object deliberately.
+
+The same completion menu handles supported tag names after `:`, accessible
+resource targets within `[`, and supported attributes within `{`. The `user`
+attribute offers people lookup. Free text stays valid; searching does not save
+or convert it. Comment bodies are free text: typing inside `:comment[` does not
+search saved comments. Existing saved-comment references still render normally.
+
+### Collection API
+
+These endpoints require the matching server version. They are not a CLI release
+claim. Paths are relative to the DreamLake API base.
+
+| Method and path | Contract |
+|---|---|
+| `POST /namespaces/:slug/notes/:noteId/comments` | Body `{body, creationKey, user?}`; authenticated origin-note writer only. Key is 16–128 ASCII letters, digits, `_`, or `-`. |
+| `GET /namespaces/:slug/notes/:noteId/comments?q=...` | Up to 30 accessible origin-note comments, newest first; optional body substring search. |
+| `GET /namespaces/:slug/comments/:commentId` | Read the object under its original note's permissions. |
+| `PATCH /namespaces/:slug/comments/:commentId` | Body `{body, revision}`; compare-and-swap update; stale revision returns 409. |
+
+Returned objects include `id`, `noteId`, `body`, optional `user`, `createdBy`,
+`revision`, timestamps and `canEdit`. Bodies are nonempty and at most 20,000
+characters. Retrying creation with the same note/key returns the existing object
+without overwriting it. A different key deliberately creates a different object.
+Reads of public origin notes allow anonymous callers; private origins and deleted
+origins do not become visible through a copied reference. Invalid credentials
+are rejected, and mutations still require authentication and write permission.
+
+Retain local text on a failed save or revision conflict. Retry uncertain creation
+with the same key, and never overwrite a newer object from an older draft.
+The editor retains recovery state for the current browser session; the keyed
+body remains in the note until acknowledged and collapsed. A changed object
+requires reconciliation, with the local draft available to copy. A lost response
+can safely be retried. Deleting an anchor does not delete its saved object.
 
 ## Name a note
 
@@ -955,6 +1208,22 @@ bases return an explicit error. Apply a returned patch only to its exact `base`
 source, and verify the resulting hash. A no-op source diff may carry a newer RTC
 token; it never advances an existing draft automatically.
 
+The default `diff` read aligns source lines directly, so substantial rewrites do
+not consume the character-alignment budget used for merge-safe write patches.
+`inline-dff` still requires bounded character alignment. Invalid references
+return `400 bad_reference`, missing retained snapshots return `404 revision_not_found`,
+diff-generation limits return `422 diff_failed`, and retained-storage or observation
+failures return `503 diff_unavailable`. Preserve the original baseline on failure.
+A display diff does not guarantee that a later merge patch fits the write limits;
+merge remains the default and exact mode remains opt-in.
+
+Native CLI 0.33.0 has a redirected-file input defect: `--file - < edit.dff`
+can send an empty patch and receive a successful no-op receipt. Until a release
+containing the stdin fix is installed, use `--file edit.dff` and inspect
+`--dry-run --json` to verify `payload.patch`. The corrected reader preserves
+redirected input and rejects empty patches before sending. This does not change
+merge semantics; always verify the requested text in the acknowledged snapshot.
+
 Stop on failure and preserve the patch, working copy and original baseline.
 A missing acknowledgement can mean a commit occurred. The backend reconnects
 at most once within the same request and resends the identical native message
@@ -1046,14 +1315,16 @@ agent-account identity is not yet part of the wire contract. Deployment and
 client release status must be checked independently of this source documentation.
 
 CLI 0.27.0+ and Python SDK 0.21.0+ support attributed reads and edits.
-CLI 0.28.0+ adds explicit presence controls. These are separate capabilities:
-a successful read does not prove that the server supports the presence endpoint.
+CLI 0.29.0+ adds `visit` and `read --linger`; CLI 0.31.0+ adds the read-only
+`presence` command and event-driven selections. These require matching server
+capabilities; a successful read does not prove presence or event support.
 The CLI uses the active login's API; running a locally installed binary does not
 select a local server. Use `--remote <url>` to test a specific API or `--debug`
 for the local development server.
 
 To check a matching API, use an accessible test note and the stable task identity
-below. Run a read, then join, heartbeat, clear and leave. Verify patch support
+below. Run a read, inspect `notes presence`, then start `read --linger` and stop
+it with Ctrl-C to verify automatic session cleanup. Verify patch support
 separately on a disposable note with a merge patch, an exact readback, and a stale
 exact request that must fail without changing the source. Do not use an existing
 user document as a write-test fixture.
@@ -1070,9 +1341,11 @@ note you can access as a member or explicitly shared reader.
 ```bash
 # NOTE_ID and the stable task identity must already be set.
 dreamlake notes read "$NOTE_ID" --linger
-# Alternative: newline-delimited JSON for a runner consuming the stream.
-dreamlake notes read "$NOTE_ID" --linger --json
 ```
+
+**Use the default text output for people and coding agents.** It shows readable
+diffs, participants, and quoted selections. JSON is optional and intended only
+for a program that explicitly needs to parse structured events.
 
 The command registers presence automatically, prints the complete source with
 its hash/revision and the other current participants, and stays in the foreground.
@@ -1102,38 +1375,91 @@ values are rejected before presence registration. For example:
 ```bash
 # One second of edit quiet; no more than one output batch every two seconds.
 dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
-# Slower output for an agent runner; each line is a complete JSON event.
-dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s --json
+# Slower text output for a coding agent or a quieter session.
+dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s
 ```
 
-Polling is sequential, with a pause of `min(1s, debounce, throttle)` between
-completed requests. Timing is based on **observed** source changes, so polling
-and network latency can add delivery delay; this is not a keystroke-level timer.
-Activity from the same agent/operation is coalesced to its latest pending
-observation, and arrivals/departures that cancel within a pending batch are
-omitted. `--format inline-dff` selects that incremental format instead.
-Unchanged batches and heartbeats are silent. Repeated activity observations for
-the same agent, operation, source hash and range are suppressed; your own agent
-presence and activity are omitted. Multiple browser connections remain distinct.
-Names are quoted in text notifications. Heartbeats renew the lease roughly every
-20 seconds in addition to the attributed reads.
+**CLI 0.31.0+:** linger subscribes to authenticated
+`GET /namespaces/:slug/notes/:noteId/events` (SSE). CLI 0.29.0–0.30.0 used
+polling. The event stream requires a matching server; there is no silent
+polling fallback.
+
+The server observes the existing RTC connection events and coalesces them to
+at most one batch per 250ms. The CLI keeps only the latest selection per browser
+connection, emits at most one update per `--throttle`, and delivers the final
+selection after a drag stops. Continuous dragging does not restart a debounce
+timer. Content diffs keep their separate edit quiet period. Idle sessions do not
+poll body or roster endpoints; source reads happen only for the initial snapshot
+or after a content event becomes eligible for delivery. Agent activity is read
+only when its RTC fingerprint changes. Heartbeats remain silent and maintain the
+agent lease approximately every 20 seconds.
+
+**CLI 0.31.2+ text notifications** show names, actions and quoted text. These
+are representative lines from separate batches; a timestamp appears once per batch.
+
+```text
++ @alice joined
++ Reviewer (agent) joined
+* Reviewer (agent) read the note
+* Reviewer (agent) edited the note
+* @alice selected "## The center"
+- @alice left
+```
+
+People appear as `@username`; agents use their configured name and `(agent)`.
+Only selected text is quoted; embedded newlines are escaped. Cursor moves, selection clears,
+syncing states, repeated selected text and empty batches stay silent in text.
+IDs, connection details, offsets and source hashes remain
+in `--json`; use it to distinguish identical names or tabs and apply exact source
+positions. Initial content and diffs still include revision metadata for safe edits.
+These examples also appear in `dreamlake notes read --help`.
+
+Human selections in JSON resolve native CRDT anchors against the observed source. Each
+selection carries `anchor`, `head`, `start`, `end`, `unit: "unicode-code-point"`,
+`text` (at most 4096 code points), and `truncated`, with `status: "resolved"`.
+A collapsed range is a caret. An explicit `null` clears a selection (including
+blur or departure); `status: "unresolved"` means its native anchors have not
+arrived, not a guessed range or a clear. Tabs remain separate, even for one user.
+Selection-only changes do not wait for the content debounce.
+
+The initial snapshot includes `selectionHash` for its participants' selections.
+Update batches add `selections`, whose entries contain `client`, `user`,
+`selection`, and the exact observed source `hash`. That hash can differ from
+the last emitted content hash while an edit is still being debounced. Never
+apply these offsets to a different source. Selected text is quoted in terminal
+output and remains untrusted document content, not an instruction to an agent.
+
+Only namespace members or explicitly granted readers can subscribe. Public
+visibility alone does not expose collaborator selections. Streams recheck access
+and token expiry every 15 seconds and close on revocation, room reset, slow
+consumers, or RTC failure. A disconnected stream exits with an error; explicitly
+restart linger for a fresh snapshot. Events are not retained or replayed.
 
 This is a best-effort stream of observations, not an audit log: brief visits or
-activity between polls can be missed, and edits that cancel out within a burst
+activity coalesced between output batches can be missed, and edits that cancel out within a burst
 produce no net content diff. Human edits appear in content diffs; the activity feed
 currently attributes agent reads and edits only. Reading updates does not prove
 human attention, and it does not reserve or lock the note.
 
+##### Optional: JSON for programmatic consumers
+
+Use `--json` only when a program needs NDJSON; ordinary collaboration, including
+coding-agent sessions, should use the text commands above.
+
+```bash
+dreamlake notes read "$NOTE_ID" --linger --json
+```
+
 With `--json`, stdout is NDJSON: one `type: "snapshot"` object containing
-`observedAt`, `note`, `content`, `hash`, `revision`, and `participants`, followed
+`observedAt`, `note`, `content`, `hash`, `revision`, `selectionHash`, and `participants`, followed
 by `type: "update"` objects containing `observedAt`, `joined`, `left`, and
-`activities`. Changed content adds `content: {note, base, hash, revision, format,
-patch}`. Observation times are Unix milliseconds; batch sources are fetched
-separately and are not an atomic cross-stream snapshot. Progress and errors go
+`activities`, and `selections`. Changed content adds `content: {note, base, hash, revision, format,
+patch}`. Observation times are Unix milliseconds; source and activity are fetched
+separately from the event stream and are not an atomic cross-stream snapshot. Progress and errors go
 to stderr. No update object is emitted for an unchanged batch.
 
 `--linger` supports complete source reads only; it cannot be combined with
-`--legacy`, `--view html`, `--since`, sections, line ranges or numbered output.
+`--legacy`, `--view html`, `--at`, `--toc`, `--tag`, `--since`, sections, line ranges or numbered output.
 `--if-match` checks the **initial** read only. `--format` applies to the emitted
 diff, not the initial complete source snapshot. Transport/capability errors or an
 unavailable retained baseline end the command with a nonzero status and a
@@ -1148,27 +1474,32 @@ dreamlake notes visit "$NOTE_ID"
 ```
 
 `visit` uses the existing join lease (60 seconds unless renewed by an attributed
-operation), returns immediately and does not read content. Legacy
-`notes presence ...` controls remain available for compatibility; use
-`read --linger` when you want ongoing updates rather than silent keepalive.
+operation), returns immediately and does not read content. Use
+`read --linger` when you want ongoing updates. CLI 0.31.0 removes the old
+manual `notes presence <note> <action>` and `join --watch` controls.
 
-CLI 0.28.0+ and the matching server expose these low-level compatibility controls:
+`read --linger` manages joining, heartbeats, and leaving automatically. Stop it
+with Ctrl-C when finished; one-shot reads and `visit` expire naturally. There is
+no manual lifecycle sequence to run alongside it. Never start an untracked
+helper that outlives the task.
+
+##### Read who is present
+
+In CLI 0.31.0+, `presence` reads the current roster without joining or refreshing
+your session. It does not require an agent ID. Text is the default:
 
 ```bash cli-help="notes presence"
-# NOTE_ID and the stable task identity must already be set.
-dreamlake notes presence "$NOTE_ID" join
-dreamlake notes presence "$NOTE_ID" heartbeat
-dreamlake notes presence "$NOTE_ID" clear
-dreamlake notes presence "$NOTE_ID" leave
-# Compatibility: a silent foreground lease keeper; prefer read --linger in CLI 0.29.0+.
-dreamlake notes presence "$NOTE_ID" join --watch
+dreamlake notes presence "$NOTE_ID"
 ```
 
-`join --watch` does not stream updates; it heartbeats every 20 seconds and leaves when interrupted. It is
-optional, not the standard recipe. `clear` clears activity without leaving;
-`leave` removes presence. A heartbeat does not create a missing session or revive
-an expired one (410); join or a normal attributed interaction can establish
-presence again. Never start an untracked helper that outlives the task.
+Add `--json` only for a program consuming the roster. There are no direct
+`notes join`, `notes heartbeat`, or `notes leave` commands. Use `visit`,
+`read --linger`, and Ctrl-C for participation.
+
+##### Low-level HTTP lease protocol
+
+SDK integrations and linger use the HTTP protocol below internally. It is not
+a manual CLI workflow.
 
 API: `POST /namespaces/:slug/notes/:noteId/presence` accepts
 `{action, hash?, ranges?: [{start,end}]}`, bearer authentication,
@@ -1230,8 +1561,9 @@ range (409), expired heartbeat (410), and unavailable relay (503).
 Identity values accept 1–128 ASCII letters, digits, dots, colons, underscores and
 hyphens; names accept at most 64 printable ASCII characters. CLI 0.27.0+ and
 Python SDK 0.21.0+ attach identity headers to Notes body/section/diff operations
-when the environment variables below are set. Explicit presence commands require
-CLI 0.28.0+ and the matching server, and an active collaborative room.
+when the environment variables below are set. `visit` and `read --linger` require
+CLI 0.29.0+ and an active collaborative room; read-only `presence` requires
+CLI 0.31.0+. The old manual action commands were removed in 0.31.0.
 Updating a skill does not update a binary or deploy a server. Python has no
 presence convenience method yet; use the HTTP contract when available.
 The authorized agent-activity feed retains operation observations, not an online
@@ -1268,19 +1600,37 @@ and photos are display metadata, not an authorization source.
 
 #### Agentic usage pattern: one identity, normal commands
 
-For agents that opt into presence, initialize once in the runner's task environment. For separate shell tool calls,
+For agent-driven Notes work, set both identity variables before the first live
+read or edit, unless the user explicitly requests unattributed work. This is a
+workflow prerequisite for attribution, not a requirement for saving content.
+Without `DREAMLAKE_AGENT_ID`, an edit can save successfully while producing no
+agent presence or attributed fading edit highlight. `DREAMLAKE_AGENT_NAME`
+provides the readable label.
+
+Initialize once in the runner's task environment. For separate shell tool calls,
 the runner must inject the same saved values each time; an export in one shell
 does not propagate into later independent shells. No explicit join is required.
 
 ```bash
-export DREAMLAKE_AGENT_ID="codex:$(python3 -c 'import uuid; print(uuid.uuid4())')"
-export DREAMLAKE_AGENT_NAME="Codex"
+export DREAMLAKE_AGENT_ID="${DREAMLAKE_AGENT_ID:-codex:$(python3 -c 'import uuid; print(uuid.uuid4())')}"
+export DREAMLAKE_AGENT_NAME="${DREAMLAKE_AGENT_NAME:-Codex}"
 NOTE_ID="<full-note-id>"
 ```
 
 Run ordinary commands with that identity. An attributed `read` automatically
 registers or refreshes presence; a preceding `visit` is never required. Reading
-without agent identity does not invent or register an agent session.
+without agent identity does not invent or register an agent session. Retain the generated ID in the task context and inject that same literal value into each later shell; rerunning the UUID fallback in a new shell would create a different session.
+
+After the first intended live read, verify attribution with
+`dreamlake notes presence "$NOTE_ID"` (CLI 0.31.0+). This only inspects the roster;
+it does not register an agent. Check the task ID and display name, not merely
+another session named Codex. If absent, check the environment passed to the
+actual read/edit process before diagnosing a UI regression. Do not repeat a
+successful edit to trigger its highlight. Presence expires about 60 seconds
+after the last activity; completed edit highlights fade over 5 seconds and
+require an exact matching live document revision. A roster entry verifies
+presence only: report a highlight as visually verified only after observing it
+in the collaborative editor.
 
 | Command | Reads content | Presence lifetime |
 | --- | --- | --- |
@@ -1302,11 +1652,10 @@ The conditional patch and exact-readback examples elsewhere in this guide remain
 required; presence does not relax concurrency checks. Do not retry an old patch
 with a newly fetched revision merely to force it through.
 
-When finished, optionally call `dreamlake notes presence "$NOTE_ID" leave` on a
-matching installation. Otherwise let presence expire. Do not forget the
-session ID between commands, and do not require the agent to remember cleanup for
-correctness. Stop any optional watch helper and remove the task identity from the
-runner's environment when the task ends.
+When finished, stop `read --linger` with Ctrl-C; it sends leave automatically.
+One-shot operations expire naturally. Keep the same session ID between commands,
+and remove the task identity from the runner's environment when the task ends.
+Lease expiry handles abrupt exits without requiring remembered cleanup.
 
 ### Keep incremental reads compact
 
@@ -1314,14 +1663,13 @@ For an agent following a note, reuse the saved full `read --json` baseline;
 obtain one only if none is available. Then use `read --since "$BASE_HASH"` for
 subsequent checks instead of repeatedly downloading the full document. For
 one-off passage inspection, use the scoped reads above without fetching a full
-baseline. The default `inline-dff` returns only character edits and is the
-preferred compact response for agents.
-Use `--format diff` when line context or a standard unified patch is useful.
+baseline. Differential reads default to unified line diffs.
+Use `--format inline-dff` explicitly when character edits are useful.
 On servers with localized unified-diff generation, this returns changed
 lines with up to three unchanged context lines on each side; nearby changes
 share a hunk and distant changes use separate hunks. Older servers may still
 return a whole-document replacement; a docs or skill update alone does not
-change server output. The default inline format already avoids that expansion.
+change server output.
 
 Both formats preserve exact source, including CRLF and a missing final newline.
 An unchanged source returns an empty `patch`, possibly with a newer RTC
@@ -1619,16 +1967,135 @@ With the compatible v2 server and CLI, `dreamlake notes read "$NOTE_ID" --view h
 returns a complete inert HTML document. Root `data-note`, `data-hash`,
 `data-revision`, `data-source-type`, `data-offset-unit` and `data-source`
 attributes contain the exact canonical source and its baseline. Element
-`data-start`/`data-end` ranges address that source in Unicode code points;
+`data-char="start:end"` ranges address that source in Unicode code points;
 `data-map` marks linear text, atomic syntax or generated presentation.
 
 Decode the source attribute once to recover canonical source, including original
 entity spelling and line endings. Patch that source using the embedded revision;
-never upload generated wrappers or mapping attributes. HTML reads are full
-snapshots; `--view html --since` is rejected. HTML-looking source is rendered as
+never upload generated wrappers or mapping attributes. HTML reads are snapshot
+views; `--view html --since` is rejected. HTML-looking source is rendered as
 HTML, other source as Markdown. Rich or restricted structures may map atomically;
 no editable range is guessed from generated text. Scripts, active attributes and
 network-loaded media are excluded from this static preview.
+
+### Literal Markdown for agents
+
+With CLI 0.34.4 and a compatible server, `--view html` on a Markdown note is
+an **agent format**: HTML-like tags supply structure and addresses; their
+contents are the exact original Markdown. There is one `data-char` source
+range, including the construct's syntax. There is no inner/outer split.
+
+```text
+<li id="s0.ul1.li2" data-char="0:11">- [ ] Ship
+</li>
+```
+
+Keep Markdown literal: `- [ ]`, `**bold**`, `:comment[...]`, backslashes,
+`<`, `&`, and Unicode remain exactly as saved. Do not add HTML escapes,
+Markdown escapes, or Unicode escape sequences to element contents. Do not
+strip escapes that are already present in canonical source. No display-text
+index conversion is needed: ranges address the source text inside the wrappers.
+A parent item's range includes its nested source.
+
+This is not browser HTML. Do not render it or use a DOM parser to recover its
+body. CLI 0.34.4 requests `contentFormat=literal-markdown` automatically; direct API clients add that parameter to a v2 HTML read. Existing clients keep the prior rendered contract. The API serves Markdown agent markup as `text/plain` and marks the root
+`data-content-format="literal-markdown"`. Generated heading numbers and other
+preview decoration are absent. The separate visual preview is unchanged.
+
+Metadata attributes still use transport encoding: decode the root `data-source`
+attribute once for an exact machine-readable source slice, and use the trusted
+root `data-addresses` index rather than finding tags inside arbitrary Markdown.
+CLI `--view markdown` handles this and prints literal source with address hints.
+Keep the original revision with the source and verify the acknowledged edit.
+Older servers may return rendered HTML; do not assume literal bodies without the
+format marker. Canonical HTML notes retain their existing HTML source mapping.
+
+### Focused and historical reads
+
+`read` returns the current snapshot. Use `--at REVISION` for a retained snapshot;
+`--since HASH` remains a unified line-diff read. Snapshot selectors are mutually
+exclusive, and cannot combine with `--since` or `--linger`:
+
+```bash
+# NOTE_ID identifies an accessible note; copy REVISION from its read receipt.
+dreamlake notes read "$NOTE_ID"
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --toc
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1.1
+dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
+```
+
+Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
+`data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), unordered lists
+(`ul`), ordered lists (`ol`) and all list items (`li`) share one counter per
+section, in document reading order. List and item IDs include their containing
+list/item path: `s1.p1 → s1.ul2 → s1.ul2.li3 → s1.ul2.li4 → s1.p5`.
+A nested ordered list under the fourth element is `s1.ul2.li4.ol5`, and its
+next item is `s1.ul2.li4.ol5.li6`. The suffix is the shared section counter,
+not an item-local position.
+
+Checklist items use the same `li` prefix and expose `data-checked="false"` or
+`data-checked="true"`; ordinary items omit that attribute. Adding, checking or
+removing a checkbox does not change the item's prefix or its container's type.
+There is no `tl`, `tli` or `cli` type. HTML tags remain `ul`, `ol` and `li`.
+
+A list consumes a number before its items; nested lists and items continue
+that same counter depth-first. Paragraph wrappers inside list items do not
+consume another number. Numbering restarts in each section; content before
+the first heading uses `s0`. A list target includes its entire subtree, and an
+item target includes its continuation lines and nested lists. Markdown task
+markers (`[ ]`, `[x]`, `[X]`) and leading HTML checkbox inputs identify checklist
+items. Read IDs from the returned snapshot rather than calculating them. `--tag` is an exact element ID; a section ID selects its
+entire subtree. IDs are local to one revision. Unknown IDs and missing snapshots
+return 404; every read checks current permissions.
+
+`data-char="start:end"` are absolute, zero-based, end-exclusive Unicode code-point
+ranges in original source. `data-lines` is one-based and inclusive. A scoped root
+contains only the selected `data-source`, with its global `data-source-start` and
+`data-source-end` and its own `data-source-hash`. The root's `data-hash` and
+`data-revision` still identify the complete document. Subtract `data-source-start`
+when slicing local source; keep absolute offsets in the patch. TOCs carry exact
+heading source on each heading and empty root source. Never upload a slice or
+rendered HTML as the complete note.
+
+```bash
+# edit.dff is prepared from the exact source at REVISION.
+dreamlake notes patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
+# NEXT_REVISION comes from that write receipt.
+dreamlake notes read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
+```
+
+Exact mode refuses concurrent edits with 412; native merge mode remains available
+by omitting `--exact`. `--if-match` checks the current revision, while `--at`
+retrieves history: do not combine them. Preserve an existing draft's original
+baseline even after another read or linger update. Linger continues to emit source
+snapshots and line diffs; inspect a streamed revision using a separate pinned read.
+Pinned reads do not overwrite live presence with historical offsets.
+
+See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
+for ID generation, ranges, examples, efficiency limits, and the executable
+acceptance harness. Use a CLI/server build supporting the addressed-read options.
+
+### Comment targets in HTML reads
+
+Closed comment directives render as individually addressable elements with
+`data-rich-kind="comment"`. Their `id` uses `sN.cK` (for example, `s1.c2`),
+sharing the section's reading-order counter with paragraphs, lists and items.
+Use the returned ID with `--view html --at "$REVISION" --tag s1.c2` to read one
+comment's exact canonical directive. The atomic `data-char` and `data-lines`
+cover the complete directive, including attribution attributes. These HTML
+addresses are revision-local; read them from the snapshot, rather than guessing.
+
+Saved references such as `:comment[cmt_0123456789abcdef01234567]` additionally
+carry `data-comment-id="cmt_0123456789abcdef01234567"`. That persistent resource
+ID survives moves and edits and can be used with the comment API. Repeated
+references to the same saved comment get distinct HTML target IDs but retain
+the same `data-comment-id`. Keyed drafts expose `data-comment-key`; inline text
+comments have a target address but no invented persistent resource ID.
+
+Static HTML shows source text or the saved reference ID; it does not fetch a
+comment's private body. Code examples, escaped directives, malformed comments
+and Markdown links remain literal. When normalization prevents an exact range,
+the surrounding block remains the edit target instead of a guessed comment range.
 
 ### Rich tokens in HTML reads
 
@@ -1641,7 +2108,7 @@ Code, escaped punctuation, Markdown links and URL paths keep their ordinary
 interpretation. Existing `[ owner ]` placeholders retain blue boxes, visible
 brackets, inner spacing and the **placeholder** hover label.
 
-Recognized components carry atomic `data-start`, `data-end` and `data-map`
+Recognized components carry atomic `data-char` and `data-map`
 attributes addressing the complete token in canonical Unicode-code-point
 source. The root `data-source` remains exact. When Markdown normalizes a region
 so an exact token range cannot be proven, its enclosing block remains atomic;
@@ -1698,3 +2165,228 @@ source ranges still count from the start of the full document, including front
 matter and CRLF. These options apply to Markdown source; canonical HTML is not
 interpreted as Markdown front matter. Server HTML reads and the browser
 editor/outline support this policy in the September 24 release.
+
+## Select an agent passage by matching text
+
+**CLI 0.32.0+:** `notes select --text` publishes an agent selection; section
+selection requires the server update adding `hash` and `range` to section reads.
+Older server responses fail explicitly.
+
+```bash
+export DREAMLAKE_AGENT_ID="review-session-42"
+export DREAMLAKE_AGENT_NAME="Codex"
+NOTE_ID="your-note-id"
+dreamlake notes select --text "The next step is tested in simulation." --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+dreamlake notes select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
+```
+
+Use a stable task identity and your normal authenticated Notes access. The command
+matches exact canonical source text, including whitespace and markup. It refuses
+missing or ambiguous matches. `-o` aliases `--occurrence`: `1` selects the first
+match, `-1` the last, and `-2` the second-last within the chosen scope. Zero and
+out-of-range values fail without publishing. Receipts report the resolved
+positive 1-based occurrence.
+A section match downloads only that section, not the entire document. A whole-note
+match reads source internally without printing it. Target resolution suppresses
+read highlighting until a unique match is found.
+
+It then sends `POST /namespaces/:slug/notes/:noteId/presence` with
+`{action:"seek", hash, ranges:[{start,end}]}`. Ranges are half-open Unicode code-point
+offsets in the whole canonical source. Section reads now return an additive `range`
+in code points and the whole-source `hash`; legacy `start`/`end` stay UTF-16.
+Old servers without section metadata fail explicitly. The server validates current
+source and collaboration access. No source write or human-cursor change occurs.
+
+**Plain text is the default for selection commands and agent workflows.** Omit
+`--json` in normal tool calls and examples. The receipt confirms server acceptance and returns the quoted matched
+text, scope, resolved match number/count, code-point range and separate expiry
+times. Multiline excerpts escape newlines. Only an explicit machine integration
+should request `--json`; that optional receipt includes exact `text` and
+`scope` (`{kind:"note"}` or `{kind:"section",anchor:"next-steps"}`), alongside
+`note`, `hash`, `range`, `occurrence`, `matches`, `published`, `selectionExpiresAt`
+and `presenceExpiresAt`. It does not return the surrounding section or document. Browser rendering still
+requires an active compatible RTC room and editor. Selection activity lasts eight
+seconds and presence lasts sixty; a heartbeat renews presence only. Users can
+navigate to the agent's selected passage through its location control.
+
+Pass a retained `--hash "$HASH"` (`sha256:…`) to require the same source. If the
+source changes before publication, `stale_range` fails without a guessed retry:
+read the section again and select its current text. Duplicate/missing matches
+publish no selection. Legacy `notes select "#contact" --note "$NOTE_ID"` and
+`notes find` remain lookup operations, not explicit visible seek commands.
+
+For address hints while reading Markdown, use `read NOTE --view markdown` with
+the addressed-read CLI/server build. It preserves the selected source text and
+inserts generated address/character/line comments. List-item targets use
+hierarchical `li` IDs, such as `s1.ul2.li3`, including nested items. Containers
+use `ul` or `ol`; every numeric suffix shares paragraph reading order. This
+reading view is not
+canonical source and must not be written back as a complete note.
+
+## Manage existing share links
+
+Available in CLI 0.32.4 and later; check `dreamlake notes share --help` for installed support.
+
+Requires an authenticated login, an existing resource, and permission to
+manage its sharing. Run these mutation steps only when the user has asked
+to grant or revoke access. These commands change
+metadata only; they do not upload content or create a new version.
+
+```bash
+# Find the release plan and inspect its source and current sharing.
+dreamlake notes search "release plan"
+NOTE="release-plan" # Replace with the id or slug from search.
+dreamlake notes read "$NOTE"
+dreamlake notes share get "$NOTE"
+
+# Give signed-in recipients read access, then verify the returned link.
+dreamlake notes share create "$NOTE" --role read
+dreamlake notes share get "$NOTE"
+
+# When link access is no longer needed, revoke it and verify.
+dreamlake notes share revoke "$NOTE"
+dreamlake notes share get "$NOTE"
+```
+
+`get` never enables sharing. It reports the resource URL, visibility, and
+existing share URL. A resource URL alone does not grant access. `--json` provides
+structured link metadata; `shareStatus: unavailable` means the server did not
+expose the token to this caller, not that sharing is disabled.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+dreamlake notes visibility "$NOTE" public
+dreamlake notes visibility "$NOTE" private
+```
+
+Visibility and sharing are independent. Making a resource private does not
+revoke links or accepted access. Revoking a link does not make a public resource
+private. Use `--namespace <slug>` for another namespace.
+
+Only the namespace owner or an eligible Note creator may manage sharing.
+`create --role write` enables editing; the default is `read`. Updating the role
+reuses the token and changes the role evaluated on subsequent requests for
+everyone admitted through the link. Note IDs resolve their owning namespace automatically.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+dreamlake notes share revoke "$NOTE" --revoke-accepted
+```
+
+Ordinary revocation clears the link and blocks subsequent link-derived access,
+including for prior recipients. Their acceptance records remain: enabling
+sharing again restores access under the current link role. `--revoke-accepted`
+also deletes those records, so recipients must accept a valid link again. A collaborator who already has the room address may keep
+editing until the room is rotated; this command does not rotate rooms.
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+# List acceptance records and stored roles as a readable table.
+dreamlake notes share access "$NOTE"
+```
+
+```bash
+NOTE="release-plan" # Your existing note id or slug.
+USER_ID="user-id-from-access-list"
+dreamlake notes share remove "$NOTE" "$USER_ID"
+```
+
+The access list defaults to a readable table; use `--json` for a structured
+integration. It returns stored roles, which may lag behind the live link role.
+Use `share get` to inspect the current link role.
+
+Removing an acceptance record does not invalidate a circulating link; that link can admit
+the user again. Membership and public access are unaffected.
+
+## Saved versions
+
+The version tag in the toolbar opens a compact revision graph. The right sidebar
+uses one toolbar toggle for **Comments**, **Table of contents**, and **History**.
+Choose **History** (the GitGraph icon) to see the graph there. Contents is the
+default; the note remembers your chosen sidebar. **Working Draft** sits directly above its base version, with an edit
+count and a GitCommitVertical save icon on that row. A small solid dot marks the draft endpoint; saved-version waypoints are hollow. Choose the icon, enter an optional title/tag
+and summary, then save. Notes continues to autosave while you work; metadata
+does not appear in the note body. New milestones receive stable numbers such
+as `v3`, independent of their titles. Numbers can have gaps after failed saves.
+
+Saved versions show their parent connections, including forks from a shared
+base. The save form defaults to your draft's base; choose another **Base version**
+to record a different ancestry. This records the relationship without replacing
+or merging the live draft. The working draft follows the newest saved version
+when history refreshes, including versions saved by another collaborator, so it
+stays at the top and its edit count uses the latest checkpoint. This changes
+only the history display and default save parent, not the note text or saved ancestry.
+Older versions without recorded
+parents remain unconnected.
+
+The current edit marker shows its one-based index and total within that version
+interval (for example, **Edit 439 of 443**), including when selected from a grouped tick.
+Historical previews use the title-row status slot: **e439**, **preview**
+for a saved version, or **e430–439** for a selected range. Version tags use a
+lowercase **v** and are hidden while an intermediate edit or range is displayed. Hovering the preview label turns it red with a strikethrough;
+clicking it returns to the working draft. The chevron opens history. The full preview label remains in the tooltip.
+The history dropdown fits its content, capped at the remaining viewport height
+with a 16px bottom gap; longer timelines scroll inside it. The sidebar and dropdown
+share the editor selection, including resets and selected ranges. The magnifier
+appears above the selected marker and displays its own red edit-index line on
+hover. Only an explicitly selected edit or range creates a persistent marker.
+The lens follows the pointer immediately; document and range previews settle
+after a short pause, reusing a bounded cache of recent historical text.
+
+Each small dot represents one retained intermediate edit; all retained edits
+are shown. Hover or keyboard-focus a dot to preview its exact text directly in
+the main body. The historical preview is read-only and isolated from live sync;
+editor controls and saving are disabled while it is displayed. Leaving the dot
+restores the prior selection, while clicking the dot keeps that edit selected.
+There is no separate edit list. The magnifier's right edge stays fixed against
+the timeline panel as the pointer moves horizontally. A larger magnified region spreads nearby dots
+apart for selection. Scrolling previews nearby snapshots; clicking version text or activating it
+with the keyboard selects that revision. Leaving a transient preview restores
+the last selection. **Back to draft** returns to the still-mounted live editor.
+The sidebar's **Contents** view follows Dockit's **On this page** format: compact
+heading links, monospace subheadings, an accent-colored active heading, and a
+curved progress rail. Section chevrons collapse or expand their child headings;
+clicking heading text jumps directly to that section. The separate minimap
+column is omitted.
+
+Each saved version retains the exact server-confirmed text, author and date,
+plus the available collaboration checkpoint and journal. It remains readable
+after live history is compacted or a room is recreated. Compacted edits that were
+already missing at save time cannot be recovered; partial counts say **retained
+edits**. In a saved-version preview, **Compare / link** opens side-by-side
+comparison and **Copy version link**. Saving never replaces the current note.
+Tags may repeat; the version ID is unique and immutable. Summaries are written
+by the person saving the version; automatic AI drafting is not included.
+
+Saved history requires edit access, including accepted write-share access.
+A public note or read-only share does not expose earlier text that may have
+been removed. Version links do not grant access. If the note changes or is still
+syncing while you save, review the current text and retry; no version is created
+from a mismatched browser/server state.
+
+### Version API
+
+These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
+
+- `POST /versions` accepts `{hash, tag?, summary?, parentId?}`. `hash` is the lowercase
+  SHA-256 of the UTF-8 body the user intends to save. The server compares it
+  with a coherent current read and returns `409 note_changed` on mismatch.
+  Tags are at most 80 characters and summaries at most 2,000 characters.
+  A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
+  `createdBy`, `author`, `number`, and `parentId`. The optional nullable
+  `parentId` must identify a version in this note; a missing/foreign parent
+  returns `404 parent_not_found`. Omitting it records no parent. RTC-backed
+  versions also include `revision`, `clock`, `editCount`, and `historyComplete`.
+  The count measures retained content-edit messages, not keystrokes.
+- `GET /versions` returns `{versions, nextCursor}` with up to 50 metadata
+  entries, newest first. Send `?before=<nextCursor>` for older entries.
+- `GET /versions/:versionId` returns the metadata plus `text`.
+- `GET /versions/:versionId/history` returns the retained `{snapshot, journal}`
+  for read-only replay, with the same editor access requirement. Legacy versions
+  return `{snapshot: null, journal: []}`. This is not a content-write endpoint.
+
+The content hash identifies text, not the identity-bearing RTC baseline used
+for collaborative patches. Saving a version is a retained snapshot operation,
+not a content write. There are no new CLI flags or Python SDK methods for this
+surface yet; use the UI or authenticated REST API.

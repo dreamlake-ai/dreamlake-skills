@@ -117,6 +117,16 @@ def collect_sources(paths, locked=None):
                 body = (dest / 'skills/dreamlake/reference/notes.md').read_bytes()
                 body = absolute_reference_links(body, dest / 'docs/pages')
                 outputs['dreamlake-notes/reference/notes.md'] = body
+                # Notes now has focused child guides; ship them with the main reference.
+                child_pages = {}
+                for child in sorted((dest / 'docs/pages/notes').glob('*/+Page.mdx')):
+                    slug = child.parent.name
+                    generated = dest / f'skills/dreamlake/reference/notes-{slug}.md'
+                    if generated.is_file():
+                        outputs[f'dreamlake-notes/reference/notes-{slug}.md'] = absolute_reference_links(generated.read_bytes(), dest / 'docs/pages')
+                        child_pages[child.relative_to(dest).as_posix()] = sha(child.read_bytes())
+                if child_pages:
+                    sources[name]['childPages'] = child_pages
                 outputs['dreamlake-notes/SKILL.md'] = (
                     '---\nname: dreamlake-notes\ndescription: ' + json.dumps(description, ensure_ascii=False) + '\n---\n\n'
                     '# DreamLake Notes\n\n'
