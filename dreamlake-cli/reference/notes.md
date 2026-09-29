@@ -9,6 +9,11 @@ someone, keep the note open in your terminal with `--linger`.
 output directly and retain its revision/hash when preparing edits. JSON is
 for an explicitly requested structured integration, not agent convenience.
 
+Before an agent's first live read or edit, [set its task identity](notes-collaboration.md#one-identity-per-task).
+Use both `DREAMLAKE_AGENT_ID` and `DREAMLAKE_AGENT_NAME`, reusing them across shell
+calls. Edits can save without an ID but will lack agent presence and attributed
+fading highlights. Skip attribution only when the user explicitly requests it.
+
 ## Start here
 
 Log in with `dreamlake login`. These guides target **CLI 0.29.0 or later** and a

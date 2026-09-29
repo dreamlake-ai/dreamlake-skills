@@ -4,6 +4,44 @@
 
 - Add `notes media upload <file>`: upload an image or video and print its embeddable URL directly. Saved login credentials are reused; `--json` is optional. Media URLs allow access to anyone holding them; private note attachments remain separate.
 
+## 0.35.0 — Env layers v3 component grammar
+
+`dreamlake.layers.json` moves to schema `dreamlake.env-layers/v3`: every
+stack entry is one flat op — `Merge` / `Attach` / `Update` / `Remove` /
+`Patch` — with `src` as a single string (`ns/name[@v]` registry ref, or a
+`./`-prefixed local path). `Attach` takes an identity-root `key` instead
+of a prefix (one entry per placement); `Update` carries inline sparse
+opinions (`key` addresses an element, every other prop is an MJCF
+attribute); `Remove` is first-class. `env compose` requires
+`dreamlake ≥ 0.23.0` on the composing machine (`pip install
+"dreamlake[compose]"`). v2 stack files are refused with a migration map;
+composition semantics are unchanged. See the
+[Env Layers Reference](https://docs.dreamlake.ai/envs/layers).
+
+## 0.34.4
+
+Read literal Markdown inside agent markup without added HTML or Unicode escaping.
+Accept the text transport and use trusted address metadata. Bundled skills explain
+literal source edits and unified diffs without manual inline-DFF escaping.
+
+## 0.34.3 — 2026-09-28
+
+- Fix native Notes patches read from redirected stdin silently submitting empty input; reject empty patches before sending.
+- Preserve server patch error details and explain that legacy conditional edits require the quoted ETag rather than an RTC revision.
+
+## 0.34.2 — Hierarchical list addresses
+
+Notes references now describe standard `ul`/`ol` list prefixes and one `li`
+item type. Addresses include their parent list/item paths while retaining the
+shared section counter. Checkbox state remains an attribute. Existing 0.34.1
+read commands already accept these server-issued IDs.
+
+## 0.34.1 — Shared list ordering
+
+Annotated Markdown includes list containers alongside paragraphs and items.
+The server assigns `p`, `l`, `li` and `cli` IDs from one section counter; use
+returned IDs and retain the snapshot revision for focused reads and edits.
+
 ## 0.33.0 — Addressed Notes reads
 
 `dreamlake notes read` can pin a retained snapshot with `--at`, inspect its

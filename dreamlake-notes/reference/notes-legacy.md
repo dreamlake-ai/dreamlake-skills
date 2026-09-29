@@ -25,6 +25,17 @@ mutations normally fetch a current ETag just before writing. That protects the
 request race, **not** the time spent editing an older local file. Always retain
 the ETag from the read that produced your draft.
 
+`insert`, `replace`, and `delete` accept that quoted legacy ETag, **not** a modern
+`rtc:` revision. The CLI rejects that token mismatch before sending an edit.
+An actual changed ETag still returns a conflict; keep the draft and reconcile it.
+For concurrent merging, use `notes patch --base-revision "$BASE_REVISION"`;
+its default is merge, while `--exact` is opt-in. Legacy insert also uses RTC
+internally; successful insertion does not establish that a modern merge patch
+was saved correctly. Always verify the acknowledged snapshot and intended text.
+
+Insertion `--ind` positions count Unicode code points in the exact retained
+source (Python `len`, JavaScript `Array.from(text).length`), not UTF-16 units.
+
 `--force` bypasses that check on supported legacy mutations. It can overwrite
 concurrent work; it is not a conflict-recovery recipe. V2 `patch` rejects it.
 
@@ -49,6 +60,17 @@ dreamlake notes rm-section "$NOTE_ID" troubleshooting --if-match "$ETAG"
 `--after` inserts after the section and its subsections. `rm-section` removes the
 whole subtree. The inserted heading determines its level; repeated titles get
 suffixed anchors. Inspect `notes sections` afterward.
+
+## Insert with a retained ETag
+
+```bash cli-help="notes insert"
+NOTE_ID=release-plan
+dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
+ETAG=$(jq -er .etag legacy-baseline.json)
+# Insert at the beginning of that exact source, with its original guard.
+dreamlake notes insert --note "$NOTE_ID" --ind 0 --text 'Review: ' --if-match "$ETAG"
+dreamlake notes read "$NOTE_ID" --json
+```
 
 ## Edit by text, pattern, or location
 

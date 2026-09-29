@@ -5,6 +5,7 @@ description: "Use the DreamLake CLI to find, read, edit, follow, attach files, o
 
 # DreamLake Notes
 
+Before the first live read or edit, [set and reuse the task identity](actions/identity.md).
 Choose the matching CLI action guide. For work on an existing note, start
 with `dreamlake notes list` to identify it. A media upload alone needs no note:
 
