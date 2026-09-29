@@ -1,5 +1,30 @@
 # Release notes
 
+## Unreleased — staging receipt web links
+
+Receipt `open:` URLs printed against the built-in staging environment now
+target the web app (`https://staging.dreamlake.ai/…`) instead of the API
+host (`staging-api.dreamlake.ai`), across `env`, `artifact`, `workflow`
+and `share` receipts. Custom API hosts are still never guessed: only a
+leading `api.` label is stripped, anything else prints unchanged. Released
+CLIs (≤ 0.35.0) print the staging API host; setting
+`DREAMLAKE_WEB_URL=https://staging.dreamlake.ai` is a working workaround
+there. See [Environments](environments.md).
+
+## 0.35.0 — Env layers v3 component grammar
+
+`dreamlake.layers.json` moves to schema `dreamlake.env-layers/v3`: every
+stack entry is one flat op — `Merge` / `Attach` / `Update` / `Remove` /
+`Patch` — with `src` as a single string (`ns/name[@v]` registry ref, or a
+`./`-prefixed local path). `Attach` takes an identity-root `key` instead
+of a prefix (one entry per placement); `Update` carries inline sparse
+opinions (`key` addresses an element, every other prop is an MJCF
+attribute); `Remove` is first-class. `env compose` requires
+`dreamlake ≥ 0.23.0` on the composing machine (`pip install
+"dreamlake[compose]"`). v2 stack files are refused with a migration map;
+composition semantics are unchanged. See the
+[Env Layers Reference](https://docs.dreamlake.ai/envs/layers).
+
 ## 0.34.4
 
 Read literal Markdown inside agent markup without added HTML or Unicode escaping.
