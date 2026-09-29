@@ -176,6 +176,16 @@ def collect_sources(paths, locked=None):
                 outputs['dreamlake-notes/reference/notes.md'] = absolute_reference_links(
                     generated.read_bytes(), dest / 'docs/pages'
                 )
+                # Ship the focused Notes guides alongside the main reference.
+                child_pages = {}
+                for child in sorted((dest / 'docs/pages/notes').glob('*/+Page.mdx')):
+                    slug = child.parent.name
+                    generated = dest / f'skills/dreamlake/reference/notes-{slug}.md'
+                    if generated.is_file():
+                        outputs[f'dreamlake-notes/reference/notes-{slug}.md'] = absolute_reference_links(generated.read_bytes(), dest / 'docs/pages')
+                        child_pages[child.relative_to(dest).as_posix()] = sha(child.read_bytes())
+                if child_pages:
+                    sources[name]['childPages'] = child_pages
     if not outputs.get('dreamlake-cli/SKILL.md'):
         raise ValueError('CLI generator did not produce its expected skill')
     return outputs, {'version': 1, 'sources': sources}
