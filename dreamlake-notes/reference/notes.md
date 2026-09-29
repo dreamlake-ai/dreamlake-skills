@@ -6,11 +6,14 @@
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
 and programmable native layouts.
 
-In the browser's live preview, an opening H1 with content below it starts above
-the note viewport. When scrolling stops in that title area, the viewport settles
-back below the H1 with a spring motion. Selecting or editing the title keeps it
-visible; raw Markdown and title-only notes are unaffected. Reduced-motion
-preferences use an immediate snap.
+In live preview, an opening H1 with content below it is positioned
+above the viewport once, before interaction. Scrolling back to the title keeps it
+visible; typing, blur, and idle time do not automatically hide it again. Raw
+Markdown, title-only notes, and explicit search or section navigation retain
+their existing behavior. Formatting remains enabled while editing. Vim visual
+selections remain visible in both rich and raw views. Remote text updates preserve the
+visible text position in the note pane; a new scroll gesture, keystroke, or
+selection takes precedence over a pending viewport correction.
 
 History timeline previews return to the current working draft when the pointer
 leaves the timeline. An explicitly placed edit marker or selected change range
