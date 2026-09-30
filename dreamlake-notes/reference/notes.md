@@ -23,20 +23,23 @@ History timeline previews return to the current working draft when the pointer
 leaves the timeline. An explicitly placed edit marker or selected change range
 keeps its historical view open; clicking a version label alone does not pin it.
 
-## Experimental native Markdown editor
+## Experimental native rich Markdown editor
 
-In **Settings → editor experiments**, enable **Native Markdown editor (experimental)** to try the
-main Notes editor without CodeMirror. The setting starts off and is saved in
-this browser; other browsers and teammates keep their own choice. Disable it to
-return to the usual editor.
+In **Settings → editor experiments**, enable **Native Markdown editor
+(experimental)** to switch the main Notes editor to the native rich Markdown
+editor. The setting is off by default, applies only in this browser, and takes
+effect immediately. Other browsers and teammates keep their own choice; disable
+it to return to the CodeMirror editor.
 
-The experiment edits raw Markdown. Notes keep their existing saving and live
-text collaboration behavior. Inline rich previews, Vim mode, painted remote
-cursors and selections, and comment overlays are unavailable in this editor.
-Markdown directives remain in the document as editable source.
+The native editor keeps canonical Markdown in the same collaborative RTC
+document. It supports rich Markdown presentation, formatting and insertion
+commands, comments and suggestions, references, folding and section navigation,
+Vim mode, audio controls, and collaborator cursors and selections. Notes keep
+their existing save, sync, version history, and recovery controls. Switching
+between rich presentation and raw Markdown does not change the note source.
 
-This is a browser preference. It does not change the CLI, API, note format, or
-permissions.
+This editor remains experimental, and CodeMirror remains the default. The
+browser preference does not change the CLI, API, note format, or permissions.
 
 Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
 
