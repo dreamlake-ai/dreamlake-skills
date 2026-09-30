@@ -1,6 +1,6 @@
 ---
 name: dreamlake-libraries
-description: Publish and consume DreamLake asset libraries — push a directory of 3D assets zero-config with `dreamlake library push` (assets discovered by convention, one optional dreamlake.yml for curation, thumbnails/embeddings rendered at push time), search per asset across libraries (keyword or CLIP-semantic), and pull the clean source tree or a single asset byte-identical. Use when a user wants to upload a collection of 3D models/meshes/textures to DreamLake, curate one with dreamlake.yml, add thumbnails or semantic search, search libraries for a model ("find me a mug"), or download one asset into their project.
+description: Publish and consume DreamLake asset libraries — push a directory of 3D assets zero-config with `dreamlake library push` (assets discovered by convention, one optional dreamlake.yml for curation, thumbnails/embeddings rendered at push time), search per asset across libraries (keyword or CLIP-semantic), inspect a library or one asset without downloading (`library info`), check a local copy's freshness (`library stat`), pull the clean source tree or a single asset byte-identical, and add/remove single assets in a remote library (`library add` / `library rm`). Use when a user wants to upload a collection of 3D models/meshes/textures to DreamLake, curate one with dreamlake.yml, add thumbnails or semantic search, search libraries for a model ("find me a mug"), check whether a local copy is up to date, update or delete one asset without the full collection, or download one asset into their project.
 ---
 
 # DreamLake Asset Libraries — collections you search per asset
@@ -106,12 +106,20 @@ dreamlake library push ./out-lib --namespace <ns> --library <name> \
   Without embeddings, search silently stays keyword-only — never an error.
 - `--dry-run` prints the plan (uploads, unchanged, removals); `--verify`
   re-hashes every local file, bypassing the hash cache.
+- **Drift guard**: if the remote changed since this directory last
+  registered (someone ran `library add`/`rm`, or pushed from elsewhere)
+  AND your push would delete assets, push aborts listing exactly what it
+  would delete — pull to merge, or `--force` to delete deliberately.
+  Adds-only pushes never trigger it.
 
-## Search and pull
+## The read path — survey, search, inspect, verify, pull
 
 ```bash
 dreamlake library list --all               # every visible library, with descriptions
-dreamlake library search "coffee mug" [--library ns/a,ns/b] [--kind mjcf] [--category …] [--tag …]
+dreamlake library search "coffee mug" [--library ns/a,ns/b] [--kind mjcf] [--category …] [--tag …] [--license …] [--offset N]
+dreamlake library info <ns>/<name>                # library summary: counts, size, facets
+dreamlake library info <ns>/<name> --asset <id>   # one asset's card: files, bytes, digest, license
+dreamlake library stat <ns>/<name> --asset <id> -o ./scene/assets   # local copy current?
 dreamlake library pull <ns>/<name> --asset <id> -o ./scene/assets   # one asset's files
 dreamlake library pull <ns>/<name> -o ./copy       # clean source tree, byte-identical
 dreamlake library pull <ns>/<name> --all -o ./copy # + platform artifacts (.dreamlake/)
@@ -119,15 +127,52 @@ dreamlake library pull <ns>/<name> --all -o ./copy # + platform artifacts (.drea
 
 `list --all` is the scope survey: read the per-library descriptions to
 decide WHERE to search, then search there — with no `--library` the search
-fans out over up to 50 most recently updated visible libraries. Hits print
-`LIBRARY | ASSET | KIND | CATEGORY | TITLE`; pulls verify every file
-against its manifest sha256. The default pull skips `.dreamlake/**` and
+fans out over up to 50 most recently updated visible libraries. Each hit
+prints as ONE line — `ns/lib/asset  score  kind  license  — description` —
+closed by a `N of T hits · semantic on|off` footer; fetch a hit's
+`thumbnailUrl` (in `--json`) when you need to SEE the asset before
+choosing.
+
+`info` answers questions without downloading: the library summary (asset
+and file counts, total bytes, kind/category/license counts, semantic
+on/off — omitted for legacy-layout libraries, where it is unknowable
+client-side), or one asset's decision card including its content `digest`.
+`stat` compares the remote manifest against a local directory and prints
+`up-to-date` (exit 0) or `stale`/`absent` with the exact bytes a pull
+would fetch (exit 1), transferring nothing — script it as
+`stat … || pull …`.
+
+Pulls verify every file's sha256 and are incremental: files already
+correct on disk are skipped, a non-empty directory is synced, extra local
+files are never deleted. The default pull skips `.dreamlake/**` and
 legacy generated names — you get back exactly the source dir you pushed,
 `dreamlake.yml` included.
 
-HTTP (no CLI needed): `GET /namespaces/:ns/libraries/:name/manifest` for
-the full manifest, `POST …/files-presign` (`{paths:[…]}`) for download
-URLs, `GET …/libraries/:name/search?q=…`, `GET /library-search?q=…&libraries=ns/a,ns/b`.
+Every command takes `--json`: `list` and `search` emit the raw HTTP
+response; `info`, `stat`, `add`, `rm`, `push`, `pull` emit stable
+structured reports. Prefer the default output for ordinary reads; `--json`
+is for structured integration. Full HTTP contract (endpoints,
+request/response shapes, the wire manifest):
+https://docs.dreamlake.ai/libraries/reference
+
+## Add or remove one asset remotely
+
+No full local copy needed — these edit the remote library directly:
+
+```bash
+dreamlake library add <ns>/<name> ./my-mug --title "Blue mug" --category household
+dreamlake library add <ns>/<name> ./my-mug --replace   # update an existing id in place
+dreamlake library rm <ns>/<name> my-mug old-chair      # server reclaims their files
+```
+
+`add` discovers the one directory (or loose file) exactly like push, with
+metadata from flags (`--id --title --description --category --tags
+--license --attribution`); an existing id is an error unless `--replace`.
+Bytes the library already holds (shared meshes, unchanged files under
+`--replace`) are not re-uploaded. `rm` transfers nothing — the server
+reclaims every file no remaining asset references — and refuses to empty a
+library (delete the library instead). Concurrent edits converge through
+the same revision compare-and-swap as push.
 
 ## The wire manifest — generated, never hand-edit
 
@@ -159,8 +204,10 @@ public` (or the visibility toggle) makes one appear to everyone, and
 - Asset ids come from directory names — rename the dir to rename the id.
   The GSO importer ASCII-sanitizes ids (`Pokémon_*` → `Pokemon_*`),
   keeping the original in `upstream.id`.
-- Deleting an asset = delete its directory locally, push — the server
-  reconciles storage to the manifest (check with `--dry-run` first).
+- Deleting an asset = `library rm <ns>/<name> <id>` (no local copy
+  needed), or delete its directory locally and push — either way the
+  server reconciles storage to the manifest (check with `--dry-run`
+  first).
 - A push registers metadata FROM the source (`dreamlake.yml` +
   detection); the dashboard only edits visibility/share.
 - `pnpm cli library …` in the CLI repo for dev — and never
