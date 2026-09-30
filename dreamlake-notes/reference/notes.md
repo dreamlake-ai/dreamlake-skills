@@ -20,10 +20,10 @@ visible text position in the note pane; a new scroll gesture, keystroke, or
 selection takes precedence over a pending viewport correction.
 
 Use a collaborator avatar to navigate to its current cursor when the location is
-available. A cursor at the beginning of the note shows **Cursor is at the start
-of the note** without opening a jump popover. An avatar without a current cursor
-shows **No location available**. Other available cursor locations support the
-existing jump action.
+available. A cursor at the beginning of the note shows a popup saying
+**Cursor is at the start of the note** and leaves your view in place. An avatar
+without a current cursor shows a popup saying **No location available**. Other
+available cursor locations support the existing jump action.
 
 History timeline previews return to the current working draft when the pointer
 leaves the timeline. An explicitly placed edit marker or selected change range
