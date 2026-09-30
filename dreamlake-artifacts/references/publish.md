@@ -12,6 +12,15 @@
 3. Pushing writes to the user's own namespace by default; use `--namespace <slug>` to
    target another namespace the user is a member of.
 
+## Incremental updates (CLI 0.38.0+)
+
+For large files with repeated content, use `dreamlake artifact push <file> --id <id> --incremental`.
+Use the updated hosted viewer, or deploy incremental-reader support to a self-hosted viewer first.
+The first incremental push establishes chunks; subsequent pushes send only new compressed chunks.
+Ordinary pushes remain supported, including in the same history. Keep the same `--id`.
+See the authoritative [incremental upload contract](https://cli.dreamlake.ai/artifacts#incremental-uploads)
+for limits, retry behavior, and older-viewer compatibility.
+
 ## Push an artifact
 
 ```bash
