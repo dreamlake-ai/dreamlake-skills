@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.40.0 — Cached library manifests
+
+`library stat`, `info`, `pull` and `push` now keep a local copy of the
+remote wire manifest under `~/.dreamlake/cache/libraries/manifests/`,
+keyed by the library's `revision` counter. A read against an unchanged
+library costs one small catalog request instead of a full manifest
+download (tens of MB on large libraries). Only the latest revision per
+library is kept, under a 1 GiB total cap with LRU eviction; a corrupt
+cache entry is re-fetched silently. `--verify` on `stat`, `info` and
+`push` re-downloads the manifest, bypassing the cache.
+
 ## 0.39.2 — Clearer full-upload option
 
 Use `artifact push --full` to upload the entire file in the original format.

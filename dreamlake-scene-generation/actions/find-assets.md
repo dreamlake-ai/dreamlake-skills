@@ -62,13 +62,14 @@ dreamlake library search "coffee mug" --library <ns>/<lib> --kind mjcf
 - Zero results: drop `--category`/`--tag`/`--kind` filters and retry; then
   another library — **or leave the library route** and download or author
   the asset instead. Empty results switch the source, never end the task.
-  Libraries pushed without embeddings fall back to keyword matching
-  silently; use short literal terms there.
+  Libraries without usable embeddings fall back to keyword matching
+  silently; use short literal terms there. `dreamlake library info <ns>/<lib>`
+  reports `semantic` — `false` means keyword-only for that library.
 
 Pull one asset and check it against the checklist above:
 
 ```bash
-dreamlake library pull <ns>/<lib> --asset <id> -o ./assets   # --force if ./assets is non-empty
+dreamlake library pull <ns>/<lib> --asset <id> -o ./assets   # incremental; safe into a non-empty dir
 python tools/scene_report.py ./assets/<id>
 ```
 

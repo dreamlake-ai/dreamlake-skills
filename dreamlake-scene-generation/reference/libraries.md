@@ -30,10 +30,13 @@ never in your directory.
 ## Browsing in the app
 
 Libraries share the **Environments** surface: `/<namespace>/envs` has an
-`Environments | Libraries` segment switch. A library card opens
-`/<namespace>/libraries/<name>` — a filterable grid of its assets — and each
-asset opens a detail page with metadata, per-file downloads, and a 3D preview
-when the asset kind has a viewer.
+`Environments | Libraries` segment switch (`?tab=libraries`); there is no
+top-level Libraries nav entry, and `/<namespace>/libraries` redirects to that
+tab. A library card opens `/<namespace>/libraries/<name>` — a filterable grid
+of its assets, thumbnails only, no live 3D. Clicking a card does not navigate:
+the asset opens as a resizable panel beside the grid at `?asset=<id>`, so
+scroll position and filters survive. That URL is shareable and loads the panel
+directly.
 
 `/libraries` is the global search page: it lists every library you can see
 (public ones plus your own), and searches across whichever of them you select.
@@ -64,12 +67,21 @@ menagerie-lib/
   returns and what `pull --asset` downloads. Every file inside belongs to the
   asset.
 - **Loose top-level files become single-file assets.**
-- **Kind and entry are detected.** The CLI recognizes MJCF models (`mjcf`),
-  URDF robots (`urdf`), meshes (`mesh`), Gaussian splats (`splat`) and images
-  (`image`); anything else is a plain `file` asset. For MJCF it prefers
-  `scene*.xml` as the entry and exposes the alternatives (scene vs. bare
-  robot) as entry points — the switcher you see in the preview. Kind only
-  picks the viewer; uploading, searching, and downloading are kind-agnostic.
+- **Kind and entry are detected**, first match wins: `mjcf` (an `.xml`
+  containing `<mujoco`), `urdf` (a `.urdf`, or an `.xml` containing
+  `<robot`), then `mesh` (`glb` `gltf` `obj` `stl`), `splat`
+  (`ply` `splat` `spz` `ksplat`), `image` (`png` `jpg` `jpeg` `webp`) —
+  anything else is a plain `file` asset. For MJCF it prefers `scene*.xml` as
+  the entry and exposes the alternatives (scene vs. bare robot) as entry
+  points — the switcher you see in the preview. Kind only picks the viewer;
+  uploading, searching, and downloading are kind-agnostic.
+
+> **Warning:** Those three rules fire only when the asset contains **exactly one** file of
+>   that extension — two `.ply` files fall through to `file`. Multi-file
+>   formats are not detected at all: a SOG splat (`meta.json` + WebP planes)
+>   has no matching extension, so it lands on `file` and gets no viewer.
+>   Declare `kind` (and `format`) in `dreamlake.yml` for those — see
+>   [3D Gaussian splats](#3d-gaussian-splats).
 
 An asset is one *logical* thing — a model with its meshes, textures and
 collision geometry, or a single file.
@@ -99,7 +111,7 @@ discover: # override the discovery conventions (globs, * and **)
   exclude:
     - "docs/**" # never assets, never uploaded
 
-defaults: # applied to every asset unless it overrides
+defaults: # category / license / tags only; tags merge, the others fall back
   category: robot
 
 assets: # per-asset overrides, keyed by asset id
@@ -112,6 +124,7 @@ assets: # per-asset overrides, keyed by asset id
       - unitree
     license: BSD-3-Clause
     attribution: "© Unitree Robotics" # required credit line (CC-BY etc.)
+    kind: mjcf # override detection — required for multi-file formats
     entry: unitree_go2/scene.xml # override the detected entry
     entryPoints:
       scene:
@@ -197,16 +210,33 @@ dreamlake library push ./menagerie-lib --thumbnails --embed
   cards and the library grid live on these — ship them. A re-push without the
   flag carries the existing thumbnails forward; an asset with its own
   `thumbnail:` image in `dreamlake.yml` uses that instead.
-- `--embed` computes the CLIP vectors that turn on
+- `--embed` computes the vectors that turn on
   [semantic search](#search-it) — image vectors of the thumbnails, text
-  vectors of the metadata. Vectors are content-hash cached locally, so
-  re-running after an edit only re-encodes what changed.
+  vectors of the metadata. It requires `--thumbnails` in the same push
+  (the image vectors embed the fresh renders). Vectors are content-hash
+  cached locally, so re-running after an edit only re-encodes what changed.
 - `--dry-run` prints the plan (uploads, unchanged, removals) and exits;
-  `--verify` re-hashes every local file, bypassing the hash cache.
+  `--verify` re-hashes every local file and re-downloads the remote
+  manifest, bypassing both local caches. `--force` overrides the drift
+  guard, and `--json` puts a machine-readable result on stdout.
 
-Both `--thumbnails` and `--embed` call into the `dreamlake` Python tooling
-(`pip install "dreamlake[embed]"` for embeddings) — everything else is pure
-CLI.
+Both `--thumbnails` and `--embed` shell out to the `dreamlake` Python
+tooling — `pip install "dreamlake[compose]"` for rendering (MuJoCo),
+`pip install "dreamlake[embed]"` for vectors. Everything else is pure CLI,
+and a missing interpreter is a warning, not a failed push.
+
+> **Warning:** Vectors are only used when the sidecar's model matches the server's active
+>   query encoder, which is **SigLIP2** (`ViT-B-16-SigLIP2/webli`). Through
+>   `dreamlake` ≥ 0.25.0 that is what `--embed` writes. On 0.24.x the embedder
+>   still defaults to CLIP, and the CLI passes no model flag — set it in the
+>   environment, or the push silently produces vectors search will refuse:
+>
+> ```bash
+> DREAMLAKE_EMBED_MODEL=siglip2 dreamlake library push ./lib --thumbnails --embed
+> ```
+>
+>   Confirm with `dreamlake library info <ns>/<lib>` — `semantic` must read
+>   `true`.
 
 > **Warning:** Search always sees the latest revision, and pulls fetch the current files.
 >   When an asset matters to a scene, pull it and vendor it into the scene —
@@ -225,12 +255,16 @@ curl "$API/library-search?q=gripper&libraries=my-team/menagerie,acme/gso&kind=mj
 
 # from the terminal — scope defaults to every library you can see
 dreamlake library list --all
-dreamlake library search "coffee mug" --library acme/gso
+dreamlake library search "coffee mug" --library fortyfive/scanned-objects
 ```
 
 Keyword search scores `title`, `tags`, `id` and `description` with filters on
 `category` / `kind` / `license` / `tag`. Empty query = browse mode (filters
-still apply).
+still apply). With no `--library`, the CLI searches the 50 most recently
+updated libraries you can see; the API caps an explicit list at 50 too.
+
+Two public libraries to try: `fortyfive/menagerie` (68 MJCF robots) and
+`fortyfive/scanned-objects` (129 household objects).
 
 **Semantic search** turns on per library when you push with `--embed`:
 
@@ -238,20 +272,37 @@ still apply).
 dreamlake library push ./menagerie-lib --thumbnails --embed
 ```
 
-The embeddings are CLIP image vectors of the thumbnails and text vectors of
-the metadata (768-d, matching the platform's query encoder), stored as a
-platform artifact alongside the manifest. At query time the server embeds
-your query text in-process — the CLIP text encoder ships inside the server,
-no external service involved — fuses vector similarity with the keyword
-ranking, and marks the response `semantic: true`. Libraries pushed without
-embeddings stay keyword-only (`semantic: false`) — searching never fails
-because embeddings are missing.
+The embeddings are SigLIP2 image vectors of the thumbnails and text vectors
+of the metadata (768-d), stored as a platform artifact alongside the
+manifest. At query time the server embeds your query text in-process — an
+fp16 ONNX SigLIP2 text tower ships inside the server, no external service —
+then fuses vector similarity with the keyword ranking and marks the response
+`semantic: true`. Because SigLIP2 is multilingual, non-English queries work:
+keyword tokenization is ASCII-only, so a Chinese query carries no keyword
+tokens and ranks by vector alone.
 
-Search hits return `namespace/library/assetId` plus a presigned thumbnail —
-enough to render a card or to script a download. In the terminal each hit is
-one grep-friendly line — `ns/lib/asset  score  kind  license  — description`
-— closed by a `12 of 40 hits · semantic on` footer; `--license` and
-`--offset` complete the filter set, and `--json` returns the raw response:
+Semantic ranking is used only when the library's sidecar was produced by the
+**same model** as the active query encoder. The sidecar records its model id
+and the server compares it; a mismatch falls back to keyword-only rather
+than scoring vectors from a different space. Both encoders are 768-d, so
+dimensionality cannot catch this — only the model id can.
+
+That makes `semantic` a three-way answer, on a library row and in
+`library info`: `true` (vectors present and compatible), `false` (no
+sidecar, or one the active encoder will not use), `null` (registered before
+the flag existed). Searching never fails because embeddings are missing or
+mismatched — it quietly degrades, so check the flag rather than inferring it
+from result quality.
+
+Search hits return `namespace/library/assetId` plus a presigned thumbnail,
+the effective `license`, and two pull-cost signals: `files` (`{count,
+bytes}`) and `digest`, a `sha256:…` over the asset's sorted path/hash lines.
+The digest identifies the exact file set — equal digests mean a pull would
+transfer nothing — so a hit alone is enough to decide whether to download.
+In the terminal each hit is one grep-friendly line — `ns/lib/asset  score
+kind  license  — description` — closed by a `12 of 40 hits · semantic on`
+footer; `--license` and `--offset` complete the filter set, and `--json`
+returns the raw response:
 
 ```bash
 dreamlake library pull acme/gso --asset Cole_Hardware_Mug_Classic_Blue -o ./scene/assets
@@ -273,6 +324,11 @@ category / license counts, whether semantic search is on) or one asset's
 card: entry points, file count and bytes, effective license, `meta`, and a
 content `digest` that identifies the asset's exact file set.
 
+Both commands keep the downloaded manifest in a local cache keyed by the
+library's `revision`, so repeated checks against an unchanged library cost
+one small catalog read and no manifest download — which is what makes them
+practical against a 60 MB manifest. `--verify` re-downloads.
+
 `stat` compares that manifest against a local directory and answers with
 exactly one of `up-to-date` (exit 0), `stale: 2 files changed, 1 missing —
 pull would fetch 812 KB`, or `absent: full pull = 34 files, 4.8 MB` (both
@@ -285,17 +341,57 @@ dreamlake library stat acme/gso --asset $ID -o ./scene/assets \
 
 ## Preview it
 
-An asset's detail page mounts a viewer chosen by `kind`:
+The asset panel mounts a viewer chosen by `kind`:
 
-- `mjcf` — the interactive MuJoCo viewer (same engine as [Envs](envs.md)):
-  physics, actuator sliders, alt-drag forces.
-- `urdf` — the URDF poser with joint gizmos.
-- anything else — a file listing with per-file downloads (mesh and Gaussian-
-  splat viewers are planned; they slot into the same dispatch).
+| `kind` | Viewer |
+|---|---|
+| `mjcf` | The interactive MuJoCo viewer (same engine as [Envs](envs.md)): physics, actuator sliders, alt-drag forces. |
+| `urdf` | The URDF poser with joint gizmos. |
+| `mesh` | GLB/GLTF, OBJ, STL and mesh PLY. |
+| `splat` | 3D Gaussian splats — see below. |
+| anything else | A file listing with per-file downloads. |
 
 Entry points render as a switcher — flip between `scene.xml` and the bare
-robot without leaving the page. Files load through short-lived presigned URLs
-and are cached per content hash, so assets sharing files download them once.
+robot without leaving the panel. Files load through short-lived presigned
+URLs and are cached per content hash, so assets sharing files download them
+once.
+
+### 3D Gaussian splats
+
+Splat assets render through [Spark](https://sparkjs.dev). Supported:
+`.ply` (including PlayCanvas `.compressed.ply`), `.splat`, `.ksplat`,
+`.spz`, plus two multi-file layouts — **SOG** (a `meta.json` with sibling
+WebP planes) and **SOG-LOD** (a `lod-meta.json` naming per-level nodes).
+
+The viewer picks the flavor from the wire `format` when it is `sog` or
+`lod`, otherwise from the entry file's extension, otherwise from the entry
+filename (`meta.json` → SOG, `lod-meta.json` → LOD). Since the CLI detects
+neither multi-file layout, declare them yourself:
+
+```yaml file="dreamlake.yml"
+assets:
+  courtyard:
+    kind: splat
+    format: sog # or: lod
+    entry: courtyard/meta.json # or: courtyard/lod-meta.json
+```
+
+LOD assets render the **coarsest level only**, as a static preview — enough
+to recognize a scene without pulling a multi-hundred-megabyte tree. There is
+no distance-based level switching.
+
+### Coordinate conventions
+
+3DGS trainers emit the COLMAP/OpenCV camera frame — **Y-down**, Z-forward.
+three.js is **Y-up** right-handed. The viewer therefore applies exactly one
+π rotation about X to every splat mesh; Spark itself imposes no convention,
+and nothing else in the pipeline rotates the data.
+
+The practical consequence: assets exported by SuperSplat
+(`.compressed.ply`, SOG, SOG-LOD) are Y-down and render correctly. Polycam's
+raw `.ply` exports are **already gravity-aligned to Y-up** at export, so the
+flip double-corrects them and they appear upside-down. Rotate such an export
+before pushing it; a provenance-based exemption is not implemented.
 
 ## Pull it back
 
@@ -351,7 +447,7 @@ libraries/<namespace>/<name>/
   files/<original relative path>          ← your files, verbatim (dreamlake.yml included)
   files/.dreamlake/manifest.json          ← wire manifest — generated, machine-owned
   files/.dreamlake/thumbnails/<id>.webp   ← rendered by push --thumbnails
-  files/.dreamlake/vectors.{json,f32}     ← CLIP sidecar from push --embed
+  files/.dreamlake/vectors.{json,f32}     ← embedding sidecar from push --embed
 ```
 
 One prefix per library in platform storage. `.dreamlake/` is a **reserved
@@ -373,17 +469,18 @@ produce and register.
 | `schema` | Always `dreamlake.assets/v1`. |
 | `library` | Catalog identity: `name`, `type` (default `3d`), `title`, `description`, `provider`, `homepage`, `license`, `tags`, `upstream`. |
 | `assets[].id` | Unique within the library, path-safe. |
-| `assets[].kind` | Viewer dispatch only — any lowercase token is legal. |
+| `assets[].kind` / `format` | Viewer dispatch only. Any token matching `^[a-z0-9][a-z0-9._-]{0,31}$`; `kind` defaults to `file`, `format` is a free sub-type the CLI never infers. |
 | `assets[].entry` / `entryPoints` | The file(s) a viewer opens; must be listed in the asset's `files`. |
 | `assets[].files` | `{path, size, sha256}` objects, paths relative to the library root. sha256 drives the incremental push diff and pull verification. |
 | `assets[].thumbnail` | One of the asset's own files, or a platform artifact listed in `generated[]`. |
 | `assets[].meta` | Free-form JSON (`dof`, `triCount`, mass…), ≤ 8 KB. |
 | `generated[]` | Platform artifacts the push uploaded (thumbnails, vectors) — every path lives under `.dreamlake/`. |
 
-Limits: ≤ 20,000 assets, ≤ 100,000 file entries, manifest ≤ 20 MB. Google
-Scanned Objects at full size (1,030 assets / 35,958 files) produces a 7.5 MB
-manifest — comfortably inside. Assets may share files (a common mesh pool is
-fine); the same path with two different hashes is rejected.
+Limits: ≤ 50,000 assets, ≤ 1,000,000 file entries, ≤ 60,000 `generated[]`
+entries, manifest ≤ 100 MB. For scale, the production `fortyfive/supersplat`
+library — 14,355 Gaussian-splatting scenes — sits at roughly 60 MB. Assets
+may share files (a common mesh pool is fine); the same path with two
+different hashes is rejected.
 
 Libraries pushed under the old model (a hand- or importer-generated
 `assets.json` at the files root) keep working: the server reads the legacy

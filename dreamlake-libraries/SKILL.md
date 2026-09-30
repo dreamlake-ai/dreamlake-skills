@@ -1,6 +1,6 @@
 ---
 name: dreamlake-libraries
-description: Publish and consume DreamLake asset libraries — push a directory of 3D assets zero-config with `dreamlake library push` (assets discovered by convention, one optional dreamlake.yml for curation, thumbnails/embeddings rendered at push time), search per asset across libraries (keyword or CLIP-semantic), inspect a library or one asset without downloading (`library info`), check a local copy's freshness (`library stat`), pull the clean source tree or a single asset byte-identical, and add/remove single assets in a remote library (`library add` / `library rm`). Use when a user wants to upload a collection of 3D models/meshes/textures to DreamLake, curate one with dreamlake.yml, add thumbnails or semantic search, search libraries for a model ("find me a mug"), check whether a local copy is up to date, update or delete one asset without the full collection, or download one asset into their project.
+description: Publish and consume DreamLake asset libraries — push a directory of 3D assets zero-config with `dreamlake library push` (assets discovered by convention, one optional dreamlake.yml for curation, thumbnails/embeddings rendered at push time), search per asset across libraries (keyword or SigLIP2-semantic), inspect a library or one asset without downloading (`library info`), check a local copy's freshness (`library stat`), pull the clean source tree or a single asset byte-identical, and add/remove single assets in a remote library (`library add` / `library rm`). Use when a user wants to upload a collection of 3D models/meshes/textures to DreamLake, curate one with dreamlake.yml, add thumbnails or semantic search, search libraries for a model ("find me a mug"), publish or preview 3D Gaussian splats (ply/SOG/LOD), check whether a local copy is up to date, update or delete one asset without the full collection, or download one asset into their project.
 ---
 
 # DreamLake Asset Libraries — collections you search per asset
@@ -31,10 +31,17 @@ Discovery conventions the CLI applies:
 - **One top-level directory = one asset**; `id` = the directory name
   (`^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$`); every file inside belongs to it.
 - **Loose top-level files = single-file assets.**
-- **Kind + entry auto-detected**: `mjcf` / `urdf` / `mesh` / `splat` /
-  `image`, else `file`. For MJCF, `scene*.xml` is preferred as the entry
+- **Kind + entry auto-detected**, first match wins: `mjcf` (`.xml` with
+  `<mujoco`) / `urdf` (`.urdf`, or `.xml` with `<robot`) / `mesh` (glb
+  gltf obj stl) / `splat` (ply splat spz ksplat) / `image` (png jpg jpeg
+  webp), else `file`. For MJCF, `scene*.xml` is preferred as the entry
   and the alternatives (scene vs. bare robot) become entryPoints. Kind
-  only picks the web viewer — any value is legal.
+  only picks the web viewer — any `^[a-z0-9][a-z0-9._-]{0,31}$` token
+  is legal.
+- **`mesh`/`splat`/`image` need EXACTLY ONE matching file.** Two `.ply`
+  files ⇒ `file`. Multi-file splats (SOG = `meta.json` + WebP planes,
+  LOD = `lod-meta.json`) match nothing and land on `file` with no
+  viewer — set `kind: splat` and `format: sog`|`lod` in `dreamlake.yml`.
 - The CLI hashes files with a local cache and generates the wire manifest
   itself. Users never see or write sha256s.
 
@@ -99,13 +106,24 @@ dreamlake library push ./out-lib --namespace <ns> --library <name> \
   image in `dreamlake.yml` instead). Renders upload as PLATFORM artifacts
   under the reserved `files/.dreamlake/` area — never into the user's
   directory. A re-push WITHOUT the flag carries existing platform
-  thumbnails forward.
-- `--embed` computes CLIP vectors (ViT-L-14/openai, 768-d, thumbnails +
-  metadata text) enabling semantic search; content-hash cached, so re-runs
-  only encode what changed. Needs `pip install "dreamlake[embed]"`.
-  Without embeddings, search silently stays keyword-only — never an error.
+  thumbnails forward. Needs `pip install "dreamlake[compose]"`.
+- `--embed` computes the vectors that enable semantic search (768-d,
+  thumbnails + metadata text); content-hash cached, so re-runs only
+  encode what changed. **Requires `--thumbnails` in the same push.**
+  Needs `pip install "dreamlake[embed]"`. Without usable embeddings,
+  search silently stays keyword-only — never an error.
+  **The model must match the server's query encoder (SigLIP2) or the
+  vectors are ignored.** `dreamlake` ≥ 0.25.0 does this by default; on
+  0.24.x the embedder still defaults to CLIP and the CLI passes no model
+  flag, so export it:
+  ```bash
+  DREAMLAKE_EMBED_MODEL=siglip2 dreamlake library push ./lib --thumbnails --embed
+  ```
+  Verify with `dreamlake library info <ns>/<name>` — `semantic` must be
+  `true`.
 - `--dry-run` prints the plan (uploads, unchanged, removals); `--verify`
-  re-hashes every local file, bypassing the hash cache.
+  re-hashes every local file AND re-downloads the remote manifest,
+  bypassing both local caches. `--json` on every subcommand.
 - **Drift guard**: if the remote changed since this directory last
   registered (someone ran `library add`/`rm`, or pushed from elsewhere)
   AND your push would delete assets, push aborts listing exactly what it
@@ -131,12 +149,15 @@ fans out over up to 50 most recently updated visible libraries. Each hit
 prints as ONE line — `ns/lib/asset  score  kind  license  — description` —
 closed by a `N of T hits · semantic on|off` footer; fetch a hit's
 `thumbnailUrl` (in `--json`) when you need to SEE the asset before
-choosing.
+choosing. Hits also carry `files {count,bytes}` and a content `digest`,
+so you can judge pull cost — and skip the pull entirely when the digest
+matches what you already have — without a second call.
 
 `info` answers questions without downloading: the library summary (asset
-and file counts, total bytes, kind/category/license counts, semantic
-on/off — omitted for legacy-layout libraries, where it is unknowable
-client-side), or one asset's decision card including its content `digest`.
+and file counts, total bytes, kind/category/license counts, and
+`semantic` — `true`, `false`, or `null` for a legacy-layout library where
+it is unknowable client-side), or one asset's decision card including its
+content `digest`.
 `stat` compares the remote manifest against a local directory and prints
 `up-to-date` (exit 0) or `stale`/`absent` with the exact bytes a pull
 would fetch (exit 1), transferring nothing — script it as
@@ -181,19 +202,33 @@ contract: `library` block, `assets[]` with `{id, kind, entry, entryPoints,
 files:[{path,size,sha256}], thumbnail, tags, category, license, meta}`,
 plus `generated[]` (platform artifact paths, all under `.dreamlake/`).
 The CLI regenerates it wholesale on every push. Produce it yourself only
-when integrating over raw HTTP. Limits: ≤20k assets, ≤100k file entries,
-manifest ≤20 MB. Legacy `assets.json`-at-root libraries keep working
-(server fallback); the first new-style push migrates them.
+when integrating over raw HTTP. Limits: ≤50k assets, ≤1M file entries,
+≤60k `generated[]` entries, manifest ≤100 MB (the production
+`fortyfive/supersplat` library is 14,355 assets / ~60 MB). Legacy
+`assets.json`-at-root libraries keep working (server fallback); the first
+new-style push migrates them.
+
+`stat`/`info`/`pull`/`push` cache the downloaded manifest locally, keyed
+by the library's `revision`, so repeated reads against an unchanged
+library cost one small catalog request and no manifest download.
 
 ## In the app
 
-The Envs page (`/<ns>/envs`) has an `Environments | Libraries` segment;
-`/libraries` is the global search page (select libraries → search → asset
-cards). An asset page previews `mjcf`/`urdf` kinds in the interactive 3D
-viewer (entryPoints render as a scene switcher); every other kind lists
-its files for download. Libraries are private by default; `--visibility
-public` (or the visibility toggle) makes one appear to everyone, and
-`?share=<token>` links open a private one read-only.
+The Envs page (`/<ns>/envs`) has an `Environments | Libraries` segment
+(`?tab=libraries`); `/<ns>/libraries` redirects there, and `/libraries` is
+the global search page (select libraries → search → asset cards). A
+library card opens `/<ns>/libraries/<name>`, and an asset opens as a panel
+beside the grid at `?asset=<id>` — a shareable URL, not a separate page.
+
+Viewers by `kind`: `mjcf` → interactive MuJoCo, `urdf` → URDF poser,
+`mesh` → GLB/GLTF/OBJ/STL/PLY, `splat` → 3D Gaussian splats via Spark
+(`.ply` incl. `.compressed.ply`, `.splat`, `.ksplat`, `.spz`, SOG, and
+SOG-LOD which previews the coarsest level only). Every other kind lists
+its files for download. entryPoints render as a switcher.
+
+Libraries are private by default; `--visibility public` (or the
+visibility toggle) makes one appear to everyone, and `?share=<token>`
+links open a private one read-only.
 
 ## Gotchas
 
@@ -210,6 +245,17 @@ public` (or the visibility toggle) makes one appear to everyone, and
   first).
 - A push registers metadata FROM the source (`dreamlake.yml` +
   detection); the dashboard only edits visibility/share.
+- `defaults:` accepts exactly `category`, `license`, `tags` — and only
+  `tags` merges; the other two are fallbacks a per-asset value overrides.
+- **Semantic search is silent when it degrades.** A library whose sidecar
+  was embedded with a different model than the server's query encoder is
+  keyword-only with no error. Check `library info` → `semantic`, don't
+  infer it from result quality.
+- **Splat orientation**: the viewer applies one 180° X-flip because 3DGS
+  trainers emit Y-down (COLMAP/OpenCV) and three.js is Y-up. SuperSplat
+  output (`.compressed.ply`, SOG, LOD) is correct. Polycam raw `.ply` is
+  already gravity-aligned Y-up, so it renders upside-down — rotate it
+  before pushing.
 - `pnpm cli library …` in the CLI repo for dev — and never
   `pnpm cli -- library …`: the `--` makes commander treat every flag as
   positional.

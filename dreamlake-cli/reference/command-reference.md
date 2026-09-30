@@ -155,6 +155,12 @@ See [External sources](sources.md).
 Asset libraries — a plain directory of 3D assets, searchable per asset.
 Guide: [docs.dreamlake.ai/libraries](https://docs.dreamlake.ai/libraries/).
 
+`--embed` shells out to the `dreamlake` Python package and must produce
+vectors from the same model as the server's query encoder (**SigLIP2**),
+or search ignores them and stays keyword-only. With `dreamlake` 0.24.x,
+which still defaults to CLIP, set `DREAMLAKE_EMBED_MODEL=siglip2` for the
+push. Verify with `library info <ns>/<name>` — `semantic` must be `true`.
+
 | Command | What it does |
 | --- | --- |
 | `library push <dir> [--namespace <ns>] [--library <n>]` | Push a directory as a library (assets discovered by convention, sha256-diff incremental); `--thumbnails`, `--embed`, `--dry-run`, `--verify` |
@@ -162,8 +168,8 @@ Guide: [docs.dreamlake.ai/libraries](https://docs.dreamlake.ai/libraries/).
 | `library pull <ns>/<name> [--asset <id>] [-o <dir>] [--json]` | Materialize files, hash-verified and incremental — byte-identical local files are skipped, a non-empty directory is synced (extras never deleted); `--all` adds platform artifacts |
 | `library list [--namespace <ns>] [--all] [--json]` | Libraries in a namespace, or every visible library |
 | `library search <query> [--library ns/a,ns/b] [--json]` | Per-asset search, one line per hit + `N of T hits · semantic on\|off` footer; filters `--kind --category --tag --license --limit --offset` |
-| `library stat <ns>/<name> [--asset <id>] [-o <dir>] [--json]` | Freshness check against a local directory — `up-to-date` (rc 0) / `stale` / `absent` (rc 1); transfers no bytes |
-| `library info <ns>/<name> [--asset <id>] [--json]` | Library summary (facet counts, size, semantic) or one asset's decision card (files, bytes, digest, effective license) |
+| `library stat <ns>/<name> [--asset <id>] [-o <dir>] [--json]` | Freshness check against a local directory — `up-to-date` (rc 0) / `stale` / `absent` (rc 1); transfers no bytes, and an unchanged revision reuses the locally cached manifest (`--verify` re-downloads) |
+| `library info <ns>/<name> [--asset <id>] [--json]` | Library summary (facet counts, size, semantic) or one asset's decision card (files, bytes, digest, effective license); `--verify` bypasses the local manifest cache |
 | `library add <ns>/<name> <path> [--id <id>] [--title …] [--replace] [--dry-run] [--json]` | Add ONE asset to a remote library, no full local copy needed; `--replace` updates an existing id in place |
 | `library rm <ns>/<name> <assetId…> [--dry-run] [--json]` | Remove assets remotely (the server reclaims their files); refuses to empty a library |
 
