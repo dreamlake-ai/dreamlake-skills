@@ -651,6 +651,30 @@ a saved comment edits its object while the reference stays fixed. In Sidebar
 view the borderless editor and its Save action share the comment container;
 Save waits for the latest save before closing. Comments have no replies; conversations belong in chats.
 
+The sidebar starts with Comments when review annotations are present. In
+**Settings → Sidebar suggestions**, Automatic learns a small preference model
+from comment use and corrections; fixed Comments and Contents modes disable
+that automatic choice. The model makes at most one decision per note visit,
+when preview is enabled and the pane has room. Choosing a tab or collapsing the
+sidebar takes priority for the rest of that visit. Narrow panes keep annotations
+inline. An empty Comments view falls back to Contents without erasing the choice.
+
+New choices do not create per-note preference records. Existing saved note
+choices remain readable for compatibility. Learning is saved per account in
+this browser, with eight numeric context features, at most 32 recent feedback
+records, and an 8 KiB total storage cap. Records exclude note identifiers,
+titles, authors and bodies. Settings shows observation counts, storage use,
+recent outcomes and selection probabilities. You can choose how often the
+other view is tried, stop keeping recent records, clear records, or reset
+learning. Disabling or clearing the record history does not erase the aggregate
+model; Reset learning clears both while preserving your settings.
+
+The initial exploration rate is 5%. Comment use is a small positive signal;
+dismissing Comments or manually opening it after Contents corrects the model.
+Inactivity is never positive feedback. A decision without an explicit correction
+is evaluated after 60 visible, focused seconds; incomplete visits are discarded.
+These signals estimate interface usefulness, not user satisfaction.
+
 **Comments → Inline / Sidebar** changes the current view, independently of
 storage. Inline comments show the author label and italic text in the author's
 collaboration color, with faint brackets around the body. Sidebar comments use
