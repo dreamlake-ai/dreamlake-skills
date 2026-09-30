@@ -203,8 +203,8 @@ files:[{path,size,sha256}], thumbnail, tags, category, license, meta}`,
 plus `generated[]` (platform artifact paths, all under `.dreamlake/`).
 The CLI regenerates it wholesale on every push. Produce it yourself only
 when integrating over raw HTTP. Limits: ≤50k assets, ≤1M file entries,
-≤60k `generated[]` entries, manifest ≤100 MB (the production
-`fortyfive/supersplat` library is 14,355 assets / ~60 MB). Legacy
+≤60k `generated[]` entries, manifest ≤100 MB (a production library of
+14,355 splat scenes yields a ~60 MB manifest). Legacy
 `assets.json`-at-root libraries keep working (server fallback); the first
 new-style push migrates them.
 

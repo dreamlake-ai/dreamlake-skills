@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "36d2d22ec5110050cc207d50e9d67630f7b5c79fd7856315620ed598b908f876",
+  "sourcesSha256": "88b3cb5487e3feb0818c7a3da4bf05ceeeb365448c99d1e6148af4eccb6b80da",
   "files": {
     "dreamlake-cli/SKILL.md": "8424edbf0bb95493a3b8d6648b9ca2476b7c4bbafa6f262752313b9e26a16e8d",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -77,7 +77,7 @@
     "dreamlake-scene-generation/actions/publish-and-iterate.md": "25de2f8b623ea8101df1e494099965765ce7585877024ddfeefc0c3f819d8df8",
     "dreamlake-scene-generation/reference/envs-layers.md": "f5844aa6dabbbd67688a8dded6fa00108db4ca28debed73856a8f6af7b42d98d",
     "dreamlake-scene-generation/reference/envs.md": "3f76f3c347376f45c636fcff1847988bc6b2e37f38e53eb4d46c5eee6eb834f7",
-    "dreamlake-scene-generation/reference/libraries.md": "ba699d420b07ded1a2696ae7a4fd7f70c8640809e11d14dd20e278eb373530b2",
+    "dreamlake-scene-generation/reference/libraries.md": "d414fb8fd1415ed2e51abffe5af89140bfaf31f779a5b80bdf9fead550ff0011",
     "dreamlake-scene-generation/reference/scene-generation.md": "1f62e35b008918b51e5dbfdd9fe4ef3a060079c315595c7651e8d2fc27d07471",
     "dreamlake-scene-generation/tools/scene_common.py": "090dfdbb0c3c31a4285314f6cf82c2f48712e7092be6ae12e89ac65e0c7e2c62",
     "dreamlake-scene-generation/tools/scene_render.py": "e44a3ac5c99e65f2c252d3c072c27f376f29556fb3771d48ed7b1811f8563c6a",

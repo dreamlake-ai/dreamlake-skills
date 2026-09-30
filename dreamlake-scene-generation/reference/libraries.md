@@ -477,10 +477,10 @@ produce and register.
 | `generated[]` | Platform artifacts the push uploaded (thumbnails, vectors) — every path lives under `.dreamlake/`. |
 
 Limits: ≤ 50,000 assets, ≤ 1,000,000 file entries, ≤ 60,000 `generated[]`
-entries, manifest ≤ 100 MB. For scale, the production `fortyfive/supersplat`
-library — 14,355 Gaussian-splatting scenes — sits at roughly 60 MB. Assets
-may share files (a common mesh pool is fine); the same path with two
-different hashes is rejected.
+entries, manifest ≤ 100 MB. For scale, a production library of 14,355
+Gaussian-splatting scenes produces a manifest of roughly 60 MB. Assets may
+share files (a common mesh pool is fine); the same path with two different
+hashes is rejected.
 
 Libraries pushed under the old model (a hand- or importer-generated
 `assets.json` at the files root) keep working: the server reads the legacy
