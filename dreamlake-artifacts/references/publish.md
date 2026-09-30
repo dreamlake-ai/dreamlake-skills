@@ -16,9 +16,10 @@
 
 CLI 0.39.1 and later uses incremental storage by default: `dreamlake artifact push <file> --id <id>`.
 CLI 0.38.0 through 0.39.0 requires `--incremental` to opt in.
-For an older self-hosted viewer, pass `--no-incremental` until incremental-reader support is deployed.
+Use `--full` (CLI 0.39.2+) to upload the entire file, including for older self-hosted viewers.
+`--no-incremental` remains a compatibility alias; use that spelling with CLI 0.39.1.
 The first incremental push establishes chunks; subsequent pushes send only new compressed chunks.
-The original single-blob format remains available with `--no-incremental`, including in the same history. Keep the same `--id`.
+The original single-blob format remains available with `--full`, including in the same history. Keep the same `--id`.
 See the authoritative [incremental upload contract](https://cli.dreamlake.ai/artifacts#incremental-uploads)
 for limits, retry behavior, and older-viewer compatibility.
 
