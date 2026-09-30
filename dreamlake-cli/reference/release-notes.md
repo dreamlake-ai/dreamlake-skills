@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.37.1 — Staging receipt web links
+
+Receipt `open:` URLs printed against the built-in staging environment now
+target the web app (`https://staging.dreamlake.ai/…`) instead of the API
+host (`staging-api.dreamlake.ai`), across `env`, `artifact`, `workflow`
+and `share` receipts. Custom API hosts are still never guessed: only a
+leading `api.` label is stripped, anything else prints unchanged. Released
+CLIs (≤ 0.37.0) print the staging API host; setting
+`DREAMLAKE_WEB_URL=https://staging.dreamlake.ai` is a working workaround
+there. See [Environments](environments.md).
+
 ## 0.37.0 — Inline image upload
 
 - Add `notes media upload <file>`: upload an image or video and print its embeddable URL directly. Saved login credentials are reused; `--json` is optional. Media URLs allow access to anyone holding them; private note attachments remain separate.

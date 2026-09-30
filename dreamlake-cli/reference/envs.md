@@ -55,6 +55,10 @@ Each push prints what was uploaded vs reused, and the web URL:
   open:      https://dreamlake.ai/geyang/envs/cassie
 ```
 
+The `open:` URL targets the **web app** of the active environment, not its
+API server — see [Environments § Receipt web links](environments.md) for the
+known prod/staging mapping and the `DREAMLAKE_WEB_URL` override.
+
 ## List, pull, delete
 
 ```bash file="terminal"

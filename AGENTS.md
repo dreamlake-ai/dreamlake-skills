@@ -4,8 +4,8 @@ Docs are the first-class, reviewed source of product procedures and examples.
 Correct the owning docs before changing a generated skill. Keep skill entrypoints
 small: trigger, navigation and provenance; do not independently rewrite APIs.
 
-For Notes/CLI content, read the source mapping and commands in README.md and
-run `scripts/sync-docs.py` against committed source checkouts. Commit the
+For Notes/CLI/scene-generation content, read the source mapping and commands
+in README.md and run `scripts/sync-docs.py` against committed source checkouts. Commit the
 resulting skill files, `sources.json` and `generated-files.json` together.
 Run current-source `--check` before calling synchronization complete;
 `--locked` proves only reproduction, and `--verify-files` proves only integrity.

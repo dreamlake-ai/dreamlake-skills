@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "15e3967aaa43a8ae8b4a1c9f5d4b38785c5579aaf3caf99fd4fd1b27c39fe9ee",
+  "sourcesSha256": "37214b1233ebdb0b21827cf97c5b94a5d894d447b9a63d5fac6b107076a9f5f5",
   "files": {
     "dreamlake-cli/SKILL.md": "8424edbf0bb95493a3b8d6648b9ca2476b7c4bbafa6f262752313b9e26a16e8d",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -17,8 +17,8 @@
     "dreamlake-cli/reference/dev-notes-queue-mount-release.md": "c327e13062120e904c242dc2830b24ff9ab39c6cd1d98c6135d432989f540829",
     "dreamlake-cli/reference/dev-notes-task-session-scope.md": "a41a1832b4cd036048494580aa1d6aa8f02421b616b146489e548c4e34b38a0a",
     "dreamlake-cli/reference/downloading.md": "056808a0f44a28b6dc1f4d1b1e42c438e5476c75100f4bc88c8e1d59dc1d7b79",
-    "dreamlake-cli/reference/environments.md": "c4e1cdff8662e20c9016e3a7cd9a28355ec12df415ed80d796dc0ed6f3acc1d7",
-    "dreamlake-cli/reference/envs.md": "e3b2b671a68219871939b604eea478572ced6bc92c596ad5ac5ad52271464e8d",
+    "dreamlake-cli/reference/environments.md": "b371be1dd439dc33d96da0ca25fca886e017cc5b7100473ee32fd878fff39722",
+    "dreamlake-cli/reference/envs.md": "8f9d8f1a7b8c60d7ff20bd18df2cf129d69d9b4414c186329ce9e3828696cc05",
     "dreamlake-cli/reference/host-enrollment.md": "97e06ea2e8e0a08e75a044a62b3ea96fa78e1816a967087f975a73e9464b0812",
     "dreamlake-cli/reference/installation.md": "fc3eb041c320b80ffa45411498eaf29aa7c248f373a7aea59dcac169a79b4a47",
     "dreamlake-cli/reference/lakeshore.md": "2752e2e67a8ec3d963cc6e06e67de0a18397ca5ef607dbb02c8fca5aeab00877",
@@ -38,7 +38,7 @@
     "dreamlake-cli/reference/providers.md": "33a632bb1fe989dc33d8694e977d8b04729aa306616810ec2e5958315a8b40c0",
     "dreamlake-cli/reference/queues.md": "5db8bbe7fa9f9c83ed606f6a7fe06da2d3db6ac31d863ef8ab37f23e972bbf22",
     "dreamlake-cli/reference/quick-start.md": "5fb0f9f7439ad80e0906ea25059436e851ec38e97b2fcb5375b0fd7008857a76",
-    "dreamlake-cli/reference/release-notes.md": "d3e23cbc821f9444b660ea503cc605139da2333afcd20c888af7e97264367271",
+    "dreamlake-cli/reference/release-notes.md": "c61af0823f539af4c9dbdfe158243634d740662ad0e2cd1f6fce6a043ba52e7f",
     "dreamlake-cli/reference/runs.md": "2647689513d50208c25ac38c69a5753918ab6d334bad7d870c0c84674ac26ad9",
     "dreamlake-cli/reference/skills.md": "159a88d0200717062cb27ffb3f5a1bee2145ec9f279184ef451466373f8c6f73",
     "dreamlake-cli/reference/snapshot-launch.md": "4f72a7a5722decb9bea76306add6f552ed56daccbb5a5b1897569493c5e551fc",
@@ -69,6 +69,20 @@
     "dreamlake-notes/reference/notes-markdown.md": "611ca5ff43c4782b6f9decd939b17265772a62e23c570ce8fe2b336387a22f2f",
     "dreamlake-notes/reference/notes-panels.md": "9039cfbe6032fd8f81d279d5ab732895a8eaaed2e88bf04945b68e1061985ddb",
     "dreamlake-notes/reference/notes-reading.md": "af515337d771e707819144bcca85e00eba1463b32beaade4597356bf97470ca3",
-    "dreamlake-notes/reference/notes.md": "2c617f2a0e4110680d0a030ea6247a5df8af9e3f1822ef507c8bce5d6e211f21"
+    "dreamlake-notes/reference/notes.md": "2c617f2a0e4110680d0a030ea6247a5df8af9e3f1822ef507c8bce5d6e211f21",
+    "dreamlake-scene-generation/SKILL.md": "441643e952f601f367659cb292ed023f2817e1700668053951454dd93cc3c28d",
+    "dreamlake-scene-generation/actions/compose-and-validate.md": "be8336eda2181a073b6306ae5c92e81ef0bdaacf4cdc4039a1b3513bf2989086",
+    "dreamlake-scene-generation/actions/design-and-inspect.md": "85b001ff0a4aade57ff968e273aa4e1b5c6f76b12c858e5138e691310031ac49",
+    "dreamlake-scene-generation/actions/find-assets.md": "1cf4dfe196593409b3a0e7a927d1a1e2fd1943564121ea22ece0e9acd0d0e419",
+    "dreamlake-scene-generation/actions/publish-and-iterate.md": "25de2f8b623ea8101df1e494099965765ce7585877024ddfeefc0c3f819d8df8",
+    "dreamlake-scene-generation/reference/envs-layers.md": "f5844aa6dabbbd67688a8dded6fa00108db4ca28debed73856a8f6af7b42d98d",
+    "dreamlake-scene-generation/reference/envs.md": "3f76f3c347376f45c636fcff1847988bc6b2e37f38e53eb4d46c5eee6eb834f7",
+    "dreamlake-scene-generation/reference/libraries.md": "e83c526b5f77627059ed6695cb83d9fa48b7c5ed779872ebf9173cf020e0bd9c",
+    "dreamlake-scene-generation/reference/scene-generation.md": "92e4a1543d9364d77083ee84ac4aeac5c51a998e9054a17ee6a6d2599b98c0fa",
+    "dreamlake-scene-generation/tools/scene_common.py": "090dfdbb0c3c31a4285314f6cf82c2f48712e7092be6ae12e89ac65e0c7e2c62",
+    "dreamlake-scene-generation/tools/scene_render.py": "e44a3ac5c99e65f2c252d3c072c27f376f29556fb3771d48ed7b1811f8563c6a",
+    "dreamlake-scene-generation/tools/scene_report.py": "3da10c73054c986039275b9917782c1a8cd8f86c97e0baafe6c9146910ab057b",
+    "dreamlake-scene-generation/tools/scene_validate.py": "3d32d1f6b5ef65c243c2639d943edc04d05923cbadb104ead9dcd98c65351e6f",
+    "dreamlake-scene-generation/tools/test_scene_tools.py": "51d399f471b051541104caaa3a4b36ffc556cb096a9550bbe7ecb077b169b43d"
   }
 }

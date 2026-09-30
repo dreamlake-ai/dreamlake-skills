@@ -16,7 +16,8 @@ REPOS = {
     'workspace': 'https://github.com/dreamlake-ai/dreamlake-workspace',
     'cli': 'https://github.com/dreamlake-ai/dreamlake-cli',
 }
-SCOPES = ('dreamlake-notes/', 'dreamlake-cli/')
+SCOPES = ('dreamlake-notes/', 'dreamlake-cli/', 'dreamlake-scene-generation/')
+SCENE_REFERENCES = ('scene-generation', 'libraries', 'envs', 'envs-layers')
 NOTES_REFERENCES_FROM_CLI = ('notes-reading', 'notes-editing', 'notes-collaboration', 'notes-attachments', 'notes-legacy')
 NOTES_REFERENCE_ROUTES = {
     '/notes/': 'notes.md',
@@ -94,7 +95,9 @@ def snapshot(source, revision, dest):
     return revision
 
 
-def absolute_reference_links(body, pages):
+def absolute_reference_links(body, pages, bundled=frozenset()):
+    """Rewrite generated-reference sibling links: keep the ones bundled with
+    the skill relative, resolve everything else to its canonical docs URL."""
     routes = {}
     for page in pages.rglob('+Page.mdx'):
         rel = page.parent.relative_to(pages).as_posix()
@@ -104,12 +107,46 @@ def absolute_reference_links(body, pages):
     chunks = re.split(r'(^```[^\n]*\n[\s\S]*?^```[^\n]*(?:\n|$))', body.decode(), flags=re.M)
     def replace(match):
         filename, anchor = match[1], match[2] or ''
+        if filename in bundled:
+            return '](' + filename + anchor + ')'
         if filename not in routes:
-            raise ValueError(f'Unresolved Notes reference: {filename}')
+            raise ValueError(f'Unresolved docs reference: {filename}')
         return '](' + routes[filename] + anchor + ')'
     for i in range(0, len(chunks), 2):
         chunks[i] = re.sub(r'\]\((?:\./)?([^/:)#]+\.md)(#[^)]*)?\)', replace, chunks[i])
     return ''.join(chunks).encode()
+
+
+def scene_generation_outputs(dest):
+    """Assemble the dreamlake-scene-generation skill from a generated
+    workspace snapshot: guide router + actions + tools from the committed
+    guide source, plus the generated reference pages it routes to."""
+    outputs = {}
+    guide_root = dest / 'docs/skill-guides/scene-generation'
+    for path in sorted(guide_root.rglob('*')):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(guide_root).as_posix()
+        if rel == 'SKILL.md' or rel.startswith(('actions/', 'tools/')):
+            outputs['dreamlake-scene-generation/' + rel] = path.read_bytes()
+    skill_md = outputs.get('dreamlake-scene-generation/SKILL.md', b'')
+    front = re.match(rb'---\n(.*?)\n---\n', skill_md, re.S)
+    if not front or not re.search(rb'^name: dreamlake-scene-generation$', front[1], re.M) \
+            or not re.search(rb'^description: .{40,}', front[1], re.M):
+        raise ValueError(
+            'scene-generation SKILL.md needs frontmatter with name '
+            'dreamlake-scene-generation and a substantive description')
+    if not any(name.startswith('dreamlake-scene-generation/tools/') for name in outputs):
+        raise ValueError('scene-generation guide source is missing its tools/')
+    bundled = frozenset(f'{name}.md' for name in SCENE_REFERENCES)
+    for name in SCENE_REFERENCES:
+        page = dest / f'skills/dreamlake/reference/{name}.md'
+        if not page.is_file():
+            raise ValueError(f'workspace generator did not produce reference/{name}.md')
+        outputs[f'dreamlake-scene-generation/reference/{name}.md'] = absolute_reference_links(
+            page.read_bytes(), dest / 'docs/pages', bundled
+        )
+    return outputs
 
 
 def notes_reference_links(body, docs_url):
@@ -150,7 +187,8 @@ def collect_sources(paths, locked=None):
             guide_name = 'notes' if name == 'workspace' else 'cli'
             sources[name]['actionGuides'] = action_guide_hashes(dest, guide_name)
             sources[name]['docsPages'] = (
-                'docs/pages/notes/+Page.mdx' if name == 'workspace' else 'docs/pages/**/+Page.mdx'
+                'docs/pages/{notes,scene-generation,libraries,envs,envs/layers}/+Page.mdx'
+                if name == 'workspace' else 'docs/pages/**/+Page.mdx'
             )
             if name == 'cli':
                 cli_skill = dest / 'skills/dreamlake-cli'
@@ -186,8 +224,22 @@ def collect_sources(paths, locked=None):
                         child_pages[child.relative_to(dest).as_posix()] = sha(child.read_bytes())
                 if child_pages:
                     sources[name]['childPages'] = child_pages
+                sources[name]['actionGuides'].update(
+                    action_guide_hashes(dest, 'scene-generation'))
+                scene_pages = {
+                    'scene-generation': 'docs/pages/scene-generation/+Page.mdx',
+                    'libraries': 'docs/pages/libraries/+Page.mdx',
+                    'envs': 'docs/pages/envs/+Page.mdx',
+                    'envs-layers': 'docs/pages/envs/layers/+Page.mdx',
+                }
+                sources[name]['scenePages'] = {
+                    path: sha((dest / path).read_bytes()) for path in scene_pages.values()
+                }
+                outputs.update(scene_generation_outputs(dest))
     if not outputs.get('dreamlake-cli/SKILL.md'):
         raise ValueError('CLI generator did not produce its expected skill')
+    if not outputs.get('dreamlake-scene-generation/SKILL.md'):
+        raise ValueError('workspace source did not produce the scene-generation skill')
     return outputs, {'version': 1, 'sources': sources}
 
 

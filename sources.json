@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "116368c146c5eaee0b0858bec8a07fa656b8a0ce",
+      "commit": "89c07f18ffbd9a132f84aa56fb6aa2b5686289a4",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "bc0eba9799afd1a42cd7e596f750120c9b56c045e02aeffa5dc00899d502d741",
@@ -13,9 +13,19 @@
         "docs/skill-guides/notes/actions/identity.md": "a642257851acea7aa4282cb0ea10dc1fa23b1dc08477c966cfa8ba901605f99c",
         "docs/skill-guides/notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
         "docs/skill-guides/notes/actions/read.md": "9cf08956fda8ff8d9b051812359cd6dd41150ee45054b0a8148f90daf6c3399a",
-        "docs/skill-guides/notes/actions/watch.md": "7561b57961bdc057ebbef89fdf12367e72d50d82a3ca3678e757a313a6de3f5f"
+        "docs/skill-guides/notes/actions/watch.md": "7561b57961bdc057ebbef89fdf12367e72d50d82a3ca3678e757a313a6de3f5f",
+        "docs/skill-guides/scene-generation/SKILL.md": "441643e952f601f367659cb292ed023f2817e1700668053951454dd93cc3c28d",
+        "docs/skill-guides/scene-generation/actions/compose-and-validate.md": "be8336eda2181a073b6306ae5c92e81ef0bdaacf4cdc4039a1b3513bf2989086",
+        "docs/skill-guides/scene-generation/actions/design-and-inspect.md": "85b001ff0a4aade57ff968e273aa4e1b5c6f76b12c858e5138e691310031ac49",
+        "docs/skill-guides/scene-generation/actions/find-assets.md": "1cf4dfe196593409b3a0e7a927d1a1e2fd1943564121ea22ece0e9acd0d0e419",
+        "docs/skill-guides/scene-generation/actions/publish-and-iterate.md": "25de2f8b623ea8101df1e494099965765ce7585877024ddfeefc0c3f819d8df8",
+        "docs/skill-guides/scene-generation/tools/scene_common.py": "090dfdbb0c3c31a4285314f6cf82c2f48712e7092be6ae12e89ac65e0c7e2c62",
+        "docs/skill-guides/scene-generation/tools/scene_render.py": "e44a3ac5c99e65f2c252d3c072c27f376f29556fb3771d48ed7b1811f8563c6a",
+        "docs/skill-guides/scene-generation/tools/scene_report.py": "3da10c73054c986039275b9917782c1a8cd8f86c97e0baafe6c9146910ab057b",
+        "docs/skill-guides/scene-generation/tools/scene_validate.py": "3d32d1f6b5ef65c243c2639d943edc04d05923cbadb104ead9dcd98c65351e6f",
+        "docs/skill-guides/scene-generation/tools/test_scene_tools.py": "51d399f471b051541104caaa3a4b36ffc556cb096a9550bbe7ecb077b169b43d"
       },
-      "docsPages": "docs/pages/notes/+Page.mdx",
+      "docsPages": "docs/pages/{notes,scene-generation,libraries,envs,envs/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
       "pageSha256": "b7c4f101aca1cd7a2653078a41a3b225d77d6091cfa9ba5c67fbe4631fb18043",
       "childPages": {
@@ -23,11 +33,17 @@
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
         "docs/pages/notes/markdown/+Page.mdx": "f4ac685c586a7d8c09cc727863cabee468b3bea8efb863d57cd56908e4976f12",
         "docs/pages/notes/panels/+Page.mdx": "ac1dbec1194d0aa24827309536476a88e6fbe97c8fd3d2d497a7ef8eaeb93220"
+      },
+      "scenePages": {
+        "docs/pages/scene-generation/+Page.mdx": "f2b76bd9d7a162e37e2f48596aab0d0b6693191d37d19d4d34938beef72b007a",
+        "docs/pages/libraries/+Page.mdx": "2a8227f1ef18dd655fdb164d7bc51a359a0887c92882fe6e0b97f791ead3bbbb",
+        "docs/pages/envs/+Page.mdx": "1c2c8431c02589c3e808c006dcb2a30984dcc507613af07506bcdd2c6b96a382",
+        "docs/pages/envs/layers/+Page.mdx": "db22da3e272b248496aae3c66b029c0571a92371f409dac30ed198f59f3c0bf0"
       }
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "583c64a6c8512ad2c3e52cdc5767586ff70e32e0",
+      "commit": "7fca3f78733e9770f28ec6b9bc6efa8ab6db47a3",
       "generatorSha256": "fbeb216d7f0fdfc9cf1cbfa1ee7871d3a7c57a244fe6ace0d0ea0270ccf83a18",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "8424edbf0bb95493a3b8d6648b9ca2476b7c4bbafa6f262752313b9e26a16e8d",
