@@ -41,13 +41,13 @@ layers are resolved through the immutable, hash-verified cache at
 
 The engine needs **MuJoCo ≥ 3.8** (validated on 3.8.1 and 3.14.0): it
 drives the modern `MjSpec` class API, which MuJoCo 3.2's early spec
-bindings do not provide. Released dreamlake 0.23 still *declares*
+bindings do not provide. dreamlake 0.23.0 still *declares*
 `mujoco>=3.2.0`, so a 3.2 environment installs cleanly and then fails at
 the first layer with a `from_file(): incompatible function arguments`
-error — upgrade mujoco. <em>The corrected dependency floor and an
-explicit up-front version guard are in source, unreleased until the next
-dreamlake-py release.</em> (The standalone scene-inspection tools are
-separate and do run on 3.2.)
+error — upgrade mujoco. From **dreamlake 0.23.1** the package declares
+the real `mujoco>=3.8` floor and the engine refuses an older MuJoCo up
+front with an explicit version error. (The standalone scene-inspection
+tools are separate and do run on 3.2.)
 
 ## The file: `dreamlake.layers.json`
 
@@ -173,11 +173,11 @@ catches typos and stale stacks immediately. `name` / `class` /
 them. Singletons work the same way: `{"key": "option", "impratio": 10}`,
 `{"key": "visual:headlight", "ambient": [0.1, 0.2, 0.3]}`.
 
-**Orientations.** In released dreamlake 0.23 an `Update`/`Patch` opinion
+**Orientations.** In dreamlake 0.23.0 an `Update`/`Patch` opinion
 can re-orient an element through `quat` only — an `xyaxes` opinion fails
 with *"has no attribute settable through MjSpec"* (authoring `xyaxes` in
-a layer's own MJCF is unaffected; that resolves inside MuJoCo). <em>In
-source, unreleased:</em> orientation opinions also accept MuJoCo's
+a layer's own MJCF is unaffected; that resolves inside MuJoCo). <em>From
+0.23.1:</em> orientation opinions also accept MuJoCo's
 alternative specifiers — `xyaxes` (6 numbers), `euler` (3), `axisangle`
 (4), `zaxis` (3) — on elements that support them (body, geom, site,
 camera), resolved by MuJoCo's own compiler exactly as raw-MJCF authoring
@@ -187,10 +187,10 @@ alternate, and vice versa. Wrong-length or non-finite vectors are
 compose errors with the expected shape.
 
 **Boolean flags.** MJCF boolean attributes (`active`, `castshadow`,
-body `mocap`) take `true`/`false`. On MuJoCo 3.14 this works in released
-0.23; on MuJoCo 3.8, where MjSpec stores these flags as ints, released
-0.23 fails to coerce `false` (`invalid literal for int()`). <em>Fixed in
-source, unreleased:</em> the flag names above coerce `true`/`false` on
+body `mocap`) take `true`/`false`. On MuJoCo 3.14 this works in
+0.23.0; on MuJoCo 3.8, where MjSpec stores these flags as ints,
+0.23.0 fails to coerce `false` (`invalid literal for int()`). <em>Fixed
+in 0.23.1:</em> the flag names above coerce `true`/`false` on
 both representations; genuinely numeric fields (`contype`, bitmasks,
 enums) still reject `true`/`false` rather than guessing.
 
@@ -421,8 +421,8 @@ CLI read v3 only, and a v2 file gets an error carrying this table:
 | ambiguous address | a bare `key` matches more than one kind (a body and a geom named alike) | qualify it: `body:thing` |
 | env src not resolved ("resolve refs first") | the Python engine was invoked directly on a stack that still contains registry srcs — the engine only takes resolved local paths | run through `dreamlake env compose`, which resolves refs into `~/.dreamlake/cache/envs/…` first; for private layers, check you are logged in to the right remote |
 | missing Python engine | `dreamlake env compose` delegates materialization to dreamlake-py, and it (or its mujoco extra) is not installed | `pip install "dreamlake[compose]"` on the composing machine. Machines that only push / pull / list don't need it |
-| `from_file(): incompatible function arguments` at layer 0 | MuJoCo 3.2 is installed — released 0.23 declares `>=3.2.0` but the engine needs the modern MjSpec API | upgrade: `pip install -U "mujoco>=3.8"` (validated 3.8.1 / 3.14.0) |
-| Update `xyaxes`: "has no attribute … settable through MjSpec" | released 0.23 supports orientation opinions via `quat` only | state a `quat` opinion (compute it from your look-at axes), or put the `xyaxes` in the layer's own MJCF; alternate-orientation opinions are in source, unreleased |
+| `from_file(): incompatible function arguments` at layer 0 | MuJoCo 3.2 is installed — dreamlake 0.23.0 declares `>=3.2.0` but the engine needs the modern MjSpec API (0.23.1 declares `>=3.8` and guards this up front) | upgrade: `pip install -U "mujoco>=3.8"` (validated 3.8.1 / 3.14.0) |
+| Update `xyaxes`: "has no attribute … settable through MjSpec" | dreamlake 0.23.0 supports orientation opinions via `quat` only | upgrade to dreamlake ≥ 0.23.1, which accepts the alternate orientation specifiers — or state a `quat` opinion (compute it from your look-at axes), or put the `xyaxes` in the layer's own MJCF |
 
 ## Under the hood: the engine boundary
 

@@ -33,10 +33,11 @@ The loop this guide teaches:
 - Python with `pip install "dreamlake[compose]"` for `dreamlake env compose`
   (installs the layer engine and `mujoco`; dreamlake-py ≥ 0.23). The engine
   needs **MuJoCo ≥ 3.8** — use 3.14, the version this workflow is validated
-  with; released 0.23 still _declares_ `>=3.2.0` but composition fails on
-  3.2 (see [layers § requirements](envs-layers.md#requirements)). A plain
+  with; dreamlake 0.23.0 still _declares_ `>=3.2.0` but composition fails on
+  3.2, and 0.23.1 declares the real `>=3.8` floor (see
+  [layers § requirements](envs-layers.md#requirements)). A plain
   unpinned install does not ensure 3.14 — pin it:
-  `pip install "dreamlake[compose]==0.23.0" "mujoco==3.14.0"` in a fresh
+  `pip install "dreamlake[compose]==0.23.1" "mujoco==3.14.0"` in a fresh
   venv, and verify with
   `python -c "import dreamlake, mujoco; print(dreamlake.__version__, mujoco.__version__)"`
   (a step-by-step venv setup is in the
@@ -403,9 +404,10 @@ receipt, and report ambiguity rather than assuming.
 
 Open the printed link and actually look: hero framing, materials under the
 viewer's lighting, props resting where placed, play/pause behaves. On the
-staging deployment, released CLIs (≤ 0.35.0) print the API host in that
+staging deployment, CLIs ≤ 0.37.0 print the API host in that
 link — set `DREAMLAKE_WEB_URL=https://staging.dreamlake.ai` (an override
-released CLIs already honor) or navigate to your namespace's Envs page.
+those CLIs already honor) or upgrade to CLI ≥ 0.37.1, whose receipts
+target the web app directly.
 The env page renders `mujoco`-type envs in the interactive viewer; `urdf`
 gets the kinematic poser; other types list files only. The first member
 visit captures the gallery thumbnail from your `thumbnail` camera.
@@ -417,10 +419,10 @@ edit the XML, re-validate, re-render, push. For a composed scene it is the
 `dreamlake.layers.json` rides along), edit the op — move a mug's
 `Attach.pos`, retune a light `Update` — recompose, re-validate, re-render,
 push. One-line diff in the stack.
-To re-aim a camera through an `Update` on released SDK 0.23, state a
+To re-aim a camera through an `Update` on SDK 0.23.0, state a
 `quat` opinion — an `xyaxes` opinion is not accepted there (it _is_ fine
-in a layer's own MJCF, and alternate-orientation opinions exist in source,
-unreleased) — see
+in a layer's own MJCF, and SDK ≥ 0.23.1 accepts the alternate
+orientation specifiers in opinions too) — see
 [layers § orientations](envs-layers.md#tag-update--the-meta-component).
 
 ## When it goes wrong

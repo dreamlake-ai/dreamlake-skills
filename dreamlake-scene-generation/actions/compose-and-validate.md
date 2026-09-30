@@ -11,15 +11,16 @@ scene; physics validation applies identically to both.
 Prerequisites (layer route only): the composer on the composing machine
 (the layer engine + mujoco; dreamlake-py ≥ 0.23) with **MuJoCo ≥ 3.8 —
 use 3.14, the validated version**. An unpinned
-`pip install "dreamlake[compose]"` does not ensure 3.14: released 0.23
+`pip install "dreamlake[compose]"` does not ensure 3.14: dreamlake 0.23.0
 still declares `mujoco>=3.2.0`, but composing on 3.2 fails at the first
-layer (`from_file(): incompatible function arguments`); only the
+layer (`from_file(): incompatible function arguments`); 0.23.1 declares
+the real `mujoco>=3.8` floor and guards it up front; only the
 standalone scene tools run on 3.2. Pin and verify:
 
 ```bash
-pip install "dreamlake[compose]==0.23.0" "mujoco==3.14.0"
+pip install "dreamlake[compose]==0.23.1" "mujoco==3.14.0"
 python -c "import dreamlake, mujoco; print(dreamlake.__version__, mujoco.__version__)"
-# expect: 0.23.0 3.14.0
+# expect: 0.23.1 3.14.0
 ```
 
 If the CLI should use a specific interpreter/venv, export
@@ -65,15 +66,16 @@ versions. Then author `dreamlake.layers.json` (schema
   ([measure first](design-and-inspect.md)). With a rotation or a
   `body:`/`site:` mount, compose and then remeasure the composed artifact
   instead of hand-deriving.
-- **Orientation opinions on released SDK 0.23 are `quat` only** — an
+- **Orientation opinions on SDK 0.23.0 are `quat` only** — an
   `Update`/`Patch` stating `xyaxes` fails with "has no attribute …
-  settable through MjSpec". Compute the quat, or author the `xyaxes` in
-  the layer's own MJCF (that path works). Alternate-orientation opinions
-  (`xyaxes`/`euler`/`axisangle`/`zaxis`) exist in source, unreleased —
+  settable through MjSpec". SDK ≥ 0.23.1 also accepts the alternate
+  specifiers (`xyaxes`/`euler`/`axisangle`/`zaxis`) in opinions. On
+  0.23.0, compute the quat, or author the `xyaxes` in the layer's own
+  MJCF (that path works) —
   [layers reference](../reference/envs-layers.md#tag-update--the-meta-component).
 - Boolean flags (`active`, `castshadow`, body `mocap`) take `true`/`false`;
-  on MuJoCo 3.8 released 0.23 fails coercing them (works on 3.14; fixed in
-  source, unreleased) — another reason to compose on 3.14.
+  on MuJoCo 3.8, 0.23.0 fails coercing them (works on 3.14; fixed in
+  0.23.1) — another reason to compose on 3.14.
 - Big opinion sets go in a `Patch` layer (sparse MJCF file or pushed env).
 
 Always name the stack and output explicitly — without `-o` the output

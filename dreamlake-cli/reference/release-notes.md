@@ -1,15 +1,32 @@
 # Release notes
 
-## Unreleased — staging receipt web links
+## 0.37.1 — Staging receipt web links
 
 Receipt `open:` URLs printed against the built-in staging environment now
 target the web app (`https://staging.dreamlake.ai/…`) instead of the API
 host (`staging-api.dreamlake.ai`), across `env`, `artifact`, `workflow`
 and `share` receipts. Custom API hosts are still never guessed: only a
 leading `api.` label is stripped, anything else prints unchanged. Released
-CLIs (≤ 0.35.0) print the staging API host; setting
+CLIs (≤ 0.37.0) print the staging API host; setting
 `DREAMLAKE_WEB_URL=https://staging.dreamlake.ai` is a working workaround
 there. See [Environments](environments.md).
+
+## 0.37.0 — Inline image upload
+
+- Add `notes media upload <file>`: upload an image or video and print its embeddable URL directly. Saved login credentials are reused; `--json` is optional. Media URLs allow access to anyone holding them; private note attachments remain separate.
+
+## 0.36.0 — Agent skill setup and update reminders
+
+- After CLI updates, remind users when installed Codex or Claude Code skills
+  differ from the new bundle, with the exact update command. Reminders preserve
+  local edits, stay out of automatic JSON/piped runs, and appear once per skill
+  path per CLI version.
+
+- `dreamlake init` guides agent selection and project/global skill installation.
+- `skill install` and `skill list` support `--agent codex` (`.agents/skills`) and
+  `--agent claude` (`.claude/skills`, the compatibility default).
+- Top-level `-h`, `init -h`, and skill help include setup examples generated
+  from the agent skills guide. Existing modified skills still require `--force`.
 
 ## 0.35.0 — Env layers v3 component grammar
 

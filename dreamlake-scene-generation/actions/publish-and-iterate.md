@@ -27,10 +27,11 @@ non-resolvable provenance.
 **Preview in the browser.** Open the env page and look with human eyes:
 hero framing from your `thumbnail` camera, materials under viewer
 lighting, props resting where placed, play/pause/reset sane. The push
-prints an `open:` link; on the staging deployment, released CLIs
-(≤ 0.35.0) print the API host there — set
-`DREAMLAKE_WEB_URL=https://staging.dreamlake.ai` (an override released
-CLIs honor) or use your namespace's Envs page. Only `mujoco`-type envs get
+prints an `open:` link; on the staging deployment, CLIs ≤ 0.37.0
+print the API host there — set
+`DREAMLAKE_WEB_URL=https://staging.dreamlake.ai` (an override those
+CLIs honor), upgrade to CLI ≥ 0.37.1 (its receipts target the web app),
+or use your namespace's Envs page. Only `mujoco`-type envs get
 the interactive simulating viewer (`urdf` gets the kinematic poser). The
 first member visit captures the gallery thumbnail. What t=0 shows — and
 which viewer versions actually honor keyframe 0 — is in the

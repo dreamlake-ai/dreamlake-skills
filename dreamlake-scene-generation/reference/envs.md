@@ -26,12 +26,13 @@ The detail header returns anonymous readers to `/<namespace>/profile?tab=envs`
 and signed-in readers to `/<namespace>/envs`. Details opened inside a project
 retain their return-to-project action. There is no extra sign-in navigation bar.
 
-## Generate with chat (source preview)
+## Generate with chat
 
 Members can also create and edit envs from the browser, by prompting an
 embedded agent that runs the
-[scene-generation skill](https://docs.dreamlake.ai/scene-generation/quickstart) — this flow is in
-**source preview**, pending the hosted runtime and product release:
+[scene-generation skill](https://docs.dreamlake.ai/scene-generation/quickstart). The chat panel
+ships with the web app — it appears once an app deployment that includes
+env chat reaches your server:
 
 1. In your namespace's Envs catalog, click **+ new env** — in the page
    header next to the Environments/Libraries switch, and offered again by
@@ -77,9 +78,9 @@ logs `R3F: Hooks can only be used within the Canvas component!`, that is a
 dev-server fault, fixed in the app source on 2026-09-29: the dev server
 could load two copies of the 3D renderer and which copy a session got
 depended on load order — so the crash appears and disappears between
-checkouts, and its absence on one run proves nothing. This fix is
-unreleased: run the reviewed source checkout that carries it and restart
-the dev server. In that source's dependency graph the production build
+checkouts, and its absence on one run proves nothing. If you see it, your
+source checkout predates the fix: update to a checkout that carries it and
+restart the dev server. In that source's dependency graph the production build
 resolves a single renderer copy, which bounds the fault to the dev server
 — an inference about the current source only, not an audit of anything
 previously deployed. Count the scene as loaded only when its actual
@@ -293,7 +294,7 @@ Recorded teleop episodes don't live here — they play back inside
 itself unchanged: [visualize a source](https://docs.dreamlake.ai/sources).
 
     One skill install, then build / edit / reuse scenes with ordinary
-    prompts — locally or from the env page's chat (source preview).
+    prompts — locally or from the env page's chat.
 
     The `dreamlake.layers.json` contract — merge / attach / override, field
     by field, with annotated stacks.
