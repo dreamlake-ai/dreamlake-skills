@@ -19,6 +19,12 @@ selections remain visible in both rich and raw views. Each connected browser ses
 visible text position in the note pane; a new scroll gesture, keystroke, or
 selection takes precedence over a pending viewport correction.
 
+Use a collaborator avatar to navigate to its current cursor when the location is
+available. A cursor at the beginning of the note shows a popup saying
+**Cursor is at the start of the note** and leaves your view in place. An avatar
+without a current cursor shows a popup saying **No location available**. Other
+available cursor locations support the existing jump action.
+
 History timeline previews return to the current working draft when the pointer
 leaves the timeline. An explicitly placed edit marker or selected change range
 keeps its historical view open; clicking a version label alone does not pin it.
@@ -37,6 +43,12 @@ commands, comments and suggestions, references, folding and section navigation,
 Vim mode, audio controls, and collaborator cursors and selections. Notes keep
 their existing save, sync, version history, and recovery controls. Switching
 between rich presentation and raw Markdown does not change the note source.
+
+In rich presentation, native headings align with the surrounding prose: the
+heading marker and its separator whitespace do not add a visual indent. Paragraphs
+and lists use consistent spacing, and blank lines retain a visible editing position.
+These presentation rules preserve the original Markdown, including heading spaces
+and line breaks; raw Markdown keeps the source visible.
 
 This editor remains experimental, and CodeMirror remains the default. The
 browser preference does not change the CLI, API, note format, or permissions.
