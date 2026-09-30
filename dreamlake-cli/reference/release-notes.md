@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.39.1 — Incremental artifact uploads by default
+
+`artifact push` now reuses unchanged compressed chunks automatically.
+Use `--no-incremental` for the original single-blob format, including older
+self-hosted viewers. Explicit `--incremental` remains supported.
+See [Artifacts](artifacts.md#incremental-uploads).
+
 ## 0.37.1 — Staging receipt web links
 
 Receipt `open:` URLs printed against the built-in staging environment now

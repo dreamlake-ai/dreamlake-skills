@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "322786dcc9930a5a4ff483bee85fd3f90c6cb24f401464af4be2d1aeb5ab7109",
+  "sourcesSha256": "b50b8ebc49d4cfeb40c00c41efd391166d8d7a56d1e2479d86be04effdd24434",
   "files": {
     "dreamlake-cli/SKILL.md": "8424edbf0bb95493a3b8d6648b9ca2476b7c4bbafa6f262752313b9e26a16e8d",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -10,7 +10,7 @@
     "dreamlake-cli/actions/setup.md": "fb08615fb8f915ff7ec8c41d3a444d6e3b668e514b63cb359afd10ebf61223c3",
     "dreamlake-cli/actions/workflows.md": "570a51f04fdb7cf0e5317b959fa67ac352eefaabc6beb5f00867db6cc51e3a7e",
     "dreamlake-cli/reference/agents.md": "29b23321a4f10af056e7e2a4959feeb241ab1766ab69df1c91585ff0ba98445b",
-    "dreamlake-cli/reference/artifacts.md": "9a8ee8086e722068bedd504b0f3b4bb7d4e049511038f75218f9568e7874815b",
+    "dreamlake-cli/reference/artifacts.md": "4c2778544105bc6200022b156d723aa7f2e939100d778745298bc0b4142d5b1c",
     "dreamlake-cli/reference/collections.md": "593e739aed97e6804d1247950afcd50ecafea676e9310a5e3b63c13db03c8f86",
     "dreamlake-cli/reference/command-reference.md": "e214c8dca66b1cf0ffce1b7b99be93f14d459245b0e9aa1b38acc3ccf47be4b8",
     "dreamlake-cli/reference/dev-notes-npm-publication.md": "1b3fe2a7d58c9a9d8449d4e71533bab0d03d8077ce348d93975470f128294b32",
@@ -38,7 +38,7 @@
     "dreamlake-cli/reference/providers.md": "33a632bb1fe989dc33d8694e977d8b04729aa306616810ec2e5958315a8b40c0",
     "dreamlake-cli/reference/queues.md": "5db8bbe7fa9f9c83ed606f6a7fe06da2d3db6ac31d863ef8ab37f23e972bbf22",
     "dreamlake-cli/reference/quick-start.md": "5fb0f9f7439ad80e0906ea25059436e851ec38e97b2fcb5375b0fd7008857a76",
-    "dreamlake-cli/reference/release-notes.md": "c61af0823f539af4c9dbdfe158243634d740662ad0e2cd1f6fce6a043ba52e7f",
+    "dreamlake-cli/reference/release-notes.md": "befe1ebdebc78dfbb3b9cac09a0a4dc8bc0acfe1e9372a30b6457e8a8ea9eac1",
     "dreamlake-cli/reference/runs.md": "2647689513d50208c25ac38c69a5753918ab6d334bad7d870c0c84674ac26ad9",
     "dreamlake-cli/reference/skills.md": "159a88d0200717062cb27ffb3f5a1bee2145ec9f279184ef451466373f8c6f73",
     "dreamlake-cli/reference/snapshot-launch.md": "4f72a7a5722decb9bea76306add6f552ed56daccbb5a5b1897569493c5e551fc",
