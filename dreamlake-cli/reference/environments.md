@@ -107,11 +107,10 @@ deployment — is printed unchanged rather than guessed. Set
 `DREAMLAKE_WEB_URL` to print a different web origin (a trailing slash is
 trimmed); it beats every derivation above.
 
-> **Warning:** The automatic `staging-api.dreamlake.ai` → `staging.dreamlake.ai` mapping
-> is a source patch — no released CLI has it yet (0.35.0 and earlier print
-> the API host on staging receipts). Until it ships in a release, set
-> `DREAMLAKE_WEB_URL=https://staging.dreamlake.ai` — the override works in
-> released CLIs today.
+> **Note:** The automatic `staging-api.dreamlake.ai` → `staging.dreamlake.ai` mapping
+> is introduced in CLI 0.37.1. On 0.37.0 and earlier, staging receipts print
+> the API host instead — set `DREAMLAKE_WEB_URL=https://staging.dreamlake.ai`
+> there; the override works in every released CLI.
 
 `dreamlake logout` removes the active environment's token and activates
 the next saved one (or clears the connection if none is left).
