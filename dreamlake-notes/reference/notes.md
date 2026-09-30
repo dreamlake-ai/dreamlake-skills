@@ -630,7 +630,7 @@ limited to insert, delete, and replace; use comments for questions or discussion
 
 Comments use `:comment[text]` for text stored in the note and
 `:comment[cmt_<24 hex digits>]` for a saved comment reference. Both accept optional
-`{user="geyang"}` attribution. Braces after a bracket contain metadata only;
+`{user="geyang"}` attribution and `mode="inline"` to keep an occurrence inline. Braces after a bracket contain metadata only;
 there is no `type`, `text`, `ref`, or `userId` field. Attribution is a display
 label; the server records the authenticated creator separately. Escape brackets
 and backslashes with a backslash. Use `\cmt_...` inside brackets when an ID-shaped
@@ -689,7 +689,14 @@ previews; explicitly opening a saved comment opens its editor beside the clicked
 comment, within the visible window, without scrolling the note to the top.
 The editor's **Resolve** action saves pending changes before removing that comment
 occurrence from the note; **Save** closes the editor without removing it.
-Readers without note-edit permission do not see the Resolve action. Narrow panes
+The **Inline this** button sits after the resolve checkmark. At rest it is a
+Lucide chevron; hover or keyboard focus animates it into a left arrow pointing
+at a vertical line. Reduced-motion preferences show the same states without
+animation. The action saves pending edits and adds `mode="inline"` to that
+occurrence, keeping it in the paragraph with the Comments sidebar open.
+Use the right chevron in its editor to return it to the sidebar. Both actions
+use editor history, and Undo restores the previous occurrence.
+Readers without note-edit permission do not see these actions. Narrow panes
 fall back to Inline while retaining the Sidebar preference. Read-only readers can open accessible saved comments but
 cannot change them. Rendering, loading, and remote text replay never create
 comment objects. A brace draft pasted by a script without an editor creation
