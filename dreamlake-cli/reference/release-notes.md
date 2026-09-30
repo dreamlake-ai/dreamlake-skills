@@ -1,5 +1,34 @@
 # Release notes
 
+## 0.41.0 — Embedding model control, and splat directories get their viewer
+
+`library push --embed` now takes `--model <name>` and reports which encoder
+actually ran:
+
+```
+vectors: .dreamlake/vectors.json + .dreamlake/vectors.f32
+         (open_clip/ViT-B-16-SigLIP2/webli, 768-d)
+```
+
+This matters because DreamLake semantic search only fuses a library whose
+sidecar was embedded in the server's query space (**SigLIP2**,
+`open_clip/ViT-B-16-SigLIP2/webli`); any other model leaves the library on
+keyword-only search, by design and with no error. Previous CLIs passed no
+model at all, so with `dreamlake` 0.24.x — which still defaulted to CLIP —
+`--embed` produced a sidecar the server quietly ignored. `dreamlake` 0.25.0
+and later default to SigLIP2; `--model siglip2` pins it explicitly, and
+`--model clip` is the legacy escape hatch. A sidecar outside the query space
+now warns, with both fixes, and still completes the push.
+
+Zero-config discovery also recognizes **compressed splat directories**. A
+PlayCanvas SOG asset (`meta.json` plus its WebP planes) or SOG-LOD
+(`lod-meta.json` with one set per node subdirectory) used to land as
+`kind: file` with no entry, so the web app showed a file list instead of the
+3D viewer. Both are now detected as `kind: splat` with `format: sog` / `lod`,
+and the detected `format` reaches the manifest the viewer dispatches on. A
+`dreamlake.yml` `kind:`/`format:` still overrides detection.
+See [Libraries](command-reference.md#libraries).
+
 ## 0.40.0 — Cached library manifests
 
 `library stat`, `info`, `pull` and `push` now keep a local copy of the

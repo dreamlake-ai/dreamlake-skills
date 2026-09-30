@@ -156,14 +156,29 @@ Asset libraries — a plain directory of 3D assets, searchable per asset.
 Guide: [docs.dreamlake.ai/libraries](https://docs.dreamlake.ai/libraries/).
 
 `--embed` shells out to the `dreamlake` Python package and must produce
-vectors from the same model as the server's query encoder (**SigLIP2**),
-or search ignores them and stays keyword-only. With `dreamlake` 0.24.x,
-which still defaults to CLIP, set `DREAMLAKE_EMBED_MODEL=siglip2` for the
-push. Verify with `library info <ns>/<name>` — `semantic` must be `true`.
+vectors from the same model as the server's query encoder (**SigLIP2**,
+`open_clip/ViT-B-16-SigLIP2/webli`), or the server ignores them and search
+stays keyword-only — by design, with no error. `dreamlake` 0.25.0 and later
+default to SigLIP2, so a current toolchain needs no flag; `--model siglip2`
+pins it explicitly, and `--model clip` is the legacy escape hatch that
+yields a keyword-only library here. The push prints the encoder it used
+(`vectors: … (open_clip/ViT-B-16-SigLIP2/webli, 768-d)`) and warns when
+that is not the space DreamLake queries — upgrade with
+`pip install -U "dreamlake[embed]"`, or pass `--model siglip2`. Verify with
+`library info <ns>/<name>` — `semantic` must be `true`.
+
+Discovery labels each asset's `kind` from its files: MJCF and URDF by
+sniffing the XML, `mesh`/`image` from a single model or image file, and
+`splat` either from a single `.ply`/`.splat`/`.spz`/`.ksplat` or from a
+compressed-splat **directory** — `meta.json` plus its WebP planes
+(`format: sog`), or `lod-meta.json` with one set per node subdirectory
+(`format: lod`). The `format` reaches the manifest, which is what selects
+the 3D viewer in the web app. A `dreamlake.yml` `kind:`/`format:` still
+overrides detection.
 
 | Command | What it does |
 | --- | --- |
-| `library push <dir> [--namespace <ns>] [--library <n>]` | Push a directory as a library (assets discovered by convention, sha256-diff incremental); `--thumbnails`, `--embed`, `--dry-run`, `--verify` |
+| `library push <dir> [--namespace <ns>] [--library <n>]` | Push a directory as a library (assets discovered by convention, sha256-diff incremental); `--thumbnails`, `--embed`, `--model <name>`, `--dry-run`, `--verify` |
 | `library push <dir> --force` | Override the drift guard — without it, push refuses to delete assets added remotely since this directory last registered |
 | `library pull <ns>/<name> [--asset <id>] [-o <dir>] [--json]` | Materialize files, hash-verified and incremental — byte-identical local files are skipped, a non-empty directory is synced (extras never deleted); `--all` adds platform artifacts |
 | `library list [--namespace <ns>] [--all] [--json]` | Libraries in a namespace, or every visible library |

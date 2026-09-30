@@ -67,21 +67,29 @@ menagerie-lib/
   returns and what `pull --asset` downloads. Every file inside belongs to the
   asset.
 - **Loose top-level files become single-file assets.**
-- **Kind and entry are detected**, first match wins: `mjcf` (an `.xml`
-  containing `<mujoco`), `urdf` (a `.urdf`, or an `.xml` containing
-  `<robot`), then `mesh` (`glb` `gltf` `obj` `stl`), `splat`
-  (`ply` `splat` `spz` `ksplat`), `image` (`png` `jpg` `jpeg` `webp`) —
-  anything else is a plain `file` asset. For MJCF it prefers `scene*.xml` as
-  the entry and exposes the alternatives (scene vs. bare robot) as entry
-  points — the switcher you see in the preview. Kind only picks the viewer;
-  uploading, searching, and downloading are kind-agnostic.
+- **Kind, format and entry are detected**, first match wins: `mjcf` (an
+  `.xml` containing `<mujoco`), `urdf` (a `.urdf`, or an `.xml` containing
+  `<robot`), then the two compressed-splat *directory* layouts — **SOG**
+  (a `meta.json` beside its `means_l.webp` / `means_u.webp` planes) and
+  **SOG-LOD** (a `lod-meta.json`), which land as `kind: splat` with
+  `format: sog` / `lod` — then the single-file rules `mesh`
+  (`glb` `gltf` `obj` `stl`), `splat` (`ply` `splat` `spz` `ksplat`),
+  `image` (`png` `jpg` `jpeg` `webp`). Anything else is a plain `file`
+  asset. For MJCF it prefers `scene*.xml` as the entry and exposes the
+  alternatives (scene vs. bare robot) as entry points — the switcher you see
+  in the preview. Kind only picks the viewer; uploading, searching, and
+  downloading are kind-agnostic.
+- **A shipped `thumbnail.*` or `preview.*`** (png/jpg/jpeg/webp) directly at
+  the asset root becomes that asset's thumbnail, no `dreamlake.yml` needed.
 
-> **Warning:** Those three rules fire only when the asset contains **exactly one** file of
->   that extension — two `.ply` files fall through to `file`. Multi-file
->   formats are not detected at all: a SOG splat (`meta.json` + WebP planes)
->   has no matching extension, so it lands on `file` and gets no viewer.
->   Declare `kind` (and `format`) in `dreamlake.yml` for those — see
->   [3D Gaussian splats](#3d-gaussian-splats).
+> **Warning:** `mesh`, `splat` and `image` fire only when the asset contains **exactly
+>   one** file of that family — two `.ply` files fall through to `file`. (The
+>   families are counted separately, so a `thumbnail.png` beside one `.ply`
+>   does not spoil the splat count.) The multi-file splat layouts are the
+>   exception: SOG and SOG-LOD directories are recognized by convention, so
+>   they need no `dreamlake.yml`. SOG is content-checked, not name-checked — a
+>   `meta.json` without the plane files, or one that is not a splat
+>   descriptor, stays a plain `file`.
 
 An asset is one *logical* thing — a model with its meshes, textures and
 collision geometry, or a single file.
@@ -124,7 +132,7 @@ assets: # per-asset overrides, keyed by asset id
       - unitree
     license: BSD-3-Clause
     attribution: "© Unitree Robotics" # required credit line (CC-BY etc.)
-    kind: mjcf # override detection — required for multi-file formats
+    kind: mjcf # override detection (kind / format / entry)
     entry: unitree_go2/scene.xml # override the detected entry
     entryPoints:
       scene:
@@ -204,17 +212,22 @@ dreamlake library push ./menagerie-lib --thumbnails --embed
 ```
 
 - `--thumbnails` renders 640 px WebP previews of your models (offscreen
-  MuJoCo rendering with auto-framing; MJCF assets render today, other kinds
-  are skipped). Renders land as **platform artifacts** under the reserved
-  `.dreamlake/` area in storage — your directory stays untouched. Search
-  cards and the library grid live on these — ship them. A re-push without the
-  flag carries the existing thumbnails forward; an asset with its own
-  `thumbnail:` image in `dreamlake.yml` uses that instead.
+  MuJoCo rendering with auto-framing). Renders land as **platform artifacts**
+  under the reserved `.dreamlake/` area in storage — your directory stays
+  untouched. Search cards and the library grid live on these — ship them. A
+  re-push without the flag carries the existing thumbnails forward; an asset
+  that already has a thumbnail (its own `thumbnail.*`/`preview.*` file, or a
+  `thumbnail:` in `dreamlake.yml`) uses that instead of a render.
 - `--embed` computes the vectors that turn on
   [semantic search](#search-it) — image vectors of the thumbnails, text
   vectors of the metadata. It requires `--thumbnails` in the same push
   (the image vectors embed the fresh renders). Vectors are content-hash
   cached locally, so re-running after an edit only re-encodes what changed.
+- `--model <name>` picks the encoder `--embed` uses: `siglip2` (the default,
+  and the only space DreamLake searches), `clip` (legacy), or a raw
+  `open_clip` model name. Omit it and the Python tool decides, which is where
+  `DREAMLAKE_EMBED_MODEL` is still read. Passing it without `--embed` is an
+  error.
 - `--dry-run` prints the plan (uploads, unchanged, removals) and exits;
   `--verify` re-hashes every local file and re-downloads the remote
   manifest, bypassing both local caches. `--force` overrides the drift
@@ -225,18 +238,13 @@ tooling — `pip install "dreamlake[compose]"` for rendering (MuJoCo),
 `pip install "dreamlake[embed]"` for vectors. Everything else is pure CLI,
 and a missing interpreter is a warning, not a failed push.
 
-> **Warning:** Vectors are only used when the sidecar's model matches the server's active
->   query encoder, which is **SigLIP2** (`ViT-B-16-SigLIP2/webli`). Through
->   `dreamlake` ≥ 0.25.0 that is what `--embed` writes. On 0.24.x the embedder
->   still defaults to CLIP, and the CLI passes no model flag — set it in the
->   environment, or the push silently produces vectors search will refuse:
->
-> ```bash
-> DREAMLAKE_EMBED_MODEL=siglip2 dreamlake library push ./lib --thumbnails --embed
-> ```
->
->   Confirm with `dreamlake library info <ns>/<lib>` — `semantic` must read
->   `true`.
+> **Warning:** The renderer loads models in MuJoCo, so `mjcf` assets are the only ones it
+>   can render today; `mesh`, `splat` and `image` assets are skipped and
+>   counted in the push summary's `skipped`. Put a `thumbnail.png` (or
+>   `preview.png`) at the asset root, or name one with `thumbnail:` in
+>   `dreamlake.yml`. This matters beyond the grid: `--embed` builds its image
+>   vectors from thumbnails, so an asset without one contributes text vectors
+>   only.
 
 > **Warning:** Search always sees the latest revision, and pulls fetch the current files.
 >   When an asset matters to a scene, pull it and vendor it into the scene —
@@ -270,6 +278,7 @@ Two public libraries to try: `fortyfive/menagerie` (68 MJCF robots) and
 
 ```bash
 dreamlake library push ./menagerie-lib --thumbnails --embed
+#   vectors: .dreamlake/vectors.json + .dreamlake/vectors.f32 (open_clip/ViT-B-16-SigLIP2/webli, 768-d)
 ```
 
 The embeddings are SigLIP2 image vectors of the thumbnails and text vectors
@@ -282,10 +291,18 @@ keyword tokenization is ASCII-only, so a Chinese query carries no keyword
 tokens and ranks by vector alone.
 
 Semantic ranking is used only when the library's sidecar was produced by the
-**same model** as the active query encoder. The sidecar records its model id
-and the server compares it; a mismatch falls back to keyword-only rather
-than scoring vectors from a different space. Both encoders are 768-d, so
-dimensionality cannot catch this — only the model id can.
+**same model** as the active query encoder — `open_clip/ViT-B-16-SigLIP2/webli`.
+The sidecar records its model id and the server compares it; a mismatch falls
+back to keyword-only rather than scoring vectors from a different space. Both
+SigLIP2 and the retired CLIP encoder are 768-d, so dimensionality cannot catch
+this — only the model id can.
+
+You do not normally have to think about it: `dreamlake` ≥ 0.25.0 embeds with
+SigLIP2 by default, the push prints the encoder it actually used (the line
+above), and a sidecar outside the query space warns loudly while still
+completing the push. When you do want to be explicit, `--model siglip2` pins
+it. `--model clip` is the legacy escape hatch — useful if you embed for
+something other than DreamLake, and keyword-only here by design.
 
 That makes `semantic` a three-way answer, on a library row and in
 `library info`: `true` (vectors present and compatible), `false` (no
@@ -365,8 +382,13 @@ WebP planes) and **SOG-LOD** (a `lod-meta.json` naming per-level nodes).
 
 The viewer picks the flavor from the wire `format` when it is `sog` or
 `lod`, otherwise from the entry file's extension, otherwise from the entry
-filename (`meta.json` → SOG, `lod-meta.json` → LOD). Since the CLI detects
-neither multi-file layout, declare them yourself:
+filename (`meta.json` → SOG, `lod-meta.json` → LOD).
+
+Push a SuperSplat export as-is and all three are filled in for you: the CLI
+detects the directory layout, sets `kind: splat` with `format: sog` or
+`lod`, and points `entry` at the meta file. `library add` does the same for
+a single asset. Override it in `dreamlake.yml` only when your layout is
+unusual enough that detection misses it:
 
 ```yaml file="dreamlake.yml"
 assets:
@@ -469,18 +491,25 @@ produce and register.
 | `schema` | Always `dreamlake.assets/v1`. |
 | `library` | Catalog identity: `name`, `type` (default `3d`), `title`, `description`, `provider`, `homepage`, `license`, `tags`, `upstream`. |
 | `assets[].id` | Unique within the library, path-safe. |
-| `assets[].kind` / `format` | Viewer dispatch only. Any token matching `^[a-z0-9][a-z0-9._-]{0,31}$`; `kind` defaults to `file`, `format` is a free sub-type the CLI never infers. |
+| `assets[].kind` / `format` | Viewer dispatch only. Any token matching `^[a-z0-9][a-z0-9._-]{0,31}$`; `kind` defaults to `file`. `format` is a free sub-type — detection sets it for the splat container layouts (`sog`, `lod`), `dreamlake.yml` can set any value. |
 | `assets[].entry` / `entryPoints` | The file(s) a viewer opens; must be listed in the asset's `files`. |
 | `assets[].files` | `{path, size, sha256}` objects, paths relative to the library root. sha256 drives the incremental push diff and pull verification. |
 | `assets[].thumbnail` | One of the asset's own files, or a platform artifact listed in `generated[]`. |
 | `assets[].meta` | Free-form JSON (`dof`, `triCount`, mass…), ≤ 8 KB. |
-| `generated[]` | Platform artifacts the push uploaded (thumbnails, vectors) — every path lives under `.dreamlake/`. |
+| `generated[]` | Platform artifacts the push uploaded (thumbnails, vectors) — every path lives under `.dreamlake/`. **Declaring an artifact here is what makes it exist**: the reconcile keeps only what the manifest lists, and the vectors sidecar is read for search only when both halves are declared. |
 
 Limits: ≤ 50,000 assets, ≤ 1,000,000 file entries, ≤ 60,000 `generated[]`
 entries, manifest ≤ 100 MB. For scale, a production library of 14,355
 Gaussian-splatting scenes produces a manifest of roughly 60 MB. Assets may
 share files (a common mesh pool is fine); the same path with two different
 hashes is rejected.
+
+> **Warning:** Only relevant if you integrate over raw HTTP; the CLI does this for you.
+>   If you upload `.dreamlake/vectors.json` and `.dreamlake/vectors.f32`, list
+>   **both** in `generated[]`. An undeclared sidecar does not exist: register
+>   reports `semantic: false`, search stays keyword-only, and the
+>   post-register reconcile — which keeps storage equal to the manifest —
+>   deletes the files. One rule, three places, no partial state.
 
 Libraries pushed under the old model (a hand- or importer-generated
 `assets.json` at the files root) keep working: the server reads the legacy
