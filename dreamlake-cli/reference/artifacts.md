@@ -45,14 +45,20 @@ dreamlake artifact push ./chart.jsx --id sales-chart   # v2 of the same artifact
 
 ## Incremental uploads
 
-In CLI 0.38.0 and later, with a viewer that supports incremental artifacts, add `--incremental` when
-updating a large file. This option is opt-in; ordinary pushes retain the original
-single-blob format. The hosted viewer supports both formats in the same history.
-Self-hosted viewers must deploy incremental reader support before using the flag.
+Starting in CLI 0.39.1, artifact pushes use incremental storage by default.
+The hosted viewer supports both incremental and original single-blob versions
+in the same history. CLI 0.38.0 through 0.39.0 requires `--incremental` to opt in;
+that flag remains accepted in newer releases.
+
+For an older self-hosted viewer, use `--no-incremental` to write the original
+single-blob format until the viewer has incremental reader support.
 
 ```bash file="terminal" cli-help="artifact push"
-dreamlake artifact push ./dashboard.html --id q1-dashboard --incremental
+dreamlake artifact push ./dashboard.html --id q1-dashboard
 # Edit the file, then repeat the same command to upload only new chunks.
+
+# Compatibility with older self-hosted viewers:
+dreamlake artifact push ./dashboard.html --id q1-dashboard --no-incremental
 ```
 
 The first incremental push establishes the chunks. Later pushes reuse identical

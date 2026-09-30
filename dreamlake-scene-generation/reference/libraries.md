@@ -177,6 +177,13 @@ manifest, and uploads. In order:
 Re-push after deleting one model from a 1,030-model library and the plan
 reads: *2 to upload, 171 unchanged, 24 removed* — seconds, not a re-upload.
 
+Push treats your directory as the source of truth — which matters once a
+library is also edited remotely ([add / rm](#add-or-remove-one-asset)). If
+the remote has moved since this directory last registered **and** the plan
+would delete assets, push stops and lists exactly what it would delete:
+pull to merge, or re-run with `--force` to delete them deliberately. A push
+that only adds or updates files never triggers the guard.
+
 Flags that add work at push time:
 
 ```bash
@@ -241,10 +248,39 @@ embeddings stay keyword-only (`semantic: false`) — searching never fails
 because embeddings are missing.
 
 Search hits return `namespace/library/assetId` plus a presigned thumbnail —
-enough to render a card or to script a download:
+enough to render a card or to script a download. In the terminal each hit is
+one grep-friendly line — `ns/lib/asset  score  kind  license  — description`
+— closed by a `12 of 40 hits · semantic on` footer; `--license` and
+`--offset` complete the filter set, and `--json` returns the raw response:
 
 ```bash
 dreamlake library pull acme/gso --asset Cole_Hardware_Mug_Classic_Blue -o ./scene/assets
+```
+
+## Check before you download
+
+Two commands answer questions a download shouldn't be the way to ask:
+
+```bash
+dreamlake library info acme/gso                     # the library's shape
+dreamlake library info acme/gso --asset Cole_…      # one asset's decision card
+dreamlake library stat acme/gso --asset Cole_… -o ./scene/assets
+```
+
+`info` reads the catalog row and the manifest — nothing else — and prints
+either the library summary (asset and file counts, total size, kind /
+category / license counts, whether semantic search is on) or one asset's
+card: entry points, file count and bytes, effective license, `meta`, and a
+content `digest` that identifies the asset's exact file set.
+
+`stat` compares that manifest against a local directory and answers with
+exactly one of `up-to-date` (exit 0), `stale: 2 files changed, 1 missing —
+pull would fetch 812 KB`, or `absent: full pull = 34 files, 4.8 MB` (both
+exit 1) — without transferring a byte. The exit code makes it scriptable:
+
+```bash
+dreamlake library stat acme/gso --asset $ID -o ./scene/assets \
+  || dreamlake library pull acme/gso --asset $ID -o ./scene/assets
 ```
 
 ## Preview it
@@ -276,6 +312,37 @@ of legacy pushes) are skipped — so a full pull followed by `diff -r` against
 your source directory is byte-identical, `dreamlake.yml` included. `--all`
 adds the platform artifacts (wire manifest, rendered thumbnails, vector
 sidecars) for mirroring or debugging.
+
+Pulls are also incremental: files already on disk with the right sha256 are
+skipped, and pulling into a non-empty directory syncs it — only stale or
+missing manifest files are written, extra local files are never touched.
+Re-running a pull you already have costs one manifest read and zero bytes.
+
+## Add or remove one asset
+
+You don't need the whole library on disk to change one thing in it:
+
+```bash
+dreamlake library add fortyfive/props ./my-mug --title "Blue mug" --category household
+# ✓ fortyfive/props revision 8 — asset my-mug added (34 files, 4.8 MB)
+
+dreamlake library rm fortyfive/props my-mug old-chair
+# ✓ fortyfive/props revision 9 — 2 assets removed, 41 files reclaimed
+```
+
+`add` runs the same discovery as push on one directory (or one loose file),
+takes its metadata from flags (`--id`, `--title`, `--description`,
+`--category`, `--tags`, `--license`, `--attribution`), and appends the asset
+to the remote manifest. An existing id is an error unless `--replace` —
+which is how you update one asset in place. Files the library already holds
+(shared meshes, unchanged bytes under `--replace`) are not re-uploaded.
+
+`rm` never transfers a byte: it removes the manifest entries, and the server
+reclaims every file no remaining asset references. It refuses to empty a
+library — delete the library itself instead. Both commands converge under
+concurrency through the same revision compare-and-swap as push, and both
+are what the [push drift guard](#push-it) protects: a wholesale push from a
+stale directory will stop rather than silently undo a remote `add`.
 
 ## Under the hood
 
@@ -339,11 +406,17 @@ atomically and nothing can drift.
 | `GET …/libraries/:name/search` | Search inside one library |
 | `GET /libraries` · `GET /library-search` | Visible-library list · cross-library search |
 
+Request/response schemas for every call, the full `dreamlake.assets/v1` field
+contract, and the composed read patterns are in
+[Libraries Reference](https://docs.dreamlake.ai/libraries/reference).
+
 Soft delete hides a library (restorable); **purge** permanently deletes the
 row and every stored object.
 
 ## Next steps
 
+- [Libraries Reference](https://docs.dreamlake.ai/libraries/reference) — the machine contract: endpoint
+  schemas, the wire manifest, and how an agent composes them.
 - [Envs](envs.md) — single runnable environments; a library is where an env's
   ingredients come from.
 - [CLI](https://docs.dreamlake.ai/cli) — install and authenticate `dreamlake`.
