@@ -28,13 +28,15 @@ CSP**. The single most important rule:
 Other facts that matter:
 
 - **A neutral base style is injected** for the `react`, `svg`, `markdown`, `code`, and
-  `mermaid` kinds: system sans-serif, `line-height: 1.6`, `20px` body padding, themed
+  `mermaid` kinds: system sans-serif, `line-height: 1.6`, zero body margin and padding, themed
   background/text (`#fff`/`#171717` light, `#0b0b0c`/`#e5e5e5` dark), `color-scheme` set,
   `img/svg/video/canvas { max-width: 100% }`, styled links/tables. Build on top of it.
 - **Tailwind utility classes work** for `react`/`svg`/`markdown`/`code`/`mermaid` — they
   compile at runtime (`@tailwindcss/browser`). **They do NOT reach inside an `html`
   artifact** (it renders in its own nested iframe — see below), so `html` must bring its
-  own CSS.
+  own CSS. The HTML document receives only a zero-margin, zero-padding reset
+  before author styles. Explicit author spacing still takes precedence. See
+  [preview spacing](https://docs.dreamlake.ai/artifacts/#preview-spacing).
 - **The frame fills its container** (100% width/height). Design responsive; let wide
   content (tables, code, diagrams) scroll in its own container, never the page.
 - **Light/dark**: a `theme` is chosen by the host. The injected base handles page
@@ -95,7 +97,7 @@ function App() {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
   :root { color-scheme: light dark; }
-  body { margin: 0; font: 16px/1.6 system-ui, sans-serif; padding: 24px; }
+  body { margin: 0; font: 16px/1.6 system-ui, sans-serif; padding: 0; }
   @media (prefers-color-scheme: dark) { body { background: #0b0b0c; color: #e5e5e5; } }
   .card { max-width: 40rem; margin: 0 auto; }
 </style>
