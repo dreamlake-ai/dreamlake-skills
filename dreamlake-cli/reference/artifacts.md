@@ -50,15 +50,16 @@ The hosted viewer supports both incremental and original single-blob versions
 in the same history. CLI 0.38.0 through 0.39.0 requires `--incremental` to opt in;
 that flag remains accepted in newer releases.
 
-For an older self-hosted viewer, use `--no-incremental` to write the original
-single-blob format until the viewer has incremental reader support.
+Use `--full` (CLI 0.39.2+) to upload the entire file in the original single-blob
+format, including for older self-hosted viewers. `--no-incremental` remains a
+compatibility alias; use that spelling with CLI 0.39.1.
 
 ```bash file="terminal" cli-help="artifact push"
 dreamlake artifact push ./dashboard.html --id q1-dashboard
 # Edit the file, then repeat the same command to upload only new chunks.
 
 # Compatibility with older self-hosted viewers:
-dreamlake artifact push ./dashboard.html --id q1-dashboard --no-incremental
+dreamlake artifact push ./dashboard.html --id q1-dashboard --full
 ```
 
 The first incremental push establishes the chunks. Later pushes reuse identical

@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.39.2 — Clearer full-upload option
+
+Use `artifact push --full` to upload the entire file in the original format.
+Incremental uploads remain the default. `--no-incremental` continues to work
+as a hidden compatibility alias.
+
 ## 0.39.1 — Incremental artifact uploads by default
 
 `artifact push` now reuses unchanged compressed chunks automatically.
