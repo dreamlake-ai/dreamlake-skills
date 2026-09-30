@@ -199,9 +199,9 @@ python tools/scene_report.py ./assets/blue_mug --body model
 ```
 
 Pulls verify every file against its manifest sha256; a partially transferred
-or corrupted asset fails the pull rather than landing silently broken. When
-pulling several assets into one directory, later pulls need `--force` — the
-CLI refuses non-empty output directories.
+or corrupted asset fails the pull rather than landing silently broken. Pulls
+are incremental and never delete: pulling several assets into one directory
+just works, and re-running a pull you already have transfers nothing.
 
 ## Derive placements — never guess
 
@@ -433,7 +433,7 @@ orientation specifiers in opinions too) — see
 | search returns nothing                                 | drop `--category`/`--tag`/`--kind` filters and requery; then another library — or switch source: download it (e.g. Menagerie), or author it as MJCF  |
 | downloaded model won't compile outside its repo        | incomplete dependency closure — copy every mesh/texture/include it references and fix `meshdir`/`texturedir`; re-check with `scene_report`            |
 | downloaded mesh is comically large or tiny             | units mismatch — the export is mm (or cm); set `<mesh scale="0.001 …">` and re-measure; MuJoCo is meters, Z-up                                        |
-| `library pull` fails mid-way or refuses the output dir | reruns are safe (hash-verified); add `--force` when adding an asset to a non-empty directory                                                          |
+| `library pull` fails mid-way                           | reruns are safe and incremental (hash-verified); already-correct files are skipped, extra local files are never touched                               |
 | asset falls through the floor/table                    | no collision geometry (`contype/conaffinity` 0) or a scene-entry attach — check with `scene_report`, attach the robot/object file instead             |
 | props explode or launch at load                        | initial penetration — recompute the placement delta from `pos.z` and `aabb_min.z`, keep ≥ 1 mm clearance; `scene_validate` reports the offending pair |
 | compose: "merge name collision"                        | two layers define the same name — rename in one, or make the change an `Update` (see [layers errors](envs-layers.md#common-errors))                     |

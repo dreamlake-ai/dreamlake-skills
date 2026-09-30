@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "e5fd467e95c9d55b7799d0874f18955ad8214deb",
+      "commit": "a3fd94c66381b1dae701e8c8f5a6a1ed7cc2861a",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "bc0eba9799afd1a42cd7e596f750120c9b56c045e02aeffa5dc00899d502d741",
@@ -17,7 +17,7 @@
         "docs/skill-guides/scene-generation/SKILL.md": "441643e952f601f367659cb292ed023f2817e1700668053951454dd93cc3c28d",
         "docs/skill-guides/scene-generation/actions/compose-and-validate.md": "be8336eda2181a073b6306ae5c92e81ef0bdaacf4cdc4039a1b3513bf2989086",
         "docs/skill-guides/scene-generation/actions/design-and-inspect.md": "85b001ff0a4aade57ff968e273aa4e1b5c6f76b12c858e5138e691310031ac49",
-        "docs/skill-guides/scene-generation/actions/find-assets.md": "1cf4dfe196593409b3a0e7a927d1a1e2fd1943564121ea22ece0e9acd0d0e419",
+        "docs/skill-guides/scene-generation/actions/find-assets.md": "9b10a302fa35c2f2ced12b39a1e2656704e13430a3d913b8bfd8e94e2e8c3eb7",
         "docs/skill-guides/scene-generation/actions/publish-and-iterate.md": "25de2f8b623ea8101df1e494099965765ce7585877024ddfeefc0c3f819d8df8",
         "docs/skill-guides/scene-generation/tools/scene_common.py": "090dfdbb0c3c31a4285314f6cf82c2f48712e7092be6ae12e89ac65e0c7e2c62",
         "docs/skill-guides/scene-generation/tools/scene_render.py": "e44a3ac5c99e65f2c252d3c072c27f376f29556fb3771d48ed7b1811f8563c6a",
@@ -35,15 +35,15 @@
         "docs/pages/notes/panels/+Page.mdx": "ac1dbec1194d0aa24827309536476a88e6fbe97c8fd3d2d497a7ef8eaeb93220"
       },
       "scenePages": {
-        "docs/pages/scene-generation/+Page.mdx": "f2b76bd9d7a162e37e2f48596aab0d0b6693191d37d19d4d34938beef72b007a",
-        "docs/pages/libraries/+Page.mdx": "dfc474474fd226c774392b176cd10101dca60dc351e5bc2a725e66c997f1af06",
+        "docs/pages/scene-generation/+Page.mdx": "6c847f5eb0514d359951de0506b8e7aab65baa76a4e81d86152065365f6caa49",
+        "docs/pages/libraries/+Page.mdx": "c482374bb4d5faeb2671e355f2a07ac6ef06347c0152376bcdab08c28a1a6e75",
         "docs/pages/envs/+Page.mdx": "1c2c8431c02589c3e808c006dcb2a30984dcc507613af07506bcdd2c6b96a382",
         "docs/pages/envs/layers/+Page.mdx": "db22da3e272b248496aae3c66b029c0571a92371f409dac30ed198f59f3c0bf0"
       }
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "f29e18b5c9aba47940d313a9377aeda338ee2f71",
+      "commit": "ec9dabc8d05bcc17b84f0fdc7577371a90b93759",
       "generatorSha256": "fbeb216d7f0fdfc9cf1cbfa1ee7871d3a7c57a244fe6ace0d0ea0270ccf83a18",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "8424edbf0bb95493a3b8d6648b9ca2476b7c4bbafa6f262752313b9e26a16e8d",
