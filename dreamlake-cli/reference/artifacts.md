@@ -43,6 +43,37 @@ dreamlake artifact push ./chart.jsx --kind react --id sales-chart
 dreamlake artifact push ./chart.jsx --id sales-chart   # v2 of the same artifact
 ```
 
+## Incremental uploads
+
+In CLI 0.38.0 and later, with a viewer that supports incremental artifacts, add `--incremental` when
+updating a large file. This option is opt-in; ordinary pushes retain the original
+single-blob format. The hosted viewer supports both formats in the same history.
+Self-hosted viewers must deploy incremental reader support before using the flag.
+
+```bash file="terminal" cli-help="artifact push"
+dreamlake artifact push ./dashboard.html --id q1-dashboard --incremental
+# Edit the file, then repeat the same command to upload only new chunks.
+```
+
+The first incremental push establishes the chunks. Later pushes reuse identical
+chunks within that artifact, including after insertions or deletions. New chunks
+are gzip-compressed and sent directly to S3; every version stores a complete
+manifest and can be opened without replaying earlier versions. Repeated pushes
+still append a version, even when all chunks are reused. The CLI reports new
+compressed bytes and reused source bytes.
+
+This works inside a single HTML file, including embedded images. A ZIP containing
+only changed files would still resend that whole HTML file. Chunk boundaries
+average roughly 256 KiB, with a 1 MiB maximum. Small files may see little benefit.
+Incremental files are limited to 512 MiB. The viewer verifies the size and SHA-256
+of every chunk and of the reconstructed file before rendering.
+
+A failed chunk upload does not publish a version. Retrying reuses completed
+chunks. A concurrent version commit can fail; rerun the push to determine the
+next version again. If catalog registration fails after storage succeeds, the
+command reports failure, as for ordinary pushes. Old CLI versions can continue
+appending ordinary versions; old viewers cannot decode incremental versions.
+
 ## Visibility and sharing
 
 Artifacts are private by default — only namespace members can read them.
