@@ -50,6 +50,22 @@ and lists use consistent spacing, and blank lines retain a visible editing posit
 These presentation rules preserve the original Markdown, including heading spaces
 and line breaks; raw Markdown keeps the source visible.
 
+### Stable prefixes and structural Backspace
+
+The native rich editor keeps heading (`#`), list (`-`, `1.`),
+and quote (`>`) prefixes in a fixed left gutter. Activating a line keeps its body
+text in the same position and preserves its wrapping. Nested lists keep a stable
+indent at each level, and task items keep a stable checkbox slot.
+
+With a collapsed caret at the start of visible text, **Backspace** converts an
+`#`-style (ATX) heading to a paragraph; outdents a nested list or task item one level together
+with its subtree; converts a root list or task item to a paragraph; or removes
+one quote level. Within text or at a soft wrap, Backspace performs ordinary
+character deletion. **Undo** restores the structural edit as one action. Raw
+Markdown mode keeps literal deletion behavior. These changes apply only to the
+native experiment. Underlined (Setext) headings have no leading marker and
+retain ordinary deletion behavior.
+
 This editor remains experimental, and CodeMirror remains the default. The
 browser preference does not change the CLI, API, note format, or permissions.
 
