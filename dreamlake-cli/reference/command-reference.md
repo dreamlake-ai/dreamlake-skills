@@ -150,6 +150,23 @@ See [External sources](sources.md).
 | `source fetch <path> --source <n>` | Mint a short-lived public download URL for one file |
 | `source download <path> --source <n> [-o <dir>] [-r]` | Write bytes to local disk |
 
+## Libraries
+
+Asset libraries — a plain directory of 3D assets, searchable per asset.
+Guide: [docs.dreamlake.ai/libraries](https://docs.dreamlake.ai/libraries/).
+
+| Command | What it does |
+| --- | --- |
+| `library push <dir> [--namespace <ns>] [--library <n>]` | Push a directory as a library (assets discovered by convention, sha256-diff incremental); `--thumbnails`, `--embed`, `--dry-run`, `--verify` |
+| `library push <dir> --force` | Override the drift guard — without it, push refuses to delete assets added remotely since this directory last registered |
+| `library pull <ns>/<name> [--asset <id>] [-o <dir>] [--json]` | Materialize files, hash-verified and incremental — byte-identical local files are skipped, a non-empty directory is synced (extras never deleted); `--all` adds platform artifacts |
+| `library list [--namespace <ns>] [--all] [--json]` | Libraries in a namespace, or every visible library |
+| `library search <query> [--library ns/a,ns/b] [--json]` | Per-asset search, one line per hit + `N of T hits · semantic on\|off` footer; filters `--kind --category --tag --license --limit --offset` |
+| `library stat <ns>/<name> [--asset <id>] [-o <dir>] [--json]` | Freshness check against a local directory — `up-to-date` (rc 0) / `stale` / `absent` (rc 1); transfers no bytes |
+| `library info <ns>/<name> [--asset <id>] [--json]` | Library summary (facet counts, size, semantic) or one asset's decision card (files, bytes, digest, effective license) |
+| `library add <ns>/<name> <path> [--id <id>] [--title …] [--replace] [--dry-run] [--json]` | Add ONE asset to a remote library, no full local copy needed; `--replace` updates an existing id in place |
+| `library rm <ns>/<name> <assetId…> [--dry-run] [--json]` | Remove assets remotely (the server reclaims their files); refuses to empty a library |
+
 ## Envs
 
 See [Envs](envs.md).
