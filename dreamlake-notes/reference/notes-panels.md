@@ -10,6 +10,31 @@ catalog. DreamLake supplies resource descriptors, view loaders and interaction
 policies. The [TabbedContainer](https://uikit.dreamlake.ai/components/tabbed-container)
 component presents those alternative scenarios in the docs.
 
+## Share the current view
+
+The address carries the panel tree and its display state. After opening, closing,
+tabbing or resizing views, copy the current address to reopen that arrangement.
+It restores sidebar collapse and folds, list search/filter/order and selection,
+and note/list scroll positions. Folder and project location stay in the ordinary
+route. Changes settle for 250 ms, then the latest snapshot is encoded during idle
+time; scrolling does not compress or rerender on every event.
+
+![Two note panels restored from one address](https://docs.dreamlake.ai/figures/url-layout-restored.png)
+
+Two exact note references, restored at 35/65 width. The route supplies the primary
+note ID; auxiliary references retain full IDs. Repeated strings compress through
+references to earlier sequence segments. Artifact query strings and fragments
+travel with their references. Internal iframe state requires the artifact to
+represent it in that address; the host does not introspect iframe memory.
+
+Sharing a view grants no additional access. Unavailable auxiliary notes leave
+empty panes or are omitted from a populated tab group, while the primary note
+keeps its normal access flow. No catalogue lookup or fuzzy ID resolution is
+needed. The codec caps the escaped layout value at 32,000 characters and the
+decoded form at 64,000; these are application limits, not a universal browser URL
+guarantee. If a layout is unsupported or exceeds the cap, the last usable URL is
+retained. Existing version 5, DEFLATE and prototype layout links remain readable.
+
 ## Artifact references
 
 Clicking an artifact tag in a note opens its artifact beside the source note.

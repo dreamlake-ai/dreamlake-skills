@@ -19,6 +19,12 @@ selections remain visible in both rich and raw views. Each connected browser ses
 visible text position in the note pane; a new scroll gesture, keystroke, or
 selection takes precedence over a pending viewport correction.
 
+Use a collaborator avatar to navigate to its current cursor when the location is
+available. A cursor at the beginning of the note shows a popup saying
+**Cursor is at the start of the note** and leaves your view in place. An avatar
+without a current cursor shows a popup saying **No location available**. Other
+available cursor locations support the existing jump action.
+
 History timeline previews return to the current working draft when the pointer
 leaves the timeline. An explicitly placed edit marker or selected change range
 keeps its historical view open; clicking a version label alone does not pin it.
@@ -37,6 +43,28 @@ commands, comments and suggestions, references, folding and section navigation,
 Vim mode, audio controls, and collaborator cursors and selections. Notes keep
 their existing save, sync, version history, and recovery controls. Switching
 between rich presentation and raw Markdown does not change the note source.
+
+In rich presentation, native headings align with the surrounding prose: the
+heading marker and its separator whitespace do not add a visual indent. Paragraphs
+and lists use consistent spacing, and blank lines retain a visible editing position.
+These presentation rules preserve the original Markdown, including heading spaces
+and line breaks; raw Markdown keeps the source visible.
+
+### Stable prefixes and structural Backspace
+
+The native rich editor keeps heading (`#`), list (`-`, `1.`),
+and quote (`>`) prefixes in a fixed left gutter. Activating a line keeps its body
+text in the same position and preserves its wrapping. Nested lists keep a stable
+indent at each level, and task items keep a stable checkbox slot.
+
+With a collapsed caret at the start of visible text, **Backspace** converts an
+`#`-style (ATX) heading to a paragraph; outdents a nested list or task item one level together
+with its subtree; converts a root list or task item to a paragraph; or removes
+one quote level. Within text or at a soft wrap, Backspace performs ordinary
+character deletion. **Undo** restores the structural edit as one action. Raw
+Markdown mode keeps literal deletion behavior. These changes apply only to the
+native experiment. Underlined (Setext) headings have no leading marker and
+retain ordinary deletion behavior.
 
 This editor remains experimental, and CodeMirror remains the default. The
 browser preference does not change the CLI, API, note format, or permissions.
@@ -602,7 +630,7 @@ limited to insert, delete, and replace; use comments for questions or discussion
 
 Comments use `:comment[text]` for text stored in the note and
 `:comment[cmt_<24 hex digits>]` for a saved comment reference. Both accept optional
-`{user="geyang"}` attribution. Braces after a bracket contain metadata only;
+`{user="geyang"}` attribution and `mode="inline"` to keep an occurrence inline. Braces after a bracket contain metadata only;
 there is no `type`, `text`, `ref`, or `userId` field. Attribution is a display
 label; the server records the authenticated creator separately. Escape brackets
 and backslashes with a backslash. Use `\cmt_...` inside brackets when an ID-shaped
@@ -623,6 +651,30 @@ a saved comment edits its object while the reference stays fixed. In Sidebar
 view the borderless editor and its Save action share the comment container;
 Save waits for the latest save before closing. Comments have no replies; conversations belong in chats.
 
+The sidebar starts with Comments when review annotations are present. In
+**Settings → Sidebar suggestions**, Automatic learns a small preference model
+from comment use and corrections; fixed Comments and Contents modes disable
+that automatic choice. The model makes at most one decision per note visit,
+when preview is enabled and the pane has room. Choosing a tab or collapsing the
+sidebar takes priority for the rest of that visit. Narrow panes keep annotations
+inline. An empty Comments view falls back to Contents without erasing the choice.
+
+New choices do not create per-note preference records. Existing saved note
+choices remain readable for compatibility. Learning is saved per account in
+this browser, with eight numeric context features, at most 32 recent feedback
+records, and an 8 KiB total storage cap. Records exclude note identifiers,
+titles, authors and bodies. Settings shows observation counts, storage use,
+recent outcomes and selection probabilities. You can choose how often the
+other view is tried, stop keeping recent records, clear records, or reset
+learning. Disabling or clearing the record history does not erase the aggregate
+model; Reset learning clears both while preserving your settings.
+
+The initial exploration rate is 5%. Comment use is a small positive signal;
+dismissing Comments or manually opening it after Contents corrects the model.
+Inactivity is never positive feedback. A decision without an explicit correction
+is evaluated after 60 visible, focused seconds; incomplete visits are discarded.
+These signals estimate interface usefulness, not user satisfaction.
+
 **Comments → Inline / Sidebar** changes the current view, independently of
 storage. Inline comments show the author label and italic text in the author's
 collaboration color, with faint brackets around the body. Sidebar comments use
@@ -637,7 +689,14 @@ previews; explicitly opening a saved comment opens its editor beside the clicked
 comment, within the visible window, without scrolling the note to the top.
 The editor's **Resolve** action saves pending changes before removing that comment
 occurrence from the note; **Save** closes the editor without removing it.
-Readers without note-edit permission do not see the Resolve action. Narrow panes
+The **Inline this** button sits after the resolve checkmark. At rest it is a
+Lucide chevron; hover or keyboard focus animates it into a left arrow pointing
+at a vertical line. Reduced-motion preferences show the same states without
+animation. The action saves pending edits and adds `mode="inline"` to that
+occurrence, keeping it in the paragraph with the Comments sidebar open.
+Use the right chevron in its editor to return it to the sidebar. Both actions
+use editor history, and Undo restores the previous occurrence.
+Readers without note-edit permission do not see these actions. Narrow panes
 fall back to Inline while retaining the Sidebar preference. Read-only readers can open accessible saved comments but
 cannot change them. Rendering, loading, and remote text replay never create
 comment objects. A brace draft pasted by a script without an editor creation
@@ -1527,6 +1586,18 @@ dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
 dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s
 ```
 
+**CLI 0.42.0+:** `--intent "…"` publishes a self-reported purpose with the
+session — one short, specific sentence in the agent's own voice, shown to
+collaborators in the agent's presence card. It is sent once at join;
+heartbeats preserve it, and leave or lease expiry removes it. The flag requires
+`--linger` (`notes visit` also accepts it for one-shot presence). The server
+trims the text and rejects empty values and more than 280 Unicode code points.
+
+```bash
+dreamlake notes read "$NOTE_ID" --linger \
+  --intent "I'm reviewing this sequence to make the pacing clearer."
+```
+
 **CLI 0.31.0+:** linger subscribes to authenticated
 `GET /namespaces/:slug/notes/:noteId/events` (SSE). CLI 0.29.0–0.30.0 used
 polling. The event stream requires a matching server; there is no silent
@@ -1650,13 +1721,25 @@ SDK integrations and linger use the HTTP protocol below internally. It is not
 a manual CLI workflow.
 
 API: `POST /namespaces/:slug/notes/:noteId/presence` accepts
-`{action, hash?, ranges?: [{start,end}]}`, bearer authentication,
+`{action, hash?, ranges?: [{start,end}], intent?}`, bearer authentication,
 `X-DreamLake-Agent-Id`, and optional `X-DreamLake-Agent-Name`.
 Actions are `join`, `heartbeat`, `read`, `edit`, `seek`, `clear`, `leave`.
 Response is `{state}` or `{state:null}` after leave. Only authenticated members or
 explicitly shared readers may publish; `edit` also requires write permission.
 Public visibility alone does not grant presence access. Controls do not mutate
 document content or revision. Owner metadata comes from authenticated lookup.
+
+`intent` is the agent's self-reported purpose — one short plain-text sentence in
+the agent's own voice, such as "I'm reviewing this sequence to make the pacing
+clearer." Omitting the field preserves the current purpose, `{"summary": "…"}`
+replaces it, and an explicit `null` clears it, on any action. Summaries are
+trimmed; empty strings and more than 280 Unicode code points are rejected with
+400 `invalid_presence`. The server stamps `updatedAt`; clients cannot supply
+owner attribution or timestamps. Intent lives with the presence lease: leave or
+lease expiry removes it, and a later join never resurrects an expired purpose.
+`clear` keeps its existing meaning — it clears passage activity, not intent.
+Intent is a self-reported claim, not observed activity, progress, or a
+permission grant; the roster's authorized readers can see it.
 
 #### Read who is present (HTTP API)
 
@@ -1672,7 +1755,7 @@ Successful reads default to `text/plain; charset=utf-8` (also available with
 ```text
 Observed at: 2026-09-26T08:00:00.000Z
 - human: "Ge" (id: "ge"; client: "browser-session-123")
-- agent: "Codex" (id: "agent:owner-id:agent-id"; client: "note-agent-session-456"); owner: "Ge" (id: "owner-id"); expiresAt: 1790409660000
+- agent: "Codex" (id: "agent:owner-id:agent-id"; client: "note-agent-session-456"); owner: "Ge" (id: "owner-id"); intent: "I'm reviewing this sequence to make the pacing clearer."; expiresAt: 1790409660000
 ```
 
 An empty text roster says `No participants present.` after the observation time.
@@ -1683,8 +1766,9 @@ line. Use `?format=json` for structured output; other format values return
 The opt-in JSON response is `{participants, observedAt}`. `observedAt` is Unix time in
 milliseconds. Each participant has `client` (connection ID) and `user` with
 `id`, `name`, and `kind` (`human` or `agent`), plus optional `color` and `avatar`.
-Agents can include `user.owner` and their lease's `expiresAt`. Expired agent
-leases and internal observer connections are excluded. Multiple browser tabs
+Agents can include `user.owner`, their lease's `expiresAt`, and `intent`
+(`{summary, updatedAt}` — the self-reported purpose last published with
+presence). Expired agent leases and internal observer connections are excluded. Multiple browser tabs
 remain separate entries. To identify other agents, compare `user.id` against
 `agent:<authenticated-owner-id>:<agent-id>`; the caller is not automatically
 excluded. Human identities without a kind field are normalized to `human`.
@@ -1733,7 +1817,7 @@ a display name such as `Codex` does not distinguish their sessions. The CLI send
 | Presence identity | User namespace slug | `agent:<authenticated-owner-id>:<task-id>` |
 | Display name | Profile name from `/auth/me`, falling back to namespace slug | `DREAMLAKE_AGENT_NAME`, falling back to `AI agent` |
 | Header avatar | Profile photo, or initials when absent | Bot icon |
-| Tooltip | Name and presence | Agent name, owner name, activity and task/session ID |
+| Tooltip | Name and presence | Agent name, owner name, stated purpose (intent), activity and task/session ID |
 
 The server derives an agent's owner from authentication and looks up the owner's
 profile name/photo; an agent cannot assign an owner through these headers. The
