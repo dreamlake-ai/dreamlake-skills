@@ -80,6 +80,15 @@ The first snapshot is immediate. Then:
   are filtered out. Continuous editing can keep a content diff pending;
   there is no forced maximum-wait flush.
 
+**CLI 0.42.0+:** `--intent "…"` publishes a stated purpose with the session —
+one short, specific sentence in the agent's own voice, shown on your presence
+card to collaborators (for example
+`--intent "I'm reviewing this sequence to make the pacing clearer."`).
+It is sent once at join; heartbeats preserve it, and leave or lease expiry
+removes it. The server trims the text and rejects empty values and more than
+280 Unicode code points. A purpose is a self-reported claim, not observed
+activity or progress. `notes visit` accepts the same flag for one-shot presence.
+
 Both timing flags require `--linger`. Use `ms`, `s`, or `m`, between `250ms` and
 `5m`; fractions are allowed. The server subscribes to the existing RTC room and
 coalesces changes to at most one batch per 250ms. The CLI independently limits
@@ -209,7 +218,7 @@ room. Do not claim to have joined until the command succeeds.
 
 IDs accept 1–128 ASCII letters, digits, dots, colons, underscores, or hyphens;
 names accept at most 64 printable ASCII characters. Attributed body operations
-require CLI 0.27.0+; visit/linger require 0.29.0+; read-only `presence` requires 0.31.0+.
+require CLI 0.27.0+; visit/linger require 0.29.0+; read-only `presence` requires 0.31.0+; `--intent` requires 0.42.0+.
 Each also needs matching server support.
 
 Next: [Editing with patches](notes-editing.md).

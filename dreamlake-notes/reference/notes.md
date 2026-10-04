@@ -318,6 +318,7 @@ ordinary bracketed prose without a highlight.
 dreamlake notes create "Design Doc"
 dreamlake notes create "Design Doc" --file draft.md
 dreamlake notes create "Design Doc" --text "# Design Doc"
+dreamlake notes create "Design Doc" --summary "Decision and open questions"
 dreamlake notes create "Design Doc" --public        # default is private
 
 dreamlake notes list
@@ -331,8 +332,12 @@ dreamlake notes list --json
 ```python
 import dreamlake as dl
 
-note = dl.create_note("<namespace>", "Design Doc", text="# Design Doc\n")
+note = dl.create_note(
+    "<namespace>", "Design Doc", text="# Design Doc\n",
+    summary="Decision and open questions",
+)
 note.id, note.namespace, note.etag
+note.summary
 
 dl.list_notes("<namespace>")
 dl.list_notes("<namespace>", limit=20, offset=20)
@@ -341,6 +346,54 @@ dl.shared_with_me()
 
 Titles may repeat — the slug takes a suffix — so keep `note.id` rather than
 the name you passed.
+
+## Note summaries
+
+> **Note:** Summary support requires a compatible Notes server and CLI release. This
+> source documentation describes the new contract; older installed clients may
+> not recognize the command or fields yet.
+
+A note may have a short, optional summary for catalogs and quick context. The
+summary is metadata separate from the collaborative body. Body edits and
+revision checks leave it unchanged. Summaries can contain up to 4,000
+characters; older notes without one return `null`.
+
+Create a note with a summary or update one later:
+
+```bash cli-help="notes summary"
+dreamlake notes summary "$NOTE_ID"                   # read the summary
+dreamlake notes summary "$NOTE_ID" --text "Decision and open questions"
+dreamlake notes summary "$NOTE_ID" --file summary.txt
+cat summary.txt | dreamlake notes summary "$NOTE_ID" --file -
+dreamlake notes summary "$NOTE_ID" --clear
+```
+
+The CLI also accepts `--summary <text>` when creating a note. A summary set
+from a file is used as-is; multiline text is allowed. `--text`, `--file`, and
+`--clear` are mutually exclusive. Use `--namespace <slug>` for an organization
+note. Reads and writes can use `--json`; a summary read returns `{note,
+summary}`, while a mutation returns the updated Note metadata.
+
+The owner of the namespace or the note's creator can set or clear a summary,
+the same as for a title or visibility change. Other users with body-edit access
+cannot change it. For the REST API, `POST /namespaces/:slug/notes` accepts an
+optional `summary`; `PATCH /namespaces/:slug/notes/:noteId` accepts a string to
+set it or `null` to clear it. Omitting the field from PATCH preserves the
+existing summary. `GET /notes/:noteId` and catalog list responses return the
+summary separately from the body. A summary update does not create a body
+revision or change its content hash.
+
+In Python, `create_note(..., summary=...)` sets it on creation. A `Note` exposes
+its available summary as `note.summary`; call `note.read_metadata()` to refresh
+metadata, or `note.update_summary(text)` to set it and
+`note.update_summary(None)` to clear it. These operations do not write the
+collaborative body. `NoteRef` rows from `list_notes(...)` also expose their
+available summary.
+
+GraphQL's authorized `Query.note(namespaceSlug:, id:)` returns the nullable
+`Note.summary` field alongside `id`, `name`, and visible project/Bindr
+associations. It is a metadata-only read; body content is not returned. Use the
+REST metadata PATCH, CLI, or Python SDK to update the summary.
 
 ## Link to a note in the browser
 
@@ -1586,6 +1639,18 @@ dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
 dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s
 ```
 
+**CLI 0.42.0+:** `--intent "…"` publishes a self-reported purpose with the
+session — one short, specific sentence in the agent's own voice, shown to
+collaborators in the agent's presence card. It is sent once at join;
+heartbeats preserve it, and leave or lease expiry removes it. The flag requires
+`--linger` (`notes visit` also accepts it for one-shot presence). The server
+trims the text and rejects empty values and more than 280 Unicode code points.
+
+```bash
+dreamlake notes read "$NOTE_ID" --linger \
+  --intent "I'm reviewing this sequence to make the pacing clearer."
+```
+
 **CLI 0.31.0+:** linger subscribes to authenticated
 `GET /namespaces/:slug/notes/:noteId/events` (SSE). CLI 0.29.0–0.30.0 used
 polling. The event stream requires a matching server; there is no silent
@@ -1709,13 +1774,25 @@ SDK integrations and linger use the HTTP protocol below internally. It is not
 a manual CLI workflow.
 
 API: `POST /namespaces/:slug/notes/:noteId/presence` accepts
-`{action, hash?, ranges?: [{start,end}]}`, bearer authentication,
+`{action, hash?, ranges?: [{start,end}], intent?}`, bearer authentication,
 `X-DreamLake-Agent-Id`, and optional `X-DreamLake-Agent-Name`.
 Actions are `join`, `heartbeat`, `read`, `edit`, `seek`, `clear`, `leave`.
 Response is `{state}` or `{state:null}` after leave. Only authenticated members or
 explicitly shared readers may publish; `edit` also requires write permission.
 Public visibility alone does not grant presence access. Controls do not mutate
 document content or revision. Owner metadata comes from authenticated lookup.
+
+`intent` is the agent's self-reported purpose — one short plain-text sentence in
+the agent's own voice, such as "I'm reviewing this sequence to make the pacing
+clearer." Omitting the field preserves the current purpose, `{"summary": "…"}`
+replaces it, and an explicit `null` clears it, on any action. Summaries are
+trimmed; empty strings and more than 280 Unicode code points are rejected with
+400 `invalid_presence`. The server stamps `updatedAt`; clients cannot supply
+owner attribution or timestamps. Intent lives with the presence lease: leave or
+lease expiry removes it, and a later join never resurrects an expired purpose.
+`clear` keeps its existing meaning — it clears passage activity, not intent.
+Intent is a self-reported claim, not observed activity, progress, or a
+permission grant; the roster's authorized readers can see it.
 
 #### Read who is present (HTTP API)
 
@@ -1731,7 +1808,7 @@ Successful reads default to `text/plain; charset=utf-8` (also available with
 ```text
 Observed at: 2026-09-26T08:00:00.000Z
 - human: "Ge" (id: "ge"; client: "browser-session-123")
-- agent: "Codex" (id: "agent:owner-id:agent-id"; client: "note-agent-session-456"); owner: "Ge" (id: "owner-id"); expiresAt: 1790409660000
+- agent: "Codex" (id: "agent:owner-id:agent-id"; client: "note-agent-session-456"); owner: "Ge" (id: "owner-id"); intent: "I'm reviewing this sequence to make the pacing clearer."; expiresAt: 1790409660000
 ```
 
 An empty text roster says `No participants present.` after the observation time.
@@ -1742,8 +1819,9 @@ line. Use `?format=json` for structured output; other format values return
 The opt-in JSON response is `{participants, observedAt}`. `observedAt` is Unix time in
 milliseconds. Each participant has `client` (connection ID) and `user` with
 `id`, `name`, and `kind` (`human` or `agent`), plus optional `color` and `avatar`.
-Agents can include `user.owner` and their lease's `expiresAt`. Expired agent
-leases and internal observer connections are excluded. Multiple browser tabs
+Agents can include `user.owner`, their lease's `expiresAt`, and `intent`
+(`{summary, updatedAt}` — the self-reported purpose last published with
+presence). Expired agent leases and internal observer connections are excluded. Multiple browser tabs
 remain separate entries. To identify other agents, compare `user.id` against
 `agent:<authenticated-owner-id>:<agent-id>`; the caller is not automatically
 excluded. Human identities without a kind field are normalized to `human`.
@@ -1792,7 +1870,7 @@ a display name such as `Codex` does not distinguish their sessions. The CLI send
 | Presence identity | User namespace slug | `agent:<authenticated-owner-id>:<task-id>` |
 | Display name | Profile name from `/auth/me`, falling back to namespace slug | `DREAMLAKE_AGENT_NAME`, falling back to `AI agent` |
 | Header avatar | Profile photo, or initials when absent | Bot icon |
-| Tooltip | Name and presence | Agent name, owner name, activity and task/session ID |
+| Tooltip | Name and presence | Agent name, owner name, stated purpose (intent), activity and task/session ID |
 
 The server derives an agent's owner from authentication and looks up the owner's
 profile name/photo; an agent cannot assign an owner through these headers. The
@@ -2595,5 +2673,5 @@ These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
 
 The content hash identifies text, not the identity-bearing RTC baseline used
 for collaborative patches. Saving a version is a retained snapshot operation,
-not a content write. There are no new CLI flags or Python SDK methods for this
-surface yet; use the UI or authenticated REST API.
+not a content write. The saved-version API has no CLI flags or Python SDK
+methods; use the UI or authenticated REST API.

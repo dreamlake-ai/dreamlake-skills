@@ -3,16 +3,17 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "383a70e278a0c99cc15c3e37397776c0577cac06",
+      "commit": "052e9e62cd050a8054d4e233b23b89454986cdca",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
-        "docs/skill-guides/notes/SKILL.md": "bc0eba9799afd1a42cd7e596f750120c9b56c045e02aeffa5dc00899d502d741",
+        "docs/skill-guides/notes/SKILL.md": "debfda5eb893e065b797ece4cdf3722f5362342d4c8f2eb2bc5799407405d382",
         "docs/skill-guides/notes/actions/attachments.md": "e8b65126dd4f4c4c25fe8b9a6a768296e583b5047034a74c2be4880775ba5fa0",
-        "docs/skill-guides/notes/actions/create.md": "c7b05467c117f7d22388b427331a6df04a06166bb99b338a8fda65490e22386a",
+        "docs/skill-guides/notes/actions/create.md": "ecbd9f7b697cb59f6986b9ac770ba24140452abcd179b1a14dbc802a76361b82",
         "docs/skill-guides/notes/actions/edit.md": "b79f8fa6488b31ab4e13cb2b8774bbca0e3471e66731d641cf695c3c70bb2450",
         "docs/skill-guides/notes/actions/identity.md": "a642257851acea7aa4282cb0ea10dc1fa23b1dc08477c966cfa8ba901605f99c",
         "docs/skill-guides/notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
-        "docs/skill-guides/notes/actions/read.md": "9cf08956fda8ff8d9b051812359cd6dd41150ee45054b0a8148f90daf6c3399a",
+        "docs/skill-guides/notes/actions/read.md": "b4c355a85f214c0857a971a914a2c8efe21d675a2b6dc942165fc01948611002",
+        "docs/skill-guides/notes/actions/summary.md": "acceb52ab3fa31d2bb4a02c047b3d0fbf464f379bef5b58ec8bb8c88136d08ba",
         "docs/skill-guides/notes/actions/watch.md": "7561b57961bdc057ebbef89fdf12367e72d50d82a3ca3678e757a313a6de3f5f",
         "docs/skill-guides/scene-generation/SKILL.md": "441643e952f601f367659cb292ed023f2817e1700668053951454dd93cc3c28d",
         "docs/skill-guides/scene-generation/actions/compose-and-validate.md": "be8336eda2181a073b6306ae5c92e81ef0bdaacf4cdc4039a1b3513bf2989086",
@@ -27,12 +28,12 @@
       },
       "docsPages": "docs/pages/{notes,scene-generation,libraries,envs,envs/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "6b29806498ccd5d50d089b8b6b9595e5b5dc738675bc0ecd08d7c004b4bc3fd4",
+      "pageSha256": "b6acf74ef46fb48592aae4370fd36ec2d2f5445aed152afd5a78673bac9bd25c",
       "childPages": {
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
         "docs/pages/notes/markdown/+Page.mdx": "f4ac685c586a7d8c09cc727863cabee468b3bea8efb863d57cd56908e4976f12",
-        "docs/pages/notes/panels/+Page.mdx": "ac1dbec1194d0aa24827309536476a88e6fbe97c8fd3d2d497a7ef8eaeb93220"
+        "docs/pages/notes/panels/+Page.mdx": "a5f4159e4c82298426cd44ebae33d3412a7317986c2d5a0a814a7369a27cb741"
       },
       "scenePages": {
         "docs/pages/scene-generation/+Page.mdx": "6c847f5eb0514d359951de0506b8e7aab65baa76a4e81d86152065365f6caa49",
@@ -43,11 +44,12 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "ec9dabc8d05bcc17b84f0fdc7577371a90b93759",
+      "commit": "96e129f0b1a3b4339be6e9e65cf8dcded1504838",
       "generatorSha256": "fbeb216d7f0fdfc9cf1cbfa1ee7871d3a7c57a244fe6ace0d0ea0270ccf83a18",
       "actionGuides": {
-        "docs/skill-guides/cli/SKILL.md": "8424edbf0bb95493a3b8d6648b9ca2476b7c4bbafa6f262752313b9e26a16e8d",
+        "docs/skill-guides/cli/SKILL.md": "4a08c479b7d56b5b7b89153f0c5e8ac7aa629e91b2e56eb6ed8dbc5334b17018",
         "docs/skill-guides/cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
+        "docs/skill-guides/cli/actions/cloud-vault.md": "436f5eb044b12fa5fc1c32189d7f09d3eb38a3466ca3598a9bc5e64c3fdf8bc5",
         "docs/skill-guides/cli/actions/data.md": "a61da3e333b2e7894650d2ea941e56807ef0f7bfe8cabf10d20527a3dcef63e3",
         "docs/skill-guides/cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
         "docs/skill-guides/cli/actions/notes.md": "a038090382977476e0eb74bf297aeb6a5b44dbd3bd2dd71f8b18b4da33c9e92c",
