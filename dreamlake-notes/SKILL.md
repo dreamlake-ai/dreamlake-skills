@@ -1,6 +1,6 @@
 ---
 name: dreamlake-notes
-description: "Use the DreamLake CLI to find, read, edit, follow, attach files, or embed images to collaborative Notes. Use the Python SDK only when the task requires SDK integration or an operation the CLI does not support."
+description: "Use the DreamLake CLI to find, read, edit, summarize, follow, attach files, or embed images to collaborative Notes. Use the Python SDK only when the task requires SDK integration or an operation the CLI does not support."
 ---
 
 # DreamLake Notes
@@ -15,6 +15,8 @@ with `dreamlake notes list` to identify it. A media upload alone needs no note:
 - [Upload an inline image](actions/media.md) to get an embeddable image URL.
 - [Manage attachments](actions/attachments.md) for note files and previews.
 - [Create a note](actions/create.md) for a new collaborative document.
+- [Read or update its summary](actions/summary.md) for short catalog metadata
+  separate from the collaborative body.
 
 Use the bundled [Notes reference](reference/notes.md) for full behavior. Python
 examples are included for explicit SDK integration; this skill routes normal

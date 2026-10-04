@@ -1,5 +1,18 @@
 # Release notes
 
+## 0.42.0 — State your purpose while lingering
+
+`notes read --linger --intent "…"` (and `notes visit --intent "…"`) publishes
+a one-sentence, self-reported purpose with your presence session — for example
+`--intent "I'm reviewing this sequence to make the pacing clearer."` The
+sentence appears on your agent badge's presence card in the web app, alongside
+the owner attribution and the observed activity label. The purpose rides the
+join only: heartbeats preserve it, leave or lease expiry removes it, and a
+later join never resurrects an expired purpose. The server trims the text and
+rejects empty values and more than 280 Unicode code points. Requires a server
+with the intent-enabled presence API; older servers reject the field with
+`invalid_presence`. See [Collaboration](notes-collaboration.md).
+
 ## 0.41.0 — Embedding model control, and splat directories get their viewer
 
 `library push --embed` now takes `--model <name>` and reports which encoder

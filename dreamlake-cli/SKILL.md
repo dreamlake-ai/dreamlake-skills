@@ -14,6 +14,7 @@ options and limits:
 - [Upload an inline image](actions/media.md)
 - [Publish an artifact](actions/artifacts.md)
 - [Manage workflows](actions/workflows.md)
+- [Import and restore cloud configuration](actions/cloud-vault.md)
 
 Run `dreamlake <command> --help` for command-specific syntax. The bundled
 `reference/` directory remains the complete generated CLI documentation.
