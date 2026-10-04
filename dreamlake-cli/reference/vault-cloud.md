@@ -49,13 +49,21 @@ statuses. Readback verifies exact content; no hashes or secret values are printe
 
 ## Restore
 
+**Starting with CLI 0.43.1**, home-relative restore destinations use the receiving machine's home directory. Shell-expanded
+`"$HOME/.aws/config"` works as usual; the CLI also expands a literal
+`'~/.aws/config'`, `'$HOME/.aws/config'`, or `'${HOME}/.aws/config'` itself.
+Do not pass the old machine's absolute home path. Home-relative paths cannot
+escape the home directory through `..`. Other relative paths remain relative
+to the current working directory. File contents remain byte-for-byte unchanged;
+absolute paths inside configuration files are not rewritten.
+
 ```bash cli-help="vault cloud restore"
 # Preview checks metadata and destination without retrieving the secret.
 dreamlake vault cloud restore -n alice/aws/dev/credentials \
-  --to /private/config/credentials
+  --to '~/.aws/credentials'
 # Write only after explicit --apply; existing files additionally need --overwrite.
 dreamlake vault cloud restore -n alice/aws/dev/credentials \
-  --to /private/config/credentials --apply
+  --to '~/.aws/credentials' --apply
 ```
 
 Restore is POSIX-only because it guarantees mode `0600`. Its destination directory

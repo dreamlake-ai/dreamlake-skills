@@ -59,6 +59,22 @@ generate codes. General entry replacement cannot roll an HOTP counter back.
 
 ## Metadata pages
 
+**Starting with CLI 0.43.1:** when both stdin and stdout are terminals,
+`vault list` opens a searchable, selectable metadata list. Use Up/Down to move,
+Space to toggle entries, `/` to filter by name, Enter to return selected metadata,
+and Escape or Ctrl-C to cancel. With no checkmarks, Enter selects the focused row.
+Filtering preserves selections. No secret values are retrieved.
+
+Pipes and redirected output retain JSON. `--to-json` explicitly requests JSON
+even in a terminal. `--tree` remains the separate prefix-policy browser.
+
+```bash cli-help="vault list"
+# Interactive on a terminal; JSON when piped or redirected.
+dreamlake vault list -p alice
+# Always emit metadata JSON.
+dreamlake vault list -p alice --to-json
+```
+
 ```shell
 dreamlake vault -p alice/remote list
 dreamlake vault -p alice/remote list --limit 50
