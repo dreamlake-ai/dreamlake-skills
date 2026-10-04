@@ -32,7 +32,7 @@ generate a unified diff from baseline and edited files; see
 
 For durable checkpoints, use `notes version create NOTE_ID --tag LABEL` on the
 same Note, then `notes version list` / `notes version read` to inspect them.
-These commands are unreleased after 0.43.1: check installed `--help` first.
+These commands require CLI 0.44.0 or later: check installed `--help` first.
 Retain a reviewed full read's content hash with `--hash`; a stale hash or
 `409 note_changed` requires review, never a blind retry or a copied Note.
 See [saved versions](../reference/notes-versions.md) for pagination, ancestry,

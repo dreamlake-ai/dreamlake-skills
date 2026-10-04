@@ -218,6 +218,6 @@ the user again. Membership and public access are unaffected.
 
 ## Durable checkpoints
 
-The unreleased `notes version create`, `list`, and `read` commands save and
+Starting with CLI 0.44.0, `notes version create`, `list`, and `read` save and
 inspect immutable versions on the same Note without changing its live body.
 See [saved versions](notes-versions.md) for availability and hash-safe examples.

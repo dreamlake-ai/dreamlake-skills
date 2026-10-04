@@ -4,8 +4,7 @@
 create another Note or change the live body. All version operations require
 edit access, including reading history that may contain previously removed text.
 
-**Availability:** these commands are unreleased source additions after CLI
-0.43.1. Check `dreamlake notes version --help` in your installed executable
+**Availability:** these commands require CLI **0.44.0 or later**. Check `dreamlake notes version --help` in your installed executable
 before using them in automation. They require the server's native Notes
 `/versions` endpoints; an older server's failure is not an empty version list.
 
