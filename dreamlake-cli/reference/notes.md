@@ -215,3 +215,9 @@ Use `share get` to inspect the current link role.
 
 Removing an acceptance record does not invalidate a circulating link; that link can admit
 the user again. Membership and public access are unaffected.
+
+## Durable checkpoints
+
+The unreleased `notes version create`, `list`, and `read` commands save and
+inspect immutable versions on the same Note without changing its live body.
+See [saved versions](notes-versions.md) for availability and hash-safe examples.
