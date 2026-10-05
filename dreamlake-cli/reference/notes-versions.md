@@ -1,24 +1,26 @@
 # Saved versions
 
-`notes version` saves durable checkpoints on an existing Note. It does not
+`note tag` saves durable checkpoints on an existing Note. It does not
 create another Note or change the live body. All version operations require
 edit access, including reading history that may contain previously removed text.
 
-**Availability:** these commands require CLI **0.44.0 or later**. Check `dreamlake notes version --help` in your installed executable
+**Availability:** `note tag`, `note hist`, and `note read --version` require
+CLI **0.44.1 or later**. `note` and `notes` are aliases. Check
+`dreamlake note hist --help` in your installed executable
 before using them in automation. They require the server's native Notes
 `/versions` endpoints; an older server's failure is not an empty version list.
 
 ## Create a checkpoint
 
-```bash cli-help="notes version create"
+```bash cli-help="notes tag"
 # Save the current content on the existing Note.
-dreamlake notes version create NOTE_ID --namespace my-org --tag end-of-day --summary "Reviewed today's actions"
+dreamlake note tag NOTE_ID end-of-day --namespace my-org --summary "Reviewed today's actions"
 # Require the hash retained from a reviewed full read (not its opaque revision).
-dreamlake notes version create NOTE_ID --hash sha256:CONTENT_HASH --tag reviewed --json
+dreamlake note tag NOTE_ID reviewed --hash sha256:CONTENT_HASH --json
 # Connect this checkpoint to an earlier version in the same Note.
-dreamlake notes version create NOTE_ID --parent VERSION_ID --tag next-checkpoint
+dreamlake note tag NOTE_ID next-checkpoint --parent VERSION_ID
 # Read and validate without creating a version.
-dreamlake notes version create NOTE_ID --tag preview --dry-run --json
+dreamlake note tag NOTE_ID preview --dry-run --json
 ```
 
 Creation performs one complete Notes v2 source read, verifies its SHA-256 hash,
@@ -30,14 +32,14 @@ If the Note changes between the read and save, the server returns
 text before explicitly trying again. Do not substitute an opaque write revision
 for the content hash.
 
-`--tag` is optional (80 characters maximum); `--summary` is optional (2,000
+The positional label is required (80 characters maximum); `--summary` is optional (2,000
 characters maximum). Tags are labels, not unique IDs or idempotency keys:
 repeating a successful create makes another version. Retain the returned `id`
 for reading and ancestry. `--parent` must identify a saved version in the same
 Note; it records ancestry without restoring or altering the live Note.
 
 A server or transport failure after submission may leave the outcome uncertain.
-Inspect `version list` before resubmitting. There is no automatic retry or
+Inspect `note hist` before resubmitting. There is no automatic retry or
 fallback that creates a separate Note. RTC unavailability exits **4**; other
 failures exit **1**. Version request errors preserve the server error code in
 `--json` output. Connection/authentication and Note resolution follow normal
@@ -45,10 +47,10 @@ Notes diagnostics.
 
 ## List saved versions
 
-```bash cli-help="notes version list"
-dreamlake notes version list NOTE_ID --namespace my-org --json
+```bash cli-help="notes hist"
+dreamlake note hist NOTE_ID --namespace my-org --json
 # Continue with nextCursor returned by the previous page.
-dreamlake notes version list NOTE_ID --before VERSION_ID --json
+dreamlake note hist NOTE_ID --before VERSION_ID --json
 ```
 
 One request returns up to 50 versions, newest first. JSON preserves
@@ -58,9 +60,9 @@ metadata, not bodies, and does not automatically fetch all pages.
 
 ## Read a saved version
 
-```bash cli-help="notes version read"
-dreamlake notes version read NOTE_ID VERSION_ID
-dreamlake notes version read NOTE_ID VERSION_ID --namespace my-org --json
+```bash
+dreamlake note read NOTE_ID --version VERSION_ID
+dreamlake note read NOTE_ID --version VERSION_ID --namespace my-org --json
 ```
 
 Read by the returned version ID (`v_<timestamp>_<uuid>`), not by tag. Plain
@@ -72,3 +74,27 @@ command group does not yet expose that endpoint.
 
 All three commands accept a Note ID, slug or title, `--namespace`, normal
 connection flags, and `--json`. Prefer stable Note and version IDs in automation.
+
+`hist` lists saved checkpoints, not every live edit or RTC journal entry.
+`read --version` accepts `--note` as an alternative to the positional Note.
+It cannot combine with `--at`, `--since`, `--format`, `--if-match`, `--legacy`,
+partial/numbered reads, HTML/Markdown views or collaboration options such as
+`--linger`. `--view source` and `--json` are supported. Omit `--version` to read
+the live Note normally. A saved version's JSON uses `text` and saved metadata,
+not the live read's `content` and write-baseline envelope.
+
+## Compatibility with CLI 0.44.0
+
+The original command group remains available for existing scripts:
+
+```bash cli-help="notes version create"
+dreamlake notes version create NOTE_ID --tag end-of-day
+```
+
+```bash cli-help="notes version list"
+dreamlake notes version list NOTE_ID --json
+```
+
+```bash cli-help="notes version read"
+dreamlake notes version read NOTE_ID VERSION_ID --json
+```

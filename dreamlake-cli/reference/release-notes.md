@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.44.1 — Tag, history and saved reads
+
+Use `dreamlake note tag NOTE LABEL`, `dreamlake note hist NOTE`, and
+`dreamlake note read NOTE --version VERSION_ID` for saved checkpoints.
+`note` aliases `notes`; the original `notes version create/list/read` commands
+remain compatible. Saved reads refuse conflicting live-read options before
+network access. See [Saved versions](notes-versions.md).
+
 ## 0.44.0 — Saved Note versions
 
 Save immutable checkpoints on the existing Note with `notes version create`,
