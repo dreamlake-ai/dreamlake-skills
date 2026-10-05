@@ -44,7 +44,7 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "3b34a83482b6b3d6fb65027b78b6953a0dd11791",
+      "commit": "57ff87c5b96fb17419958b4ee6773e29411cc15c",
       "generatorSha256": "fbeb216d7f0fdfc9cf1cbfa1ee7871d3a7c57a244fe6ace0d0ea0270ccf83a18",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "4a08c479b7d56b5b7b89153f0c5e8ac7aa629e91b2e56eb6ed8dbc5334b17018",
@@ -52,7 +52,7 @@
         "docs/skill-guides/cli/actions/cloud-vault.md": "436f5eb044b12fa5fc1c32189d7f09d3eb38a3466ca3598a9bc5e64c3fdf8bc5",
         "docs/skill-guides/cli/actions/data.md": "a61da3e333b2e7894650d2ea941e56807ef0f7bfe8cabf10d20527a3dcef63e3",
         "docs/skill-guides/cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
-        "docs/skill-guides/cli/actions/notes.md": "74c16b33c21689778bf7f2504804938696dfff7f3bbde94c72980fe36bbb6572",
+        "docs/skill-guides/cli/actions/notes.md": "cb83cfc395ff53d3762a444664406a5c137aab35962bd60b0c416bb110eab84b",
         "docs/skill-guides/cli/actions/setup.md": "fb08615fb8f915ff7ec8c41d3a444d6e3b668e514b63cb359afd10ebf61223c3",
         "docs/skill-guides/cli/actions/workflows.md": "570a51f04fdb7cf0e5317b959fa67ac352eefaabc6beb5f00867db6cc51e3a7e"
       },

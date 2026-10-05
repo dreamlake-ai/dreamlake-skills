@@ -30,9 +30,9 @@ original revision. For literal edits without inline-DFF delimiter escaping,
 generate a unified diff from baseline and edited files; see
 [editing with patches](../reference/notes-editing.md#literal-text-without-inline-dff-escaping).
 
-For durable checkpoints, use `notes version create NOTE_ID --tag LABEL` on the
-same Note, then `notes version list` / `notes version read` to inspect them.
-These commands require CLI 0.44.0 or later: check installed `--help` first.
+For durable checkpoints, use `note tag NOTE_ID LABEL` on the
+same Note, then `note hist NOTE_ID` / `note read NOTE_ID --version VERSION_ID` to inspect them.
+These commands require CLI 0.44.1 or later: check installed `--help` first.
 Retain a reviewed full read's content hash with `--hash`; a stale hash or
 `409 note_changed` requires review, never a blind retry or a copied Note.
 See [saved versions](../reference/notes-versions.md) for pagination, ancestry,
