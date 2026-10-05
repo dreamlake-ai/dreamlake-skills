@@ -67,3 +67,43 @@ authorized owner. Reusing a key with a changed request returns
 writers stay fenced until cleanup completes. Cancellation after committing is
 refused. `RECOVERY_REQUIRED` needs reconciliation: after the ownership switch,
 recovery rolls forward and never restores the former owner.
+
+## Project/source preflight (draft)
+
+These commands require the package C server draft. They inspect current resource
+ownership and server-computed capabilities; project filing grants no ownership.
+Project ADMIN can manage existing grants and delete, but cannot transfer. Source
+EDIT does not grant management or transfer authority.
+
+```bash cli-help="ownership inspect"
+dreamlake ownership inspect <resource-id> --type project --namespace acme
+```
+
+```bash cli-help="ownership manifest"
+dreamlake ownership manifest <resource-id> --type source --namespace acme
+```
+
+Manifest inspection requires current namespace-owner authority. It returns
+bounded structure/filing inventories, resource version, grant/editor IDs and
+active operation blockers. No secrets, provider paths or storage bindings appear.
+Use the returned version and explicit selected resource IDs in the existing v1
+preview request. Review and approve cross-owner filing detachments explicitly;
+resources excluded from a project transfer retain their owners.
+
+All C execution stages are gated until writer epochs, atomic cutover and storage
+recovery are implemented and validated. A preview does not transfer bytes or
+ownership. Source-only actors cannot discover destination Connections; destination
+owners must validate an independently authorized compatible Connection and prove
+path access. Credential export/reseal remains B-gated; original Connections and
+non-transferred consumers are unchanged.
+
+```bash cli-help="ownership restore"
+dreamlake ownership restore <resource-id> --type project --namespace acme
+```
+
+Restore is explicitly unsupported for projects without retained deletion
+snapshots (`PROJECT_SNAPSHOT_REQUIRED`); Source deletion remains terminal
+(`SOURCE_DELETE_TERMINAL`). Deleted resources may return `NOT_FOUND` because
+current live-resource authority cannot be established. Source disable/enable
+remains the existing reversible lifecycle action. Separate archive is unsupported.
+Do not interpret the proposed 30-day project recovery window as shipped behavior.

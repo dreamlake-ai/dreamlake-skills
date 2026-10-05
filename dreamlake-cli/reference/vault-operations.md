@@ -113,6 +113,20 @@ client.vault.unbind_host_credential(
 )
 ```
 
-## Proposed organization/team scopes (not released)
+## Organization/team management preview (not released)
 
-Use `dreamlake vault scopes` to discover current authorized scope IDs, then put `--scope org:<id>` or `--scope team:<id>` before the entry subcommand. The option supports get, list, show, add, retire, restore and write-status. Personal remains the default. Keep the original scope and request ID for write recovery; a denied shared scope is never retried against Personal. Shared OTP, KMS, access keys, host binding, cloud delivery and machine credentials remain unsupported. Privileged export/reseal and policy operations remain gated on the ownership authority contract.
+Discover scope IDs with `dreamlake vault scopes`. Put `--scope org:<id>` or `--scope team:<id>` before supported entry or management commands. Personal remains the default; recovery keeps the original actor, scope and request ID, with no fallback on denial.
+
+```shell
+dreamlake vault --scope org:<id> capabilities
+dreamlake vault --scope org:<id> secret-copy-preview --name org/path --destination-scope team:<id> --destination-name team/path --if-match 1 --request-id copy-001
+dreamlake vault --scope org:<id> secret-copy --operation-id <id> --action commit
+dreamlake vault --scope org:<id> secret-copy-recover --request-id copy-001
+dreamlake vault --scope org:<id> policy
+dreamlake vault --scope org:<id> policy --export false --if-match 0 --request-id policy-001
+dreamlake vault --scope org:<id> audit
+```
+
+Use `--destination-scope personal` for an explicit personal destination. `secret-copy --action status` recovers committed identity; `--action cancel` permanently cancels a pending preview. Metadata never includes secret values. Preview expires after 24 hours, policy updates compare revision, and commits recheck source and destination authority. Export/policy requires org OWNER or direct-team MAINTAINER; ordinary entry CRUD remains member-based.
+
+Copies retain the source and reseal a new destination entry. Source-retiring moves require a complete consumer inventory and remain rejected. Customer-KMS destinations need policy-aware reseal recovery and remain rejected. Shared OTP, KMS administration, keys, host/machine credentials and delivery are unsupported.
