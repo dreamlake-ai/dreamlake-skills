@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "f657b51596114039b4066576d0204c1da467a1fa23f1f7bae7632bf521c3aaef",
+  "sourcesSha256": "716a086c83e3968ab045898d4468994cbbb6f776c12eec8113ab4218e86d95e1",
   "files": {
     "dreamlake-cli/SKILL.md": "4a08c479b7d56b5b7b89153f0c5e8ac7aa629e91b2e56eb6ed8dbc5334b17018",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -33,7 +33,7 @@
     "dreamlake-cli/reference/notes.md": "836a14df5e270bbfd071e166bfde1f98dc821e7bccf02ed6679933fdbb0807a7",
     "dreamlake-cli/reference/organizations.md": "3c62552f46378bc68e60f186f7e6575e11e1c438c1018a0c96eafbc04a1a69e2",
     "dreamlake-cli/reference/overview.md": "75c92b532a82e61e6ab30a25168053178d2c795ab6af3a0e7b0c65f8a5fac62e",
-    "dreamlake-cli/reference/ownership.md": "c01d9614138fc2b4a40d350c392ae6b76a9148c9c93efa1cb5354fb26ef8af70",
+    "dreamlake-cli/reference/ownership.md": "4111e0fbc309a1b94d162a907a5553844a1ee4001a140fd980cc8263e1999d5f",
     "dreamlake-cli/reference/pipelines.md": "80ed19ea97a1640aa5dafc6f448e5777dee50e4b81726d68c444683223259b9d",
     "dreamlake-cli/reference/projects.md": "1d15619c7369e139a30f8a5f88e1f9ebd035be117ac6f6c0629f4081ee21d722",
     "dreamlake-cli/reference/provider-lifecycle.md": "a28cbbe940f6d956eac6c5ede60e20927bab5c99be719b366e0b723c01d2b9ed",
