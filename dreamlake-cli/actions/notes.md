@@ -37,3 +37,5 @@ Retain a reviewed full read's content hash with `--hash`; a stale hash or
 `409 note_changed` requires review, never a blind retry or a copied Note.
 See [saved versions](../reference/notes-versions.md) for pagination, ancestry,
 JSON receipts and uncertain-result recovery.
+
+CLI 0.44.2 removes the old `notes version` command group; use the forms above.
