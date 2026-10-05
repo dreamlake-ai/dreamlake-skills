@@ -92,6 +92,8 @@ dreamlake notes sections release-plan
 dreamlake notes read release-plan --legacy --section checklist
 # Live collaboration requires a stable identity for this task.
 DREAMLAKE_AGENT_ID=release-reviewer-a dreamlake notes read release-plan --linger
+# Read a saved checkpoint without reading the live Note (CLI 0.44.1+).
+dreamlake note read NOTE_ID --version VERSION_ID
 ```
 
 Text output includes the note ID, content hash, write revision, and source.
@@ -215,3 +217,9 @@ Use `share get` to inspect the current link role.
 
 Removing an acceptance record does not invalidate a circulating link; that link can admit
 the user again. Membership and public access are unaffected.
+
+## Durable checkpoints
+
+Starting with CLI 0.44.1, `note tag`, `note hist`, and `note read --version` save and
+inspect immutable versions on the same Note without changing its live body.
+See [saved versions](notes-versions.md) for availability and hash-safe examples.

@@ -94,11 +94,10 @@ All C execution stages are gated until writer epochs, atomic cutover and storage
 recovery are implemented and validated. A preview does not transfer bytes or
 ownership. Source-only actors cannot discover destination Connections; destination
 owners must validate an independently authorized compatible Connection and prove
-path access. Package B supports explicit privileged Vault copying into supported
-destinations while keeping the original entry. Source-retiring moves remain
-blocked until a complete consumer registry can prove and acknowledge each
-binding; customer-KMS destinations still need policy-aware reseal recovery.
-Original Connections and non-transferred consumers remain unchanged.
+path access. B supports separately authorized source-retaining credential copies,
+with destination reseal and recovery. Credential moves require complete consumer
+inventory, and customer-KMS destination reseal remains gated. C never implicitly
+copies credentials or changes original Connections and non-transferred consumers.
 
 ```bash cli-help="ownership restore"
 dreamlake ownership restore <resource-id> --type project --namespace acme

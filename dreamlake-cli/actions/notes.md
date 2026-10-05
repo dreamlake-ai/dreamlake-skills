@@ -29,3 +29,13 @@ canonical source metadata for machines. Keep a single source range and the
 original revision. For literal edits without inline-DFF delimiter escaping,
 generate a unified diff from baseline and edited files; see
 [editing with patches](../reference/notes-editing.md#literal-text-without-inline-dff-escaping).
+
+For durable checkpoints, use `note tag NOTE_ID LABEL` on the
+same Note, then `note hist NOTE_ID` / `note read NOTE_ID --version VERSION_ID` to inspect them.
+These commands require CLI 0.44.1 or later: check installed `--help` first.
+Retain a reviewed full read's content hash with `--hash`; a stale hash or
+`409 note_changed` requires review, never a blind retry or a copied Note.
+See [saved versions](../reference/notes-versions.md) for pagination, ancestry,
+JSON receipts and uncertain-result recovery.
+
+CLI 0.44.2 removes the old `notes version` command group; use the forms above.

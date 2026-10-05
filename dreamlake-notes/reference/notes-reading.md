@@ -26,6 +26,14 @@ also saves metadata and is **not** a source-only export.
 A hash describes text. A revision also identifies collaborative state. Identical
 text can have different revisions; do not substitute one token for the other.
 
+## Read a saved version
+
+With CLI 0.44.1+, `dreamlake note read NOTE_ID --version VERSION_ID` reads the
+immutable text saved by `note tag`; `note hist NOTE_ID` lists its version IDs.
+`note` aliases `notes`. Saved reads return version metadata and `text` in JSON,
+not a live write baseline, and refuse live/partial/HTML/collaboration options.
+See [Saved versions](https://cli.dreamlake.ai/notes/versions/). Without `--version`, reads remain live.
+
 ## Read only what changed
 
 ```bash cli-help="notes diff"

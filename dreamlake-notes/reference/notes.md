@@ -318,6 +318,7 @@ ordinary bracketed prose without a highlight.
 dreamlake notes create "Design Doc"
 dreamlake notes create "Design Doc" --file draft.md
 dreamlake notes create "Design Doc" --text "# Design Doc"
+dreamlake notes create "Design Doc" --summary "Decision and open questions"
 dreamlake notes create "Design Doc" --public        # default is private
 
 dreamlake notes list
@@ -331,8 +332,12 @@ dreamlake notes list --json
 ```python
 import dreamlake as dl
 
-note = dl.create_note("<namespace>", "Design Doc", text="# Design Doc\n")
+note = dl.create_note(
+    "<namespace>", "Design Doc", text="# Design Doc\n",
+    summary="Decision and open questions",
+)
 note.id, note.namespace, note.etag
+note.summary
 
 dl.list_notes("<namespace>")
 dl.list_notes("<namespace>", limit=20, offset=20)
@@ -341,6 +346,54 @@ dl.shared_with_me()
 
 Titles may repeat — the slug takes a suffix — so keep `note.id` rather than
 the name you passed.
+
+## Note summaries
+
+> **Note:** Summary support requires a compatible Notes server and CLI release. This
+> source documentation describes the new contract; older installed clients may
+> not recognize the command or fields yet.
+
+A note may have a short, optional summary for catalogs and quick context. The
+summary is metadata separate from the collaborative body. Body edits and
+revision checks leave it unchanged. Summaries can contain up to 4,000
+characters; older notes without one return `null`.
+
+Create a note with a summary or update one later:
+
+```bash cli-help="notes summary"
+dreamlake notes summary "$NOTE_ID"                   # read the summary
+dreamlake notes summary "$NOTE_ID" --text "Decision and open questions"
+dreamlake notes summary "$NOTE_ID" --file summary.txt
+cat summary.txt | dreamlake notes summary "$NOTE_ID" --file -
+dreamlake notes summary "$NOTE_ID" --clear
+```
+
+The CLI also accepts `--summary <text>` when creating a note. A summary set
+from a file is used as-is; multiline text is allowed. `--text`, `--file`, and
+`--clear` are mutually exclusive. Use `--namespace <slug>` for an organization
+note. Reads and writes can use `--json`; a summary read returns `{note,
+summary}`, while a mutation returns the updated Note metadata.
+
+The owner of the namespace or the note's creator can set or clear a summary,
+the same as for a title or visibility change. Other users with body-edit access
+cannot change it. For the REST API, `POST /namespaces/:slug/notes` accepts an
+optional `summary`; `PATCH /namespaces/:slug/notes/:noteId` accepts a string to
+set it or `null` to clear it. Omitting the field from PATCH preserves the
+existing summary. `GET /notes/:noteId` and catalog list responses return the
+summary separately from the body. A summary update does not create a body
+revision or change its content hash.
+
+In Python, `create_note(..., summary=...)` sets it on creation. A `Note` exposes
+its available summary as `note.summary`; call `note.read_metadata()` to refresh
+metadata, or `note.update_summary(text)` to set it and
+`note.update_summary(None)` to clear it. These operations do not write the
+collaborative body. `NoteRef` rows from `list_notes(...)` also expose their
+available summary.
+
+GraphQL's authorized `Query.note(namespaceSlug:, id:)` returns the nullable
+`Note.summary` field alongside `id`, `name`, and visible project/Bindr
+associations. It is a metadata-only read; body content is not returned. Use the
+REST metadata PATCH, CLI, or Python SDK to update the summary.
 
 ## Link to a note in the browser
 
@@ -2620,5 +2673,5 @@ These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
 
 The content hash identifies text, not the identity-bearing RTC baseline used
 for collaborative patches. Saving a version is a retained snapshot operation,
-not a content write. There are no new CLI flags or Python SDK methods for this
-surface yet; use the UI or authenticated REST API.
+not a content write. The saved-version API has no CLI flags or Python SDK
+methods; use the UI or authenticated REST API.
