@@ -83,18 +83,8 @@ partial/numbered reads, HTML/Markdown views or collaboration options such as
 the live Note normally. A saved version's JSON uses `text` and saved metadata,
 not the live read's `content` and write-baseline envelope.
 
-## Compatibility with CLI 0.44.0
+## Removed commands
 
-The original command group remains available for existing scripts:
-
-```bash cli-help="notes version create"
-dreamlake notes version create NOTE_ID --tag end-of-day
-```
-
-```bash cli-help="notes version list"
-dreamlake notes version list NOTE_ID --json
-```
-
-```bash cli-help="notes version read"
-dreamlake notes version read NOTE_ID VERSION_ID --json
-```
+CLI 0.44.2 removes the old `notes version` command group. Use `note tag`,
+`note hist`, and `note read --version` instead. The `notes` spelling of the
+Note command group remains supported.

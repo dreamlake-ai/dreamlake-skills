@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.44.2 — Remove the old saved-version command group
+
+The old `notes version create/list/read` paths are removed. Use
+`note tag NOTE LABEL`, `note hist NOTE`, and
+`note read NOTE --version VERSION_ID`. Both `note` and `notes` work.
+
 ## 0.44.1 — Tag, history and saved reads
 
 Use `dreamlake note tag NOTE LABEL`, `dreamlake note hist NOTE`, and
