@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "skills": {
+    "dreamlake-annotations": {
+      "maintenance": "manual-product",
+      "edit": "dreamlake-annotations/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/annotations"
+      ],
+      "overlaps": [
+        "video-labeling-workflow"
+      ]
+    },
+    "dreamlake-artifact-authoring": {
+      "maintenance": "manual-product",
+      "edit": "dreamlake-artifact-authoring/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/artifacts"
+      ],
+      "overlaps": [
+        "dreamlake-artifacts"
+      ]
+    },
+    "dreamlake-artifacts": {
+      "maintenance": "manual-product",
+      "edit": "dreamlake-artifacts/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/artifacts",
+        "https://cli.dreamlake.ai/artifacts"
+      ],
+      "overlaps": [
+        "dreamlake-cli",
+        "dreamlake-artifact-authoring"
+      ]
+    },
+    "dreamlake-cli": {
+      "maintenance": "generated",
+      "source_repos": [
+        "cli"
+      ],
+      "edit": "https://github.com/dreamlake-ai/dreamlake-cli/tree/main/docs",
+      "review_docs": [],
+      "overlaps": [
+        "dreamlake-artifacts",
+        "dreamlake-notes",
+        "dreamlake-envs",
+        "dreamlake-libraries",
+        "dreamlake-source",
+        "workflow-publish"
+      ]
+    },
+    "dreamlake-dataset-viz": {
+      "maintenance": "manual-product",
+      "edit": "dreamlake-dataset-viz/",
+      "review_docs": [
+        "https://viz.dreamlake.ai/dataset-viz/spec.md"
+      ],
+      "overlaps": [
+        "dreamlake-source",
+        "sim-to-mcap"
+      ]
+    },
+    "dreamlake-envs": {
+      "maintenance": "manual-product",
+      "edit": "dreamlake-envs/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/envs/"
+      ],
+      "overlaps": [
+        "dreamlake-cli",
+        "dreamlake-scene-generation"
+      ]
+    },
+    "dreamlake-libraries": {
+      "maintenance": "manual-product",
+      "edit": "dreamlake-libraries/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/libraries/"
+      ],
+      "overlaps": [
+        "dreamlake-cli",
+        "dreamlake-scene-generation"
+      ]
+    },
+    "dreamlake-notes": {
+      "maintenance": "generated",
+      "source_repos": [
+        "workspace",
+        "cli"
+      ],
+      "edit": "https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/notes",
+      "review_docs": [
+        "https://cli.dreamlake.ai/notes/"
+      ],
+      "overlaps": [
+        "dreamlake-cli"
+      ]
+    },
+    "dreamlake-scene-generation": {
+      "maintenance": "generated",
+      "source_repos": [
+        "workspace"
+      ],
+      "edit": "https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/scene-generation",
+      "review_docs": [],
+      "overlaps": [
+        "dreamlake-envs",
+        "dreamlake-libraries"
+      ]
+    },
+    "dreamlake-source": {
+      "maintenance": "manual-product",
+      "edit": "dreamlake-source/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/sources/"
+      ],
+      "overlaps": [
+        "dreamlake-cli",
+        "remote-source-check",
+        "dreamlake-dataset-viz"
+      ]
+    },
+    "launch-codex-chat": {
+      "maintenance": "standalone",
+      "edit": "launch-codex-chat/",
+      "review_docs": [
+        "https://learn.chatgpt.com/docs/app-server"
+      ],
+      "overlaps": []
+    },
+    "remote-source-check": {
+      "maintenance": "manual-product",
+      "edit": "remote-source-check/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/sources/"
+      ],
+      "overlaps": [
+        "dreamlake-source",
+        "video-labeling-workflow"
+      ]
+    },
+    "sim-to-mcap": {
+      "maintenance": "manual-product",
+      "edit": "sim-to-mcap/",
+      "review_docs": [
+        "https://viz.dreamlake.ai/dataset-viz/reference.md"
+      ],
+      "overlaps": [
+        "dreamlake-dataset-viz"
+      ]
+    },
+    "video-labeling-workflow": {
+      "maintenance": "manual-product",
+      "edit": "video-labeling-workflow/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/workflows/"
+      ],
+      "overlaps": [
+        "workflow-generator",
+        "workflow-publish",
+        "remote-source-check"
+      ]
+    },
+    "workflow-generator": {
+      "maintenance": "manual-product",
+      "edit": "workflow-generator/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/workflows/"
+      ],
+      "overlaps": [
+        "dreamlake-cli",
+        "workflow-publish",
+        "video-labeling-workflow"
+      ]
+    },
+    "workflow-publish": {
+      "maintenance": "manual-product",
+      "edit": "workflow-publish/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/workflows/"
+      ],
+      "overlaps": [
+        "dreamlake-cli",
+        "workflow-generator",
+        "video-labeling-workflow"
+      ]
+    }
+  }
+}

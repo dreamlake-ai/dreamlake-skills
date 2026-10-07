@@ -1,0 +1,4 @@
+interface:
+  display_name: "Launch Codex Chat"
+  short_description: "Create a chat to continue in a connected Codex app"
+  default_prompt: "Use $launch-codex-chat to create a named chat on this machine that I can continue in my connected Codex app."
