@@ -11,8 +11,17 @@ Run current-source `--check` before calling synchronization complete;
 `--locked` proves only reproduction, and `--verify-files` proves only integrity.
 Never equate either narrower check with freshness against current docs.
 
-Other skills are not yet migrated. Update their owning docs first and review
-paired changes explicitly; do not describe them as automatically synchronized.
+Read `MAINTENANCE.md` and `catalog.json` to find each skill's edit location and
+maintenance mode. Register every added skill and regenerate the inventory with
+`python3 scripts/catalog.py`; run its `--check` mode before submitting changes.
+The inventory must also be regenerated after source synchronization changes
+the recorded revisions. It does not certify upstream freshness.
+
+Other product skills are not yet migrated. Update their owning docs first and
+review paired changes explicitly; do not describe them as automatically synchronized.
+Standalone utilities are authored here: keep their skill, helpers, and supporting
+docs together. Do not introduce independently maintained copies in the CLI or
+Nymph. A distribution copy should be generated from its declared canonical source.
 Preserve dependency bundles, client examples, command prerequisites and revision
 checks. Review source exports for private operational material before publication.
 

@@ -1,9 +1,14 @@
 # DreamLake Skills
 
-Public [Claude](https://claude.ai/code) **skills** for working with
-[DreamLake](https://dreamlake.ai) — each is a self-contained `SKILL.md` that teaches
-an AI agent (Claude Code, or any Skills-compatible client) how to perform a DreamLake
-task correctly.
+Public agent **skills** for working with [DreamLake](https://dreamlake.ai) and
+related development tools. Each skill has a `SKILL.md` entrypoint for Claude Code,
+Codex, or another compatible client; individual skills can require a specific host.
+
+**Where do I edit a skill, and is it duplicated elsewhere?** See the
+[maintenance inventory](MAINTENANCE.md) for every skill's source, generated or
+manual status, and known overlaps. This catalog and the CLI bundle are separate
+distribution channels. `dreamlake skill install` installs the CLI's bundled
+snapshot, not every skill in this repository.
 
 ## Available skills
 
@@ -13,6 +18,8 @@ task correctly.
 | [`dreamlake-source`](./dreamlake-source/SKILL.md) | Get a robot dataset into a DreamLake source — link third-party storage (S3/HF/Dropbox), or upload the bytes so it can be linked; layout rules, listing manifests, verification |
 | [`dreamlake-dataset-viz`](./dreamlake-dataset-viz/SKILL.md) | Visualize a DreamLake source by authoring its `.dreamrc` (LeRobot/zarr/MCAP/folders) — format matching, view bindings, the validate-and-iterate loop |
 | [`dreamlake-envs`](./dreamlake-envs/SKILL.md) | Push a MuJoCo scene or URDF robot as a versioned env — extract a self-contained directory from a repo, verify it compiles, push it, get an interactive 3D viewer page — or compose a layered env from a `dreamlake.layers.json` stack (Merge / Attach / Update / Remove / Patch) |
+| [`dreamlake-libraries`](./dreamlake-libraries/SKILL.md) | Publish, search, inspect, and download reusable asset libraries |
+| [`launch-codex-chat`](./launch-codex-chat/SKILL.md) | Create a named, persistent chat on an existing Codex server and verify it is available to continue in a connected app. [Protocol and troubleshooting](./launch-codex-chat/references/launching-chats.md) |
 | [`dreamlake-artifacts`](./dreamlake-artifacts/SKILL.md) | Publish, version, share, and view renderable artifacts (HTML/React/Markdown/SVG/Mermaid/code) via the `dreamlake artifact` CLI |
 | [`dreamlake-artifact-authoring`](./dreamlake-artifact-authoring/SKILL.md) | Write the artifact *content* so it renders in DreamLake's sandboxed frame — self-containedness, per-kind templates, design quality. Pairs with `dreamlake-artifacts` |
 | [`dreamlake-notes`](./dreamlake-notes/SKILL.md) | The whole notes surface — create and list, read a section or a line range, replace text by name rather than line number, grep across every note for where a phrase is, attach files and get a link that renders them |
@@ -99,6 +106,18 @@ ln -s ~/dreamlake-skills/dreamlake-artifact-authoring ~/.claude/skills/
 
 Use `.claude/skills/` instead of `~/.claude/skills/` to scope a skill to one project.
 
+For the Codex chat launcher, install its complete directory into Codex's user
+skills directory (or `$CODEX_HOME/skills` when configured):
+
+```bash
+mkdir -p ~/.codex/skills
+ln -s ~/dreamlake-skills/launch-codex-chat ~/.codex/skills/
+```
+
+Then ask Codex to use `$launch-codex-chat`. The helper runs on the machine
+hosting the already connected Codex server. This catalog installation does not
+require the DreamLake CLI, Nymph, or a DreamLake login.
+
 Keep the trailing slash on the destination: `ln -s <src> ~/.claude/skills/` refuses to
 clobber an existing skill of the same name, whereas naming the destination explicitly
 (`…/skills/dreamlake-artifacts`) silently creates a nested link *inside* it when one
@@ -129,7 +148,13 @@ Two things are worth setting explicitly wherever an agent runs unattended:
 
 ## Contributing a skill
 
-Add a new top-level directory `my-skill/` containing a `SKILL.md` with YAML
+Choose the canonical source first using the [maintenance rules](MAINTENANCE.md).
+Product procedures belong with the owning docs and should be generated here;
+standalone utilities can be authored here with their helpers and documentation.
+Register the skill in `catalog.json`, add its README row, and run
+`python3 scripts/catalog.py` followed by `python3 scripts/catalog.py --check`.
+
+Each top-level directory `my-skill/` contains a `SKILL.md` with YAML
 frontmatter:
 
 ```markdown
@@ -164,14 +189,17 @@ Task routing is maintained separately from product facts: Notes uses
 ship inside the skill and are hashed as guide source). Entrypoints route to
 independent action files; selected generated references remain available for
 deeper lookup. Source provenance records guide hashes with source commits and
-generator hashes. Only Notes, CLI and scene-generation are migrated; all
-remaining skills need explicit review.
+generator hashes. Only Notes, CLI and scene-generation are migrated. Remaining
+product skills need explicit paired review; standalone utilities are maintained
+here. The [inventory](MAINTENANCE.md) distinguishes them.
 
 With Git, Node and Python 3.12+, and authorized checkouts of the source repos:
 
 ```bash
 python3 scripts/sync-docs.py --workspace /path/to/dreamlake-workspace --cli /path/to/dreamlake-cli
 python3 scripts/sync-docs.py --workspace /path/to/dreamlake-workspace --cli /path/to/dreamlake-cli --check
+python3 scripts/catalog.py
+python3 scripts/catalog.py --check
 python3 -m unittest discover -s scripts -p 'test_*.py'
 python3 scripts/sync-docs.py --verify-files
 ```
