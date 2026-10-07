@@ -39,3 +39,13 @@ See [saved versions](../reference/notes-versions.md) for pagination, ancestry,
 JSON receipts and uncertain-result recovery.
 
 CLI 0.44.2 removes the old `notes version` command group; use the forms above.
+
+For project filing and ownership-transfer previews, check `dreamlake notes move
+--help` first: this development-preview command is absent in CLI 0.44.2 and
+earlier. Preview with `notes move NOTE_ID --to-namespace WORKSPACE --project
+PROJECT --dry-run`. Cross-workspace transfers are currently unavailable; blocked
+previews exit 3 and must not be repeated as execution requests. Filing inside
+the note's current workspace can execute under its owner's login when
+`executable` is true and the user authorized it. Organization notes remain
+readable/editable by all current members. Do not simulate a transfer by copying
+and deleting the note. See [moving a note](../reference/notes.md#move-a-note-into-a-workspace).

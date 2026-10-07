@@ -15,6 +15,7 @@ with `dreamlake notes list` to identify it. A media upload alone needs no note:
 - [Upload an inline image](actions/media.md) to get an embeddable image URL.
 - [Manage attachments](actions/attachments.md) for note files and previews.
 - [Create a note](actions/create.md) for a new collaborative document.
+- [Move a note](actions/move.md) for an authorized workspace ownership transfer.
 - [Read or update its summary](actions/summary.md) for short catalog metadata
   separate from the collaborative body.
 

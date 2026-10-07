@@ -137,6 +137,49 @@ reviewing the inline status. Removing an association uses the same context
 preservation behavior and retains the last-project guard. Use the separate
 **Open project** or **Open bindr** links when you want to navigate.
 
+### Moving between workspaces (development preview)
+
+The **Move note…** dialog reuses UIkit's search input, left workspace badge and
+dropdown. Click the badge or press Backspace in an empty search to choose a
+workspace. Project browsing also offers **All workspaces**; filing requires one
+concrete destination. Escape restores the previous scope and query.
+
+Current source supports adding a note to writable projects **inside its current
+workspace**. Existing associations, ownership, content, history, attachments,
+visibility and shares remain intact. The source namespace owner must perform
+this operation. Organization notes remain readable and editable by all current
+organization members; project filing does not restrict them to one team.
+
+**Cross-workspace transfers are unavailable.** The dialog can preview the desired
+destination, but shows the server's blockers and disables confirmation. The
+ownership foundation requires destination-owner acceptance, an enabled note
+adapter and validated writer, storage, grant and collaboration safeguards.
+Existing shares are not promised to survive a future transfer. See the
+[ownership foundation](https://docs.dreamlake.ai/dev/notes/ownership-foundation) for the integration gates.
+
+The development CLI command requires a build exposing `notes move --help` and
+the matching server endpoint; CLI 0.44.2 and earlier lack it:
+
+```bash
+# Preview an organization destination; currently reports unavailable.
+dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research --dry-run
+# File inside the note's CURRENT workspace after reviewing its preview.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research --dry-run
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research
+```
+
+A full ID resolves the current namespace; `--namespace` optionally asserts the
+source and supplies the scope for slug/title lookup. Repeat `--project` to add
+several project associations. The API is
+`POST /namespaces/:slug/notes/:noteId/move` with
+`{namespace: destinationSlug, projects?: string[], dryRun?: boolean}`.
+Dry runs do not mutate or reserve destinations. Receipts include `executable`
+and `blockers: [{code, message}]`; cross-workspace previews return
+`executable: false`, and execution returns `409 NOTE_TRANSFER_UNAVAILABLE`.
+The CLI exits 3 for a blocked preview or conflict. Actual same-workspace filing
+rechecks authority and ownership leases transactionally. After an uncertain
+network result, inspect the stable ID's project associations before retrying.
+
 ### Matching passages
 
 Searching the Notes catalog shows up to two distinct matching passages beneath

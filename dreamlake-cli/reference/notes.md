@@ -65,6 +65,42 @@ Search matches titles and indexed bodies by case-insensitive substring. Results
 include matching sections. For exact locations across notes, use
 [`notes grep`](notes-reading.md#search-passages).
 
+## Move a note into a workspace
+
+**Development preview:** requires a CLI build exposing `notes move --help` and
+a matching server endpoint. CLI 0.44.2 and earlier do not include it.
+**Cross-workspace ownership transfers are currently unavailable.** The preview
+reports blockers; it does not promise an executable move or retained shares.
+Destination-owner acceptance and the ownership adapter's writer, storage, grant
+and collaboration safeguards must be implemented before transfers are enabled.
+
+```bash cli-help="notes move"
+# Inspect an organization destination; currently reports unavailable (exit 3).
+dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research --dry-run
+# Add a project association within the note's CURRENT workspace.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research --dry-run
+# Apply only an executable same-workspace preview.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research
+```
+
+Run under the source workspace owner's login. Same-workspace filing requires
+write access to every requested project, preserves other project associations,
+and leaves ownership, content, history, attachments, visibility and shares intact.
+Repeat `--project` to add several associations. Organization membership still
+grants read/edit access to organization notes; filing does not make them private
+to one team.
+
+A full note ID resolves its current namespace automatically. `--namespace`
+optionally asserts the source and supplies the scope for slug/title lookup.
+`--to-namespace` is the destination. `--json` returns the server receipt, including
+`executable` and `blockers`. A blocked preview exits 3. Applying a cross-workspace
+destination returns `409 NOTE_TRANSFER_UNAVAILABLE` without mutation. Never
+simulate a transfer by copying and deleting the note.
+
+Dry runs do not reserve destinations; execution rechecks permissions, leases and
+conflicts. After a transport failure, resolve the stable ID and inspect its
+project associations before resubmitting. The CLI never retries automatically.
+
 ## Make a small wording change
 
 ```bash cli-help="notes replace"
