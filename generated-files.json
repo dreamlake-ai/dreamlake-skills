@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "a9483f812117e6192c91a22910f5604869b8f935dc972043cec6d185c6292f5c",
+  "sourcesSha256": "6eecaffc2c1be3a5051c8bd382094628a9c7a39f0d57ab0b629dd927a43e8537",
   "files": {
     "dreamlake-cli/SKILL.md": "4a08c479b7d56b5b7b89153f0c5e8ac7aa629e91b2e56eb6ed8dbc5334b17018",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -14,7 +14,7 @@
     "dreamlake-cli/reference/artifacts.md": "3eb87e84b9a3dfbcb03f03d7805ac728b556c081e3f2d17f14eb9a18ee71b7d9",
     "dreamlake-cli/reference/collections.md": "593e739aed97e6804d1247950afcd50ecafea676e9310a5e3b63c13db03c8f86",
     "dreamlake-cli/reference/command-reference.md": "30c1e7da2bc2d78c35ce7bc48d253f2adbee8010f757d69a5ccb705b26578217",
-    "dreamlake-cli/reference/dev-notes-npm-publication.md": "1b3fe2a7d58c9a9d8449d4e71533bab0d03d8077ce348d93975470f128294b32",
+    "dreamlake-cli/reference/dev-notes-npm-publication.md": "67d4a9b9c4bc8e01963d3829ea4cb79cd7289413b4c23192e4c8789a4a38b19c",
     "dreamlake-cli/reference/dev-notes-queue-mount-release.md": "c327e13062120e904c242dc2830b24ff9ab39c6cd1d98c6135d432989f540829",
     "dreamlake-cli/reference/dev-notes-task-session-scope.md": "a41a1832b4cd036048494580aa1d6aa8f02421b616b146489e548c4e34b38a0a",
     "dreamlake-cli/reference/downloading.md": "056808a0f44a28b6dc1f4d1b1e42c438e5476c75100f4bc88c8e1d59dc1d7b79",
