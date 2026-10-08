@@ -23,7 +23,7 @@ The owning repositories' maintainers review their respective source changes.
 This inventory does not assign individual people or GitHub review permissions.
 
 <!-- catalog:start -->
-16 skills: 3 generated, 12 manual product, 1 standalone.
+17 skills: 3 generated, 12 manual product, 2 standalone.
 
 | Skill | Maintenance | Edit location | Docs to review | Related skills |
 |---|---|---|---|---|
@@ -37,6 +37,7 @@ This inventory does not assign individual people or GitHub review permissions.
 | [dreamlake-notes](dreamlake-notes/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/notes) | [docs 1](https://cli.dreamlake.ai/notes/) | [dreamlake-cli](dreamlake-cli/SKILL.md) |
 | [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/scene-generation) | Source docs | [dreamlake-envs](dreamlake-envs/SKILL.md), [dreamlake-libraries](dreamlake-libraries/SKILL.md) |
 | [dreamlake-source](dreamlake-source/SKILL.md) | Manual product | [edit](dreamlake-source/) | [docs 1](https://docs.dreamlake.ai/sources/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [remote-source-check](remote-source-check/SKILL.md), [dreamlake-dataset-viz](dreamlake-dataset-viz/SKILL.md) |
+| [launch-claude-remote](launch-claude-remote/SKILL.md) | Standalone | [edit](launch-claude-remote/) | [docs 1](https://code.claude.com/docs/en/remote-control), [docs 2](https://code.claude.com/docs/en/permission-modes) | [launch-codex-chat](launch-codex-chat/SKILL.md) |
 | [launch-codex-chat](launch-codex-chat/SKILL.md) | Standalone | [edit](launch-codex-chat/) | [docs 1](https://learn.chatgpt.com/docs/app-server) | None recorded |
 | [remote-source-check](remote-source-check/SKILL.md) | Manual product | [edit](remote-source-check/) | [docs 1](https://docs.dreamlake.ai/sources/) | [dreamlake-source](dreamlake-source/SKILL.md), [video-labeling-workflow](video-labeling-workflow/SKILL.md) |
 | [sim-to-mcap](sim-to-mcap/SKILL.md) | Manual product | [edit](sim-to-mcap/) | [docs 1](https://viz.dreamlake.ai/dataset-viz/reference.md) | [dreamlake-dataset-viz](dreamlake-dataset-viz/SKILL.md) |
