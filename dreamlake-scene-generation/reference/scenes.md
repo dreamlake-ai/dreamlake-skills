@@ -1,71 +1,71 @@
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
 
-# Envs
+# Scenes
 
-  An env is a **simulation environment** — a directory holding one MJCF scene
+  A scene is a **simulation environment** — a directory holding one MJCF scene
   or one URDF robot, plus its assets — that you push from the terminal and
   open as a live, interactive 3D page in the dashboard.
 
 ## Browsing in the app
 
-`/<namespace>/profile?tab=envs` and `/<namespace>/envs` reuse the same
-Environments catalog. Your own namespace and organizations you belong to show
+`/<namespace>/profile?tab=scenes` and `/<namespace>/scenes` reuse the same
+Scenes catalog. Your own namespace and organizations you belong to show
 resources and actions allowed by your permissions. Signed-out visitors and
 signed-in visitors to other namespaces see public resources only, without
 creation or modification controls. Profile uses an avatar rail; the application
 uses resource navigation for the namespace in the URL.
 
-Your own Envs catalog also includes recent environments from your organizations. Public environments and valid Env share-token links open without sign-in.
+Your own Scenes catalog also includes recent scenes from your organizations. Public scenes and valid Scene share-token links open without sign-in.
 
 The application sidebar shows the resource owner's avatar and links, including
 for anonymous public readers. Your signed-in identity and personal/organization
 switcher are separate from that owner. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
 
-The detail header returns anonymous readers to `/<namespace>/profile?tab=envs`
-and signed-in readers to `/<namespace>/envs`. Details opened inside a project
+The detail header returns anonymous readers to `/<namespace>/profile?tab=scenes`
+and signed-in readers to `/<namespace>/scenes`. Details opened inside a project
 retain their return-to-project action. There is no extra sign-in navigation bar.
 
 ## Generate with chat
 
-Members can also create and edit envs from the browser, by prompting an
+Members can also create and edit scenes from the browser, by prompting an
 embedded agent that runs the
 [scene-generation skill](https://docs.dreamlake.ai/scene-generation/quickstart). The chat panel
 ships with the web app — it appears once an app deployment that includes
-env chat reaches your server:
+scene chat reaches your server:
 
-1. In your namespace's Envs catalog, click **+ new env** — in the page
-   header next to the Environments/Libraries switch, and offered again by
+1. In your namespace's Scenes catalog, click **+ new scene** — in the page
+   header next to the Scenes/Libraries switch, and offered again by
    the empty catalog's placeholder. One click opens a fresh *draft* with an
    auto-minted name (`env_xxxxxx`) — no dialog, nothing to type first, and
    nothing exists on the server until the agent's first successful push.
 2. The draft opens straight into the **intro composer** — describe the
    scene there; the agent sources assets, measures, composes, validates,
-   and publishes with `dreamlake env push`.
+   and publishes with `dreamlake scene push`.
 3. On the first successful push the draft becomes the **saved preview** —
    the interactive viewer on the pushed version, chat still beside it.
-4. **Follow-up prompts create new versions** of the same env. The viewer
+4. **Follow-up prompts create new versions** of the same scene. The viewer
    tracks the latest; picking an older version in the header pins it, and
    a "vN available" button jumps back to latest.
-5. Editing an **existing** env works the same: open its page as a member
+5. Editing an **existing** scene works the same: open its page as a member
    and prompt the chat panel next to the viewer. Read-only viewers, share
    links, and anonymous visitors never see the chat.
-6. To grow a **new** env out of an existing one, start from the catalog,
-   not from the source env's page — the chat edits the env whose page it
-   sits on. Click **+ new env** for a fresh draft, then ask it to start
-   from the source env at a pinned version; the source env keeps its own
+6. To grow a **new** scene out of an existing one, start from the catalog,
+   not from the source scene's page — the chat edits the scene whose page it
+   sits on. Click **+ new scene** for a fresh draft, then ask it to start
+   from the source scene at a pinned version; the source scene keeps its own
    versions, untouched (details in the
    [Quickstart](https://docs.dreamlake.ai/scene-generation/quickstart)).
 
-The env chat opens in **Auto** permission mode, so one prompt can carry
+The scene chat opens in **Auto** permission mode, so one prompt can carry
 through the whole workflow — the agent runs the scene tools and
-`dreamlake env push` without per-command approval. The composer's
+`dreamlake scene push` without per-command approval. The composer's
 permission control still works as usual: switch to **Ask permissions** or
 **Plan mode** for a read-only conversation (the agent inspects and answers
 but does not generate or push), and switch back to Auto when you want it
 to build. A read-only choice is respected for as long as you keep it — the
 page sets the mode only once, on open, and never overrides your selection.
-Env membership still governs what a push may touch: the mode routes what
+Scene membership still governs what a push may touch: the mode routes what
 the agent may *run*, not what your account may *write*.
 
 The install-and-use guide for the same workflow from a local agent —
@@ -92,12 +92,12 @@ loads.
 ## Push one
 
 ```bash
-dreamlake env push ./cassie
+dreamlake scene push ./cassie
 ```
 
 The entry file is auto-detected — the one root-level `*.xml`/`*.mjcf`
 containing `<mujoco>`, or (with no MJCF around) the one root-level `*.urdf`
-containing `<robot>`, which also sets the env's type to `urdf`. Relative
+containing `<robot>`, which also sets the scene's type to `urdf`. Relative
 `<include>`, `<mesh file="…">` and `package://` references keep working
 exactly as they do on disk. The CLI prints an **open link**.
 
@@ -111,7 +111,7 @@ exactly as they do on disk. The CLI prints an **open link**.
 
 ## Version it — only changes upload
 
-Push the same env again and you get **v2**. Files are content-addressed, so
+Push the same scene again and you get **v2**. Files are content-addressed, so
 unchanged meshes and textures are never uploaded or stored twice — the CLI
 tells you exactly what moved:
 
@@ -121,7 +121,7 @@ tells you exactly what moved:
 
 ## Drive it
 
-For a **mujoco** env the viewer is a real simulation, not a screenshot: the
+For a **mujoco** scene the viewer is a real simulation, not a screenshot: the
 engine runs on load, and the toolbar gives you **play / pause / reset /
 speed**.
 
@@ -140,7 +140,7 @@ speed**.
 - The first member visit renders the gallery **thumbnail** — see
   [Thumbnails](#thumbnails) for how the angle is chosen and how to control it.
 
-A **urdf** env opens as a poseable robot instead — no physics, pure
+A **urdf** scene opens as a poseable robot instead — no physics, pure
 kinematics: every non-mimic revolute / continuous / prismatic joint gets a
 slider with its real limits, **dragging a link in the scene rotates its
 joint directly** (orbit pauses while you hold it), and **reset** returns the
@@ -149,7 +149,7 @@ resolve against the pushed directory.
 
 ## Thumbnails
 
-The env grid's cover image is rendered in the browser the first time a member
+The scene grid's cover image is rendered in the browser the first time a member
 opens a new version: a fixed 16:10 PNG with a **transparent background**, at
 the scene's initial (t=0) pose — physics is held until the capture, so the
 cover shows the authored t=0 state (see [Drive it](#drive-it)), not half a
@@ -190,29 +190,31 @@ Two overrides beat all of the above:
 - **The camera button in the viewer toolbar** (members only, latest version):
   orbit to any angle and click it — that exact view becomes the cover, and
   the angle is remembered, so **future versions auto-capture from it** too.
-- **`dreamlake env push --thumbnail cover.png`** stores your own image
+- **`dreamlake scene push --thumbnail cover.png`** stores your own image
   (≤ 512 KiB PNG) and marks it manual, so the viewer won't overwrite it for
   that version. Works on a no-change push (thumbnail-only update).
 
 ## Pull it back
 
 ```bash
-dreamlake env pull cassie          # latest → ./cassie/
-dreamlake env pull cassie@1 -o v1  # any version
+dreamlake scene pull cassie          # latest → ./cassie/
+dreamlake scene pull cassie@1 -o v1  # any version
 ```
 
 Every file is verified against its content hash on the way down — the
 directory you get is byte-identical to the one that was pushed.
 
-## Env layers
+<span id="env-layers" />
 
-An env can also be **composed from other envs**. A layer stack
+## Scene layers
+
+A scene can also be **composed from other scenes**. A layer stack
 (`dreamlake.layers.json`) is an ordered list of **ops** — one flat object
 per line, in the vocabulary of vuer's imperative updates — and
-materializes into an ordinary `mujoco` env. No layer has a special role,
+materializes into an ordinary `mujoco` scene. No layer has a special role,
 and later ops win; swapping the gripper is editing one line and
 re-pushing. The pushed version carries both the flat artifact (what every
-viewer and SDK reads) and the pinned stack, so any composed env can be
+viewer and SDK reads) and the pinned stack, so any composed scene can be
 reopened, edited, and recomposed later.
 
 ```json file="dreamlake.layers.json"
@@ -229,59 +231,59 @@ reopened, edited, and recomposed later.
 ```
 
 ```bash
-dreamlake env compose          # materialize ./dreamlake.layers.json locally
-dreamlake env push <out-dir>   # push artifact + pinned stack as one version
+dreamlake scene compose          # materialize ./dreamlake.layers.json locally
+dreamlake scene push <out-dir>   # push artifact + pinned stack as one version
 ```
 
 | op | what it does |
 |----|--------------|
-| `Merge` | union the env's MJCF into the stack — a same-name collision is an error |
-| `Attach` | graft the env's subtree at a target under the identity root `key` (`right` makes `right:palm`), with a mount pose and joint mode |
+| `Merge` | union the scene's MJCF into the stack — a same-name collision is an error |
+| `Attach` | graft the scene's subtree at a target under the identity root `key` (`right` makes `right:palm`), with a mount pose and joint mode |
 | `Update` | inline sparse opinions: `key` addresses one element, every other prop is an MJCF attribute — nothing else is touched |
 | `Remove` | delete the addressed element and its subtree — drop the line and it's back |
-| `Patch` | `Update`-style opinions from a sparse-MJCF file or env, for big opinion sets |
+| `Patch` | `Update`-style opinions from a sparse-MJCF file or scene, for big opinion sets |
 
-`src` is one string: `ns/name[@v]` is a registry env (unversioned floats),
+`src` is one string: `ns/name[@v]` is a registry scene (unversioned floats),
 a `./`-prefixed path is a local directory or file.
 
-> **Note:** Materialization is a real MuJoCo build, so `dreamlake env compose`
+> **Note:** Materialization is a real MuJoCo build, so `dreamlake scene compose`
 >   delegates it to the engine in **dreamlake-py** — install it with
 >   `pip install "dreamlake[compose]"` (Python + MuJoCo) on the composing
 >   machine. Push / pull / list need no Python.
 
 Every field, the exact semantics, and six annotated stacks:
-[Env Layers Reference](envs-layers.md).
+[Scene Layers Reference](scenes-layers.md).
 
 ## Under the hood
 
 Uploads go straight to storage with short-lived scoped credentials, and reads
-are presigned URLs — **env bytes never pass through the API server**. The
+are presigned URLs — **scene bytes never pass through the API server**. The
 read side is two plain REST calls (`…/versions` and `…/versions/:v`), so any
-HTTP client can list and download an env without special tooling.
+HTTP client can list and download a scene without special tooling.
 
 ## Delete it (safely)
 
 ```bash
-dreamlake env delete cassie              # soft delete (restorable)
-dreamlake env restore cassie             # bring it back
-dreamlake env delete cassie --permanent  # erase storage — no undo
+dreamlake scene delete cassie              # soft delete (restorable)
+dreamlake scene restore cassie             # bring it back
+dreamlake scene delete cassie --permanent  # erase storage — no undo
 ```
 
 ## Let Claude do it
 
-Add the [envs skill](https://github.com/dreamlake-ai/dreamlake-skills),
+Add the [scenes skill](https://github.com/dreamlake-ai/dreamlake-skills),
 point at a repo, and say *"push the MuJoCo scenes in here to DreamLake"*:
 
 ```bash
 git clone https://github.com/dreamlake-ai/dreamlake-skills.git ~/dreamlake-skills
 mkdir -p ~/.claude/skills
-ln -s ~/dreamlake-skills/dreamlake-envs ~/.claude/skills/
+ln -s ~/dreamlake-skills/dreamlake-scenes ~/.claude/skills/
 ```
 
 Update with `git -C ~/dreamlake-skills pull --ff-only`. If a skill already
 exists, preserve local edits before replacing it with a symlink.
 
-The `dreamlake-envs` skill does the part that isn't a single command:
+The `dreamlake-scenes` skill does the part that isn't a single command:
 extracting a **self-contained directory** from a scene that references
 meshes outside itself (collecting the robot folders, rewriting the relative
 paths), verifying the result still compiles before pushing, and running the
@@ -290,11 +292,11 @@ pull-back round-trip check after.
 ## Next steps
 
 Recorded teleop episodes don't live here — they play back inside
-**sources**, each dataset carrying its own model snapshot, with the env
+**sources**, each dataset carrying its own model snapshot, with the scene
 itself unchanged: [visualize a source](https://docs.dreamlake.ai/sources).
 
     One skill install, then build / edit / reuse scenes with ordinary
-    prompts — locally or from the env page's chat.
+    prompts — locally or from the scene page's chat.
 
     The `dreamlake.layers.json` contract — merge / attach / override, field
     by field, with annotated stacks.
@@ -302,3 +304,29 @@ itself unchanged: [visualize a source](https://docs.dreamlake.ai/sources).
     Every flag — names, types, entries, visibility, limits.
 
     The REST endpoints behind push, versions, and presigned reads.
+
+## Scenes compatibility and product vocabulary
+
+Scenes are versioned worlds containing geometry, robots, objects, materials and
+physics properties. A Simulation will pair a scene version with a simulator and
+task logic (observations, actions, rewards and termination). A Sandbox is an
+isolated execution workspace; a Run is one execution, and an Episode spans reset
+to termination. Compute owns machines. Simulation and isolated Sandbox registries
+are proposals, not existing interfaces; the bounded Compute experiment launcher
+is not a sandbox lifecycle.
+
+The canonical collection and detail URLs are `/<namespace>/scenes` and
+`/<namespace>/scenes/<name>`. Old `/envs` browser URLs redirect, retaining resource,
+query and fragment. Libraries remain a Scenes tab; library detail URLs remain
+`/<namespace>/libraries/<name>`.
+
+CLI 0.45.0 introduces `dreamlake scene` (`env` remains an alias). REST uses
+`/namespaces/:slug/scenes` and all existing resource/version/upload/restore/delete
+suffixes. The `/envs` API aliases run the same handlers, with identical auth and
+storage; writes are not redirected. Catalog responses expose `scenes`, retaining
+`envs` for older clients. Share tokens and resource identities are unchanged.
+Existing `envType`, `EnvEntry`, `env_*` identifiers, `ENVS_*` configuration,
+`envs/` object prefixes, the immutable `~/.dreamlake/cache/envs/` cache,
+`dreamlake.env-layers/v3` and `dreamlake.envlayer` remain compatible technical
+contracts. Login environments (`dreamlake auth env`), environment variables and
+RL environment interfaces retain their technical names.

@@ -25,7 +25,7 @@ dreamlake auth env remove staging # forget a saved env
 ```
 
 > **Note:** These lived at `dreamlake env ...` before v0.6; the top-level `env` command
-> now manages MuJoCo environments (see the Envs page). There is no alias —
+> is a compatibility alias for `dreamlake scene` (see [Scenes](scenes.md)). For login switching,
 > update scripts to `dreamlake auth env ...`.
 
 Every command then targets the active environment — **and so does the
@@ -92,7 +92,7 @@ envs:
 
 ## Receipt web links
 
-Successful `env`, `artifact`, `workflow` and `share` commands print an
+Successful `scene`, `artifact`, `workflow` and `share` commands print an
 `open:` URL into the web app. The CLI derives it from the active server
 URL. For the known deployments:
 

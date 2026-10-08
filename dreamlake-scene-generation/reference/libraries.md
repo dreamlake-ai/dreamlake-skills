@@ -29,8 +29,8 @@ never in your directory.
 
 ## Browsing in the app
 
-Libraries share the **Environments** surface: `/<namespace>/envs` has an
-`Environments | Libraries` segment switch (`?tab=libraries`); there is no
+Libraries share the **Scenes** surface: `/<namespace>/scenes` has a
+`Scenes | Libraries` segment switch (`?tab=libraries`); there is no
 top-level Libraries nav entry, and `/<namespace>/libraries` redirects to that
 tab. A library card opens `/<namespace>/libraries/<name>` — a filterable grid
 of its assets, thumbnails only, no live 3D. Clicking a card does not navigate:
@@ -362,7 +362,7 @@ The asset panel mounts a viewer chosen by `kind`:
 
 | `kind` | Viewer |
 |---|---|
-| `mjcf` | The interactive MuJoCo viewer (same engine as [Envs](envs.md)): physics, actuator sliders, alt-drag forces. |
+| `mjcf` | The interactive MuJoCo viewer (same engine as [Scenes](scenes.md)): physics, actuator sliders, alt-drag forces. |
 | `urdf` | The URDF poser with joint gizmos. |
 | `mesh` | GLB/GLTF, OBJ, STL and mesh PLY. |
 | `splat` | 3D Gaussian splats — see below. |
@@ -543,7 +543,7 @@ row and every stored object.
 
 - [Libraries Reference](https://docs.dreamlake.ai/libraries/reference) — the machine contract: endpoint
   schemas, the wire manifest, and how an agent composes them.
-- [Envs](envs.md) — single runnable environments; a library is where an env's
+- [Scenes](scenes.md) — versioned worlds; a library is where a scene's
   ingredients come from.
 - [CLI](https://docs.dreamlake.ai/cli) — install and authenticate `dreamlake`.
 - [Search](https://docs.dreamlake.ai/search) — platform-wide search surfaces.

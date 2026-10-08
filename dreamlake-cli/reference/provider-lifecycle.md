@@ -447,3 +447,45 @@ The five CRUD verbs on the provider *row* in DreamLake — `create` from a file,
 `list`, `show`, `update`, `delete` — are a different surface, documented in
 [Lakeshore resources](lakeshore.md). The lifecycle verbs on this page are leaves
 on that same `provider` group; both keep working.
+
+## EC2 development-machine access (0.44.3+)
+
+`provider machine` operates on the head instance of a local `ec2` scaffold.
+It requires AWS CLI v2 credentials and Terraform/OpenTofu state; interactive
+terminal access additionally requires AWS's Session Manager plugin and an
+SSM-managed running instance with outbound SSM connectivity. It opens no inbound
+ports and changes no security groups or instance metadata settings.
+
+```bash file="terminal" cli-help="provider machine"
+dreamlake provider machine status -n aws-dev --account 123456789012 --json
+dreamlake provider machine start -n aws-dev --account 123456789012 --yes
+dreamlake provider machine terminal -n aws-dev --account 123456789012
+dreamlake provider machine stop -n aws-dev --account 123456789012 --yes
+```
+
+All commands accept `--dream-dir` and `--profile`. Before each operation the CLI
+reads Terraform outputs `head_instance_id`, `region`, `account_id`, and `project`,
+checks the caller's AWS account against the explicit `--account`, and verifies
+exact EC2 ownership tags `Project`, `Name=<project>-head`, and `ManagedBy=terraform`.
+It refuses ambiguous or missing identities. Earlier scaffolds need the new
+`account_id` and `project` outputs copied from the current EC2 template and a
+Terraform refresh before these commands can run. Output values are data: the CLI
+never executes the `ssm_session_command` output as shell text.
+
+Start and stop require `--yes`; they return the accepted transition, not proof
+that the machine is ready. Rerun status after the transition. Stop interrupts
+active development and jobs; EBS storage continues billing. There is no terminate
+command. These commands do not affect the worker ASG. Use IAM permissions scoped
+to your account, region, and tagged instance; the CLI checks complement IAM and
+do not replace it. `status` requires STS identity and EC2 describe access; start,
+stop and terminal additionally require the corresponding EC2 or SSM permissions.
+
+SSM terminal is a direct AWS maintenance path. It does not enroll a Nymph or
+register a Lakeshore execution host. Nymph enrollment, remote execution and
+supervised daemon lifecycle are separate operations; do not treat a successful
+SSM shell as proof that Lakeshore can execute work on the machine.
+
+Native 0.44.3 embeds provider templates and verifies scaffolding outside the
+checkout. Native 0.44.2 may fail with `no template for vendor ec2`; update to
+0.44.3 or use a source build (`pnpm install`, `pnpm run build`, then
+`node dist/cli/index.js provider …`).

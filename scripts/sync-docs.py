@@ -17,7 +17,7 @@ REPOS = {
     'cli': 'https://github.com/dreamlake-ai/dreamlake-cli',
 }
 SCOPES = ('dreamlake-notes/', 'dreamlake-cli/', 'dreamlake-scene-generation/')
-SCENE_REFERENCES = ('scene-generation', 'libraries', 'envs', 'envs-layers')
+SCENE_REFERENCES = ('scene-generation', 'libraries', 'scenes', 'scenes-layers')
 NOTES_REFERENCES_FROM_CLI = ('notes-reading', 'notes-editing', 'notes-collaboration', 'notes-attachments', 'notes-legacy')
 NOTES_REFERENCE_ROUTES = {
     '/notes/': 'notes.md',
@@ -187,7 +187,7 @@ def collect_sources(paths, locked=None):
             guide_name = 'notes' if name == 'workspace' else 'cli'
             sources[name]['actionGuides'] = action_guide_hashes(dest, guide_name)
             sources[name]['docsPages'] = (
-                'docs/pages/{notes,scene-generation,libraries,envs,envs/layers}/+Page.mdx'
+                'docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers}/+Page.mdx'
                 if name == 'workspace' else 'docs/pages/**/+Page.mdx'
             )
             if name == 'cli':
@@ -229,8 +229,8 @@ def collect_sources(paths, locked=None):
                 scene_pages = {
                     'scene-generation': 'docs/pages/scene-generation/+Page.mdx',
                     'libraries': 'docs/pages/libraries/+Page.mdx',
-                    'envs': 'docs/pages/envs/+Page.mdx',
-                    'envs-layers': 'docs/pages/envs/layers/+Page.mdx',
+                    'scenes': 'docs/pages/scenes/+Page.mdx',
+                    'scenes-layers': 'docs/pages/scenes/layers/+Page.mdx',
                 }
                 sources[name]['scenePages'] = {
                     path: sha((dest / path).read_bytes()) for path in scene_pages.values()

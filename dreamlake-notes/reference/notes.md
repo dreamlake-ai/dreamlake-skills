@@ -137,6 +137,49 @@ reviewing the inline status. Removing an association uses the same context
 preservation behavior and retains the last-project guard. Use the separate
 **Open project** or **Open bindr** links when you want to navigate.
 
+### Moving between workspaces (development preview)
+
+The **Move note…** action lets a personal workspace owner move a note into an
+organization they belong to and select writable destination projects. The
+destination picker uses the same workspace scope control as the projects browser:
+click the `@workspace` prefix or press Backspace in an empty search to choose a
+workspace. Browsing also offers **All workspaces**; moving requires one concrete
+destination. Escape restores the previous scope and query.
+
+Review the access preview before confirming. Organization members can read and
+edit the moved note; filing it in selected projects does not make it team-private.
+The move keeps its ID, author, content, history, comments, attachments, visibility,
+and existing sharing. Previous project associations are replaced by the selected
+destination projects. Within the same workspace, selected projects are added
+without removing existing associations.
+
+For the CLI, first check that the installed build exposes `notes move --help`.
+This requires the matching server endpoint and is not available in CLI 0.44.2 or
+earlier:
+
+```bash
+dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research --dry-run
+dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research
+```
+
+The note ID resolves its current owner; `--namespace` can assert the source.
+Repeat `--project` for multiple projects, or omit it to move without filing.
+`POST /namespaces/:slug/notes/:noteId/move` accepts
+`{namespace: destinationSlug, projects?: string[], dryRun?: boolean}`. Dry runs
+validate without mutation; actual moves recheck authorization and conflicts.
+Metadata, attachment ownership, stored sharing references and project mounts
+change atomically. A conflict leaves the original intact.
+
+If the destination already has a note with the same URL slug, the move chooses a
+free suffixed slug and reports it in the preview. The stable note ID is unchanged.
+ID-based links resolve the current owner; namespace/slug-only bookmarks may need
+updating after a move.
+
+Moving organization-owned notes out requires an org owner. Activated organization
+notes cannot currently be transferred across workspaces because previous
+collaboration-room access cannot yet be revoked safely. After an uncertain
+network result, resolve the stable note ID before deciding whether to retry.
+
 ### Matching passages
 
 Searching the Notes catalog shows up to two distinct matching passages beneath
