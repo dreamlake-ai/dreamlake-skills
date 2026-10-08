@@ -223,6 +223,24 @@ phase is fenced, but its preceding RTC/storage effects are not durably excluded
 by that transaction. Activation, body sync, files/uploads, saved versions, media
 and issued capabilities still require separate transfer-readiness evidence.
 
+### Activation conflicts and acknowledged edits
+
+The additional activation safeguards are a **server source candidate until its
+API release is verified**. Activation rechecks current access and its exact Note
+ownership/storage/room binding before returning a room. Existing signed-in public-Note and
+read-share body reads remain supported; they do not acquire edit permission, and
+this change does not enable anonymous API endpoints.
+A busy or stale ownership lease can return `409 WRITER_FENCE_REQUIRED` or
+`409 STALE_EPOCH`. Refresh the Note's current state and preserve local drafts;
+do not clear the lease or bypass ownership checks.
+
+An acknowledged native body edit remains successful even if the subsequent
+idle-sync marker or storage projection cannot be updated. Do not resend an
+already acknowledged edit. Its returned revision may not yet have a retained
+baseline if storage failed; fetch current Note state and reconcile if that
+revision cannot be read. These checks protect database bindings; they do not
+prove complete RTC/storage exclusion or make cross-workspace moves available.
+
 ### Matching passages
 
 Searching the Notes catalog shows up to two distinct matching passages beneath
