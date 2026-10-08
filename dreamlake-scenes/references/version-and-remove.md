@@ -2,10 +2,10 @@
 
 ## 3. Version, pull, verify
 
-Pushing the same name again creates v2 — the CLI reports exactly what moved
-(`1 uploaded 12.4 KB, 19 reused`). Shared meshes dedupe **across scenes** in
-the namespace too, so pushing five scenes that use the same robot uploads
-its meshes once.
+A changed push under the same name creates a new version. An unchanged entry
+and file set reuses the existing version; save the version from the receipt
+instead of assuming it incremented. The CLI reports uploaded and reused files.
+Shared meshes dedupe **across scenes** in the same namespace.
 
 ```bash
 dreamlake scene list --namespace <org>        # name · version · type · files · entry
@@ -13,11 +13,12 @@ dreamlake scene pull my-scene                 # latest → ./my-scene/, hash-ver
 dreamlake scene pull my-scene@1 -o v1         # any version; --force writes into a non-empty dir
 ```
 
-The round-trip check after a first push — pull to a fresh dir, diff, and
-recompile:
+For the round-trip check, pull the exact receipt version into a fresh empty
+directory, then diff and recompile. A bare name fetches latest and can race a
+concurrent push. Substitute the recorded namespace, name and version below:
 
 ```bash
-dreamlake scene pull my-scene --namespace <org> -o /tmp/check
+dreamlake scene pull <scene-name>@<N> --namespace <org> -o /tmp/check
 diff -rq /tmp/scenes/my-scene /tmp/check      # byte-identical
 ```
 

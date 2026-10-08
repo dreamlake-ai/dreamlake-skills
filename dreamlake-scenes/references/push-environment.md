@@ -26,9 +26,12 @@ Entry auto-detection: the single root-level `*.xml`/`*.mjcf` containing
 containing `<robot>`, which also sets `type: urdf`. Two candidates at the
 root → the push asks for `--entry`.
 
-A transient upload error (`backend transient error`, closed socket) is safe
-to retry: **re-run the exact same push**. Files are content-addressed, so
-completed uploads are reused and only the remainder transfers.
+After a network error or timeout, check `dreamlake scene list` against your
+last receipt before retrying. An unchanged directory normally reuses uploaded
+blobs and an identical version, but this is not a transaction guarantee: edits
+or an intervening different push can create another version. Keep the same
+inputs, bound retries to 2–3 attempts, and report unresolved receipt ambiguity.
+Save the version from the final receipt for [exact-version readback](./version-and-remove.md).
 
 ## 2b. Author the thumbnail into the scene (recommended)
 
