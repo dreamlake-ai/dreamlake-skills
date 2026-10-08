@@ -2693,6 +2693,223 @@ been removed. Version links do not grant access. If the note changes or is still
 syncing while you save, review the current text and retry; no version is created
 from a mismatched browser/server state.
 
+### Use the CLI for saved versions
+
+CLI **0.44.1+** supports current-draft checkpoints, version lists, and saved
+text reads. Check the installed `dreamlake note tag --help`, `note hist --help`,
+and `note read --help` first. `note` and `notes` are aliases; the older
+`notes version` group was removed in 0.44.2.
+
+```bash
+# Keep the same explicit namespace on every command.
+dreamlake note tag "$NOTE_ID" reviewed --namespace "$NOTE_NAMESPACE" --summary "Reviewed draft"
+dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --json
+dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --version "$VERSION_ID" --json
+```
+
+`hist` lists saved checkpoints, not every autosaved edit. JSON is appropriate
+here for parsing IDs, hashes and cursors. Save and read by immutable version ID;
+tags can repeat. The CLI does not yet promote a retained `revision` to a saved
+version or read its checkpoint/journal. Use the authenticated API below for
+that specific gap, rather than inventing a `tag --revision` option.
+
+### Recover a retained snapshot
+
+Use this workflow when an earlier full draft still has a retained revision but
+was never saved as a named version. It creates a version **on the same Note**;
+it does not restore the old text into the live draft. An empty version list does
+not prove old content is gone. Identify the exact note ID and namespace, locate
+a known retained revision from earlier read receipts or recovery evidence, and
+review its full source before saving. Do not guess revisions from content hashes.
+Without a retained baseline, this endpoint cannot recover compacted edits,
+deleted Notes, a different Note's history, or text available only in a screenshot.
+Preserve any independent backup and report that limitation.
+
+First establish a stable agent identity as described in [agent presence](#agent-presence-and-activity-opt-in),
+and reuse it for every live CLI read. Confirm that the selected API deployment
+supports historical `POST /versions` (the October 8, 2026 retained-revision
+extension). Older servers can silently discard an unknown `revision` property.
+Even HTTP 201 and matching text are insufficient: the saved revision and
+`sourceObservedAt` must also pass readback verification.
+
+Use the same authenticated remote and token for both CLI and REST. In the
+following example, provision `DREAMLAKE_API_KEY` through your normal secret
+mechanism; do not paste it into notes, shell history, or receipts. Explicitly set
+`DREAMLAKE_REMOTE` to the intended HTTPS API, `NOTE_NAMESPACE`, the stable
+`NOTE_ID`, and `OLD_REVISION`. Preserve `DREAMLAKE_AGENT_ID` and
+`DREAMLAKE_AGENT_NAME` from identity setup. Review the pinned source first:
+
+```bash
+# These variables must already identify the intended account, Note and baseline.
+dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" \
+  --view source --at "$OLD_REVISION"
+```
+
+The executable example below uses Python's standard library for the missing
+REST operation and the CLI for full source reads. Run it from a private working
+directory after reviewing the old draft. It creates `recovery-evidence` with
+owner-only permissions and refuses to overwrite an earlier attempt. It sends
+**one** POST, retains the request and response, and verifies by the returned ID.
+Do not remove that directory to work around an uncertain outcome.
+
+```python
+import datetime as dt
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import urllib.error
+import urllib.parse
+import urllib.request
+
+required = ("DREAMLAKE_REMOTE", "DREAMLAKE_API_KEY", "NOTE_NAMESPACE",
+            "NOTE_ID", "OLD_REVISION", "DREAMLAKE_AGENT_ID", "DREAMLAKE_AGENT_NAME")
+for key in required:
+    if not os.environ.get(key):
+        raise SystemExit(f"Set {key} before running recovery")
+remote = os.environ["DREAMLAKE_REMOTE"].rstrip("/")
+if urllib.parse.urlsplit(remote).scheme != "https":
+    raise SystemExit("Use the intended HTTPS API")
+ns, note, revision = (os.environ[k] for k in ("NOTE_NAMESPACE", "NOTE_ID", "OLD_REVISION"))
+if not re.fullmatch(r"[a-f0-9]{24}", note):
+    raise SystemExit("Use the resolved stable Note ID")
+os.umask(0o077)
+evidence = Path("recovery-evidence")
+evidence.mkdir(mode=0o700)  # Existing evidence stops a second submission.
+def keep(name, value):
+    with (evidence / name).open("x", encoding="utf-8") as output:
+        json.dump(value, output, ensure_ascii=False, indent=2)
+def read_source(name, *extra):
+    raw = subprocess.check_output([
+        "dreamlake", "note", "read", note, "--namespace", ns,
+        "--view", "source", "--json", *extra], text=True)
+    value = json.loads(raw)
+    keep(name, value)
+    assert value["note"] == note and isinstance(value["content"], str)
+    digest = hashlib.sha256(value["content"].encode("utf-8")).hexdigest()
+    assert value["hash"] == "sha256:" + digest
+    return value
+old = read_source("retained.json", "--at", revision)
+assert old["revision"] == revision
+before = read_source("live-before.json")
+payload = {"revision": revision, "hash": old["hash"][7:],
+           "tag": "Recovered retained draft", "summary": "Reviewed historical source"}
+# Set reviewed tag/summary above; add parentId only for intentional ancestry.
+keep("request.json", {"remote": remote, "namespace": ns, "note": note,
+                     "startedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
+                     "payload": payload})
+base = remote + "/namespaces/" + urllib.parse.quote(ns, safe="") + "/notes/" + note
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+opener = urllib.request.build_opener(NoRedirect)
+def api(path, body=None):
+    request = urllib.request.Request(base + path,
+        data=None if body is None else json.dumps(body).encode("utf-8"),
+        headers={"Authorization": "Bearer " + os.environ["DREAMLAKE_API_KEY"],
+                 "Content-Type": "application/json"},
+        method="GET" if body is None else "POST")
+    with opener.open(request, timeout=30) as response:
+        return response.status, json.load(response)
+try:
+    status, saved = api("/versions", payload)
+except urllib.error.HTTPError as error:
+    keep("post-error.json", {"status": error.code,
+                            "body": error.read().decode("utf-8", errors="replace")})
+    raise SystemExit("Stopped: inspect post-error.json and the outcome rules below")
+except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+    raise SystemExit("Outcome unknown: reconcile history before another POST")
+keep("post-response.json", {"status": status, "version": saved})
+assert status == 201
+version_id = saved["id"]
+assert re.fullmatch(r"v_[0-9]{13}_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}", version_id)
+def verify_metadata(value):
+    assert value["id"] == version_id
+    assert value["revision"] == revision and value["hash"] == payload["hash"]
+    assert value["tag"] == payload["tag"] and value["summary"] == payload["summary"]
+    assert value.get("parentId") == payload.get("parentId")
+    observed = dt.datetime.fromisoformat(value["sourceObservedAt"].replace("Z", "+00:00"))
+    assert observed.tzinfo is not None
+verify_metadata(saved)
+verified = json.loads(subprocess.check_output([
+    "dreamlake", "note", "read", note, "--namespace", ns,
+    "--version", version_id, "--json"], text=True))
+keep("verified-version.json", verified)
+verify_metadata(verified)
+assert verified["sourceObservedAt"] == saved["sourceObservedAt"]
+assert verified["text"] == old["content"]
+assert hashlib.sha256(verified["text"].encode("utf-8")).hexdigest() == payload["hash"]
+after = read_source("live-after.json")
+assert before["content"] == after["content"], "Live text changed; inspect concurrent edits"
+print("Verified historical version:", version_id)
+```
+
+Hash the JSON-decoded **complete** `content` as UTF-8, preserving Unicode,
+trailing newlines, and the empty string. Do not hash a section, annotated
+Markdown, HTML, terminal metadata, or text modified by trimming or `jq -r`.
+The source read uses `sha256:<digest>`; the API requires the raw lowercase
+64-character digest. The opaque revision identifies the RTC baseline, not just
+its text: two different revisions can have the same hash. `sourceObservedAt`
+is the baseline's observation time, not necessarily the original edit time;
+`createdAt` is when this version was saved. Full source reads need not contain
+`sourceObservedAt`.
+
+If a receipt/readback is missing, malformed, or has the wrong ID, revision,
+hash, source time, or text, stop and keep the evidence. Do not declare recovery
+complete, remove `revision`, fall back to saving the live draft, or issue another
+POST to test support. If the live text changed during verification, inspect
+concurrent edits without overwriting them. Saving a historical version itself
+does not write the live body.
+
+### Reconcile an uncertain save
+
+Every successful POST creates a new version ID; tags are **not idempotency
+keys**. A timeout, lost connection, unreadable response, generic 5xx, or failure
+after submission may leave a saved version behind. Do not blindly repeat the
+POST, including after a failed verification read.
+
+Inspect saved metadata on the **same remote, namespace and Note**, starting
+with the first page and continuing through `nextCursor` using `--before`:
+
+```bash
+dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --json
+# Repeat for each non-null nextCursor until the attempt's time range is covered.
+dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --before "$NEXT_CURSOR" --json
+# Read each plausible candidate by immutable ID.
+dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --version "$CANDIDATE_ID" --json
+```
+
+Each page has at most 50 entries. Compare candidates with the retained request:
+revision **and** hash, tag, summary, explicit parent (or null), and submission
+time range. Then verify the candidate ID, `sourceObservedAt`, and full `text`
+against the saved evidence as above. A matching hash with a different revision
+is not a match. If a matching version exists, reuse its ID; if several match,
+record their IDs and report that the individual request's attribution is
+uncertain. Do not create a duplicate to obtain a clearer receipt or delete
+versions automatically. Finding no match on a partial page, or immediately
+after a timeout, does not prove that the original save failed. Continue read-only
+reconciliation; retry only after the outcome is resolved and a new save is an
+intentional decision. This API has no request-id deduplication guarantee.
+
+For a structured rejection from the compatible server:
+
+- `409 note_changed`: no version was saved by that rejected request. Recheck
+  the retained source/revision/hash; never replace its hash with the live hash.
+- `404 revision_not_found`: the selected baseline is unavailable. Preserve
+  independent evidence; this is not an empty saved-version list.
+- `400`, authentication/access failures, or `404 parent_not_found`: correct the
+  target, access or request before proceeding. History still requires editor access.
+- The historical route's structured `503 history_unavailable` or
+  `503 invalid_baseline` is a baseline-read failure **before** saving. Resolve
+  that specific read problem first. A generic 503/5xx is still an unknown outcome;
+  do not infer this pre-save guarantee from HTTP status alone.
+
+This workflow does not archive every future edit, reconstruct already compacted
+history, or add a rollback UI. Restoring text into the working draft is a separate,
+explicitly requested edit with its own reviewed current baseline.
+
 ### Version API
 
 These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
@@ -2709,9 +2926,10 @@ Omit `revision` to retain the existing current-draft consistency check. Do not
 retry a failed stale-current save as a historical save without reviewing the
 intended retained content. The CLI does not yet expose this extension.
 
-- `POST /versions` accepts `{hash, tag?, summary?, parentId?}`. `hash` is the lowercase
+- `POST /versions` accepts `{hash, revision?, tag?, summary?, parentId?}`. `hash` is the lowercase
   SHA-256 of the UTF-8 body the user intends to save. The server compares it
-  with a coherent current read and returns `409 note_changed` on mismatch.
+  with the specified retained baseline, or a coherent current read when
+  `revision` is omitted, and returns `409 note_changed` on mismatch.
   Tags are at most 80 characters and summaries at most 2,000 characters.
   A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
   `createdBy`, `author`, `number`, and `parentId`. The optional nullable
@@ -2728,5 +2946,6 @@ intended retained content. The CLI does not yet expose this extension.
 
 The content hash identifies text, not the identity-bearing RTC baseline used
 for collaborative patches. Saving a version is a retained snapshot operation,
-not a content write. The saved-version API has no CLI flags or Python SDK
-methods; use the UI or authenticated REST API.
+not a content write. Use `note tag`, `note hist`, and `note read --version`
+for ordinary saved-version work. Retained-revision promotion and checkpoint/journal
+reads currently require authenticated REST; the Python SDK has no saved-version helpers.
