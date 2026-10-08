@@ -2697,6 +2697,18 @@ from a mismatched browser/server state.
 
 These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
 
+**Historical recovery:** `POST /versions` also accepts an optional
+`revision` copied from a retained full source read. With it, the server saves
+that note's immutable retained baseline instead of reading the live draft.
+`hash` must match the retained source; a mismatch returns `409 note_changed`,
+and an unavailable revision returns `404 revision_not_found`. This does not
+replace the live body, change its collaboration session, or restore deleted
+notes. Editor access is still required. A recovered version's `createdAt`
+records when it was saved; `sourceObservedAt` records the baseline observation.
+Omit `revision` to retain the existing current-draft consistency check. Do not
+retry a failed stale-current save as a historical save without reviewing the
+intended retained content. The CLI does not yet expose this extension.
+
 - `POST /versions` accepts `{hash, tag?, summary?, parentId?}`. `hash` is the lowercase
   SHA-256 of the UTF-8 body the user intends to save. The server compares it
   with a coherent current read and returns `409 note_changed` on mismatch.
