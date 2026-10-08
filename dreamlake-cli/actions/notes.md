@@ -39,3 +39,21 @@ See [saved versions](../reference/notes-versions.md) for pagination, ancestry,
 JSON receipts and uncertain-result recovery.
 
 CLI 0.44.2 removes the old `notes version` command group; use the forms above.
+
+For project filing and ownership-transfer previews, check `dreamlake notes move
+--help` first: this command requires CLI 0.45.1; it is absent in CLI 0.45.0 and
+earlier. Preview with `notes move NOTE_ID --to-namespace WORKSPACE --project
+PROJECT --dry-run`. Cross-workspace transfers are currently unavailable; blocked
+previews exit 3 and must not be repeated as execution requests. Filing inside
+the note's current workspace can execute under its owner's login when
+`executable` is true and the user authorized it. Organization notes remain
+readable/editable by all current members. Do not simulate a transfer by copying
+and deleting the note. See [moving a note](../reference/notes.md#move-a-note-into-a-workspace).
+
+Project filing is separate from ownership. The CLI 0.45.1 additions
+`notes create --project SLUG` (repeatable) and `notes projects ID --namespace NS`
+cover new-note filing and current filing inspection. Check installed help first:
+0.44.3 and earlier lack them. Never emulate an existing-note move through copy/delete,
+namespace updates or an older generic mount API. Consult the
+[Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0444)
+for server and adapter gates; missing readiness is unsupported.

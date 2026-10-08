@@ -65,6 +65,42 @@ Search matches titles and indexed bodies by case-insensitive substring. Results
 include matching sections. For exact locations across notes, use
 [`notes grep`](notes-reading.md#search-passages).
 
+## Move a note into a workspace
+
+**Development preview:** requires a CLI build exposing `notes move --help` and
+a matching server endpoint. CLI 0.44.3 and earlier do not include it.
+**Cross-workspace ownership transfers are currently unavailable.** The preview
+reports blockers; it does not promise an executable move or retained shares.
+Destination-owner acceptance and the ownership adapter's writer, storage, grant
+and collaboration safeguards must be implemented before transfers are enabled.
+
+```bash cli-help="notes move"
+# Inspect an organization destination; currently reports unavailable (exit 3).
+dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research --dry-run
+# Add a project association within the note's CURRENT workspace.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research --dry-run
+# Apply only an executable same-workspace preview.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research
+```
+
+Run under the source workspace owner's login. Same-workspace filing requires
+write access to every requested project, preserves other project associations,
+and leaves ownership, content, history, attachments, visibility and shares intact.
+Repeat `--project` to add several associations. Organization membership still
+grants read/edit access to organization notes; filing does not make them private
+to one team.
+
+A full note ID resolves its current namespace automatically. `--namespace`
+optionally asserts the source and supplies the scope for slug/title lookup.
+`--to-namespace` is the destination. `--json` returns the server receipt, including
+`executable` and `blockers`. A blocked preview exits 3. Applying a cross-workspace
+destination returns `409 NOTE_TRANSFER_UNAVAILABLE` without mutation. Never
+simulate a transfer by copying and deleting the note.
+
+Dry runs do not reserve destinations; execution rechecks permissions, leases and
+conflicts. After a transport failure, resolve the stable ID and inspect its
+project associations before resubmitting. The CLI never retries automatically.
+
 ## Make a small wording change
 
 ```bash cli-help="notes replace"
@@ -223,3 +259,39 @@ the user again. Membership and public access are unaffected.
 Starting with CLI 0.44.1, `note tag`, `note hist`, and `note read --version` save and
 inspect immutable versions on the same Note without changing its live body.
 See [saved versions](notes-versions.md) for availability and hash-safe examples.
+
+## Create and inspect project filing (CLI 0.45.1)
+
+A Note belongs to its namespace, independently of its project affiliations.
+Repeat `--project` on creation to file the new Note in several projects in that
+same namespace. Duplicate project slugs collapse. The server authorizes each
+project before creation; use its current Write/Admin permission. Project filing
+does not grant access to Note content or make organization Notes team-private.
+Organization members retain their existing Note read/edit baseline.
+
+```bash
+dreamlake notes create "Disposable filing check" --namespace acme \
+  --project research --project reviews --json
+```
+
+Creation sends one request containing the full project list; it never falls back
+to creating an unfiled Note after rejection. If the outcome is uncertain, inspect
+the namespace before retrying: creation is not an idempotent transfer. Optional
+body writing remains a separate operation after creation.
+
+Inspect an existing Note's project candidates and current affiliations by its
+stable ID, using the Note's owning namespace:
+
+```bash cli-help="notes projects"
+dreamlake notes projects 000000000000000000000001 --namespace acme
+```
+
+The JSON contains `bound`, `nodeId`, `canBind`, effective project `role`, and
+attached `bindrs`. A candidate list alone does not establish that a Note exists.
+`canBind` is the server's current observation, not authorization
+for a later write. This does not read the body, activate an RTC room, or add/remove
+filing. These additions require CLI 0.45.1 or later. Existing-note `notes move`
+remains a separate draft with writer/ownership leases and executable-preview
+gates. Do not substitute a namespace rewrite, copy/delete, or an older generic
+mount endpoint for that workflow. Cross-namespace transfer requires the journal,
+storage and RTC adapters; missing routes/readiness are unsupported, never success.

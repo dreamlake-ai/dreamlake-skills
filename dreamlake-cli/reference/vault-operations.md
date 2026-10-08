@@ -130,3 +130,25 @@ dreamlake vault --scope org:<id> audit
 Use `--destination-scope personal` for an explicit personal destination. `secret-copy --action status` recovers committed identity; `--action cancel` permanently cancels a pending preview. Metadata never includes secret values. Preview expires after 24 hours, policy updates compare revision, and commits recheck source and destination authority. Export/policy requires org OWNER or direct-team MAINTAINER; ordinary entry CRUD remains member-based.
 
 Copies retain the source and reseal a new destination entry. Source-retiring moves require a complete consumer inventory and remain rejected. Customer-KMS destinations need policy-aware reseal recovery and remain rejected. Shared OTP, KMS administration, keys, host/machine credentials and delivery are unsupported.
+
+## Shared-scope entry retirement (unreleased fix)
+
+Use the immutable scope returned by `vault scopes` for every entry request.
+The source correction allows the canonical `vault delete` entry operation in
+org/team scopes; CLI 0.44.2 incorrectly rejects it before sending the request.
+`delete` means retirement under the server's existing retention policy. There
+is no `vault retire` command. Current membership is still checked by the server;
+an organization owner does not bypass direct team membership.
+
+```bash cli-help="vault delete"
+# Use a disposable entry and its current metadata revision.
+dreamlake vault --scope org:000000000000000000000001 delete \
+  --name acme/test-entry --if-match 1
+```
+
+Scoped entry list/show/get/add/delete/restore and write-status use the same
+selected scope. Scope denial never retries against personal Vault. Shared OTP,
+KMS/key administration, access keys, host bindings and remote delivery remain
+unsupported. Do not remove those restrictions to support runtime consumers.
+Use `show` for metadata; `get` explicitly retrieves secret values. An unavailable
+capabilities endpoint does not imply that advanced operations are supported.
