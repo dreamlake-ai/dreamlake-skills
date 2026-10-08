@@ -167,7 +167,12 @@ def main():
     parser.add_argument("--check", action="store_true", help="Read-only connection check")
     parser.add_argument("--cwd", type=Path, default=Path.cwd())
     parser.add_argument("--name", default="Remote workspace")
-    parser.add_argument("--full-access", action="store_true", help="Explicitly requested full access")
+    permissions = parser.add_mutually_exclusive_group()
+    permissions.add_argument("--full-access", dest="full_access", action="store_true",
+                             help="Maximum permissions (default)")
+    permissions.add_argument("--host-permissions", dest="full_access", action="store_false",
+                             help="Keep the host's permission defaults")
+    parser.set_defaults(full_access=True)
     parser.add_argument("--timeout", type=float, default=120, help="Greeting deadline in seconds")
     args = parser.parse_args()
     if not args.name.strip() or args.timeout <= 0:

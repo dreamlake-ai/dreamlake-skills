@@ -41,6 +41,23 @@ does not automatically clean up or retry. After stopping, use the upstream
 resume commands if preserving the remote conversation matters; creating a fresh
 session is not resuming one. This helper does not implement resume.
 
+## Another session in the same folder
+
+Claude Code 2.1.293 refuses a second server-mode process in a folder already
+served by `claude remote-control`. For a new conversation in that folder, start
+an interactive session with Remote Control in a new tmux session instead:
+
+```bash
+tmux new-session -d -s claude-remote-2 -c /absolute/workspace -x 240 -y 50 \
+  claude --remote-control "Remote workspace 2" --dangerously-skip-permissions
+```
+
+Choose an unused tmux name and a recognizable title. Inspect the pane for any
+startup prompts, the active Remote Control indicator, and the new session URL.
+Keep the first session running. For narrower permissions, replace the bypass
+flag with the user's requested `--permission-mode`. This interactive path was
+verified alongside a server-mode session in the same folder.
+
 ## Startup gaps
 
 First-time workspace trust, Remote Control consent, and bypass-mode consent can

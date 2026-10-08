@@ -23,7 +23,7 @@ spec.loader.exec_module(launch)
 
 @unittest.skipUnless(hasattr(socket, 'AF_UNIX'), 'Requires Unix sockets')
 class LaunchTests(unittest.TestCase):
-    def run_case(self, *, fail=False, full=False, check=False, listed=True):
+    def run_case(self, *, fail=False, full=True, explicit_full=False, check=False, listed=True):
         with tempfile.TemporaryDirectory() as tmp:
             socket_path = tmp + '/server.sock'
             server = socket.socket(socket.AF_UNIX)
@@ -122,8 +122,10 @@ class LaunchTests(unittest.TestCase):
             worker.start()
             output = io.StringIO()
             argv = ['launch_chat.py', '--cwd', tmp, '--name', 'Test chat']
-            if full:
+            if explicit_full:
                 argv.append('--full-access')
+            elif not full:
+                argv.append('--host-permissions')
             if check:
                 argv.append('--check')
             daemon = {'status': 'running', 'socketPath': socket_path, 'appServerVersion': 'test'}
@@ -136,18 +138,25 @@ class LaunchTests(unittest.TestCase):
             self.assertEqual(errors, [])
             return code, [json.loads(line) for line in output.getvalue().splitlines()], calls
 
-    def test_launch_preserves_defaults_and_is_listed(self):
+    def test_launch_defaults_to_full_access_and_is_listed(self):
         code, records, calls = self.run_case()
         self.assertEqual(code, 0)
         self.assertEqual(records[-1]['status'], 'ready')
         start = [params for method, params in calls if method == 'thread/start']
         self.assertEqual(len(start), 1)
         self.assertFalse(start[0]['ephemeral'])
-        self.assertNotIn('sandbox', start[0])
-        self.assertNotIn('approvalPolicy', start[0])
+        self.assertEqual(start[0]['sandbox'], 'danger-full-access')
+        self.assertEqual(start[0]['approvalPolicy'], 'never')
+
+    def test_host_permissions_can_be_requested(self):
+        code, _, calls = self.run_case(full=False)
+        self.assertEqual(code, 0)
+        start = next(params for method, params in calls if method == 'thread/start')
+        self.assertNotIn('sandbox', start)
+        self.assertNotIn('approvalPolicy', start)
 
     def test_explicit_full_access(self):
-        code, _, calls = self.run_case(full=True)
+        code, _, calls = self.run_case(explicit_full=True)
         self.assertEqual(code, 0)
         start = next(params for method, params in calls if method == 'thread/start')
         self.assertEqual(start['sandbox'], 'danger-full-access')

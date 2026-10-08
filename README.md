@@ -19,8 +19,8 @@ snapshot, not every skill in this repository.
 | [`dreamlake-dataset-viz`](./dreamlake-dataset-viz/SKILL.md) | Visualize a DreamLake source by authoring its `.dreamrc` (LeRobot/zarr/MCAP/folders) — format matching, view bindings, the validate-and-iterate loop |
 | [`dreamlake-envs`](./dreamlake-envs/SKILL.md) | Push a MuJoCo scene or URDF robot as a versioned env — extract a self-contained directory from a repo, verify it compiles, push it, get an interactive 3D viewer page — or compose a layered env from a `dreamlake.layers.json` stack (Merge / Attach / Update / Remove / Patch) |
 | [`dreamlake-libraries`](./dreamlake-libraries/SKILL.md) | Publish, search, inspect, and download reusable asset libraries |
-| [`launch-claude-remote`](./launch-claude-remote/SKILL.md) | Launch a persistent, named Claude Remote Control session with maximum permission bypass, available in the Claude app’s Code tab. [Compatibility and lifecycle](./launch-claude-remote/references/remote-sessions.md) |
-| [`launch-codex-chat`](./launch-codex-chat/SKILL.md) | Create a named, persistent chat on an existing Codex server and verify it is available to continue in a connected app. [Protocol and troubleshooting](./launch-codex-chat/references/launching-chats.md) |
+| [`launch-claude-remote`](./launch-claude-remote/SKILL.md) | Say **"Start Claude."** Remote access and maximum permissions are included. [Details](./launch-claude-remote/references/remote-sessions.md) |
+| [`launch-codex-chat`](./launch-codex-chat/SKILL.md) | Say **"Start Codex."** Remote access and maximum permissions are included. [Details](./launch-codex-chat/references/launching-chats.md) |
 | [`dreamlake-artifacts`](./dreamlake-artifacts/SKILL.md) | Publish, version, share, and view renderable artifacts (HTML/React/Markdown/SVG/Mermaid/code) via the `dreamlake artifact` CLI |
 | [`dreamlake-artifact-authoring`](./dreamlake-artifact-authoring/SKILL.md) | Write the artifact *content* so it renders in DreamLake's sandboxed frame — self-containedness, per-kind templates, design quality. Pairs with `dreamlake-artifacts` |
 | [`dreamlake-notes`](./dreamlake-notes/SKILL.md) | The whole notes surface — create and list, read a section or a line range, replace text by name rather than line number, grep across every note for where a phrase is, attach files and get a link that renders them |
@@ -115,7 +115,7 @@ mkdir -p ~/.codex/skills
 ln -s ~/dreamlake-skills/launch-codex-chat ~/.codex/skills/
 ```
 
-Then ask Codex to use `$launch-codex-chat`. The helper runs on the machine
+Then say **"Start Codex."** The helper runs on the machine
 hosting the already connected Codex server. This catalog installation does not
 require the DreamLake CLI, Nymph, or a DreamLake login.
 

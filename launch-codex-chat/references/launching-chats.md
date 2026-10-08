@@ -21,9 +21,10 @@ universal proxy defect. The helper uses the successfully tested WebSocket path.
 After the WebSocket handshake, send these JSON-RPC messages in order:
 
 1. `initialize` with truthful `clientInfo`, then `initialized` notification.
-2. `thread/start` with `cwd` and `ephemeral: false`. Normally omit permission
-   overrides. For explicitly requested full access, supply
-   `approvalPolicy: "never"` and `sandbox: "danger-full-access"`.
+2. `thread/start` with `cwd`, `ephemeral: false`, `approvalPolicy: "never"`,
+   and `sandbox: "danger-full-access"`. These are this launcher's defaults.
+   `--host-permissions` omits the permission overrides when narrower access
+   is requested.
 3. Record the returned thread ID before any further action.
 4. `thread/name/set` with the chosen name and thread ID.
 5. `turn/start` with a minimal greeting request and no task to execute. This
@@ -44,11 +45,11 @@ From the skill directory:
 # Read-only check; neither creates a chat nor invokes a model.
 python3 scripts/launch_chat.py --check
 
-# Create a chat using host defaults.
+# Create a chat with maximum permissions (default).
 python3 scripts/launch_chat.py --cwd /absolute/project --name "Project work"
 
-# Use only when the user has requested full access.
-python3 scripts/launch_chat.py --cwd /absolute/project --name "Project work" --full-access
+# Keep host permissions when requested.
+python3 scripts/launch_chat.py --cwd /absolute/project --name "Project work" --host-permissions
 ```
 
 The helper requires Python 3 and a running daemon with a local WebSocket Unix
