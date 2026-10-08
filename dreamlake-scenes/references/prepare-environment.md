@@ -1,8 +1,8 @@
-# Prepare An Environment
+# Prepare a Scene
 
 ## 1. Extract a self-contained directory
 
-One env = one scene. The pushed directory must contain the entry file at
+One pushed directory holds one scene. The pushed directory must contain the entry file at
 its **root** and every file the scene references **inside** the directory —
 scenes living in a larger repo usually reach outside themselves
 (`../../assets/...`), so extract first:
@@ -19,11 +19,11 @@ referenced out-of-tree folder in, and rewrite the escaping prefixes — one
 `sed` over the entry usually covers both `file=` and `meshdir=` values:
 
 ```bash
-mkdir -p /tmp/envs/my-scene/assets
+mkdir -p /tmp/scenes/my-scene/assets
 sed 's|\.\./\.\./assets/|assets/|g' repo/experiments/my-scene/scene.xml \
-  > /tmp/envs/my-scene/scene.xml
-cp -R repo/assets/kinova_gen3 /tmp/envs/my-scene/assets/
-find /tmp/envs -name '.DS_Store' -delete
+  > /tmp/scenes/my-scene/scene.xml
+cp -R repo/assets/kinova_gen3 /tmp/scenes/my-scene/assets/
+find /tmp/scenes -name '.DS_Store' -delete
 ```
 
 Three rules that keep the extraction correct:
@@ -40,7 +40,7 @@ Three rules that keep the extraction correct:
   missed still resolves if you test in place, and fails loudly from `/tmp`:
 
 ```bash
-cd /tmp/envs/my-scene && python -c \
+cd /tmp/scenes/my-scene && python -c \
   "import mujoco; m = mujoco.MjModel.from_xml_path('scene.xml'); \
    print(m.nbody, 'bodies,', m.nmesh, 'meshes,', m.nu, 'actuators')"
 ```
@@ -50,6 +50,6 @@ For a URDF, check the mesh paths instead: every `filename="…"` (relative or
 
 ## Stop conditions
 
-If any `<include>`, mesh, texture, hfield, compiler directory, or URDF mesh reference cannot be resolved from the staged directory, stop and report the exact missing path. Do not push an incomplete environment.
+If any `<include>`, mesh, texture, hfield, compiler directory, or URDF mesh reference cannot be resolved from the staged directory, stop and report the exact missing path. Do not push an incomplete scene.
 
-For a prepare-only request, return the staged directory and the validation result; do not upload it. Continue to [push an environment](./push-environment.md) only when publishing was requested.
+For a prepare-only request, return the staged directory and the validation result; do not upload it. Continue to [push a scene](./push-environment.md) only when publishing was requested.

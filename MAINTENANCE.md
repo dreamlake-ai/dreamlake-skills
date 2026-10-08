@@ -23,19 +23,20 @@ The owning repositories' maintainers review their respective source changes.
 This inventory does not assign individual people or GitHub review permissions.
 
 <!-- catalog:start -->
-17 skills: 3 generated, 12 manual product, 2 standalone.
+18 skills: 3 generated, 13 manual product, 2 standalone.
 
 | Skill | Maintenance | Edit location | Docs to review | Related skills |
 |---|---|---|---|---|
 | [dreamlake-annotations](dreamlake-annotations/SKILL.md) | Manual product | [edit](dreamlake-annotations/) | [docs 1](https://docs.dreamlake.ai/annotations) | [video-labeling-workflow](video-labeling-workflow/SKILL.md) |
 | [dreamlake-artifact-authoring](dreamlake-artifact-authoring/SKILL.md) | Manual product | [edit](dreamlake-artifact-authoring/) | [docs 1](https://docs.dreamlake.ai/artifacts) | [dreamlake-artifacts](dreamlake-artifacts/SKILL.md) |
 | [dreamlake-artifacts](dreamlake-artifacts/SKILL.md) | Manual product | [edit](dreamlake-artifacts/) | [docs 1](https://docs.dreamlake.ai/artifacts), [docs 2](https://cli.dreamlake.ai/artifacts) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-artifact-authoring](dreamlake-artifact-authoring/SKILL.md) |
-| [dreamlake-cli](dreamlake-cli/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-cli/tree/main/docs) | Source docs | [dreamlake-artifacts](dreamlake-artifacts/SKILL.md), [dreamlake-notes](dreamlake-notes/SKILL.md), [dreamlake-envs](dreamlake-envs/SKILL.md), [dreamlake-libraries](dreamlake-libraries/SKILL.md), [dreamlake-source](dreamlake-source/SKILL.md), [workflow-publish](workflow-publish/SKILL.md) |
+| [dreamlake-cli](dreamlake-cli/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-cli/tree/main/docs) | Source docs | [dreamlake-artifacts](dreamlake-artifacts/SKILL.md), [dreamlake-notes](dreamlake-notes/SKILL.md), [dreamlake-scenes](dreamlake-scenes/SKILL.md), [dreamlake-libraries](dreamlake-libraries/SKILL.md), [dreamlake-source](dreamlake-source/SKILL.md), [workflow-publish](workflow-publish/SKILL.md) |
 | [dreamlake-dataset-viz](dreamlake-dataset-viz/SKILL.md) | Manual product | [edit](dreamlake-dataset-viz/) | [docs 1](https://viz.dreamlake.ai/dataset-viz/spec.md) | [dreamlake-source](dreamlake-source/SKILL.md), [sim-to-mcap](sim-to-mcap/SKILL.md) |
-| [dreamlake-envs](dreamlake-envs/SKILL.md) | Manual product | [edit](dreamlake-envs/) | [docs 1](https://docs.dreamlake.ai/envs/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) |
+| [dreamlake-envs](dreamlake-envs/SKILL.md) | Manual product | [edit](dreamlake-envs/) | [docs 1](https://docs.dreamlake.ai/scenes/) | [dreamlake-scenes](dreamlake-scenes/SKILL.md) |
 | [dreamlake-libraries](dreamlake-libraries/SKILL.md) | Manual product | [edit](dreamlake-libraries/) | [docs 1](https://docs.dreamlake.ai/libraries/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) |
 | [dreamlake-notes](dreamlake-notes/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/notes) | [docs 1](https://cli.dreamlake.ai/notes/) | [dreamlake-cli](dreamlake-cli/SKILL.md) |
-| [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/scene-generation) | Source docs | [dreamlake-envs](dreamlake-envs/SKILL.md), [dreamlake-libraries](dreamlake-libraries/SKILL.md) |
+| [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/scene-generation) | Source docs | [dreamlake-scenes](dreamlake-scenes/SKILL.md), [dreamlake-libraries](dreamlake-libraries/SKILL.md) |
+| [dreamlake-scenes](dreamlake-scenes/SKILL.md) | Manual product | [edit](dreamlake-scenes/) | [docs 1](https://docs.dreamlake.ai/scenes/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) |
 | [dreamlake-source](dreamlake-source/SKILL.md) | Manual product | [edit](dreamlake-source/) | [docs 1](https://docs.dreamlake.ai/sources/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [remote-source-check](remote-source-check/SKILL.md), [dreamlake-dataset-viz](dreamlake-dataset-viz/SKILL.md) |
 | [launch-claude-remote](launch-claude-remote/SKILL.md) | Standalone | [edit](launch-claude-remote/) | [docs 1](https://code.claude.com/docs/en/remote-control), [docs 2](https://code.claude.com/docs/en/permission-modes) | [launch-codex-chat](launch-codex-chat/SKILL.md) |
 | [launch-codex-chat](launch-codex-chat/SKILL.md) | Standalone | [edit](launch-codex-chat/) | [docs 1](https://learn.chatgpt.com/docs/app-server) | None recorded |
@@ -48,7 +49,7 @@ This inventory does not assign individual people or GitHub review permissions.
 Recorded generated-source snapshots (not a freshness assertion):
 
 - `cli`: [cd874e7f55ae](https://github.com/dreamlake-ai/dreamlake-cli/commit/cd874e7f55ae52d8a5fed815750b24b72218e4aa)
-- `workspace`: [612280df4cde](https://github.com/dreamlake-ai/dreamlake-workspace/commit/612280df4cde27c43b95e00f0ef2b8cc83fa933e)
+- `workspace`: [ad2f53ac707b](https://github.com/dreamlake-ai/dreamlake-workspace/commit/ad2f53ac707b3f42d4dda07ea6bad28eef9871f7)
 
 Upstream freshness: **not checked by this report**.
 <!-- catalog:end -->
@@ -65,7 +66,7 @@ inventory does not maintain a second freshness timestamp.
 | CLI docs, bundled `dreamlake-cli`, public `dreamlake-cli` | Generated distribution copies; CLI releases can contain an older snapshot | Edit CLI source once, regenerate, synchronize; do not patch either generated copy |
 | CLI Notes references and `dreamlake-notes/reference` | Selected CLI pages are copied with link rewriting by `sync-docs.py` | Preserve generated copies needed for independent installation |
 | CLI artifact guide and `dreamlake-artifacts` | Broad CLI guide and separately maintained focused procedures | Review both when publishing or sharing behavior changes; migrate the focused procedure to generated source before treating it as synchronized |
-| CLI/workspace environment and library docs, `dreamlake-envs`, `dreamlake-libraries`, scene generation | Shared product facts; packaging assets and composing scenes are different tasks | Keep task boundaries, compare manual skills against owning docs, and avoid adding another independent API reference |
+| CLI/workspace scene and library docs, `dreamlake-scenes`, `dreamlake-libraries`, scene generation | Shared product facts; packaging assets and composing scenes are different tasks | Keep task boundaries, compare manual skills against owning docs, and avoid adding another independent API reference |
 | Source connection, source checking, and dataset visualization | Related handoffs; visibility checks overlap, visualization is a separate task | Keep the handoffs explicit; maintain one authoritative product contract in source docs |
 | Workflow design, fixed video template, workflow publishing, broad CLI guide | Different entrypoints share validation and publishing operations | Route specialized skills to `workflow-publish`; reconcile its procedure with product docs until generated |
 
