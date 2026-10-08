@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.45.0 — Scenes across CLI, API and docs
+
+Use `dreamlake scene push|create|list|pull|compose|delete|restore`. The legacy
+`env` command remains an alias. Requests now use `/namespaces/:slug/scenes`,
+and receipt links use `/<namespace>/scenes/<name>`. Existing storage, layer
+formats and login environments remain compatible. See [Scenes](scenes.md).
+
 ## 0.44.2 — Remove the old saved-version command group
 
 The old `notes version create/list/read` paths are removed. Use
@@ -130,7 +137,7 @@ attribute); `Remove` is first-class. `env compose` requires
 `dreamlake ≥ 0.23.0` on the composing machine (`pip install
 "dreamlake[compose]"`). v2 stack files are refused with a migration map;
 composition semantics are unchanged. See the
-[Env Layers Reference](https://docs.dreamlake.ai/envs/layers).
+[Env Layers Reference](https://docs.dreamlake.ai/scenes/layers).
 
 ## 0.34.4
 
@@ -301,7 +308,7 @@ unpinned layers — the pushed provenance would not be re-openable.
 (named by its basename) and stops for pinning + recompose; `--allow-local`
 pushes anyway with the provenance marked non-resolvable.
 
-Deep reference: [Env layers](https://docs.dreamlake.ai/envs/layers).
+Deep reference: [Env layers](https://docs.dreamlake.ai/scenes/layers).
 
 ## 0.24.7 — Notes revision diffs
 

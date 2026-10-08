@@ -2,7 +2,7 @@
 
 Tool setup (once): `pip install mujoco numpy` — mujoco ≥ 3.2 (tool tests
 pass on 3.2.0, 3.8.1, 3.14.0). The three tools in `tools/` run on a raw
-MJCF file or any pulled env directory; they need no DreamLake account. Run
+MJCF file or any pulled scene directory; they need no DreamLake account. Run
 their self-tests with `python -m pytest tools/test_scene_tools.py` if in
 doubt about the environment.
 
@@ -67,14 +67,14 @@ conversion by compiling and re-measuring, and never present an unverified
 converter command as working. Authority for every element/attribute:
 [MuJoCo XML reference](https://mujoco.readthedocs.io/en/latest/XMLreference.html).
 
-**Author the base env** (floor, fixtures, lights, cameras) as an ordinary
+**Author the base scene** (floor, fixtures, lights, cameras) as an ordinary
 MJCF directory — authoring primitives procedurally is a first-class way to
 make fixtures (exact dimensions, clean collision). Rules that pay off later:
 
 - Name every element you might edit — layer ops address MJCF names only
   (`fixture/table`, `obj/mug`, lights `key`/`fill`).
 - One warm key light + dim directional fill; a gradient skybox texture; a
-  hero `<camera name="thumbnail">` (used for the env page's cover). Derive
+  hero `<camera name="thumbnail">` (used for the scene page's cover). Derive
   camera `xyaxes` by look-at math — MuJoCo cameras look along local −z:
   `z = normalize(pos − target)`, `x = normalize(up × z)`, `y = z × x`.
 - Add `<statistic center extent>` and `<visual><global azimuth elevation>`
@@ -94,5 +94,5 @@ for framing, lighting, scale cues, and material tone, then adjust and
 re-render.
 
 MJCF authoring patterns and thumbnail behavior:
-[envs reference](../reference/envs.md); the full method:
+[scenes reference](../reference/scenes.md); the full method:
 [scene generation reference](../reference/scene-generation.md).

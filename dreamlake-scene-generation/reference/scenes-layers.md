@@ -1,26 +1,26 @@
-# Env Layers Reference
+# Scene Layers Reference
 
   The complete contract of `dreamlake.layers.json` (schema
   `dreamlake.env-layers/v3`): one component grammar, five ops, the
   composition semantics, six annotated stacks, and the errors you will
   actually hit.
 
-New here? Start with the [Envs guide § Env layers](envs.md#env-layers).
+New here? Start with the [Scenes guide § Scene layers](scenes.md#scene-layers).
 
 ## The model
 
-A layered env is an ordered **stack** of ops. Every stack entry is one
+A layered scene is an ordered **stack** of ops. Every stack entry is one
 flat object — `{"tag": ..., ...props}` — in the vocabulary of vuer's
 imperative session updates (`add` / `upsert` / `update` / `remove`), where
 `Update` is a *meta component*: its `key` addresses an element, its props
 ARE the opinions. No op has a privileged role — "scene", "embodiment",
 "physics profile" are things you *do* with layers, not schema concepts.
-Ops apply in order and **later wins, always**. `dreamlake env compose`
-materializes the stack into an ordinary `mujoco` env directory — entry
+Ops apply in order and **later wins, always**. `dreamlake scene compose`
+materializes the stack into an ordinary `mujoco` scene directory — entry
 XML, flat assets, and a fully **pinned** copy of the stack side by side —
-and `dreamlake env push` publishes it as a normal env version. Consumers
+and `dreamlake scene push` publishes it as a normal scene version. Consumers
 (viewer, SDKs, training code) read only the materialized artifact; the
-embedded stack is what makes the env permanently re-openable: edit a pin,
+embedded stack is what makes the scene permanently re-openable: edit a pin,
 a pose, or an opinion, recompose, push again — content-addressed dedup
 keeps re-pushes cheap.
 
@@ -34,7 +34,7 @@ materialization to the Python engine in **dreamlake-py**:
 pip install "dreamlake[compose]"   # the engine + mujoco (optional extra, lazily imported)
 ```
 
-`dreamlake env compose` requires it on the composing machine and says so
+`dreamlake scene compose` requires it on the composing machine and says so
 clearly when it is absent. Push / pull / list need no Python. Registry
 layers are resolved through the immutable, hash-verified cache at
 `~/.dreamlake/cache/envs/<ns>/<name>/<version>/`.
@@ -90,8 +90,8 @@ The minimal stack is two keys: `schema` and `layers`.
 
 | shape | meaning |
 | --- | --- |
-| `"ns/name"` or `"ns/name@3"` | a pushed env version. An unversioned ref **floats** — resolved to the latest version at compose time; the copy of the stack embedded in the artifact is always pinned `@v` |
-| `"./dir"`, `"../dir"`, `"/abs"` | a local path — a directory in the standard env shape, or a single MJCF file (a sparse patch, say), distinguished automatically. Dev-only: composing and previewing are unrestricted, pushing is gated — see [push discipline](#push-discipline) |
+| `"ns/name"` or `"ns/name@3"` | a pushed scene version. An unversioned ref **floats** — resolved to the latest version at compose time; the copy of the stack embedded in the artifact is always pinned `@v` |
+| `"./dir"`, `"../dir"`, `"/abs"` | a local path — a directory in the standard scene shape, or a single MJCF file (a sparse patch, say), distinguished automatically. Dev-only: composing and previewing are unrestricted, pushing is gated — see [push discipline](#push-discipline) |
 
 A local path **must** start with `./`, `../` or `/` — a bare string is
 always a registry ref, so `you/kitchen` (registry) and `./you/kitchen`
@@ -116,7 +116,7 @@ always a registry ref, so `you/kitchen` (registry) and `./you/kitchen`
 { "tag": "Merge", "src": "you/kitchen@3" }
 ```
 
-Section-wise union of the env's MJCF into the stack: worldbody children,
+Section-wise union of the scene's MJCF into the stack: worldbody children,
 assets, `<default>` classes, tendons / actuators / sensors / contacts. A
 name collision between merged layers is an **error**, never silent
 last-wins — changing existing elements is exclusively the opinion ops'
@@ -129,11 +129,11 @@ conventions never leak.
 
 ### `tag: "Attach"`
 
-Grafts the env's subtree at a target, under the identity root `key`:
+Grafts the scene's subtree at a target, under the identity root `key`:
 
 | field | type | required | meaning |
 | --- | --- | --- | --- |
-| `src` | string | yes | the env (or local path) to graft |
+| `src` | string | yes | the scene (or local path) to graft |
 | `key` | string | yes | the identity root — prepended (with `:`) to **every** name in the layer and every internal name reference: `"right"` makes `palm` → `right:palm`. No colon, no whitespace — the separator is the composer's. Duplicate keys across the stack are an error |
 | `at` | string | no — default `"world"` | mount target: `"world"`, `"body:<name>"`, or `"site:<name>"`. A site's own pose wins over `pos`/`quat` (the mount-point hook); the target may come from any lower layer |
 | `pos` | `[x, y, z]` | no — default `[0, 0, 0]` | mount position |
@@ -214,7 +214,7 @@ equality, key (keyframe — `key:home`).
 ```
 
 The same opinion semantics as `Update`, sourced from **sparse MJCF** — a
-file inside the stack's own directory, or a pushed env (a versioned,
+file inside the stack's own directory, or a pushed scene (a versioned,
 reviewable opinion layer). Elements are matched by (kind, name), the
 attributes present are the opinions, matching is strict. Use it when the
 opinion set is big enough to be its own artifact; a patch of a few
@@ -241,7 +241,7 @@ one-liners reads better as inline `Update`s.
   `"builder": {"engine": "dreamlake-py/<v>", "mujoco": "<v>"}` — the
   importer/serializer is MuJoCo itself, so the engine version is part of
   determinism. Local srcs embed with `"unpinned": true`.
-- **Nested stacks.** A source env that is itself layered is consumed via
+- **Nested stacks.** A source scene that is itself layered is consumed via
   its **materialized artifact**, never by re-walking its stack — it
   behaves as one ordinary layer. Pins compose transitively (recorded for
   provenance); the builder caps nesting depth and rejects cycles.
@@ -256,12 +256,12 @@ one-liners reads better as inline `Update`s.
 
 Composing and previewing locally is unrestricted. **Pushing** a directory
 whose `dreamlake.layers.json` contains unpinned local srcs is refused
-with guidance, because the composed env would no longer be re-openable
+with guidance, because the composed scene would no longer be re-openable
 from the registry:
 
 | flag | effect |
 | --- | --- |
-| `--push-layers` | push the local layers first (as their own envs), then the composed env — provenance stays fully resolvable |
+| `--push-layers` | push the local layers first (as their own scenes), then the composed scene — provenance stays fully resolvable |
 | `--allow-local` | push anyway; the provenance is permanently marked non-resolvable |
 
 ## Examples
@@ -281,7 +281,7 @@ from the registry:
 ```
 
 Swapping the embodiment is editing one line — change the `Attach`'s `src`
-to `you/claw@2`, recompose, push: a new version, same env page, one-line
+to `you/claw@2`, recompose, push: a new version, same scene page, one-line
 diff in the stack.
 
 ### 2. Inline opinions: Update + Remove
@@ -364,7 +364,7 @@ Each `Attach` is its own identity root — the `Update` recolors
 }
 ```
 
-`you/g1` is a `urdf` env; the composer imports it natively into the
+`you/g1` is a `urdf` scene; the composer imports it natively into the
 `mujoco` substrate. URDF sources are **Attach-only**, and the composer
 reconciles a root freejoint the URDF may already declare (no double-add).
 
@@ -373,10 +373,10 @@ reconciles a root freejoint the URDF may already declare (no double-add).
 >   physics stack. The compose report carries an "unactuated import"
 >   warning. The stack model is the remedy: add `Update` ops (or a `Patch`
 >   layer) contributing damping / actuators (versioned like everything
->   else), or treat the layer as visualization-grade and say so in the env
+>   else), or treat the layer as visualization-grade and say so in the scene
 >   description.
 
-### 6. Nested stack — compose atop a composed env
+### 6. Nested stack — compose atop a composed scene
 
 ```json file="dreamlake.layers.json"
 {
@@ -390,11 +390,11 @@ reconciles a root freejoint the URDF may already declare (no double-add).
 }
 ```
 
-`you/kitchen-sharpa@2` is itself a composed env (example 1, pushed) — it
+`you/kitchen-sharpa@2` is itself a composed scene (example 1, pushed) — it
 enters this stack as **one layer**, consumed via its materialized
 artifact, never unpacked. The camera rig mounts on a site the inner
 composition created (`right:palm-mount` — note the key from example 1's
-attach), and the last layer is a Patch **env**: a pushed, versioned
+attach), and the last layer is a Patch **scene**: a pushed, versioned
 opinion layer (compare example 3's in-directory file — same semantics,
 different lifecycle).
 
@@ -410,17 +410,17 @@ CLI read v3 only, and a v2 file gets an error carrying this table:
 | `"instances": [...]` | one `Attach` entry per instance |
 | `mode: "override"` with an env/file source | `{"tag": "Patch", "src": ...}` — or inline `Update`s for small sets |
 | `compose.delete: [{"elem", "name"}]` | `{"tag": "Remove", "key": "kind:name"}` |
-| `{"env": ...}` / `{"path": ...}` / `{"file": ...}` | one `src` string; local paths start with `./` |
+| `{"scene": ...}` / `{"path": ...}` / `{"file": ...}` | one `src` string; local paths start with `./` |
 
 ## Common errors
 
 | error | when | remedy |
 | --- | --- | --- |
 | merge name collision | two Merge layers define an element with the same name — merge never silently last-wins | rename the element in one layer; if the upper layer is *meant to change* the element, that should be an `Update`/`Patch`, not a `Merge` |
-| strict-match miss | an `Update`, `Remove`, or `Patch` opinion names an element the stack below doesn't have; the error reports the layer index | fix the typo — and after an `Attach`, target the **keyed** name (`right:palm`, `mug2:handle`), not the source env's original name |
+| strict-match miss | an `Update`, `Remove`, or `Patch` opinion names an element the stack below doesn't have; the error reports the layer index | fix the typo — and after an `Attach`, target the **keyed** name (`right:palm`, `mug2:handle`), not the source scene's original name |
 | ambiguous address | a bare `key` matches more than one kind (a body and a geom named alike) | qualify it: `body:thing` |
-| env src not resolved ("resolve refs first") | the Python engine was invoked directly on a stack that still contains registry srcs — the engine only takes resolved local paths | run through `dreamlake env compose`, which resolves refs into `~/.dreamlake/cache/envs/…` first; for private layers, check you are logged in to the right remote |
-| missing Python engine | `dreamlake env compose` delegates materialization to dreamlake-py, and it (or its mujoco extra) is not installed | `pip install "dreamlake[compose]"` on the composing machine. Machines that only push / pull / list don't need it |
+| scene src not resolved ("resolve refs first") | the Python engine was invoked directly on a stack that still contains registry srcs — the engine only takes resolved local paths | run through `dreamlake scene compose`, which resolves refs into `~/.dreamlake/cache/envs/…` first; for private layers, check you are logged in to the right remote |
+| missing Python engine | `dreamlake scene compose` delegates materialization to dreamlake-py, and it (or its mujoco extra) is not installed | `pip install "dreamlake[compose]"` on the composing machine. Machines that only push / pull / list don't need it |
 | `from_file(): incompatible function arguments` at layer 0 | MuJoCo 3.2 is installed — dreamlake 0.23.0 declares `>=3.2.0` but the engine needs the modern MjSpec API (0.23.1 declares `>=3.8` and guards this up front) | upgrade: `pip install -U "mujoco>=3.8"` (validated 3.8.1 / 3.14.0) |
 | Update `xyaxes`: "has no attribute … settable through MjSpec" | dreamlake 0.23.0 supports orientation opinions via `quat` only | upgrade to dreamlake ≥ 0.23.1, which accepts the alternate orientation specifiers — or state a `quat` opinion (compute it from your look-at axes), or put the `xyaxes` in the layer's own MJCF |
 
@@ -445,6 +445,6 @@ determine the artifact.
 
 ## Next steps
 
-    Push, version, drive, and pull plain envs — layers build on all of it.
+    Push, version, drive, and pull plain scenes — layers build on all of it.
 
-    Every env command and flag.
+    Every scene command and flag.

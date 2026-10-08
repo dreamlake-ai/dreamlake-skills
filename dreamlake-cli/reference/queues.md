@@ -10,7 +10,7 @@ hosted deployment.
    DreamLake namespaces.
 
    ```bash
-   dreamlake env list
+   dreamlake auth env list
    dreamlake profile
    ```
 

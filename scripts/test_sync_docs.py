@@ -115,9 +115,9 @@ class SyncTests(unittest.TestCase):
         for name in sync.SCENE_REFERENCES:
             reference.mkdir(exist_ok=True)
             (reference / f'{name}.md').write_text(
-                f'# {name}\nsee [layers](envs-layers.md#semantics-rules) and [cli](cli.md#envs)\n'
+                f'# {name}\nsee [layers](scenes-layers.md#semantics-rules) and [cli](cli.md#scenes)\n'
             )
-        for route in ('scene-generation', 'libraries', 'envs', 'envs/layers', 'cli'):
+        for route in ('scene-generation', 'libraries', 'scenes', 'scenes/layers', 'cli'):
             page = self.root / 'docs/pages' / route / '+Page.mdx'
             page.parent.mkdir(parents=True, exist_ok=True)
             page.write_text('page')
@@ -132,13 +132,13 @@ class SyncTests(unittest.TestCase):
             'dreamlake-scene-generation/tools/test_scene_tools.py',
             'dreamlake-scene-generation/reference/scene-generation.md',
             'dreamlake-scene-generation/reference/libraries.md',
-            'dreamlake-scene-generation/reference/envs.md',
-            'dreamlake-scene-generation/reference/envs-layers.md',
+            'dreamlake-scene-generation/reference/scenes.md',
+            'dreamlake-scene-generation/reference/scenes-layers.md',
         })
         # bundled reference links stay relative; non-bundled resolve to docs
-        body = outputs['dreamlake-scene-generation/reference/envs.md'].decode()
-        self.assertIn('](envs-layers.md#semantics-rules)', body)
-        self.assertIn('](https://docs.dreamlake.ai/cli#envs)', body)
+        body = outputs['dreamlake-scene-generation/reference/scenes.md'].decode()
+        self.assertIn('](scenes-layers.md#semantics-rules)', body)
+        self.assertIn('](https://docs.dreamlake.ai/cli#scenes)', body)
 
     def test_scene_generation_requires_frontmatter_and_tools(self):
         root = self._scene_snapshot(skill_md='# no frontmatter\n')
@@ -155,13 +155,13 @@ class SyncTests(unittest.TestCase):
 
     def test_scene_generation_missing_reference_is_actionable(self):
         root = self._scene_snapshot()
-        (root / 'skills/dreamlake/reference/envs-layers.md').unlink()
-        with self.assertRaisesRegex(ValueError, 'reference/envs-layers.md'):
+        (root / 'skills/dreamlake/reference/scenes-layers.md').unlink()
+        with self.assertRaisesRegex(ValueError, 'reference/scenes-layers.md'):
             sync.scene_generation_outputs(root)
 
     def test_scene_generation_outputs_roundtrip_through_manifest(self):
         outputs = sync.scene_generation_outputs(self._scene_snapshot())
-        peer = self.root / 'dreamlake-envs/SKILL.md'
+        peer = self.root / 'dreamlake-scenes/SKILL.md'
         peer.parent.mkdir()
         peer.write_text('hand-maintained peer skill')
         sync.synchronize(self.root, outputs, self.sources)

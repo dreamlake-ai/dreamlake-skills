@@ -2,7 +2,7 @@
 
 **Two equally valid routes.** A self-contained **raw MJCF directory**
 (entry XML + every referenced asset) needs no layer engine at all: validate
-and render it with the tools below, then `dreamlake env push` it —
+and render it with the tools below, then `dreamlake scene push` it —
 a complete, supported workflow. The **layer stack** below is the optional
 modular route; what it buys is pinned, versioned components you can move
 with a one-line `Attach` edit, swap, and reuse across scenes. Choose per
@@ -30,7 +30,7 @@ not on `PATH`), use it for the tool commands too:
 `"$DREAMLAKE_PYTHON" tools/scene_validate.py …`.
 
 **Components become layers.** Push the base scene and each reusable prop as
-its own env (`dreamlake env push ./room`, `… ./mug`) so the stack can pin
+its own scene (`dreamlake scene push ./room`, `… ./mug`) so the stack can pin
 versions. Then author `dreamlake.layers.json` (schema
 `dreamlake.env-layers/v3`):
 
@@ -72,24 +72,24 @@ versions. Then author `dreamlake.layers.json` (schema
   specifiers (`xyaxes`/`euler`/`axisangle`/`zaxis`) in opinions. On
   0.23.0, compute the quat, or author the `xyaxes` in the layer's own
   MJCF (that path works) —
-  [layers reference](../reference/envs-layers.md#tag-update--the-meta-component).
+  [layers reference](../reference/scenes-layers.md#tag-update--the-meta-component).
 - Boolean flags (`active`, `castshadow`, body `mocap`) take `true`/`false`;
   on MuJoCo 3.8, 0.23.0 fails coercing them (works on 3.14; fixed in
   0.23.1) — another reason to compose on 3.14.
-- Big opinion sets go in a `Patch` layer (sparse MJCF file or pushed env).
+- Big opinion sets go in a `Patch` layer (sparse MJCF file or pushed scene).
 
 Always name the stack and output explicitly — without `-o` the output
 directory is derived from the stack's `name` (else the stack directory's
 basename):
 
 ```bash
-dreamlake env compose ./dreamlake.layers.json -o ./composed
+dreamlake scene compose ./dreamlake.layers.json -o ./composed
 ```
 
 Registry refs resolve through the hash-verified cache and the embedded
 stack copy is fully pinned (`@v`). Common compose errors — merge name
 collision, strict-match miss on a pre-attach name, unresolved refs, missing
-engine — with remedies: [env layers reference](../reference/envs-layers.md#common-errors).
+engine — with remedies: [scene layers reference](../reference/scenes-layers.md#common-errors).
 
 **Validate the physics** — explicit per-body assertions, no scene-wide
 "stable" verdict (an uncontrolled robot is supposed to move):
@@ -124,4 +124,4 @@ Merge-only stacks keep them. Need an articulated opening pose (servo-held
 arm)? Append your `<keyframe>` block to the **materialized** entry XML
 after compose, re-validate, then push — and re-apply it after every
 recompose (keep the block in a file beside the stack). Which viewer
-versions honor keyframe 0: [envs reference](../reference/envs.md#drive-it).
+versions honor keyframe 0: [scenes reference](../reference/scenes.md#drive-it).
