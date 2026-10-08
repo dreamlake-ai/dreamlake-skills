@@ -184,6 +184,17 @@
         "workflow-generator",
         "video-labeling-workflow"
       ]
+    },
+    "launch-claude-remote": {
+      "maintenance": "standalone",
+      "edit": "launch-claude-remote/",
+      "review_docs": [
+        "https://code.claude.com/docs/en/remote-control",
+        "https://code.claude.com/docs/en/permission-modes"
+      ],
+      "overlaps": [
+        "launch-codex-chat"
+      ]
     }
   }
 }
