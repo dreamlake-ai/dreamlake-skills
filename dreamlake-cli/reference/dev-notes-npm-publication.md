@@ -23,6 +23,14 @@ python3 scripts/verify-npm-publication.py release/0.21.2/npm --wrapper
 
 The release must already have been built with the reviewed source. Temporary downloads are cleaned automatically. This source change does not publish another release.
 
+When the readback window expires, diagnostics list the exact unresolved
+`package@version` identifiers. Packages already verified are omitted from later
+attempts and the final error. Check those submitted versions in the registry
+before deciding how to resume; a missing version after an accepted upload is
+still an unresolved outcome. Keep the reviewed source and original release
+bytes. Do not resubmit uncertain packages, overwrite versioned objects, or move
+the wrapper/native pointers around this gate.
+
 ## 2026-09-15 — guarded publisher outcome evidence
 
 The separate frozen-candidate publisher now distinguishes `create_returned` from
