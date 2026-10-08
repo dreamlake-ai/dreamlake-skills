@@ -1,12 +1,20 @@
 ---
 name: launch-claude-remote
-description: Start Claude with remote access and maximum permissions. Use for "Start Claude", "Start Claude remote", or "Open a Claude session" so the user can continue in their Claude app. Not for cloud tasks or ordinary Claude chats.
+description: Create a new Claude session with remote access and maximum permissions. Use for "Start another Claude session", "Start Claude", or "再开一个 Claude 会话" so the user can continue in their Claude app. Keep existing sessions running. Not for cloud tasks or ordinary Claude chats.
 ---
 
 # Start Claude
 
-The user only needs to say **"Start Claude."** Remote access and maximum
-permissions are the defaults. Honor an explicit request for narrower access.
+Say **"Start another Claude session"** or **"再开一个 Claude 会话"**.
+**"Start Claude"** also means a new session. Remote access and maximum
+permissions are the defaults; existing sessions stay running. Honor an explicit
+request for narrower access. Ask only when the intended app or workspace is
+unclear from context; otherwise use the current workspace.
+
+For each new-session request, choose a fresh title and terminal name. Reuse
+those identifiers only when retrying that same launch, not for a request to
+start another session. A quoted trigger discussed as wording is not a launch
+request by itself.
 
 Create a named Remote Control session using the host's existing Claude login.
 This skill defaults to `bypassPermissions`, as requested by its full-access

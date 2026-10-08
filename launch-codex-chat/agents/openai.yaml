@@ -1,4 +1,4 @@
 interface:
   display_name: "Start Codex"
   short_description: "Start Codex remotely with maximum permissions"
-  default_prompt: "Use $launch-codex-chat to start Codex."
+  default_prompt: "Use $launch-codex-chat to start another Codex session."
