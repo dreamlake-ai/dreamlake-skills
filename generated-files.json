@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "4cbca38be0f09de4639663935ea0d61c0b313aabb639f08c05a5f5bc3053b49c",
+  "sourcesSha256": "33c4667719ec7f827b24b2cf7b0492a736e3ff5f292cb528297194b0b5432bd8",
   "files": {
     "dreamlake-cli/SKILL.md": "4a08c479b7d56b5b7b89153f0c5e8ac7aa629e91b2e56eb6ed8dbc5334b17018",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -62,9 +62,9 @@
     "dreamlake-notes/actions/edit.md": "b79f8fa6488b31ab4e13cb2b8774bbca0e3471e66731d641cf695c3c70bb2450",
     "dreamlake-notes/actions/identity.md": "a642257851acea7aa4282cb0ea10dc1fa23b1dc08477c966cfa8ba901605f99c",
     "dreamlake-notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
-    "dreamlake-notes/actions/move.md": "d0c923f09e5ff32f4c37f4e2800d364bf31dafaffe96df83bcdfd4cfadfd9223",
+    "dreamlake-notes/actions/move.md": "25b283100db7c3764254b2a874ffbd457355a8bfc105714b44d0c3bc9e07b4a1",
     "dreamlake-notes/actions/read.md": "a7ff9f74d1ba57bffb75a30ea3949b2cbdb4a7f5689efd3ed854ded4532ab354",
-    "dreamlake-notes/actions/summary.md": "acceb52ab3fa31d2bb4a02c047b3d0fbf464f379bef5b58ec8bb8c88136d08ba",
+    "dreamlake-notes/actions/summary.md": "0a333d93cc104e8551db247f81ebe0fb0d42ae13489be9c32bbdfff3bf6aaec2",
     "dreamlake-notes/actions/versions.md": "dce3a056c2e8ef2c8d00721cf1330347c48c2da38926f973bd138b49aae8361b",
     "dreamlake-notes/actions/watch.md": "7561b57961bdc057ebbef89fdf12367e72d50d82a3ca3678e757a313a6de3f5f",
     "dreamlake-notes/reference/notes-attachments.md": "70455a21143b022917cd68610d366491d79abca48fd802be895a975f754cc381",
@@ -76,7 +76,7 @@
     "dreamlake-notes/reference/notes-markdown.md": "611ca5ff43c4782b6f9decd939b17265772a62e23c570ce8fe2b336387a22f2f",
     "dreamlake-notes/reference/notes-panels.md": "cadf9c45d0691854ff6bf0ffa510230f9cf32ab0d690cfe67d3c2d7bae714d7e",
     "dreamlake-notes/reference/notes-reading.md": "2110d7f54b597da8001af42a5fd83d4990ae1605423dbb904c276af830e85747",
-    "dreamlake-notes/reference/notes.md": "bf309557e4962f7db3ffb3975644d1b063bd09f33ede1077418f7587a5205fdf",
+    "dreamlake-notes/reference/notes.md": "679737d1449d548a7537bd181e5e2823b3a40056e520984ce93e8cacec6f4d24",
     "dreamlake-scene-generation/SKILL.md": "193a6f1a21c0e006c1f692547015aa4296a192f8804ecf0a0d1eaacd0cb5b7d9",
     "dreamlake-scene-generation/actions/compose-and-validate.md": "7030ab987d9f6f26ae686ffef727d4fc492678b4457f15c620e1a1427ab12ee7",
     "dreamlake-scene-generation/actions/design-and-inspect.md": "4514fc88814b55c3c288480dcccffe628f86c07bb3a1e377504044e558e94ad4",

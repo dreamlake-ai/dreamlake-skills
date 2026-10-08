@@ -139,46 +139,89 @@ preservation behavior and retains the last-project guard. Use the separate
 
 ### Moving between workspaces (development preview)
 
-The **Move note…** action lets a personal workspace owner move a note into an
-organization they belong to and select writable destination projects. The
-destination picker uses the same workspace scope control as the projects browser:
-click the `@workspace` prefix or press Backspace in an empty search to choose a
-workspace. Browsing also offers **All workspaces**; moving requires one concrete
-destination. Escape restores the previous scope and query.
+**Cross-workspace ownership transfers are currently unavailable.** The
+**Move note…** preview can inspect a destination, but an unavailable result
+must not be presented as a completed move. Writer, storage, destination-owner
+acceptance and collaboration-revocation gates must all be satisfied before the
+server can enable execution. Copying and deleting a Note is not a transfer.
 
-Review the access preview before confirming. Organization members can read and
-edit the moved note; filing it in selected projects does not make it team-private.
-The move keeps its ID, author, content, history, comments, attachments, visibility,
-and existing sharing. Previous project associations are replaced by the selected
-destination projects. Within the same workspace, selected projects are added
-without removing existing associations.
+The workspace picker and selected projects describe the intended destination.
+Click the `@workspace` prefix or press Backspace in an empty search to choose a
+workspace. Browsing also offers **All workspaces**; a move preview requires one
+concrete destination. Escape restores the previous scope and query.
+Organization members retain their existing read/edit baseline for organization
+Notes; filing a Note in a project does not make it team-private. No preview
+grants destination access or changes the original Note.
 
-For the CLI, first check that the installed build exposes `notes move --help`.
-This requires the matching server endpoint and is not available in CLI 0.44.2 or
-earlier:
+For the CLI, check `dreamlake notes move --help`. CLI 0.44.3 and earlier do not
+include this command; a matching server endpoint is also required:
 
 ```bash
+# Inspect an organization destination; currently blocked, with exit status 3.
 dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research --dry-run
-dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research
+# Preview an additive filing in the Note's current workspace.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research --dry-run
+# Apply only an executable same-workspace preview authorized by the user.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research
 ```
 
-The note ID resolves its current owner; `--namespace` can assert the source.
-Repeat `--project` for multiple projects, or omit it to move without filing.
+Use the source workspace owner's login. Same-workspace filing requires write
+access to every requested project and preserves existing project associations,
+Note identity, author, content, history, comments, attachments, visibility and
+shares. Repeat `--project` for more destinations in that same workspace.
+
+A full Note ID resolves its current owner. `--namespace` optionally asserts the
+source and supplies the scope for slug/title lookup. The existing
 `POST /namespaces/:slug/notes/:noteId/move` accepts
-`{namespace: destinationSlug, projects?: string[], dryRun?: boolean}`. Dry runs
-validate without mutation; actual moves recheck authorization and conflicts.
-Metadata, attachment ownership, stored sharing references and project mounts
-change atomically. A conflict leaves the original intact.
+`{namespace: destinationSlug, projects?: string[], dryRun?: boolean}`. A blocked
+preview reports `executable: false` with blockers; applying a cross-workspace
+move returns `409 NOTE_TRANSFER_UNAVAILABLE` without mutation.
 
-If the destination already has a note with the same URL slug, the move chooses a
-free suffixed slug and reports it in the preview. The stable note ID is unchanged.
-ID-based links resolve the current owner; namespace/slug-only bookmarks may need
-updating after a move.
+Dry runs reserve nothing. Actual same-workspace filing rechecks current authority,
+leases and conflicts. After an uncertain network result, resolve the stable Note
+ID and inspect its project associations before retrying. Do not change namespace
+IDs, clear ownership leases or use a generic tree move to bypass a blocked move.
 
-Moving organization-owned notes out requires an org owner. Activated organization
-notes cannot currently be transferred across workspaces because previous
-collaboration-room access cannot yet be revoked safely. After an uncertain
-network result, resolve the stable note ID before deciding whether to retry.
+### Metadata permissions and concurrent writes
+
+The namespace owner, or the Note's creator who is still a current member of its
+namespace, may change its title, summary, visibility and sharing. Authorship alone
+after leaving an organization is insufficient. Body-edit access and project WRITE
+do not grant these metadata-management rights. This also applies to renaming a
+mounted Note through the project tree. Organization baseline body access and
+accepted write-share editing remain unchanged.
+
+The following ownership checks are a **server source candidate until its API
+release is verified**. Metadata and sharing mutations, comment creation/edits,
+and share-acceptance record writes recheck authority in their database transaction
+and refuse occupied ownership leases. A title change updates mounted titles in
+the same transaction. These checks preserve IDs and history; they do not enable
+cross-workspace transfer or prove storage/RTC revocation.
+
+For those mutations, a `409 WRITER_FENCE_REQUIRED` or `409 STALE_EPOCH` means the
+write did not commit through that transaction. Refresh ownership status and retry
+the same intent only after it is writable. Explicit mutation routes return the
+code in `error`; a read that also refreshes a share-acceptance record can return
+`error: "Conflict"` with the ownership code in `message`. A fresh accepted-share
+read that needs no record update can still succeed while a lease is busy.
+`409 OPERATION_CONFLICT` means bounded transaction retries were exhausted:
+refresh, then retry with bounded backoff.
+A `403 LOST_AUTHORITY` requires refreshing login/access and regaining the required
+permission; do not repeatedly submit the write. Existing forbidden/not-found
+responses remain possible. A comment's `409 comment_changed` still requires
+keeping the draft and reconciling the latest comment revision.
+
+Generic tree moves that would carry a Note across project roots or to an unfiled
+root return `409 NOTE_FILING_RECONCILIATION_REQUIRED` until the server can reconcile
+its project association and Bindr tags atomically. The original filing remains
+intact. Use the supported additive same-workspace filing flow when that is the
+intended operation; it does not remove the original association. Same-project
+tree moves remain supported.
+
+These database checks do not certify all Note writers. Deletion's final database
+phase is fenced, but its preceding RTC/storage effects are not durably excluded
+by that transaction. Activation, body sync, files/uploads, saved versions, media
+and issued capabilities still require separate transfer-readiness evidence.
 
 ### Matching passages
 
@@ -417,9 +460,9 @@ from a file is used as-is; multiline text is allowed. `--text`, `--file`, and
 note. Reads and writes can use `--json`; a summary read returns `{note,
 summary}`, while a mutation returns the updated Note metadata.
 
-The owner of the namespace or the note's creator can set or clear a summary,
-the same as for a title or visibility change. Other users with body-edit access
-cannot change it. For the REST API, `POST /namespaces/:slug/notes` accepts an
+The owner of the namespace or the Note's creator who is still a current member
+of that namespace can set or clear a summary, the same as for a title or
+visibility change. Other users with body-edit access cannot change it. For the REST API, `POST /namespaces/:slug/notes` accepts an
 optional `summary`; `PATCH /namespaces/:slug/notes/:noteId` accepts a string to
 set it or `null` to clear it. Omitting the field from PATCH preserves the
 existing summary. `GET /notes/:noteId` and catalog list responses return the
@@ -2592,7 +2635,9 @@ Visibility and sharing are independent. Making a resource private does not
 revoke links or accepted access. Revoking a link does not make a public resource
 private. Use `--namespace <slug>` for another namespace.
 
-Only the namespace owner or an eligible Note creator may manage sharing.
+Only the namespace owner or the Note creator who is still a current namespace
+member may manage sharing. A departed creator or a body-only editor cannot
+manage these grants.
 `create --role write` enables editing; the default is `read`. Updating the role
 reuses the token and changes the role evaluated on subsequent requests for
 everyone admitted through the link. Note IDs resolve their owning namespace automatically.
