@@ -40,6 +40,24 @@ JSON receipts and uncertain-result recovery.
 
 CLI 0.44.2 removes the old `notes version` command group; use the forms above.
 
+For an older retained snapshot missing from history, follow
+[recover a retained snapshot](https://docs.dreamlake.ai/notes#recover-a-retained-snapshot).
+First preserve a full source baseline (exact bytes, revision and content hash)
+for the same stable Note ID and namespace, and preserve the old source with its
+provenance separately. REST hashes use raw SHA-256 digests, not the opaque
+revision or the CLI's `sha256:` prefix. `tag` saves current content only: historical
+revision saves and checkpoint/journal reads require the documented REST fallback.
+Keep `hist` and version readback CLI-first when installed help supports them.
+Check CLI and server capabilities independently; an older server's unsupported
+route or `409` is not empty history and must not lead to a live-body overwrite.
+An unknown create result requires paginating `hist` via `nextCursor`/`--before`
+and reading candidate versions by ID to compare exact text, hash and operation
+metadata before retrying. Tags are not idempotency keys; stop if the outcome
+remains ambiguous. Verify the saved version's exact revision, text, hash and
+`sourceObservedAt`, plus the unchanged live baseline. Older servers may ignore
+`revision`; HTTP 201 or a matching hash alone is not proof of recovery.
+See [saved versions](../reference/notes-versions.md#recover-a-retained-snapshot).
+
 For project filing and ownership-transfer previews, check `dreamlake notes move
 --help` first: this command requires CLI 0.45.1; it is absent in CLI 0.45.0 and
 earlier. Preview with `notes move NOTE_ID --to-namespace WORKSPACE --project

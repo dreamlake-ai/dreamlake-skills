@@ -3,18 +3,19 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "2f1f946b020c00549615fa56e20b865130f6b82e",
+      "commit": "d8c76d157cba8aebd9b46826124f85d1a5e989e6",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
-        "docs/skill-guides/notes/SKILL.md": "74c58accfe083d21a418addd872c28fdacf3c009ce6043ed6e907b118c573b39",
+        "docs/skill-guides/notes/SKILL.md": "71503883dfda54a4b42d346e282d12cf2ceeb9bfd15d8185a4cee3894e2a7305",
         "docs/skill-guides/notes/actions/attachments.md": "e8b65126dd4f4c4c25fe8b9a6a768296e583b5047034a74c2be4880775ba5fa0",
         "docs/skill-guides/notes/actions/create.md": "ecbd9f7b697cb59f6986b9ac770ba24140452abcd179b1a14dbc802a76361b82",
         "docs/skill-guides/notes/actions/edit.md": "b79f8fa6488b31ab4e13cb2b8774bbca0e3471e66731d641cf695c3c70bb2450",
         "docs/skill-guides/notes/actions/identity.md": "a642257851acea7aa4282cb0ea10dc1fa23b1dc08477c966cfa8ba901605f99c",
         "docs/skill-guides/notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
         "docs/skill-guides/notes/actions/move.md": "d0c923f09e5ff32f4c37f4e2800d364bf31dafaffe96df83bcdfd4cfadfd9223",
-        "docs/skill-guides/notes/actions/read.md": "b4c355a85f214c0857a971a914a2c8efe21d675a2b6dc942165fc01948611002",
+        "docs/skill-guides/notes/actions/read.md": "a7ff9f74d1ba57bffb75a30ea3949b2cbdb4a7f5689efd3ed854ded4532ab354",
         "docs/skill-guides/notes/actions/summary.md": "acceb52ab3fa31d2bb4a02c047b3d0fbf464f379bef5b58ec8bb8c88136d08ba",
+        "docs/skill-guides/notes/actions/versions.md": "dce3a056c2e8ef2c8d00721cf1330347c48c2da38926f973bd138b49aae8361b",
         "docs/skill-guides/notes/actions/watch.md": "7561b57961bdc057ebbef89fdf12367e72d50d82a3ca3678e757a313a6de3f5f",
         "docs/skill-guides/scene-generation/SKILL.md": "193a6f1a21c0e006c1f692547015aa4296a192f8804ecf0a0d1eaacd0cb5b7d9",
         "docs/skill-guides/scene-generation/actions/compose-and-validate.md": "7030ab987d9f6f26ae686ffef727d4fc492678b4457f15c620e1a1427ab12ee7",
@@ -29,7 +30,7 @@
       },
       "docsPages": "docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "23362ce4c9b0106cd3f6b8109764e13fbf83ed2028ca145457d4e2e814fd75c3",
+      "pageSha256": "dcfed4d711dc352ea424716d4ed543e0c65b28aaa83b73a1d303e866edf867e3",
       "childPages": {
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
@@ -45,7 +46,7 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "e68a740a15c2eac497dbbc54a2e1e1cf4705537e",
+      "commit": "b5bcecd2855d2b0c0559ea6fdb74c304d2f158e8",
       "generatorSha256": "fbeb216d7f0fdfc9cf1cbfa1ee7871d3a7c57a244fe6ace0d0ea0270ccf83a18",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "4a08c479b7d56b5b7b89153f0c5e8ac7aa629e91b2e56eb6ed8dbc5334b17018",
@@ -53,7 +54,7 @@
         "docs/skill-guides/cli/actions/cloud-vault.md": "436f5eb044b12fa5fc1c32189d7f09d3eb38a3466ca3598a9bc5e64c3fdf8bc5",
         "docs/skill-guides/cli/actions/data.md": "a61da3e333b2e7894650d2ea941e56807ef0f7bfe8cabf10d20527a3dcef63e3",
         "docs/skill-guides/cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
-        "docs/skill-guides/cli/actions/notes.md": "5f223ba652f46356819b90b63f2c32addfe039ca3d6c6951b3f4c5629e7723b8",
+        "docs/skill-guides/cli/actions/notes.md": "3b69d9fa156a7efe664841beb133261655c7e65cd38c0faec997ccfbd7afd18c",
         "docs/skill-guides/cli/actions/setup.md": "94ccc6976ed37190c35480a729544850fbdf072cb229a0440e82f9dbabb49909",
         "docs/skill-guides/cli/actions/workflows.md": "570a51f04fdb7cf0e5317b959fa67ac352eefaabc6beb5f00867db6cc51e3a7e"
       },
