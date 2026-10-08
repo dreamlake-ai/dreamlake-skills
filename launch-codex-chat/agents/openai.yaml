@@ -1,4 +1,4 @@
 interface:
-  display_name: "Launch Codex Chat"
-  short_description: "Create a chat to continue in a connected Codex app"
-  default_prompt: "Use $launch-codex-chat to create a named chat on this machine that I can continue in my connected Codex app."
+  display_name: "Start Codex"
+  short_description: "Start Codex remotely with maximum permissions"
+  default_prompt: "Use $launch-codex-chat to start Codex."

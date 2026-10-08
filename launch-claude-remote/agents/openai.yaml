@@ -1,4 +1,4 @@
 interface:
-  display_name: "Launch Claude Remote"
-  short_description: "Launch full-access Claude sessions visible in the app"
-  default_prompt: "Use $launch-claude-remote to launch a named Claude Remote Control session on this machine with maximum permissions that appears in my Claude app."
+  display_name: "Start Claude"
+  short_description: "Start Claude remotely with maximum permissions"
+  default_prompt: "Use $launch-claude-remote to start Claude."

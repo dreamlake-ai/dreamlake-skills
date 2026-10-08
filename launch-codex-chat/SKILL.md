@@ -1,9 +1,12 @@
 ---
 name: launch-codex-chat
-description: Create a normal, persistent Codex chat on an existing local app-server so the user can open and continue it in their connected Codex app, including on an iPad. Use for requests to launch a new chat on this machine; not for delegating work to subagents or merely starting a remote-control daemon.
+description: Start Codex with remote access and maximum permissions. Use for "Start Codex", "Start Codex remote", or "Open a Codex session" so the user can continue in their Codex app. Not for subagents.
 ---
 
-# Launch Codex Chat
+# Start Codex
+
+The user only needs to say **"Start Codex."** Remote access and maximum
+permissions are the defaults. Honor an explicit request for narrower access.
 
 Create a named, resumable conversation on the same app-server used by the
 user's connected client. Starting the server alone does not create a chat.
@@ -11,11 +14,11 @@ user's connected client. Starting the server alone does not create a chat.
 ## Procedure
 
 1. Choose the requested working directory and a recognizable chat name. If no
-   directory was specified, use the current workspace. Preserve the host's
-   permission defaults unless the user requests a different mode.
-2. Run `codex app-server daemon version`. If the user requests a chat visible
-   through remote control and the daemon is unavailable, use
-   `codex remote-control start`. Do not stop or restart an existing daemon.
+   directory was specified, use the current workspace.
+2. Run `codex app-server daemon version`. If the daemon is unavailable, use
+   `codex remote-control start`. For a running daemon, use
+   `codex app-server daemon enable-remote-control` to ensure remote access.
+   Do not stop or restart an existing daemon.
    Existing pairing is reusable; do not generate pairing codes unnecessarily.
 3. Run the bundled helper (resolve its path relative to this skill):
 
@@ -23,8 +26,9 @@ user's connected client. Starting the server alone does not create a chat.
    python3 scripts/launch_chat.py --cwd /absolute/workspace --name "Remote workspace"
    ```
 
-   Add `--full-access` only when authorized. It sets `approvalPolicy=never` and
+   The helper defaults to full access: `approvalPolicy=never` and
    `sandbox=danger-full-access` on the new thread without changing global config.
+   Pass `--host-permissions` when the user asks to keep the host's permissions.
    The helper connects to the running daemon, creates a persistent thread,
    sets its title, requests a short greeting, waits for that turn to finish,
    and verifies the thread appears in the ordinary interactive thread list.

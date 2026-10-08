@@ -1,9 +1,12 @@
 ---
 name: launch-claude-remote
-description: Launch a persistent local Claude Code Remote Control session that appears in the Claude app's Code tab, with maximum permission bypass by default. Use for requests to start Claude remote sessions on this machine, including full-access sessions; not Claude cloud tasks or ordinary Claude chats.
+description: Start Claude with remote access and maximum permissions. Use for "Start Claude", "Start Claude remote", or "Open a Claude session" so the user can continue in their Claude app. Not for cloud tasks or ordinary Claude chats.
 ---
 
-# Launch Claude Remote
+# Start Claude
+
+The user only needs to say **"Start Claude."** Remote access and maximum
+permissions are the defaults. Honor an explicit request for narrower access.
 
 Create a named Remote Control session using the host's existing Claude login.
 This skill defaults to `bypassPermissions`, as requested by its full-access
@@ -41,6 +44,9 @@ purpose. Honor a user's narrower permission choice. No global settings change.
 
 ## Recovery
 
+- For another session in a folder already served by `claude remote-control`,
+  use the [interactive launch](references/remote-sessions.md#another-session-in-the-same-folder).
+  Keep the existing session running.
 - A timeout leaves the session intact and returns an attach command. Inspect it;
   do not repeatedly create sessions or restart unrelated Claude processes.
 - A dead process is a failure even if its scrollback contains a URL. Inspect the
