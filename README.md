@@ -17,7 +17,8 @@ snapshot, not every skill in this repository.
 | [`sim-to-mcap`](./sim-to-mcap/SKILL.md) | Turn a trained policy + physics sim (MuJoCo/mjlab/Isaac) into a DreamLake-ready MCAP — roll out and emit Foxglove `/tf` (poses), `/robot` (meshes), `/metrics` (scalars). The upstream half of "training result → visualized" |
 | [`dreamlake-source`](./dreamlake-source/SKILL.md) | Get a robot dataset into a DreamLake source — link third-party storage (S3/HF/Dropbox), or upload the bytes so it can be linked; layout rules, listing manifests, verification |
 | [`dreamlake-dataset-viz`](./dreamlake-dataset-viz/SKILL.md) | Visualize a DreamLake source by authoring its `.dreamrc` (LeRobot/zarr/MCAP/folders) — format matching, view bindings, the validate-and-iterate loop |
-| [`dreamlake-envs`](./dreamlake-envs/SKILL.md) | Push a MuJoCo scene or URDF robot as a versioned env — extract a self-contained directory from a repo, verify it compiles, push it, get an interactive 3D viewer page — or compose a layered env from a `dreamlake.layers.json` stack (Merge / Attach / Update / Remove / Patch) |
+| [`dreamlake-scenes`](./dreamlake-scenes/SKILL.md) | Push a MuJoCo scene or URDF robot as a versioned scene — extract a self-contained directory from a repo, verify it compiles, push it, get an interactive 3D viewer page — or compose a layered scene from a `dreamlake.layers.json` stack (Merge / Attach / Update / Remove / Patch) |
+| [`dreamlake-envs`](./dreamlake-envs/SKILL.md) | Deprecated compatibility entrypoint for the previous skill name; directs existing users to `dreamlake-scenes` |
 | [`dreamlake-libraries`](./dreamlake-libraries/SKILL.md) | Publish, search, inspect, and download reusable asset libraries |
 | [`launch-claude-remote`](./launch-claude-remote/SKILL.md) | Say **"Start Claude."** Remote access and maximum permissions are included. [Details](./launch-claude-remote/references/remote-sessions.md) |
 | [`launch-codex-chat`](./launch-codex-chat/SKILL.md) | Say **"Start Codex."** Remote access and maximum permissions are included. [Details](./launch-codex-chat/references/launching-chats.md) |
@@ -25,7 +26,7 @@ snapshot, not every skill in this repository.
 | [`dreamlake-artifact-authoring`](./dreamlake-artifact-authoring/SKILL.md) | Write the artifact *content* so it renders in DreamLake's sandboxed frame — self-containedness, per-kind templates, design quality. Pairs with `dreamlake-artifacts` |
 | [`dreamlake-notes`](./dreamlake-notes/SKILL.md) | The whole notes surface — create and list, read a section or a line range, replace text by name rather than line number, grep across every note for where a phrase is, attach files and get a link that renders them |
 | [`dreamlake-cli`](./dreamlake-cli/SKILL.md) | The whole `dreamlake` CLI reference, generated from its docs. Native and npm releases also bundle this skill; install their matching copy with `dreamlake skill install dreamlake-cli` |
-| [`dreamlake-scene-generation`](./dreamlake-scene-generation/SKILL.md) | Build and edit MuJoCo scenes with internet models, user files, procedural MJCF or optional DreamLake libraries: measure and place models, validate physics, render previews, publish and reuse versioned envs. [Install and use guide](https://docs.dreamlake.ai/scene-generation/quickstart) |
+| [`dreamlake-scene-generation`](./dreamlake-scene-generation/SKILL.md) | Build and edit MuJoCo scenes with internet models, user files, procedural MJCF or optional DreamLake libraries: measure and place models, validate physics, render previews, publish and reuse versioned scenes. [Install and use guide](https://docs.dreamlake.ai/scene-generation/quickstart) |
 | [`dreamlake-annotations`](./dreamlake-annotations/SKILL.md) | Upload annotated robot-training episodes (video + joints + subtasks, multi-camera) to a DreamLake annotation with the Python SDK, revise them, and search |
 | [`workflow-generator`](./workflow-generator/SKILL.md) | Generate DreamLake WorkflowSpec v1 JSON (stages, compute/agent/sampler/control nodes, typed edges) from a natural-language goal, then validate + push via `dreamlake workflow push` (CLI ≥ 0.5.0) |
 | [`video-labeling-workflow`](./video-labeling-workflow/SKILL.md) | Create and publish a video subtask-labeling workflow — segment a manipulation video into subtasks, estimate hand pose, score against reference annotations, publish a dataset |
@@ -181,7 +182,7 @@ surfaces:
 |---|---|
 | `dreamlake-notes/SKILL.md`, `actions/*`, selected references | `dreamlake-workspace/docs/skill-guides/notes/` plus generated Notes docs |
 | `dreamlake-cli/**` | `dreamlake-cli/docs/pages/**/+Page.mdx` and its docs generator |
-| `dreamlake-scene-generation/**` | `dreamlake-workspace/docs/skill-guides/scene-generation/` (router, actions, tools) plus the generated scene-generation/libraries/envs/envs-layers references |
+| `dreamlake-scene-generation/**` | `dreamlake-workspace/docs/skill-guides/scene-generation/` (router, actions, tools) plus the generated scene-generation/libraries/scenes/scenes-layers references |
 
 Task routing is maintained separately from product facts: Notes uses
 `dreamlake-workspace/docs/skill-guides/notes/`, CLI uses

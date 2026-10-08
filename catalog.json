@@ -43,7 +43,7 @@
       "overlaps": [
         "dreamlake-artifacts",
         "dreamlake-notes",
-        "dreamlake-envs",
+        "dreamlake-scenes",
         "dreamlake-libraries",
         "dreamlake-source",
         "workflow-publish"
@@ -60,11 +60,11 @@
         "sim-to-mcap"
       ]
     },
-    "dreamlake-envs": {
+    "dreamlake-scenes": {
       "maintenance": "manual-product",
-      "edit": "dreamlake-envs/",
+      "edit": "dreamlake-scenes/",
       "review_docs": [
-        "https://docs.dreamlake.ai/envs/"
+        "https://docs.dreamlake.ai/scenes/"
       ],
       "overlaps": [
         "dreamlake-cli",
@@ -104,7 +104,7 @@
       "edit": "https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/scene-generation",
       "review_docs": [],
       "overlaps": [
-        "dreamlake-envs",
+        "dreamlake-scenes",
         "dreamlake-libraries"
       ]
     },
@@ -194,6 +194,16 @@
       ],
       "overlaps": [
         "launch-codex-chat"
+      ]
+    },
+    "dreamlake-envs": {
+      "maintenance": "manual-product",
+      "edit": "dreamlake-envs/",
+      "review_docs": [
+        "https://docs.dreamlake.ai/scenes/"
+      ],
+      "overlaps": [
+        "dreamlake-scenes"
       ]
     }
   }

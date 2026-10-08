@@ -17,6 +17,7 @@ with `dreamlake notes list` to identify it. A media upload alone needs no note:
 - [Create a note](actions/create.md) for a new collaborative document.
 - [Read or update its summary](actions/summary.md) for short catalog metadata
   separate from the collaborative body.
+- [Move a note](actions/move.md) for an authorized workspace ownership transfer.
 
 Use the bundled [Notes reference](reference/notes.md) for full behavior. Python
 examples are included for explicit SDK integration; this skill routes normal

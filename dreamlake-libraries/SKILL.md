@@ -12,8 +12,8 @@ Search returns individual assets; a pull fetches exactly one asset's files
 search always sees the latest push, and an asset that matters to a scene
 gets pulled and vendored into that scene.
 
-Libraries hold *ingredients*; a runnable scene is an **env**
-(`dreamlake-envs` skill); recordings are a **source** (`dreamlake-source`).
+Libraries hold *ingredients*; a versioned world is a **Scene**
+(`dreamlake-scenes` skill); recordings are a **source** (`dreamlake-source`).
 Guide: https://docs.dreamlake.ai/libraries/
 
 ## Your directory is the format
@@ -232,7 +232,7 @@ library cost one small catalog request and no manifest download.
 
 ## In the app
 
-The Envs page (`/<ns>/envs`) has an `Environments | Libraries` segment
+The Scenes page (`/<ns>/scenes`) has a `Scenes | Libraries` segment
 (`?tab=libraries`); `/<ns>/libraries` redirects there, and `/libraries` is
 the global search page (select libraries → search → asset cards). A
 library card opens `/<ns>/libraries/<name>`, and an asset opens as a panel

@@ -1,19 +1,19 @@
-# Push An Environment
+# Push a Scene
 
-Only use this after the staged directory has passed dependency checks and the user requested a push. Check `dreamlake env push --help` when flags or target defaults are uncertain.
+Only use this after the staged directory has passed dependency checks and the user requested a push. Check `dreamlake scene push --help` when flags or target defaults are uncertain.
 
 ## 2. Push
 
 ```bash
-dreamlake env push /tmp/envs/my-scene                 # entry auto-detected; prints an open link
-dreamlake env push <dir> --namespace <org>            # into an org instead of your personal namespace
-dreamlake env push <dir> --title "…" --description "…"
-dreamlake env create <dir>                            # push that FAILS if the name already exists
+dreamlake scene push /tmp/scenes/my-scene                 # entry auto-detected; prints an open link
+dreamlake scene push <dir> --namespace <org>            # into an org instead of your personal namespace
+dreamlake scene push <dir> --title "…" --description "…"
+dreamlake scene create <dir>                            # push that FAILS if the name already exists
 ```
 
 | Flag | What it does |
 |---|---|
-| `--name` | env name (default: slug of the directory name) |
+| `--name` | scene name (default: slug of the directory name) |
 | `--entry scene.mjcf` | pick the entry when several root-level candidates qualify |
 | `--type isaaclab` | simulator family — stored and pullable; `mujoco` and `urdf` have viewers |
 | `--namespace <slug>` | target namespace/org (default: active login) |
@@ -32,7 +32,7 @@ completed uploads are reused and only the remainder transfers.
 
 ## 2b. Author the thumbnail into the scene (recommended)
 
-The env grid's cover image is rendered automatically on the first member
+The scene grid's cover image is rendered automatically on the first member
 visit — fixed 16:10, transparent background, at the t=0 keyframe pose. The
 **camera angle comes from the MJCF itself**, so a scene pushed with framing
 authored in gets a good cover with no image file involved. Priority order:
@@ -84,6 +84,6 @@ as `qpos0`/a keyframe, not rely on the sim running.
 Overrides, when authoring can't produce the wanted shot: the camera button
 in the web viewer toolbar saves the member's current view as the cover (the
 angle is remembered and re-used for later versions), and
-`env push --thumbnail cover.png` uploads a ready-made PNG (≤ 512 KiB; works
+`scene push --thumbnail cover.png` uploads a ready-made PNG (≤ 512 KiB; works
 on a no-change push as a thumbnail-only update). Both are marked *manual*
 and won't be auto-overwritten for that version.
