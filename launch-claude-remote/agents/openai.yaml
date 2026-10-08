@@ -1,4 +1,4 @@
 interface:
   display_name: "Start Claude"
   short_description: "Start Claude remotely with maximum permissions"
-  default_prompt: "Use $launch-claude-remote to start Claude."
+  default_prompt: "Use $launch-claude-remote to start another Claude session."

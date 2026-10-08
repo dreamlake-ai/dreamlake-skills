@@ -1,12 +1,19 @@
 ---
 name: launch-codex-chat
-description: Start Codex with remote access and maximum permissions. Use for "Start Codex", "Start Codex remote", or "Open a Codex session" so the user can continue in their Codex app. Not for subagents.
+description: Create a new Codex session with remote access and maximum permissions. Use for "Start another Codex session", "Start Codex", or "再开一个 Codex 会话" so the user can continue in their Codex app. Keep existing sessions running. Not for subagents.
 ---
 
 # Start Codex
 
-The user only needs to say **"Start Codex."** Remote access and maximum
-permissions are the defaults. Honor an explicit request for narrower access.
+Say **"Start another Codex session"** or **"再开一个 Codex 会话"**.
+**"Start Codex"** also means a new session. Remote access and maximum
+permissions are the defaults; existing sessions stay running. Honor an explicit
+request for narrower access. Ask only when the intended app or workspace is
+unclear from context; otherwise use the current workspace.
+
+Give each new session a distinct title. If its launch fails after creating a
+thread, inspect that thread before retrying; do not accidentally create another.
+A quoted trigger discussed as wording is not a launch request by itself.
 
 Create a named, resumable conversation on the same app-server used by the
 user's connected client. Starting the server alone does not create a chat.
