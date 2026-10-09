@@ -10,6 +10,17 @@ For current-draft checkpoints, lists and saved text, use the installed CLI:
 See [CLI version operations](../reference/notes.md#use-the-cli-for-saved-versions).
 An empty saved-version list does not establish whether autosaved history remains.
 
+**Release status — October 9, 2026:** catalog readers have not passed production
+runtime acceptance and named-version catalog writes remain disabled. Existing
+CLI/retained-recovery commands below retain their current workflow; candidate
+publication guarantees are not live merely because their source or docs exist.
+Never send a save POST to probe `Idempotency-Key` support: an older API may ignore
+the header and create an ordinary version. The 503 refusal applies only after a
+verified catalog-reader release while its writer is disabled. Use keyed saves or
+keyed retries only after the matching writer release is separately verified,
+with the same server, Note, account and exact original request. Do not resend an
+acknowledged body edit to recover a failed version save.
+
 For an old retained draft that was never tagged, follow the executable
 [retained snapshot recovery workflow](../reference/notes.md#recover-a-retained-snapshot).
 It reviews the full source using `--view source --at REVISION --json`, validates
