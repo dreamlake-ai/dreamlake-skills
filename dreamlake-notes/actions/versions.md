@@ -10,17 +10,28 @@ For current-draft checkpoints, lists and saved text, use the installed CLI:
 See [CLI version operations](../reference/notes.md#use-the-cli-for-saved-versions).
 An empty saved-version list does not establish whether autosaved history remains.
 
-**Release status — October 9, 2026:** the serving fleet includes verified catalog
-readers; named-version catalog writes remain disabled. The separate immutable
-attachment-upload release does not enable version publication. Existing
-CLI/retained-recovery commands below retain their current workflow; publication
-guarantees require their own verified writer release.
+**Release status — October 9, 2026:** the verified API release includes catalog
+readers and the publication catalog as the default for new saves. Existing
+CLI/retained-recovery commands, IDs and history are unchanged. Strict runtime
+verification and read-only metadata/header checks do not establish live
+version-writing acceptance; no production save was performed for this release.
 Never send a save POST to probe `Idempotency-Key` support: an older API may ignore
 the header and create an ordinary version. The 503 refusal applies only after a
 verified catalog-reader release while its writer is disabled. Use keyed saves or
 keyed retries only after the matching writer release is separately verified,
 with the same server, Note, account and exact original request. Do not resend an
 acknowledged body edit to recover a failed version save.
+
+On that verified catalog-writer release, an API save with an original
+`Idempotency-Key` may be reconciled only with the identical request, same key,
+server, Note and account. The server returns `503 version_save_unconfirmed`
+when a transport/database error leaves reconciliation uncertain; preserve the
+request rather than generating a new key or resending the body edit. An active
+executor returns `409 RECOVERY_IN_PROGRESS`; changed input with the same key
+returns `409 IDEMPOTENCY_CONFLICT`. On `409 PUBLICATION_ABORTED`, inspect history
+before deliberately starting a new save with a new key. Current edit authority is
+still required. The existing CLI commands do not supply this key; for an unkeyed
+or otherwise uncertain save, use the history reconciliation below.
 
 For an old retained draft that was never tagged, follow the executable
 [retained snapshot recovery workflow](../reference/notes.md#recover-a-retained-snapshot).

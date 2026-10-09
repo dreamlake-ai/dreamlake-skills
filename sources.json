@@ -3,11 +3,11 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "c0aad9584383aa1dd8b602b298215c8e23d413e1",
+      "commit": "1adb9d122958d022db68c03e8b668126e9554a6e",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "71503883dfda54a4b42d346e282d12cf2ceeb9bfd15d8185a4cee3894e2a7305",
-        "docs/skill-guides/notes/actions/attachments.md": "ca9fe69aea04fa649625a7cf539833c61b84635c9ea5a2f6d197fac7fe6754ea",
+        "docs/skill-guides/notes/actions/attachments.md": "f5190b8388caf8b1e95e2e0fbdcffefed7709e9e4e29fa5bb50ebe64c2032872",
         "docs/skill-guides/notes/actions/create.md": "ecbd9f7b697cb59f6986b9ac770ba24140452abcd179b1a14dbc802a76361b82",
         "docs/skill-guides/notes/actions/edit.md": "b79f8fa6488b31ab4e13cb2b8774bbca0e3471e66731d641cf695c3c70bb2450",
         "docs/skill-guides/notes/actions/identity.md": "a642257851acea7aa4282cb0ea10dc1fa23b1dc08477c966cfa8ba901605f99c",
@@ -15,7 +15,7 @@
         "docs/skill-guides/notes/actions/move.md": "25b283100db7c3764254b2a874ffbd457355a8bfc105714b44d0c3bc9e07b4a1",
         "docs/skill-guides/notes/actions/read.md": "a7ff9f74d1ba57bffb75a30ea3949b2cbdb4a7f5689efd3ed854ded4532ab354",
         "docs/skill-guides/notes/actions/summary.md": "0a333d93cc104e8551db247f81ebe0fb0d42ae13489be9c32bbdfff3bf6aaec2",
-        "docs/skill-guides/notes/actions/versions.md": "61afb35baf33547ebb25a0860eb4243b4582bc75fedaea7189302d708cf98f2f",
+        "docs/skill-guides/notes/actions/versions.md": "b3085898b4b2598c0ec540e3e78aafc5d450b4f2f5b3c9850f92da41855c58ea",
         "docs/skill-guides/notes/actions/watch.md": "7561b57961bdc057ebbef89fdf12367e72d50d82a3ca3678e757a313a6de3f5f",
         "docs/skill-guides/scene-generation/SKILL.md": "193a6f1a21c0e006c1f692547015aa4296a192f8804ecf0a0d1eaacd0cb5b7d9",
         "docs/skill-guides/scene-generation/actions/compose-and-validate.md": "7030ab987d9f6f26ae686ffef727d4fc492678b4457f15c620e1a1427ab12ee7",
@@ -30,7 +30,7 @@
       },
       "docsPages": "docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "1208777da67d2b177e1cfdda6b91645edffba499afad91e7b9d8f103a163afd1",
+      "pageSha256": "c9ab1c928c036072aceb86f26b10cb6dea222910f24894f59e388cbd0ef38dd9",
       "childPages": {
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
