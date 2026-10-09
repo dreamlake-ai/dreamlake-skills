@@ -1293,6 +1293,34 @@ mojibake.
 two trashed files can share a path, so the path alone would be ambiguous.
 `files list --trashed` prints the ids.
 
+The atomic move/trash update is an API source candidate until its deployment is
+verified. It rechecks your current edit authority, ownership lease and any supplied
+`If-Match` inside the metadata transaction. An overwrite move trashes the previous
+destination and renames the source together; if either step fails, neither change
+commits. The source keeps its ID, stored bytes and existing preview link. `rm`
+without `--purge` remains recoverable trash and performs no object-storage deletion.
+A file whose permanent purge has started cannot be moved or trashed again.
+
+For an existing text attachment in a disposable Note, use its content ETag when
+you want a conditional move. The same option is available on `rm`:
+
+```bash
+set -euo pipefail
+: "${NOTE_ID:?set a disposable note ID}"
+: "${NAMESPACE:?set its namespace}"
+ETAG=$(dreamlake notes files cat config.json --note "$NOTE_ID" \
+  --namespace "$NAMESPACE" --json | jq -er '.etag')
+: "${ETAG:?the read must return a nonempty ETag}"
+dreamlake notes files mv config.json config-renamed.json --note "$NOTE_ID" \
+  --namespace "$NAMESPACE" --if-match "$ETAG"
+```
+
+A stale content ETag returns 412; a destination conflict returns 409 unless you
+explicitly choose `--overwrite`. Inspect the current file/path and permissions
+before retrying. An ETag is a content check, not a promise that the path or sharing
+metadata has remained unchanged. This workflow moves a path within one Note; it
+does not change Note/project ownership or perform a FortyFive transfer.
+
 ### Attach an image and get its path
 
 With the CLI installed and signed in, set `NOTE_ID` to your note's full ID and

@@ -49,7 +49,7 @@ This inventory does not assign individual people or GitHub review permissions.
 Recorded generated-source snapshots (not a freshness assertion):
 
 - `cli`: [1b9dc6f2eb4b](https://github.com/dreamlake-ai/dreamlake-cli/commit/1b9dc6f2eb4bff3eb38fe908ee45db28cc4740fc)
-- `workspace`: [6e6979525ac6](https://github.com/dreamlake-ai/dreamlake-workspace/commit/6e6979525ac6e84ca44fc4f2337e47b72ca92474)
+- `workspace`: [cc430498cbb6](https://github.com/dreamlake-ai/dreamlake-workspace/commit/cc430498cbb6b12c3b1f8135fd352e6d1445a6d9)
 
 Upstream freshness: **not checked by this report**.
 <!-- catalog:end -->

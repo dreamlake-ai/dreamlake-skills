@@ -25,3 +25,16 @@ around a denied signed-in read. The transactional sharing API update is a source
 candidate until its deployment is verified; it refuses changes after loss of
 current authority, during an ownership lease, or after purge starts.
 See [attachments](../reference/notes-attachments.md) and [the full Notes guide](../reference/notes.md).
+
+## Move or trash with a content precondition
+
+`files mv <file> <path>` and `files rm <file>` accept `--if-match <etag>`.
+Read an existing text file with `cat --json`, require a nonempty `.etag`, and pass
+that value explicitly; an empty value does not make a write conditional. A stale
+content ETag returns 412. Overwrite-move is an explicit `--overwrite` operation;
+the replaced destination remains in trash. The atomic move/trash server update
+is a source candidate until verified deployment. It commits destination trash and
+source rename together, rechecks current edit authority/lease, and refuses a file
+whose permanent purge has started. Recoverable trash does not delete stored bytes.
+An ETag guards content only; inspect current path and permissions after a conflict.
+Do not substitute permanent purge or a copy/delete sequence for a denied move.
