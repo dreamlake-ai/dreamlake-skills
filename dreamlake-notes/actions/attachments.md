@@ -26,9 +26,10 @@ included in the verified API release. Isolated tests cover lost authority,
 ownership leases and started-purge refusals; production acceptance did not create
 or revoke real public links.
 Attachment compatibility readers are included in a verified API release. The
-immutable-upload implementation is enabled. Durable purge, named-version catalog
-writes and transfer adapters remain disabled. Release verification does not
-establish production attachment-write or user acceptance.
+immutable-upload implementation is enabled, and atomic copy and the default
+named-version catalog writer are included in the verified API release. Durable
+purge and transfer adapters remain disabled. Strict runtime and read-only metadata
+verification do not establish production attachment-write or user acceptance.
 See [attachments](../reference/notes-attachments.md) and [the full Notes guide](../reference/notes.md).
 
 ## Move or trash with a content precondition
@@ -45,6 +46,24 @@ passed isolated tests, not destructive production tests. Recoverable trash does
 not delete stored bytes.
 An ETag guards content only; inspect current path and permissions after a conflict.
 Do not substitute permanent purge or a copy/delete sequence for a denied move.
+
+## Copy within the same Note
+
+Use the existing `files cp <file> <to>` command; add `--overwrite` only when the
+user intends to replace the destination. The copy gets a new file ID and its own
+bytes, without inheriting a public preview link. This is not cross-namespace
+filing or ownership transfer.
+
+The atomic copy-publication update is **included in the verified API release**.
+No production copy was performed for release verification. It rechecks current authority, ownership lease, source and
+destination before committing an overwrite's destination trash and new copy
+together. Copying onto the source's own path with `--overwrite` trashes the
+original and creates a new ID. `409 file_writer_upgrade_required` requires the
+selected server's immutable writer; `409 file_changed` or a path conflict requires
+fresh inspection. Do not bypass lost access, a lease or a started purge.
+After an ambiguous response, list/read the destination and inspect its ID before
+retrying. Copy has no idempotency key; never automatically resend an overwrite.
+See [copy publication](../reference/notes.md#copy-an-attachment-within-a-note).
 
 ## Replace text conditionally
 

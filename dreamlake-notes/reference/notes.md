@@ -7,8 +7,10 @@ This page retains the complete CLI/API reference and existing section links.
 **Release status — October 9, 2026:** the serving API includes the verified
 saved-version catalog readers, attachment compatibility readers, transactional
 attachment sharing, atomic attachment move/trash, and enabled immutable attachment
-uploads. Named-version catalog writes and durable attachment purge remain disabled.
-Release verification does not establish production attachment-write or user acceptance.
+uploads. The verified API release now also includes atomic attachment copy and
+named-version catalog publication by default. Durable attachment purge remains
+disabled. Strict runtime verification and read-only metadata/header checks do not
+establish production attachment-copy, saved-version-write or user acceptance.
 No transfer adapter is enabled, and runtime verification does not establish
 continuous Note-read availability.
 
@@ -1333,6 +1335,34 @@ explicitly choose `--overwrite`. Inspect the current file/path and permissions
 before retrying. An ETag is a content check, not a promise that the path or sharing
 metadata has remained unchanged. This workflow moves a path within one Note; it
 does not change Note/project ownership or perform a FortyFive transfer.
+
+### Copy an attachment within a Note
+
+The existing `files cp <file> <to>` command copies to another path in the same
+Note; `--overwrite` explicitly replaces an occupied destination. The API remains
+`POST /namespaces/:slug/notes/:noteId/files/:fileId/copy` with `path` and optional
+`overwrite`, returning the new file with HTTP 201. The copy has its own file ID
+and stored bytes; it does not inherit a public preview link.
+
+**Atomic copy publication is included in the verified API release.** It rechecks current edit authority, ownership lease, Note binding, source
+and destination before publishing. With `--overwrite`, moving the old destination
+to trash and creating the new copy commit together; a refused publication leaves
+the destination unchanged. The source remains unchanged unless the destination
+is its own path: explicitly overwriting that path trashes the original and
+creates a new file ID there. This update adds no new CLI flags or API endpoint.
+
+Copy publication requires the existing immutable writer to be enabled. A
+`409 file_writer_upgrade_required` means the selected server cannot perform this
+copy yet. On `409 file_changed` or a path conflict, inspect both files before
+retrying. Lost permission, an ownership conflict or a started purge must be
+resolved through the existing access/lifecycle workflow. Never drop access checks
+or purge/recreate a file to force a copy.
+
+After a lost response or uncertain outcome, list the destination and inspect its
+ID and content before deciding whether another copy is needed. This operation has
+no idempotency key: do not automatically resend, especially with `--overwrite`.
+Copying an attachment does not move a Note between namespaces or enable ownership
+transfer, named-version publication or durable purge.
 
 ### Replace an attachment safely
 
@@ -2864,12 +2894,18 @@ Refresh History and inspect its ID, author, time and content before saving again
 An acknowledged edit to the live draft is separate from saving a named version;
 do not resend that edit to recover a failed version save.
 
-**Catalog-reader release verified; idempotent version saves remain disabled.**
-The serving fleet includes catalog-aware readers. A separate reviewed writer
-release is still required to enable idempotent saves; the immutable-upload
-release does not enable them. Provisioned database indexes alone do not prove
-either deployment. Existing saves without an idempotency header and existing
-version links retain their current workflow.
+**Catalog readers and the default catalog writer are included in the verified API release.**
+Strict runtime verification and read-only version metadata/header checks are
+separate from accepting a real version save; no production save was performed
+for this release verification. Existing saves without an idempotency header and
+existing version links retain their current workflow.
+
+The serving implementation routes new saves
+through the publication catalog by default, without changing the save endpoint,
+request fields, CLI commands or existing version IDs and history. It rechecks
+current edit authority and the Note's ownership binding before publication.
+Runtime verification is not a live-save receipt and does not activate durable attachment purge
+or ownership transfer.
 
 Do not use a version-save POST to test readiness. An older API may ignore
 `Idempotency-Key` and create an ordinary version. Only a **verified catalog-reader
@@ -2879,7 +2915,7 @@ adopt the header for saving or retries until the matching writer release is
 separately verified; a successful POST alone proves neither support nor
 idempotency.
 
-After the writer update is verified, API clients may supply a unique
+On the verified catalog-writer release, API clients may supply a unique
 `Idempotency-Key` (16–128 letters, digits, underscores or hyphens) on
 `POST /namespaces/:slug/notes/:noteId/versions`. Keep that key with the original
 hash, tag, summary, parent and optional retained revision. Retry against the same
@@ -2891,6 +2927,17 @@ input with the same key is rejected. Only currently authorized editors can
 reconcile the save. If the original upload was incomplete and its publication is
 aborted, inspect history and deliberately start a new save with a new key. The
 server never substitutes newer text for an unavailable original snapshot.
+
+`503 version_save_unconfirmed` also covers transport or database failures while
+reconciling a keyed save. On the verified catalog-writer release, retry only the identical original request with the same key, server, Note and
+account; do not generate a new key or resend the body edit to clear the error.
+A published or fully staged matching operation returns its original version.
+`409 RECOVERY_IN_PROGRESS` means another executor is still active;
+`409 IDEMPOTENCY_CONFLICT` means the key was reused with different input.
+`409 PUBLICATION_ABORTED` requires inspecting history before an intentional new
+save with a new key. A storage mismatch or network failure does not prove that
+nothing was saved. Without an original idempotency key, inspect history before
+considering another save; the CLI commands below do not add a key automatically.
 
 This does not enable cross-namespace transfers or change who can read history.
 
@@ -3066,8 +3113,10 @@ does not write the live body.
 
 ### Reconcile an uncertain save
 
-Every successful POST creates a new version ID; tags are **not idempotency
-keys**. A timeout, lost connection, unreadable response, generic 5xx, or failure
+A save without an idempotency key creates a distinct version; tags are **not
+idempotency keys**. On the verified catalog-writer release, an exact
+same-key retry may instead reconcile the original version as described above.
+A timeout, lost connection, unreadable response, generic 5xx, or failure
 after submission may leave a saved version behind. Do not blindly repeat the
 POST, including after a failed verification read.
 
@@ -3092,7 +3141,7 @@ uncertain. Do not create a duplicate to obtain a clearer receipt or delete
 versions automatically. Finding no match on a partial page, or immediately
 after a timeout, does not prove that the original save failed. Continue read-only
 reconciliation; retry only after the outcome is resolved and a new save is an
-intentional decision. This API has no request-id deduplication guarantee.
+intentional decision. This unkeyed workflow has no request deduplication guarantee.
 
 For a structured rejection from the compatible server:
 
