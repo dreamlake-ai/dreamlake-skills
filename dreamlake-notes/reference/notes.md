@@ -4,13 +4,15 @@ Read [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/), [Embeds an
 [Panels](https://docs.dreamlake.ai/notes/panels/), and [Linked note items](https://docs.dreamlake.ai/notes/linked-items/) for focused guides.
 This page retains the complete CLI/API reference and existing section links.
 
-**Release status — October 9, 2026:** the saved-version catalog readers,
-attachment compatibility readers, transactional attachment sharing and atomic
-attachment move/trash updates below have not passed production runtime
-acceptance. Their source and documentation are not deployment evidence. Existing
-commands remain available under the serving API's existing behavior; do not
-assume the candidate transaction guarantees are active. Named-version catalog
-writes, immutable attachment writes and durable attachment purge remain disabled.
+**Release status — October 9, 2026:** the serving API includes the verified
+saved-version catalog readers, attachment compatibility readers, transactional
+attachment sharing and atomic attachment move/trash implementation. Race and
+failure behavior was validated in isolated tests; release verification did not
+perform destructive production attachment tests. The separate immutable-upload
+activation described below is an **unreleased source candidate**. Named-version
+catalog writes and durable attachment purge remain disabled in that candidate.
+No transfer adapter is enabled, and runtime verification does not establish
+continuous Note-read availability.
 
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
@@ -1302,13 +1304,15 @@ mojibake.
 two trashed files can share a path, so the path alone would be ambiguous.
 `files list --trashed` prints the ids.
 
-**Source candidate; production runtime acceptance pending as of October 9, 2026.**
-Once verified in the serving API, the atomic move/trash update will recheck current
+**Compatible metadata release verified; immutable upload activation is separate.**
+The atomic move/trash implementation is included in the verified compatible API
+release of October 9, 2026. It rechecks current
 edit authority, ownership lease and any supplied `If-Match` inside one metadata
-transaction. Its overwrite move will trash the previous destination and rename
+transaction. Its overwrite move trashes the previous destination and renames
 the source together, rolling back both on failure while preserving the source ID,
-stored bytes and preview link. Do not assume that atomicity on an unverified API.
-The existing `rm` without `--purge` remains recoverable trash. The candidate also
+stored bytes and preview link. The race behavior is covered by isolated tests;
+production verification does not perform destructive attachment tests.
+The existing `rm` without `--purge` remains recoverable trash. The implementation also
 refuses moves or trash after permanent purge has started; durable purge itself
 remains disabled.
 
@@ -1331,6 +1335,54 @@ explicitly choose `--overwrite`. Inspect the current file/path and permissions
 before retrying. An ETag is a content check, not a promise that the path or sharing
 metadata has remained unchanged. This workflow moves a path within one Note; it
 does not change Note/project ownership or perform a FortyFive transfer.
+
+### Replace an attachment safely
+
+Use a disposable Note you can edit, a signed-in CLI and `jq`. Set `NOTE_ID` and
+`NAMESPACE` explicitly. These commands create and replace only `access-check.txt`;
+they do not change Note ownership or project filing.
+
+```bash
+set -euo pipefail
+: "${NOTE_ID:?Set NOTE_ID to your disposable Note ID}"
+: "${NAMESPACE:?Set NAMESPACE to that Note namespace}"
+dreamlake notes files write access-check.txt --text before \
+  --note "$NOTE_ID" --namespace "$NAMESPACE"
+ETAG=$(dreamlake notes files cat access-check.txt --json \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" | jq -er '.etag')
+: "${ETAG:?Expected a nonempty file ETag before replacement}"
+dreamlake notes files write access-check.txt --text after --overwrite --if-match "$ETAG" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE"
+dreamlake notes files cat access-check.txt --note "$NOTE_ID" --namespace "$NAMESPACE"
+```
+
+The readback should be `after`, and the file ID remains unchanged. Reusing the old
+`ETAG` for another replacement must return 412 without changing the file. Read the
+current content and decide whether to reconcile; do not silently drop `--if-match`.
+The raw binary `upload` command supports `--overwrite` but does not currently expose
+`--if-match`; do not claim the text command's conditional-write protection for it.
+
+The immutable attachment writer is a source candidate until its API release is
+verified. It stages new private bytes and publishes the pointer only after a fresh
+permission, ownership-epoch and file-revision check. Upload failure or a refused
+publication leaves the previously visible object unchanged. File names, IDs and
+preview links retain their existing behavior; this is not a file-version browser.
+
+During the storage rollout, `409 file_writer_upgrade_required` means the serving
+instance cannot write this file format yet. `409 file_purge_not_ready` means permanent
+cleanup is not enabled for that file yet; ordinary trash and later restore remain
+available. Preserve the local file and retry only after the rollout completes.
+`409 file_storage_recovery_required` means the bounded retained-key inventory is
+full. It requires authorized storage recovery; repeated writes will not clear it.
+Do not purge or recreate a user's attachment automatically to evade the bound.
+An ownership conflict requires checking current access/status; it is not a reason
+to change the namespace or copy/delete the Note. After an uncertain network outcome,
+read the file metadata/content before deciding whether to submit another write.
+
+When durable purge is separately enabled, a failed object deletion retains its
+cleanup intent and returns `503 storage_unavailable`. An authorized retry of the
+same file purge resumes it. A started purge cannot be restored, even if cleanup
+is incomplete. These storage changes do not enable cross-workspace Note transfers.
 
 ### Attach an image and get its path
 
@@ -1484,11 +1536,11 @@ requires the note's sharing permission; withdrawing an existing attachment link
 requires permission to edit the note. Reading a file alone does not grant either
 operation. Asking for the same public link again preserves its current token.
 
-**Source candidate; production runtime acceptance pending as of October 9, 2026.**
-The transactional sharing update is intended to check current membership, Note
-permissions, ownership lease and file lifecycle in the same transaction as
-minting or withdrawing the link, refusing a transfer lease or started purge.
-Do not assume those transaction guarantees on an unverified API. Existing sharing
+**Transactional sharing implementation included in the verified API release.**
+It checks current membership, Note permissions, ownership lease and file lifecycle
+in the same transaction as minting or withdrawing the link, refusing a transfer
+lease or started purge. These race and refusal cases passed isolated tests;
+production acceptance did not mint or revoke real public links. Existing sharing
 commands and permission requirements remain unchanged. If access changes, reload
 the Note and use an authorized account; repeated requests do not restore
 permission. Sharing an attachment does not publish the Note body or other files.
@@ -2814,10 +2866,11 @@ Refresh History and inspect its ID, author, time and content before saving again
 An acknowledged edit to the live draft is separate from saving a named version;
 do not resend that edit to recover a failed version save.
 
-**Source candidate; production runtime acceptance pending as of October 9, 2026.**
-Catalog-aware readers must be verified across the serving fleet before a separate
-writer release can enable idempotent saves. Provisioned database indexes do not
-prove either deployment. Existing saves without an idempotency header and existing
+**Catalog-reader release verified; idempotent version saves remain disabled.**
+The serving fleet includes catalog-aware readers. A separate reviewed writer
+release is still required to enable idempotent saves; the immutable-upload
+candidate does not enable them. Provisioned database indexes alone do not prove
+either deployment. Existing saves without an idempotency header and existing
 version links retain their current workflow.
 
 Do not use a version-save POST to test readiness. An older API may ignore
