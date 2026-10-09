@@ -1440,7 +1440,17 @@ note.files.find("report.html").unshare()
 ```
 
 The default link needs a signed-in reader. `--share` opens without signing in
-and does not expire; `--revoke` kills every copy at once.
+and does not expire; `--revoke` kills every copy at once. Creating a public link
+requires the note's sharing permission; withdrawing an existing attachment link
+requires permission to edit the note. Reading a file alone does not grant either
+operation. Asking for the same public link again preserves its current token.
+
+The transactional sharing update is an API source candidate until its release is
+verified. That update checks current membership, note permissions, ownership
+lease and file lifecycle in the same transaction as minting or withdrawing the
+link. A transfer lease or a purge already in progress refuses the change. If your
+access changes, reload the note and use an authorized account; repeated requests
+do not restore permission. This does not publish the note body or other files.
 
 Uploaded HTML renders in a separate origin, never the dashboard's. Markdown,
 SVG, code and images render too; anything else offers a download. A file with
@@ -2755,6 +2765,35 @@ A public note or read-only share does not expose earlier text that may have
 been removed. Version links do not grant access. If the note changes or is still
 syncing while you save, review the current text and retry; no version is created
 from a mismatched browser/server state.
+
+### Saving safely across a connection failure
+
+A failed or lost save response does not prove that a version was not saved.
+Refresh History and inspect its ID, author, time and content before saving again.
+An acknowledged edit to the live draft is separate from saving a named version;
+do not resend that edit to recover a failed version save.
+
+The catalog publication update is being released in two steps. Catalog-aware
+readers ship first while normal saves keep their existing behavior. The new
+idempotent save path must not be treated as live until its separate backend
+release is verified. During the first step, sending `Idempotency-Key` returns
+`503 version_publication_unavailable` without saving a version. Existing saves
+without that header and existing version links continue to work.
+
+After the writer update is verified, API clients may supply a unique
+`Idempotency-Key` (16–128 letters, digits, underscores or hyphens) on
+`POST /namespaces/:slug/notes/:noteId/versions`. Keep that key with the original
+hash, tag, summary, parent and optional retained revision. Retry against the same
+server and Note while signed in as the same account; keys are scoped to that
+Note and actor. Another editor must inspect history and must not reuse your key
+expecting deduplication. An identical retry
+reconciles the original save rather than saving the current draft again; changed
+input with the same key is rejected. Only currently authorized editors can
+reconcile the save. If the original upload was incomplete and its publication is
+aborted, inspect history and deliberately start a new save with a new key. The
+server never substitutes newer text for an unavailable original snapshot.
+
+This does not enable cross-namespace transfers or change who can read history.
 
 ### Use the CLI for saved versions
 
