@@ -72,7 +72,7 @@ dreamlake queues unmount lab
 retains its Vault entry, and does not revoke the remote token. Replacing a token
 also retains the old Vault entry. Revoke unused tokens on Lakeshore separately.
 
-All commands support `--namespace ` and `--json`.
+All commands support `--namespace <DreamLake namespace>` and `--json`.
 `mounts` supports `--page` and `--page-size`; `jobs` supports `--limit` and
 `--offset`.
 

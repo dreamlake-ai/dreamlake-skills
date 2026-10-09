@@ -201,3 +201,10 @@ fi
 The patcher checks the old source against the retained baseline. Keep any
 Markdown escapes needed in the actual saved source; the diff transport does not
 require extra escaping of its line contents. Existing merge/exact semantics apply.
+
+## Propose instead of write
+
+To let the note's owner accept or reject each change rather than applying it
+directly, render the edit as suggested edits with
+[`notes suggest-diff --in-place`](notes-suggest-diff.md#propose-edits-inside-an-existing-note)
+and write that body instead.
