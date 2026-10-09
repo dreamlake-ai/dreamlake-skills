@@ -19,6 +19,9 @@ REPOS = {
 SCOPES = ('dreamlake-notes/', 'dreamlake-cli/', 'dreamlake-scene-generation/')
 SCENE_REFERENCES = ('scene-generation', 'libraries', 'scenes', 'scenes-layers')
 NOTES_REFERENCES_FROM_CLI = ('notes-reading', 'notes-editing', 'notes-collaboration', 'notes-attachments', 'notes-legacy')
+# Older recorded CLI snapshots predate suggested-edit documentation. Bundle it
+# when present without breaking reproduction of those committed snapshots.
+NOTES_OPTIONAL_REFERENCES_FROM_CLI = ('notes-suggest-diff',)
 NOTES_REFERENCE_ROUTES = {
     '/notes/': 'notes.md',
     '/notes/reading/': 'notes-reading.md',
@@ -26,6 +29,7 @@ NOTES_REFERENCE_ROUTES = {
     '/notes/collaboration/': 'notes-collaboration.md',
     '/notes/attachments/': 'notes-attachments.md',
     '/notes/legacy/': 'notes-legacy.md',
+    '/notes/suggest-diff/': 'notes-suggest-diff.md',
 }
 
 
@@ -149,14 +153,14 @@ def scene_generation_outputs(dest):
     return outputs
 
 
-def notes_reference_links(body, docs_url):
+def notes_reference_links(body, docs_url, bundled_references=NOTES_REFERENCES_FROM_CLI):
     """Resolve CLI Notes routes to sibling bundled pages or canonical docs URLs."""
     chunks = re.split(r'(^```[^\n]*\n[\s\S]*?^```[^\n]*(?:\n|$))', body.decode(), flags=re.M)
-    bundled_files = {'notes.md', *(name + '.md' for name in NOTES_REFERENCES_FROM_CLI)}
+    bundled_files = {'notes.md', *(name + '.md' for name in bundled_references)}
     def replace(match):
         path, anchor = match[1], match[2] or ''
-        bundled = NOTES_REFERENCE_ROUTES.get(path)
-        return '](' + (bundled if bundled else docs_url.rstrip('/') + path) + anchor + ')'
+        bundled = NOTES_REFERENCE_ROUTES.get(path.rstrip('/') + '/')
+        return '](' + (bundled if bundled in bundled_files else docs_url.rstrip('/') + path) + anchor + ')'
     for i in range(0, len(chunks), 2):
         chunks[i] = re.sub(r'\]\((/notes/[^)#\s]*)(#[^)]*)?\)', replace, chunks[i])
         def replace_sibling(match):
@@ -167,6 +171,18 @@ def notes_reference_links(body, docs_url):
             return '](' + docs_url.rstrip('/') + '/notes/' + slug + '/' + anchor + ')'
         chunks[i] = re.sub(r'\]\((notes-[^/)#]+\.md)(#[^)]*)?\)', replace_sibling, chunks[i])
     return ''.join(chunks).encode()
+
+
+def notes_cli_reference_outputs(cli_skill, docs_url):
+    """Include linked suggested-edit guidance when that CLI snapshot has it."""
+    outputs = {}
+    references = (*NOTES_REFERENCES_FROM_CLI, *(name for name in NOTES_OPTIONAL_REFERENCES_FROM_CLI
+        if (cli_skill / 'reference' / f'{name}.md').is_file()))
+    for reference in references:
+        path = cli_skill / 'reference' / f'{reference}.md'
+        outputs[f'dreamlake-notes/reference/{reference}.md'] = notes_reference_links(
+            path.read_bytes(), docs_url, references)
+    return outputs
 
 
 def collect_sources(paths, locked=None):
@@ -197,11 +213,9 @@ def collect_sources(paths, locked=None):
                         outputs['dreamlake-cli/' + path.relative_to(cli_skill).as_posix()] = path.read_bytes()
                 # Notes' task-specific CLI references live in the CLI docs repo;
                 # bundle only the pages the Notes action guides link to.
-                for reference in NOTES_REFERENCES_FROM_CLI:
-                    path = cli_skill / 'reference' / f'{reference}.md'
-                    site_config = (dest / 'docs/site.config.ts').read_text()
-                    docs_url = re.search(r"\burl:\s*['\"]([^'\"]+)", site_config).group(1)
-                    outputs[f'dreamlake-notes/reference/{reference}.md'] = notes_reference_links(path.read_bytes(), docs_url)
+                site_config = (dest / 'docs/site.config.ts').read_text()
+                docs_url = re.search(r"\burl:\s*['\"]([^'\"]+)", site_config).group(1)
+                outputs.update(notes_cli_reference_outputs(cli_skill, docs_url))
             else:
                 guide_root = dest / 'docs/skill-guides/notes'
                 for path in sorted(guide_root.rglob('*')):
