@@ -26,9 +26,9 @@ included in the verified API release. Isolated tests cover lost authority,
 ownership leases and started-purge refusals; production acceptance did not create
 or revoke real public links.
 Attachment compatibility readers are included in a verified API release. The
-immutable-upload activation is a separate source candidate and must not be treated
-as deployed until its own release receipt. Durable purge remains disabled; existing
-commands do not prove activation.
+immutable-upload implementation is enabled. Durable purge, named-version catalog
+writes and transfer adapters remain disabled. Release verification does not
+establish production attachment-write or user acceptance.
 See [attachments](../reference/notes-attachments.md) and [the full Notes guide](../reference/notes.md).
 
 ## Move or trash with a content precondition
@@ -54,8 +54,8 @@ the condition automatically. When capturing an ETag in a shell, use fail-fast
 error handling and reject an empty value before writing; an empty `--if-match`
 would remove that protection. Binary `files upload` does not expose `--if-match`.
 During the storage rollout, `409 file_writer_upgrade_required` means the serving
-instance cannot publish this file format yet; preserve the local file and wait
-for the separately verified immutable-upload activation. `409 file_purge_not_ready`
+instance cannot publish this file format yet; preserve the local file and check
+the selected server and its rollout status before retrying. `409 file_purge_not_ready`
 requires a separate reviewed durable-purge activation, not merely compatible
 readers. `file_storage_recovery_required` needs authorized storage recovery, not
 repeated writes or automatic purge/recreation. Read back uncertain write outcomes
@@ -63,5 +63,5 @@ before resubmitting. Only when durable purge is enabled does a failed deletion
 retain durable cleanup intent that the same authorized purge can resume. A started
 durable purge is irreversible; a legacy `storage_unavailable` response alone does
 not establish that such intent exists.
-See the canonical Notes guide for candidate/deployed boundaries; these changes
+See the canonical Notes guide for release and acceptance boundaries; these changes
 do not enable cross-workspace transfers or grant access through filing.

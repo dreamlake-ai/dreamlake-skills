@@ -6,11 +6,9 @@ This page retains the complete CLI/API reference and existing section links.
 
 **Release status — October 9, 2026:** the serving API includes the verified
 saved-version catalog readers, attachment compatibility readers, transactional
-attachment sharing and atomic attachment move/trash implementation. Race and
-failure behavior was validated in isolated tests; release verification did not
-perform destructive production attachment tests. The separate immutable-upload
-activation described below is an **unreleased source candidate**. Named-version
-catalog writes and durable attachment purge remain disabled in that candidate.
+attachment sharing, atomic attachment move/trash, and enabled immutable attachment
+uploads. Named-version catalog writes and durable attachment purge remain disabled.
+Release verification does not establish production attachment-write or user acceptance.
 No transfer adapter is enabled, and runtime verification does not establish
 continuous Note-read availability.
 
@@ -1304,7 +1302,7 @@ mojibake.
 two trashed files can share a path, so the path alone would be ambiguous.
 `files list --trashed` prints the ids.
 
-**Compatible metadata release verified; immutable upload activation is separate.**
+**Compatible metadata and immutable upload releases verified.**
 The atomic move/trash implementation is included in the verified compatible API
 release of October 9, 2026. It rechecks current
 edit authority, ownership lease and any supplied `If-Match` inside one metadata
@@ -1362,8 +1360,8 @@ current content and decide whether to reconcile; do not silently drop `--if-matc
 The raw binary `upload` command supports `--overwrite` but does not currently expose
 `--if-match`; do not claim the text command's conditional-write protection for it.
 
-The immutable attachment writer is a source candidate until its API release is
-verified. It stages new private bytes and publishes the pointer only after a fresh
+The immutable attachment writer is enabled. It stages new private bytes and
+publishes the pointer only after a fresh
 permission, ownership-epoch and file-revision check. Upload failure or a refused
 publication leaves the previously visible object unchanged. File names, IDs and
 preview links retain their existing behavior; this is not a file-version browser.
@@ -2869,7 +2867,7 @@ do not resend that edit to recover a failed version save.
 **Catalog-reader release verified; idempotent version saves remain disabled.**
 The serving fleet includes catalog-aware readers. A separate reviewed writer
 release is still required to enable idempotent saves; the immutable-upload
-candidate does not enable them. Provisioned database indexes alone do not prove
+release does not enable them. Provisioned database indexes alone do not prove
 either deployment. Existing saves without an idempotency header and existing
 version links retain their current workflow.
 

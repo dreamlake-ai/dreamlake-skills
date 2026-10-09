@@ -12,7 +12,7 @@ An empty saved-version list does not establish whether autosaved history remains
 
 **Release status — October 9, 2026:** the serving fleet includes verified catalog
 readers; named-version catalog writes remain disabled. The separate immutable
-attachment-upload candidate does not enable version publication. Existing
+attachment-upload release does not enable version publication. Existing
 CLI/retained-recovery commands below retain their current workflow; publication
 guarantees require their own verified writer release.
 Never send a save POST to probe `Idempotency-Key` support: an older API may ignore
