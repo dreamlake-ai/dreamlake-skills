@@ -94,6 +94,41 @@ class SyncTests(unittest.TestCase):
         self.assertIn(b'[other](https://cli.dreamlake.ai/notes/rich-content/#tokens)', result)
         self.assertIn(b'[example](/notes/editing/)', result)
 
+    def test_notes_bundle_resolves_suggest_diff_locally_and_keeps_external_dependencies(self):
+        cli = self.root / 'skills/dreamlake-cli'
+        refs = cli / 'reference'
+        refs.mkdir(parents=True)
+        for name in sync.NOTES_REFERENCES_FROM_CLI:
+            (refs / f'{name}.md').write_text('# existing reference\n')
+        # Historical CLI snapshots without the new guide remain reproducible.
+        older = sync.notes_cli_reference_outputs(cli, 'https://cli.dreamlake.ai')
+        self.assertNotIn('dreamlake-notes/reference/notes-suggest-diff.md', older)
+        (refs / 'notes-editing.md').write_text(
+            '[propose](notes-suggest-diff.md#propose-edits)\n'
+            '[source route](/notes/suggest-diff#propose-edits)\n')
+        missing = sync.notes_cli_reference_outputs(cli, 'https://cli.dreamlake.ai')
+        missing_editing = missing['dreamlake-notes/reference/notes-editing.md']
+        self.assertIn(b'[propose](https://cli.dreamlake.ai/notes/suggest-diff/#propose-edits)', missing_editing)
+        self.assertIn(b'[source route](https://cli.dreamlake.ai/notes/suggest-diff#propose-edits)', missing_editing)
+        (refs / 'notes-suggest-diff.md').write_text(
+            '# Suggest edits\n[identity](notes-collaboration.md) '
+            '[saved](notes-versions.md)\n')
+        outputs = sync.notes_cli_reference_outputs(cli, 'https://cli.dreamlake.ai')
+        self.assertIn('dreamlake-notes/reference/notes-suggest-diff.md', outputs)
+        editing = outputs['dreamlake-notes/reference/notes-editing.md']
+        self.assertIn(b'[propose](notes-suggest-diff.md#propose-edits)', editing)
+        self.assertIn(b'[source route](notes-suggest-diff.md#propose-edits)', editing)
+        suggested = outputs['dreamlake-notes/reference/notes-suggest-diff.md']
+        self.assertIn(b'[identity](notes-collaboration.md)', suggested)
+        self.assertIn(b'[saved](https://cli.dreamlake.ai/notes/versions/)', suggested)
+        # Every local Markdown destination in the independently installed subset
+        # resolves to an output file, not a sibling skill that may be absent.
+        for path, body in outputs.items():
+            for link in __import__('re').findall(rb'\]\(([^)#]+\.md)(?:#[^)]*)?\)', body):
+                if b'://' not in link:
+                    target = str(Path(path).parent / link.decode())
+                    self.assertIn(target, outputs)
+
     def test_owned_paths_cannot_escape(self):
         for name in ('../outside', '/tmp/outside', 'README.md', 'dreamlake-cli/../../outside'):
             with self.assertRaises(ValueError):
