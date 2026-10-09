@@ -10,10 +10,11 @@ For current-draft checkpoints, lists and saved text, use the installed CLI:
 See [CLI version operations](../reference/notes.md#use-the-cli-for-saved-versions).
 An empty saved-version list does not establish whether autosaved history remains.
 
-**Release status — October 9, 2026:** catalog readers have not passed production
-runtime acceptance and named-version catalog writes remain disabled. Existing
-CLI/retained-recovery commands below retain their current workflow; candidate
-publication guarantees are not live merely because their source or docs exist.
+**Release status — October 9, 2026:** the serving fleet includes verified catalog
+readers; named-version catalog writes remain disabled. The separate immutable
+attachment-upload release does not enable version publication. Existing
+CLI/retained-recovery commands below retain their current workflow; publication
+guarantees require their own verified writer release.
 Never send a save POST to probe `Idempotency-Key` support: an older API may ignore
 the header and create an ordinary version. The 503 refusal applies only after a
 verified catalog-reader release while its writer is disabled. Use keyed saves or
