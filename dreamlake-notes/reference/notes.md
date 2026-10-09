@@ -4,6 +4,14 @@ Read [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/), [Embeds an
 [Panels](https://docs.dreamlake.ai/notes/panels/), and [Linked note items](https://docs.dreamlake.ai/notes/linked-items/) for focused guides.
 This page retains the complete CLI/API reference and existing section links.
 
+**Release status — October 9, 2026:** the saved-version catalog readers,
+attachment compatibility readers, transactional attachment sharing and atomic
+attachment move/trash updates below have not passed production runtime
+acceptance. Their source and documentation are not deployment evidence. Existing
+commands remain available under the serving API's existing behavior; do not
+assume the candidate transaction guarantees are active. Named-version catalog
+writes, immutable attachment writes and durable attachment purge remain disabled.
+
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
@@ -191,8 +199,8 @@ do not grant these metadata-management rights. This also applies to renaming a
 mounted Note through the project tree. Organization baseline body access and
 accepted write-share editing remain unchanged.
 
-The following ownership checks are a **server source candidate until its API
-release is verified**. Metadata and sharing mutations, comment creation/edits,
+The following metadata and filing safeguards have previously passed runtime
+acceptance. Metadata and sharing mutations, comment creation/edits,
 and share-acceptance record writes recheck authority in their database transaction
 and refuse occupied ownership leases. A title change updates mounted titles in
 the same transaction. These checks preserve IDs and history; they do not enable
@@ -225,8 +233,9 @@ and issued capabilities still require separate transfer-readiness evidence.
 
 ### Activation conflicts and acknowledged edits
 
-The additional activation safeguards are a **server source candidate until its
-API release is verified**. Activation rechecks current access and its exact Note
+These activation and acknowledgement safeguards have previously passed runtime
+acceptance. That does not establish readiness of the later catalog or attachment
+candidates or diagnose a current read failure. Activation rechecks current access and its exact Note
 ownership/storage/room binding before returning a room. Existing signed-in public-Note and
 read-share body reads remain supported; they do not acquire edit permission, and
 this change does not enable anonymous API endpoints.
@@ -1293,6 +1302,36 @@ mojibake.
 two trashed files can share a path, so the path alone would be ambiguous.
 `files list --trashed` prints the ids.
 
+**Source candidate; production runtime acceptance pending as of October 9, 2026.**
+Once verified in the serving API, the atomic move/trash update will recheck current
+edit authority, ownership lease and any supplied `If-Match` inside one metadata
+transaction. Its overwrite move will trash the previous destination and rename
+the source together, rolling back both on failure while preserving the source ID,
+stored bytes and preview link. Do not assume that atomicity on an unverified API.
+The existing `rm` without `--purge` remains recoverable trash. The candidate also
+refuses moves or trash after permanent purge has started; durable purge itself
+remains disabled.
+
+For an existing text attachment in a disposable Note, use its content ETag when
+you want a conditional move. The same option is available on `rm`:
+
+```bash
+set -euo pipefail
+: "${NOTE_ID:?set a disposable note ID}"
+: "${NAMESPACE:?set its namespace}"
+ETAG=$(dreamlake notes files cat config.json --note "$NOTE_ID" \
+  --namespace "$NAMESPACE" --json | jq -er '.etag')
+: "${ETAG:?the read must return a nonempty ETag}"
+dreamlake notes files mv config.json config-renamed.json --note "$NOTE_ID" \
+  --namespace "$NAMESPACE" --if-match "$ETAG"
+```
+
+A stale content ETag returns 412; a destination conflict returns 409 unless you
+explicitly choose `--overwrite`. Inspect the current file/path and permissions
+before retrying. An ETag is a content check, not a promise that the path or sharing
+metadata has remained unchanged. This workflow moves a path within one Note; it
+does not change Note/project ownership or perform a FortyFive transfer.
+
 ### Attach an image and get its path
 
 With the CLI installed and signed in, set `NOTE_ID` to your note's full ID and
@@ -1440,7 +1479,19 @@ note.files.find("report.html").unshare()
 ```
 
 The default link needs a signed-in reader. `--share` opens without signing in
-and does not expire; `--revoke` kills every copy at once.
+and does not expire; `--revoke` kills every copy at once. Creating a public link
+requires the note's sharing permission; withdrawing an existing attachment link
+requires permission to edit the note. Reading a file alone does not grant either
+operation. Asking for the same public link again preserves its current token.
+
+**Source candidate; production runtime acceptance pending as of October 9, 2026.**
+The transactional sharing update is intended to check current membership, Note
+permissions, ownership lease and file lifecycle in the same transaction as
+minting or withdrawing the link, refusing a transfer lease or started purge.
+Do not assume those transaction guarantees on an unverified API. Existing sharing
+commands and permission requirements remain unchanged. If access changes, reload
+the Note and use an authorized account; repeated requests do not restore
+permission. Sharing an attachment does not publish the Note body or other files.
 
 Uploaded HTML renders in a separate origin, never the dashboard's. Markdown,
 SVG, code and images render too; anything else offers a download. A file with
@@ -2755,6 +2806,42 @@ A public note or read-only share does not expose earlier text that may have
 been removed. Version links do not grant access. If the note changes or is still
 syncing while you save, review the current text and retry; no version is created
 from a mismatched browser/server state.
+
+### Saving safely across a connection failure
+
+A failed or lost save response does not prove that a version was not saved.
+Refresh History and inspect its ID, author, time and content before saving again.
+An acknowledged edit to the live draft is separate from saving a named version;
+do not resend that edit to recover a failed version save.
+
+**Source candidate; production runtime acceptance pending as of October 9, 2026.**
+Catalog-aware readers must be verified across the serving fleet before a separate
+writer release can enable idempotent saves. Provisioned database indexes do not
+prove either deployment. Existing saves without an idempotency header and existing
+version links retain their current workflow.
+
+Do not use a version-save POST to test readiness. An older API may ignore
+`Idempotency-Key` and create an ordinary version. Only a **verified catalog-reader
+release with its writer still disabled** returns
+`503 version_publication_unavailable` without saving for a keyed request. Do not
+adopt the header for saving or retries until the matching writer release is
+separately verified; a successful POST alone proves neither support nor
+idempotency.
+
+After the writer update is verified, API clients may supply a unique
+`Idempotency-Key` (16–128 letters, digits, underscores or hyphens) on
+`POST /namespaces/:slug/notes/:noteId/versions`. Keep that key with the original
+hash, tag, summary, parent and optional retained revision. Retry against the same
+server and Note while signed in as the same account; keys are scoped to that
+Note and actor. Another editor must inspect history and must not reuse your key
+expecting deduplication. An identical retry
+reconciles the original save rather than saving the current draft again; changed
+input with the same key is rejected. Only currently authorized editors can
+reconcile the save. If the original upload was incomplete and its publication is
+aborted, inspect history and deliberately start a new save with a new key. The
+server never substitutes newer text for an unavailable original snapshot.
+
+This does not enable cross-namespace transfers or change who can read history.
 
 ### Use the CLI for saved versions
 

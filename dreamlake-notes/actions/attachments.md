@@ -18,5 +18,28 @@ dreamlake notes files preview report.html --note "$NOTE_ID" --open
 
 Uploads and downloads preserve bytes. `cat` is for text and refuses binary
 content. `rm` moves a file to trash; restore with its file ID. `--share` creates
-a non-expiring public preview link, while `--revoke` withdraws all copies.
+a non-expiring public preview link, while `--revoke` withdraws all copies. Minting
+requires the note's sharing permission; withdrawing requires edit permission.
+Repeated minting keeps the existing link. Do not mint public links merely to work
+around a denied signed-in read. The transactional sharing API update is a source
+candidate whose production runtime acceptance is still pending on October 9,
+2026. Its intended transaction refusals cover lost authority, an ownership lease
+and a started purge; do not assume those new guarantees on the serving API.
+Attachment compatibility readers are also unaccepted. Immutable attachment writes
+and durable purge remain disabled; existing commands do not prove otherwise.
 See [attachments](../reference/notes-attachments.md) and [the full Notes guide](../reference/notes.md).
+
+## Move or trash with a content precondition
+
+`files mv <file> <path>` and `files rm <file>` accept `--if-match <etag>`.
+Read an existing text file with `cat --json`, require a nonempty `.etag`, and pass
+that value explicitly; an empty value does not make a write conditional. A stale
+content ETag returns 412. Overwrite-move is an explicit `--overwrite` operation;
+the replaced destination remains in trash. The atomic move/trash server update
+is a source candidate whose production runtime acceptance is still pending on
+October 9, 2026. Its intended transaction commits destination trash and source
+rename together, rechecks current edit authority/lease, and refuses a file whose
+permanent purge has started. Do not claim those atomicity guarantees on an
+unverified API. Recoverable trash does not delete stored bytes.
+An ETag guards content only; inspect current path and permissions after a conflict.
+Do not substitute permanent purge or a copy/delete sequence for a denied move.
