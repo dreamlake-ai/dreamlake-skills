@@ -1293,6 +1293,54 @@ mojibake.
 two trashed files can share a path, so the path alone would be ambiguous.
 `files list --trashed` prints the ids.
 
+### Replace an attachment safely
+
+Use a disposable Note you can edit, a signed-in CLI and `jq`. Set `NOTE_ID` and
+`NAMESPACE` explicitly. These commands create and replace only `access-check.txt`;
+they do not change Note ownership or project filing.
+
+```bash
+set -euo pipefail
+: "${NOTE_ID:?Set NOTE_ID to your disposable Note ID}"
+: "${NAMESPACE:?Set NAMESPACE to that Note namespace}"
+dreamlake notes files write access-check.txt --text before \
+  --note "$NOTE_ID" --namespace "$NAMESPACE"
+ETAG=$(dreamlake notes files cat access-check.txt --json \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" | jq -er '.etag')
+: "${ETAG:?Expected a nonempty file ETag before replacement}"
+dreamlake notes files write access-check.txt --text after --overwrite --if-match "$ETAG" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE"
+dreamlake notes files cat access-check.txt --note "$NOTE_ID" --namespace "$NAMESPACE"
+```
+
+The readback should be `after`, and the file ID remains unchanged. Reusing the old
+`ETAG` for another replacement must return 412 without changing the file. Read the
+current content and decide whether to reconcile; do not silently drop `--if-match`.
+The raw binary `upload` command supports `--overwrite` but does not currently expose
+`--if-match`; do not claim the text command's conditional-write protection for it.
+
+The immutable attachment writer is a source candidate until its API release is
+verified. It stages new private bytes and publishes the pointer only after a fresh
+permission, ownership-epoch and file-revision check. Upload failure or a refused
+publication leaves the previously visible object unchanged. File names, IDs and
+preview links retain their existing behavior; this is not a file-version browser.
+
+During the storage rollout, `409 file_writer_upgrade_required` means the serving
+instance cannot write this file format yet. `409 file_purge_not_ready` means permanent
+cleanup is not enabled for that file yet; ordinary trash and later restore remain
+available. Preserve the local file and retry only after the rollout completes.
+`409 file_storage_recovery_required` means the bounded retained-key inventory is
+full. It requires authorized storage recovery; repeated writes will not clear it.
+Do not purge or recreate a user's attachment automatically to evade the bound.
+An ownership conflict requires checking current access/status; it is not a reason
+to change the namespace or copy/delete the Note. After an uncertain network outcome,
+read the file metadata/content before deciding whether to submit another write.
+
+When durable purge is separately enabled, a failed object deletion retains its
+cleanup intent and returns `503 storage_unavailable`. An authorized retry of the
+same file purge resumes it. A started purge cannot be restored, even if cleanup
+is incomplete. These storage changes do not enable cross-workspace Note transfers.
+
 ### Attach an image and get its path
 
 With the CLI installed and signed in, set `NOTE_ID` to your note's full ID and
