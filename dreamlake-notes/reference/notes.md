@@ -1334,6 +1334,35 @@ before retrying. An ETag is a content check, not a promise that the path or shar
 metadata has remained unchanged. This workflow moves a path within one Note; it
 does not change Note/project ownership or perform a FortyFive transfer.
 
+### Copy an attachment within a Note
+
+The existing `files cp <file> <to>` command copies to another path in the same
+Note; `--overwrite` explicitly replaces an occupied destination. The API remains
+`POST /namespaces/:slug/notes/:noteId/files/:fileId/copy` with `path` and optional
+`overwrite`, returning the new file with HTTP 201. The copy has its own file ID
+and stored bytes; it does not inherit a public preview link.
+
+**Copy publication update: source candidate, not yet runtime-verified.** The
+candidate rechecks current edit authority, ownership lease, Note binding, source
+and destination before publishing. With `--overwrite`, moving the old destination
+to trash and creating the new copy commit together; a refused publication leaves
+the destination unchanged. The source remains unchanged unless the destination
+is its own path: explicitly overwriting that path trashes the original and
+creates a new file ID there. This update adds no new CLI flags or API endpoint.
+
+The candidate requires the existing immutable writer to be enabled. A
+`409 file_writer_upgrade_required` means the selected server cannot perform this
+copy yet. On `409 file_changed` or a path conflict, inspect both files before
+retrying. Lost permission, an ownership conflict or a started purge must be
+resolved through the existing access/lifecycle workflow. Never drop access checks
+or purge/recreate a file to force a copy.
+
+After a lost response or uncertain outcome, list the destination and inspect its
+ID and content before deciding whether another copy is needed. This operation has
+no idempotency key: do not automatically resend, especially with `--overwrite`.
+Copying an attachment does not move a Note between namespaces or enable ownership
+transfer, named-version publication or durable purge.
+
 ### Replace an attachment safely
 
 Use a disposable Note you can edit, a signed-in CLI and `jq`. Set `NOTE_ID` and

@@ -46,6 +46,24 @@ not delete stored bytes.
 An ETag guards content only; inspect current path and permissions after a conflict.
 Do not substitute permanent purge or a copy/delete sequence for a denied move.
 
+## Copy within the same Note
+
+Use the existing `files cp <file> <to>` command; add `--overwrite` only when the
+user intends to replace the destination. The copy gets a new file ID and its own
+bytes, without inheriting a public preview link. This is not cross-namespace
+filing or ownership transfer.
+
+The atomic copy-publication update is a **source candidate until its runtime
+release is verified**. It rechecks current authority, ownership lease, source and
+destination before committing an overwrite's destination trash and new copy
+together. Copying onto the source's own path with `--overwrite` trashes the
+original and creates a new ID. `409 file_writer_upgrade_required` requires the
+selected server's immutable writer; `409 file_changed` or a path conflict requires
+fresh inspection. Do not bypass lost access, a lease or a started purge.
+After an ambiguous response, list/read the destination and inspect its ID before
+retrying. Copy has no idempotency key; never automatically resend an overwrite.
+See [copy publication](../reference/notes.md#copy-an-attachment-within-a-note).
+
 ## Replace text conditionally
 
 For text replacement, read the current `etag` with `files cat --json` and use
