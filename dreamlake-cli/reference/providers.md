@@ -200,7 +200,20 @@ dreamlake providers instances terminate team/<provider-id> --instance i-01234567
 - Repeating a request ID returns the same instances; it never launches twice.
 - `list`, `start`, `stop` and `terminate` act only on instances this provider
   launched (tag `dreamlake:provider`).
-- Launched instances are not enrolled yet.
+- Without enrollment options, launched instances are not enrolled. To install
+  Nymph automatically, pass a host name; an unused service account is optional:
+
+```bash cli-help="providers instances launch"
+dreamlake providers instances launch team/333333333333333333333333 --service-account 0123456789abcdef01234567 --host-name team/dev/worker --unix-user ubuntu --request-id worker-01 --json
+```
+
+Automatic enrollment requires `--count 1` and a server supporting machine
+bootstrap. Each Nymph gets its own account, created automatically when `--service-account`
+is omitted; `--lakeshore-id` optionally selects a
+namespace control plane. The backend selects the installer version and injects
+one-use bootstrap material; no human token is copied to the host. A launch
+receipt is not online/readiness evidence. See [Service accounts](service-accounts.md)
+for grants, retry behavior and revocation.
 
 ## Recover a missing response
 
