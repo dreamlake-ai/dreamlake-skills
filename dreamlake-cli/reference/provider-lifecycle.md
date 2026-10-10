@@ -448,6 +448,74 @@ The five CRUD verbs on the provider *row* in DreamLake — `create` from a file,
 [Lakeshore resources](lakeshore.md). The lifecycle verbs on this page are leaves
 on that same `provider` group; both keep working.
 
+## AWS jump and distinct worker template (CLI 0.49.0+)
+
+`aws-jump-worker` packages the standalone AWS setup example into this lifecycle.
+The existing `ec2` template and its development-machine commands retain their
+existing behavior. Choose `aws-jump-worker` for an exact jump/worker pair with
+`reuse-retain` enrollment handoff. By default the controller is your existing
+enrolled Personal AI computer, which can be outside EC2; Terraform manages or
+references only the separate EC2 worker. It does not create a Slurm cluster or register
+new inventory in DreamLake.
+
+```bash file="terminal" cli-help="provider create"
+dreamlake provider create -n aws-demo --provider aws-jump-worker --json
+# Read the generated AGENT.md and terraform/ENROLLMENT.md.
+# Fill terraform/terraform.tfvars.json and terraform/backend.json explicitly.
+dreamlake provider create -n aws-demo --continue --json
+```
+
+The template starts in `reference-existing` mode with `controller_mode=external`. Supply the expected AWS account,
+region, exact worker instance ID, and results bucket/prefix. It reads those
+selected resources without taking ownership. Reuse the existing controller's
+owned enrollment; do not enroll it twice or create a second controller by default.
+An optional EC2 jump requires `controller_mode=ec2` and a distinct jump ID.
+The `create` alternative requires explicit worker AMI, instance type,
+network/IAM and storage choices; an optional new EC2 jump needs its own choices. It needs
+separate resource and spending authorization before apply. The input schema and
+`AGENT.md` explain the mode-specific fields; the offline scan reports missing or
+invalid fields in `blocking[]` and an `edit_then_continue` action. Never infer
+values from missing account observations or select an instance from its hostname.
+
+Reentry preserves edited files. `create --continue` rereads the current inputs;
+it is not permission to replace the scaffold or change its template identity.
+Backend settings are separate from infrastructure variables. Choose an existing
+approved S3 backend with a unique key, expected bucket owner, encryption and
+`use_lockfile=true`; enable bucket versioning. Credentials come from the normal
+AWS credential chain, never those JSON files. See [Terraform state and Vault]
+(/vault-terraform-state) for backend references and explicit snapshot recovery.
+
+```bash file="terminal" cli-help="provider plan"
+# Requires the selected backend and authorized AWS read access.
+dreamlake provider plan -n aws-demo --json
+```
+
+Review the exact account, resources, changes, cost and retention choices before
+an authorized `dreamlake provider apply -n aws-demo --yes --json`. Planning may
+use the remote backend's lock; it does not provision instances. A local schema
+check or mocked plan is not live AWS plan evidence. Never disable locking or
+reuse production control-plane state. Backend initialization does not authorize
+state migration.
+
+After apply, follow the generated enrollment handoff. Terraform outputs are AWS
+infrastructure IDs, not Host, Enrollment or Worker identities. Obtain those
+identities from current owned enrollments and verify ownership before using
+the supplied mapper. Enroll only a target without a suitable enrollment, within
+the authorized scope. The external controller uses AWS STS account evidence;
+the worker uses its exact EC2/IMDS identity. Legacy dual EC2 evidence remains
+supported. The controller and worker must remain distinct throughout. This
+template does not use the legacy name-based `connect` claim as an authority.
+New infrastructure is not automatically adopted into product inventory.
+
+Automatic enrollment of new instances remains a separate unverified interface.
+Use authenticated SSH enrollment or a valid existing owned enrollment. IMDS and
+even a signed instance identity document do not bind a submitted key to a fresh
+enrollment challenge; they cannot by themselves authorize first claim.
+
+Results, state and root disks have separate retention boundaries. Read the
+generated cleanup guidance before any separately authorized destruction. No
+lifecycle step scans or uploads Terraform state to Vault.
+
 ## EC2 development-machine access (0.44.3+)
 
 `provider machine` operates on the head instance of a local `ec2` scaffold.

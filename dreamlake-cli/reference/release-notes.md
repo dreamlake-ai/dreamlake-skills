@@ -1,5 +1,26 @@
 # Release notes
 
+## 0.49.0 — Personal AI AWS setup and explicit state snapshots
+
+`provider create --provider aws-jump-worker` distributes the editable Terraform
+modules, typed inputs and enrollment mapper through the existing create → plan →
+apply flow. The default controller is your existing enrolled Personal AI computer,
+which can be outside EC2; only an explicit choice adds a separate EC2 jump.
+An exact distinct EC2 worker remains required. Reentry preserves edits, and the
+existing `ec2` template remains compatible. See [Provider lifecycle](provider-lifecycle.md).
+
+`vault terraform backend|backup|restore` supports explicit personal-Vault backend
+references and encrypted-at-rest snapshots of selected private files. Restore
+writes a new isolated snapshot only, with revision, lineage, serial and hash
+checks. The locked/versioned remote backend remains authoritative; snapshots do
+not replace Terraform locking or automatically upload active state. POSIX file
+permissions and the 64 KiB serialized Vault envelope limit apply. See
+[Terraform state and Vault](vault-terraform-state.md).
+
+This release preserves authenticated enrollment and verifies existing enrollment
+before reuse. Automatic new-instance enrollment remains a separate interface
+dependency; an instance identity document alone never approves a new key.
+
 ## 0.45.0 — Scenes across CLI, API and docs
 
 Use `dreamlake scene push|create|list|pull|compose|delete|restore`. The legacy
