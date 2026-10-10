@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "fb0164dd0c44e3f24bf0384d0db7859115f34310",
+      "commit": "0f9431ea42a6d232b03d16274abe8d90731e87fc",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "71503883dfda54a4b42d346e282d12cf2ceeb9bfd15d8185a4cee3894e2a7305",
@@ -46,13 +46,14 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "84bb18942ef4be10145f4b07fcb4af318da2d4ea",
+      "commit": "a04a49b706fc240cdf435ba894d5326f09842d74",
       "generatorSha256": "7222b8b50e011b15d1b4c1463a9652f809bd18621b506a72b23647229b03ea06",
       "actionGuides": {
-        "docs/skill-guides/cli/SKILL.md": "4a08c479b7d56b5b7b89153f0c5e8ac7aa629e91b2e56eb6ed8dbc5334b17018",
+        "docs/skill-guides/cli/SKILL.md": "d422cd007c666c4d3ccef91f87c6aa79b4aa28fc7888048de34fa716c4715a99",
         "docs/skill-guides/cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
         "docs/skill-guides/cli/actions/cloud-vault.md": "9443c94b35daeb4d60e517048442f53db0a02a1e7eb381b74d478f6ec1cb0c02",
         "docs/skill-guides/cli/actions/data.md": "a61da3e333b2e7894650d2ea941e56807ef0f7bfe8cabf10d20527a3dcef63e3",
+        "docs/skill-guides/cli/actions/machines.md": "6898f525c8eedaf2416a2452b8a06a1d1aa63b2c3e4486478669ec47c58ec89e",
         "docs/skill-guides/cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
         "docs/skill-guides/cli/actions/notes.md": "baedc6c38cfa5854926f686323de5306ab7fa40596783e55936ba124690605b2",
         "docs/skill-guides/cli/actions/setup.md": "94ccc6976ed37190c35480a729544850fbdf072cb229a0440e82f9dbabb49909",
