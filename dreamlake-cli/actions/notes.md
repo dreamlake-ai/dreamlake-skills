@@ -75,3 +75,14 @@ cover new-note filing and current filing inspection. Check installed help first:
 namespace updates or an older generic mount API. Consult the
 [Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0444)
 for server and adapter gates; missing readiness is unsupported.
+
+CLI 0.48.2 adds attachment journal recovery; CLI 0.48.1 does not include it.
+It requires a separately verified journal-enabled API. Check
+`notes files write --help`, `cp --help` and `status --help` before using it.
+Optional `--idempotency-key` applies only to known-byte text
+write/copy, never raw `files upload` or media. Preserve the original operation
+ID/request/key/namespace; use `files status OP --note NOTE`, then explicit
+`reconcile` to recover original staged bytes without reupload. `cancel` may only
+stop an admitted operation before write authorization; uncertain or write-started
+work is not safe to delete/resend. Current authority and original actor are
+required. See [attachments](../reference/notes-attachments.md#recover-an-attachment-operation-cli-0482).

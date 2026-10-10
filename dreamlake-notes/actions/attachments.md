@@ -61,9 +61,34 @@ together. Copying onto the source's own path with `--overwrite` trashes the
 original and creates a new ID. `409 file_writer_upgrade_required` requires the
 selected server's immutable writer; `409 file_changed` or a path conflict requires
 fresh inspection. Do not bypass lost access, a lease or a started purge.
-After an ambiguous response, list/read the destination and inspect its ID before
-retrying. Copy has no idempotency key; never automatically resend an overwrite.
-See [copy publication](../reference/notes.md#copy-an-attachment-within-a-note).
+With released CLI 0.48.1, an ambiguous copy response requires inspecting the
+destination and its ID before deciding on further work. That CLI has no
+caller-supplied copy idempotency key; never automatically resend an overwrite.
+The known-byte journal is enabled in strictly verified API release `5d64f024`.
+CLI 0.48.2 public npm/native distribution and isolated Linux installs are verified;
+other OS targets were byte-verified, not runtime-tested. That version adds `--idempotency-key` to `files write`
+and `files cp`, and `files status`, `files reconcile` and `files cancel`.
+Check the installed version before using them. Supply a retained printable ASCII
+key (1–256 bytes, no surrounding spaces) for one exact text/copy request, and
+keep the original account, Note, namespace and `operationId` from JSON or stderr.
+
+```bash
+# Inspect the original operation; do not resend uncertain bytes.
+dreamlake notes files status "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+# Choose only the intended next action, under the original account.
+dreamlake notes files reconcile "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+dreamlake notes files cancel "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+```
+
+Reconcile may publish the original database result but never uploads bytes again.
+Cancel applies only before write authorization, in `admitted`, and retains the
+operation/key as `aborted-before-write`. Neither can bypass lost current access
+or the original-actor check. The release performed only two selected status GETs,
+not attachment writes or provider-failure recovery. Raw streaming journal,
+durable purge and transfer adapters remain disabled. Raw inventory's separate
+merged source candidate is not a live recovery capability.
+See [copy publication](../reference/notes.md#copy-an-attachment-within-a-note) and
+[the recovery workflow](../reference/notes.md#recover-a-text-or-copy-publication).
 
 ## Replace text conditionally
 
