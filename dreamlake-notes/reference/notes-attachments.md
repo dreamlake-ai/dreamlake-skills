@@ -76,6 +76,58 @@ file ID, optionally to a new path. `rm --purge` permanently deletes stored bytes
 File write/move/remove operations support `--if-match` with the **file's** ETag,
 not the note's write revision.
 
+## Recover an attachment operation (CLI 0.48.2)
+
+CLI 0.48.2 adds these flags and recovery commands; CLI 0.48.1 does not include
+them. Check installed `--help` and server support independently. They require a
+separately verified server with its known-byte publication journal enabled;
+a503 unavailable response is not permission to fall back to an unguarded write.
+
+For text writes and copies only, supply a stable printable ASCII key (1–256 bytes)
+without surrounding spaces for one exact request. The CLI passes it unchanged and never automatically retries.
+
+```bash cli-help="notes files write"
+dreamlake notes files write config.json --text '{"enabled":true}' --note "$NOTE_ID" --idempotency-key config-initial-1
+```
+
+```bash cli-help="notes files cp"
+dreamlake notes files cp config.json config-copy.json --note "$NOTE_ID" --idempotency-key config-copy-1
+```
+
+A response supplies an operation ID on stderr, or as an additive `operationId`
+field with `--json`. Preserve that ID, the exact original request, key, Note ID
+and namespace. On an uncertain result, inspect the original operation first;
+do not resend bytes, change the key, or create a replacement file. A changed
+request under the same key is a409 conflict. Requests without a key remain
+distinct operations. `files upload` is streamed and does **not** support the key
+or this journal recovery contract; media upload is also outside this scope.
+
+```bash cli-help="notes files status"
+# OPERATION_ID is the ID from the original response.
+dreamlake notes files status "$OPERATION_ID" --note "$NOTE_ID" --json
+```
+
+```bash cli-help="notes files reconcile"
+dreamlake notes files reconcile "$OPERATION_ID" --note "$NOTE_ID" --json
+```
+
+Status is read-only. Reconcile verifies original staged bytes and may publish the
+original database result; it never uploads bytes again. A published historical
+receipt does not prove that file is still live. Current Note edit authority and
+the original actor are required; add the original `--namespace` for org notes.
+An unconfirmed outcome stays unresolved:404 from storage, elapsed time and a
+failed request do not establish that an upload cannot arrive later.
+
+```bash cli-help="notes files cancel"
+dreamlake notes files cancel "$OPERATION_ID" --note "$NOTE_ID" --json
+```
+
+Cancel is available only while admitted, before upload authorization. It retains
+the operation and key as `aborted-before-write`; it deletes no objects and cannot
+cancel `write-started` or `published` work. A cancelled operation cannot be
+replayed with the same key. Inspect after an uncertain cancellation response.
+These commands do not transfer a Note, grant access or complete storage recovery.
+
 ## Preview and share
 
 ```bash

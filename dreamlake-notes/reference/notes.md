@@ -14,6 +14,15 @@ establish production attachment-copy, saved-version-write or user acceptance.
 No transfer adapter is enabled, and runtime verification does not establish
 continuous Note-read availability.
 
+**Attachment journal candidate — October 10, 2026:** the known-byte text/copy
+publication journal and admitted-only cancellation below are source guidance,
+not an activated release. This source candidate enables the journal default;
+the verified `7d70a3aa` compatibility release keeps it disabled. Bounded old-writer
+drain and a separately verified activation release remain required. Provisioned
+indexes and compatible readers do not prove activation or production recovery.
+Durable purge and transfer adapters remain disabled; the FortyFive move is
+unfinished.
+
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
@@ -1360,9 +1369,160 @@ or purge/recreate a file to force a copy.
 
 After a lost response or uncertain outcome, list the destination and inspect its
 ID and content before deciding whether another copy is needed. This operation has
-no idempotency key: do not automatically resend, especially with `--overwrite`.
+no caller-supplied idempotency key in the released CLI: do not automatically
+resend, especially with `--overwrite`. The inactive API journal candidate below
+adds a separate keyed recovery contract; do not assume it is active.
 Copying an attachment does not move a Note between namespaces or enable ownership
 transfer, named-version publication or durable purge.
+
+### Recover a text or copy publication
+
+This workflow is **not activated**. Use it only after the selected API's exact
+journal-enabled release has been verified. Existing `files write` and `files cp`
+commands remain available with their existing semantics; this candidate adds no
+CLI flags. The verified CLI 0.48.1 does not expose a generic `api` command or these
+operation headers, so the API examples use `curl` with placeholder credentials.
+Do not run a write as a readiness probe: older servers may ignore an
+`Idempotency-Key`. A journal-aware server with the writer disabled refuses keyed
+text/copy requests and these operation routes with
+`503 file_publication_unavailable`; that refusal does not enable recovery.
+
+Once activated, the journal covers JSON text creation/replacement at
+`POST /namespaces/:slug/notes/:noteId/files` and same-Note copy at
+`POST /namespaces/:slug/notes/:noteId/files/:fileId/copy`. It does not cover the
+raw binary/streaming upload route, inline media, Note bodies or saved versions.
+The existing File response and HTTP 200/201 remain unchanged.
+
+An optional `Idempotency-Key` identifies one request for the original account and
+Note. It is 1–256 UTF-8 bytes without control characters or lone surrogates;
+a simple ASCII identifier works. Preserve it with the original server, namespace,
+Note, action, destination, overwrite choice and text/content type or source file ID.
+Preserve the original `If-Match` for a conditional text replacement too. The same
+key and normalized request reconcile the original operation **before** reading
+new copy-source bytes or attempting another storage write. Changed input returns
+`409 idempotency_conflict`. Different keys, or repeated requests without a key,
+are distinct operations. The attachment key format differs from the saved-version
+key format; do not interchange their contracts.
+
+After admission, retain the `Note-File-Operation-Id` response header, including
+on error responses. A sanitized `503 file_publication_unconfirmed` may also carry
+`operationId` in its JSON body. A lost response is not permission to retry the
+upload, replace the key or delete the destination. Preserve the original request
+and inspect its operation when the ID is known. If no ID was received, do not
+automatically resend: on the verified journal writer, a deliberate identical
+request with the **original key and account** can reconcile the retained admission;
+an unkeyed retry cannot identify that original operation.
+
+#### Create text or copy with a retained key
+
+Prerequisites: an explicitly verified journal-enabled API, a disposable Note you
+can edit, the same signed-in account for submission and recovery, and `curl`.
+The following is a candidate example, not a command to run against today's API.
+Replace every placeholder. Choose one write, keep its key and request, and do
+not add automatic retry options.
+
+```bash
+API_URL='https://your-reviewed-journal-api.example'
+DREAMLAKE_TOKEN='<your-api-bearer-token>'
+NAMESPACE='your-namespace'
+NOTE_ID='<your-disposable-note-id>'
+IDEMPOTENCY_KEY='example-text-001'
+
+curl --fail-with-body --silent --show-error \
+  --dump-header ./text-operation.headers --output ./text-operation.json \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -H "Idempotency-Key: $IDEMPOTENCY_KEY" \
+  --data '{"path":"journal-example.txt","text":"reviewed text\n","overwrite":false}' \
+  "$API_URL/namespaces/$NAMESPACE/notes/$NOTE_ID/files"
+```
+
+For an independently intended copy, use a different retained key and the source
+file's ID. Copy stays within the same Note. `overwrite:false` preserves an
+occupied destination; set it to true only when that replacement is intended.
+
+```bash
+FILE_ID='<source-file-id-in-the-same-note>'
+COPY_KEY='example-copy-001'
+curl --fail-with-body --silent --show-error \
+  --dump-header ./copy-operation.headers --output ./copy-operation.json \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -H "Idempotency-Key: $COPY_KEY" \
+  --data '{"path":"journal-copy.txt","overwrite":false}' \
+  "$API_URL/namespaces/$NAMESPACE/notes/$NOTE_ID/files/$FILE_ID/copy"
+```
+
+For text replacement, add the existing content `If-Match` header and explicitly
+choose `overwrite:true`; a stale ETag still returns 412. The journal does not
+remove content preconditions or make changing them on a retry safe.
+
+#### Inspect, reconcile or cancel the selected operation
+
+All three routes require the **original actor and current Note `updateContent`
+permission**. Knowing an operation ID, being another editor, or owning the
+namespace does not replace that original-actor check. Revoked/read-only callers
+cannot recover through another account. Responses are `no-store` and contain
+only the selected state and, when published, a historical File receipt; no
+storage keys, provider configuration, ownership epochs or sharing tokens are
+returned.
+
+Set `OPERATION_ID` from the retained response header or JSON receipt. First inspect:
+
+```bash
+OPERATION_ID='<retained-24-character-operation-id>'
+OPERATION_URL="$API_URL/namespaces/$NAMESPACE/notes/$NOTE_ID/file-publications/$OPERATION_ID"
+curl --fail-with-body --silent --show-error \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" "$OPERATION_URL"
+```
+
+| State | Meaning and next action |
+| --- | --- |
+| `admitted` | The operation exists but has not authorized its storage write. Preserve it; deliberately cancel if that work is no longer wanted. |
+| `write-started` | A storage write has been authorized and may still finish. Reconciliation can verify the original bytes; cancellation is refused. |
+| `published` | The response includes `historicalResult:true`, the original File receipt and HTTP status. Read current file metadata separately; this does not prove the file is still live. |
+| `aborted-before-write` | Cancellation won before write authorization. The retained key and operation cannot be replayed. |
+
+For `write-started`, an explicit reconciliation reads the original staged object
+and attempts its original fenced database publication. It performs **no storage
+PUT**, fetches no new copy source and cannot reconstruct missing bytes:
+
+```bash
+curl --fail-with-body --silent --show-error -X POST \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" "$OPERATION_URL/reconcile"
+```
+
+Missing/unreadable bytes retain an unconfirmed outcome. A checksum/size mismatch
+returns `503 file_publication_object_mismatch`; preserve the operation instead
+of reuploading. Current authority, ownership binding and source/destination
+preconditions still apply. A published receipt is never replayed after trash or
+purge and cannot resurrect a file.
+
+To deliberately cancel an `admitted` operation before write authorization:
+
+```bash
+curl --fail-with-body --silent --show-error -X POST \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" "$OPERATION_URL/abort"
+```
+
+Cancellation and write authorization compete atomically. If cancellation wins,
+status becomes `aborted-before-write` and the original executor cannot begin PUT.
+If write authorization has already won, cancellation returns
+`409 file_publication_abort_not_allowed`, even if an object currently reads 404.
+A published operation cannot be cancelled. Cancellation does not delete bytes,
+enqueue cleanup, restore a file, release the key or create another operation.
+After an uncertain cancellation response, inspect status; a deliberate repeated
+cancellation can confirm its terminal result under current authority and the
+original binding. Same-key writes and reconciliation of a cancelled operation
+return `409 file_publication_aborted`. A genuinely new write is a separate user
+decision, not an automatic recovery step.
+
+Expiry, a timeout, object absence or a lost acknowledgement does not prove a
+late write has stopped. Started operations may remain unresolved; no automatic
+reupload, timeout cleanup or general cancellation is promised. Local transaction,
+route and storage-failure fixtures test these boundaries; they are not production
+provider-failure, writer-drain or user-acceptance evidence. These operations do
+not enable durable purge, ownership adapters or the unfinished FortyFive transfer.
 
 ### Replace an attachment safely
 

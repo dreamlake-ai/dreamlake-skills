@@ -61,9 +61,17 @@ together. Copying onto the source's own path with `--overwrite` trashes the
 original and creates a new ID. `409 file_writer_upgrade_required` requires the
 selected server's immutable writer; `409 file_changed` or a path conflict requires
 fresh inspection. Do not bypass lost access, a lease or a started purge.
-After an ambiguous response, list/read the destination and inspect its ID before
-retrying. Copy has no idempotency key; never automatically resend an overwrite.
-See [copy publication](../reference/notes.md#copy-an-attachment-within-a-note).
+With released CLI 0.48.1, an ambiguous copy response requires inspecting the
+destination and its ID before deciding on further work. That CLI has no
+caller-supplied copy idempotency key; never automatically resend an overwrite.
+The separate known-byte journal source candidate adds original-actor, Note-scoped
+keys and selected operation status/reconcile/admitted-only cancellation. Use
+that workflow only after the selected API's journal-enabled release is verified;
+provisioned indexes and compatible disabled readers do not activate it. Preserve
+the original request, key and operation ID; reconciliation never uploads bytes
+again. Raw streaming uploads and cross-namespace transfers are outside its scope.
+See [copy publication](../reference/notes.md#copy-an-attachment-within-a-note) and
+[the candidate recovery workflow](../reference/notes.md#recover-a-text-or-copy-publication).
 
 ## Replace text conditionally
 
