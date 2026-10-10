@@ -200,7 +200,21 @@ dreamlake providers instances terminate team/<provider-id> --instance i-01234567
 - Repeating a request ID returns the same instances; it never launches twice.
 - `list`, `start`, `stop` and `terminate` act only on instances this provider
   launched (tag `dreamlake:provider`).
-- Launched instances are not enrolled yet.
+- Without enrollment options, launched instances are not enrolled. To install
+  Nymph automatically, pass a host name; an unused service account is optional:
+
+```bash cli-help="providers instances launch"
+dreamlake providers instances launch team/333333333333333333333333 --service-account 0123456789abcdef01234567 --host-name team/dev/worker --unix-user dreamlake-agent --request-id worker-01 --json
+```
+
+Automatic enrollment requires `--count 1` and a server supporting machine
+bootstrap. Each Nymph gets its own account, created automatically when `--service-account`
+is omitted; `--lakeshore-id` optionally selects a
+namespace control plane. With the matching protected-delivery release, the
+backend pins installer versions and delivers an instance-bound KMS envelope at
+runtime; user data contains no credential. A launch
+receipt is not online/readiness evidence. See [Service accounts](service-accounts.md)
+for grants, retry behavior and revocation.
 
 ## Recover a missing response
 
@@ -262,3 +276,12 @@ After a lost check response, repeat the identical check with the same request ID
 Checks use run receipts, not `providers operations`. Run retries also require the
 same inputs and request ID; changing resources conflicts. No write is automatically
 retried. This draft still needs paired real-server and live-worker acceptance.
+
+The protected CLI bootstrap requires Nymph 0.1.10, CLI 0.50.0 and a matching
+DreamLake backend, with configured CLI checksums, machine audience, dedicated
+KMS key and instance profile. The provider's account/region and launch layer's
+profile ARN must match that configuration. These are release prerequisites,
+not a claim that the current hosted deployment has enabled them. See
+[machine authentication](machine-auth.md) for readiness, login separation and
+recovery. Keep interactive human login in a separate Unix account from the
+background `dreamlake-agent` account.

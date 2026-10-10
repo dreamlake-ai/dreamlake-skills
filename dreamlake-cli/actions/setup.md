@@ -18,3 +18,10 @@ For scripts, use `dreamlake init --agent codex` or
 `dreamlake skill install --agent claude --global`. Skills are bundled with the
 CLI; updates remind you when installed copies differ. Review local edits before
 using `--force`. See [agent skills](../reference/skills.md).
+
+On a managed machine, start with `dreamlake auth identity` and
+`dreamlake machine self`. Machine mode supports granted host/project metadata
+reads; other APIs require personal identity. `dreamlake login` uses the existing
+device flow without altering machine credentials. Explicitly select personal
+access with `dreamlake --identity user profile`. Do not copy user tokens into
+machine configuration. See [machine authentication](../reference/machine-auth.md).
