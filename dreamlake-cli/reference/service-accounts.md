@@ -82,11 +82,12 @@ DreamLake creates a dedicated service account automatically. To select an accoun
 you prepared with grants, pass its unused ID with `--service-account`:
 
 ```bash
-dreamlake providers instances launch my-team/333333333333333333333333 --service-account 0123456789abcdef01234567 --host-name my-team/dreamfs/worker --unix-user ubuntu --request-id dreamfs-worker-1 --json
+dreamlake providers instances launch my-team/333333333333333333333333 --service-account 0123456789abcdef01234567 --host-name my-team/dreamfs/worker --unix-user dreamlake-agent --request-id dreamfs-worker-1 --json
 ```
 
-The backend supplies a short-lived, single-use bootstrap credential to the
-instance installer. Nymph creates its own machine identity and enrolls under the
+The matching protected-delivery backend release supplies a short-lived,
+instance-bound bootstrap capability through KMS at runtime. User data contains
+only code and non-secret configuration. Nymph creates its own machine identity and enrolls under the
 selected account. Human account tokens and Vault credentials are not copied to
 the target by this automatic enrollment path. Bootstrap material is not returned
 in the launch receipt or printed by this CLI. Do not put secrets in launch layers.
@@ -127,3 +128,12 @@ account access is disabled immediately, but this is not a claim that already
 running jobs have been killed. Revoking an
 account does not terminate its EC2 instance or delete its data; manage the cloud
 instance separately through `dreamlake providers instances`.
+
+The protected CLI bootstrap requires Nymph 0.1.10, CLI 0.50.0 and a matching
+DreamLake backend, with configured CLI checksums, machine audience, dedicated
+KMS key and instance profile. The provider's account/region and launch layer's
+profile ARN must match that configuration. These are release prerequisites,
+not a claim that the current hosted deployment has enabled them. See
+[machine authentication](machine-auth.md) for readiness, login separation and
+recovery. Keep interactive human login in a separate Unix account from the
+background `dreamlake-agent` account.
