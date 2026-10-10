@@ -3,11 +3,11 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "5d64f02409eea4a059c5f8b6b046674c4e83f94b",
+      "commit": "64ed48e636ae8b95a123fbc66a5cd077dff5562c",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "71503883dfda54a4b42d346e282d12cf2ceeb9bfd15d8185a4cee3894e2a7305",
-        "docs/skill-guides/notes/actions/attachments.md": "e16771cbec7622f9239b282939387dc16195b1fba32dd42903ef6246bd5030eb",
+        "docs/skill-guides/notes/actions/attachments.md": "6393b46609fbf844d87af66a353fa56c09f9e93a99a5d5e0f282679e0d3757da",
         "docs/skill-guides/notes/actions/create.md": "ecbd9f7b697cb59f6986b9ac770ba24140452abcd179b1a14dbc802a76361b82",
         "docs/skill-guides/notes/actions/edit.md": "b79f8fa6488b31ab4e13cb2b8774bbca0e3471e66731d641cf695c3c70bb2450",
         "docs/skill-guides/notes/actions/identity.md": "a642257851acea7aa4282cb0ea10dc1fa23b1dc08477c966cfa8ba901605f99c",
@@ -30,7 +30,7 @@
       },
       "docsPages": "docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "eac002d455703f0bb01052c0ca225608c8e72ecace97f209d51211f2506f156f",
+      "pageSha256": "d638651b74fad20757d42dc861d9e17535d1e42a34d210fabaf99a4c5cfb4a05",
       "childPages": {
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
@@ -46,7 +46,7 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "996e2f20a102210410084d626b990c4efef7a819",
+      "commit": "1d429cf5b543199569ee4a36ae8506da3d21d05a",
       "generatorSha256": "7222b8b50e011b15d1b4c1463a9652f809bd18621b506a72b23647229b03ea06",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "4a08c479b7d56b5b7b89153f0c5e8ac7aa629e91b2e56eb6ed8dbc5334b17018",

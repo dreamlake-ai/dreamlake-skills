@@ -14,14 +14,15 @@ establish production attachment-copy, saved-version-write or user acceptance.
 No transfer adapter is enabled, and runtime verification does not establish
 continuous Note-read availability.
 
-**Attachment journal candidate — October 10, 2026:** the known-byte text/copy
-publication journal and admitted-only cancellation below are source guidance,
-not an activated release. This source candidate enables the journal default;
-the verified `7d70a3aa` compatibility release keeps it disabled. Bounded old-writer
-drain and a separately verified activation release remain required. Provisioned
-indexes and compatible readers do not prove activation or production recovery.
-Durable purge and transfer adapters remain disabled; the FortyFive move is
-unfinished.
+**Attachment journal release — October 10, 2026:** the known-byte text/copy
+publication journal and admitted-only cancellation are enabled in the strictly
+verified API release `5d64f024`. Its running image and digest were verified;
+selected status checks returned anonymous 401 and authorized 404 with `no-store`.
+Those two read-only checks performed no attachment write, body read, RTC call or
+provider-failure recovery. CLI 0.48.2 public npm/native distribution and isolated
+Linux installations are verified; the other seven OS targets were byte-verified,
+not runtime-tested. Raw upload journaling, durable
+purge and transfer adapters remain disabled; the FortyFive move is unfinished.
 
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
@@ -1367,31 +1368,36 @@ retrying. Lost permission, an ownership conflict or a started purge must be
 resolved through the existing access/lifecycle workflow. Never drop access checks
 or purge/recreate a file to force a copy.
 
-After a lost response or uncertain outcome, list the destination and inspect its
-ID and content before deciding whether another copy is needed. This operation has
-no caller-supplied idempotency key in the released CLI: do not automatically
-resend, especially with `--overwrite`. The inactive API journal candidate below
-adds a separate keyed recovery contract; do not assume it is active.
+After a lost response or uncertain outcome, inspect the retained operation first
+when using CLI 0.48.2 with a caller-supplied key, as described below. CLI 0.48.1 has
+no copy idempotency key: list the destination and inspect its ID and content before
+deciding whether another copy is needed. Never automatically resend an uncertain
+copy, especially with `--overwrite`.
 Copying an attachment does not move a Note between namespaces or enable ownership
 transfer, named-version publication or durable purge.
 
 ### Recover a text or copy publication
 
-This workflow is **not activated**. Use it only after the selected API's exact
-journal-enabled release has been verified. Existing `files write` and `files cp`
-commands remain available with their existing semantics; this candidate adds no
-CLI flags. The verified CLI 0.48.1 does not expose a generic `api` command or these
-operation headers, so the API examples use `curl` with placeholder credentials.
+The known-byte journal is enabled in verified API release `5d64f024`.
+CLI 0.48.2 adds `--idempotency-key` to `files write` and `files cp`, plus selected
+`files status`, `files reconcile` and `files cancel` commands. Its public npm/native
+release, latest/stable pointers and real isolated Linux installations are verified;
+the other seven OS targets were byte-verified, not runtime-tested. Check
+`dreamlake --version` and use these commands only with that version or later and
+the verified journal-enabled API. Older CLI 0.48.1 does not expose these controls.
+The API examples below remain available for explicit API integrations.
+
 Do not run a write as a readiness probe: older servers may ignore an
 `Idempotency-Key`. A journal-aware server with the writer disabled refuses keyed
 text/copy requests and these operation routes with
 `503 file_publication_unavailable`; that refusal does not enable recovery.
 
-Once activated, the journal covers JSON text creation/replacement at
+The journal covers JSON text creation/replacement at
 `POST /namespaces/:slug/notes/:noteId/files` and same-Note copy at
 `POST /namespaces/:slug/notes/:noteId/files/:fileId/copy`. It does not cover the
 raw binary/streaming upload route, inline media, Note bodies or saved versions.
-The existing File response and HTTP 200/201 remain unchanged.
+The existing File response and HTTP 200/201 remain unchanged. Raw-upload inventory
+is a separate disabled source candidate, not a deployed recovery capability.
 
 An optional `Idempotency-Key` identifies one request for the original account and
 Note. It is 1–256 UTF-8 bytes without control characters or lone surrogates;
@@ -1413,13 +1419,53 @@ automatically resend: on the verified journal writer, a deliberate identical
 request with the **original key and account** can reconcile the retained admission;
 an unkeyed retry cannot identify that original operation.
 
+#### Use the CLI with a retained key
+
+Use a disposable Note you can edit, the original signed-in account and its exact
+namespace. Each write below is an independent example, not a recovery retry.
+CLI keys are printable ASCII, 1–256 bytes without surrounding spaces. Preserve
+the key and exact request; the CLI never automatically retries.
+
+```bash
+: "${NOTE_ID:?set a disposable Note ID}"
+: "${NAMESPACE:?set its namespace}"
+dreamlake --version
+# Choose only the intended write or copy.
+dreamlake notes files write journal-example.txt --text 'reviewed text' \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" \
+  --idempotency-key example-text-001 --json
+dreamlake notes files cp journal-example.txt journal-copy.txt \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" \
+  --idempotency-key example-copy-001 --json
+```
+
+Retain `operationId` from JSON output or the operation ID printed on stderr,
+including a failure receipt. Inspect before choosing any further action:
+
+```bash
+: "${OPERATION_ID:?set the retained operation ID}"
+dreamlake notes files status "$OPERATION_ID" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+# Choose reconcile only to finish the original retained publication.
+dreamlake notes files reconcile "$OPERATION_ID" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+# Choose cancel only when admitted work is no longer wanted.
+dreamlake notes files cancel "$OPERATION_ID" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+```
+
+Status is read-only. Reconcile may publish the original database result but
+never uploads bytes again. Cancel is limited to `admitted`; it cannot cancel
+`write-started` or `published`. These CLI commands expose the API contract below,
+not a new ownership permission or proof of production-write acceptance.
+
 #### Create text or copy with a retained key
 
 Prerequisites: an explicitly verified journal-enabled API, a disposable Note you
 can edit, the same signed-in account for submission and recovery, and `curl`.
-The following is a candidate example, not a command to run against today's API.
-Replace every placeholder. Choose one write, keep its key and request, and do
-not add automatic retry options.
+Replace every placeholder with the verified API and your explicitly intended
+disposable Note. Choose one write, keep its key and request, and do not add
+automatic retry options. The release checks did not execute these mutations.
 
 ```bash
 API_URL='https://your-reviewed-journal-api.example'

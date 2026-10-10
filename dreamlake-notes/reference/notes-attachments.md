@@ -72,7 +72,11 @@ dreamlake notes files list --trashed --note "$NOTE_ID"
 ```
 
 `rm` moves a file to trash. Use `files restore --help` to restore the returned
-file ID, optionally to a new path. `rm --purge` permanently deletes stored bytes.
+file ID, optionally to a new path. `rm --purge` requests permanent deletion.
+Current production has durable purge disabled: immutable attachments and files
+with retained object lineage fail closed instead of deleting their stored bytes.
+The CLI flag does not establish server support; do not treat a refusal or an
+unconfirmed response as successful deletion.
 File write/move/remove operations support `--if-match` with the **file's** ETag,
 not the note's write revision.
 
