@@ -17,6 +17,7 @@ options and limits:
 - [Manage workflows](actions/workflows.md)
 - [Import and restore cloud configuration](actions/cloud-vault.md)
 - [Provision machines and manage their identities](actions/machines.md)
+- [Forward an owned TCP service through a managed tunnel](actions/tunnels.md)
 
 Run `dreamlake <command> --help` for command-specific syntax. The bundled
 `reference/` directory remains the complete generated CLI documentation.

@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.55.0 — Owned TCP tunnels (unreleased)
+
+Adds Linux/macOS `tunnel start`, `list`, `status` and `stop`, with local loopback
+listeners, ephemeral ports, detached JSON readiness receipts, and bounded leases.
+Default local and named remote conflicts are errors. `--replace`,
+`--replace-local` and `--replace-remote` stop only owned managed tunnels; unrelated
+listeners, other owners, browser sessions and remote services are preserved.
+Requires the matching owner tunnel API, control plane and Nymph 0.1.18 forwarding
+capability. A tunnel key cannot open a shell or arbitrary destination. See
+[TCP tunnels](tunnel.md) for scope, orphan cleanup and unknown-outcome recovery.
+
 ## 0.54.0 — Curated AWS starter guide
 
 The bundled skill routes “connect AWS to DreamLake” to a first-time setup guide
