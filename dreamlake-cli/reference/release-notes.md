@@ -1,5 +1,15 @@
 # Release notes
 
+## 0.52.0 — Direct macOS host enrollment
+
+`hosts enroll --local` supports macOS through a private per-user LaunchAgent,
+with the same authorization, identity and verified-online checks as Linux.
+Retries preserve the key and avoid restarting an unchanged healthy agent.
+macOS requires Python 3, OpenSSL Ed25519 support and an active graphical login;
+Homebrew paths are included for `uv`. No SSH server, sudo or system daemon is
+used. See [Host enrollment](host-enrollment.md#macos-prerequisites-and-service-lifecycle)
+for prerequisites, recovery, session availability and validation limits.
+
 ## 0.49.0 — Personal AI AWS setup and explicit state snapshots
 
 `provider create --provider aws-jump-worker` distributes the editable Terraform
