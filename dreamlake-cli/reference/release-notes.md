@@ -1,5 +1,22 @@
 # Release notes
 
+## 0.54.0 — Curated AWS starter guide
+
+The bundled skill routes “connect AWS to DreamLake” to a first-time setup guide
+and a reviewed, checksum-verifiable starter download. It reuses the existing
+AWS Terraform template, separates infrastructure from enrollment and worker
+readiness, and provides a basic tools image with reusable Docker/Kubernetes
+SDK profiles and a reconnectable smoke command. See [Connect AWS](connect-aws.md).
+
+The source recipes repository remains private; only explicitly selected, reviewed
+files are distributed publicly. Local configuration, keys, tokens, Terraform state
+and logs are excluded. Organization-specific copies should keep secrets in Vault
+and reference them from private configuration.
+
+Recipe validation covers local Docker/Kubernetes execution with SDK 0.5.0 and
+Nymph 0.1.17. Live AWS provisioning, paid jobs and arbitrary multi-node shared
+storage are separate acceptance steps; a generated handoff does not claim readiness.
+
 ## 0.52.2 — User-configured managed agent setup
 
 The bundled agent skill and provider reference explain the optional `agentSetup`
