@@ -1,6 +1,6 @@
 ---
 name: dreamlake-cli
-description: "Use the DreamLake CLI to upload and download data, manage workspace resources, Notes, artifacts, workflows, and hosts. Use for command setup and troubleshooting; use an SDK only when the task requires SDK integration or the CLI lacks the needed operation."
+description: "Use the DreamLake CLI to upload and download data, manage workspace resources, Notes, artifacts, workflows, and hosts. Use for 'connect AWS to DreamLake', curated AWS worker setup, command setup and troubleshooting; use an SDK only when the task requires SDK integration or the CLI lacks the needed operation."
 ---
 
 # DreamLake CLI
@@ -9,6 +9,7 @@ Start with the task guide, then consult the bundled reference page for complete
 options and limits:
 
 - [Install, authenticate, and choose an environment](actions/setup.md)
+- [Connect AWS to DreamLake with the curated starter](actions/connect-aws.md)
 - [Upload or download data](actions/data.md)
 - [Work with Notes](actions/notes.md)
 - [Upload an inline image](actions/media.md)
