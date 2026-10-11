@@ -1,7 +1,8 @@
 # Host enrollment
 
-`dreamlake hosts enroll` bootstraps a user-owned nymph over your existing SSH
-connection, then waits for the backend to confirm that exact enrollment online.
+`dreamlake hosts enroll` bootstraps a user-owned nymph on this computer with
+`--local`, or over an existing SSH connection with `--ssh`. It waits for the
+backend to confirm that exact enrollment online.
 Provider registration is not required. It requires the new authenticated Hosts
 API and a control plane supporting identity-bound grants and signed reconnect;
 these changes must be deployed together. `--dry-run` only validates inputs and
@@ -41,10 +42,39 @@ and available operation/retry fields.
 execution preserves the target identity and reuses the user service. Runner/job
 readiness is a separate check from a connected nymph.
 
-Direct enrollment on the target host is planned but has no implemented command
-syntax yet. For the broader workflow, see the upcoming
-[host enrollment guide](https://docs.dreamlake.ai/hosts/enroll) in the main
-DreamLake docs (not yet deployed). This page is the CLI input reference.
+## Register this computer
+
+On Linux with Python 3, OpenSSL, a systemd user manager and linger enabled,
+register the current Unix account directly. No SSH server, loopback connection,
+or SSH credentials are needed.
+
+```bash cli-help="hosts enroll"
+dreamlake hosts enroll -n geyang/lab/current-computer --local --dry-run
+dreamlake hosts enroll -n geyang/lab/current-computer --local \
+  --request-id current-computer-001
+dreamlake hosts status geyang/lab/current-computer --json
+```
+
+`--local` is mutually exclusive with `--ssh` and SSH credential-saving options.
+Enrollment JSON can use `"local": true` instead of `"ssh": {...}`. The identity
+key stays on this computer, grants travel through process stdin, and the same
+user service and exact enrollment verification are used for both transports.
+Local mode currently requires Linux; macOS and Windows user services are not
+supported. Dry-run validates input and does not install or register anything.
+
+Once status is verified online, run a small job (requires a Nymph build with
+tracked-run support and `uv` available to the user service):
+
+```bash
+printf 'import socket; print("Hello from", socket.gethostname())\n' > hello.py
+dreamlake run --target geyang/lab/current-computer --include hello.py \
+  --request-id local-hello-001 --timeout-seconds 60 --uv-run python hello.py
+```
+
+The command waits for the result and displays its output. Registration alone
+does not prove job execution readiness; use the completed run as the check.
+
+## Register another computer
 
 ```shell
 dreamlake hosts enroll -p fortyfive/bos14 -n bos14-ctrl --ssh bos14-ctrl
