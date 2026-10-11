@@ -8,7 +8,7 @@ needed. Each tunnel permits one literal remote loopback destination, with no
 shell, SFTP, reverse forwarding or arbitrary network destination.
 
 ```bash cli-help="tunnel start"
-dreamlake --identity user tunnel start --target geyang/dev/my-mac \
+dreamlake --identity user tunnel start --target alice/dev/laptop \
   --local-port 8080 --remote-port 3000 --name dev-web
 ```
 
@@ -27,7 +27,7 @@ A successful receipt contains the tunnel ID, target, bound local port, remote
 endpoint and expiry. It never contains SSH keys, relay tickets or credentials.
 
 ```bash
-dreamlake --identity user tunnel start --target geyang/dev/my-mac \
+dreamlake --identity user tunnel start --target alice/dev/laptop \
   --local-port 8080 --remote-port 3000 --name dev-web --detach --json
 ```
 
@@ -42,7 +42,7 @@ remains occupied. It never kills an unrelated process, another user's remote
 tunnel, a browser SSH session or the service listening on the remote destination.
 
 ```bash
-dreamlake --identity user tunnel start --target geyang/dev/my-mac \
+dreamlake --identity user tunnel start --target alice/dev/laptop \
   --local-port 8080 --remote-port 3000 --name dev-web --replace --detach --json
 ```
 
@@ -63,12 +63,12 @@ dreamlake tunnel stop TUNNEL_ID --json
 List remote leases or clean up a lease whose local client has disappeared:
 
 ```bash
-dreamlake --identity user tunnel list --remote --target geyang/dev/my-mac --json
+dreamlake --identity user tunnel list --remote --target alice/dev/laptop --json
 ```
 
 ```bash
 dreamlake --identity user tunnel stop SESSION_ID --remote \
-  --target geyang/dev/my-mac --worker-id WORKER_ID --json
+  --target alice/dev/laptop --worker-id WORKER_ID --json
 ```
 
 A failed request after submission can have an unknown outcome. The CLI never
