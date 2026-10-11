@@ -45,6 +45,26 @@ and available operation/retry fields.
 execution preserves the target identity and reuses the user service. Runner/job
 readiness is a separate check from a connected nymph.
 
+## Web terminal
+
+Starting in CLI 0.53.0, web terminal access is enabled by default. `--web-terminal` explicitly selects
+it; `--no-web-terminal` opts out. Enrollment JSON accepts `"webTerminal": false`.
+The enabled choice configures Nymph for browser SSH as this exact Unix user.
+The gateway discovers the signed enrollment automatically. Opening a terminal
+authorizes a bounded session through your owner account; setup needs no manual
+per-worker grant. Your SSH credentials stay local and no inbound port is opened.
+
+Web terminal setup requires Nymph 0.1.11 or newer and an installed OpenSSH server.
+On Linux, the host administrator must provide OpenSSH's root-owned `/run/sshd`
+directory. Enrollment reports terminal setup separately from Nymph's online
+status and gives a retry action if terminal readiness is still pending.
+
+```bash
+dreamlake hosts enroll --local --name geyang/dev/my-mac --web-terminal
+# Enroll without browser shell access.
+dreamlake hosts enroll --local --name geyang/dev/my-mac --no-web-terminal
+```
+
 ## Output format
 
 Enrollment prints a readable summary by default, including the host name,
@@ -79,8 +99,8 @@ it does not report the host online. JSON field names and exit codes are unchange
 On Linux or macOS with Python 3 and OpenSSL Ed25519 support, register the
 current Unix account directly. Linux uses a systemd user manager with linger;
 macOS uses a LaunchAgent in your logged-in graphical user session. macOS support
-is added in CLI 0.52.0. No SSH server, loopback connection,
-or SSH credentials are needed.
+is added in CLI 0.52.0. No loopback connection or SSH credentials are needed.
+The default web terminal option additionally requires the system OpenSSH server.
 
 ```bash
 dreamlake hosts enroll -n geyang/lab/current-computer --local --dry-run
