@@ -23,6 +23,17 @@ billed and must be within the user's requested scope. Do not create extra hosts
 as an implicit retry. Inspect a lost launch by its request ID before retrying
 identical input.
 
+Select workload software explicitly in the existing launch layers with
+`agentSetup`: pinned `nodeVersion`, optional `codexVersion`/`claudeVersion`, and
+opt-in `startCodexDaemon`. See the providers reference for the supported schema.
+Omission installs no Node or harness and starts no agent daemon. Keep hardware,
+software and startup choices in the user's project/preset; never invent cloud
+values or inject vendor credentials. Preflight first and verify the matching
+backend supports the field. Existing machines/retry receipts preserve their
+original setup; changed choices require a new request ID. Readiness verifies
+selected harnesses/skills plus signed machine access, independently of vendor
+inference authentication.
+
 For an existing enrolled host, create its dedicated account and use
 `service-accounts bind --enrollment` to associate it without restarting Nymph.
 Both identities must be in the same namespace; existing different bindings cannot
