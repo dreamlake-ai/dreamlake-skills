@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.52.1 — Readable host registration output
+
+`dreamlake hosts enroll` prints a readable registration summary by default,
+including verified online or pending state and recovery identifiers. Errors use
+text too. Add `--json` for a structured receipt without request-ID progress
+output. JSON fields, readiness checks and exit codes are unchanged. `--quiet`
+suppresses progress while retaining the final result. These defaults also appear
+in command help and the bundled agent skill.
+
 ## 0.52.0 — Direct macOS host enrollment
 
 `hosts enroll --local` supports macOS through a private per-user LaunchAgent,

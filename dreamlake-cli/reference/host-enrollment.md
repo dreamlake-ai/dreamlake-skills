@@ -45,6 +45,35 @@ and available operation/retry fields.
 execution preserves the target identity and reuses the user service. Runner/job
 readiness is a separate check from a connected nymph.
 
+## Output format
+
+Enrollment prints a readable summary by default, including the host name,
+verified connection state, and recovery identifiers. Errors also use readable
+text. Use `--json` for a structured success, pending, validation, or error receipt;
+JSON mode suppresses the introductory request-ID progress line. `--quiet`
+suppresses progress only and does not select JSON or hide the final receipt.
+These output changes require CLI 0.52.1.
+
+```bash cli-help="hosts enroll"
+# Human-readable output (default).
+dreamlake hosts enroll --local --name geyang/dev/my-mac
+# Structured output for scripts.
+dreamlake hosts enroll --local --name geyang/dev/my-mac --json
+```
+
+A successful default summary starts with:
+
+```text
+Registered geyang/dev/my-mac. Nymph is online.
+Host ID: <host-id>
+Enrollment ID: <enrollment-id>
+Machine ID: <machine-id>
+Request ID: <request-id>
+```
+
+A pending result exits nonzero and explicitly says enrollment is pending;
+it does not report the host online. JSON field names and exit codes are unchanged.
+
 ## Register this computer
 
 On Linux or macOS with Python 3 and OpenSSL Ed25519 support, register the
@@ -53,7 +82,7 @@ macOS uses a LaunchAgent in your logged-in graphical user session. macOS support
 is added in CLI 0.52.0. No SSH server, loopback connection,
 or SSH credentials are needed.
 
-```bash cli-help="hosts enroll"
+```bash
 dreamlake hosts enroll -n geyang/lab/current-computer --local --dry-run
 dreamlake hosts enroll -n geyang/lab/current-computer --local \
   --request-id current-computer-001

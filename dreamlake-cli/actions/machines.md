@@ -32,6 +32,14 @@ Use `dreamlake machine self` and a granted `machine host` or `machine project`
 read on the provisioned host. Human login uses separate Unix credentials and
 `--identity user`; it must not replace background machine credentials.
 
+For current-computer registration, use `dreamlake hosts enroll --local --name
+<namespace/group/host>`. Enrollment prints readable text by default; add `--json`
+when a program needs the structured result, including pending and error receipts.
+`--quiet` suppresses progress, not the final result. Text-output behavior requires
+CLI 0.52.1; consult the host enrollment reference for local
+Linux/macOS prerequisites. Keep the request ID for identical-input retries and
+never treat a pending receipt as online.
+
 Check `hosts status` and the intended workload separately: launched, enrolled,
 online, and workload-ready are distinct states. Never index terminal or workload
 output automatically. Account revocation does not stop or terminate an instance;
