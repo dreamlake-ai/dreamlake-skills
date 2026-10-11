@@ -288,6 +288,20 @@ not a claim that the current hosted deployment has enabled them. See
 recovery. Keep interactive human login in a separate Unix account from the
 background `dreamlake-agent` account.
 
+## Web terminal after an enrolled launch
+
+Starting in CLI 0.53.0, an instance launch with `--host-name` enables web terminal by default. The CLI
+waits up to 300 seconds for that exact launch's enrollment and terminal access.
+`--wait-seconds` changes the bound; `--no-web-terminal` disables browser SSH.
+No terminal access is granted for a launch without automatic host enrollment.
+
+The checked default enables Nymph SSH and waits for the exact signed enrollment
+to appear in owner-scoped terminal discovery. Opening a browser terminal creates
+a bounded owner-authorized session; setup needs no manual worker grant. The command never copies your personal
+login to the instance. A terminal timeout preserves the launched-instance
+receipt, reports pending, and exits nonzero. Retry with the same request ID to
+reuse the instance and finish setup; do not choose a new ID to recover it.
+
 ## Managed agent software
 
 For managed EC2 launches (`--host-name`), a matching backend accepts an optional
