@@ -8,15 +8,18 @@ API and a control plane supporting identity-bound grants and signed reconnect;
 these changes must be deployed together. `--dry-run` only validates inputs and
 does not contact the server or target.
 
-The target needs Python 3, OpenSSL, an accessible systemd user manager, and user
-linger enabled for service persistence after logout. Enrollment never uses sudo.
+The target needs Python 3 and OpenSSL with Ed25519 support. Linux additionally
+needs an accessible systemd user manager and user linger for persistence after
+logout. macOS uses the logged-in user’s launchd GUI domain (see below).
+Enrollment never uses sudo.
 It reuses an installed `nymph`, or downloads the official installer into the
 user-local binary directory. `--nymph-version` selects an installer version when
 the binary is absent. The target generates and retains its nymph private key;
 only its public key and Unix username go to the enrollment API. Short-lived
-grants travel to the target over SSH stdin, not process arguments or logs.
+grants travel through bootstrap process stdin (over SSH only for remote
+enrollment), not process arguments or logs.
 
-Check the target account before enrollment:
+For a Linux SSH target, check the account before enrollment:
 
 ```shell
 ssh bos14-ctrl 'systemctl --user show-environment >/dev/null && loginctl show-user "$(id -un)" -p Linger --value'
@@ -44,8 +47,10 @@ readiness is a separate check from a connected nymph.
 
 ## Register this computer
 
-On Linux with Python 3, OpenSSL, a systemd user manager and linger enabled,
-register the current Unix account directly. No SSH server, loopback connection,
+On Linux or macOS with Python 3 and OpenSSL Ed25519 support, register the
+current Unix account directly. Linux uses a systemd user manager with linger;
+macOS uses a LaunchAgent in your logged-in graphical user session. macOS support
+is added in CLI 0.52.0. No SSH server, loopback connection,
 or SSH credentials are needed.
 
 ```bash cli-help="hosts enroll"
@@ -59,8 +64,9 @@ dreamlake hosts status geyang/lab/current-computer --json
 Enrollment JSON can use `"local": true` instead of `"ssh": {...}`. The identity
 key stays on this computer, grants travel through process stdin, and the same
 user service and exact enrollment verification are used for both transports.
-Local mode currently requires Linux; macOS and Windows user services are not
-supported. Dry-run validates input and does not install or register anything.
+Windows local enrollment is not supported. macOS enrollment must run as your
+normal logged-in user, without sudo. A headless SSH session without a graphical
+login is not sufficient. Dry-run validates input and does not install or register anything.
 
 Once status is verified online, run a small job (requires a Nymph build with
 tracked-run support and `uv` available to the user service):
@@ -73,6 +79,56 @@ dreamlake run --target geyang/lab/current-computer --include hello.py \
 
 The command waits for the result and displays its output. Registration alone
 does not prove job execution readiness; use the completed run as the check.
+
+## macOS prerequisites and service lifecycle
+
+Use CLI 0.52.0 or newer. Install Python 3, `uv` and OpenSSL 3 using your chosen
+package manager if they are absent. For Homebrew:
+
+```shell
+brew install python uv openssl@3
+dreamlake hosts enroll --local --name YOUR_NAMESPACE/dev/my-mac \
+  --nymph-version v0.1.11
+dreamlake hosts status YOUR_NAMESPACE/dev/my-mac --json
+```
+
+An existing Nymph binary on PATH is reused; `--nymph-version` selects the
+installer version only when Nymph is missing. Check an existing daemon's version
+before relying on tracked-run support. Homebrew's OpenSSL 3 is discovered under
+both `/opt/homebrew` (Apple Silicon) and `/usr/local` (Intel). Apple's bundled
+LibreSSL may not support the required Ed25519 operation; enrollment checks this
+before creating identity material. No package manager is invoked automatically.
+
+The agent lives at `~/Library/LaunchAgents/ai.dreamlake.host.<hash>.plist`;
+`<hash>` is the first 24 hex characters of SHA-256 of the full host name.
+Nymph runs as you, restarts on failure, starts at login and survives closing
+Terminal. It is available while your graphical user session is active; logout,
+sleep or shutdown can make the host unavailable. It does not run as root or
+promise execution while the Mac is asleep. Review background-item permissions
+in System Settings if macOS blocks the agent.
+
+The service PATH includes `~/.local/bin`, `/opt/homebrew/bin`, `/usr/local/bin`
+and system binaries, so standard `uv` installations are visible. Key, grant,
+config and plist are private (0600); grants stay out of argv and the plist.
+Daemon stdout/stderr are discarded rather than saved to an unreviewed log file.
+Tracked job status and output remain available through `runs status`/`runs logs`.
+
+Re-enrollment preserves the identity key. An unchanged loaded agent is started
+without killing a healthy process; changed configuration reloads only that
+agent. If launchd fails, enrollment exits unsuccessfully and preserves identity
+material for retry. Reuse the printed request ID after an interrupted request.
+
+To stop one local agent, identify its exact label from that host's plist and run
+`launchctl bootout "gui/$(id -u)/ai.dreamlake.host.<hash>"`. This stops local
+execution; it does not revoke the server enrollment or remove credentials.
+Preserve the key for recovery and use the owning host's revocation procedure
+when retiring it. Do not remove other LaunchAgents or identity directories.
+
+Apple's [LaunchAgent documentation](https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html)
+describes the per-user service model. Portable adapter regressions exercise
+failure/retry behavior; the macOS CI job separately uses real launchd with an
+offline worker fixture. Neither replaces authenticated end-to-end acceptance on
+a real Mac against the deployed control plane.
 
 ## Register another computer
 
