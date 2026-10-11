@@ -87,8 +87,10 @@ Provider responses include `capabilities`: the resource unit (`instance` for EC2
 EC2 `stop` keeps volumes while `terminate` destroys the instance; Slurm `cancel`
 targets one allocation. `state` is `available` only when DreamLake implements
 the operation. It does not mean the provider is reachable or that you may act.
-In this version only Slurm `associate` is available. Legacy records report
-`capabilities: null`.
+Use the returned states for the deployed environment: declaration support alone
+does not enable lifecycle operations. EC2 instance commands require the matching
+backend; Slurm execution requires an owned runner association. Legacy records
+report `capabilities: null`.
 
 ## Declare a GCE project and zone
 
@@ -285,3 +287,50 @@ not a claim that the current hosted deployment has enabled them. See
 [machine authentication](machine-auth.md) for readiness, login separation and
 recovery. Keep interactive human login in a separate Unix account from the
 background `dreamlake-agent` account.
+
+## Managed agent software
+
+For managed EC2 launches (`--host-name`), a matching backend accepts an optional
+`agentSetup` object in the existing provider, named or request launch layers.
+Choose versions in your project; they are not platform defaults. Preflight
+resolves overrides and reports source locations before any billed launch.
+
+`agent.layer.json`:
+
+```json
+{
+  "agentSetup": {
+    "nodeVersion": "22.22.2",
+    "codexVersion": "0.162.1",
+    "claudeVersion": "2.1.296",
+    "startCodexDaemon": false
+  }
+}
+```
+
+```bash
+dreamlake providers preflight team/333333333333333333333333 --file agent.layer.json --json
+dreamlake providers instances launch team/333333333333333333333333 --file agent.layer.json --host-name team/dev/agent --unix-user dreamlake-agent --request-id agent-dev-1 --json
+```
+
+The provider must already supply the user's image, machine/network/storage and
+protected bootstrap instance profile. `nodeVersion` is required when the object
+is present. Omit either harness version to leave it uninstalled. Versions must
+be exact pins; mutable tags, unknown fields and shell fragments are rejected.
+`startCodexDaemon: true` requires Codex and creates its user startup service.
+With the entire object omitted, the shared bootstrap installs no Node/npm or
+agent harness and starts no agent daemon; machine enrollment and signed
+readiness still run. Raw VM launches reject `agentSetup` without managed
+enrollment rather than silently skipping it.
+
+Only selected harnesses and their bundled DreamLake skills are checked. Vendor
+login remains separate from machine identity. Never embed vendor credentials in
+launch layers or user data. A matching backend release is required; an older
+server rejects the field even with a newer CLI. Existing machines and persisted
+launch retries keep their original installer. A changed software choice needs
+a new request ID.
+
+See [machine security and rollback](https://docs.dreamlake.ai/lakeshore/service-accounts#user-selected-agent-software)
+and the [self-contained project](https://github.com/dreamlake-ai/lakeshore-examples/tree/main/18-managed-agent-dev).
+Verify exact enrollment, completed workload, selected skills and reboot behavior
+before calling your preset ready.

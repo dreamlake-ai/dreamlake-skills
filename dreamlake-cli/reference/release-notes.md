@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.52.2 — User-configured managed agent setup
+
+The bundled agent skill and provider reference explain the optional `agentSetup`
+launch layer: user-pinned Node/Codex/Claude versions and explicit Codex daemon
+startup. The matching backend release is required; this CLI update alone cannot
+add server support. The shared bootstrap no longer chooses workload harnesses
+for new launches. Existing machines and persisted retry receipts are unchanged.
+The CLI command surface and readable enrollment behavior remain unchanged.
+
 ## 0.52.1 — Readable host registration output
 
 `dreamlake hosts enroll` prints a readable registration summary by default,
