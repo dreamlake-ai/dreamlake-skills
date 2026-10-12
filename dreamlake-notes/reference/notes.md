@@ -437,6 +437,16 @@ ordinary bracketed prose without a highlight.
 
 ## Create and list
 
+The implementation of Shared with me resolves each Note's live owner and uses
+its current namespace slug in the returned route. Cached namespace fields on an
+accepted-share record are historical provenance, not authorization or routing
+facts. The read does not repair or mutate those records. Current namespace
+members receive the Note through their normal catalog; other active recipients
+retain their accepted access while sharing remains enabled. A public Note stays
+readable after its share link is disabled, without retaining share-based editing
+permission. Deleted Notes, deleted owner namespaces and revoked acceptances are
+omitted. This reader change does not enable ownership transfer.
+
 **CLI**
 
 ```bash
