@@ -138,10 +138,51 @@ work in this run, verified through Remote Control connection, the returned
 full-access thread settings, and a separately submitted task starting. Keep
 these outcomes separate; one working service does not validate the others.
 
+## Pairing codes and desktop registration
+
+Checked on 2026-10-12 with Codex CLI 0.162.1 and the installed desktop app.
+Reuse an existing pairing when available. For a new host whose remote-control
+daemon is already running, generate a short-lived code on that host:
+
+```bash
+codex remote-control pair --json
+```
+
+The response contains `pairingCode`, `manualPairingCode`, `environmentId`, and
+`expiresAt`. Give the intended user the manual code and expiry through the
+authorized channel; keep live codes out of committed documentation. This command
+**creates** a code. No supported CLI command to **redeem** a supplied code and
+add that host to the desktop was found in this version. The normal completion
+step is the desktop's remote-connections pairing flow.
+
+The installed app's implementation revealed an internal authenticated request:
+
+```text
+POST /wham/remote/control/client/pair
+Body: {"client_id": "<desktop-client-id>", "manual_pairing_code": "<code>"}
+Success field used by the app: environment_id
+```
+
+After success, the app refreshes remote-control connections and enables
+auto-connect for the returned environment. This is implementation evidence,
+not a documented public API or a tested command-line integration. A wrapper
+would need the intended desktop's registered client identity, valid ChatGPT
+authentication, and the connection refresh; the pairing code alone is not
+enough. Recheck the installed implementation before developing such a wrapper.
+Do not present a speculative `codex ... add --code` command as available, copy
+another client's identity, or claim registration succeeded without readback.
+
+The generated app-server protocol exposes host-side pairing start/status and
+client list/revoke methods, but no code-redemption method was found. Its
+`environment/add` method registers an exec-server execution environment, not a
+desktop remote-control host. Similarly, `codex --remote <websocket-url>` connects
+the CLI to an app-server endpoint; it does not add a machine to the desktop.
+
 ## Sources
 
 - [Official app-server lifecycle and RPC documentation](https://learn.chatgpt.com/docs/app-server)
 - [Remote connections and client visibility](https://learn.chatgpt.com/docs/remote-connections)
+- [Official remote-control CLI commands](https://learn.chatgpt.com/docs/developer-commands?surface=cli#codex-remote-control)
 - [Sandbox and approval settings](https://learn.chatgpt.com/docs/sandboxing)
 
 The machine-specific transport behavior above comes from direct local tests,
