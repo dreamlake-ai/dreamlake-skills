@@ -22,6 +22,10 @@ purpose. Honor a user's narrower permission choice. No global settings change.
 
 ## Launch
 
+For a newly provisioned machine, first read the
+[fresh-host prerequisites and manual gaps](references/remote-sessions.md#fresh-host-prerequisites-and-manual-gaps).
+This launcher expects an authenticated host and an existing working directory.
+
 1. Choose the requested directory and recognizable title; default to the current
    workspace. The host needs Python 3, tmux, and Claude Code with Remote Control.
    Run the helper's `--check` to verify the installed CLI supports its flags.
