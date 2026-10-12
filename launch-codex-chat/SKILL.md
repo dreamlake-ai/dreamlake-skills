@@ -23,6 +23,9 @@ user's connected client. Starting the server alone does not create a chat.
 For a newly provisioned machine, first read the
 [fresh-host prerequisites and manual gaps](references/launching-chats.md#fresh-host-prerequisites-and-manual-gaps).
 This launcher expects an authenticated host and an existing working directory.
+For adding a machine by pairing code, read
+[pairing codes and desktop registration](references/launching-chats.md#pairing-codes-and-desktop-registration).
+Generating a code on the host and redeeming it in the desktop are separate steps.
 
 1. Choose the requested working directory and a recognizable chat name. If no
    directory was specified, use the current workspace.
