@@ -1,7 +1,8 @@
 # Owned TCP tunnels
 
-Unreleased: consult [TCP tunnels](../reference/tunnel.md) for the coordinated
-client/API/control-plane/Nymph prerequisites. CLI through 0.54.0 has no tunnel command.
+Requires CLI 0.55.0 or later, Nymph 0.1.18 or later and server forwarding support.
+Consult [TCP tunnels](../reference/tunnel.md) for prerequisites and limits.
+CLI through 0.54.0 has no tunnel command.
 Authenticate with [setup](setup.md), select `--identity user`, and choose the
 exact namespace/group/host and enrollment. Do not launch a new machine as a
 connectivity retry. This feature initially supports Linux and macOS OpenSSH.
