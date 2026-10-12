@@ -23,6 +23,14 @@ Open a new terminal and confirm:
 dreamlake --version
 ```
 
+## Product analytics
+
+CLI 0.55.0 and later support quiet, optional usage measurement through the
+DreamLake API. No command arguments or contents are collected. Set
+`DREAMLAKE_TELEMETRY=0` before running the CLI or save the preference with
+`dreamlake telemetry disable --quiet`. See [product analytics](analytics.md) for
+collected fields and delivery limits.
+
 ## What it installs
 
 Everything lands under `$HOME` — no `sudo`, nothing system-wide:

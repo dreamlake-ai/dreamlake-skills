@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "632a17b6e1b459c7ec7ae92e7fd612b092e8589792e5cf0ca38f8e2ba0e70716",
+  "sourcesSha256": "cc1498868a65cd85fe516bf37144670c8424ac2387cc5d319ed450a82673f5df",
   "files": {
     "dreamlake-cli/SKILL.md": "99c5e87e58530c1818eb42ef99ca25f4baad717e449d5f997502c6d81e68b5df",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -10,9 +10,10 @@
     "dreamlake-cli/actions/machines.md": "eb9558f61503571260ec41ef6a8af3774c073e546b19ab1bc38bc2808164c7ff",
     "dreamlake-cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
     "dreamlake-cli/actions/notes.md": "baedc6c38cfa5854926f686323de5306ab7fa40596783e55936ba124690605b2",
-    "dreamlake-cli/actions/setup.md": "54a4124b774f999f5f50784ef418956b39fb0e6655132ab29128e0644caa3d5f",
+    "dreamlake-cli/actions/setup.md": "1cddce74b33eb09b5c04ac4ea6596ab1c527573ede1ec60a86c3bb5a00cf65b9",
     "dreamlake-cli/actions/workflows.md": "570a51f04fdb7cf0e5317b959fa67ac352eefaabc6beb5f00867db6cc51e3a7e",
     "dreamlake-cli/reference/agents.md": "29b23321a4f10af056e7e2a4959feeb241ab1766ab69df1c91585ff0ba98445b",
+    "dreamlake-cli/reference/analytics.md": "40943fc3e1a458153a8e6ef963a510f368f4c788f05701caa99b5e44de49a9d7",
     "dreamlake-cli/reference/artifacts.md": "3eb87e84b9a3dfbcb03f03d7805ac728b556c081e3f2d17f14eb9a18ee71b7d9",
     "dreamlake-cli/reference/collections.md": "593e739aed97e6804d1247950afcd50ecafea676e9310a5e3b63c13db03c8f86",
     "dreamlake-cli/reference/command-reference.md": "30c1e7da2bc2d78c35ce7bc48d253f2adbee8010f757d69a5ccb705b26578217",
@@ -23,7 +24,7 @@
     "dreamlake-cli/reference/downloading.md": "056808a0f44a28b6dc1f4d1b1e42c438e5476c75100f4bc88c8e1d59dc1d7b79",
     "dreamlake-cli/reference/environments.md": "94d22dfca01ad34458c46605011cc908ba436830f86f7296fb02e28aa40eef84",
     "dreamlake-cli/reference/host-enrollment.md": "4e0e6b09f968dac195ee15faa36e85f47a0058d80a8c9df77fa5fb346d08bb46",
-    "dreamlake-cli/reference/installation.md": "fc3eb041c320b80ffa45411498eaf29aa7c248f373a7aea59dcac169a79b4a47",
+    "dreamlake-cli/reference/installation.md": "601be4e0c116dd886b0d3fd0f4648634e4c1ed9d63a5e5e73d912eb2cbe07355",
     "dreamlake-cli/reference/lakeshore.md": "2752e2e67a8ec3d963cc6e06e67de0a18397ca5ef607dbb02c8fca5aeab00877",
     "dreamlake-cli/reference/layout.md": "36360442b8cc6e76e5cd34582c8a15e7fc3368377b91de636564b3180ad7d98f",
     "dreamlake-cli/reference/machine-auth.md": "1bbfb789b56379d0de656a5a2b1e6561bf6682ddd9d90552051361025b42d73b",
