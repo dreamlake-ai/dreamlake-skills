@@ -1,10 +1,12 @@
-# Inspect hosts and track external jobs
+# Inspect hosts, Slurm jobs, and external tracking
 
 Use [setup](setup.md) to authenticate and select the intended environment. Check
 the installed CLI version and command help against the [Hosts reference](../reference/host-enrollment.md)
-and [Jobs reference](../reference/jobs.md), including their version and backend
-requirements. A merged source change, updated docs, or an installed skill does
-not establish that the executable or server supports it. Updating the CLI does
+and the [Jobs](../reference/jobs.md) and [Slurm inventory](../reference/queues.md#read-slurm-scheduler-jobs)
+references. The `hosts enrollments`, `hosts metrics`, `hosts check`, and
+`queues slurm` routes require CLI 0.57.0+ and their matching backend APIs.
+A merged source change, updated docs, or an installed skill does not establish
+that the executable or server supports it. Updating the CLI does
 not update installed skills; follow [skill installation](../reference/skills.md)
 and preserve local customizations when reviewing conflicts.
 
@@ -14,10 +16,14 @@ and preserve local customizations when reviewing conflicts.
 | --- | --- |
 | Find existing hosts across groups | `dreamlake hosts list`; select the authorized namespace |
 | Inspect one host and its enrollments | `dreamlake hosts status` with its returned host ID or full name |
+| Resolve enrollment identities and observed presence | `dreamlake hosts enrollments HOST`; retain its exact enrollment ID |
+| Read CPU, RAM, and disk observations | `dreamlake hosts metrics HOST --enrollment ID` |
+| Check observed SSH or tracked-run capability | `dreamlake hosts check HOST --enrollment ID --action ssh` or `--action tracked-run` |
 | Register an existing computer | `dreamlake hosts enroll`; follow [machine identity setup](machines.md) |
 | Provision a new machine | [Machine provisioning](machines.md); keep paid launches within the requested scope |
 | Launch managed execution or inspect its output/control | [Managed runs](../reference/runs.md): `dreamlake run` and `dreamlake runs` |
 | Track work another launcher already starts | `dreamlake jobs register`, `report`, `list`, and `status` |
+| Inspect Slurm scheduler jobs | Discover `queues slurm clusters`, then `queues slurm jobs CLUSTER_ID --details` |
 
 ## Inspect the intended host
 
@@ -29,11 +35,54 @@ or unverified states. Enrollment already starts its managed service, so do not
 launch a second foreground daemon as an implicit readiness retry. Preserve the
 request ID and original inputs when recovering pending enrollment.
 
+For read-only inspection, select one host ID or full name in its authorized
+namespace. `hosts enrollments` separates host, enrollment, and runtime machine
+IDs; verified presence has a 60-second freshness window. Metrics and action
+checks require an explicit enrollment from that result; never choose one
+implicitly or combine multiple enrollments' observations. Metrics older than
+90 seconds or marked stale remain historical; missing/invalid/future timestamps
+and missing values remain unknown, not zero. Read the source sample time and
+stale flag alongside client freshness.
+
+`hosts check` reads advertised capability with a 30-second SSH or 60-second
+tracked-run observation window. Exit zero means observed `ready`; `not_ready`,
+`unknown`, and errors exit one. It performs no SSH handshake, job, grant, or
+lifecycle action. Ordinary tracked-run capability does not establish private
+setup or support for every runner. Preserve missing, stale, ambiguous, or
+unverified observations as unknown rather than claiming successful execution.
+
 For local daemon inspection, check the installed `nymph --version` and help.
-Read-only supervisor diagnostics do not implement the proposed enrollment-ID
-`nymph daemon` command group. Do not infer enrollment selection, duplicate-owner
-protection, or lifecycle controls from those diagnostics, and do not treat an
-unavailable inspection endpoint as proof that the daemon stopped.
+Legacy supervisor diagnostics alone do not prove enrollment-ID selection support.
+Nymph 0.1.20 adds read-only `nymph daemon list` and `nymph daemon status`; selection
+requires trusted, reachable inspection of the same process and an enrollment
+confirmed by hello. Verification covers Linux only and does not establish a fleet
+upgrade, lifecycle controls, or a singleton guarantee. Do not treat an unavailable
+inspection endpoint as proof that the daemon stopped.
+
+## Read Slurm scheduler jobs
+
+Discover configured clusters with `dreamlake queues slurm clusters --namespace NS`,
+then use the returned cluster ID with `dreamlake queues slurm jobs CLUSTER_ID
+--namespace NS --details`. The default table includes usernames, job names,
+partitions, and observed states. No user filter is added; inspect snapshot scope,
+effective Unix user, workload visibility, and completeness before claiming which
+jobs are visible. Configured clusters do not establish access to every cluster.
+
+Use `--details` for all 18 scheduler detail fields covering user identity,
+name/partition, reason/account/QoS/priority, resources, and times, plus canonical
+job/attempt, queue, allocation, and array metadata. `--json` retains the full
+snapshot. Missing, unset, invalid, or older-server fields stay `Unknown`. Keep
+raw TRES/GPU labels and per-CPU/per-node memory units; do not invent a GPU total
+or total memory. Scheduler node counts are distinct from verified node mappings.
+Start/end times may be forecasts, not proof of execution or completion.
+
+Reading does not refresh the observation. Check its timestamps, freshness, and
+cache errors: stale values are historical, and unavailable or incomplete
+workloads return nonzero with unknown job count, not an empty queue. These
+commands inspect scheduler inventory; they do not submit, cancel, or modify jobs.
+`jobs list` instead reads explicit external tracking reports, and `queues jobs`
+reads Lakeshore invocations. Do not interchange their IDs or register a tracking
+record merely to inspect an existing scheduler job.
 
 ## Track externally launched work
 

@@ -36,9 +36,94 @@ Connection is `online` when an enrollment has a verified online observation,
 `offline` when every enrollment is verified offline, and otherwise `unknown`.
 The enrollment table separately shows the reported state, verification flag, and
 last-seen timestamp. A stored offline/pending state without runtime verification
-does not establish current availability. The Hosts API does not report power,
-SSH readiness, or job readiness; status displays these as `unknown`. An online
-connection alone does not prove that SSH or any particular workload can run.
+does not establish current availability. The `hosts status` response does not
+report power, SSH readiness, or job readiness; status displays these as `unknown`.
+An online connection alone does not prove that SSH or any particular workload can run.
+
+## Inspect enrollments
+
+The read-only `enrollments`, `metrics`, and `check` commands below require CLI
+0.57.0 or later. Metrics and action checks also require the matching backend with
+revoked-enrollment metrics protection and action checks. Availability depends on
+both deployments.
+
+`hosts enrollments` inspects your enrollments on one host using its full name or
+host ID. The namespace rules match `hosts status`; wildcards are not accepted.
+This is read-only and does not retire, revoke, restart, or delete anything.
+
+```bash cli-help="hosts enrollments"
+dreamlake hosts enrollments geyang/workstations/worker
+dreamlake hosts enrollments HOST_ID --namespace geyang --json
+```
+
+The output separates the host ID, canonical enrollment ID, and runtime machine
+ID. Check the installed `nymph --version` and `nymph daemon --help` before local
+inspection. Nymph 0.1.20 provides read-only `nymph daemon list` and
+`nymph daemon status` with enrollment-ID selection; neither host ID nor machine
+ID is a substitute. Selection requires trusted, reachable inspection of the same
+process and an enrollment confirmed by hello. Verification covers Linux only
+and does not establish a fleet upgrade, lifecycle controls, or a singleton
+guarantee. An unavailable inspection endpoint does not prove the daemon stopped.
+Each enrollment shows the backend's observed `state`, `lastSeenAt`, and
+`statusVerified`, including unknown values.
+
+Observed-presence freshness is `fresh` only when `statusVerified` is true and
+`lastSeenAt` is at most 60 seconds before the CLI's read time, matching the
+backend's presence window. A verified older observation is `stale`. Missing,
+invalid, future, or unverified observations are `unknown`; the client does not
+rewrite the reported state. Fresh observed presence does not establish SSH or
+job readiness, and stale presence does not establish that a daemon has stopped.
+
+JSON returns `host`, `readAt` (the CLI's clock), `presenceWindowSeconds`, and an
+`enrollments` array. Each entry retains the identity and observation fields above
+and adds `presenceFreshness` and `lastSeenAgeSeconds` (null when unknown).
+An empty enrollment array is a successful read. Access or transport failures
+exit nonzero without claiming an empty result.
+
+## Inspect resource samples
+
+Select a host and an exact enrollment ID from `hosts enrollments`; the CLI does
+not choose an enrollment or combine readings across enrollments.
+
+```bash cli-help="hosts metrics"
+dreamlake hosts metrics geyang/workstations/worker --enrollment ENROLLMENT_ID
+dreamlake hosts metrics HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --resolution 60 --json
+```
+
+Text shows the latest CPU percentage, RAM and disk bytes, source sample timestamp,
+source `stale` flag, and sample freshness at the CLI's read time. Missing metrics
+are `unknown`, including when `latest` is null; an actual zero stays zero.
+Samples older than 90 seconds or marked stale by the source are `stale`.
+Missing/invalid timestamps and timestamps ahead of the client clock are `unknown`.
+Readings do not establish SSH or workload readiness.
+
+JSON retains the backend's `latest`, `tiers`, and `stale` fields and adds
+`hostId`, `enrollmentId`, `resolution`, `readAt`, `sampleFreshness`, and
+`sampleAgeSeconds` (null when unknown). Source timestamps are Unix seconds;
+CPU is percent, memory/filesystem values are bytes. History resolution accepts
+10, 60, 900, or 3600 seconds (default 60). A missing sample is a successful read;
+access, revoked enrollment, identity, or transport failures exit nonzero.
+
+## Check observed action capability
+
+```bash cli-help="hosts check"
+dreamlake hosts check geyang/workstations/worker --enrollment ENROLLMENT_ID --action ssh
+dreamlake hosts check HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --action tracked-run --json
+```
+
+Both `--enrollment` and `--action` are required. The command reads the backend's
+exact enrollment verdict: `ready`, `not_ready`, or `unknown`, with its reason,
+`checkedAt`, `observedAt`, and observation age. `ready` means a recently observed
+advertised capability; it does not verify an SSH handshake or execute a job.
+`tracked-run` covers ordinary uv-run/uvx capability, not private setup or every
+runner. SSH checks retain the backend's personal-owner access policy.
+
+The backend applies a 30-second observation window for SSH and 60 seconds for
+tracked runs. Missing, stale, ambiguous, unverified, or unavailable observations
+remain `unknown`; a fresh explicit lack of capability is `not_ready`.
+JSON preserves this verdict and its identity/timestamp fields. Exit status is
+zero only for `ready`; `not_ready`, `unknown`, and request failures exit one.
+No grant, handshake, job, enrollment change, or machine lifecycle action occurs.
 
 ## Enrollment
 
