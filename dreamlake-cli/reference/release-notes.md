@@ -1,6 +1,6 @@
 # Release notes
 
-## 0.55.0 — Owned TCP tunnels (unreleased)
+## 0.55.0 — Owned TCP tunnels
 
 Adds Linux/macOS `tunnel start`, `list`, `status` and `stop`, with local loopback
 listeners, ephemeral ports, detached JSON readiness receipts, and bounded leases.

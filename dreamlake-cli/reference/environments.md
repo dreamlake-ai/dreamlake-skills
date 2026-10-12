@@ -12,6 +12,11 @@ dreamlake login --env staging
 dreamlake login --env prod
 ```
 
+`dreamlake login` prints the complete authorization link with the code in its
+query parameters. Open that link to authorize without copying the code manually,
+including when using `--no-browser` on a remote machine. The code is also shown
+as a fallback if prompted.
+
 No `--url` / `--bss` needed — the URLs are baked in. `dreamlake login` with
 no `--env` re-authenticates the active environment, and falls back to `prod`
 when nothing is logged in yet.

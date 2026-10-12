@@ -1,6 +1,6 @@
 # TCP tunnels
 
-Unreleased: this command requires coordinated CLI, DreamLake API, control-plane and Nymph forwarding support. CLI through 0.54.0 supports web terminal enrollment, but does not include this tunnel command.
+Requires CLI 0.55.0 or later, Nymph 0.1.18 or later, and server forwarding support. CLI through 0.54.0 supports web terminal enrollment but does not include this tunnel command.
 
 Forward a local loopback port to a service on the exact enrolled machine. The
 connection travels through Nymph's outbound SSH relay; no inbound cloud port is
