@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "865391f4840fd8b626ecef2d7d6a9cc50c9cd812a44e630170b359c0ec10efad",
+  "sourcesSha256": "f0a09539064f246478f435bd019863462b802988b649881ec9b30411493f73b7",
   "files": {
     "dreamlake-cli/SKILL.md": "dd982091cac4b525c184e1c7909a4c54e1f379e02bf00e3e578f8d4d6af96560",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
@@ -10,7 +10,7 @@
     "dreamlake-cli/actions/hosts-jobs.md": "2805abc0610f440ae860ae052b85b9ab65712c2723b478243ac33b0ea05ccc8c",
     "dreamlake-cli/actions/machines.md": "eb9558f61503571260ec41ef6a8af3774c073e546b19ab1bc38bc2808164c7ff",
     "dreamlake-cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
-    "dreamlake-cli/actions/notes.md": "baedc6c38cfa5854926f686323de5306ab7fa40596783e55936ba124690605b2",
+    "dreamlake-cli/actions/notes.md": "25238ca2c6db2a4674d08b12802f9c6e707454ac8357bc14c85828b1ebac64ae",
     "dreamlake-cli/actions/setup.md": "89887dd3255eb3ef447f4d8c889f857ea4c4cf54dd9e77a4297d62818eb6d2f3",
     "dreamlake-cli/actions/workflows.md": "570a51f04fdb7cf0e5317b959fa67ac352eefaabc6beb5f00867db6cc51e3a7e",
     "dreamlake-cli/reference/agents.md": "29b23321a4f10af056e7e2a4959feeb241ab1766ab69df1c91585ff0ba98445b",
@@ -69,7 +69,7 @@
     "dreamlake-notes/SKILL.md": "71503883dfda54a4b42d346e282d12cf2ceeb9bfd15d8185a4cee3894e2a7305",
     "dreamlake-notes/actions/attachments.md": "6393b46609fbf844d87af66a353fa56c09f9e93a99a5d5e0f282679e0d3757da",
     "dreamlake-notes/actions/create.md": "ecbd9f7b697cb59f6986b9ac770ba24140452abcd179b1a14dbc802a76361b82",
-    "dreamlake-notes/actions/edit.md": "b79f8fa6488b31ab4e13cb2b8774bbca0e3471e66731d641cf695c3c70bb2450",
+    "dreamlake-notes/actions/edit.md": "4c3888cc78e457288c0e15a0ed0237e1b9b65fe26a14d6a6aedf520c73d069bf",
     "dreamlake-notes/actions/identity.md": "a642257851acea7aa4282cb0ea10dc1fa23b1dc08477c966cfa8ba901605f99c",
     "dreamlake-notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
     "dreamlake-notes/actions/move.md": "25b283100db7c3764254b2a874ffbd457355a8bfc105714b44d0c3bc9e07b4a1",

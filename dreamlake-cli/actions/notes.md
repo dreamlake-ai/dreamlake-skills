@@ -15,10 +15,28 @@ dreamlake notes toc --note NOTE_ID
 dreamlake notes read NOTE_ID --legacy --section setup
 ```
 
-For edits, retain the correct baseline and use the documented patch contract;
-read the acknowledged revision back. `--legacy` uses ETags; v2 patches use an
-opaque revision. See [Notes](../reference/notes.md),
+Before editing, retain a normal `notes read NOTE_ID` source snapshot with its
+opaque revision and content hash; do not use `--json` for this baseline. Prepare
+the patch from that exact source, excluding the read's metadata header, and pass
+the original revision unchanged as `--base-revision`. Never fabricate, decode,
+or substitute a content hash or legacy ETag for that revision. Read the successful
+receipt's acknowledged revision back with `notes read NOTE_ID --at ACK_REVISION`
+and inspect the intended change. On conflict, retain the baseline and draft,
+review concurrent changes, then reconcile; never use `--force` or merely swap in
+a fresh baseline to make an old patch pass. `--legacy` uses a separate ETag
+contract. See [Notes](../reference/notes.md),
 [reading](../reference/notes-reading.md), and [editing](../reference/notes-editing.md).
+
+When creating or changing technical implementation or availability claims, add
+or update one concise version line for the affected section. Record the exact
+relevant versions actually tested (for example, DreamLake CLI and Nymph) and the
+backend source revision when known; distinguish an inspected source revision
+from a tested or deployed revision. Label claims as proposed, source-only,
+verified production, or unknown according to the evidence. A merged PR or a
+published package alone does not verify production behavior. Mark unavailable
+version or deployment evidence unknown rather than guessing. Keep software
+versions separate from the Note's opaque editing revision, and omit irrelevant
+components and repeated per-line labels.
 
 For image URLs to embed in Markdown or HTML, use [inline image upload](media.md).
 Use `notes files upload` for attachments that inherit the note's permissions.
