@@ -1,6 +1,6 @@
 ---
 name: dreamlake-cli
-description: "Use the DreamLake CLI to upload and download data, manage workspace resources, Notes, artifacts, workflows, hosts, Slurm inventory, and external job tracking. Use for 'connect AWS to DreamLake', curated AWS worker setup, command setup and troubleshooting; use an SDK only when the task requires SDK integration or the CLI lacks the needed operation."
+description: "Use the DreamLake CLI to upload and download data, manage workspace resources, Notes, artifacts, workflows, hosts, Slurm inventory, external job tracking, and Infrastructure Stack metadata/backend setup. Use for 'connect AWS to DreamLake', curated AWS worker setup, command setup and troubleshooting; use an SDK only when the task requires SDK integration or the CLI lacks the needed operation."
 ---
 
 # DreamLake CLI
@@ -18,6 +18,7 @@ options and limits:
 - [Import and restore cloud configuration](actions/cloud-vault.md)
 - [Provision machines and manage their identities](actions/machines.md)
 - [Inspect hosts and Slurm jobs, or track external work](actions/hosts-jobs.md)
+- [Inspect Infrastructure Stacks and backend setup](actions/infrastructure.md)
 
 Run `dreamlake <command> --help` for command-specific syntax. The bundled
 `reference/` directory remains the complete generated CLI documentation.

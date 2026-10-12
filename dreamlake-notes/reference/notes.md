@@ -437,6 +437,16 @@ ordinary bracketed prose without a highlight.
 
 ## Create and list
 
+The implementation of Shared with me resolves each Note's live owner and uses
+its current namespace slug in the returned route. Cached namespace fields on an
+accepted-share record are historical provenance, not authorization or routing
+facts. The read does not repair or mutate those records. Current namespace
+members receive the Note through their normal catalog; other active recipients
+retain their accepted access while sharing remains enabled. A public Note stays
+readable after its share link is disabled, without retaining share-based editing
+permission. Deleted Notes, deleted owner namespaces and revoked acceptances are
+omitted. This reader change does not enable ownership transfer.
+
 **CLI**
 
 ```bash
@@ -1143,16 +1153,38 @@ whitespace elsewhere survive.
 
 ## Write whole parts
 
-For replacing a section or the whole body outright, rather than editing text
-in place.
+Whole-body target writes plan changes against an original source; section
+replacement remains a separate compatibility operation.
+
+**Release status — October 12, 2026:** CLI 0.61.0 is publicly published: all nine
+npm records, downloaded Linux integrity/version, fresh npm installation and native
+skill packaging are verified. The public binary passed concurrent-gap preservation,
+strict input and exact-write checks; disposable Notes were removed.
+Python SDK 0.28.0 is publicly published: wheel/sdist bytes
+match the retained release workflow, and a fresh public installation passed
+actual API verified-read/diff/Doc-cache acceptance on a disposable Note, then
+removed it. Live docs and public skill propagation are separate release checks.
 
 **CLI**
 
 ```bash
-dreamlake notes write "$NOTE_ID" --file whole.md
+# CLI 0.61.0: retain the original source used to prepare whole.md.
+dreamlake notes read "$NOTE_ID" --json > whole-baseline.json
+WHOLE_BASE=$(jq -er '.revision' whole-baseline.json)
+jq -jr .content whole-baseline.json > whole.md
+# Edit whole.md while keeping whole-baseline.json unchanged.
+dreamlake notes write "$NOTE_ID" --file whole.md --base-revision "$WHOLE_BASE" --json > whole-ack.json
+WHOLE_ACK=$(jq -er '.revision' whole-ack.json)
+dreamlake notes read "$NOTE_ID" --at "$WHOLE_ACK"
+# Section write remains on its explicit compatibility API.
 dreamlake notes write "$NOTE_ID" --section install --file install.md
-dreamlake notes append "$NOTE_ID" --text "one more line"
-dreamlake notes append "$NOTE_ID" --file more.md
+# Append uses original-revision patches in CLI 0.59.0 and later. Requires jq.
+dreamlake notes read "$NOTE_ID" --json > append-baseline.json
+BASE=$(jq -er '.revision' append-baseline.json)
+dreamlake notes append "$NOTE_ID" --text "one more line" --base-revision "$BASE" --json > append-ack.json
+ACK=$(jq -er '.revision' append-ack.json)
+dreamlake notes read "$NOTE_ID" --at "$ACK"
+# For a file, use --file more.md with the same saved original baseline.
 dreamlake notes add-section "$NOTE_ID" --file trouble.md --after install
 dreamlake notes rm-section "$NOTE_ID" troubleshooting
 ```
@@ -1160,16 +1192,65 @@ dreamlake notes rm-section "$NOTE_ID" troubleshooting
 **Python**
 
 ```python
-note.write(whole_body)
+# Python SDK 0.27.0 and later: plan disjoint edits on this original source.
+whole_baseline = note.read_snapshot()
+write_receipt = note.write(whole_body, at=whole_baseline)
+acknowledged = note.read_snapshot(at=write_receipt.revision)
 note.write_section("install", "## Install\n\npip install dreamlake\n")
-note.append("\n## Changelog\n\n- shipped\n")
+# Python SDK 0.26.0 and later: retain the original collaborative snapshot.
+baseline = note.read_snapshot()
+receipt = note.append("\n## Changelog\n\n- shipped\n", at=baseline)
+acknowledged = note.read_snapshot(at=receipt.revision)
 note.insert_section("## Troubleshooting\n\nCheck the logs.\n", after="install")
 note.delete_section("troubleshooting")
 note.refresh()                   # re-read after someone else wrote
 ```
 
-Anyone with the note open **sees the change appear** — your edit merges with
-what they are typing. Nothing is locked.
+Anyone with the note open **sees an accepted change appear**. Modern append
+merges against the original collaborative identities, preserving unrelated
+concurrent edits. Add CLI `--exact` or Python `exact=True` to require that the
+original revision is still current. A stale exact request requires review;
+never replace its baseline with a fresh revision merely to make it pass.
+
+Python's default append returns a `PatchReceipt`; CLI `--json` returns its
+revision and hash. Read back that acknowledged revision before claiming the
+intended result. If a write outcome is unknown, reconcile it before resubmitting.
+Explicit CLI `--legacy` / `--force` and Python `legacy=True` / `force=True`
+retain the older append compatibility path; Python returns a string there.
+
+CLI 0.61.0 whole-body write derives bounded exact disjoint code-point changes
+from one hash-verified original snapshot, preserving unchanged identities even
+within a paragraph. Retain `--base-revision` when a target was prepared earlier;
+omitting it reads one current snapshot and cannot establish an old file's origin.
+Modern file/stdin input rejects malformed UTF-8 before transport and preserves
+literal BOM, Unicode and line endings. Merge no-ops send no write; an unchanged
+`--exact` target sends an empty PATCH so a stale original revision still rejects.
+Alignment or patch limits fail before submission without a coarse rewrite.
+Explicit `--legacy`, `--force`, or `--if-match` keep the prior body path and cannot
+mix with modern baseline/exact flags. `--section` also rejects those modern flags.
+Keep the original target/baseline after an unknown acknowledgment; never replay
+or silently refresh the baseline. Without `--json`, dry-run stdout is the target
+body; JSON dry-run also reports the planned payload. Neither predicts merged
+concurrent source.
+
+Python SDK 0.27.0 also defaults whole-body `note.read()` drafts, `note.write()`
+and `doc.save()` to original-revision edits. Unchanged source spans preserve
+their collaborative identities, including within one paragraph. A draft keeps
+its own original snapshot even if other operations use the same Note object.
+After saving, it adopts the acknowledged merged source for the next edit.
+If that readback fails after an acknowledged write, preserve the receipt and
+draft and reconcile before another save; do not replay the write.
+
+SDK 0.27.0 also fixes native append escaping for tabs. Older native append
+clients can reject tab-containing edits; upgrading preserves the saved baseline.
+Explicit Python `legacy=True`, `force=True` or `write(if_match=...)` retain
+compatibility behavior. A compatibility save keeps subsequent saves in the
+ETag domain until a new modern draft is read.
+
+CLI whole-body writes through 0.60.0, Python whole-body writes through 0.26.0,
+and section writes/insertion/deletion still use the ETag compatibility interface.
+They can reject an intervening content change. Section client migration and
+Runbook attachment remain pending; no legacy command or server route is retired here.
 
 ### Changes since a read or edit
 
@@ -1198,18 +1279,18 @@ that ref to see changes since your own read or successful edit across sessions:
 
 ```python
 note = dl.note("<note-id>")
-doc = note.read()
+doc = note.read(legacy=True)
 ref = doc.etag
 
-print(note.diff(since=ref))          # current text versus that snapshot
-print(note.diff())                   # defaults to this handle's last ETag
+print(note.diff(since=ref, legacy=True))  # explicit compatibility diff
+print(note.diff(legacy=True))             # this handle's cached ETag
 result = note.patch(my_diff, if_match=ref, legacy=True)
 ref = result.etag                   # reference for the successful edit
 ```
 
 Fetching a diff does not advance the cached revision or write precondition.
-Call `read()` or `refresh()` to adopt the latest state. Identical text has the
-same hash; the ref identifies content, not an RTC operation index. Unknown refs
+Call `read(legacy=True)` or `refresh(legacy=True)` to adopt the latest
+compatibility state. Identical text has the same hash; the ref identifies content, not an RTC operation index. Unknown refs
 return an error, including older refs whose snapshots were never retained.
 
 The HTTP endpoint is `GET /namespaces/:slug/notes/:noteId/diff?since=<etag>`.
@@ -1220,6 +1301,39 @@ scoped to the note and require current read access. Optional `context` accepts
 For local draft changes, use `doc.diff()` for all unsaved changes,
 `doc.diff(since="last_edit")` for the latest local operation, and
 `doc.patch(unified_diff)` to apply a patch before `doc.save()`.
+
+### Verified full reads and remote diffs (SDK 0.28.0+)
+
+Default `note.refresh()`, cache-miss `note.text` / `note.get_text()`, and
+`note.read()` use verified complete v2 source. Returned Note identity, content
+hash and RTC revision must agree; malformed responses or redirects reject without
+adopting source. Refresh updates the Note cache, never an existing Doc's saved
+original snapshot. `read_snapshot()` remains an independent verified read;
+`at` selects retained source, while `if_match` checks the current RTC revision.
+They cannot combine. An ETag is not an RTC revision and must not be supplied here.
+
+```python
+note.refresh()                 # verified complete source, not a partial range
+source = note.text             # cached source; refresh explicitly for newer text
+original = note.read_snapshot()
+remote_diff = note.diff(since=original.hash)  # string, not a write receipt
+# Retain original.revision separately for a later original-revision edit.
+```
+
+Default `note.diff()` returns a unified source-diff string and uses this handle's
+cached content hash when `since` is omitted. `since` accepts `sha256:<hex>`, quoted
+ETag-shaped SHA-256, or bare SHA-256; RTC revisions are rejected. The v2 diff's
+Note/base/format/receipt metadata and acknowledged retained source hash are
+validated. Inspection does not adopt returned source or advance any cache/draft
+baseline; a display diff is not a write precondition or proof of peer convergence.
+
+Explicit `refresh(legacy=True)`, `get_text(legacy=True)` and `diff(legacy=True)`
+retain compatibility behavior. `diff(context=N)` with `N != 3` deliberately
+selects the existing compatibility endpoint before transport; context is an
+integer from 0 through 100. Default context 3 uses v2, with no fallback after a
+failure. Section/line reads remain partial compatibility views and cannot serve
+as complete modern write baselines. Existing Doc-local `diff()` and `patch()`
+continue to operate on the local draft rather than this remote diff endpoint.
 
 ### Patch
 
