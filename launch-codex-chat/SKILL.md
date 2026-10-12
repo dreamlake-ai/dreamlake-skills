@@ -20,6 +20,10 @@ user's connected client. Starting the server alone does not create a chat.
 
 ## Procedure
 
+For a newly provisioned machine, first read the
+[fresh-host prerequisites and manual gaps](references/launching-chats.md#fresh-host-prerequisites-and-manual-gaps).
+This launcher expects an authenticated host and an existing working directory.
+
 1. Choose the requested working directory and a recognizable chat name. If no
    directory was specified, use the current workspace.
 2. Run `codex app-server daemon version`. If the daemon is unavailable, use
