@@ -208,3 +208,45 @@ To let the note's owner accept or reject each change rather than applying it
 directly, render the edit as suggested edits with
 [`notes suggest-diff --in-place`](notes-suggest-diff.md#propose-edits-inside-an-existing-note)
 and write that body instead.
+
+## Append against the original snapshot (CLI 0.59.0+)
+
+Original-revision append requires CLI 0.59.0 or later and the compatible Notes
+v2 API. CLI 0.58.0 and earlier use the retained ETag/body replacement append.
+The new append preserves collaborative source identities instead of replacing
+the complete Note body. No legacy route is retired.
+
+```bash cli-help="notes append"
+dreamlake notes append "$NOTE_ID" --file addition.md --base-revision "$BASE" --json
+# ACK is the revision in the successful append receipt.
+dreamlake notes read "$NOTE_ID" --at "$ACK"
+```
+
+Without `--base-revision`, append reads one complete, hash-verified source
+snapshot and submits an EOF insertion against that original revision. With an
+original saved revision, it reads that retained snapshot using `at`; it never
+swaps a rejected baseline for the latest token. Merge is the default and retains
+unrelated concurrent edits. Use `--exact` when the original revision must still
+be current. Overlapping identity changes or unavailable original snapshots can
+reject; preserve the original baseline and addition for review.
+
+`--text`, `--file`, `--file -`, and piped stdin retain literal text, Unicode and
+line endings. When the nonempty original source lacks a final LF, append inserts
+one LF before the addition, including an empty addition. Otherwise it inserts
+exactly the addition. A genuinely empty insertion performs no write and JSON
+reports `noChange: true` with the observed snapshot revision; it does not claim a
+new acknowledgment. The EOF offset counts Unicode code points, and patch syntax
+characters and source controls are escaped before transport.
+
+Human `--dry-run` keeps the composed original source plus addition on stdout,
+with the PATCH/base revision/mode on stderr. This preview is based on the
+original source, not the future merged document. JSON dry-run describes the
+actual PATCH payload. Successful writes print Notes v2 `note`, `hash`, `revision`,
+`mode`, and `baseRevision`; use that acknowledged revision for pinned readback.
+A failed or malformed acknowledgment can leave the outcome unknown. No retry
+is automatic: inspect the Note before resubmitting, keeping the original draft.
+
+Explicit `--legacy` retains the prior ETag-guarded body replacement append.
+Existing `--force` retains its prior unguarded legacy behavior; it never selects
+a forced v2 write. Neither compatibility choice can combine with
+`--base-revision` or `--exact`. Avoid forced replacement for collaborative work.

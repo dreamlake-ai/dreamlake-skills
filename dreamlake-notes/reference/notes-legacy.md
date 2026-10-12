@@ -51,7 +51,7 @@ removes that section boundary. Refresh your baseline for each separate edit;
 the following are independent command forms, not a sequence sharing one ETag:
 
 ```bash
-dreamlake notes append "$NOTE_ID" --text $'\n## Changelog\n- Shipped\n' --if-match "$ETAG"
+dreamlake notes append "$NOTE_ID" --text $'\n## Changelog\n- Shipped\n'
 dreamlake notes insert "$NOTE_ID" --after install --file troubleshooting.md --if-match "$ETAG"
 dreamlake notes insert "$NOTE_ID" --before install --file prerequisites.md --if-match "$ETAG"
 dreamlake notes rm-section "$NOTE_ID" troubleshooting --if-match "$ETAG"
@@ -117,8 +117,12 @@ To upload a single-file diff prepared from that exact saved body:
 dreamlake notes patch "$NOTE_ID" --legacy --file draft.diff --if-match "$ETAG" --json
 ```
 
-Legacy reads/diffs/patches require explicit `--legacy`; `write`, `append`, and
-the section/text mutation commands retain their own interfaces. Do not supply a
+Legacy reads/diffs/patches require explicit `--legacy`; `write` and the
+section/text mutation commands retain their own interfaces. CLI 0.58.0 and earlier
+append reads its own ETag and guards the subsequent replacement; it does not
+accept `--if-match`. CLI 0.59.0 and later use original-revision insertion by default, as documented
+in [Editing with patches](notes-editing.md). Explicit `--legacy` or existing
+`--force` retains the older append compatibility. Do not supply a
 v2 RTC revision where these commands expect a content ETag.
 
 ## Concurrent edits and failures
