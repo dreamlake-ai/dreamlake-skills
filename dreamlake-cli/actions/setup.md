@@ -26,6 +26,6 @@ device flow without altering machine credentials. Explicitly select personal
 access with `dreamlake --identity user profile`. Do not copy user tokens into
 machine configuration. See [machine authentication](../reference/machine-auth.md).
 
-CLI 0.55.0 and later support quiet product-analytics opt-out with
+CLI 0.56.0 and later support quiet product-analytics opt-out with
 `dreamlake telemetry disable --quiet` or `DREAMLAKE_TELEMETRY=0`. See
 [product analytics](../reference/analytics.md) for scope and limitations.

@@ -1,6 +1,6 @@
 # Product analytics
 
-Available starting with CLI **0.55.0**. Usage measurement runs without prompts, banners,
+Available starting with CLI **0.56.0**. Usage measurement runs without prompts, banners,
 or changes to stdout/stderr. It reports registered command names, duration and
 exit outcome, never arguments, paths, tokens, command output or error messages.
 Delivery is best effort, detached, and limited to authenticated personal sessions.

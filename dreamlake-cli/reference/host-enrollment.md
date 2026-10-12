@@ -1,5 +1,47 @@
 # Host enrollment
 
+## List and inspect hosts
+
+`hosts list` reads every page of your hosts in one namespace, across all groups
+by default. Omit `--namespace` to use the signed-in personal namespace, or select
+another authorized namespace explicitly. `--group` accepts a single group name.
+
+```bash cli-help="hosts list"
+dreamlake hosts list
+dreamlake hosts list --namespace geyang --group workstations
+dreamlake hosts list --json
+```
+
+Text lists show host ID, full name, and verified connection state. JSON returns
+`namespace`, optional `group`, `hosts` (the original host/enrollment records), and
+`total` (the number of distinct hosts collected). A failed page fails the command;
+it does not emit a successful partial listing. Pagination reads a live inventory,
+not an atomic snapshot; hosts added or removed during the read can change results.
+
+Inspect a full name or the 24-character host ID returned by the API. An ID uses
+the personal namespace unless `--namespace` is supplied; a full name already
+contains its namespace, and a conflicting flag is rejected.
+
+```bash cli-help="hosts status"
+dreamlake hosts status geyang/workstations/worker
+dreamlake hosts status HOST_ID --namespace geyang --json
+dreamlake hosts status 'geyang/workstations/*' --page 2 --page-size 100 --json
+```
+
+Exact status shows a readable enrollment table by default; `--json` preserves the
+backend detail response. The existing wildcard status continues to return one
+paginated JSON response even without `--json`. Use `hosts list` for all pages.
+
+Connection is `online` when an enrollment has a verified online observation,
+`offline` when every enrollment is verified offline, and otherwise `unknown`.
+The enrollment table separately shows the reported state, verification flag, and
+last-seen timestamp. A stored offline/pending state without runtime verification
+does not establish current availability. The Hosts API does not report power,
+SSH readiness, or job readiness; status displays these as `unknown`. An online
+connection alone does not prove that SSH or any particular workload can run.
+
+## Enrollment
+
 `dreamlake hosts enroll` bootstraps a user-owned nymph on this computer with
 `--local`, or over an existing SSH connection with `--ssh`. It waits for the
 backend to confirm that exact enrollment online.
