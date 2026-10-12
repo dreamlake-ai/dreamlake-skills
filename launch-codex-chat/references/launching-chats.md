@@ -119,6 +119,25 @@ thread through a supported client/API after launch and verify that it started.
 Do not describe a completed greeting as evidence that the development task is
 running, and do not create a replacement chat merely to deliver that task.
 
+### Service readiness after credential restore
+
+A fresh-host run on 2026-10-12 exposed checks that can pass before the service
+is usable. DreamLake's `auth.yml` is a saved multi-environment login cache;
+copying it alone left Notes unauthenticated. Run the supported
+`dreamlake auth env use <saved-name>` to activate the intended saved login in
+the CLI's config/token files, then verify an authorized Note or Vault read.
+Use the published `@dreamlake/dreamlake-cli` npm package; `@dreamlake/cli`
+returned 404 during this run.
+
+Similarly, a restored npm credential file still produced `npm whoami` HTTP 401.
+Treat that as failed registry authentication. `ngrok config check` passed, but
+`ngrok start --none` returned `ERR_NGROK_108` because the account's two-agent
+limit was already in use. A config check cannot establish account capacity;
+report the limit without stopping unrelated agents. Restored Codex login did
+work in this run, verified through Remote Control connection, the returned
+full-access thread settings, and a separately submitted task starting. Keep
+these outcomes separate; one working service does not validate the others.
+
 ## Sources
 
 - [Official app-server lifecycle and RPC documentation](https://learn.chatgpt.com/docs/app-server)

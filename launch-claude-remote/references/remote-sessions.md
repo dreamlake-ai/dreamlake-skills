@@ -116,3 +116,24 @@ argument and sends no development task. After registration, deliver the user's
 authorized task to that session through a supported interactive client and
 verify it starts. Keep the existing tmux session alive during the handoff; no
 reboot recovery or boot service is installed by this helper.
+
+### Service readiness after credential restore
+
+In a fresh-host run on 2026-10-12, `claude auth status` reported `loggedIn: true`
+and a team subscription after OAuth restore, but email/organization details
+were absent. The helper's Remote Control check then failed with
+`Unable to determine organization` and requested `claude auth login`. A saved
+token or positive login status alone does not prove Remote Control readiness.
+Follow that supported login flow; do not patch private `.claude.json` account
+or organization fields to bypass the failure.
+
+Check development services independently. DreamLake's `auth.yml` is a saved
+multi-environment cache: copying it alone left Notes unauthenticated. Activate
+the intended saved login with `dreamlake auth env use <saved-name>`, then verify
+an authorized Note or Vault read. Its published npm package is
+`@dreamlake/dreamlake-cli`; `@dreamlake/cli` returned 404 during this run.
+Restored npm credentials still yielded `npm whoami` HTTP 401, and a passing
+`ngrok config check` was followed by `ERR_NGROK_108` on `ngrok start --none`
+because the account's two-agent limit was occupied. Report the actual service
+failure; do not equate files or config validation with authentication/capacity,
+and do not stop unrelated ngrok agents to make room.
