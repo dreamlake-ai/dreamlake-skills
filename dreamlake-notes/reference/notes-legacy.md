@@ -7,7 +7,12 @@ operations. Their ETag checks differ from the current
 
 ## Read and replace a body
 
-```bash cli-help="notes write"
+Whole-body write uses this ETag interface in CLI 0.60.0 and earlier. The
+[original-revision whole-body write in CLI 0.61.0+](notes-editing.md) retains it through
+`--legacy`, `--force`, or `--if-match`. Explicit `--section` keeps the retained
+section API; that migration and add/remove-section migrations remain unshipped.
+
+```bash
 NOTE_ID=release-plan
 dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
@@ -157,6 +162,8 @@ no direct `notes join`, `notes heartbeat`, or `notes leave` commands. The HTTP
 presence lease protocol remains available to SDK integrations and is used
 internally by linger; it is not a sequence CLI users need to manage.
 
-`write`, `add-section`, and `rm-section` retain their ETag-based contracts in
-CLI 0.60.0. Their original-revision client migration remains unshipped; use the
-existing interfaces without claiming a modern baseline or retiring legacy routes.
+Whole-body `write` uses the original-revision contract by default in CLI
+0.61.0 and later, with the explicit legacy options above retained. Section
+write, `add-section`, and `rm-section` retain their ETag-based contracts; their
+original-revision migrations remain unshipped. Runbook attachment is separate
+proposed work and is not included in CLI 0.61.0.

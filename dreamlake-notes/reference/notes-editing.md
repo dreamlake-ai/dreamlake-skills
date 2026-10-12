@@ -356,6 +356,63 @@ legacy replacement and failure semantics. They cannot combine with
 `--base-revision` or `--exact`. These changes do not migrate section editors or
 retire legacy endpoints.
 
-The original-revision migration of `write`, `add-section`, and `rm-section` is
-not shipped in CLI 0.60.0. Those commands keep their existing ETag-based interfaces;
-this release does not retire any legacy Note route or compatibility option.
+The original-revision migrations of section write, `add-section`, and
+`rm-section` remain unshipped. Their existing ETag-based interfaces remain
+available. Runbook attachment is separate proposed work and is not included
+in CLI 0.61.0; no legacy Note route or compatibility option is retired.
+
+## Write a target body against its original source (CLI 0.61.0+)
+
+Original-revision whole-body `write` requires CLI 0.61.0 or later and the
+compatible Notes v2 API. CLI 0.60.0 and earlier keep whole-body write on the
+retained ETag interface. Modern write derives bounded, exact code-point changes between an original source snapshot and your target
+body, retaining unchanged source islands even inside one paragraph. It emits
+ordered disjoint hunks in one v2 PATCH, rather than replacing the complete body.
+
+```bash cli-help="notes write"
+dreamlake notes read "$NOTE_ID" --json > baseline.json
+BASE=$(jq -er .revision baseline.json)
+jq -jr .content baseline.json > draft.md
+# Edit draft.md without changing the saved original baseline.
+dreamlake notes write "$NOTE_ID" --file draft.md --base-revision "$BASE" --json
+# ACK is the successful write receipt's revision.
+dreamlake notes read "$NOTE_ID" --at "$ACK"
+```
+
+A target prepared from an older source must retain that source's original
+`--base-revision`. Without one, write reads one current hash-verified snapshot
+and protects the subsequent request window; that cannot prove which source an
+older local file came from. A supplied baseline pins the retained source with
+`at`; rejected tokens are never silently exchanged for the latest revision.
+Default merge preserves unrelated concurrent changes outside the planned spans;
+`--exact` requires the original revision to remain current. Concurrent edits
+that overlap those spans can reject and need review of the original draft.
+
+`--text`, `--file`, `--file -`, and piped stdin preserve literal Unicode and line
+endings. Modern file/stdin bytes must be valid UTF-8; malformed input rejects before
+transport, preserving the existing legacy decoding separately. File and text
+flags remain mutually exclusive. An empty target is an
+intentional deletion of the original source, not a missing-patch no-op. An
+unchanged target in merge mode sends no write and reports `noChange: true` for
+the observed snapshot. With `--exact`, an unchanged target sends an empty PATCH
+so the server still validates the original revision; a stale exact request
+rejects even when no source characters would change. Human dry-run keeps the target body on stdout (adding a final display
+LF only when absent); JSON includes the target `text` and actual PATCH. Neither
+preview predicts the future merged source. Text that resembles a unified diff
+still warns on stderr and is treated as a literal target body.
+
+Alignment is exact and bounded: source and target are limited to 1,000,000 code
+points each; generated patches to 8,000,000 UTF-8 bytes and 10,000 edits; alignment
+work to 4,000,000 cells and retained trace storage to 250,000 units. Sparse changes
+and supported dense changes preserve unchanged identities. Exceeding a limit
+fails before submission (exit 5); it never falls back to a coarse rewrite.
+Invalid unpaired Unicode surrogates also reject. Lost/malformed acknowledgments
+are never replayed automatically; keep the original baseline and target and
+reconcile the Note before resubmitting. Verify the acknowledged revision with
+`read --at` after a successful write.
+
+Explicit `--legacy`, existing `--force`, or existing `--if-match <etag>` retain
+the prior whole-body replacement path. `--section` explicitly selects its
+retained section-write API; section migration remains unshipped. These choices
+cannot combine with `--base-revision` or `--exact`. `add-section` and `rm-section`
+keep their existing contracts; no legacy route or compatibility option is retired.
