@@ -1,12 +1,13 @@
 {
   "version": 1,
-  "sourcesSha256": "6280694211233565e926287f10e610acb407655e0d0833406968520259934c23",
+  "sourcesSha256": "865391f4840fd8b626ecef2d7d6a9cc50c9cd812a44e630170b359c0ec10efad",
   "files": {
-    "dreamlake-cli/SKILL.md": "99c5e87e58530c1818eb42ef99ca25f4baad717e449d5f997502c6d81e68b5df",
+    "dreamlake-cli/SKILL.md": "dd982091cac4b525c184e1c7909a4c54e1f379e02bf00e3e578f8d4d6af96560",
     "dreamlake-cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
     "dreamlake-cli/actions/cloud-vault.md": "9443c94b35daeb4d60e517048442f53db0a02a1e7eb381b74d478f6ec1cb0c02",
     "dreamlake-cli/actions/connect-aws.md": "76ee8348f742e1462053fe2d989c16045c8ec969d69412125d9bfc437e33ef6e",
     "dreamlake-cli/actions/data.md": "a61da3e333b2e7894650d2ea941e56807ef0f7bfe8cabf10d20527a3dcef63e3",
+    "dreamlake-cli/actions/hosts-jobs.md": "2805abc0610f440ae860ae052b85b9ab65712c2723b478243ac33b0ea05ccc8c",
     "dreamlake-cli/actions/machines.md": "eb9558f61503571260ec41ef6a8af3774c073e546b19ab1bc38bc2808164c7ff",
     "dreamlake-cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
     "dreamlake-cli/actions/notes.md": "baedc6c38cfa5854926f686323de5306ab7fa40596783e55936ba124690605b2",

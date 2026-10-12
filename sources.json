@@ -46,14 +46,15 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "421248d05a5a7705a764146306d129ab94008e97",
+      "commit": "2cdf526c6c36de41d80fba16cf06ab728abbaa50",
       "generatorSha256": "7222b8b50e011b15d1b4c1463a9652f809bd18621b506a72b23647229b03ea06",
       "actionGuides": {
-        "docs/skill-guides/cli/SKILL.md": "99c5e87e58530c1818eb42ef99ca25f4baad717e449d5f997502c6d81e68b5df",
+        "docs/skill-guides/cli/SKILL.md": "dd982091cac4b525c184e1c7909a4c54e1f379e02bf00e3e578f8d4d6af96560",
         "docs/skill-guides/cli/actions/artifacts.md": "8f9f3f2bf1e1ddf0a1a2a25a607a026bbaef78e56aff30711220ca575850a2e8",
         "docs/skill-guides/cli/actions/cloud-vault.md": "9443c94b35daeb4d60e517048442f53db0a02a1e7eb381b74d478f6ec1cb0c02",
         "docs/skill-guides/cli/actions/connect-aws.md": "76ee8348f742e1462053fe2d989c16045c8ec969d69412125d9bfc437e33ef6e",
         "docs/skill-guides/cli/actions/data.md": "a61da3e333b2e7894650d2ea941e56807ef0f7bfe8cabf10d20527a3dcef63e3",
+        "docs/skill-guides/cli/actions/hosts-jobs.md": "2805abc0610f440ae860ae052b85b9ab65712c2723b478243ac33b0ea05ccc8c",
         "docs/skill-guides/cli/actions/machines.md": "eb9558f61503571260ec41ef6a8af3774c073e546b19ab1bc38bc2808164c7ff",
         "docs/skill-guides/cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
         "docs/skill-guides/cli/actions/notes.md": "baedc6c38cfa5854926f686323de5306ab7fa40596783e55936ba124690605b2",
