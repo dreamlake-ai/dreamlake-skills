@@ -1161,8 +1161,13 @@ in place.
 ```bash
 dreamlake notes write "$NOTE_ID" --file whole.md
 dreamlake notes write "$NOTE_ID" --section install --file install.md
-dreamlake notes append "$NOTE_ID" --text "one more line"
-dreamlake notes append "$NOTE_ID" --file more.md
+# Append uses original-revision patches in CLI 0.59.0 and later. Requires jq.
+dreamlake notes read "$NOTE_ID" --json > append-baseline.json
+BASE=$(jq -er '.revision' append-baseline.json)
+dreamlake notes append "$NOTE_ID" --text "one more line" --base-revision "$BASE" --json > append-ack.json
+ACK=$(jq -er '.revision' append-ack.json)
+dreamlake notes read "$NOTE_ID" --at "$ACK"
+# For a file, use --file more.md with the same saved original baseline.
 dreamlake notes add-section "$NOTE_ID" --file trouble.md --after install
 dreamlake notes rm-section "$NOTE_ID" troubleshooting
 ```
@@ -1170,16 +1175,50 @@ dreamlake notes rm-section "$NOTE_ID" troubleshooting
 **Python**
 
 ```python
-note.write(whole_body)
+# Python SDK 0.27.0 and later: plan disjoint edits on this original source.
+whole_baseline = note.read_snapshot()
+write_receipt = note.write(whole_body, at=whole_baseline)
+acknowledged = note.read_snapshot(at=write_receipt.revision)
 note.write_section("install", "## Install\n\npip install dreamlake\n")
-note.append("\n## Changelog\n\n- shipped\n")
+# Python SDK 0.26.0 and later: retain the original collaborative snapshot.
+baseline = note.read_snapshot()
+receipt = note.append("\n## Changelog\n\n- shipped\n", at=baseline)
+acknowledged = note.read_snapshot(at=receipt.revision)
 note.insert_section("## Troubleshooting\n\nCheck the logs.\n", after="install")
 note.delete_section("troubleshooting")
 note.refresh()                   # re-read after someone else wrote
 ```
 
-Anyone with the note open **sees the change appear** — your edit merges with
-what they are typing. Nothing is locked.
+Anyone with the note open **sees an accepted change appear**. Modern append
+merges against the original collaborative identities, preserving unrelated
+concurrent edits. Add CLI `--exact` or Python `exact=True` to require that the
+original revision is still current. A stale exact request requires review;
+never replace its baseline with a fresh revision merely to make it pass.
+
+Python's default append returns a `PatchReceipt`; CLI `--json` returns its
+revision and hash. Read back that acknowledged revision before claiming the
+intended result. If a write outcome is unknown, reconcile it before resubmitting.
+Explicit CLI `--legacy` / `--force` and Python `legacy=True` / `force=True`
+retain the older append compatibility path; Python returns a string there.
+
+Python SDK 0.27.0 also defaults whole-body `note.read()` drafts, `note.write()`
+and `doc.save()` to original-revision edits. Unchanged source spans preserve
+their collaborative identities, including within one paragraph. A draft keeps
+its own original snapshot even if other operations use the same Note object.
+After saving, it adopts the acknowledged merged source for the next edit.
+If that readback fails after an acknowledged write, preserve the receipt and
+draft and reconcile before another save; do not replay the write.
+
+SDK 0.27.0 also fixes native append escaping for tabs. Older native append
+clients can reject tab-containing edits; upgrading preserves the saved baseline.
+Explicit Python `legacy=True`, `force=True` or `write(if_match=...)` retain
+compatibility behavior. A compatibility save keeps subsequent saves in the
+ETag domain until a new modern draft is read.
+
+CLI whole-body writes through 0.60.0, Python whole-body writes through 0.26.0,
+and section writes/insertion/deletion still use the ETag compatibility interface.
+They can reject an intervening content change. Remaining client migration is
+pending; no legacy command or server route is retired here.
 
 ### Changes since a read or edit
 

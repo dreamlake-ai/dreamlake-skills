@@ -250,3 +250,112 @@ Explicit `--legacy` retains the prior ETag-guarded body replacement append.
 Existing `--force` retains its prior unguarded legacy behavior; it never selects
 a forced v2 write. Neither compatibility choice can combine with
 `--base-revision` or `--exact`. Avoid forced replacement for collaborative work.
+
+## Insert at an original-source position (CLI 0.60.0+)
+
+Original-revision insertion requires CLI 0.60.0 or later and the compatible Notes
+v2 API, reusing the CLI 0.59.0 append snapshot/PATCH helpers. CLI 0.59.0 and earlier
+use retained ETag/body replacement insertion. No legacy command or route is retired.
+
+```bash cli-help="notes insert"
+dreamlake notes insert --note "$NOTE_ID" --ind 0 --text 'Review: ' \
+  --base-revision "$BASE" --json
+# ACK is the revision returned by the insertion receipt.
+dreamlake notes read "$NOTE_ID" --at "$ACK"
+```
+
+Insertion reads one hash-verified original snapshot, resolves the
+requested position in that source, and submits one escaped literal insertion.
+A supplied `--base-revision` pins the retained snapshot; rejected original tokens
+are never replaced with the latest revision. Default merge preserves unrelated
+concurrent edits; `--exact` requires that original revision to remain current.
+Overlapping identity changes may reject and require review of the original draft.
+
+Choose exactly one location:
+
+- `--ind N` addresses a Unicode code-point boundary from `0` through source length,
+  including both ends. Text is inserted literally, with no added newline.
+- `--line N` inserts before a 1-based source line, or at EOF for one past the final
+  line. The line algorithm preserves the source newline style and terminates the
+  addition unless it already ends in LF. At EOF after a source with no final LF/CR,
+  it also inserts the source-style newline before the addition. A final LF already
+  creates an empty last line; that line and one past it both resolve to EOF.
+- `--selector CSS` must match exactly one original-source HTML element. `--position`
+  defaults to `append`; `before`/`after` use the outer boundaries, while
+  `prepend`/`append` use the inner boundaries. Text is literal markup and gets no
+  added newline. Void elements reject inner insertion; use before/after instead.
+
+Human `--dry-run` prints the composed original source exactly, without a trailing
+newline added for display. JSON previews the actual PATCH and composed `text`;
+this is not a prediction of the future merged source. Empty literal insertion
+sends no write and reports `noChange: true` for the observed snapshot. Empty
+line-oriented insertion still follows the newline rules and can create a line.
+Success returns the acknowledged v2 revision. Pin readback with `--at`; failed,
+malformed, redirected or lost acknowledgments are never automatically replayed.
+Keep the original baseline and text and reconcile the Note before resubmitting.
+
+Explicit `--legacy`, existing `--force`, or existing `--if-match <etag>` select the
+retained replacement path. Preserve a content ETag for that path, never an RTC
+revision. These compatibility flags cannot combine with `--base-revision` or
+`--exact`. Section mutation keeps its existing contract. Replacement and deletion
+use the original-revision contracts below in CLI 0.60.0 or later.
+
+## Replace and delete original-source spans (CLI 0.60.0+)
+
+Original-revision replacement and deletion require CLI 0.60.0 or later and the
+compatible Notes v2 API. CLI 0.59.0 and earlier use retained ETag/body replacement
+for these editors. The original-revision editors submit precise code-point spans
+through the v2 snapshot/PATCH API. Multiple matches become separate hunks in one PATCH
+against one original revision, leaving the source between targets untouched.
+
+```bash
+dreamlake notes replace 'Draft' --text 'Reviewed' --all --note "$NOTE_ID" \
+  --base-revision "$BASE" --json
+```
+
+```bash cli-help="notes delete"
+dreamlake notes delete 'obsolete paragraph' --note "$NOTE_ID" \
+  --base-revision "$BASE" --json
+# Pin verification to the receipt's acknowledged revision.
+dreamlake notes read "$NOTE_ID" --at "$ACK"
+```
+
+Literal queries require one match by default; `--count N` requires exactly N
+matches, and `--all` selects every match. Query/regex, inclusive 1-based line
+ranges, and end-exclusive Unicode code-point ranges preserve their existing
+rules. Plain-source regex replacement expands JavaScript replacement tokens
+against each original match, including numbered/named captures, `$&`, and `$$`.
+Line replacement preserves source newline style. No match, ambiguous cardinality,
+invalid targeting or range errors remain nonmutating refusals (normally exit 6).
+
+With `--selector`, exactly one source element is selected and matching stays
+within its individual decoded text pieces. Matches cannot bridge intervening
+markup. Each decoded match maps back to its original raw entity/source span;
+replacement `--text` escapes ampersands and angle brackets for markup. As in the
+retained selector implementation, replacement text is literal after that
+escaping: selector regex replacement does not expand `$1` or named backreferences.
+`--html` instead replaces the selected element's inner source with literal markup
+and cannot combine with a query/regex or `--text`.
+
+Default merge uses the original snapshot identities. A supplied `--base-revision`
+pins the retained original source; `--exact` requires it to remain current. A
+rejected baseline is never silently swapped for the latest one. Unrelated
+concurrent edits outside the targeted spans can be preserved, including edits
+between disjoint matches in the same paragraph. Overlapping edits can reject;
+keep the original baseline and draft for review.
+
+Human dry-run prints the composed original source exactly; JSON carries that
+`text` and the actual multi-hunk PATCH. Equal old/new spans are omitted to preserve
+unchanged identities; an entirely unchanged plan sends no write and reports
+`noChange: true` for the observed snapshot. Successful writes return the v2
+acknowledged revision for `read --at`. Lost/malformed acknowledgments are never
+replayed automatically; reconcile before resubmitting.
+
+Explicit `--legacy`, existing `--force`, or existing `--if-match <etag>` retain
+legacy replacement and failure semantics. They cannot combine with
+`--base-revision` or `--exact`. These changes do not migrate section editors or
+retire legacy endpoints.
+
+The original-revision migration of `write`, `add-section`, and `rm-section` is
+not shipped in CLI 0.60.0. Those commands keep their existing ETag-based interfaces;
+this release does not retire any legacy Note route or compatibility option.

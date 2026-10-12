@@ -63,7 +63,11 @@ suffixed anchors. Inspect `notes sections` afterward.
 
 ## Insert with a retained ETag
 
-```bash cli-help="notes insert"
+Published CLI 0.59.0 and earlier use this replacement interface by default.
+CLI 0.60.0 and later use [original-revision insertion](notes-editing.md) by default,
+keeping this path through `--legacy`, `--force`, or `--if-match`; it is not retired.
+
+```bash
 NOTE_ID=release-plan
 dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
@@ -73,6 +77,11 @@ dreamlake notes read "$NOTE_ID" --json
 ```
 
 ## Edit by text, pattern, or location
+
+CLI 0.59.0 and earlier use this replacement contract by default. CLI 0.60.0 and
+later use [original-revision editors](notes-editing.md) for insert, replace and
+delete, retaining `--legacy`, `--force`, and `--if-match` compatibility.
+Do not mix those compatibility flags with a v2 baseline or `--exact`.
 
 ```bash
 dreamlake notes find "Draft" --note "$NOTE_ID" --json
@@ -147,3 +156,7 @@ prints text by default; `--json` is an explicit programmatic option. There are
 no direct `notes join`, `notes heartbeat`, or `notes leave` commands. The HTTP
 presence lease protocol remains available to SDK integrations and is used
 internally by linger; it is not a sequence CLI users need to manage.
+
+`write`, `add-section`, and `rm-section` retain their ETag-based contracts in
+CLI 0.60.0. Their original-revision client migration remains unshipped; use the
+existing interfaces without claiming a modern baseline or retiring legacy routes.
