@@ -206,7 +206,7 @@ require extra escaping of its line contents. Existing merge/exact semantics appl
 
 To let the note's owner accept or reject each change rather than applying it
 directly, render the edit as suggested edits with
-[`notes suggest-diff --in-place`](https://cli.dreamlake.ai/notes/suggest-diff/#propose-edits-inside-an-existing-note)
+[`notes suggest-diff --in-place`](notes-suggest-diff.md#propose-edits-inside-an-existing-note)
 and write that body instead.
 
 ## Append against the original snapshot (CLI 0.59.0+)

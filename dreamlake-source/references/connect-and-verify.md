@@ -65,3 +65,15 @@ Every episode should enumerate and every field should carry the expected
 kind (`video` / `series` / `depth` / …). Zero episodes on `format: folder`
 → the missing `index.json` manifests are the first suspect. Layout and
 shape rules: https://viz.dreamlake.ai/dataset-viz/requirements.md
+
+## Project-derived access (under development)
+
+The companion server change retains whole-Source `ProjectSourceBinding` references.
+Explicit Project READ supplies Source USE; WRITE/ADMIN supplies supported content
+EDIT, not Source ADMIN, Connection/Vault credentials or sharing management.
+A public Project alone never opens a private Source. Current and later bindings
+follow live grants; detaching/revoking removes only that access contribution.
+A Project reader may lack namespace-list authority: use the supplied exact Source
+name and canonical address rather than treating a denied list as an empty catalog.
+Updated clients resolve its exact name without enumerating other Sources.
+See the [owning Source guide](https://docs.dreamlake.ai/sources/).

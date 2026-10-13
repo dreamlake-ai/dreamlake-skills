@@ -94,6 +94,41 @@ class SyncTests(unittest.TestCase):
         self.assertIn(b'[other](https://cli.dreamlake.ai/notes/rich-content/#tokens)', result)
         self.assertIn(b'[example](/notes/editing/)', result)
 
+    def test_notes_bundle_resolves_suggest_diff_locally_and_keeps_external_dependencies(self):
+        cli = self.root / 'skills/dreamlake-cli'
+        refs = cli / 'reference'
+        refs.mkdir(parents=True)
+        for name in sync.NOTES_REFERENCES_FROM_CLI:
+            (refs / f'{name}.md').write_text('# existing reference\n')
+        # Historical CLI snapshots without the new guide remain reproducible.
+        older = sync.notes_cli_reference_outputs(cli, 'https://cli.dreamlake.ai')
+        self.assertNotIn('dreamlake-notes/reference/notes-suggest-diff.md', older)
+        (refs / 'notes-editing.md').write_text(
+            '[propose](notes-suggest-diff.md#propose-edits)\n'
+            '[source route](/notes/suggest-diff#propose-edits)\n')
+        missing = sync.notes_cli_reference_outputs(cli, 'https://cli.dreamlake.ai')
+        missing_editing = missing['dreamlake-notes/reference/notes-editing.md']
+        self.assertIn(b'[propose](https://cli.dreamlake.ai/notes/suggest-diff/#propose-edits)', missing_editing)
+        self.assertIn(b'[source route](https://cli.dreamlake.ai/notes/suggest-diff#propose-edits)', missing_editing)
+        (refs / 'notes-suggest-diff.md').write_text(
+            '# Suggest edits\n[identity](notes-collaboration.md) '
+            '[saved](notes-versions.md)\n')
+        outputs = sync.notes_cli_reference_outputs(cli, 'https://cli.dreamlake.ai')
+        self.assertIn('dreamlake-notes/reference/notes-suggest-diff.md', outputs)
+        editing = outputs['dreamlake-notes/reference/notes-editing.md']
+        self.assertIn(b'[propose](notes-suggest-diff.md#propose-edits)', editing)
+        self.assertIn(b'[source route](notes-suggest-diff.md#propose-edits)', editing)
+        suggested = outputs['dreamlake-notes/reference/notes-suggest-diff.md']
+        self.assertIn(b'[identity](notes-collaboration.md)', suggested)
+        self.assertIn(b'[saved](https://cli.dreamlake.ai/notes/versions/)', suggested)
+        # Every local Markdown destination in the independently installed subset
+        # resolves to an output file, not a sibling skill that may be absent.
+        for path, body in outputs.items():
+            for link in __import__('re').findall(rb'\]\(([^)#]+\.md)(?:#[^)]*)?\)', body):
+                if b'://' not in link:
+                    target = str(Path(path).parent / link.decode())
+                    self.assertIn(target, outputs)
+
     def test_owned_paths_cannot_escape(self):
         for name in ('../outside', '/tmp/outside', 'README.md', 'dreamlake-cli/../../outside'):
             with self.assertRaises(ValueError):
@@ -115,9 +150,9 @@ class SyncTests(unittest.TestCase):
         for name in sync.SCENE_REFERENCES:
             reference.mkdir(exist_ok=True)
             (reference / f'{name}.md').write_text(
-                f'# {name}\nsee [layers](envs-layers.md#semantics-rules) and [cli](cli.md#envs)\n'
+                f'# {name}\nsee [layers](scenes-layers.md#semantics-rules) and [cli](cli.md#scenes)\n'
             )
-        for route in ('scene-generation', 'libraries', 'envs', 'envs/layers', 'cli'):
+        for route in ('scene-generation', 'libraries', 'scenes', 'scenes/layers', 'cli'):
             page = self.root / 'docs/pages' / route / '+Page.mdx'
             page.parent.mkdir(parents=True, exist_ok=True)
             page.write_text('page')
@@ -132,13 +167,13 @@ class SyncTests(unittest.TestCase):
             'dreamlake-scene-generation/tools/test_scene_tools.py',
             'dreamlake-scene-generation/reference/scene-generation.md',
             'dreamlake-scene-generation/reference/libraries.md',
-            'dreamlake-scene-generation/reference/envs.md',
-            'dreamlake-scene-generation/reference/envs-layers.md',
+            'dreamlake-scene-generation/reference/scenes.md',
+            'dreamlake-scene-generation/reference/scenes-layers.md',
         })
         # bundled reference links stay relative; non-bundled resolve to docs
-        body = outputs['dreamlake-scene-generation/reference/envs.md'].decode()
-        self.assertIn('](envs-layers.md#semantics-rules)', body)
-        self.assertIn('](https://docs.dreamlake.ai/cli#envs)', body)
+        body = outputs['dreamlake-scene-generation/reference/scenes.md'].decode()
+        self.assertIn('](scenes-layers.md#semantics-rules)', body)
+        self.assertIn('](https://docs.dreamlake.ai/cli#scenes)', body)
 
     def test_scene_generation_requires_frontmatter_and_tools(self):
         root = self._scene_snapshot(skill_md='# no frontmatter\n')
@@ -153,31 +188,30 @@ class SyncTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'missing its tools'):
             sync.scene_generation_outputs(root)
 
-    def test_scene_generation_tracks_canonical_scenes_pages(self):
+    def test_scene_generation_reproduces_legacy_envs_pages(self):
         root = self._scene_snapshot()
-        (root / 'docs/pages/envs').rename(root / 'docs/pages/scenes')
+        (root / 'docs/pages/scenes').rename(root / 'docs/pages/envs')
         refs = root / 'skills/dreamlake/reference'
-        for old, new in [('envs', 'scenes'), ('envs-layers', 'scenes-layers')]:
+        for old, new in [('scenes', 'envs'), ('scenes-layers', 'envs-layers')]:
             target = refs / f'{old}.md'
-            target.write_text(target.read_text().replace('envs-layers.md', 'scenes-layers.md'))
             target.rename(refs / f'{new}.md')
         for reference in refs.glob('*.md'):
-            reference.write_text(reference.read_text().replace('envs-layers.md', 'scenes-layers.md'))
+            reference.write_text(reference.read_text().replace('scenes-layers.md', 'envs-layers.md'))
         outputs = sync.scene_generation_outputs(root)
-        self.assertIn('dreamlake-scene-generation/reference/scenes.md', outputs)
-        self.assertNotIn('dreamlake-scene-generation/reference/envs.md', outputs)
-        self.assertIn(b'](scenes-layers.md#semantics-rules)',
-                      outputs['dreamlake-scene-generation/reference/scenes.md'])
+        self.assertIn('dreamlake-scene-generation/reference/envs.md', outputs)
+        self.assertNotIn('dreamlake-scene-generation/reference/scenes.md', outputs)
+        self.assertIn(b'](envs-layers.md#semantics-rules)',
+                      outputs['dreamlake-scene-generation/reference/envs.md'])
 
     def test_scene_generation_missing_reference_is_actionable(self):
         root = self._scene_snapshot()
-        (root / 'skills/dreamlake/reference/envs-layers.md').unlink()
-        with self.assertRaisesRegex(ValueError, 'reference/envs-layers.md'):
+        (root / 'skills/dreamlake/reference/scenes-layers.md').unlink()
+        with self.assertRaisesRegex(ValueError, 'reference/scenes-layers.md'):
             sync.scene_generation_outputs(root)
 
     def test_scene_generation_outputs_roundtrip_through_manifest(self):
         outputs = sync.scene_generation_outputs(self._scene_snapshot())
-        peer = self.root / 'dreamlake-envs/SKILL.md'
+        peer = self.root / 'dreamlake-scenes/SKILL.md'
         peer.parent.mkdir()
         peer.write_text('hand-maintained peer skill')
         sync.synchronize(self.root, outputs, self.sources)

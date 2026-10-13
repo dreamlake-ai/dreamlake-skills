@@ -40,3 +40,15 @@ the roadmap) — read back through the SDK. Local preset backend:
 npx http-server /abs/path -p 8791 --cors
 # open <app>/annotation-debug?space=http://localhost:8791/refs/main
 ```
+
+## Project-derived access (under development)
+
+The companion server change adds authenticated explicit Project grants to
+Annotation content access: READ permits content reads; WRITE/ADMIN permit
+supported uploads. Project visibility alone does not open private content.
+Independent resource access remains valid after detachment or grant revocation.
+Catalog/schema management, deletion and ownership remain separately authorized.
+Project-only uploads require resource-scoped temporary credentials; static
+custom-S3 identities or an unscoped fallback return
+`DELEGATED_UPLOAD_UNSUPPORTED` (403). Do not retry a denial as namespace access.
+See the [owning access contract](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).

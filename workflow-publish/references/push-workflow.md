@@ -42,3 +42,15 @@ workflow:  <name> v1 · 5 stages · 8 nodes · 9 edges
 the shape matches what was described), and the URL as a clickable link. Tell
 them the page has a **Run** button and that node states light up live on the
 canvas while it executes.
+
+## Project-derived access (under development)
+
+The companion server change allows explicit Project READ to read attached
+Workflow specs and WRITE/ADMIN to register supported spec updates. The public
+Workflow catalog follows its independent metadata policy; public Project
+visibility does not authorize private spec content. Project grants do not
+authorize execution, host/secret access, catalog management or ownership transfer.
+Do not infer permission to use Run from permission to publish a content version.
+Project-only uploads require scoped temporary credentials; an unsafe broker mode
+returns `DELEGATED_UPLOAD_UNSUPPORTED` (403).
+See the [owning Workflow guide](https://docs.dreamlake.ai/workflows/).

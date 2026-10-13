@@ -42,3 +42,15 @@ Source: [owning guide](https://docs.dreamlake.ai/artifacts) and [Profiles and wo
 
 
 Check `dreamlake artifact share --help` for installed support. CLI 0.32.4+ can inspect, create, and revoke existing links without uploading a version, and change visibility independently. See [the CLI artifact reference](../../dreamlake-cli/reference/artifacts.md) for exact commands and permission limits.
+
+## Project-derived access (under development)
+
+With the companion server change, explicit Project READ grants can read current
+and later attached Artifacts; WRITE/ADMIN permit supported content updates.
+A public Project alone does not open a private Artifact. Independent membership
+and sharing remain valid; detachment/revocation removes only inherited access.
+Project grants do not authorize Artifact sharing management, deletion or ownership
+transfer. Project-only uploads require resource-scoped temporary credentials;
+`DELEGATED_UPLOAD_UNSUPPORTED` (403) means the broker cannot safely supply them.
+Use the reader's own credentials at the canonical address, not a copied share
+link. See the [owning access contract](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
