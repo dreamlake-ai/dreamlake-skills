@@ -54,3 +54,10 @@ Do not infer permission to use Run from permission to publish a content version.
 Project-only uploads require scoped temporary credentials; an unsafe broker mode
 returns `DELEGATED_UPLOAD_UNSUPPORTED` (403).
 See the [owning Workflow guide](https://docs.dreamlake.ai/workflows/).
+
+For a new Project attachment, require independent resource sharing-management
+authority and actual Project WRITE/ADMIN; ordinary organization-member READ or
+public Project visibility is insufficient. Grouping an already-live attachment
+into a Bindr of that same Project needs Project write authority and resource
+readability, without sharing it again. Use the server's current `canBind` result,
+not a role guessed from membership. See [Project choice and grouping](https://docs.dreamlake.ai/api/project-queries/).

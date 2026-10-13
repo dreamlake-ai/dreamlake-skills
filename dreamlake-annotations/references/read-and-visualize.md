@@ -52,3 +52,10 @@ Project-only uploads require resource-scoped temporary credentials; static
 custom-S3 identities or an unscoped fallback return
 `DELEGATED_UPLOAD_UNSUPPORTED` (403). Do not retry a denial as namespace access.
 See the [owning access contract](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
+
+For a new Project attachment, require independent resource sharing-management
+authority and actual Project WRITE/ADMIN; ordinary organization-member READ or
+public Project visibility is insufficient. Grouping an already-live attachment
+into a Bindr of that same Project needs Project write authority and resource
+readability, without sharing it again. Use the server's current `canBind` result,
+not a role guessed from membership. See [Project choice and grouping](https://docs.dreamlake.ai/api/project-queries/).

@@ -109,7 +109,7 @@ Denied or uncertain responses are failures; inspect current grants before retryi
 Verify installation and matching server deployment separately. No ownership adapter
 is enabled by granting project access.
 
-## Project attachment access (under development)
+## Project attachment access (CLI 0.62.0)
 
 Independent resource share links remain available. Explicit Project user/team
 READ grants add read access to all current and future attached resources; WRITE
@@ -125,8 +125,9 @@ created, copied or revoked by Project sharing. Attach requires the target
 Project's content-create permission and the resource's own sharing-management
 permission; readable content cannot be redistributed by a reader.
 
-This behavior requires the companion server implementation and is not yet a
-released capability. Ownership transfer remains separately execution-gated.
+Available in CLI 0.62.0 with the companion Project-sharing backend release.
+Ownership transfer remains separately execution-gated. Check installed help
+and server support before relying on attachment commands.
 
 Attach by database ID (Artifact uses its database ID, not its artifactId):
 

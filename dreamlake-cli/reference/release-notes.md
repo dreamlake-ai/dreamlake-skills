@@ -1,5 +1,17 @@
 # Release notes
 
+## 0.62.0 — Project resource attachments
+
+`project attach` and `project detach` organize Notes, Artifacts, Annotations,
+Workflows, Scenes (`env`) and Sources by database ID. Explicit Project grants
+cover current and future attachments; public Project visibility alone does not
+expose private resources. Source retains its existing whole-Source association.
+Attaching requires Project write and independent resource-sharing authority.
+
+Requires the companion Project-sharing backend release. Ownership transfer
+remains a separate capability; this version does not execute a Project move.
+See [Projects](projects.md).
+
 ## 0.54.0 — Curated AWS starter guide
 
 The bundled skill routes “connect AWS to DreamLake” to a first-time setup guide
