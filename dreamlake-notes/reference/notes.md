@@ -3547,3 +3547,29 @@ and an unscoped STS fallback are never issued through Project-only authority;
 these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
 exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
+
+## Whole Project and owned Notes transfer (release candidate)
+
+This is **not released or enabled**. The candidate moves a whole Project and all
+its live, source-owned Note attachments atomically, up to 20 Notes and 200 tree
+nodes. Source references, other resource types and Project file/episode content
+block the entire operation; NoteFile attachments are part of the Note move.
+Standalone `notes move` does not gain cross-namespace execution from this feature.
+
+Moved Project/Notes become private. Preserve-access is opt-in; preserving other
+Project filings is a separate, default-on policy that the destination owner must
+approve because their live grants and organization-member READ baseline can
+retain content access. The audience remains subject to current Project policy.
+Public Project visibility alone still never opens private Notes. Ownership and
+sharing management are not inherited from content grants.
+
+Note IDs/S3 roots and immutable historical publications remain stable. RTC state
+is transferred losslessly to a fresh quarantined room, activated only after owner
+commit; the old room stays revoked. Old namespace Note/file addresses are verified
+read aliases with current-owner authorization, never writable ownership aliases.
+A lost response requires the original reviewed request/key, not a rebuilt plan.
+
+See [the whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) for
+owner acceptance, complete scope, blocked dependencies, storage/RTC activation and
+operator recovery. Current production RTC prerequisites are unresolved; local
+real-RTC tests do not establish a deployed transfer capability.

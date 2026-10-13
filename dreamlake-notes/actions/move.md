@@ -34,3 +34,22 @@ inspect its current workspace and project associations before deciding what
 remains. See the [Notes reference](../reference/notes.md#moving-between-workspaces-development-preview)
 for readiness limits and [concurrent writes](../reference/notes.md#metadata-permissions-and-concurrent-writes)
 for ownership-busy and lost-authority recovery.
+
+
+## Whole Project and owned Notes (unreleased candidate)
+
+For a request to move a **whole Project with all its owned Notes**, use the
+[whole-Project candidate contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
+and the candidate CLI Projects guide instead of repeating standalone Note moves.
+Released CLI 0.62.0 and SDK 0.29.0 do not provide this new operation. Confirm a
+reviewed candidate client and independently accepted backend/RTC deployment;
+unsupported/disabled capability stops the task without copying/deleting content.
+
+Candidate CLI flow is `project move ... --dry-run --out reviewed.json`, review
+scope/access/external audiences, then `--confirm --request-file reviewed.json`.
+The manifest must include the Project and every owned live Note; foreign Notes,
+Source bindings and other unsupported resources block everything. Preserve access
+is off by default; retained external Project filings are a separate approval.
+Source owner requests and destination owner explicitly accepts. Keep the exact
+request/key on a lost response; use status for a known operation, never rebuild
+or clear a claim/lease. See the [Notes contract](../reference/notes.md#whole-project-and-owned-notes-transfer-release-candidate).

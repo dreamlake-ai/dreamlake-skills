@@ -94,6 +94,13 @@ namespace updates or an older generic mount API. Consult the
 [Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0444)
 for server and adapter gates; missing readiness is unsupported.
 
+For a whole Project and its owned Notes, the unreleased `project move` workflow
+automatically loads the complete manifest, saves a read-only review, and uses
+one ownership journal request. Check `project move --help` and the
+[Projects reference](../reference/projects.md) before using it. Released CLI
+0.62.0 lacks this command. Never substitute per-Note copy/delete or claim that
+an available client preview proves deployed writer/storage/RTC execution gates.
+
 CLI 0.48.2 adds attachment journal recovery; CLI 0.48.1 does not include it.
 It requires a separately verified journal-enabled API. Check
 `notes files write --help`, `cp --help` and `status --help` before using it.

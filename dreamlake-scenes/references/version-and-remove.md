@@ -53,3 +53,14 @@ public Project visibility is insufficient. Grouping an already-live attachment
 into a Bindr of that same Project needs Project write authority and resource
 readability, without sharing it again. Use the server's current `canBind` result,
 not a role guessed from membership. See [Project choice and grouping](https://docs.dreamlake.ai/api/project-queries/).
+
+
+## Whole-Project transfer boundary (unreleased candidate)
+
+The candidate whole-Project move includes owned Notes only. A Project mount or
+reference of this resource blocks the entire transfer; do not silently detach
+it, copy/delete it or report a partial move as complete. Existing resource sharing
+and Project-derived content access remain released. See the
+[owning candidate contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
+The new transfer requires separate compatible backend/RTC acceptance and is not
+available in released CLI 0.62.0 or SDK 0.29.0.

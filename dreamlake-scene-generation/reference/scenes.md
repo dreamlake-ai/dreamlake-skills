@@ -358,3 +358,8 @@ and an unscoped STS fallback are never issued through Project-only authority;
 these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
 exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
+
+The unreleased [whole-Project transfer candidate](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
+supports Project plus owned Notes only. A mount/reference of this resource blocks
+the entire transfer rather than silently excluding it. Its existing independent
+sharing and released Project-derived content access remain available.
