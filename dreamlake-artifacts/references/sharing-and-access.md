@@ -42,3 +42,26 @@ Source: [owning guide](https://docs.dreamlake.ai/artifacts) and [Profiles and wo
 
 
 Check `dreamlake artifact share --help` for installed support. CLI 0.32.4+ can inspect, create, and revoke existing links without uploading a version, and change visibility independently. See [the CLI artifact reference](../../dreamlake-cli/reference/artifacts.md) for exact commands and permission limits.
+
+## Project-derived access
+
+The backend and Web update are released. CLI Project attachment commands require
+0.62.0 or later; Python Project support requires SDK 0.29.0 or later. Check
+installed versions separately from server support.
+
+With the released Project-sharing backend, explicit Project READ grants can read current
+and later attached Artifacts; WRITE/ADMIN permit supported content updates.
+A public Project alone does not open a private Artifact. Independent membership
+and sharing remain valid; detachment/revocation removes only inherited access.
+Project grants do not authorize Artifact sharing management, deletion or ownership
+transfer. Project-only uploads require resource-scoped temporary credentials;
+`DELEGATED_UPLOAD_UNSUPPORTED` (403) means the broker cannot safely supply them.
+Use the reader's own credentials at the canonical address, not a copied share
+link. See the [owning access contract](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
+
+For a new Project attachment, require independent resource sharing-management
+authority and actual Project WRITE/ADMIN; ordinary organization-member READ or
+public Project visibility is insufficient. Grouping an already-live attachment
+into a Bindr of that same Project needs Project write authority and resource
+readability, without sharing it again. Use the server's current `canBind` result,
+not a role guessed from membership. See [Project choice and grouping](https://docs.dreamlake.ai/api/project-queries/).

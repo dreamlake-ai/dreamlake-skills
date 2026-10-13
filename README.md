@@ -182,7 +182,7 @@ surfaces:
 |---|---|
 | `dreamlake-notes/SKILL.md`, `actions/*`, selected references | `dreamlake-workspace/docs/skill-guides/notes/` plus generated Notes docs |
 | `dreamlake-cli/**` | `dreamlake-cli/docs/pages/**/+Page.mdx` and its docs generator |
-| `dreamlake-scene-generation/**` | `dreamlake-workspace/docs/skill-guides/scene-generation/` (router, actions, tools) plus the generated scene-generation/libraries/scenes/scenes-layers references |
+| `dreamlake-scene-generation/**` | `dreamlake-workspace/docs/skill-guides/scene-generation/` (router, actions, tools) plus the generated scene-generation/libraries/scenes/scenes-layers references (historical locked sources retain envs/envs-layers) |
 
 Task routing is maintained separately from product facts: Notes uses
 `dreamlake-workspace/docs/skill-guides/notes/`, CLI uses

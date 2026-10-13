@@ -142,8 +142,10 @@ def scene_generation_outputs(dest):
             'dreamlake-scene-generation and a substantive description')
     if not any(name.startswith('dreamlake-scene-generation/tools/') for name in outputs):
         raise ValueError('scene-generation guide source is missing its tools/')
-    bundled = frozenset(f'{name}.md' for name in SCENE_REFERENCES)
-    for name in SCENE_REFERENCES:
+    references = ('scene-generation', 'libraries', 'scenes', 'scenes-layers') \
+        if (dest / 'docs/pages/scenes/+Page.mdx').is_file() else ('scene-generation', 'libraries', 'envs', 'envs-layers')
+    bundled = frozenset(f'{name}.md' for name in references)
+    for name in references:
         page = dest / f'skills/dreamlake/reference/{name}.md'
         if not page.is_file():
             raise ValueError(f'workspace generator did not produce reference/{name}.md')
@@ -203,7 +205,7 @@ def collect_sources(paths, locked=None):
             guide_name = 'notes' if name == 'workspace' else 'cli'
             sources[name]['actionGuides'] = action_guide_hashes(dest, guide_name)
             sources[name]['docsPages'] = (
-                'docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers}/+Page.mdx'
+                'docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers,envs,envs/layers}/+Page.mdx'
                 if name == 'workspace' else 'docs/pages/**/+Page.mdx'
             )
             if name == 'cli':
@@ -240,11 +242,12 @@ def collect_sources(paths, locked=None):
                     sources[name]['childPages'] = child_pages
                 sources[name]['actionGuides'].update(
                     action_guide_hashes(dest, 'scene-generation'))
+                scene_route = 'scenes' if (dest / 'docs/pages/scenes/+Page.mdx').is_file() else 'envs'
                 scene_pages = {
                     'scene-generation': 'docs/pages/scene-generation/+Page.mdx',
                     'libraries': 'docs/pages/libraries/+Page.mdx',
-                    'scenes': 'docs/pages/scenes/+Page.mdx',
-                    'scenes-layers': 'docs/pages/scenes/layers/+Page.mdx',
+                    scene_route: f'docs/pages/{scene_route}/+Page.mdx',
+                    scene_route + '-layers': f'docs/pages/{scene_route}/layers/+Page.mdx',
                 }
                 sources[name]['scenePages'] = {
                     path: sha((dest / path).read_bytes()) for path in scene_pages.values()

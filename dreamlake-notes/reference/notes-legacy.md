@@ -7,7 +7,12 @@ operations. Their ETag checks differ from the current
 
 ## Read and replace a body
 
-```bash cli-help="notes write"
+Whole-body write uses this ETag interface in CLI 0.60.0 and earlier. The
+[original-revision whole-body write in CLI 0.61.0+](notes-editing.md) retains it through
+`--legacy`, `--force`, or `--if-match`. Explicit `--section` keeps the retained
+section API; that migration and add/remove-section migrations remain unshipped.
+
+```bash
 NOTE_ID=release-plan
 dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
@@ -51,7 +56,7 @@ removes that section boundary. Refresh your baseline for each separate edit;
 the following are independent command forms, not a sequence sharing one ETag:
 
 ```bash
-dreamlake notes append "$NOTE_ID" --text $'\n## Changelog\n- Shipped\n' --if-match "$ETAG"
+dreamlake notes append "$NOTE_ID" --text $'\n## Changelog\n- Shipped\n'
 dreamlake notes insert "$NOTE_ID" --after install --file troubleshooting.md --if-match "$ETAG"
 dreamlake notes insert "$NOTE_ID" --before install --file prerequisites.md --if-match "$ETAG"
 dreamlake notes rm-section "$NOTE_ID" troubleshooting --if-match "$ETAG"
@@ -63,7 +68,11 @@ suffixed anchors. Inspect `notes sections` afterward.
 
 ## Insert with a retained ETag
 
-```bash cli-help="notes insert"
+Published CLI 0.59.0 and earlier use this replacement interface by default.
+CLI 0.60.0 and later use [original-revision insertion](notes-editing.md) by default,
+keeping this path through `--legacy`, `--force`, or `--if-match`; it is not retired.
+
+```bash
 NOTE_ID=release-plan
 dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
@@ -73,6 +82,11 @@ dreamlake notes read "$NOTE_ID" --json
 ```
 
 ## Edit by text, pattern, or location
+
+CLI 0.59.0 and earlier use this replacement contract by default. CLI 0.60.0 and
+later use [original-revision editors](notes-editing.md) for insert, replace and
+delete, retaining `--legacy`, `--force`, and `--if-match` compatibility.
+Do not mix those compatibility flags with a v2 baseline or `--exact`.
 
 ```bash
 dreamlake notes find "Draft" --note "$NOTE_ID" --json
@@ -117,8 +131,12 @@ To upload a single-file diff prepared from that exact saved body:
 dreamlake notes patch "$NOTE_ID" --legacy --file draft.diff --if-match "$ETAG" --json
 ```
 
-Legacy reads/diffs/patches require explicit `--legacy`; `write`, `append`, and
-the section/text mutation commands retain their own interfaces. Do not supply a
+Legacy reads/diffs/patches require explicit `--legacy`; `write` and the
+section/text mutation commands retain their own interfaces. CLI 0.58.0 and earlier
+append reads its own ETag and guards the subsequent replacement; it does not
+accept `--if-match`. CLI 0.59.0 and later use original-revision insertion by default, as documented
+in [Editing with patches](notes-editing.md). Explicit `--legacy` or existing
+`--force` retains the older append compatibility. Do not supply a
 v2 RTC revision where these commands expect a content ETag.
 
 ## Concurrent edits and failures
@@ -143,3 +161,9 @@ prints text by default; `--json` is an explicit programmatic option. There are
 no direct `notes join`, `notes heartbeat`, or `notes leave` commands. The HTTP
 presence lease protocol remains available to SDK integrations and is used
 internally by linger; it is not a sequence CLI users need to manage.
+
+Whole-body `write` uses the original-revision contract by default in CLI
+0.61.0 and later, with the explicit legacy options above retained. Section
+write, `add-section`, and `rm-section` retain their ETag-based contracts; their
+original-revision migrations remain unshipped. Runbook attachment is separate
+proposed work and is not included in CLI 0.61.0.

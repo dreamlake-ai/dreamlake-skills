@@ -70,3 +70,12 @@ Do not add escapes and do not remove escapes already in the saved Markdown.
 This is for agents, not browsers: do not render it or DOM-parse its body.
 Use `--view markdown` for ordinary reads; machine integrations decode canonical
 source metadata once and use its address index. Preserve the original revision.
+
+## Project-derived access
+
+With the released Project-sharing backend, explicit Project user/team grants
+cover all live attached Notes, including later additions. Public Project
+visibility alone never reveals private Notes. Independent Note links and
+namespace membership remain valid. Detachment or Project grant revocation removes
+only that source of access. Do not mint a Note share link to simulate Project
+access; use the reader's own credentials and inspect current Note permissions.

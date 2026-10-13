@@ -108,3 +108,46 @@ permissions, including organization baseline Read and namespace-owner Admin.
 Denied or uncertain responses are failures; inspect current grants before retrying.
 Verify installation and matching server deployment separately. No ownership adapter
 is enabled by granting project access.
+
+## Project attachment access (CLI 0.62.0)
+
+Independent resource share links remain available. Explicit Project user/team
+READ grants add read access to all current and future attached resources; WRITE
+and ADMIN add supported content editing. They do not grant resource sharing
+management, deletion, ownership transfer or infrastructure credentials. Public Project visibility
+alone never exposes private attached resources. Resource-own access and all live
+Project grants are combined at the canonical resource URL.
+
+Detaching a resource, revoking a Project grant, or leaving its granted team
+removes only that source of access. A resource attached to several Projects keeps
+access through the others. No resource share links or acceptance records are
+created, copied or revoked by Project sharing. Attach requires the target
+Project's content-create permission and the resource's own sharing-management
+permission; readable content cannot be redistributed by a reader.
+
+Available in CLI 0.62.0 with the companion Project-sharing backend release.
+Ownership transfer remains separately execution-gated. Check installed help
+and server support before relying on attachment commands.
+
+Attach by database ID (Artifact uses its database ID, not its artifactId):
+
+```bash cli-help="project attach"
+dreamlake project attach research --namespace acme --type note --resource "$NOTE_ID"
+```
+
+```bash cli-help="project detach"
+dreamlake project detach research --namespace acme --type note --resource "$NOTE_ID"
+```
+
+Supported types are `note`, `artifact`, `annotation`, `workflow`, `env` and
+`source`. Source uses the existing whole-Source Project reference. A Source name
+can be read through a Project grant without namespace listing authority; the
+client resolves its exact name with current authorization rather than enumerating
+other Sources. A denial is a failure, never an empty list or successful mutation.
+
+Project content writers may obtain temporary upload credentials only when the
+backend can restrict them to that resource. Custom S3/MinIO static credentials
+and an unscoped STS fallback are never issued through Project-only authority;
+these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
+exposing the server identity. Existing namespace-member upload behavior remains
+separate from Project inheritance.

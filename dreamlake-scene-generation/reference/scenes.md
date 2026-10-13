@@ -330,3 +330,31 @@ Existing `envType`, `EnvEntry`, `env_*` identifiers, `ENVS_*` configuration,
 `dreamlake.env-layers/v3` and `dreamlake.envlayer` remain compatible technical
 contracts. Login environments (`dreamlake auth env`), environment variables and
 RL environment interfaces retain their technical names.
+
+## Project attachment access
+
+Independent resource share links remain available. Explicit Project user/team
+READ grants add read access to all current and future attached resources; WRITE
+and ADMIN add supported content editing. They do not grant resource sharing
+management, deletion, ownership transfer or infrastructure credentials. Public Project visibility
+alone never exposes private attached resources. Resource-own access and all live
+Project grants are combined at the canonical resource URL.
+
+Detaching a resource, revoking a Project grant, or leaving its granted team
+removes only that source of access. A resource attached to several Projects keeps
+access through the others. No resource share links or acceptance records are
+created, copied or revoked by Project sharing. Attach requires the target
+Project's content-create permission and the resource's own sharing-management
+permission; readable content cannot be redistributed by a reader.
+
+The Project-sharing backend and Web update are released. CLI attachment
+commands require 0.62.0 or later; Python Project support requires SDK 0.29.0
+or later. Check installed client versions separately from server support.
+Ownership transfer remains separately execution-gated.
+
+Project content writers may obtain temporary upload credentials only when the
+backend can restrict them to that resource. Custom S3/MinIO static credentials
+and an unscoped STS fallback are never issued through Project-only authority;
+these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
+exposing the server identity. Existing namespace-member upload behavior remains
+separate from Project inheritance.
