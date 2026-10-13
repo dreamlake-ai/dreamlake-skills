@@ -32,10 +32,11 @@ dreamlake scene delete my-scene --permanent   # purge storage + catalog — IRRE
 
 Never pass `--permanent` unless the user explicitly asked to erase storage.
 
-## Project-derived access (backend released)
+## Project-derived access
 
-Companion Web deployment and CLI 0.62.0 / Python SDK 0.29.0 package publication
-remain pending verification.
+The backend and Web update are released. CLI Project attachment commands require
+0.62.0 or later; Python Project support requires SDK 0.29.0 or later. Check
+installed versions separately from server support.
 
 With the released Project-sharing backend, explicit Project READ permits content reads
 for attached Scenes/Envs; WRITE/ADMIN permits supported content versions.

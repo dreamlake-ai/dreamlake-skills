@@ -66,10 +66,11 @@ kind (`video` / `series` / `depth` / …). Zero episodes on `format: folder`
 → the missing `index.json` manifests are the first suspect. Layout and
 shape rules: https://viz.dreamlake.ai/dataset-viz/requirements.md
 
-## Project-derived access (backend released)
+## Project-derived access
 
-Companion Web deployment and CLI 0.62.0 / Python SDK 0.29.0 package publication
-remain pending verification.
+The backend and Web update are released. CLI Project attachment commands require
+0.62.0 or later; Python Project support requires SDK 0.29.0 or later. Check
+installed versions separately from server support.
 
 The released Project-sharing backend retains whole-Source `ProjectSourceBinding` references.
 Explicit Project READ supplies Source USE; WRITE/ADMIN supplies supported content

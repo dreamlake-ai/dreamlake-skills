@@ -3536,8 +3536,9 @@ created, copied or revoked by Project sharing. Attach requires the target
 Project's content-create permission and the resource's own sharing-management
 permission; readable content cannot be redistributed by a reader.
 
-The Project-sharing backend is released. The companion Web update and CLI
-0.62.0 / Python SDK 0.29.0 package publication are still pending verification.
+The Project-sharing backend and Web update are released. CLI attachment
+commands require 0.62.0 or later; Python Project support requires SDK 0.29.0
+or later. Check installed client versions separately from server support.
 Ownership transfer remains separately execution-gated.
 
 Project content writers may obtain temporary upload credentials only when the

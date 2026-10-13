@@ -43,10 +43,11 @@ the shape matches what was described), and the URL as a clickable link. Tell
 them the page has a **Run** button and that node states light up live on the
 canvas while it executes.
 
-## Project-derived access (backend released)
+## Project-derived access
 
-Companion Web deployment and CLI 0.62.0 / Python SDK 0.29.0 package publication
-remain pending verification.
+The backend and Web update are released. CLI Project attachment commands require
+0.62.0 or later; Python Project support requires SDK 0.29.0 or later. Check
+installed versions separately from server support.
 
 The released Project-sharing backend allows explicit Project READ to read attached
 Workflow specs and WRITE/ADMIN to register supported spec updates. The public
