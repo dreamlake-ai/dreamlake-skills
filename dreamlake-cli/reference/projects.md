@@ -114,7 +114,7 @@ is enabled by granting project access.
 Independent resource share links remain available. Explicit Project user/team
 READ grants add read access to all current and future attached resources; WRITE
 and ADMIN add supported content editing. They do not grant resource sharing
-management, deletion, ownership transfer or credentials. Public Project visibility
+management, deletion, ownership transfer or infrastructure credentials. Public Project visibility
 alone never exposes private attached resources. Resource-own access and all live
 Project grants are combined at the canonical resource URL.
 
@@ -143,3 +143,10 @@ Supported types are `note`, `artifact`, `annotation`, `workflow`, `env` and
 can be read through a Project grant without namespace listing authority; the
 client resolves its exact name with current authorization rather than enumerating
 other Sources. A denial is a failure, never an empty list or successful mutation.
+
+Project content writers may obtain temporary upload credentials only when the
+backend can restrict them to that resource. Custom S3/MinIO static credentials
+and an unscoped STS fallback are never issued through Project-only authority;
+these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
+exposing the server identity. Existing namespace-member upload behavior remains
+separate from Project inheritance.

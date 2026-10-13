@@ -3525,7 +3525,7 @@ reads currently require authenticated REST; the Python SDK has no saved-version 
 Independent resource share links remain available. Explicit Project user/team
 READ grants add read access to all current and future attached resources; WRITE
 and ADMIN add supported content editing. They do not grant resource sharing
-management, deletion, ownership transfer or credentials. Public Project visibility
+management, deletion, ownership transfer or infrastructure credentials. Public Project visibility
 alone never exposes private attached resources. Resource-own access and all live
 Project grants are combined at the canonical resource URL.
 
@@ -3538,3 +3538,10 @@ permission; readable content cannot be redistributed by a reader.
 
 This behavior requires the companion server implementation and is not yet a
 released capability. Ownership transfer remains separately execution-gated.
+
+Project content writers may obtain temporary upload credentials only when the
+backend can restrict them to that resource. Custom S3/MinIO static credentials
+and an unscoped STS fallback are never issued through Project-only authority;
+these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
+exposing the server identity. Existing namespace-member upload behavior remains
+separate from Project inheritance.
