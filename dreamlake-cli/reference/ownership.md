@@ -109,3 +109,27 @@ snapshots (`PROJECT_SNAPSHOT_REQUIRED`); Source deletion remains terminal
 current live-resource authority cannot be established. Source disable/enable
 remains the existing reversible lifecycle action. Separate archive is unsupported.
 Do not interpret the proposed 30-day project recovery window as shipped behavior.
+
+## Preview a project by workspace name
+
+Available starting with CLI 0.45.2: resolve the project
+and receiving workspace by name, then inspect the actual server preview:
+
+```bash cli-help="project transfer-preview"
+dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive
+# Explicitly include only reviewed Notes already filed in this project.
+dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive --include-note NOTE_ID --json
+```
+
+Requires current source-namespace ownership and access to destination capability
+metadata. Returns exit 3 for blockers or unready/missing adapters, 1 for denial or
+invalid responses, and 0 only for a ready preview. No transfer operation is
+created and no filing detachment is approved. Pipes and `--json` return the
+server preview, selected manifest and request. A project-only move can detach
+its resource filings; filing does not transfer ownership or grant Note access.
+The command never selects all project resources implicitly. Notes still require
+the executable Note adapter, storage/history recovery and RTC gates.
+
+Readiness is not execution or destination acceptance. Re-read the manifest
+after any filing change. Keep blocked requests out of `ownership create`; never
+substitute namespace relabeling or copy/delete for a supported move.

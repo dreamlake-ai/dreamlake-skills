@@ -39,7 +39,9 @@ for reading and ancestry. `--parent` must identify a saved version in the same
 Note; it records ancestry without restoring or altering the live Note.
 
 A server or transport failure after submission may leave the outcome uncertain.
-Inspect `note hist` before resubmitting. There is no automatic retry or
+Paginate `note hist` and read matching candidates with `note read --version`
+before deciding whether another create is necessary; see the retained-snapshot
+workflow below. There is no automatic retry or
 fallback that creates a separate Note. RTC unavailability exits **4**; other
 failures exit **1**. Version request errors preserve the server error code in
 `--json` output. Connection/authentication and Note resolution follow normal
@@ -82,6 +84,47 @@ partial/numbered reads, HTML/Markdown views or collaboration options such as
 `--linger`. `--view source` and `--json` are supported. Omit `--version` to read
 the live Note normally. A saved version's JSON uses `text` and saved metadata,
 not the live read's `content` and write-baseline envelope.
+
+## Recover a retained snapshot
+
+Use the [authoritative retained-snapshot recovery workflow](https://docs.dreamlake.ai/notes#recover-a-retained-snapshot)
+when an older full source is retained but missing from saved versions.
+`note tag` checkpoints the **current** live source; it cannot import an older
+snapshot. The CLI has no historical-revision save option or checkpoint/journal
+read command. Use the documented Notes REST endpoints only for those missing
+capabilities; keep supported `tag`, `hist`, and `read --version` operations in
+the CLI.
+
+Before recovery, retain a complete live `--view source --json` read, its exact
+source bytes, opaque revision, and content hash for the same stable Note ID and
+namespace. Retain the older full source separately with its provenance; a
+partial read, rendered view, or copied note is not a recovery baseline. The
+content hash is SHA-256 over exact UTF-8 source bytes; REST hash fields require
+the raw 64-character digest (remove the CLI envelope's `sha256:` prefix).
+The opaque revision is a separate write-baseline token and is never a hash.
+
+Check installed `--help` before choosing a command. On CLI versions before
+0.44.1, update the executable or use the documented REST fallback; 0.44.2 removes
+the older `notes version` group. Independently confirm the server supports
+historical-revision saves. An unsupported route, validation failure, or
+`409 note_changed` on an older server is not an empty history and does not
+justify substituting the current hash or overwriting the live body.
+
+If a create times out or its result is otherwise unknown, do not blindly retry.
+Inspect every relevant `note hist` page using `nextCursor` with `--before`, then
+read each plausible candidate by ID with `note read --version`. Compare its
+exact retained text and hash, plus the operation's tag, summary, parent and
+provenance where applicable. Labels and hashes are not idempotency keys. Reuse
+a verified matching receipt; if the outcome remains ambiguous, preserve the
+evidence and resolve it before another create.
+
+After saving, verify the returned version by ID: its exact retained revision,
+text, hash and `sourceObservedAt` must match the reviewed recovery evidence.
+Older servers can ignore `revision`, so HTTP 201 or matching text/hash alone
+does not establish that the requested historical baseline was saved. Read the
+live source again in the same namespace and compare it with the live baseline;
+investigate concurrent edits without restoring stale content. Follow the authoritative workflow for endpoint details and complete
+recovery verification.
 
 ## Removed commands
 

@@ -53,3 +53,93 @@ dreamlake delete file /camera/front/clip.mp4 --episode my-robots:run-001
 ```
 
 `delete file` also accepts a folder path to remove a whole subtree.
+
+## Inspect access (CLI 0.45.1)
+
+`project inspect` shows the project's server-computed `permissions`, including
+its effective role and `manageGrants`. `project grants` lists direct user/team
+grants and requires the server's current grant-management authority. Grant rows
+alone do not describe effective access: organization members retain baseline
+Read on organization projects. Project ADMIN is not ownership-transfer authority.
+Neither command changes membership or grants.
+
+```bash cli-help="project inspect"
+dreamlake project inspect research --namespace acme
+```
+
+```bash cli-help="project grants"
+dreamlake project grants research --namespace acme
+```
+
+In a terminal, inspect shows your role and whether you can manage grants; grants
+shows a compact recipient/role table and inherited access. Use `--json` for the
+complete server response. Piped output remains JSON for scripts. Both commands
+use an explicit owning namespace. A 401/403/404 is a
+failure, not an empty access list. They never retry in another namespace. These
+CLI additions require 0.45.1 or later; verify installed help after updating. Grant writes below require the updated grant-list contract shipped in backend
+#896, including viewerRole, baseline and teams. An older server fails before
+POST/DELETE. The server rechecks current ADMIN authority, active membership and
+team scope; no command changes membership.
+
+Deleting a project removes its filing relationships. Independently owned Notes
+and Sources retain their namespace ownership; their lifecycle is separate from
+the project's data subtree. No recoverable project deletion snapshot is promised
+by this CLI. Source deletion is terminal; source disable/enable is reversible.
+
+## Manage supported project grants (CLI 0.45.1)
+
+The product equivalent is **Projects → Project access** at
+`https://dreamlake.ai/acme/projects`. Sign in as a project administrator.
+Use an existing active organization member or an active team in that organization.
+Team access does not make organization Notes private from other members.
+
+```bash cli-help="project grant"
+dreamlake project grant research --namespace acme --user teammate --role WRITE
+dreamlake project grant research --namespace acme --team TEAM_ID --role READ
+```
+
+```bash cli-help="project revoke"
+dreamlake project grants research --namespace acme
+dreamlake project revoke research GRANT_ID --namespace acme
+```
+
+Use the exact grant ID from the list. Removing a grant preserves other inherited
+permissions, including organization baseline Read and namespace-owner Admin.
+Denied or uncertain responses are failures; inspect current grants before retrying.
+Verify installation and matching server deployment separately. No ownership adapter
+is enabled by granting project access.
+
+## Project attachment access (under development)
+
+Independent resource share links remain available. Explicit Project user/team
+READ grants add read access to all current and future attached resources; WRITE
+and ADMIN add supported content editing. They do not grant resource sharing
+management, deletion, ownership transfer or credentials. Public Project visibility
+alone never exposes private attached resources. Resource-own access and all live
+Project grants are combined at the canonical resource URL.
+
+Detaching a resource, revoking a Project grant, or leaving its granted team
+removes only that source of access. A resource attached to several Projects keeps
+access through the others. No resource share links or acceptance records are
+created, copied or revoked by Project sharing. Attach requires the target
+Project's content-create permission and the resource's own sharing-management
+permission; readable content cannot be redistributed by a reader.
+
+This behavior requires the companion server implementation and is not yet a
+released capability. Ownership transfer remains separately execution-gated.
+
+Attach by database ID (Artifact uses its database ID, not its artifactId):
+
+```bash cli-help="project attach"
+dreamlake project attach research --namespace acme --type note --resource "$NOTE_ID"
+```
+
+```bash cli-help="project detach"
+dreamlake project detach research --namespace acme --type note --resource "$NOTE_ID"
+```
+
+Supported types are `note`, `artifact`, `annotation`, `workflow`, `env` and
+`source`. Source uses the existing whole-Source Project reference. A Source name
+can be read through a Project grant without namespace listing authority; the
+client resolves its exact name with current authorization rather than enumerating
+other Sources. A denial is a failure, never an empty list or successful mutation.

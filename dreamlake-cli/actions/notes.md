@@ -15,10 +15,28 @@ dreamlake notes toc --note NOTE_ID
 dreamlake notes read NOTE_ID --legacy --section setup
 ```
 
-For edits, retain the correct baseline and use the documented patch contract;
-read the acknowledged revision back. `--legacy` uses ETags; v2 patches use an
-opaque revision. See [Notes](../reference/notes.md),
+Before editing, retain a normal `notes read NOTE_ID` source snapshot with its
+opaque revision and content hash; do not use `--json` for this baseline. Prepare
+the patch from that exact source, excluding the read's metadata header, and pass
+the original revision unchanged as `--base-revision`. Never fabricate, decode,
+or substitute a content hash or legacy ETag for that revision. Read the successful
+receipt's acknowledged revision back with `notes read NOTE_ID --at ACK_REVISION`
+and inspect the intended change. On conflict, retain the baseline and draft,
+review concurrent changes, then reconcile; never use `--force` or merely swap in
+a fresh baseline to make an old patch pass. `--legacy` uses a separate ETag
+contract. See [Notes](../reference/notes.md),
 [reading](../reference/notes-reading.md), and [editing](../reference/notes-editing.md).
+
+When creating or changing technical implementation or availability claims, add
+or update one concise version line for the affected section. Record the exact
+relevant versions actually tested (for example, DreamLake CLI and Nymph) and the
+backend source revision when known; distinguish an inspected source revision
+from a tested or deployed revision. Label claims as proposed, source-only,
+verified production, or unknown according to the evidence. A merged PR or a
+published package alone does not verify production behavior. Mark unavailable
+version or deployment evidence unknown rather than guessing. Keep software
+versions separate from the Note's opaque editing revision, and omit irrelevant
+components and repeated per-line labels.
 
 For image URLs to embed in Markdown or HTML, use [inline image upload](media.md).
 Use `notes files upload` for attachments that inherit the note's permissions.
@@ -39,3 +57,50 @@ See [saved versions](../reference/notes-versions.md) for pagination, ancestry,
 JSON receipts and uncertain-result recovery.
 
 CLI 0.44.2 removes the old `notes version` command group; use the forms above.
+
+For an older retained snapshot missing from history, follow
+[recover a retained snapshot](https://docs.dreamlake.ai/notes#recover-a-retained-snapshot).
+First preserve a full source baseline (exact bytes, revision and content hash)
+for the same stable Note ID and namespace, and preserve the old source with its
+provenance separately. REST hashes use raw SHA-256 digests, not the opaque
+revision or the CLI's `sha256:` prefix. `tag` saves current content only: historical
+revision saves and checkpoint/journal reads require the documented REST fallback.
+Keep `hist` and version readback CLI-first when installed help supports them.
+Check CLI and server capabilities independently; an older server's unsupported
+route or `409` is not empty history and must not lead to a live-body overwrite.
+An unknown create result requires paginating `hist` via `nextCursor`/`--before`
+and reading candidate versions by ID to compare exact text, hash and operation
+metadata before retrying. Tags are not idempotency keys; stop if the outcome
+remains ambiguous. Verify the saved version's exact revision, text, hash and
+`sourceObservedAt`, plus the unchanged live baseline. Older servers may ignore
+`revision`; HTTP 201 or a matching hash alone is not proof of recovery.
+See [saved versions](../reference/notes-versions.md#recover-a-retained-snapshot).
+
+For project filing and ownership-transfer previews, check `dreamlake notes move
+--help` first: this command requires CLI 0.45.1; it is absent in CLI 0.45.0 and
+earlier. Preview with `notes move NOTE_ID --to-namespace WORKSPACE --project
+PROJECT --dry-run`. Cross-workspace transfers are currently unavailable; blocked
+previews exit 3 and must not be repeated as execution requests. Filing inside
+the note's current workspace can execute under its owner's login when
+`executable` is true and the user authorized it. Organization notes remain
+readable/editable by all current members. Do not simulate a transfer by copying
+and deleting the note. See [moving a note](../reference/notes.md#move-a-note-into-a-workspace).
+
+Project filing is separate from ownership. The CLI 0.45.1 additions
+`notes create --project SLUG` (repeatable) and `notes projects ID --namespace NS`
+cover new-note filing and current filing inspection. Check installed help first:
+0.44.3 and earlier lack them. Never emulate an existing-note move through copy/delete,
+namespace updates or an older generic mount API. Consult the
+[Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0444)
+for server and adapter gates; missing readiness is unsupported.
+
+CLI 0.48.2 adds attachment journal recovery; CLI 0.48.1 does not include it.
+It requires a separately verified journal-enabled API. Check
+`notes files write --help`, `cp --help` and `status --help` before using it.
+Optional `--idempotency-key` applies only to known-byte text
+write/copy, never raw `files upload` or media. Preserve the original operation
+ID/request/key/namespace; use `files status OP --note NOTE`, then explicit
+`reconcile` to recover original staged bytes without reupload. `cancel` may only
+stop an admitted operation before write authorization; uncertain or write-started
+work is not safe to delete/resend. Current authority and original actor are
+required. See [attachments](../reference/notes-attachments.md#recover-an-attachment-operation-cli-0482).

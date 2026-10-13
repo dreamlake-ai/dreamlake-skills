@@ -4,6 +4,26 @@ Read [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/), [Embeds an
 [Panels](https://docs.dreamlake.ai/notes/panels/), and [Linked note items](https://docs.dreamlake.ai/notes/linked-items/) for focused guides.
 This page retains the complete CLI/API reference and existing section links.
 
+**Release status — October 9, 2026:** the serving API includes the verified
+saved-version catalog readers, attachment compatibility readers, transactional
+attachment sharing, atomic attachment move/trash, and enabled immutable attachment
+uploads. The verified API release now also includes atomic attachment copy and
+named-version catalog publication by default. Durable attachment purge remains
+disabled. Strict runtime verification and read-only metadata/header checks do not
+establish production attachment-copy, saved-version-write or user acceptance.
+No transfer adapter is enabled, and runtime verification does not establish
+continuous Note-read availability.
+
+**Attachment journal release — October 10, 2026:** the known-byte text/copy
+publication journal and admitted-only cancellation are enabled in the strictly
+verified API release `5d64f024`. Its running image and digest were verified;
+selected status checks returned anonymous 401 and authorized 404 with `no-store`.
+Those two read-only checks performed no attachment write, body read, RTC call or
+provider-failure recovery. CLI 0.48.2 public npm/native distribution and isolated
+Linux installations are verified; the other seven OS targets were byte-verified,
+not runtime-tested. Raw upload journaling, durable
+purge and transfer adapters remain disabled; the FortyFive move is unfinished.
+
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
@@ -136,6 +156,111 @@ leave a successfully added project association; retry the bindr addition after
 reviewing the inline status. Removing an association uses the same context
 preservation behavior and retains the last-project guard. Use the separate
 **Open project** or **Open bindr** links when you want to navigate.
+
+### Moving between workspaces (development preview)
+
+**Cross-workspace ownership transfers are currently unavailable.** The
+**Move note…** preview can inspect a destination, but an unavailable result
+must not be presented as a completed move. Writer, storage, destination-owner
+acceptance and collaboration-revocation gates must all be satisfied before the
+server can enable execution. Copying and deleting a Note is not a transfer.
+
+The workspace picker and selected projects describe the intended destination.
+Click the `@workspace` prefix or press Backspace in an empty search to choose a
+workspace. Browsing also offers **All workspaces**; a move preview requires one
+concrete destination. Escape restores the previous scope and query.
+Organization members retain their existing read/edit baseline for organization
+Notes; filing a Note in a project does not make it team-private. No preview
+grants destination access or changes the original Note.
+
+For the CLI, check `dreamlake notes move --help`. CLI 0.44.3 and earlier do not
+include this command; a matching server endpoint is also required:
+
+```bash
+# Inspect an organization destination; currently blocked, with exit status 3.
+dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research --dry-run
+# Preview an additive filing in the Note's current workspace.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research --dry-run
+# Apply only an executable same-workspace preview authorized by the user.
+dreamlake notes move NOTE_ID --to-namespace current-workspace --project research
+```
+
+Use the source workspace owner's login. Same-workspace filing requires write
+access to every requested project and preserves existing project associations,
+Note identity, author, content, history, comments, attachments, visibility and
+shares. Repeat `--project` for more destinations in that same workspace.
+
+A full Note ID resolves its current owner. `--namespace` optionally asserts the
+source and supplies the scope for slug/title lookup. The existing
+`POST /namespaces/:slug/notes/:noteId/move` accepts
+`{namespace: destinationSlug, projects?: string[], dryRun?: boolean}`. A blocked
+preview reports `executable: false` with blockers; applying a cross-workspace
+move returns `409 NOTE_TRANSFER_UNAVAILABLE` without mutation.
+
+Dry runs reserve nothing. Actual same-workspace filing rechecks current authority,
+leases and conflicts. After an uncertain network result, resolve the stable Note
+ID and inspect its project associations before retrying. Do not change namespace
+IDs, clear ownership leases or use a generic tree move to bypass a blocked move.
+
+### Metadata permissions and concurrent writes
+
+The namespace owner, or the Note's creator who is still a current member of its
+namespace, may change its title, summary, visibility and sharing. Authorship alone
+after leaving an organization is insufficient. Body-edit access and project WRITE
+do not grant these metadata-management rights. This also applies to renaming a
+mounted Note through the project tree. Organization baseline body access and
+accepted write-share editing remain unchanged.
+
+The following metadata and filing safeguards have previously passed runtime
+acceptance. Metadata and sharing mutations, comment creation/edits,
+and share-acceptance record writes recheck authority in their database transaction
+and refuse occupied ownership leases. A title change updates mounted titles in
+the same transaction. These checks preserve IDs and history; they do not enable
+cross-workspace transfer or prove storage/RTC revocation.
+
+For those mutations, a `409 WRITER_FENCE_REQUIRED` or `409 STALE_EPOCH` means the
+write did not commit through that transaction. Refresh ownership status and retry
+the same intent only after it is writable. Explicit mutation routes return the
+code in `error`; a read that also refreshes a share-acceptance record can return
+`error: "Conflict"` with the ownership code in `message`. A fresh accepted-share
+read that needs no record update can still succeed while a lease is busy.
+`409 OPERATION_CONFLICT` means bounded transaction retries were exhausted:
+refresh, then retry with bounded backoff.
+A `403 LOST_AUTHORITY` requires refreshing login/access and regaining the required
+permission; do not repeatedly submit the write. Existing forbidden/not-found
+responses remain possible. A comment's `409 comment_changed` still requires
+keeping the draft and reconciling the latest comment revision.
+
+Generic tree moves that would carry a Note across project roots or to an unfiled
+root return `409 NOTE_FILING_RECONCILIATION_REQUIRED` until the server can reconcile
+its project association and Bindr tags atomically. The original filing remains
+intact. Use the supported additive same-workspace filing flow when that is the
+intended operation; it does not remove the original association. Same-project
+tree moves remain supported.
+
+These database checks do not certify all Note writers. Deletion's final database
+phase is fenced, but its preceding RTC/storage effects are not durably excluded
+by that transaction. Activation, body sync, files/uploads, saved versions, media
+and issued capabilities still require separate transfer-readiness evidence.
+
+### Activation conflicts and acknowledged edits
+
+These activation and acknowledgement safeguards have previously passed runtime
+acceptance. That does not establish readiness of the later catalog or attachment
+candidates or diagnose a current read failure. Activation rechecks current access and its exact Note
+ownership/storage/room binding before returning a room. Existing signed-in public-Note and
+read-share body reads remain supported; they do not acquire edit permission, and
+this change does not enable anonymous API endpoints.
+A busy or stale ownership lease can return `409 WRITER_FENCE_REQUIRED` or
+`409 STALE_EPOCH`. Refresh the Note's current state and preserve local drafts;
+do not clear the lease or bypass ownership checks.
+
+An acknowledged native body edit remains successful even if the subsequent
+idle-sync marker or storage projection cannot be updated. Do not resend an
+already acknowledged edit. Its returned revision may not yet have a retained
+baseline if storage failed; fetch current Note state and reconcile if that
+revision cannot be read. These checks protect database bindings; they do not
+prove complete RTC/storage exclusion or make cross-workspace moves available.
 
 ### Matching passages
 
@@ -312,6 +437,16 @@ ordinary bracketed prose without a highlight.
 
 ## Create and list
 
+The implementation of Shared with me resolves each Note's live owner and uses
+its current namespace slug in the returned route. Cached namespace fields on an
+accepted-share record are historical provenance, not authorization or routing
+facts. The read does not repair or mutate those records. Current namespace
+members receive the Note through their normal catalog; other active recipients
+retain their accepted access while sharing remains enabled. A public Note stays
+readable after its share link is disabled, without retaining share-based editing
+permission. Deleted Notes, deleted owner namespaces and revoked acceptances are
+omitted. This reader change does not enable ownership transfer.
+
 **CLI**
 
 ```bash
@@ -374,9 +509,9 @@ from a file is used as-is; multiline text is allowed. `--text`, `--file`, and
 note. Reads and writes can use `--json`; a summary read returns `{note,
 summary}`, while a mutation returns the updated Note metadata.
 
-The owner of the namespace or the note's creator can set or clear a summary,
-the same as for a title or visibility change. Other users with body-edit access
-cannot change it. For the REST API, `POST /namespaces/:slug/notes` accepts an
+The owner of the namespace or the Note's creator who is still a current member
+of that namespace can set or clear a summary, the same as for a title or
+visibility change. Other users with body-edit access cannot change it. For the REST API, `POST /namespaces/:slug/notes` accepts an
 optional `summary`; `PATCH /namespaces/:slug/notes/:noteId` accepts a string to
 set it or `null` to clear it. Omitting the field from PATCH preserves the
 existing summary. `GET /notes/:noteId` and catalog list responses return the
@@ -1018,16 +1153,38 @@ whitespace elsewhere survive.
 
 ## Write whole parts
 
-For replacing a section or the whole body outright, rather than editing text
-in place.
+Whole-body target writes plan changes against an original source; section
+replacement remains a separate compatibility operation.
+
+**Release status — October 12, 2026:** CLI 0.61.0 is publicly published: all nine
+npm records, downloaded Linux integrity/version, fresh npm installation and native
+skill packaging are verified. The public binary passed concurrent-gap preservation,
+strict input and exact-write checks; disposable Notes were removed.
+Python SDK 0.28.0 is publicly published: wheel/sdist bytes
+match the retained release workflow, and a fresh public installation passed
+actual API verified-read/diff/Doc-cache acceptance on a disposable Note, then
+removed it. Live docs and public skill propagation are separate release checks.
 
 **CLI**
 
 ```bash
-dreamlake notes write "$NOTE_ID" --file whole.md
+# CLI 0.61.0: retain the original source used to prepare whole.md.
+dreamlake notes read "$NOTE_ID" --json > whole-baseline.json
+WHOLE_BASE=$(jq -er '.revision' whole-baseline.json)
+jq -jr .content whole-baseline.json > whole.md
+# Edit whole.md while keeping whole-baseline.json unchanged.
+dreamlake notes write "$NOTE_ID" --file whole.md --base-revision "$WHOLE_BASE" --json > whole-ack.json
+WHOLE_ACK=$(jq -er '.revision' whole-ack.json)
+dreamlake notes read "$NOTE_ID" --at "$WHOLE_ACK"
+# Section write remains on its explicit compatibility API.
 dreamlake notes write "$NOTE_ID" --section install --file install.md
-dreamlake notes append "$NOTE_ID" --text "one more line"
-dreamlake notes append "$NOTE_ID" --file more.md
+# Append uses original-revision patches in CLI 0.59.0 and later. Requires jq.
+dreamlake notes read "$NOTE_ID" --json > append-baseline.json
+BASE=$(jq -er '.revision' append-baseline.json)
+dreamlake notes append "$NOTE_ID" --text "one more line" --base-revision "$BASE" --json > append-ack.json
+ACK=$(jq -er '.revision' append-ack.json)
+dreamlake notes read "$NOTE_ID" --at "$ACK"
+# For a file, use --file more.md with the same saved original baseline.
 dreamlake notes add-section "$NOTE_ID" --file trouble.md --after install
 dreamlake notes rm-section "$NOTE_ID" troubleshooting
 ```
@@ -1035,16 +1192,65 @@ dreamlake notes rm-section "$NOTE_ID" troubleshooting
 **Python**
 
 ```python
-note.write(whole_body)
+# Python SDK 0.27.0 and later: plan disjoint edits on this original source.
+whole_baseline = note.read_snapshot()
+write_receipt = note.write(whole_body, at=whole_baseline)
+acknowledged = note.read_snapshot(at=write_receipt.revision)
 note.write_section("install", "## Install\n\npip install dreamlake\n")
-note.append("\n## Changelog\n\n- shipped\n")
+# Python SDK 0.26.0 and later: retain the original collaborative snapshot.
+baseline = note.read_snapshot()
+receipt = note.append("\n## Changelog\n\n- shipped\n", at=baseline)
+acknowledged = note.read_snapshot(at=receipt.revision)
 note.insert_section("## Troubleshooting\n\nCheck the logs.\n", after="install")
 note.delete_section("troubleshooting")
 note.refresh()                   # re-read after someone else wrote
 ```
 
-Anyone with the note open **sees the change appear** — your edit merges with
-what they are typing. Nothing is locked.
+Anyone with the note open **sees an accepted change appear**. Modern append
+merges against the original collaborative identities, preserving unrelated
+concurrent edits. Add CLI `--exact` or Python `exact=True` to require that the
+original revision is still current. A stale exact request requires review;
+never replace its baseline with a fresh revision merely to make it pass.
+
+Python's default append returns a `PatchReceipt`; CLI `--json` returns its
+revision and hash. Read back that acknowledged revision before claiming the
+intended result. If a write outcome is unknown, reconcile it before resubmitting.
+Explicit CLI `--legacy` / `--force` and Python `legacy=True` / `force=True`
+retain the older append compatibility path; Python returns a string there.
+
+CLI 0.61.0 whole-body write derives bounded exact disjoint code-point changes
+from one hash-verified original snapshot, preserving unchanged identities even
+within a paragraph. Retain `--base-revision` when a target was prepared earlier;
+omitting it reads one current snapshot and cannot establish an old file's origin.
+Modern file/stdin input rejects malformed UTF-8 before transport and preserves
+literal BOM, Unicode and line endings. Merge no-ops send no write; an unchanged
+`--exact` target sends an empty PATCH so a stale original revision still rejects.
+Alignment or patch limits fail before submission without a coarse rewrite.
+Explicit `--legacy`, `--force`, or `--if-match` keep the prior body path and cannot
+mix with modern baseline/exact flags. `--section` also rejects those modern flags.
+Keep the original target/baseline after an unknown acknowledgment; never replay
+or silently refresh the baseline. Without `--json`, dry-run stdout is the target
+body; JSON dry-run also reports the planned payload. Neither predicts merged
+concurrent source.
+
+Python SDK 0.27.0 also defaults whole-body `note.read()` drafts, `note.write()`
+and `doc.save()` to original-revision edits. Unchanged source spans preserve
+their collaborative identities, including within one paragraph. A draft keeps
+its own original snapshot even if other operations use the same Note object.
+After saving, it adopts the acknowledged merged source for the next edit.
+If that readback fails after an acknowledged write, preserve the receipt and
+draft and reconcile before another save; do not replay the write.
+
+SDK 0.27.0 also fixes native append escaping for tabs. Older native append
+clients can reject tab-containing edits; upgrading preserves the saved baseline.
+Explicit Python `legacy=True`, `force=True` or `write(if_match=...)` retain
+compatibility behavior. A compatibility save keeps subsequent saves in the
+ETag domain until a new modern draft is read.
+
+CLI whole-body writes through 0.60.0, Python whole-body writes through 0.26.0,
+and section writes/insertion/deletion still use the ETag compatibility interface.
+They can reject an intervening content change. Section client migration and
+Runbook attachment remain pending; no legacy command or server route is retired here.
 
 ### Changes since a read or edit
 
@@ -1073,18 +1279,18 @@ that ref to see changes since your own read or successful edit across sessions:
 
 ```python
 note = dl.note("<note-id>")
-doc = note.read()
+doc = note.read(legacy=True)
 ref = doc.etag
 
-print(note.diff(since=ref))          # current text versus that snapshot
-print(note.diff())                   # defaults to this handle's last ETag
+print(note.diff(since=ref, legacy=True))  # explicit compatibility diff
+print(note.diff(legacy=True))             # this handle's cached ETag
 result = note.patch(my_diff, if_match=ref, legacy=True)
 ref = result.etag                   # reference for the successful edit
 ```
 
 Fetching a diff does not advance the cached revision or write precondition.
-Call `read()` or `refresh()` to adopt the latest state. Identical text has the
-same hash; the ref identifies content, not an RTC operation index. Unknown refs
+Call `read(legacy=True)` or `refresh(legacy=True)` to adopt the latest
+compatibility state. Identical text has the same hash; the ref identifies content, not an RTC operation index. Unknown refs
 return an error, including older refs whose snapshots were never retained.
 
 The HTTP endpoint is `GET /namespaces/:slug/notes/:noteId/diff?since=<etag>`.
@@ -1095,6 +1301,39 @@ scoped to the note and require current read access. Optional `context` accepts
 For local draft changes, use `doc.diff()` for all unsaved changes,
 `doc.diff(since="last_edit")` for the latest local operation, and
 `doc.patch(unified_diff)` to apply a patch before `doc.save()`.
+
+### Verified full reads and remote diffs (SDK 0.28.0+)
+
+Default `note.refresh()`, cache-miss `note.text` / `note.get_text()`, and
+`note.read()` use verified complete v2 source. Returned Note identity, content
+hash and RTC revision must agree; malformed responses or redirects reject without
+adopting source. Refresh updates the Note cache, never an existing Doc's saved
+original snapshot. `read_snapshot()` remains an independent verified read;
+`at` selects retained source, while `if_match` checks the current RTC revision.
+They cannot combine. An ETag is not an RTC revision and must not be supplied here.
+
+```python
+note.refresh()                 # verified complete source, not a partial range
+source = note.text             # cached source; refresh explicitly for newer text
+original = note.read_snapshot()
+remote_diff = note.diff(since=original.hash)  # string, not a write receipt
+# Retain original.revision separately for a later original-revision edit.
+```
+
+Default `note.diff()` returns a unified source-diff string and uses this handle's
+cached content hash when `since` is omitted. `since` accepts `sha256:<hex>`, quoted
+ETag-shaped SHA-256, or bare SHA-256; RTC revisions are rejected. The v2 diff's
+Note/base/format/receipt metadata and acknowledged retained source hash are
+validated. Inspection does not adopt returned source or advance any cache/draft
+baseline; a display diff is not a write precondition or proof of peer convergence.
+
+Explicit `refresh(legacy=True)`, `get_text(legacy=True)` and `diff(legacy=True)`
+retain compatibility behavior. `diff(context=N)` with `N != 3` deliberately
+selects the existing compatibility endpoint before transport; context is an
+integer from 0 through 100. Default context 3 uses v2, with no fallback after a
+failure. Section/line reads remain partial compatibility views and cannot serve
+as complete modern write baselines. Existing Doc-local `diff()` and `patch()`
+continue to operate on the local draft rather than this remote diff endpoint.
 
 ### Patch
 
@@ -1188,6 +1427,310 @@ mojibake.
 `rm` moves a file to the trash. Restoring takes the file **id**, not its path —
 two trashed files can share a path, so the path alone would be ambiguous.
 `files list --trashed` prints the ids.
+
+**Compatible metadata and immutable upload releases verified.**
+The atomic move/trash implementation is included in the verified compatible API
+release of October 9, 2026. It rechecks current
+edit authority, ownership lease and any supplied `If-Match` inside one metadata
+transaction. Its overwrite move trashes the previous destination and renames
+the source together, rolling back both on failure while preserving the source ID,
+stored bytes and preview link. The race behavior is covered by isolated tests;
+production verification does not perform destructive attachment tests.
+The existing `rm` without `--purge` remains recoverable trash. The implementation also
+refuses moves or trash after permanent purge has started; durable purge itself
+remains disabled.
+
+For an existing text attachment in a disposable Note, use its content ETag when
+you want a conditional move. The same option is available on `rm`:
+
+```bash
+set -euo pipefail
+: "${NOTE_ID:?set a disposable note ID}"
+: "${NAMESPACE:?set its namespace}"
+ETAG=$(dreamlake notes files cat config.json --note "$NOTE_ID" \
+  --namespace "$NAMESPACE" --json | jq -er '.etag')
+: "${ETAG:?the read must return a nonempty ETag}"
+dreamlake notes files mv config.json config-renamed.json --note "$NOTE_ID" \
+  --namespace "$NAMESPACE" --if-match "$ETAG"
+```
+
+A stale content ETag returns 412; a destination conflict returns 409 unless you
+explicitly choose `--overwrite`. Inspect the current file/path and permissions
+before retrying. An ETag is a content check, not a promise that the path or sharing
+metadata has remained unchanged. This workflow moves a path within one Note; it
+does not change Note/project ownership or perform a FortyFive transfer.
+
+### Copy an attachment within a Note
+
+The existing `files cp <file> <to>` command copies to another path in the same
+Note; `--overwrite` explicitly replaces an occupied destination. The API remains
+`POST /namespaces/:slug/notes/:noteId/files/:fileId/copy` with `path` and optional
+`overwrite`, returning the new file with HTTP 201. The copy has its own file ID
+and stored bytes; it does not inherit a public preview link.
+
+**Atomic copy publication is included in the verified API release.** It rechecks current edit authority, ownership lease, Note binding, source
+and destination before publishing. With `--overwrite`, moving the old destination
+to trash and creating the new copy commit together; a refused publication leaves
+the destination unchanged. The source remains unchanged unless the destination
+is its own path: explicitly overwriting that path trashes the original and
+creates a new file ID there. This update adds no new CLI flags or API endpoint.
+
+Copy publication requires the existing immutable writer to be enabled. A
+`409 file_writer_upgrade_required` means the selected server cannot perform this
+copy yet. On `409 file_changed` or a path conflict, inspect both files before
+retrying. Lost permission, an ownership conflict or a started purge must be
+resolved through the existing access/lifecycle workflow. Never drop access checks
+or purge/recreate a file to force a copy.
+
+After a lost response or uncertain outcome, inspect the retained operation first
+when using CLI 0.48.2 with a caller-supplied key, as described below. CLI 0.48.1 has
+no copy idempotency key: list the destination and inspect its ID and content before
+deciding whether another copy is needed. Never automatically resend an uncertain
+copy, especially with `--overwrite`.
+Copying an attachment does not move a Note between namespaces or enable ownership
+transfer, named-version publication or durable purge.
+
+### Recover a text or copy publication
+
+The known-byte journal is enabled in verified API release `5d64f024`.
+CLI 0.48.2 adds `--idempotency-key` to `files write` and `files cp`, plus selected
+`files status`, `files reconcile` and `files cancel` commands. Its public npm/native
+release, latest/stable pointers and real isolated Linux installations are verified;
+the other seven OS targets were byte-verified, not runtime-tested. Check
+`dreamlake --version` and use these commands only with that version or later and
+the verified journal-enabled API. Older CLI 0.48.1 does not expose these controls.
+The API examples below remain available for explicit API integrations.
+
+Do not run a write as a readiness probe: older servers may ignore an
+`Idempotency-Key`. A journal-aware server with the writer disabled refuses keyed
+text/copy requests and these operation routes with
+`503 file_publication_unavailable`; that refusal does not enable recovery.
+
+The journal covers JSON text creation/replacement at
+`POST /namespaces/:slug/notes/:noteId/files` and same-Note copy at
+`POST /namespaces/:slug/notes/:noteId/files/:fileId/copy`. It does not cover the
+raw binary/streaming upload route, inline media, Note bodies or saved versions.
+The existing File response and HTTP 200/201 remain unchanged. Raw-upload inventory
+is a separate disabled source candidate, not a deployed recovery capability.
+
+An optional `Idempotency-Key` identifies one request for the original account and
+Note. It is 1–256 UTF-8 bytes without control characters or lone surrogates;
+a simple ASCII identifier works. Preserve it with the original server, namespace,
+Note, action, destination, overwrite choice and text/content type or source file ID.
+Preserve the original `If-Match` for a conditional text replacement too. The same
+key and normalized request reconcile the original operation **before** reading
+new copy-source bytes or attempting another storage write. Changed input returns
+`409 idempotency_conflict`. Different keys, or repeated requests without a key,
+are distinct operations. The attachment key format differs from the saved-version
+key format; do not interchange their contracts.
+
+After admission, retain the `Note-File-Operation-Id` response header, including
+on error responses. A sanitized `503 file_publication_unconfirmed` may also carry
+`operationId` in its JSON body. A lost response is not permission to retry the
+upload, replace the key or delete the destination. Preserve the original request
+and inspect its operation when the ID is known. If no ID was received, do not
+automatically resend: on the verified journal writer, a deliberate identical
+request with the **original key and account** can reconcile the retained admission;
+an unkeyed retry cannot identify that original operation.
+
+#### Use the CLI with a retained key
+
+Use a disposable Note you can edit, the original signed-in account and its exact
+namespace. Each write below is an independent example, not a recovery retry.
+CLI keys are printable ASCII, 1–256 bytes without surrounding spaces. Preserve
+the key and exact request; the CLI never automatically retries.
+
+```bash
+: "${NOTE_ID:?set a disposable Note ID}"
+: "${NAMESPACE:?set its namespace}"
+dreamlake --version
+# Choose only the intended write or copy.
+dreamlake notes files write journal-example.txt --text 'reviewed text' \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" \
+  --idempotency-key example-text-001 --json
+dreamlake notes files cp journal-example.txt journal-copy.txt \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" \
+  --idempotency-key example-copy-001 --json
+```
+
+Retain `operationId` from JSON output or the operation ID printed on stderr,
+including a failure receipt. Inspect before choosing any further action:
+
+```bash
+: "${OPERATION_ID:?set the retained operation ID}"
+dreamlake notes files status "$OPERATION_ID" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+# Choose reconcile only to finish the original retained publication.
+dreamlake notes files reconcile "$OPERATION_ID" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+# Choose cancel only when admitted work is no longer wanted.
+dreamlake notes files cancel "$OPERATION_ID" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+```
+
+Status is read-only. Reconcile may publish the original database result but
+never uploads bytes again. Cancel is limited to `admitted`; it cannot cancel
+`write-started` or `published`. These CLI commands expose the API contract below,
+not a new ownership permission or proof of production-write acceptance.
+
+#### Create text or copy with a retained key
+
+Prerequisites: an explicitly verified journal-enabled API, a disposable Note you
+can edit, the same signed-in account for submission and recovery, and `curl`.
+Replace every placeholder with the verified API and your explicitly intended
+disposable Note. Choose one write, keep its key and request, and do not add
+automatic retry options. The release checks did not execute these mutations.
+
+```bash
+API_URL='https://your-reviewed-journal-api.example'
+DREAMLAKE_TOKEN='<your-api-bearer-token>'
+NAMESPACE='your-namespace'
+NOTE_ID='<your-disposable-note-id>'
+IDEMPOTENCY_KEY='example-text-001'
+
+curl --fail-with-body --silent --show-error \
+  --dump-header ./text-operation.headers --output ./text-operation.json \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -H "Idempotency-Key: $IDEMPOTENCY_KEY" \
+  --data '{"path":"journal-example.txt","text":"reviewed text\n","overwrite":false}' \
+  "$API_URL/namespaces/$NAMESPACE/notes/$NOTE_ID/files"
+```
+
+For an independently intended copy, use a different retained key and the source
+file's ID. Copy stays within the same Note. `overwrite:false` preserves an
+occupied destination; set it to true only when that replacement is intended.
+
+```bash
+FILE_ID='<source-file-id-in-the-same-note>'
+COPY_KEY='example-copy-001'
+curl --fail-with-body --silent --show-error \
+  --dump-header ./copy-operation.headers --output ./copy-operation.json \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -H "Idempotency-Key: $COPY_KEY" \
+  --data '{"path":"journal-copy.txt","overwrite":false}' \
+  "$API_URL/namespaces/$NAMESPACE/notes/$NOTE_ID/files/$FILE_ID/copy"
+```
+
+For text replacement, add the existing content `If-Match` header and explicitly
+choose `overwrite:true`; a stale ETag still returns 412. The journal does not
+remove content preconditions or make changing them on a retry safe.
+
+#### Inspect, reconcile or cancel the selected operation
+
+All three routes require the **original actor and current Note `updateContent`
+permission**. Knowing an operation ID, being another editor, or owning the
+namespace does not replace that original-actor check. Revoked/read-only callers
+cannot recover through another account. Responses are `no-store` and contain
+only the selected state and, when published, a historical File receipt; no
+storage keys, provider configuration, ownership epochs or sharing tokens are
+returned.
+
+Set `OPERATION_ID` from the retained response header or JSON receipt. First inspect:
+
+```bash
+OPERATION_ID='<retained-24-character-operation-id>'
+OPERATION_URL="$API_URL/namespaces/$NAMESPACE/notes/$NOTE_ID/file-publications/$OPERATION_ID"
+curl --fail-with-body --silent --show-error \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" "$OPERATION_URL"
+```
+
+| State | Meaning and next action |
+| --- | --- |
+| `admitted` | The operation exists but has not authorized its storage write. Preserve it; deliberately cancel if that work is no longer wanted. |
+| `write-started` | A storage write has been authorized and may still finish. Reconciliation can verify the original bytes; cancellation is refused. |
+| `published` | The response includes `historicalResult:true`, the original File receipt and HTTP status. Read current file metadata separately; this does not prove the file is still live. |
+| `aborted-before-write` | Cancellation won before write authorization. The retained key and operation cannot be replayed. |
+
+For `write-started`, an explicit reconciliation reads the original staged object
+and attempts its original fenced database publication. It performs **no storage
+PUT**, fetches no new copy source and cannot reconstruct missing bytes:
+
+```bash
+curl --fail-with-body --silent --show-error -X POST \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" "$OPERATION_URL/reconcile"
+```
+
+Missing/unreadable bytes retain an unconfirmed outcome. A checksum/size mismatch
+returns `503 file_publication_object_mismatch`; preserve the operation instead
+of reuploading. Current authority, ownership binding and source/destination
+preconditions still apply. A published receipt is never replayed after trash or
+purge and cannot resurrect a file.
+
+To deliberately cancel an `admitted` operation before write authorization:
+
+```bash
+curl --fail-with-body --silent --show-error -X POST \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" "$OPERATION_URL/abort"
+```
+
+Cancellation and write authorization compete atomically. If cancellation wins,
+status becomes `aborted-before-write` and the original executor cannot begin PUT.
+If write authorization has already won, cancellation returns
+`409 file_publication_abort_not_allowed`, even if an object currently reads 404.
+A published operation cannot be cancelled. Cancellation does not delete bytes,
+enqueue cleanup, restore a file, release the key or create another operation.
+After an uncertain cancellation response, inspect status; a deliberate repeated
+cancellation can confirm its terminal result under current authority and the
+original binding. Same-key writes and reconciliation of a cancelled operation
+return `409 file_publication_aborted`. A genuinely new write is a separate user
+decision, not an automatic recovery step.
+
+Expiry, a timeout, object absence or a lost acknowledgement does not prove a
+late write has stopped. Started operations may remain unresolved; no automatic
+reupload, timeout cleanup or general cancellation is promised. Local transaction,
+route and storage-failure fixtures test these boundaries; they are not production
+provider-failure, writer-drain or user-acceptance evidence. These operations do
+not enable durable purge, ownership adapters or the unfinished FortyFive transfer.
+
+### Replace an attachment safely
+
+Use a disposable Note you can edit, a signed-in CLI and `jq`. Set `NOTE_ID` and
+`NAMESPACE` explicitly. These commands create and replace only `access-check.txt`;
+they do not change Note ownership or project filing.
+
+```bash
+set -euo pipefail
+: "${NOTE_ID:?Set NOTE_ID to your disposable Note ID}"
+: "${NAMESPACE:?Set NAMESPACE to that Note namespace}"
+dreamlake notes files write access-check.txt --text before \
+  --note "$NOTE_ID" --namespace "$NAMESPACE"
+ETAG=$(dreamlake notes files cat access-check.txt --json \
+  --note "$NOTE_ID" --namespace "$NAMESPACE" | jq -er '.etag')
+: "${ETAG:?Expected a nonempty file ETag before replacement}"
+dreamlake notes files write access-check.txt --text after --overwrite --if-match "$ETAG" \
+  --note "$NOTE_ID" --namespace "$NAMESPACE"
+dreamlake notes files cat access-check.txt --note "$NOTE_ID" --namespace "$NAMESPACE"
+```
+
+The readback should be `after`, and the file ID remains unchanged. Reusing the old
+`ETAG` for another replacement must return 412 without changing the file. Read the
+current content and decide whether to reconcile; do not silently drop `--if-match`.
+The raw binary `upload` command supports `--overwrite` but does not currently expose
+`--if-match`; do not claim the text command's conditional-write protection for it.
+
+The immutable attachment writer is enabled. It stages new private bytes and
+publishes the pointer only after a fresh
+permission, ownership-epoch and file-revision check. Upload failure or a refused
+publication leaves the previously visible object unchanged. File names, IDs and
+preview links retain their existing behavior; this is not a file-version browser.
+
+During the storage rollout, `409 file_writer_upgrade_required` means the serving
+instance cannot write this file format yet. `409 file_purge_not_ready` means permanent
+cleanup is not enabled for that file yet; ordinary trash and later restore remain
+available. Preserve the local file and retry only after the rollout completes.
+`409 file_storage_recovery_required` means the bounded retained-key inventory is
+full. It requires authorized storage recovery; repeated writes will not clear it.
+Do not purge or recreate a user's attachment automatically to evade the bound.
+An ownership conflict requires checking current access/status; it is not a reason
+to change the namespace or copy/delete the Note. After an uncertain network outcome,
+read the file metadata/content before deciding whether to submit another write.
+
+When durable purge is separately enabled, a failed object deletion retains its
+cleanup intent and returns `503 storage_unavailable`. An authorized retry of the
+same file purge resumes it. A started purge cannot be restored, even if cleanup
+is incomplete. These storage changes do not enable cross-workspace Note transfers.
 
 ### Attach an image and get its path
 
@@ -1336,7 +1879,19 @@ note.files.find("report.html").unshare()
 ```
 
 The default link needs a signed-in reader. `--share` opens without signing in
-and does not expire; `--revoke` kills every copy at once.
+and does not expire; `--revoke` kills every copy at once. Creating a public link
+requires the note's sharing permission; withdrawing an existing attachment link
+requires permission to edit the note. Reading a file alone does not grant either
+operation. Asking for the same public link again preserves its current token.
+
+**Transactional sharing implementation included in the verified API release.**
+It checks current membership, Note permissions, ownership lease and file lifecycle
+in the same transaction as minting or withdrawing the link, refusing a transfer
+lease or started purge. These race and refusal cases passed isolated tests;
+production acceptance did not mint or revoke real public links. Existing sharing
+commands and permission requirements remain unchanged. If access changes, reload
+the Note and use an authorized account; repeated requests do not restore
+permission. Sharing an attachment does not publish the Note body or other files.
 
 Uploaded HTML renders in a separate origin, never the dashboard's. Markdown,
 SVG, code and images render too; anything else offers a download. A file with
@@ -2549,7 +3104,9 @@ Visibility and sharing are independent. Making a resource private does not
 revoke links or accepted access. Revoking a link does not make a public resource
 private. Use `--namespace <slug>` for another namespace.
 
-Only the namespace owner or an eligible Note creator may manage sharing.
+Only the namespace owner or the Note creator who is still a current namespace
+member may manage sharing. A departed creator or a body-only editor cannot
+manage these grants.
 `create --role write` enables editing; the default is `read`. Updating the role
 reuses the token and changes the role evaluated on subsequent requests for
 everyone admitted through the link. Note IDs resolve their owning namespace automatically.
@@ -2650,13 +3207,299 @@ been removed. Version links do not grant access. If the note changes or is still
 syncing while you save, review the current text and retry; no version is created
 from a mismatched browser/server state.
 
+### Saving safely across a connection failure
+
+A failed or lost save response does not prove that a version was not saved.
+Refresh History and inspect its ID, author, time and content before saving again.
+An acknowledged edit to the live draft is separate from saving a named version;
+do not resend that edit to recover a failed version save.
+
+**Catalog readers and the default catalog writer are included in the verified API release.**
+Strict runtime verification and read-only version metadata/header checks are
+separate from accepting a real version save; no production save was performed
+for this release verification. Existing saves without an idempotency header and
+existing version links retain their current workflow.
+
+The serving implementation routes new saves
+through the publication catalog by default, without changing the save endpoint,
+request fields, CLI commands or existing version IDs and history. It rechecks
+current edit authority and the Note's ownership binding before publication.
+Runtime verification is not a live-save receipt and does not activate durable attachment purge
+or ownership transfer.
+
+Do not use a version-save POST to test readiness. An older API may ignore
+`Idempotency-Key` and create an ordinary version. Only a **verified catalog-reader
+release with its writer still disabled** returns
+`503 version_publication_unavailable` without saving for a keyed request. Do not
+adopt the header for saving or retries until the matching writer release is
+separately verified; a successful POST alone proves neither support nor
+idempotency.
+
+On the verified catalog-writer release, API clients may supply a unique
+`Idempotency-Key` (16–128 letters, digits, underscores or hyphens) on
+`POST /namespaces/:slug/notes/:noteId/versions`. Keep that key with the original
+hash, tag, summary, parent and optional retained revision. Retry against the same
+server and Note while signed in as the same account; keys are scoped to that
+Note and actor. Another editor must inspect history and must not reuse your key
+expecting deduplication. An identical retry
+reconciles the original save rather than saving the current draft again; changed
+input with the same key is rejected. Only currently authorized editors can
+reconcile the save. If the original upload was incomplete and its publication is
+aborted, inspect history and deliberately start a new save with a new key. The
+server never substitutes newer text for an unavailable original snapshot.
+
+`503 version_save_unconfirmed` also covers transport or database failures while
+reconciling a keyed save. On the verified catalog-writer release, retry only the identical original request with the same key, server, Note and
+account; do not generate a new key or resend the body edit to clear the error.
+A published or fully staged matching operation returns its original version.
+`409 RECOVERY_IN_PROGRESS` means another executor is still active;
+`409 IDEMPOTENCY_CONFLICT` means the key was reused with different input.
+`409 PUBLICATION_ABORTED` requires inspecting history before an intentional new
+save with a new key. A storage mismatch or network failure does not prove that
+nothing was saved. Without an original idempotency key, inspect history before
+considering another save; the CLI commands below do not add a key automatically.
+
+This does not enable cross-namespace transfers or change who can read history.
+
+### Use the CLI for saved versions
+
+CLI **0.44.1+** supports current-draft checkpoints, version lists, and saved
+text reads. Check the installed `dreamlake note tag --help`, `note hist --help`,
+and `note read --help` first. `note` and `notes` are aliases; the older
+`notes version` group was removed in 0.44.2.
+
+```bash
+# Keep the same explicit namespace on every command.
+dreamlake note tag "$NOTE_ID" reviewed --namespace "$NOTE_NAMESPACE" --summary "Reviewed draft"
+dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --json
+dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --version "$VERSION_ID" --json
+```
+
+`hist` lists saved checkpoints, not every autosaved edit. JSON is appropriate
+here for parsing IDs, hashes and cursors. Save and read by immutable version ID;
+tags can repeat. The CLI does not yet promote a retained `revision` to a saved
+version or read its checkpoint/journal. Use the authenticated API below for
+that specific gap, rather than inventing a `tag --revision` option.
+
+### Recover a retained snapshot
+
+Use this workflow when an earlier full draft still has a retained revision but
+was never saved as a named version. It creates a version **on the same Note**;
+it does not restore the old text into the live draft. An empty version list does
+not prove old content is gone. Identify the exact note ID and namespace, locate
+a known retained revision from earlier read receipts or recovery evidence, and
+review its full source before saving. Do not guess revisions from content hashes.
+Without a retained baseline, this endpoint cannot recover compacted edits,
+deleted Notes, a different Note's history, or text available only in a screenshot.
+Preserve any independent backup and report that limitation.
+
+First establish a stable agent identity as described in [agent presence](#agent-presence-and-activity-opt-in),
+and reuse it for every live CLI read. Confirm that the selected API deployment
+supports historical `POST /versions` (the October 8, 2026 retained-revision
+extension). Older servers can silently discard an unknown `revision` property.
+Even HTTP 201 and matching text are insufficient: the saved revision and
+`sourceObservedAt` must also pass readback verification.
+
+Use the same authenticated remote and token for both CLI and REST. In the
+following example, provision `DREAMLAKE_API_KEY` through your normal secret
+mechanism; do not paste it into notes, shell history, or receipts. Explicitly set
+`DREAMLAKE_REMOTE` to the intended HTTPS API, `NOTE_NAMESPACE`, the stable
+`NOTE_ID`, and `OLD_REVISION`. Preserve `DREAMLAKE_AGENT_ID` and
+`DREAMLAKE_AGENT_NAME` from identity setup. Review the pinned source first:
+
+```bash
+# These variables must already identify the intended account, Note and baseline.
+dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" \
+  --view source --at "$OLD_REVISION"
+```
+
+The executable example below uses Python's standard library for the missing
+REST operation and the CLI for full source reads. Run it from a private working
+directory after reviewing the old draft. It creates `recovery-evidence` with
+owner-only permissions and refuses to overwrite an earlier attempt. It sends
+**one** POST, retains the request and response, and verifies by the returned ID.
+Do not remove that directory to work around an uncertain outcome.
+
+```python
+import datetime as dt
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import urllib.error
+import urllib.parse
+import urllib.request
+
+required = ("DREAMLAKE_REMOTE", "DREAMLAKE_API_KEY", "NOTE_NAMESPACE",
+            "NOTE_ID", "OLD_REVISION", "DREAMLAKE_AGENT_ID", "DREAMLAKE_AGENT_NAME")
+for key in required:
+    if not os.environ.get(key):
+        raise SystemExit(f"Set {key} before running recovery")
+remote = os.environ["DREAMLAKE_REMOTE"].rstrip("/")
+if urllib.parse.urlsplit(remote).scheme != "https":
+    raise SystemExit("Use the intended HTTPS API")
+ns, note, revision = (os.environ[k] for k in ("NOTE_NAMESPACE", "NOTE_ID", "OLD_REVISION"))
+if not re.fullmatch(r"[a-f0-9]{24}", note):
+    raise SystemExit("Use the resolved stable Note ID")
+os.umask(0o077)
+evidence = Path("recovery-evidence")
+evidence.mkdir(mode=0o700)  # Existing evidence stops a second submission.
+def keep(name, value):
+    with (evidence / name).open("x", encoding="utf-8") as output:
+        json.dump(value, output, ensure_ascii=False, indent=2)
+def read_source(name, *extra):
+    raw = subprocess.check_output([
+        "dreamlake", "note", "read", note, "--namespace", ns,
+        "--view", "source", "--json", *extra], text=True)
+    value = json.loads(raw)
+    keep(name, value)
+    assert value["note"] == note and isinstance(value["content"], str)
+    digest = hashlib.sha256(value["content"].encode("utf-8")).hexdigest()
+    assert value["hash"] == "sha256:" + digest
+    return value
+old = read_source("retained.json", "--at", revision)
+assert old["revision"] == revision
+before = read_source("live-before.json")
+payload = {"revision": revision, "hash": old["hash"][7:],
+           "tag": "Recovered retained draft", "summary": "Reviewed historical source"}
+# Set reviewed tag/summary above; add parentId only for intentional ancestry.
+keep("request.json", {"remote": remote, "namespace": ns, "note": note,
+                     "startedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
+                     "payload": payload})
+base = remote + "/namespaces/" + urllib.parse.quote(ns, safe="") + "/notes/" + note
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+opener = urllib.request.build_opener(NoRedirect)
+def api(path, body=None):
+    request = urllib.request.Request(base + path,
+        data=None if body is None else json.dumps(body).encode("utf-8"),
+        headers={"Authorization": "Bearer " + os.environ["DREAMLAKE_API_KEY"],
+                 "Content-Type": "application/json"},
+        method="GET" if body is None else "POST")
+    with opener.open(request, timeout=30) as response:
+        return response.status, json.load(response)
+try:
+    status, saved = api("/versions", payload)
+except urllib.error.HTTPError as error:
+    keep("post-error.json", {"status": error.code,
+                            "body": error.read().decode("utf-8", errors="replace")})
+    raise SystemExit("Stopped: inspect post-error.json and the outcome rules below")
+except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+    raise SystemExit("Outcome unknown: reconcile history before another POST")
+keep("post-response.json", {"status": status, "version": saved})
+assert status == 201
+version_id = saved["id"]
+assert re.fullmatch(r"v_[0-9]{13}_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}", version_id)
+def verify_metadata(value):
+    assert value["id"] == version_id
+    assert value["revision"] == revision and value["hash"] == payload["hash"]
+    assert value["tag"] == payload["tag"] and value["summary"] == payload["summary"]
+    assert value.get("parentId") == payload.get("parentId")
+    observed = dt.datetime.fromisoformat(value["sourceObservedAt"].replace("Z", "+00:00"))
+    assert observed.tzinfo is not None
+verify_metadata(saved)
+verified = json.loads(subprocess.check_output([
+    "dreamlake", "note", "read", note, "--namespace", ns,
+    "--version", version_id, "--json"], text=True))
+keep("verified-version.json", verified)
+verify_metadata(verified)
+assert verified["sourceObservedAt"] == saved["sourceObservedAt"]
+assert verified["text"] == old["content"]
+assert hashlib.sha256(verified["text"].encode("utf-8")).hexdigest() == payload["hash"]
+after = read_source("live-after.json")
+assert before["content"] == after["content"], "Live text changed; inspect concurrent edits"
+print("Verified historical version:", version_id)
+```
+
+Hash the JSON-decoded **complete** `content` as UTF-8, preserving Unicode,
+trailing newlines, and the empty string. Do not hash a section, annotated
+Markdown, HTML, terminal metadata, or text modified by trimming or `jq -r`.
+The source read uses `sha256:<digest>`; the API requires the raw lowercase
+64-character digest. The opaque revision identifies the RTC baseline, not just
+its text: two different revisions can have the same hash. `sourceObservedAt`
+is the baseline's observation time, not necessarily the original edit time;
+`createdAt` is when this version was saved. Full source reads need not contain
+`sourceObservedAt`.
+
+If a receipt/readback is missing, malformed, or has the wrong ID, revision,
+hash, source time, or text, stop and keep the evidence. Do not declare recovery
+complete, remove `revision`, fall back to saving the live draft, or issue another
+POST to test support. If the live text changed during verification, inspect
+concurrent edits without overwriting them. Saving a historical version itself
+does not write the live body.
+
+### Reconcile an uncertain save
+
+A save without an idempotency key creates a distinct version; tags are **not
+idempotency keys**. On the verified catalog-writer release, an exact
+same-key retry may instead reconcile the original version as described above.
+A timeout, lost connection, unreadable response, generic 5xx, or failure
+after submission may leave a saved version behind. Do not blindly repeat the
+POST, including after a failed verification read.
+
+Inspect saved metadata on the **same remote, namespace and Note**, starting
+with the first page and continuing through `nextCursor` using `--before`:
+
+```bash
+dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --json
+# Repeat for each non-null nextCursor until the attempt's time range is covered.
+dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --before "$NEXT_CURSOR" --json
+# Read each plausible candidate by immutable ID.
+dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --version "$CANDIDATE_ID" --json
+```
+
+Each page has at most 50 entries. Compare candidates with the retained request:
+revision **and** hash, tag, summary, explicit parent (or null), and submission
+time range. Then verify the candidate ID, `sourceObservedAt`, and full `text`
+against the saved evidence as above. A matching hash with a different revision
+is not a match. If a matching version exists, reuse its ID; if several match,
+record their IDs and report that the individual request's attribution is
+uncertain. Do not create a duplicate to obtain a clearer receipt or delete
+versions automatically. Finding no match on a partial page, or immediately
+after a timeout, does not prove that the original save failed. Continue read-only
+reconciliation; retry only after the outcome is resolved and a new save is an
+intentional decision. This unkeyed workflow has no request deduplication guarantee.
+
+For a structured rejection from the compatible server:
+
+- `409 note_changed`: no version was saved by that rejected request. Recheck
+  the retained source/revision/hash; never replace its hash with the live hash.
+- `404 revision_not_found`: the selected baseline is unavailable. Preserve
+  independent evidence; this is not an empty saved-version list.
+- `400`, authentication/access failures, or `404 parent_not_found`: correct the
+  target, access or request before proceeding. History still requires editor access.
+- The historical route's structured `503 history_unavailable` or
+  `503 invalid_baseline` is a baseline-read failure **before** saving. Resolve
+  that specific read problem first. A generic 503/5xx is still an unknown outcome;
+  do not infer this pre-save guarantee from HTTP status alone.
+
+This workflow does not archive every future edit, reconstruct already compacted
+history, or add a rollback UI. Restoring text into the working draft is a separate,
+explicitly requested edit with its own reviewed current baseline.
+
 ### Version API
 
 These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
 
-- `POST /versions` accepts `{hash, tag?, summary?, parentId?}`. `hash` is the lowercase
+**Historical recovery:** `POST /versions` also accepts an optional
+`revision` copied from a retained full source read. With it, the server saves
+that note's immutable retained baseline instead of reading the live draft.
+`hash` must match the retained source; a mismatch returns `409 note_changed`,
+and an unavailable revision returns `404 revision_not_found`. This does not
+replace the live body, change its collaboration session, or restore deleted
+notes. Editor access is still required. A recovered version's `createdAt`
+records when it was saved; `sourceObservedAt` records the baseline observation.
+Omit `revision` to retain the existing current-draft consistency check. Do not
+retry a failed stale-current save as a historical save without reviewing the
+intended retained content. The CLI does not yet expose this extension.
+
+- `POST /versions` accepts `{hash, revision?, tag?, summary?, parentId?}`. `hash` is the lowercase
   SHA-256 of the UTF-8 body the user intends to save. The server compares it
-  with a coherent current read and returns `409 note_changed` on mismatch.
+  with the specified retained baseline, or a coherent current read when
+  `revision` is omitted, and returns `409 note_changed` on mismatch.
   Tags are at most 80 characters and summaries at most 2,000 characters.
   A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
   `createdBy`, `author`, `number`, and `parentId`. The optional nullable
@@ -2673,5 +3516,25 @@ These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
 
 The content hash identifies text, not the identity-bearing RTC baseline used
 for collaborative patches. Saving a version is a retained snapshot operation,
-not a content write. The saved-version API has no CLI flags or Python SDK
-methods; use the UI or authenticated REST API.
+not a content write. Use `note tag`, `note hist`, and `note read --version`
+for ordinary saved-version work. Retained-revision promotion and checkpoint/journal
+reads currently require authenticated REST; the Python SDK has no saved-version helpers.
+
+## Project attachment access (under development)
+
+Independent resource share links remain available. Explicit Project user/team
+READ grants add read access to all current and future attached resources; WRITE
+and ADMIN add supported content editing. They do not grant resource sharing
+management, deletion, ownership transfer or credentials. Public Project visibility
+alone never exposes private attached resources. Resource-own access and all live
+Project grants are combined at the canonical resource URL.
+
+Detaching a resource, revoking a Project grant, or leaving its granted team
+removes only that source of access. A resource attached to several Projects keeps
+access through the others. No resource share links or acceptance records are
+created, copied or revoked by Project sharing. Attach requires the target
+Project's content-create permission and the resource's own sharing-management
+permission; readable content cannot be redistributed by a reader.
+
+This behavior requires the companion server implementation and is not yet a
+released capability. Ownership transfer remains separately execution-gated.

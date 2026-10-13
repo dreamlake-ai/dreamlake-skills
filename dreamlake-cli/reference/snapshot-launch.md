@@ -10,19 +10,59 @@ dreamlake launch train.py --queue cpu # snapshot, queue it, wait for the result
 Both talk to the **lakeshore control plane** and nothing else. Neither needs
 `dreamlake login`; they need `--server` (or `$LAKESHORE_URL`).
 
+## Run here, or submit
+
+The usual setup is a Terminal open on a machine you already have. The shell
+runs on that machine, and so does everything on this page. Get the project
+there first. These examples put each repository in its own directory under
+`~/public/`. That is only a convention: nothing creates it, and the name does
+not make anything public.
+
+```bash file="terminal"
+mkdir -p ~/public && cd ~/public
+git clone https://github.com/you/hello-job.git    # first time; later: git -C hello-job pull
+git clone https://github.com/you/shared-lib.git   # a sibling, used as ../shared-lib
+cd hello-job                                       # .dreamrc is here
+```
+
+`.dreamrc` lives at the project root, in the repository. Every `local_path` in
+it is a path on **this** machine, the one the Terminal is open on, resolved
+from the directory containing `.dreamrc`. It is not a path on the laptop
+running your browser, and nothing is uploaded from the browser.
+
+From that shell there are two different ways to run a script:
+
+- **Run it here.** For example, `python hello_job.py --message hi`. There is no
+  snapshot and no queue, and `code:` is not read. Its dependencies must be
+  installed on this machine.
+- **Submit it.** For example, `dreamlake launch hello_job.py --queue cpu`.
+  - It runs on whichever worker serves the queue, possibly another machine.
+  - The selected code is archived here, uploaded to the namespace's
+    `code-staging` storage, and unpacked on the worker.
+  - The worker needs the script's dependencies and `dreamlake-lakeshore`
+    already installed. A snapshot ships code only.
+
 ## `snapshot`
 
-The repository is archived with `git archive`, honouring the `excludes` /
-`also_excludes` pathspecs and the `max_archive_mb` ceiling from `.dreamrc`. A
-dirty tree is snapshotted as a **real commit object without moving your
-branch**, so you never have to commit in order to launch.
+Both commands run through the Python SDK's bridge
+(`python -m dreamlake.lakeshore.bridge`), so the interpreter they use must
+have a `dreamlake-lakeshore` that ships it. **`dreamlake-lakeshore` 0.4.0 and
+earlier do not**, and the command stops at "cannot import dreamlake-lakeshore".
+The bridge is merged on the SDK's `main`
+([dreamlake-lakeshore#24](https://github.com/dreamlake-ai/dreamlake-lakeshore/pull/24))
+but is not yet released to PyPI.
+
+With no `code:` block in `.dreamrc`, the repository you are standing in is
+archived with `git archive HEAD`: **committed files only**. A dirty tree is
+refused rather than shipped half-done. Commit first, or declare the code you
+want shipped in a `code:` block (below).
 
 ```text file="output"
 snapshot
   server:     http://localhost:8080
   namespace:  default
   remote:     git@github.com:you/proj.git
-  commit:     a1b2c3d (dirty)
+  commit:     a1b2c3d
 ✓ registered 665f0a1b2c3d4e5f60718293  (4.1 MB, kit-local)
   dreamlake launch <script> --snapshot 665f0a1b2c3d4e5f60718293
 ```
@@ -50,6 +90,34 @@ was clean:
 ```bash file="terminal"
 dreamlake launch train.py --snapshot $(dreamlake snapshot --json | jq -r .id)
 ```
+
+## Choosing the code: `.dreamrc` `code:`
+
+A `code:` block decides what ships: one or more directories or files, from
+inside or outside the repository, each placed at a chosen path. Relative
+paths resolve from the `.dreamrc` file, so launching from a subdirectory
+ships the same thing. Files are taken as they are on disk, with VCS
+directories and your excludes removed.
+
+```yaml file=".dreamrc"
+queue: cpu
+code:
+  workdir: hello
+  mounts:
+    - local_path: hello
+      target: hello
+      exclude: ["*.pkl", "results/"]
+    - local_path: ../shared-lib
+      target: libs/shared
+      pypath: true
+```
+
+The worker unpacks the snapshot into a fresh directory, runs the script from
+`workdir`, and puts only the `pypath` mounts on `PYTHONPATH`. An unchanged
+tree reuses its snapshot. The full key table, bounds and unsupported Jaynes
+features are in the SDK's
+[code mounts reference](https://github.com/dreamlake-ai/dreamlake-lakeshore/blob/main/docs/code-mounts.md).
+This requires the same SDK bridge, which is not yet on PyPI.
 
 ## `launch`
 

@@ -1,10 +1,10 @@
 # Scene Generation
 
   How to go from *"I want a breakfast table with two mugs"* to a pushed, previewable, **physically
-  valid** MuJoCo env: source assets from wherever serves the request — the internet, files you
+  valid** MuJoCo scene: source assets from wherever serves the request — the internet, files you
   already have, procedural MJCF, or a [library](libraries.md) — measure them, derive placements
   instead of guessing, compose the scene, validate the physics, and publish it as a versioned
-  [env](envs.md) you can keep editing. New here? Start with the
+  [scene](scenes.md) you can keep editing. New here? Start with the
   [Quickstart](https://docs.dreamlake.ai/scene-generation/quickstart).
 
 The loop this guide teaches:
@@ -23,19 +23,19 @@ The loop this guide teaches:
 5. **Validate** — simulate briefly; check penetration, support, and that
    props rest where you put them. Shape/physics validity and visual quality
    are different questions — check both, separately.
-6. **Publish and preview** — push, open the env page in a browser, iterate
+6. **Publish and preview** — push, open the scene page in a browser, iterate
    by editing the stack and re-pushing.
 
 ## Requirements
 
-- The `dreamlake` CLI, logged in (`dreamlake login`) — env and library
-  commands are in CLI ≥ 0.35.
-- Python with `pip install "dreamlake[compose]"` for `dreamlake env compose`
+- The `dreamlake` CLI, logged in (`dreamlake login`) — scene and library
+  commands are in CLI ≥ 0.45.0.
+- Python with `pip install "dreamlake[compose]"` for `dreamlake scene compose`
   (installs the layer engine and `mujoco`; dreamlake-py ≥ 0.23). The engine
   needs **MuJoCo ≥ 3.8** — use 3.14, the version this workflow is validated
   with; dreamlake 0.23.0 still _declares_ `>=3.2.0` but composition fails on
   3.2, and 0.23.1 declares the real `>=3.8` floor (see
-  [layers § requirements](envs-layers.md#requirements)). A plain
+  [layers § requirements](scenes-layers.md#requirements)). A plain
   unpinned install does not ensure 3.14 — pin it:
   `pip install "dreamlake[compose]==0.23.1" "mujoco==3.14.0"` in a fresh
   venv, and verify with
@@ -52,7 +52,7 @@ The loop this guide teaches:
   brevity.
 - The scene tools below need only `pip install mujoco numpy` (mujoco ≥ 3.2;
   the tools' test suite passes on 3.2.0, 3.8.1 and 3.14.0) and run on any
-  MJCF file or pulled env directory — no DreamLake account or workspace
+  MJCF file or pulled scene directory — no DreamLake account or workspace
   checkout involved. The 3.2 floor is for these tools only — composition
   needs 3.8+ as above.
 
@@ -245,8 +245,8 @@ counter ≈ 0.9 m, seat ≈ 0.45 m, door ≈ 2.0 m.
 
 ## Design the base scene
 
-The base layer is an ordinary env you author directly (see the MJCF patterns
-in the [Envs guide](envs.md)). What separates an attractive scene from a gray
+The base layer is an ordinary scene you author directly (see the MJCF patterns
+in the [Scenes guide](scenes.md)). What separates an attractive scene from a gray
 void:
 
 - **Name everything you may later address**: layer `Update`/`Remove` ops and
@@ -255,7 +255,7 @@ void:
 - **Lights**: one warm key light (spot or point, positioned like a window or
   lamp), one dim directional fill; soften the headlight via
   `<visual><headlight …>`. A gradient `skybox` texture kills the black void.
-- **Cameras**: author a hero `<camera name="thumbnail">` — the env page's
+- **Cameras**: author a hero `<camera name="thumbnail">` — the scene page's
   cover and opening shot use it. Compute the aim, don't guess quaternions:
   MuJoCo cameras look along local `−z`, and `xyaxes` are the camera's +x and
   +y axes in the parent frame. From position **p** aiming at target **t**:
@@ -273,20 +273,20 @@ Two equally valid routes to a pushed scene:
 
 - **Raw MJCF**: author (or assemble) one self-contained scene directory —
   entry XML plus every mesh/texture it references — validate and render it
-  with the tools, and `dreamlake env push` it directly. This is a complete,
+  with the tools, and `dreamlake scene push` it directly. This is a complete,
   supported workflow, and the right one for a scene you authored as a
   whole.
-- **A layer stack**: publish components as their own envs and compose them.
+- **A layer stack**: publish components as their own scenes and compose them.
   What the extra structure buys is **modular editing and reuse** — each
   prop is a pinned, versioned layer you can move with a one-line `Attach`
   edit, swap, or reuse in the next scene. Optional, not required.
 
 The rest of this section is the layered route. Full grammar and semantics:
-[Env Layers Reference](envs-layers.md). The scene-generation specifics:
+[Scene Layers Reference](scenes-layers.md). The scene-generation specifics:
 
-- **Push reusable components as their own envs** (base room, each prop) so
+- **Push reusable components as their own scenes** (base room, each prop) so
   the stack can pin them (`you/room@1`). Assets pulled from a library are
-  ingredients — pushing one as an env is what makes it a _versioned layer_.
+  ingredients — pushing one as a scene is what makes it a _versioned layer_.
 - **`Attach` keys are the instance identity** — `mug1`, `mug2` — and every
   name inside becomes `mug1:…`. Keep keys stable across edits: change an
   `Attach`'s `pos`, not its `key`. Renaming a key orphans every `Update`
@@ -309,7 +309,7 @@ The rest of this section is the layered route. Full grammar and semantics:
 - Compose floats, artifacts pin: author `you/room`, and the stack embedded
   in the output is pinned `you/room@N` with the builder versions — that
   pinned copy is what makes the scene re-openable and editable later.
-- **Reuse a materialized scene**: a pushed composed env is an ordinary env —
+- **Reuse a materialized scene**: a pushed composed scene is an ordinary scene —
   `Merge` it as the base of a new stack and add layers on top. It enters as
   one layer (its own stack is not re-walked).
 
@@ -318,7 +318,7 @@ output directory is derived from the stack's `name` (else the stack
 directory's basename), so the next commands may point at nothing:
 
 ```bash
-dreamlake env compose ./dreamlake.layers.json -o ./composed
+dreamlake scene compose ./dreamlake.layers.json -o ./composed
 python tools/scene_validate.py ./composed --settle mug1:model --support mug1:model
 python tools/scene_render.py ./composed -o ./shots --camera thumbnail
 ```
@@ -330,9 +330,9 @@ What "the scene opens like this" means, precisely:
 - The scene tools open a model at keyframe 0 when it has one, else qpos0.
   The browser viewer's t=0 contract — and crucially, **which viewer
   versions actually honor keyframe 0** (the prior source baseline does
-  not) — is in [Envs § Drive it](envs.md#drive-it); don't assume the
+  not) — is in [Scenes § Drive it](scenes.md#drive-it); don't assume the
   deployed viewer shows your keyframe until you've seen it there.
-- Env push/pull transfer files verbatim — a `<keyframe>` in your entry XML
+- Scene push/pull transfer files verbatim — a `<keyframe>` in your entry XML
   survives the round trip.
 - **Merge-only stacks keep keyframes** (they resurrect correctly remapped).
   **Any `Attach` strips all keyframes** — attaching changes the dof layout,
@@ -378,20 +378,20 @@ physical validity — run the checks.
 ## Publish, preview in the browser, iterate
 
 ```bash
-dreamlake env push ./composed --name my-scene --title "My scene"
+dreamlake scene push ./composed --name my-scene --title "My scene"
 # ✓ pushed <ns>/my-scene v3 — …    ← save this exact version
-dreamlake env pull my-scene@3 -o ./readback   # empty dir; hash-verified
+dreamlake scene pull my-scene@3 -o ./readback   # empty dir; hash-verified
 ```
 
 Push privately by default (`--visibility public` is opt-in) and **save the
 version number from the receipt**. Pull that exact `name@N` into a fresh,
-empty directory — a bare `env pull <name>` fetches whatever is latest,
+empty directory — a bare `scene pull <name>` fetches whatever is latest,
 which can race a concurrent push. Then compare what matters: the embedded
 `dreamlake.layers.json` pins, the entry XML (including any keyframe you
 appended), and a validation run on the readback.
 
 If a push fails mid-flight or times out, **check before retrying**: run
-`dreamlake env list` and compare against your last receipt to learn what
+`dreamlake scene list` and compare against your last receipt to learn what
 actually landed. Retrying an _unchanged_ directory is normally safe — the
 CLI compares the entry and every file hash against the latest version and
 reuses or re-registers an identical version (even adopting an identical
@@ -406,16 +406,16 @@ Open the printed link and actually look: hero framing, materials under the
 viewer's lighting, props resting where placed, play/pause behaves. On the
 staging deployment, CLIs ≤ 0.37.0 print the API host in that
 link — set `DREAMLAKE_WEB_URL=https://staging.dreamlake.ai` (an override
-those CLIs already honor) or upgrade to CLI ≥ 0.37.1, whose receipts
+those CLIs already honor) or upgrade to CLI ≥ 0.45.0, whose receipts
 target the web app directly.
-The env page renders `mujoco`-type envs in the interactive viewer; `urdf`
+The scene page renders `mujoco`-type scenes in the interactive viewer; `urdf`
 gets the kinematic poser; other types list files only. The first member
 visit captures the gallery thumbnail from your `thumbnail` camera.
 
-Iterate by editing the **editable source**, and push the same env name for
+Iterate by editing the **editable source**, and push the same scene name for
 a new version. For a raw-MJCF scene that is the authored directory itself —
 edit the XML, re-validate, re-render, push. For a composed scene it is the
-**pinned stack**, not the materialized XML: pull the env (the embedded
+**pinned stack**, not the materialized XML: pull the scene (the embedded
 `dreamlake.layers.json` rides along), edit the op — move a mug's
 `Attach.pos`, retune a light `Update` — recompose, re-validate, re-render,
 push. One-line diff in the stack.
@@ -423,7 +423,7 @@ To re-aim a camera through an `Update` on SDK 0.23.0, state a
 `quat` opinion — an `xyaxes` opinion is not accepted there (it _is_ fine
 in a layer's own MJCF, and SDK ≥ 0.23.1 accepts the alternate
 orientation specifiers in opinions too) — see
-[layers § orientations](envs-layers.md#tag-update--the-meta-component).
+[layers § orientations](scenes-layers.md#tag-update--the-meta-component).
 
 ## When it goes wrong
 
@@ -436,11 +436,11 @@ orientation specifiers in opinions too) — see
 | `library pull` fails mid-way                           | reruns are safe and incremental (hash-verified); already-correct files are skipped, extra local files are never touched                               |
 | asset falls through the floor/table                    | no collision geometry (`contype/conaffinity` 0) or a scene-entry attach — check with `scene_report`, attach the robot/object file instead             |
 | props explode or launch at load                        | initial penetration — recompute the placement delta from `pos.z` and `aabb_min.z`, keep ≥ 1 mm clearance; `scene_validate` reports the offending pair |
-| compose: "merge name collision"                        | two layers define the same name — rename in one, or make the change an `Update` (see [layers errors](envs-layers.md#common-errors))                     |
+| compose: "merge name collision"                        | two layers define the same name — rename in one, or make the change an `Update` (see [layers errors](scenes-layers.md#common-errors))                     |
 | compose: "strict-match miss"                           | an op targets a pre-attach name — after `Attach key="mug1"`, address `mug1:body`, not `body`                                                          |
 | compose: engine missing                                | `pip install "dreamlake[compose]"`; point `DREAMLAKE_PYTHON` at that interpreter                                                                      |
-| push rejected: unpinned local layers                   | push each local layer as its own env first (`--push-layers`), then pin and recompose                                                                  |
-| upload/readback network errors                         | check `dreamlake env list` against your last receipt first (an ambiguous failure may have finalized a version), then retry at most 2–3 times          |
+| push rejected: unpinned local layers                   | push each local layer as its own scene first (`--push-layers`), then pin and recompose                                                                  |
+| upload/readback network errors                         | check `dreamlake scene list` against your last receipt first (an ambiguous failure may have finalized a version), then retry at most 2–3 times          |
 | scene passes validation but looks wrong                | that is expected — the validator checks physics only; render and fix lights/cameras/materials                                                         |
 
 ## Next steps

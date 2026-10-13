@@ -12,6 +12,11 @@ dreamlake login --env staging
 dreamlake login --env prod
 ```
 
+`dreamlake login` prints the complete authorization link with the code in its
+query parameters. Open that link to authorize without copying the code manually,
+including when using `--no-browser` on a remote machine. The code is also shown
+as a fallback if prompted.
+
 No `--url` / `--bss` needed — the URLs are baked in. `dreamlake login` with
 no `--env` re-authenticates the active environment, and falls back to `prod`
 when nothing is logged in yet.
@@ -25,7 +30,7 @@ dreamlake auth env remove staging # forget a saved env
 ```
 
 > **Note:** These lived at `dreamlake env ...` before v0.6; the top-level `env` command
-> now manages MuJoCo environments (see the Envs page). There is no alias —
+> is a compatibility alias for `dreamlake scene` (see [Scenes](scenes.md)). For login switching,
 > update scripts to `dreamlake auth env ...`.
 
 Every command then targets the active environment — **and so does the
@@ -92,7 +97,7 @@ envs:
 
 ## Receipt web links
 
-Successful `env`, `artifact`, `workflow` and `share` commands print an
+Successful `scene`, `artifact`, `workflow` and `share` commands print an
 `open:` URL into the web app. The CLI derives it from the active server
 URL. For the known deployments:
 

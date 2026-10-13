@@ -10,7 +10,7 @@ hosted deployment.
    DreamLake namespaces.
 
    ```bash
-   dreamlake env list
+   dreamlake auth env list
    dreamlake profile
    ```
 
@@ -72,10 +72,58 @@ dreamlake queues unmount lab
 retains its Vault entry, and does not revoke the remote token. Replacing a token
 also retains the old Vault entry. Revoke unused tokens on Lakeshore separately.
 
-All commands support `--namespace ` and `--json`.
+All commands support `--namespace <DreamLake namespace>` and `--json`.
 `mounts` supports `--page` and `--page-size`; `jobs` supports `--limit` and
 `--offset`.
 
 This first slice registers a server and reads its collections. Job submission
 and changes to queues or workers are separate work. For direct Python queue
 usage, see the [dreamlake-lakeshore Python SDK](https://docs.dreamlake.ai/lakeshore/python-sdk).
+
+## Read Slurm scheduler jobs
+
+`queues slurm` requires CLI 0.57.0 or later and a DreamLake deployment with
+the Slurm inventory API. Availability depends on both deployments. Existing
+`queues jobs <prefix>` lists Lakeshore invocations; `jobs list` lists externally
+reported tracking records. Use the Slurm commands below for scheduler jobs.
+
+Discover configured clusters in your authorized DreamLake namespace:
+
+```bash cli-help="queues slurm clusters"
+dreamlake queues slurm clusters --namespace geyang
+```
+
+Pass an exact cluster ID from that listing:
+
+```bash cli-help="queues slurm jobs"
+dreamlake queues slurm jobs CLUSTER_ID --namespace geyang
+dreamlake queues slurm jobs CLUSTER_ID --namespace geyang --details
+dreamlake queues slurm jobs CLUSTER_ID --namespace geyang --json
+```
+
+The default table shows scheduler job ID, user, job name, partition and observed
+state for every job in the authorized snapshot. No user filter is added. The
+snapshot's scope, effective Unix user, workload visibility and completeness
+remain visible; configured clusters and scheduler-visible jobs do not imply
+access to every cluster or every user's jobs.
+
+`--details` shows user ID, reason, account, QoS, priority, scheduler CPU and node
+counts, memory per CPU and per node in MiB, requested/allocated/per-node TRES,
+submission/start/end timestamps, time limit in minutes, queue IDs, verified
+allocated node IDs, canonical job and attempt IDs, revision, array identifiers
+and restart count. TRES strings retain the scheduler's resource and GPU labels;
+the CLI does not infer a GPU total or convert per-unit memory into total memory.
+Scheduler node counts are distinct from verified allocation mappings. Start and
+end times can be forecasts; they do not prove execution started or finished.
+
+Missing, unset or invalid fields display `Unknown`, including details absent on
+older servers. `--json` preserves the entire server snapshot and all allowed
+fields, including raw timestamps, freshness, cache provenance and errors.
+
+Human output includes observation, last-success and read times. Reading does not
+renew the observation. The server marks observations stale after 120 seconds or
+on cache/refresh errors, and unavailable after 24 hours. Stale output remains
+historical; it never establishes the current scheduler state. An unavailable or
+incomplete workload returns a nonzero exit code and an unknown job count rather
+than an empty list. These commands inspect inventory only; they do not submit,
+cancel or modify scheduler jobs.

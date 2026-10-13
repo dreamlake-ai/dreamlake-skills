@@ -153,6 +153,22 @@ class SyncTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'missing its tools'):
             sync.scene_generation_outputs(root)
 
+    def test_scene_generation_tracks_canonical_scenes_pages(self):
+        root = self._scene_snapshot()
+        (root / 'docs/pages/envs').rename(root / 'docs/pages/scenes')
+        refs = root / 'skills/dreamlake/reference'
+        for old, new in [('envs', 'scenes'), ('envs-layers', 'scenes-layers')]:
+            target = refs / f'{old}.md'
+            target.write_text(target.read_text().replace('envs-layers.md', 'scenes-layers.md'))
+            target.rename(refs / f'{new}.md')
+        for reference in refs.glob('*.md'):
+            reference.write_text(reference.read_text().replace('envs-layers.md', 'scenes-layers.md'))
+        outputs = sync.scene_generation_outputs(root)
+        self.assertIn('dreamlake-scene-generation/reference/scenes.md', outputs)
+        self.assertNotIn('dreamlake-scene-generation/reference/envs.md', outputs)
+        self.assertIn(b'](scenes-layers.md#semantics-rules)',
+                      outputs['dreamlake-scene-generation/reference/scenes.md'])
+
     def test_scene_generation_missing_reference_is_actionable(self):
         root = self._scene_snapshot()
         (root / 'skills/dreamlake/reference/envs-layers.md').unlink()

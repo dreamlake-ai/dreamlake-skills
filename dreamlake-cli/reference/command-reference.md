@@ -9,9 +9,9 @@ Every command. Run `dreamlake <command> --help` for the full option list.
 | `login [--env <name>]` | Log in (device flow, or `--token`). Built-in envs: `staging`, `prod` |
 | `logout` | Log out of the active environment |
 | `profile` | Show the current user and active environment |
-| `env list` | List logged-in environments (`*` = active) |
-| `env use <name>` | Switch the active environment |
-| `env remove <name>` | Forget a saved environment |
+| `auth env list` | List logged-in environments (`*` = active) |
+| `auth env use <name>` | Switch the active environment |
+| `auth env remove <name>` | Forget a saved environment |
 
 ## Vault import
 
@@ -188,19 +188,19 @@ overrides detection.
 | `library add <ns>/<name> <path> [--id <id>] [--title …] [--replace] [--dry-run] [--json]` | Add ONE asset to a remote library, no full local copy needed; `--replace` updates an existing id in place |
 | `library rm <ns>/<name> <assetId…> [--dry-run] [--json]` | Remove assets remotely (the server reclaims their files); refuses to empty a library |
 
-## Envs
+## Scenes
 
-See [Envs](envs.md).
+See [Scenes](scenes.md).
 
 | Command | What it does |
 | --- | --- |
-| `env push <dir> [--name] [--entry] [--type] [--visibility] [--thumbnail <png>]` | Push a directory as a new env version (unchanged files are not re-uploaded); `--thumbnail` sets the cover image |
-| `env push <dir> --push-layers \| --allow-local` | Push a composed env whose stack still references local layers — see [Envs](envs.md) |
-| `env create <dir> [...]` | Push the FIRST version — fails if the name already exists |
-| `env list [--namespace <ns>] [--json]` | List envs in a namespace |
-| `env pull <name>[@<version>] [-o <dir>] [--force]` | Download a version, hash-verified |
-| `env compose [stack] [-o <dir>] [--force]` | Materialize a layered stack (`dreamlake.layers.json`) into a runnable env directory (needs `pip install "dreamlake[compose]"`) |
-| `env delete <name> [--permanent]` / `env restore <name>` | Soft-delete / restore; `--permanent` purges storage |
+| `scene push <dir> [--name] [--entry] [--type] [--visibility] [--thumbnail <png>]` | Push a directory as a new scene version (unchanged files are not re-uploaded); `--thumbnail` sets the cover image |
+| `scene push <dir> --push-layers \| --allow-local` | Push a composed scene whose stack still references local layers — see [Scenes](scenes.md) |
+| `scene create <dir> [...]` | Push the FIRST version — fails if the name already exists |
+| `scene list [--namespace <ns>] [--json]` | List scenes in a namespace |
+| `scene pull <name>[@<version>] [-o <dir>] [--force]` | Download a version, hash-verified |
+| `scene compose [stack] [-o <dir>] [--force]` | Materialize a layered stack (`dreamlake.layers.json`) into a runnable scene directory (needs `pip install "dreamlake[compose]"`) |
+| `scene delete <name> [--permanent]` / `scene restore <name>` | Soft-delete / restore; `--permanent` purges storage |
 
 ## Skills
 

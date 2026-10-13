@@ -48,6 +48,9 @@ For a whole-source delta, retain the plain-text read's `hash` and pass it to
 `--json` only when a program needs parsed fields. See [reading and changes](../reference/notes-reading.md)
 and [the full Notes guide](../reference/notes.md).
 
+For saved checkpoints or a missing earlier draft, use [versions and recovery](versions.md).
+Recovery requires a complete source read; scoped or annotated reads cannot supply its hash.
+
 Summary metadata is read and updated with [`notes summary`](summary.md),
 independently of body patches. `notes read --json` includes a nullable summary
 alongside the body snapshot; plain reads print the summary separately when one
@@ -67,3 +70,12 @@ Do not add escapes and do not remove escapes already in the saved Markdown.
 This is for agents, not browsers: do not render it or DOM-parse its body.
 Use `--view markdown` for ordinary reads; machine integrations decode canonical
 source metadata once and use its address index. Preserve the original revision.
+
+## Project-derived access (development)
+
+With the companion unreleased server changes, explicit Project user/team grants
+cover all live attached Notes, including later additions. Public Project
+visibility alone never reveals private Notes. Independent Note links and
+namespace membership remain valid. Detachment or Project grant revocation removes
+only that source of access. Do not mint a Note share link to simulate Project
+access; use the reader's own credentials and inspect current Note permissions.

@@ -1,5 +1,78 @@
 # Release notes
 
+## 0.54.0 — Curated AWS starter guide
+
+The bundled skill routes “connect AWS to DreamLake” to a first-time setup guide
+and a reviewed, checksum-verifiable starter download. It reuses the existing
+AWS Terraform template, separates infrastructure from enrollment and worker
+readiness, and provides a basic tools image with reusable Docker/Kubernetes
+SDK profiles and a reconnectable smoke command. See [Connect AWS](connect-aws.md).
+
+The source recipes repository remains private; only explicitly selected, reviewed
+files are distributed publicly. Local configuration, keys, tokens, Terraform state
+and logs are excluded. Organization-specific copies should keep secrets in Vault
+and reference them from private configuration.
+
+Recipe validation covers local Docker/Kubernetes execution with SDK 0.5.0 and
+Nymph 0.1.17. Live AWS provisioning, paid jobs and arbitrary multi-node shared
+storage are separate acceptance steps; a generated handoff does not claim readiness.
+
+## 0.52.2 — User-configured managed agent setup
+
+The bundled agent skill and provider reference explain the optional `agentSetup`
+launch layer: user-pinned Node/Codex/Claude versions and explicit Codex daemon
+startup. The matching backend release is required; this CLI update alone cannot
+add server support. The shared bootstrap no longer chooses workload harnesses
+for new launches. Existing machines and persisted retry receipts are unchanged.
+The CLI command surface and readable enrollment behavior remain unchanged.
+
+## 0.52.1 — Readable host registration output
+
+`dreamlake hosts enroll` prints a readable registration summary by default,
+including verified online or pending state and recovery identifiers. Errors use
+text too. Add `--json` for a structured receipt without request-ID progress
+output. JSON fields, readiness checks and exit codes are unchanged. `--quiet`
+suppresses progress while retaining the final result. These defaults also appear
+in command help and the bundled agent skill.
+
+## 0.52.0 — Direct macOS host enrollment
+
+`hosts enroll --local` supports macOS through a private per-user LaunchAgent,
+with the same authorization, identity and verified-online checks as Linux.
+Retries preserve the key and avoid restarting an unchanged healthy agent.
+macOS requires Python 3, OpenSSL Ed25519 support and an active graphical login;
+Homebrew paths are included for `uv`. No SSH server, sudo or system daemon is
+used. See [Host enrollment](host-enrollment.md#macos-prerequisites-and-service-lifecycle)
+for prerequisites, recovery, session availability and validation limits.
+
+## 0.49.0 — Personal AI AWS setup and explicit state snapshots
+
+`provider create --provider aws-jump-worker` distributes the editable Terraform
+modules, typed inputs and enrollment mapper through the existing create → plan →
+apply flow. The default controller is your existing enrolled Personal AI computer,
+which can be outside EC2; only an explicit choice adds a separate EC2 jump.
+An exact distinct EC2 worker remains required. Reentry preserves edits, and the
+existing `ec2` template remains compatible. See [Provider lifecycle](provider-lifecycle.md).
+
+`vault terraform backend|backup|restore` supports explicit personal-Vault backend
+references and encrypted-at-rest snapshots of selected private files. Restore
+writes a new isolated snapshot only, with revision, lineage, serial and hash
+checks. The locked/versioned remote backend remains authoritative; snapshots do
+not replace Terraform locking or automatically upload active state. POSIX file
+permissions and the 64 KiB serialized Vault envelope limit apply. See
+[Terraform state and Vault](vault-terraform-state.md).
+
+This release preserves authenticated enrollment and verifies existing enrollment
+before reuse. Automatic new-instance enrollment remains a separate interface
+dependency; an instance identity document alone never approves a new key.
+
+## 0.45.0 — Scenes across CLI, API and docs
+
+Use `dreamlake scene push|create|list|pull|compose|delete|restore`. The legacy
+`env` command remains an alias. Requests now use `/namespaces/:slug/scenes`,
+and receipt links use `/<namespace>/scenes/<name>`. Existing storage, layer
+formats and login environments remain compatible. See [Scenes](scenes.md).
+
 ## 0.44.2 — Remove the old saved-version command group
 
 The old `notes version create/list/read` paths are removed. Use
@@ -130,7 +203,7 @@ attribute); `Remove` is first-class. `env compose` requires
 `dreamlake ≥ 0.23.0` on the composing machine (`pip install
 "dreamlake[compose]"`). v2 stack files are refused with a migration map;
 composition semantics are unchanged. See the
-[Env Layers Reference](https://docs.dreamlake.ai/envs/layers).
+[Env Layers Reference](https://docs.dreamlake.ai/scenes/layers).
 
 ## 0.34.4
 
@@ -301,7 +374,7 @@ unpinned layers — the pushed provenance would not be re-openable.
 (named by its basename) and stops for pinning + recompose; `--allow-local`
 pushes anyway with the provenance marked non-resolvable.
 
-Deep reference: [Env layers](https://docs.dreamlake.ai/envs/layers).
+Deep reference: [Env layers](https://docs.dreamlake.ai/scenes/layers).
 
 ## 0.24.7 — Notes revision diffs
 
