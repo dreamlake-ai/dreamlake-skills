@@ -66,9 +66,12 @@ kind (`video` / `series` / `depth` / …). Zero episodes on `format: folder`
 → the missing `index.json` manifests are the first suspect. Layout and
 shape rules: https://viz.dreamlake.ai/dataset-viz/requirements.md
 
-## Project-derived access (under development)
+## Project-derived access (backend released)
 
-The companion server change retains whole-Source `ProjectSourceBinding` references.
+Companion Web deployment and CLI 0.62.0 / Python SDK 0.29.0 package publication
+remain pending verification.
+
+The released Project-sharing backend retains whole-Source `ProjectSourceBinding` references.
 Explicit Project READ supplies Source USE; WRITE/ADMIN supplies supported content
 EDIT, not Source ADMIN, Connection/Vault credentials or sharing management.
 A public Project alone never opens a private Source. Current and later bindings

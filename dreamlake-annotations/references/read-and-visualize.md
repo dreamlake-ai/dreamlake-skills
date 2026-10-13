@@ -41,9 +41,12 @@ npx http-server /abs/path -p 8791 --cors
 # open <app>/annotation-debug?space=http://localhost:8791/refs/main
 ```
 
-## Project-derived access (under development)
+## Project-derived access (backend released)
 
-The companion server change adds authenticated explicit Project grants to
+Companion Web deployment and CLI 0.62.0 / Python SDK 0.29.0 package publication
+remain pending verification.
+
+The released Project-sharing backend adds authenticated explicit Project grants to
 Annotation content access: READ permits content reads; WRITE/ADMIN permit
 supported uploads. Project visibility alone does not open private content.
 Independent resource access remains valid after detachment or grant revocation.

@@ -43,9 +43,12 @@ Source: [owning guide](https://docs.dreamlake.ai/artifacts) and [Profiles and wo
 
 Check `dreamlake artifact share --help` for installed support. CLI 0.32.4+ can inspect, create, and revoke existing links without uploading a version, and change visibility independently. See [the CLI artifact reference](../../dreamlake-cli/reference/artifacts.md) for exact commands and permission limits.
 
-## Project-derived access (under development)
+## Project-derived access (backend released)
 
-With the companion server change, explicit Project READ grants can read current
+Companion Web deployment and CLI 0.62.0 / Python SDK 0.29.0 package publication
+remain pending verification.
+
+With the released Project-sharing backend, explicit Project READ grants can read current
 and later attached Artifacts; WRITE/ADMIN permit supported content updates.
 A public Project alone does not open a private Artifact. Independent membership
 and sharing remain valid; detachment/revocation removes only inherited access.

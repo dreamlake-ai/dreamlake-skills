@@ -43,9 +43,12 @@ the shape matches what was described), and the URL as a clickable link. Tell
 them the page has a **Run** button and that node states light up live on the
 canvas while it executes.
 
-## Project-derived access (under development)
+## Project-derived access (backend released)
 
-The companion server change allows explicit Project READ to read attached
+Companion Web deployment and CLI 0.62.0 / Python SDK 0.29.0 package publication
+remain pending verification.
+
+The released Project-sharing backend allows explicit Project READ to read attached
 Workflow specs and WRITE/ADMIN to register supported spec updates. The public
 Workflow catalog follows its independent metadata policy; public Project
 visibility does not authorize private spec content. Project grants do not

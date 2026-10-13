@@ -32,9 +32,12 @@ dreamlake scene delete my-scene --permanent   # purge storage + catalog — IRRE
 
 Never pass `--permanent` unless the user explicitly asked to erase storage.
 
-## Project-derived access (under development)
+## Project-derived access (backend released)
 
-With the companion server change, explicit Project READ permits content reads
+Companion Web deployment and CLI 0.62.0 / Python SDK 0.29.0 package publication
+remain pending verification.
+
+With the released Project-sharing backend, explicit Project READ permits content reads
 for attached Scenes/Envs; WRITE/ADMIN permits supported content versions.
 A public Project alone does not open a private Scene, and independent resource
 access remains valid. These grants never authorize deletion, sharing management

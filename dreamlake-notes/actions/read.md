@@ -71,9 +71,9 @@ This is for agents, not browsers: do not render it or DOM-parse its body.
 Use `--view markdown` for ordinary reads; machine integrations decode canonical
 source metadata once and use its address index. Preserve the original revision.
 
-## Project-derived access (development)
+## Project-derived access
 
-With the companion unreleased server changes, explicit Project user/team grants
+With the released Project-sharing backend, explicit Project user/team grants
 cover all live attached Notes, including later additions. Public Project
 visibility alone never reveals private Notes. Independent Note links and
 namespace membership remain valid. Detachment or Project grant revocation removes

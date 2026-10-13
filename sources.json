@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "398bce714214308dc5b6dad64a3e0df2975b1164",
+      "commit": "f8e769730392502b01fe8f8bc6d746f735eaa1bf",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "71503883dfda54a4b42d346e282d12cf2ceeb9bfd15d8185a4cee3894e2a7305",
@@ -13,7 +13,7 @@
         "docs/skill-guides/notes/actions/identity.md": "a642257851acea7aa4282cb0ea10dc1fa23b1dc08477c966cfa8ba901605f99c",
         "docs/skill-guides/notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
         "docs/skill-guides/notes/actions/move.md": "25b283100db7c3764254b2a874ffbd457355a8bfc105714b44d0c3bc9e07b4a1",
-        "docs/skill-guides/notes/actions/read.md": "d913a4f0783da5f5740974e9de25b11d2bfcc037e79b709fd0dd225c9dd51ab9",
+        "docs/skill-guides/notes/actions/read.md": "524de93abcc1ac5924fd065eef0ffa69edc1a23244c40dbf42549c0562d759d4",
         "docs/skill-guides/notes/actions/summary.md": "0a333d93cc104e8551db247f81ebe0fb0d42ae13489be9c32bbdfff3bf6aaec2",
         "docs/skill-guides/notes/actions/versions.md": "b3085898b4b2598c0ec540e3e78aafc5d450b4f2f5b3c9850f92da41855c58ea",
         "docs/skill-guides/notes/actions/watch.md": "7561b57961bdc057ebbef89fdf12367e72d50d82a3ca3678e757a313a6de3f5f",
@@ -30,7 +30,7 @@
       },
       "docsPages": "docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers,envs,envs/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "b49fa764613459a4e2fd2d8d1dca3c26fe62b04edc420c4be5bc60b14420ced3",
+      "pageSha256": "8d15fabfe961708ee73a849b645f2bc3936db27761028203496fcb59bbcae70b",
       "childPages": {
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
@@ -40,7 +40,7 @@
       "scenePages": {
         "docs/pages/scene-generation/+Page.mdx": "d01546ff63b34bdd234a5295f1329da75dc4441a8e2c882358d8af9735a5c292",
         "docs/pages/libraries/+Page.mdx": "7d4db2a506821e06fb6ba5874589d83a89f62585d61634f15e43dd394faa7969",
-        "docs/pages/scenes/+Page.mdx": "311972d4553a6624f808b36fcaa1db0ce61d81ba6a48891409e2ac195d9176d9",
+        "docs/pages/scenes/+Page.mdx": "8366b0de7fc3667a032c9db1b2c58cd0271d3237eb4a4796696d3bb4b06d9807",
         "docs/pages/scenes/layers/+Page.mdx": "814a1e4c494dcd2c715a375fae77932059ef4d35945a88044c1938602c181c7e"
       }
     },

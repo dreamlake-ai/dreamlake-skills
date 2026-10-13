@@ -3520,7 +3520,7 @@ not a content write. Use `note tag`, `note hist`, and `note read --version`
 for ordinary saved-version work. Retained-revision promotion and checkpoint/journal
 reads currently require authenticated REST; the Python SDK has no saved-version helpers.
 
-## Project attachment access (under development)
+## Project attachment access
 
 Independent resource share links remain available. Explicit Project user/team
 READ grants add read access to all current and future attached resources; WRITE
@@ -3536,8 +3536,9 @@ created, copied or revoked by Project sharing. Attach requires the target
 Project's content-create permission and the resource's own sharing-management
 permission; readable content cannot be redistributed by a reader.
 
-This behavior requires the companion server implementation and is not yet a
-released capability. Ownership transfer remains separately execution-gated.
+The Project-sharing backend is released. The companion Web update and CLI
+0.62.0 / Python SDK 0.29.0 package publication are still pending verification.
+Ownership transfer remains separately execution-gated.
 
 Project content writers may obtain temporary upload credentials only when the
 backend can restrict them to that resource. Custom S3/MinIO static credentials
