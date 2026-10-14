@@ -2,7 +2,7 @@
 
 Ownership requests use a shared transfer inbox. A resource remains owned by its
 namespace; project filing and creator attribution do not move ownership.
-For a whole Project and its owned Notes, use
+For a whole Project, its ordinary files/images/videos and its owned Notes, use
 [`project move` (CLI 0.63.0)](projects.md#move-a-whole-project-and-its-notes-cli-0630).
 That workflow loads the complete server plan and uses one atomic ownership
 request. It requires an enabled whole-Project server adapter; check plan
@@ -99,10 +99,15 @@ Manifest inspection requires current namespace-owner authority. It returns
 bounded structure/filing inventories, resource version, grant/editor IDs and
 active operation blockers. No secrets, provider paths or storage bindings appear.
 For a whole-Project move, `project move` uses the dedicated complete transfer
-plan and current version. It includes all supported attached Notes, defaults
+plan and current version. With the compatible backend it includes direct ordinary
+files/images/videos and all supported attached Notes, defaults
 to private resources and old access revoked, and detaches external Note filings
 unless explicitly retained in the reviewed request. Unsupported attachments
-block the whole request instead of being silently excluded.
+block the whole request instead of being silently excluded. Inspect owner-only
+`error.details.blockers` for affected items and reasons in the Web transfer dialog
+or an authorized raw API response; CLI 0.63.0 prints only the error message for a
+rejected plan. Direct media support
+depends on the server release, and episode content remains unsupported.
 
 Source transfer is separate from the whole-Project Notes adapter and remains
 execution-gated. Source bindings retain their existing representation; they are

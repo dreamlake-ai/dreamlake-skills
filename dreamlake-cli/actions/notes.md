@@ -94,7 +94,11 @@ namespace updates or an older generic mount API. Consult the
 [Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0451)
 for server and adapter gates; missing readiness is unsupported.
 
-For a whole Project and its owned Notes, CLI 0.63.0 provides `project move`. It
+For a whole Project and its owned Notes, CLI 0.63.0 provides `project move`. With
+the compatible backend this also includes direct ordinary files, images and
+videos; episode content remains unsupported. Inspect itemized blockers for affected
+items and reasons using the Web transfer dialog or an authorized raw API response;
+CLI 0.63.0 prints only the rejected plan error message. It
 automatically loads the complete manifest, saves a read-only review, and uses
 one ownership journal request. Check `project move --help` and the
 [Projects reference](../reference/projects.md) before using it; CLI 0.62.0 and

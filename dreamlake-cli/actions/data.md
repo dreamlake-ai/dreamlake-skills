@@ -26,7 +26,7 @@ Detachment/revocation preserves independent resource and other Project access.
 Check the installed CLI version, help and the Projects reference before using
 attachment commands.
 
-## Whole Project + Notes transfer (CLI 0.63.0)
+## Whole Project, files and Notes transfer (CLI 0.63.0)
 
 Requires CLI 0.63.0 and an enabled whole-Project server adapter. Check installed
 `project move --help`, plan `executable` and preview blockers independently;
@@ -39,7 +39,14 @@ resources become private; external Note filings detach by default. This removes
 old Project references without deleting the Notes or the transferred Project's
 own filings. `--preserve-external-filings` explicitly requests retention of the
 reviewed external references. Saved review replay keeps its exact policy.
-Source ownership migration is unsupported.
+A compatible backend also includes ordinary Project files, images and videos
+without a CLI upgrade. Other byte-backed leaves require a supported storage
+binding; episode content remains unsupported. Physical keys remain unchanged;
+previously issued signed read/upload URLs retain their existing expiry. Inspect owner-only
+`error.details.blockers` in the Web transfer dialog or an authorized raw API response
+for specific affected items and reasons; CLI 0.63.0 prints only the rejected plan
+error message. Source ownership
+migration is unsupported.
 
 Source namespace owner authority is required; Project ADMIN is insufficient.
 A recipient owner accepts the pending operation. `--accept-if-owner` is an

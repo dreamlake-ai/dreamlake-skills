@@ -3559,8 +3559,10 @@ separate from Project inheritance.
 Requires **CLI 0.63.0+** or **Python SDK 0.30.0+** and an enabled Project
 adapter. Production acceptance passed on October 14, 2026. It moves a whole Project and all
 its live, source-owned Note attachments atomically, up to 20 Notes and 200 tree
-nodes. Source references, other resource types and Project file/episode content
-block the entire operation; NoteFile attachments are part of the Note move.
+nodes. A compatible backend also includes ordinary Project files, images and
+videos. Episode content, Source references and unsupported resource types block
+the entire operation; NoteFile attachments are part of the Note move. A blocked
+plan lists specific affected items and reasons in the owner's transfer dialog.
 Standalone `notes move` does not gain cross-namespace execution from this feature.
 
 Moved Project/Notes become private. Other-Project mounts and their Bindr tags are
@@ -3575,11 +3577,32 @@ retain content access. The audience remains subject to current Project policy.
 Public Project visibility alone still never opens private Notes. Ownership and
 sharing management are not inherited from content grants.
 
+Direct Project file Nodes retain their IDs, folder layout and physical storage
+keys. New requests check the current owner; already-issued read/upload URLs keep
+their existing expiry and can still access the underlying object until then.
+Transfer does not copy media bytes or provide immediate signed-URL revocation.
 Note IDs/S3 roots and immutable historical publications remain stable. RTC state
 is transferred losslessly to a fresh quarantined room, activated only after owner
-commit; the old room stays revoked. Old namespace Note/file addresses are verified
+commit; the old room stays revoked. Old namespace Note/NoteFile addresses are verified
 read aliases with current-owner authorization, never writable ownership aliases.
 A lost response requires the original reviewed request/key, not a rebuilt plan.
+
+In Web, **Keep direct shares** and **Keep Notes in other Projects** are separate
+switches, both off by default. The Project and its Notes still become private.
+The second switch preserves existing Note placements and their Project-derived
+access even when direct shares are off; it does not refer to Note attachment
+files. Web submits acceptance automatically only when reviewed server authority
+and destination readiness explicitly permit this actor to accept. CLI
+`--accept-if-owner` and SDK `accept_if_owner=True` remain explicit opt-ins; API
+acceptance remains a separate request.
+
+Namespace `/:namespace/transfers` manages Project requests and is linked from
+Settings and the authorized active-transfer Projects banner. It defaults to
+active requests; **Show recent history** shows at most the most recent 100,
+not complete history. Completed moves close the dialog and open the safely
+resolved destination Project, with a recent-Transfers fallback. Pending requests
+close it and open source outgoing Transfers with a destination-owner approval
+notice. Work still preparing is not called completed.
 
 See [the whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) for
 owner acceptance, complete scope, blocked dependencies, storage/RTC activation and

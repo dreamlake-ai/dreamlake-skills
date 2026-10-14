@@ -360,6 +360,7 @@ exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
 
 The [whole-Project and owned-Notes transfer](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
-supports Project plus owned Notes only. A mount/reference of this resource blocks
+supports Project, ordinary Project files/images/videos and owned Notes.
+A mount/reference of this resource blocks
 the entire transfer rather than silently excluding it. Its existing independent
 sharing and released Project-derived content access remain available.
