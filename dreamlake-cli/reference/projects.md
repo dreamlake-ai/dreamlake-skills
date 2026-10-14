@@ -24,8 +24,19 @@ shares them. `update project` also changes `--name`, `--description`, `--tags`.
 ## Move a whole Project and its Notes (CLI 0.63.0)
 
 `project move` loads the server's complete Project transfer plan. It includes
-every attached Note owned by the Project's source namespace in one atomic
-ownership request. It never loops over individual Notes or silently skips an
+every attached Note owned by the Project's source namespace and, with the
+compatible file-transfer backend, direct ordinary files, images and videos in
+one atomic ownership request. Project file Node IDs and folder layout remain
+stable; physical storage keys stay unchanged and media bytes are not copied.
+Other byte-backed leaves, such as JSON or audio, also qualify with a supported
+existing storage binding; episode content remains unsupported. Direct file/image/
+video Nodes keep all storage metadata, including `s3Key` and `bssId`, without
+object checks, BSS migration or a new media byte-size cap. Missing objects remain
+missing and do not block the ownership change.
+New requests use current-owner authorization. Already-issued read/upload URLs
+retain their existing expiry and can still access or modify the stored object
+until then; transfer does not immediately revoke those capabilities.
+It never loops over individual Notes or silently skips an
 unsupported attachment. Requires CLI 0.63.0 and a server with the whole-Project
 transfer adapter enabled; CLI 0.62.0 and earlier lack this command. Check installed
 `project move --help`, the plan's `executable` value and preview blockers
@@ -51,7 +62,13 @@ acceptance, requires current destination-owner authority, and may be combined
 with `--wait --wait-timeout 30`. A timeout returns the existing operation and
 status command; it does not start another transfer.
 
-The initial bounded plan permits at most **20 Notes and 200 tree nodes**.
+The bounded plan permits at most **20 Notes and 200 tree nodes**. Direct media
+support is a server capability; CLI 0.63.0 can use it without a CLI upgrade.
+Episode content remains unsupported. Blocked plans provide owner-only
+`error.details.blockers` with affected items and reasons; inspect the complete
+response before retrying. CLI 0.63.0 renders the error message rather than the
+422 response details; use the Web transfer dialog or an authorized raw API request
+to read that itemized list.
 Sources, Artifacts, Envs, Workflows, other unsupported resource types,
 foreign-owned Notes and active deletion work produce a structured blocked
 response, never a partial plan. Source relationships retain

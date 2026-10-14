@@ -85,8 +85,9 @@ See the [owning Source guide](https://docs.dreamlake.ai/sources/).
 
 ## Whole-Project transfer boundary
 
-The whole-Project move includes owned Notes only. A Project mount or
-reference of this resource blocks the entire transfer; do not silently detach
+With the compatible backend, the whole-Project move includes ordinary Project
+files/images/videos, supported byte-backed leaves and owned Notes. A Project
+mount or reference of this resource blocks the entire transfer; do not silently detach
 it, copy/delete it or report a partial move as complete. Existing resource sharing
 and Project-derived content access remain released. See the
 [owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).

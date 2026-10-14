@@ -38,12 +38,15 @@ for ownership-busy and lost-authority recovery.
 
 ## Whole Project and owned Notes
 
-For a request to move a **whole Project with all its owned Notes**, use the
+For a request to move a **whole Project with its files, images, videos and owned Notes**, use the
 [whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
 and the CLI Projects guide instead of repeating standalone Note moves.
 Requires CLI 0.63.0+ or SDK 0.30.0+ and an enabled, accepted backend/RTC deployment.
 Check installed help, the Project adapter capabilities and `plan.executable`;
 unsupported/disabled capability stops the task without copying/deleting content.
+Media-file support requires the companion backend expansion; installing a newer
+skill does not change the deployed server. Inspect itemized plan blockers for the
+affected item and reason. Episode content remains unsupported.
 
 CLI flow is `project move ... --dry-run --out reviewed.json`, review
 scope/access/external audiences, then `--confirm --request-file reviewed.json`.
