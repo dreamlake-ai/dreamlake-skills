@@ -81,3 +81,15 @@ A Project reader may lack namespace-list authority: use the supplied exact Sourc
 name and canonical address rather than treating a denied list as an empty catalog.
 Updated clients resolve its exact name without enumerating other Sources.
 See the [owning Source guide](https://docs.dreamlake.ai/sources/).
+
+
+## Whole-Project transfer boundary
+
+The whole-Project move includes owned Notes only. A Project mount or
+reference of this resource blocks the entire transfer; do not silently detach
+it, copy/delete it or report a partial move as complete. Existing resource sharing
+and Project-derived content access remain released. See the
+[owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
+Requires CLI 0.63.0+ or Python SDK 0.30.0+ and an enabled, accepted Project
+adapter. This resource remains outside the executable manifest; do not assume
+Project-sharing support also enables its ownership transfer.

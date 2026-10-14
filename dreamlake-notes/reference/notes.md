@@ -3,6 +3,10 @@
 Read [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/), [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/),
 [Panels](https://docs.dreamlake.ai/notes/panels/), and [Linked note items](https://docs.dreamlake.ai/notes/linked-items/) for focused guides.
 This page retains the complete CLI/API reference and existing section links.
+[Whole Project and owned Notes transfer](#whole-project-and-owned-notes-transfer)
+is production-accepted with CLI 0.63.0+ or SDK 0.30.0+; standalone Note transfer
+across namespaces remains unsupported. Dated release notes below describe their
+original verification scope.
 
 **Release status — October 9, 2026:** the serving API includes the verified
 saved-version catalog readers, attachment compatibility readers, transactional
@@ -11,7 +15,7 @@ uploads. The verified API release now also includes atomic attachment copy and
 named-version catalog publication by default. Durable attachment purge remains
 disabled. Strict runtime verification and read-only metadata/header checks do not
 establish production attachment-copy, saved-version-write or user acceptance.
-No transfer adapter is enabled, and runtime verification does not establish
+That October 9 verification did not enable a transfer adapter or establish
 continuous Note-read availability.
 
 **Attachment journal release — October 10, 2026:** the known-byte text/copy
@@ -22,7 +26,8 @@ Those two read-only checks performed no attachment write, body read, RTC call or
 provider-failure recovery. CLI 0.48.2 public npm/native distribution and isolated
 Linux installations are verified; the other seven OS targets were byte-verified,
 not runtime-tested. Raw upload journaling, durable
-purge and transfer adapters remain disabled; the FortyFive move is unfinished.
+purge and transfer adapters were disabled in that release. Current whole-Project
+transfer support is documented separately below.
 
   A note is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
@@ -159,7 +164,7 @@ preservation behavior and retains the last-project guard. Use the separate
 
 ### Moving between workspaces (development preview)
 
-**Cross-workspace ownership transfers are currently unavailable.** The
+**Standalone Note ownership transfer across namespaces remains unsupported.** The
 **Move note…** preview can inspect a destination, but an unavailable result
 must not be presented as a completed move. Writer, storage, destination-owner
 acceptance and collaboration-revocation gates must all be satisfied before the
@@ -1682,7 +1687,8 @@ late write has stopped. Started operations may remain unresolved; no automatic
 reupload, timeout cleanup or general cancellation is promised. Local transaction,
 route and storage-failure fixtures test these boundaries; they are not production
 provider-failure, writer-drain or user-acceptance evidence. These operations do
-not enable durable purge, ownership adapters or the unfinished FortyFive transfer.
+not enable durable purge or standalone Note transfer. Whole-Project transfer
+is a separate workflow documented below.
 
 ### Replace an attachment safely
 
@@ -3547,3 +3553,36 @@ and an unscoped STS fallback are never issued through Project-only authority;
 these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
 exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
+
+## Whole Project and owned Notes transfer
+
+Requires **CLI 0.63.0+** or **Python SDK 0.30.0+** and an enabled Project
+adapter. Production acceptance passed on October 14, 2026. It moves a whole Project and all
+its live, source-owned Note attachments atomically, up to 20 Notes and 200 tree
+nodes. Source references, other resource types and Project file/episode content
+block the entire operation; NoteFile attachments are part of the Note move.
+Standalone `notes move` does not gain cross-namespace execution from this feature.
+
+Moved Project/Notes become private. Other-Project mounts and their Bindr tags are
+removed by default, ending access inherited through those filings. This does not
+delete or copy Note content: the whole Project and all included Notes retain
+their IDs and data. Independent shares/grants follow the separate preserve-access
+choice, which also defaults off; current namespace permissions still apply.
+
+Preserving other Project filings is an explicit opt-in that the destination owner must
+approve because their live grants and organization-member READ baseline can
+retain content access. The audience remains subject to current Project policy.
+Public Project visibility alone still never opens private Notes. Ownership and
+sharing management are not inherited from content grants.
+
+Note IDs/S3 roots and immutable historical publications remain stable. RTC state
+is transferred losslessly to a fresh quarantined room, activated only after owner
+commit; the old room stays revoked. Old namespace Note/file addresses are verified
+read aliases with current-owner authorization, never writable ownership aliases.
+A lost response requires the original reviewed request/key, not a rebuilt plan.
+
+See [the whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) for
+owner acceptance, complete scope, blocked dependencies, storage/RTC activation and
+operator recovery and the exact production verification scope. The live fixture
+used one actor owning both namespaces; independent-recipient and NoteFile/provider
+isolation matrices were not exercised in production.

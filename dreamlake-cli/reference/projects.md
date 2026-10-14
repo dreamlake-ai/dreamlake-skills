@@ -21,6 +21,71 @@ shares them. `update project` also changes `--name`, `--description`, `--tags`.
 > node and its subtree (including the underlying storage objects). The CLI
 > prompts for confirmation unless you pass `--yes`.
 
+## Move a whole Project and its Notes (CLI 0.63.0)
+
+`project move` loads the server's complete Project transfer plan. It includes
+every attached Note owned by the Project's source namespace in one atomic
+ownership request. It never loops over individual Notes or silently skips an
+unsupported attachment. Requires CLI 0.63.0 and a server with the whole-Project
+transfer adapter enabled; CLI 0.62.0 and earlier lack this command. Check installed
+`project move --help`, the plan's `executable` value and preview blockers
+separately. A disabled or unready server refuses execution; installing the CLI
+does not enable backend writer, storage or RTC capabilities.
+
+```bash cli-help="project move"
+# Save a complete, read-only review with a stable request key.
+dreamlake project move research --namespace personal --to acme --dry-run --out project-move-review.json
+# Review all Notes, access inventory and the default external filing detachments.
+dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json
+# Optional: explicitly request retention and review a separate preview.
+dreamlake project move research --namespace personal --to acme --dry-run --preserve-external-filings --out retained-filings-review.json
+```
+
+Only the current source namespace owner can obtain the plan or request the
+transfer. Project ADMIN is insufficient. A recipient namespace owner must
+explicitly accept the operation using `ownership accept`; a cross-user move
+returns a pending operation ID and the destination acceptance command. The
+source owner keeps ownership until the accepted atomic cutover completes.
+For an actor who owns both namespaces, `--accept-if-owner` explicitly requests
+acceptance, requires current destination-owner authority, and may be combined
+with `--wait --wait-timeout 30`. A timeout returns the existing operation and
+status command; it does not start another transfer.
+
+The initial bounded plan permits at most **20 Notes and 200 tree nodes**.
+Sources, Artifacts, Envs, Workflows, other unsupported resource types,
+foreign-owned Notes and active deletion work produce a structured blocked
+response, never a partial plan. Source relationships retain
+`ProjectSourceBinding`; this command does not migrate them.
+
+Project and Notes become private. Old access is revoked by default;
+`--preserve-access` requests retention of only the exact eligible server
+inventory bound by the source owner's preview and destination acceptance.
+Existing external Note filings are detached by default, so old Projects no
+longer reference the moved Notes. This does not delete the Notes or their
+filings inside the transferred Project. `--preserve-external-filings` explicitly
+requests retention; review its exact cross-namespace effects in a new preview.
+The complete JSON preview includes server preservation and external filing
+evidence; inspect it before submission rather than inferring access from a
+count or Project membership. The recipient inbox/status returns accepted policy,
+summary counts and the preview hash; it does not expose the source owner's full
+manifest or access/filing inventory.
+
+Project and Note names remain unchanged. A collision fails explicitly; use
+`--name NEW_PROJECT_NAME` or repeat `--rename-note NOTE_ID=NEW_NAME` to obtain
+and review a new preview. There is no implicit suffix or overwrite. For
+scripted submission without a review file, supply `--confirm --preview-hash
+HASH --idempotency-key KEY`, using the exact reviewed hash and a stable key.
+
+`--out` refuses to overwrite an existing review file. Replaying a saved review
+keeps its exact policy, including any explicitly reviewed retention; defaults
+never rewrite it. After an ambiguous
+submission, reuse that exact review with `--request-file`; this reaches the
+idempotent journal even if the original Project has already moved. Do not
+rebuild the inventory, replace the key, or emulate a transfer with copy/delete.
+`STALE_PREVIEW` requires a new reviewed preview; inspect the existing operation
+before retrying any uncertain acceptance. Read-only preview performs no owner,
+grant, filing or storage mutation.
+
 ## Bindrs
 
 A **bindr** groups episodes (matched by a glob over their node path).

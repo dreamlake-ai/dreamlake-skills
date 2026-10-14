@@ -67,15 +67,17 @@ include matching sections. For exact locations across notes, use
 
 ## Move a note into a workspace
 
-**Development preview:** requires a CLI build exposing `notes move --help` and
-a matching server endpoint. CLI 0.44.3 and earlier do not include it.
-**Cross-workspace ownership transfers are currently unavailable.** The preview
-reports blockers; it does not promise an executable move or retained shares.
-Destination-owner acceptance and the ownership adapter's writer, storage, grant
-and collaboration safeguards must be implemented before transfers are enabled.
+This section describes standalone `notes move`, available starting with CLI
+0.45.1; CLI 0.45.0 and earlier lack it. Same-namespace Project filing is supported.
+**Standalone Note ownership transfer across namespaces is unsupported.** Its
+preview reports blockers and cannot be applied as a cross-namespace move.
+For a whole Project and all its owned Notes, use
+[`project move` (CLI 0.63.0)](projects.md#move-a-whole-project-and-its-notes-cli-0630)
+with an enabled whole-Project server adapter. That separate workflow does not
+enable standalone Note or Source ownership transfer.
 
 ```bash cli-help="notes move"
-# Inspect an organization destination; currently reports unavailable (exit 3).
+# Standalone cross-namespace Note transfer is unavailable (exit 3).
 dreamlake notes move NOTE_ID --to-namespace my-org --project shared-research --dry-run
 # Add a project association within the note's CURRENT workspace.
 dreamlake notes move NOTE_ID --to-namespace current-workspace --project research --dry-run
@@ -83,7 +85,7 @@ dreamlake notes move NOTE_ID --to-namespace current-workspace --project research
 dreamlake notes move NOTE_ID --to-namespace current-workspace --project research
 ```
 
-Run under the source workspace owner's login. Same-workspace filing requires
+Run under the source namespace owner's login. Same-namespace filing requires
 write access to every requested project, preserves other project associations,
 and leaves ownership, content, history, attachments, visibility and shares intact.
 Repeat `--project` to add several associations. Organization membership still

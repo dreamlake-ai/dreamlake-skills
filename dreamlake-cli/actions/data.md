@@ -25,3 +25,29 @@ resource links. Public Project visibility alone never opens private resources.
 Detachment/revocation preserves independent resource and other Project access.
 Check the installed CLI version, help and the Projects reference before using
 attachment commands.
+
+## Whole Project + Notes transfer (CLI 0.63.0)
+
+Requires CLI 0.63.0 and an enabled whole-Project server adapter. Check installed
+`project move --help`, plan `executable` and preview blockers independently;
+CLI 0.62.0 and earlier lack this command. Prefer one complete Project ownership request
+over per-Note transfers. Use `project move PROJECT --namespace SOURCE --to
+DESTINATION --dry-run --out review.json`, review every Note and the complete
+server access/external-filing inventory, then explicitly authorize submission
+with `--confirm --request-file review.json`. Default access is revoked and
+resources become private; external Note filings detach by default. This removes
+old Project references without deleting the Notes or the transferred Project's
+own filings. `--preserve-external-filings` explicitly requests retention of the
+reviewed external references. Saved review replay keeps its exact policy.
+Source ownership migration is unsupported.
+
+Source namespace owner authority is required; Project ADMIN is insufficient.
+A recipient owner accepts the pending operation. `--accept-if-owner` is an
+explicit option only for a caller who currently owns the destination, never an
+automatic cross-user acceptance. Unsupported attachments, oversized plans,
+collision and writer/storage/RTC blockers stop the whole request. After an
+uncertain create response, replay the same saved request/hash/key; do not copy
+and delete resources or issue replacement keys. Source-owner dry-run contains
+the full review inventory; recipient inbox/status exposes policy, counts and
+hash, not the full manifest or grant/filing rows. Standalone `notes move` across
+namespaces remains unsupported. See [Projects](../reference/projects.md).
