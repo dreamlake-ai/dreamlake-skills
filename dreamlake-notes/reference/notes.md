@@ -3556,8 +3556,13 @@ nodes. Source references, other resource types and Project file/episode content
 block the entire operation; NoteFile attachments are part of the Note move.
 Standalone `notes move` does not gain cross-namespace execution from this feature.
 
-Moved Project/Notes become private. Preserve-access is opt-in; preserving other
-Project filings is a separate, default-on policy that the destination owner must
+Moved Project/Notes become private. Other-Project mounts and their Bindr tags are
+removed by default, ending access inherited through those filings. This does not
+delete or copy Note content: the whole Project and all included Notes retain
+their IDs and data. Independent shares/grants follow the separate preserve-access
+choice, which also defaults off; current namespace permissions still apply.
+
+Preserving other Project filings is an explicit opt-in that the destination owner must
 approve because their live grants and organization-member READ baseline can
 retain content access. The audience remains subject to current Project policy.
 Public Project visibility alone still never opens private Notes. Ownership and

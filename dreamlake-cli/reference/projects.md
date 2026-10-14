@@ -34,8 +34,10 @@ revocation acceptance gates pass.
 ```bash cli-help="project move"
 # Save a complete, read-only review with a stable request key.
 dreamlake project move research --namespace personal --to acme --dry-run --out project-move-review.json
-# Review all Notes, access inventory and retained/detached external filings first.
+# Review all Notes, access inventory and the default external filing detachments.
 dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json
+# Optional: explicitly request retention and review a separate preview.
+dreamlake project move research --namespace personal --to acme --dry-run --preserve-external-filings --out retained-filings-review.json
 ```
 
 Only the current source namespace owner can obtain the plan or request the
@@ -57,8 +59,10 @@ response, never a partial plan. Source relationships retain
 Project and Notes become private. Old access is revoked by default;
 `--preserve-access` requests retention of only the exact eligible server
 inventory displayed in the preview and approved by the destination owner.
-Existing external Note filings are preserved by default. Use
-`--no-preserve-external-filings` only after reviewing the exact detachments.
+Existing external Note filings are detached by default, so old Projects no
+longer reference the moved Notes. This does not delete the Notes or their
+filings inside the transferred Project. `--preserve-external-filings` explicitly
+requests retention; review its exact cross-namespace effects in a new preview.
 The complete JSON preview includes server preservation and external filing
 evidence; inspect it before submission rather than inferring access from a
 count or Project membership.
@@ -69,7 +73,9 @@ and review a new preview. There is no implicit suffix or overwrite. For
 scripted submission without a review file, supply `--confirm --preview-hash
 HASH --idempotency-key KEY`, using the exact reviewed hash and a stable key.
 
-`--out` refuses to overwrite an existing review file. After an ambiguous
+`--out` refuses to overwrite an existing review file. Replaying a saved review
+keeps its exact policy, including any explicitly reviewed retention; defaults
+never rewrite it. After an ambiguous
 submission, reuse that exact review with `--request-file`; this reaches the
 idempotent journal even if the original Project has already moved. Do not
 rebuild the inventory, replace the key, or emulate a transfer with copy/delete.

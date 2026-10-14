@@ -34,8 +34,11 @@ over per-Note transfers. Use `project move PROJECT --namespace SOURCE --to
 DESTINATION --dry-run --out review.json`, review every Note and the complete
 server access/external-filing inventory, then explicitly authorize submission
 with `--confirm --request-file review.json`. Default access is revoked and
-resources become private; external Note filings remain unless explicitly opted
-out in the reviewed request. Source ownership migration is unsupported.
+resources become private; external Note filings detach by default. This removes
+old Project references without deleting the Notes or the transferred Project's
+own filings. `--preserve-external-filings` explicitly requests retention of the
+reviewed external references. Saved review replay keeps its exact policy.
+Source ownership migration is unsupported.
 
 Source namespace owner authority is required; Project ADMIN is insufficient.
 A recipient owner accepts the pending operation. `--accept-if-owner` is an

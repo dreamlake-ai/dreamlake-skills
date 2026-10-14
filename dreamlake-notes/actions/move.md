@@ -49,7 +49,10 @@ Candidate CLI flow is `project move ... --dry-run --out reviewed.json`, review
 scope/access/external audiences, then `--confirm --request-file reviewed.json`.
 The manifest must include the Project and every owned live Note; foreign Notes,
 Source bindings and other unsupported resources block everything. Preserve access
-is off by default; retained external Project filings are a separate approval.
+is off by default. External Project filings are removed by default, ending
+inherited access through those mounts without deleting the moved Notes/data.
+Retaining them requires explicit `--preserve-external-filings` and destination
+approval of their live audience; independent access follows preserve-access.
 Source owner requests and destination owner explicitly accepts. Keep the exact
 request/key on a lost response; use status for a known operation, never rebuild
 or clear a claim/lease. See the [Notes contract](../reference/notes.md#whole-project-and-owned-notes-transfer-release-candidate).
