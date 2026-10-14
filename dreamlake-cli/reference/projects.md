@@ -21,15 +21,16 @@ shares them. `update project` also changes `--name`, `--description`, `--tags`.
 > node and its subtree (including the underlying storage objects). The CLI
 > prompts for confirmation unless you pass `--yes`.
 
-## Move a whole Project and its Notes (under development)
+## Move a whole Project and its Notes (CLI 0.63.0)
 
 `project move` loads the server's complete Project transfer plan. It includes
 every attached Note owned by the Project's source namespace in one atomic
 ownership request. It never loops over individual Notes or silently skips an
-unsupported attachment. This command is absent from released CLI 0.62.0;
-check installed `project move --help` and server capabilities separately.
-Execution remains blocked until the backend's writer, storage and live RTC
-revocation acceptance gates pass.
+unsupported attachment. Requires CLI 0.63.0 and a server with the whole-Project
+transfer adapter enabled; CLI 0.62.0 and earlier lack this command. Check installed
+`project move --help`, the plan's `executable` value and preview blockers
+separately. A disabled or unready server refuses execution; installing the CLI
+does not enable backend writer, storage or RTC capabilities.
 
 ```bash cli-help="project move"
 # Save a complete, read-only review with a stable request key.
@@ -58,14 +59,16 @@ response, never a partial plan. Source relationships retain
 
 Project and Notes become private. Old access is revoked by default;
 `--preserve-access` requests retention of only the exact eligible server
-inventory displayed in the preview and approved by the destination owner.
+inventory bound by the source owner's preview and destination acceptance.
 Existing external Note filings are detached by default, so old Projects no
 longer reference the moved Notes. This does not delete the Notes or their
 filings inside the transferred Project. `--preserve-external-filings` explicitly
 requests retention; review its exact cross-namespace effects in a new preview.
 The complete JSON preview includes server preservation and external filing
 evidence; inspect it before submission rather than inferring access from a
-count or Project membership.
+count or Project membership. The recipient inbox/status returns accepted policy,
+summary counts and the preview hash; it does not expose the source owner's full
+manifest or access/filing inventory.
 
 Project and Note names remain unchanged. A collision fails explicitly; use
 `--name NEW_PROJECT_NAME` or repeat `--rename-note NOTE_ID=NEW_NAME` to obtain

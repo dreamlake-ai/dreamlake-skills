@@ -79,7 +79,7 @@ See [saved versions](../reference/notes-versions.md#recover-a-retained-snapshot)
 For project filing and ownership-transfer previews, check `dreamlake notes move
 --help` first: this command requires CLI 0.45.1; it is absent in CLI 0.45.0 and
 earlier. Preview with `notes move NOTE_ID --to-namespace WORKSPACE --project
-PROJECT --dry-run`. Cross-workspace transfers are currently unavailable; blocked
+PROJECT --dry-run`. Standalone `notes move` across namespaces is unavailable; blocked
 previews exit 3 and must not be repeated as execution requests. Filing inside
 the note's current workspace can execute under its owner's login when
 `executable` is true and the user authorized it. Organization notes remain
@@ -91,15 +91,20 @@ Project filing is separate from ownership. The CLI 0.45.1 additions
 cover new-note filing and current filing inspection. Check installed help first:
 0.44.3 and earlier lack them. Never emulate an existing-note move through copy/delete,
 namespace updates or an older generic mount API. Consult the
-[Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0444)
+[Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0451)
 for server and adapter gates; missing readiness is unsupported.
 
-For a whole Project and its owned Notes, the unreleased `project move` workflow
+For a whole Project and its owned Notes, CLI 0.63.0 provides `project move`. It
 automatically loads the complete manifest, saves a read-only review, and uses
 one ownership journal request. Check `project move --help` and the
-[Projects reference](../reference/projects.md) before using it. Released CLI
-0.62.0 lacks this command. Never substitute per-Note copy/delete or claim that
-an available client preview proves deployed writer/storage/RTC execution gates.
+[Projects reference](../reference/projects.md) before using it; CLI 0.62.0 and
+earlier lack this command. The server adapter must be enabled: check plan
+`executable` and preview blockers. This whole-Project workflow is separate from
+standalone `notes move`. It defaults to private resources, old access revoked,
+and external Note filings detached; retention needs explicit review and opt-in.
+Use one reviewed request and explicit recipient acceptance. Replay the exact
+saved request/hash/key after an uncertain create; never substitute per-Note
+copy/delete or treat an installed client as proof of server readiness.
 
 CLI 0.48.2 adds attachment journal recovery; CLI 0.48.1 does not include it.
 It requires a separately verified journal-enabled API. Check

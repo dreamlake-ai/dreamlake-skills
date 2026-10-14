@@ -26,10 +26,11 @@ Detachment/revocation preserves independent resource and other Project access.
 Check the installed CLI version, help and the Projects reference before using
 attachment commands.
 
-## Whole Project + Notes transfer (under development)
+## Whole Project + Notes transfer (CLI 0.63.0)
 
-Check installed `project move --help` and server readiness independently; CLI
-0.62.0 does not ship this command. Prefer one complete Project ownership request
+Requires CLI 0.63.0 and an enabled whole-Project server adapter. Check installed
+`project move --help`, plan `executable` and preview blockers independently;
+CLI 0.62.0 and earlier lack this command. Prefer one complete Project ownership request
 over per-Note transfers. Use `project move PROJECT --namespace SOURCE --to
 DESTINATION --dry-run --out review.json`, review every Note and the complete
 server access/external-filing inventory, then explicitly authorize submission
@@ -46,4 +47,7 @@ explicit option only for a caller who currently owns the destination, never an
 automatic cross-user acceptance. Unsupported attachments, oversized plans,
 collision and writer/storage/RTC blockers stop the whole request. After an
 uncertain create response, replay the same saved request/hash/key; do not copy
-and delete resources or issue replacement keys. See [Projects](../reference/projects.md).
+and delete resources or issue replacement keys. Source-owner dry-run contains
+the full review inventory; recipient inbox/status exposes policy, counts and
+hash, not the full manifest or grant/filing rows. Standalone `notes move` across
+namespaces remains unsupported. See [Projects](../reference/projects.md).

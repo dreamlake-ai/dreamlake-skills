@@ -1,8 +1,8 @@
-# Preview ownership or add same-workspace filing
+# Refile a Note or move a whole Project
 
 Check `dreamlake notes move --help`; CLI 0.44.3 and earlier do not expose it,
-and the server must support the endpoint. Cross-workspace ownership transfers
-are currently unavailable. Never emulate one by copying/deleting a Note,
+and the server must support the endpoint. Standalone Note ownership transfers across namespaces
+remain unsupported. Whole-Project moves use the separate workflow below. Never emulate one by copying/deleting a Note,
 changing namespace IDs or bypassing the ownership lease.
 
 Use the source workspace owner's login and first preview the requested scope:
@@ -36,16 +36,16 @@ for readiness limits and [concurrent writes](../reference/notes.md#metadata-perm
 for ownership-busy and lost-authority recovery.
 
 
-## Whole Project and owned Notes (unreleased candidate)
+## Whole Project and owned Notes
 
 For a request to move a **whole Project with all its owned Notes**, use the
-[whole-Project candidate contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
-and the candidate CLI Projects guide instead of repeating standalone Note moves.
-Released CLI 0.62.0 and SDK 0.29.0 do not provide this new operation. Confirm a
-reviewed candidate client and independently accepted backend/RTC deployment;
+[whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
+and the CLI Projects guide instead of repeating standalone Note moves.
+Requires CLI 0.63.0+ or SDK 0.30.0+ and an enabled, accepted backend/RTC deployment.
+Check installed help, the Project adapter capabilities and `plan.executable`;
 unsupported/disabled capability stops the task without copying/deleting content.
 
-Candidate CLI flow is `project move ... --dry-run --out reviewed.json`, review
+CLI flow is `project move ... --dry-run --out reviewed.json`, review
 scope/access/external audiences, then `--confirm --request-file reviewed.json`.
 The manifest must include the Project and every owned live Note; foreign Notes,
 Source bindings and other unsupported resources block everything. Preserve access
@@ -55,4 +55,4 @@ Retaining them requires explicit `--preserve-external-filings` and destination
 approval of their live audience; independent access follows preserve-access.
 Source owner requests and destination owner explicitly accepts. Keep the exact
 request/key on a lost response; use status for a known operation, never rebuild
-or clear a claim/lease. See the [Notes contract](../reference/notes.md#whole-project-and-owned-notes-transfer-release-candidate).
+or clear a claim/lease. See the [Notes contract](../reference/notes.md#whole-project-and-owned-notes-transfer).

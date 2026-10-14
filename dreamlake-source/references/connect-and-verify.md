@@ -83,12 +83,13 @@ Updated clients resolve its exact name without enumerating other Sources.
 See the [owning Source guide](https://docs.dreamlake.ai/sources/).
 
 
-## Whole-Project transfer boundary (unreleased candidate)
+## Whole-Project transfer boundary
 
-The candidate whole-Project move includes owned Notes only. A Project mount or
+The whole-Project move includes owned Notes only. A Project mount or
 reference of this resource blocks the entire transfer; do not silently detach
 it, copy/delete it or report a partial move as complete. Existing resource sharing
 and Project-derived content access remain released. See the
-[owning candidate contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
-The new transfer requires separate compatible backend/RTC acceptance and is not
-available in released CLI 0.62.0 or SDK 0.29.0.
+[owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
+Requires CLI 0.63.0+ or Python SDK 0.30.0+ and an enabled, accepted Project
+adapter. This resource remains outside the executable manifest; do not assume
+Project-sharing support also enables its ownership transfer.
