@@ -57,12 +57,13 @@ not a role guessed from membership. See [Project choice and grouping](https://do
 
 ## Whole-Project transfer boundary
 
-With the compatible backend, the whole-Project move includes ordinary Project
-files/images/videos, supported byte-backed leaves and owned Notes. A Project
-mount or reference of this resource blocks the entire transfer; do not silently detach
-it, copy/delete it or report a partial move as complete. Existing resource sharing
-and Project-derived content access remain released. See the
-[owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
-Requires CLI 0.63.0+ or Python SDK 0.30.0+ and an enabled, accepted Project
-adapter. This resource remains outside the executable manifest; do not assume
-Project-sharing support also enables its ownership transfer.
+Scenes use the `env` type in Project transfer plans. To move an attached,
+source-owned Scene/Env with its whole Project, follow
+[Projects](https://cli.dreamlake.ai/projects/#move-a-whole-project-and-its-supported-resources)
+using CLI 0.64.0+ and the matching backend. This adds no standalone Scene/Env
+move. Review private visibility, old-link revocation and mandatory removal of
+outside placements in the
+[owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/);
+Note-only filing retention does not preserve Scene/Env placements. Keep the
+normal server-target upload-before-register flow in the
+[owning Scenes guide](https://cli.dreamlake.ai/scenes/#whole-project-ownership-transfer).

@@ -159,3 +159,23 @@ Existing `envType`, `EnvEntry`, `env_*` identifiers, `ENVS_*` configuration,
 `dreamlake.env-layers/v3` and `dreamlake.envlayer` remain compatible technical
 contracts. Login environments (`dreamlake auth env`), environment variables and
 RL environment interfaces retain their technical names.
+
+## Whole-Project ownership transfer
+
+Scenes use the `env` resource type in Project manifests. With CLI 0.64.0+ and
+the matching backend, every source-owned Env attached to a Project moves with
+that whole Project; see [`project move`](projects.md#move-a-whole-project-and-its-supported-resources).
+This adds no standalone Scene/Env move. IDs, canonical names, versions and
+physical storage stay stable; the resource becomes private. Its old
+namespace-based links cannot be preserved, and incompatible access retention
+blocks preview. Share again from the destination after completion. Outside
+Project placements and Bindr memberships always detach; the Note-only retention
+flag does not preserve them. Resolve destination name collisions first.
+
+Keep the normal credentials → upload → catalog-registration sequence. Use the
+returned `backendUrl` and refs, never storage paths guessed from the new
+namespace/name. If an upload crossing the server upgrade gets
+`409 UPLOAD_RESERVATION_REQUIRED` on its first registration, obtain fresh
+credentials, reupload to the returned target, then register. Retrying the old
+registration alone does not repair the reservation. Existing issued credentials
+and signed URLs keep their original finite TTL.

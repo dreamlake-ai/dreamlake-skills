@@ -67,12 +67,12 @@ not a role guessed from membership. See [Project choice and grouping](https://do
 
 ## Whole-Project transfer boundary
 
-With the compatible backend, the whole-Project move includes ordinary Project
-files/images/videos, supported byte-backed leaves and owned Notes. A Project
-mount or reference of this resource blocks the entire transfer; do not silently detach
-it, copy/delete it or report a partial move as complete. Existing resource sharing
-and Project-derived content access remain released. See the
-[owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
-Requires CLI 0.63.0+ or Python SDK 0.30.0+ and an enabled, accepted Project
-adapter. This resource remains outside the executable manifest; do not assume
-Project-sharing support also enables its ownership transfer.
+An Annotation mount/reference still blocks the entire Project ownership move.
+The expanded workflow supports owned Notes, Artifacts and Envs plus ordinary
+Project media; it does not add Annotation or standalone resource transfer.
+Route complete-Project requests to the
+[Projects guide](https://cli.dreamlake.ai/projects/#move-a-whole-project-and-its-supported-resources)
+and inspect the [owning contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
+Do not silently detach this resource, omit it from a manifest or copy/delete it
+to report a partial move as complete. Project-derived content access remains
+separate from ownership authority.

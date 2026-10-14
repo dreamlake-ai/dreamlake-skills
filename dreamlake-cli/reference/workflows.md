@@ -77,3 +77,13 @@ status, the phase and agent skeleton, and the run totals always survive.
 > **Note:** Like `artifact push`, `workflow push` brokers scoped credentials and writes
 > the spec to object storage itself. The spec never passes through the API
 > server.
+
+## Project ownership-transfer boundary
+
+Project sharing and attachment support do not make a Workflow transferable.
+Workflow references still block the entire [`project move`](projects.md#move-a-whole-project-and-its-supported-resources)
+request. That workflow includes owned Notes, Artifacts and Envs with the matching
+client/backend; Source, Workflow, Annotation and structural content remain
+unsupported. Do not omit a Workflow from a mixed manifest, silently detach it,
+or copy/delete it to report a partial transfer as complete. No standalone
+Workflow transfer is added.

@@ -1,6 +1,6 @@
 ---
 name: dreamlake-artifacts
-description: Publish a renderable file with the DreamLake CLI, add versions, list artifacts, manage sharing, or restore and remove one. Use when a user asks to publish or manage a DreamLake artifact; author the file with dreamlake-artifact-authoring.
+description: Publish a renderable file with the DreamLake CLI, add versions, list artifacts, manage sharing, or restore and remove one. Use when a user asks to publish or manage a DreamLake artifact, or move it with its whole Project; author the file with dreamlake-artifact-authoring.
 ---
 # DreamLake Artifacts
 

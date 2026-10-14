@@ -5,7 +5,8 @@
       "maintenance": "manual-product",
       "edit": "dreamlake-annotations/",
       "review_docs": [
-        "https://docs.dreamlake.ai/annotations"
+        "https://docs.dreamlake.ai/annotations",
+        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
       ],
       "overlaps": [
         "video-labeling-workflow"
@@ -26,7 +27,8 @@
       "edit": "dreamlake-artifacts/",
       "review_docs": [
         "https://docs.dreamlake.ai/artifacts",
-        "https://cli.dreamlake.ai/artifacts"
+        "https://cli.dreamlake.ai/artifacts",
+        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
       ],
       "overlaps": [
         "dreamlake-cli",
@@ -64,7 +66,8 @@
       "maintenance": "manual-product",
       "edit": "dreamlake-scenes/",
       "review_docs": [
-        "https://docs.dreamlake.ai/scenes/"
+        "https://docs.dreamlake.ai/scenes/",
+        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
       ],
       "overlaps": [
         "dreamlake-cli",
@@ -112,7 +115,8 @@
       "maintenance": "manual-product",
       "edit": "dreamlake-source/",
       "review_docs": [
-        "https://docs.dreamlake.ai/sources/"
+        "https://docs.dreamlake.ai/sources/",
+        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
       ],
       "overlaps": [
         "dreamlake-cli",
@@ -177,7 +181,8 @@
       "maintenance": "manual-product",
       "edit": "workflow-publish/",
       "review_docs": [
-        "https://docs.dreamlake.ai/workflows/"
+        "https://docs.dreamlake.ai/workflows/",
+        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
       ],
       "overlaps": [
         "dreamlake-cli",

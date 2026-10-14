@@ -21,11 +21,16 @@ shares them. `update project` also changes `--name`, `--description`, `--tags`.
 > node and its subtree (including the underlying storage objects). The CLI
 > prompts for confirmation unless you pass `--yes`.
 
-## Move a whole Project and its Notes (CLI 0.63.0)
+## Move a whole Project and its supported resources
 
-`project move` loads the server's complete Project transfer plan. It includes
-every attached Note owned by the Project's source namespace and, with the
-compatible file-transfer backend, direct ordinary files, images and videos in
+> **Note:** Artifact/Env transfer-plan support requires CLI **0.64.0+** and a compatible
+> backend. CLI 0.63.0 accepts Note-only resource manifests and direct Project
+> files; it rejects a typed Artifact/Env plan. Verify
+> the installed release before relying on the expanded support.
+
+`project move` loads the server's complete Project transfer plan. With the
+updated client and enabled backend it includes every attached, source-owned
+Note, Artifact and Env, plus direct ordinary files, images and videos in
 one atomic ownership request. Project file Node IDs and folder layout remain
 stable; physical storage keys stay unchanged and media bytes are not copied.
 Other byte-backed leaves, such as JSON or audio, also qualify with a supported
@@ -37,8 +42,9 @@ New requests use current-owner authorization. Already-issued read/upload URLs
 retain their existing expiry and can still access or modify the stored object
 until then; transfer does not immediately revoke those capabilities.
 It never loops over individual Notes or silently skips an
-unsupported attachment. Requires CLI 0.63.0 and a server with the whole-Project
-transfer adapter enabled; CLI 0.62.0 and earlier lack this command. Check installed
+unsupported attachment. The command was introduced in CLI 0.63.0; expanded
+Artifact/Env plans require the updated client described above. The server
+whole-Project transfer adapter must also be enabled. Check installed
 `project move --help`, the plan's `executable` value and preview blockers
 separately. A disabled or unready server refuses execution; installing the CLI
 does not enable backend writer, storage or RTC capabilities.
@@ -46,7 +52,7 @@ does not enable backend writer, storage or RTC capabilities.
 ```bash cli-help="project move"
 # Save a complete, read-only review with a stable request key.
 dreamlake project move research --namespace personal --to acme --dry-run --out project-move-review.json
-# Review all Notes, access inventory and the default external filing detachments.
+# Review all typed resources, access inventory and external attachment detachments.
 dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json
 # Optional: explicitly request retention and review a separate preview.
 dreamlake project move research --namespace personal --to acme --dry-run --preserve-external-filings --out retained-filings-review.json
@@ -62,36 +68,68 @@ acceptance, requires current destination-owner authority, and may be combined
 with `--wait --wait-timeout 30`. A timeout returns the existing operation and
 status command; it does not start another transfer.
 
-The bounded plan permits at most **20 Notes and 200 tree nodes**. Direct media
-support is a server capability; CLI 0.63.0 can use it without a CLI upgrade.
+Read the server-advertised plan limits. The larger-capacity backend permits
+**512 total manifest resources including the Project**, so at most 511 Notes
+when no Artifacts or Envs consume slots, and **4,096 tree nodes**. Ordinary
+Project files count toward the tree-node limit, not as additional manifest
+resources. The aggregate **5,000-row inventory**, **8 MiB execution ledger** and
+**12 MiB total operation** budgets still apply; row, metadata or body size can
+block a plan before the count limits. Note/NoteFile storage verification remains
+limited to **2,000 objects and 512 MiB**, separately from ordinary Project files.
+An oversized plan fails as a whole; these are ceilings, not a promise that every
+511-Note Project fits. The client never truncates or splits the plan.
+Older servers continue to advertise 20 Notes / 200 tree nodes. The capacity
+increase and direct-media support are server capabilities; CLI 0.63.0 can use
+these with Note-only manifests without a CLI upgrade. Typed Artifact/Env plans
+require the updated client described above.
 Episode content remains unsupported. Blocked plans provide owner-only
 `error.details.blockers` with affected items and reasons; inspect the complete
 response before retrying. CLI 0.63.0 renders the error message rather than the
 422 response details; use the Web transfer dialog or an authorized raw API request
 to read that itemized list.
-Sources, Artifacts, Envs, Workflows, other unsupported resource types,
-foreign-owned Notes and active deletion work produce a structured blocked
+Sources, Annotations, Workflows, Tasks, Datasets, Episodes, other unsupported
+resource types, foreign-owned resources and active deletion work produce a structured blocked
 response, never a partial plan. Source relationships retain
 `ProjectSourceBinding`; this command does not migrate them.
 
-Project and Notes become private. Old access is revoked by default;
+The Project and included Notes, Artifacts and Envs become private. Old access is revoked by default;
 `--preserve-access` requests retention of only the exact eligible server
 inventory bound by the source owner's preview and destination acceptance.
+This retains eligible Project people/team grants and Note direct grants/share
+links, not public visibility. Artifact/Env links encode the old namespace and
+cannot be retained: if preservation would retain their link-derived access,
+the preview blocks it. Turn retention off and share again from the destination.
 Existing external Note filings are detached by default, so old Projects no
 longer reference the moved Notes. This does not delete the Notes or their
 filings inside the transferred Project. `--preserve-external-filings` explicitly
-requests retention; review its exact cross-namespace effects in a new preview.
+requests retention of **Note filings only**; review its exact cross-namespace
+effects in a new preview. Artifact/Env attachments in other Projects always
+detach. `summary.detachedOtherFilings` counts those removals, while
+`summary.detachedFilings` includes all removals. This does not delete any resource.
 The complete JSON preview includes server preservation and external filing
 evidence; inspect it before submission rather than inferring access from a
 count or Project membership. The recipient inbox/status returns accepted policy,
 summary counts and the preview hash; it does not expose the source owner's full
-manifest or access/filing inventory.
+manifest or access/filing inventory. Retaining an external Note filing can keep
+that other Project's existing audience access even when `--preserve-access` is
+off; these are independent choices.
 
-Project and Note names remain unchanged. A collision fails explicitly; use
+Project, Note, Artifact and Env canonical names remain unchanged by default.
+Artifact/Env canonical names cannot be overridden during transfer; an existing
+destination name blocks the whole transfer. For Project/Note collisions, use
 `--name NEW_PROJECT_NAME` or repeat `--rename-note NOTE_ID=NEW_NAME` to obtain
 and review a new preview. There is no implicit suffix or overwrite. For
 scripted submission without a review file, supply `--confirm --preview-hash
 HASH --idempotency-key KEY`, using the exact reviewed hash and a stable key.
+
+Artifact/Env IDs, versions and original storage bucket/prefix remain stable;
+transfer copies no content. Use the destination resource address after cutover,
+then use the server-returned storage target rather than deriving a key from its
+new namespace. Existing signed URLs and credentials retain their original TTL.
+
+`--json` includes `resourceCounts` for Project, Note, Artifact and Env. The
+complete plan lists every non-root resource in typed `resourceNames`; `noteNames`
+remains the exact Note subset. Older Note-only plans remain compatible.
 
 `--out` refuses to overwrite an existing review file. Replaying a saved review
 keeps its exact policy, including any explicitly reviewed retention; defaults

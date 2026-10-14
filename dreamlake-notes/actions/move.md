@@ -36,12 +36,14 @@ for readiness limits and [concurrent writes](../reference/notes.md#metadata-perm
 for ownership-busy and lost-authority recovery.
 
 
-## Whole Project and owned Notes
+## Whole Project and owned resources
 
-For a request to move a **whole Project with its files, images, videos and owned Notes**, use the
+For a request to move a **whole Project with ordinary files and owned Notes,
+Artifacts and Envs**, use the
 [whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
 and the CLI Projects guide instead of repeating standalone Note moves.
-Requires CLI 0.63.0+ or SDK 0.30.0+ and an enabled, accepted backend/RTC deployment.
+Mixed Artifact/Env plans require CLI 0.64.0+ or SDK 0.31.0+ and the matching
+accepted backend/RTC deployment; CLI 0.63.0 / SDK 0.30.0 accept Note-only plans.
 Check installed help, the Project adapter capabilities and `plan.executable`;
 unsupported/disabled capability stops the task without copying/deleting content.
 Media-file support requires the companion backend expansion; installing a newer
@@ -50,12 +52,16 @@ affected item and reason. Episode content remains unsupported.
 
 CLI flow is `project move ... --dry-run --out reviewed.json`, review
 scope/access/external audiences, then `--confirm --request-file reviewed.json`.
-The manifest must include the Project and every owned live Note; foreign Notes,
-Source bindings and other unsupported resources block everything. Preserve access
-is off by default. External Project filings are removed by default, ending
+The manifest must include the Project and every owned live Note, Artifact and
+Env; do not reduce it to Notes. Foreign resources, Source bindings, Workflow,
+Annotation and structural content block everything. No standalone resource
+transfer is added. Preserve access
+is off by default. External Note Project filings are removed by default, ending
 inherited access through those mounts without deleting the moved Notes/data.
-Retaining them requires explicit `--preserve-external-filings` and destination
-approval of their live audience; independent access follows preserve-access.
+Retaining Note filings requires explicit `--preserve-external-filings` and
+destination approval of their live audience, independently of direct-access
+retention. Artifact/Env outside placements always detach, and their old
+namespace-based links cannot be preserved; review the complete preview.
 Source owner requests and destination owner explicitly accepts. Keep the exact
 request/key on a lost response; use status for a known operation, never rebuild
-or clear a claim/lease. See the [Notes contract](../reference/notes.md#whole-project-and-owned-notes-transfer).
+or clear a claim/lease. See the [Notes contract](../reference/notes.md#whole-project-and-owned-resources-transfer).
