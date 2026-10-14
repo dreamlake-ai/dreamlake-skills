@@ -72,9 +72,13 @@ This section describes standalone `notes move`, available starting with CLI
 **Standalone Note ownership transfer across namespaces is unsupported.** Its
 preview reports blockers and cannot be applied as a cross-namespace move.
 For a whole Project and all its owned Notes, use
-[`project move` (CLI 0.63.0)](projects.md#move-a-whole-project-and-its-notes-cli-0630)
-with an enabled whole-Project server adapter. That separate workflow does not
-enable standalone Note or Source ownership transfer.
+[`project move`](projects.md#move-a-whole-project-and-its-supported-resources)
+with an enabled whole-Project server adapter. CLI 0.64.0+ and its matching
+backend also include owned Artifact/Env attachments; published 0.63.0 rejects
+those mixed plans. Review the full typed manifest, not only Notes. External
+filing retention applies only to Notes; Artifact/Env placements outside the
+moved Project always detach. This adds no standalone Note or other resource
+ownership transfer, and Source/Workflow/Annotation attachments still block it.
 
 ```bash cli-help="notes move"
 # Standalone cross-namespace Note transfer is unavailable (exit 3).

@@ -140,3 +140,13 @@ and `download`; `--namespace` defaults to your active login. Everything except
 `--namespace <slug>` and `--json`, like the rest of the group. None of them
 takes `--idempotency-key`: sharing records no revision to retry against, and
 both `share-off` and `shares-remove` are idempotent on their own.
+
+## Project ownership-transfer boundary
+
+A Source binding or reference still blocks the entire
+[`project move`](projects.md#move-a-whole-project-and-its-supported-resources)
+request. The expanded workflow supports owned Notes, Artifacts and Envs, not
+Sources, Workflows or Annotations. `ProjectSourceBinding` stays unchanged; there
+is no Source migration or implicit Connection/credential transfer. Do not skip
+its manifest entry, silently detach it or simulate an ownership move with
+copy/delete. Standalone Source transfer remains execution-gated.

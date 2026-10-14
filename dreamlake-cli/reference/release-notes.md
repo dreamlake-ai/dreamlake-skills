@@ -1,5 +1,18 @@
 # Release notes
 
+## 0.64.0 — Artifact and Env in whole-Project transfers
+
+CLI 0.64.0 accepts complete typed Project/Note/Artifact/Env plans with
+the matching backend. Saved reviews retain every typed resource, access choice
+and external-filing effect; a mixed plan is never reduced to its Note subset.
+Artifact/Env outside placements always detach, their old namespace-based links
+cannot be retained, and all included resources become private. Storage stays in
+place and previously issued capabilities retain their TTL. Source, Workflow,
+Annotation and structural content remain unsupported, as do standalone moves.
+An enabled whole-Project backend is required; check the plan and preview before
+submitting the exact reviewed request.
+See [Projects](projects.md#move-a-whole-project-and-its-supported-resources).
+
 ## 0.63.0 — Whole Project ownership transfer
 
 `project move` previews and transfers a Project with its complete owned-Notes
@@ -13,7 +26,7 @@ by default. Access retention and `--preserve-external-filings` are explicit
 opt-ins. Unsupported or partial plans fail closed. Requires the enabled companion
 backend; standalone cross-namespace Note and Source moves remain unsupported.
 The bundled Projects, Ownership, Data and Notes guides describe this workflow.
-See [Projects](projects.md#move-a-whole-project-and-its-notes-cli-0630).
+See [Projects](projects.md#move-a-whole-project-and-its-supported-resources).
 
 ## 0.62.0 — Project resource attachments
 

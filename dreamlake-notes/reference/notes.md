@@ -3,8 +3,9 @@
 Read [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/), [Embeds and query arguments](https://docs.dreamlake.ai/notes/embeds/),
 [Panels](https://docs.dreamlake.ai/notes/panels/), and [Linked note items](https://docs.dreamlake.ai/notes/linked-items/) for focused guides.
 This page retains the complete CLI/API reference and existing section links.
-[Whole Project and owned Notes transfer](#whole-project-and-owned-notes-transfer)
-is production-accepted with CLI 0.63.0+ or SDK 0.30.0+; standalone Note transfer
+[Whole Project and owned resources transfer](#whole-project-and-owned-resources-transfer)
+includes Artifact/Env with CLI 0.64.0+ or SDK 0.31.0+ and the matching backend;
+CLI 0.63.0 / SDK 0.30.0 support the Note-only manifest. Standalone Note transfer
 across namespaces remains unsupported. Dated release notes below describe their
 original verification scope.
 
@@ -3554,21 +3555,52 @@ these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
 exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
 
-## Whole Project and owned Notes transfer
+<a id="whole-project-and-owned-notes-transfer"></a>
 
-Requires **CLI 0.63.0+** or **Python SDK 0.30.0+** and an enabled Project
-adapter. Production acceptance passed on October 14, 2026. It moves a whole Project and all
-its live, source-owned Note attachments atomically, up to 20 Notes and 200 tree
-nodes. A compatible backend also includes ordinary Project files, images and
+## Whole Project and owned resources transfer
+
+The backend's October 15, 2026 (Asia/Shanghai) production acceptance used API
+release `8d9e7925`: a 25-Note/205-media fixture passed 20/20 checks, and a mixed
+Project/Note/Artifact/Env fixture passed 22/22 functionality checks. All fixtures
+were cleaned up; the mixed run required a separately reviewed detach-and-cleanup
+continuation after an unavailable retained mount blocked planning. See the
+[exact scope and evidence boundaries](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
+Published CLI **0.64.0** and SDK **0.31.0** then passed a fresh 23/23-check
+production consumer fixture: SDK preview, one CLI create/accept pair, completed
+owner cutover/replay and all nine fixture records cleaned up. SDK create/accept
+and distinct-recipient execution were not tested. The Web production bundle
+`ac47aa11` was separately verified through Projects/Transfers HTTP and asset
+readback; authenticated production transfer clicks were not exercised. [Consumer evidence](https://github.com/dreamlake-ai/dreamlake-cli/pull/268#issuecomment-6174872626).
+
+With an enabled Project adapter, CLI **0.63.0+** or Python SDK **0.30.0+** moves a
+whole Project and all its live, source-owned Note attachments atomically. The larger-capacity backend
+advertises a combined manifest budget of 512 resources (one Project plus up to
+511 Notes when no Artifact/Env slots are used) and 4,096 tree nodes, with 5,000
+inventory rows, an 8 MiB private execution budget and a 12 MiB total operation. Body, retained object and inventory limits can be reached first;
+older deployments continue to advertise their smaller limits. A compatible backend also includes ordinary Project files, images and
 videos. Episode content, Source references and unsupported resource types block
 the entire operation; NoteFile attachments are part of the Note move. A blocked
 plan lists specific affected items and reasons in the owner's transfer dialog.
 Standalone `notes move` does not gain cross-namespace execution from this feature.
 
-Moved Project/Notes become private. Other-Project mounts and their Bindr tags are
+The common-resource expansion additionally includes owned Artifact and Env
+attachments, with CLI **0.64.0+**, Python SDK **0.31.0+** and the matching backend.
+Their IDs, canonical names, versions and original storage locations are retained;
+no file copy or resource-relationship migration is needed. Artifact/Env placements
+in outside Projects are removed even when Note placements are preserved.
+Existing Artifact/Env links include the old namespace, so preserving those shares
+is blocked; revoke them during transfer and share again at the destination.
+Source, Annotation, Workflow and structural content remain explicitly unsupported
+in this release to avoid requiring broader storage/Connection/run migrations.
+Embedding-job records also block, including completed or failed history;
+completing a job does not remove this restriction. Use a Project without these
+records. Check the full preview; a blocked Project never moves only its supported subset.
+
+Moved Project/resources become private. Other-Project mounts and their Bindr tags are
 removed by default, ending access inherited through those filings. This does not
-delete or copy Note content: the whole Project and all included Notes retain
-their IDs and data. Independent shares/grants follow the separate preserve-access
+delete Notes: the whole Project and all included Notes retain their IDs and
+data. Only Note placements can be preserved; Artifact/Env outside placements
+always detach. Independent shares/grants follow the separate preserve-access
 choice, which also defaults off; current namespace permissions still apply.
 
 Preserving other Project filings is an explicit opt-in that the destination owner must
@@ -3581,14 +3613,16 @@ Direct Project file Nodes retain their IDs, folder layout and physical storage
 keys. New requests check the current owner; already-issued read/upload URLs keep
 their existing expiry and can still access the underlying object until then.
 Transfer does not copy media bytes or provide immediate signed-URL revocation.
-Note IDs/S3 roots and immutable historical publications remain stable. RTC state
-is transferred losslessly to a fresh quarantined room, activated only after owner
+Note IDs/S3 roots and immutable historical publications remain stable. Note
+collaboration still uses its snapshot-recovery and room-cutover flow, which may
+write projection/revision/transfer-baseline data under the existing prefix; this
+is not a promise of no S3 writes. RTC state is transferred losslessly to a fresh quarantined room, activated only after owner
 commit; the old room stays revoked. Old namespace Note/NoteFile addresses are verified
 read aliases with current-owner authorization, never writable ownership aliases.
 A lost response requires the original reviewed request/key, not a rebuilt plan.
 
 In Web, **Keep direct shares** and **Keep Notes in other Projects** are separate
-switches, both off by default. The Project and its Notes still become private.
+switches, both off by default. The Project and its included resources still become private.
 The second switch preserves existing Note placements and their Project-derived
 access even when direct shares are off; it does not refer to Note attachment
 files. Web submits acceptance automatically only when reviewed server authority
@@ -3606,6 +3640,6 @@ notice. Work still preparing is not called completed.
 
 See [the whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) for
 owner acceptance, complete scope, blocked dependencies, storage/RTC activation and
-operator recovery and the exact production verification scope. The live fixture
-used one actor owning both namespaces; independent-recipient and NoteFile/provider
-isolation matrices were not exercised in production.
+operator recovery and the exact production verification scope. Both backend
+fixtures used one actor owning both namespaces; independent-recipient and all
+NoteFile/provider-isolation matrices were not exercised in production.

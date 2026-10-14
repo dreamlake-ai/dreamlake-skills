@@ -27,29 +27,29 @@ This inventory does not assign individual people or GitHub review permissions.
 
 | Skill | Maintenance | Edit location | Docs to review | Related skills |
 |---|---|---|---|---|
-| [dreamlake-annotations](dreamlake-annotations/SKILL.md) | Manual product | [edit](dreamlake-annotations/) | [docs 1](https://docs.dreamlake.ai/annotations) | [video-labeling-workflow](video-labeling-workflow/SKILL.md) |
+| [dreamlake-annotations](dreamlake-annotations/SKILL.md) | Manual product | [edit](dreamlake-annotations/) | [docs 1](https://docs.dreamlake.ai/annotations), [docs 2](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) | [video-labeling-workflow](video-labeling-workflow/SKILL.md) |
 | [dreamlake-artifact-authoring](dreamlake-artifact-authoring/SKILL.md) | Manual product | [edit](dreamlake-artifact-authoring/) | [docs 1](https://docs.dreamlake.ai/artifacts) | [dreamlake-artifacts](dreamlake-artifacts/SKILL.md) |
-| [dreamlake-artifacts](dreamlake-artifacts/SKILL.md) | Manual product | [edit](dreamlake-artifacts/) | [docs 1](https://docs.dreamlake.ai/artifacts), [docs 2](https://cli.dreamlake.ai/artifacts) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-artifact-authoring](dreamlake-artifact-authoring/SKILL.md) |
+| [dreamlake-artifacts](dreamlake-artifacts/SKILL.md) | Manual product | [edit](dreamlake-artifacts/) | [docs 1](https://docs.dreamlake.ai/artifacts), [docs 2](https://cli.dreamlake.ai/artifacts), [docs 3](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-artifact-authoring](dreamlake-artifact-authoring/SKILL.md) |
 | [dreamlake-cli](dreamlake-cli/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-cli/tree/main/docs) | Source docs | [dreamlake-artifacts](dreamlake-artifacts/SKILL.md), [dreamlake-notes](dreamlake-notes/SKILL.md), [dreamlake-scenes](dreamlake-scenes/SKILL.md), [dreamlake-libraries](dreamlake-libraries/SKILL.md), [dreamlake-source](dreamlake-source/SKILL.md), [workflow-publish](workflow-publish/SKILL.md) |
 | [dreamlake-dataset-viz](dreamlake-dataset-viz/SKILL.md) | Manual product | [edit](dreamlake-dataset-viz/) | [docs 1](https://viz.dreamlake.ai/dataset-viz/spec.md) | [dreamlake-source](dreamlake-source/SKILL.md), [sim-to-mcap](sim-to-mcap/SKILL.md) |
 | [dreamlake-envs](dreamlake-envs/SKILL.md) | Manual product | [edit](dreamlake-envs/) | [docs 1](https://docs.dreamlake.ai/scenes/) | [dreamlake-scenes](dreamlake-scenes/SKILL.md) |
 | [dreamlake-libraries](dreamlake-libraries/SKILL.md) | Manual product | [edit](dreamlake-libraries/) | [docs 1](https://docs.dreamlake.ai/libraries/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) |
 | [dreamlake-notes](dreamlake-notes/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/notes) | [docs 1](https://cli.dreamlake.ai/notes/) | [dreamlake-cli](dreamlake-cli/SKILL.md) |
 | [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) | Generated | [edit](https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/scene-generation) | Source docs | [dreamlake-scenes](dreamlake-scenes/SKILL.md), [dreamlake-libraries](dreamlake-libraries/SKILL.md) |
-| [dreamlake-scenes](dreamlake-scenes/SKILL.md) | Manual product | [edit](dreamlake-scenes/) | [docs 1](https://docs.dreamlake.ai/scenes/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) |
-| [dreamlake-source](dreamlake-source/SKILL.md) | Manual product | [edit](dreamlake-source/) | [docs 1](https://docs.dreamlake.ai/sources/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [remote-source-check](remote-source-check/SKILL.md), [dreamlake-dataset-viz](dreamlake-dataset-viz/SKILL.md) |
+| [dreamlake-scenes](dreamlake-scenes/SKILL.md) | Manual product | [edit](dreamlake-scenes/) | [docs 1](https://docs.dreamlake.ai/scenes/), [docs 2](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [dreamlake-scene-generation](dreamlake-scene-generation/SKILL.md) |
+| [dreamlake-source](dreamlake-source/SKILL.md) | Manual product | [edit](dreamlake-source/) | [docs 1](https://docs.dreamlake.ai/sources/), [docs 2](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [remote-source-check](remote-source-check/SKILL.md), [dreamlake-dataset-viz](dreamlake-dataset-viz/SKILL.md) |
 | [launch-claude-remote](launch-claude-remote/SKILL.md) | Standalone | [edit](launch-claude-remote/) | [docs 1](https://code.claude.com/docs/en/remote-control), [docs 2](https://code.claude.com/docs/en/permission-modes) | [launch-codex-chat](launch-codex-chat/SKILL.md) |
 | [launch-codex-chat](launch-codex-chat/SKILL.md) | Standalone | [edit](launch-codex-chat/) | [docs 1](https://learn.chatgpt.com/docs/app-server) | None recorded |
 | [remote-source-check](remote-source-check/SKILL.md) | Manual product | [edit](remote-source-check/) | [docs 1](https://docs.dreamlake.ai/sources/) | [dreamlake-source](dreamlake-source/SKILL.md), [video-labeling-workflow](video-labeling-workflow/SKILL.md) |
 | [sim-to-mcap](sim-to-mcap/SKILL.md) | Manual product | [edit](sim-to-mcap/) | [docs 1](https://viz.dreamlake.ai/dataset-viz/reference.md) | [dreamlake-dataset-viz](dreamlake-dataset-viz/SKILL.md) |
 | [video-labeling-workflow](video-labeling-workflow/SKILL.md) | Manual product | [edit](video-labeling-workflow/) | [docs 1](https://docs.dreamlake.ai/workflows/) | [workflow-generator](workflow-generator/SKILL.md), [workflow-publish](workflow-publish/SKILL.md), [remote-source-check](remote-source-check/SKILL.md) |
 | [workflow-generator](workflow-generator/SKILL.md) | Manual product | [edit](workflow-generator/) | [docs 1](https://docs.dreamlake.ai/workflows/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [workflow-publish](workflow-publish/SKILL.md), [video-labeling-workflow](video-labeling-workflow/SKILL.md) |
-| [workflow-publish](workflow-publish/SKILL.md) | Manual product | [edit](workflow-publish/) | [docs 1](https://docs.dreamlake.ai/workflows/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [workflow-generator](workflow-generator/SKILL.md), [video-labeling-workflow](video-labeling-workflow/SKILL.md) |
+| [workflow-publish](workflow-publish/SKILL.md) | Manual product | [edit](workflow-publish/) | [docs 1](https://docs.dreamlake.ai/workflows/), [docs 2](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) | [dreamlake-cli](dreamlake-cli/SKILL.md), [workflow-generator](workflow-generator/SKILL.md), [video-labeling-workflow](video-labeling-workflow/SKILL.md) |
 
 Recorded generated-source snapshots (not a freshness assertion):
 
-- `cli`: [ed0c41482e43](https://github.com/dreamlake-ai/dreamlake-cli/commit/ed0c41482e43c87f8bf6d2efd01824d1d7a627a2)
-- `workspace`: [f6946a8da2bd](https://github.com/dreamlake-ai/dreamlake-workspace/commit/f6946a8da2bda47206a53bcb5f9cc613433f373f)
+- `cli`: [80e17d0a6869](https://github.com/dreamlake-ai/dreamlake-cli/commit/80e17d0a68690968f05daa00dd37f44d29935f80)
+- `workspace`: [8435c3eb7c6e](https://github.com/dreamlake-ai/dreamlake-workspace/commit/8435c3eb7c6ef698da92ad9cb4905fd9fbe95fc6)
 
 Upstream freshness: **not checked by this report**.
 <!-- catalog:end -->

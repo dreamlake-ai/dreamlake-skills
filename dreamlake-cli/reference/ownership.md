@@ -2,13 +2,16 @@
 
 Ownership requests use a shared transfer inbox. A resource remains owned by its
 namespace; project filing and creator attribution do not move ownership.
-For a whole Project, its ordinary files/images/videos and its owned Notes, use
-[`project move` (CLI 0.63.0)](projects.md#move-a-whole-project-and-its-notes-cli-0630).
+For a whole Project, its ordinary files/images/videos and all owned Notes,
+Artifacts and Envs, use [`project move`](projects.md#move-a-whole-project-and-its-supported-resources).
+Artifact/Env plans require CLI 0.64.0+ and the matching backend; CLI
+0.63.0 supports the Note-only resource manifest and direct files.
 That workflow loads the complete server plan and uses one atomic ownership
 request. It requires an enabled whole-Project server adapter; check plan
 `executable`, preview blockers and current capabilities. A client installation
-alone does not prove backend writer, storage or RTC readiness. Standalone Note
-and Source ownership transfer remain unsupported by this workflow.
+alone does not prove backend writer, storage or RTC readiness. This expansion
+adds no standalone resource-transfer command. Sources, Workflows, Annotations
+and structural/episode content still block a whole-Project move.
 
 Organization/team deletion currently returns an explicit
 unsupported lifecycle error until retained successor authority and complete
@@ -30,9 +33,9 @@ A resource-specific preview request is a saved JSON object with `apiVersion: 1`,
 explicit `manifest` and a stable `idempotencyKey`. Namespace IDs are opaque,
 including legacy strings. Source editors and Project ADMIN grants do not confer
 transfer authority. Only current namespace owners can transfer or accept.
-For a whole Project, prefer `project move` to derive every owned Note from the
-server plan. A hand-built partial manifest cannot skip attached resources or
-turn an unsupported attachment into a partial ownership move.
+For a whole Project, prefer `project move` to derive the complete typed resource
+manifest from the server plan. A hand-built partial manifest cannot skip
+attached resources or turn an unsupported attachment into a partial ownership move.
 
 ```bash cli-help="ownership preview"
 dreamlake ownership preview request.json --namespace acme
@@ -100,18 +103,24 @@ bounded structure/filing inventories, resource version, grant/editor IDs and
 active operation blockers. No secrets, provider paths or storage bindings appear.
 For a whole-Project move, `project move` uses the dedicated complete transfer
 plan and current version. With the compatible backend it includes direct ordinary
-files/images/videos and all supported attached Notes, defaults
-to private resources and old access revoked, and detaches external Note filings
-unless explicitly retained in the reviewed request. Unsupported attachments
+files/images/videos and all live source-owned Notes, Artifacts and Envs, with
+the matching CLI 0.64.0+ client. Resources become private and old access is
+revoked by default. Eligible direct access and external Note filings need
+separate reviewed opt-ins; retaining a Note filing can preserve its other
+Project's audience even when direct access is revoked. Artifact/Env link-derived
+access cannot be retained, and their outside Project placements/Bindr memberships
+always detach. Inspect `resourceCounts`, typed `resourceNames` and
+`summary.detachedOtherFilings`, not only the Note subset. Unsupported attachments
 block the whole request instead of being silently excluded. Inspect owner-only
 `error.details.blockers` for affected items and reasons in the Web transfer dialog
 or an authorized raw API response; CLI 0.63.0 prints only the error message for a
 rejected plan. Direct media support
 depends on the server release, and episode content remains unsupported.
 
-Source transfer is separate from the whole-Project Notes adapter and remains
-execution-gated. Source bindings retain their existing representation; they are
-not migrated by Project transfer. A preview does not transfer bytes or ownership.
+Source transfer remains execution-gated, and Source references block the
+whole-Project adapter. Workflows and Annotations also remain outside its
+executable manifest. Source bindings retain their existing representation and
+are not migrated by Project transfer. A preview does not transfer bytes or ownership.
 Source-only actors cannot discover destination Connections; destination
 owners must validate an independently authorized compatible Connection and prove
 path access. Separately authorized source-retaining credential copies support

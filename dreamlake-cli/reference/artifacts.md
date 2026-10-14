@@ -114,8 +114,8 @@ be undone and it reports how many objects it purged.
 
 > **Warning:** `push` asks the server for short-lived, scoped credentials and then writes to
 > object storage itself. The file never passes through the API server, so there
-> is no request size limit — but the credentials only cover your own namespace's
-> prefix.
+> is no request size limit. Credentials cover the server-returned resource
+> storage target, which can retain its original prefix after an ownership move.
 
 ## Manage existing share links
 
@@ -166,3 +166,22 @@ The existing `artifact push --share` remains available for a new upload.
 The catalog mutation API is an upsert without a conditional-write validator.
 The CLI first checks that the artifact exists and is manageable, but a concurrent
 delete between that check and mutation can restore its catalog row.
+
+## Whole-Project ownership transfer
+
+With CLI 0.64.0+ and the matching backend, an attached, source-owned Artifact
+moves with its entire Project through [`project move`](projects.md#move-a-whole-project-and-its-supported-resources).
+This adds no standalone Artifact move. IDs, versions and physical storage stay
+stable; the Artifact becomes private. Old namespace-based links cannot be
+preserved; incompatible access retention blocks preview. Share again from the
+destination after completion. Outside Project placements and Bindr memberships
+always detach, independently of Note filing retention. Resolve destination
+canonical-name collisions first; transfer does not rename Artifacts.
+
+Continue to obtain fresh upload credentials, upload to the returned `backendUrl`
+and `refName`, then register the version. Never guess physical keys from the
+new namespace/name. An upload crossing the server upgrade can receive
+`409 UPLOAD_RESERVATION_REQUIRED` at its first registration: obtain fresh
+credentials, reupload to the returned target, then register. Retrying that same
+registration alone cannot select a safe target. Existing issued credentials and
+signed URLs retain their original finite TTL; transfer does not revoke them.

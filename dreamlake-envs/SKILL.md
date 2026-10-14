@@ -6,7 +6,8 @@ description: Compatibility entrypoint for requests naming the old DreamLake Envi
 # DreamLake Scenes (legacy skill name)
 
 The canonical skill is `dreamlake-scenes` in this same public catalog. Install or
-open that skill for packaging, push, pull, versioning and composition procedures.
+open that skill for packaging, push, pull, versioning, composition and whole-Project ownership
+requests.
 Do not guess paths or upload resources while resolving this handoff. If it is not
 available locally, use the owning [Scenes documentation](https://docs.dreamlake.ai/scenes/).
 
