@@ -21,8 +21,67 @@ This is the required architecture, not a claim that the current launch APIs
 implement it. A successful direct-backend EC2/Kubernetes smoke run is only
 implementation evidence. It does not satisfy this boundary. The command syntax
 below remains reference material; launch examples require the verified route.
-No launch-server selection flag is documented here because no such contract has
-been verified.
+The launch-server workflow below targets CLI 0.71.0 or later;
+its backend companion must be deployed before use. Registration or binding alone
+does not establish live readiness.
+
+## Bind a launch server
+
+Requires CLI 0.71.0 and a backend supporting the launch-server route.
+Enroll the user-configured server with `dreamlake hosts enroll` first and verify
+its owned Host enrollment. The AWS role must be attached to that server. EC2
+instance profiles supply short-lived credentials; do not copy the operator's
+Vault AWS credentials onto the server.
+
+```bash cli-help="providers launch-server"
+dreamlake providers launch-server team/0123456789abcdef01234567 \
+  --enrollment 1123456789abcdef01234567 \
+  --role-arn arn:aws:iam::123456789012:role/user-launch \
+  --region us-east-1 --revision 2 --request-id bind-launch-server-01 --json
+```
+
+Read the current provider revision first. Binding preserves its ID, launch
+layers, and existing workload ownership, increments the revision, and removes
+the legacy credential reference. For Kubernetes, this mode targets EKS with
+IAM authentication and requires access through the server to the private or
+restricted cluster endpoint. Future operations verify the exact enrollment,
+current signing-key lifecycle, freshness, and server IAM role. A missing or
+invalid binding must not fall back to hosted service credentials.
+
+Repeat identical binding input with the same request ID after a lost response.
+For an uncertain workload submission, inspect its operation receipt before any
+new request; do not blindly launch again. A pending remote execution can be
+read through its saved receipt. A lost remote-dispatch acknowledgement may
+remain outcome-unknown and requires reconciliation. Errors include `recoveryOperationId`
+when a durable remote receipt exists; inspect it with
+`dreamlake providers operations show team/OPERATION_ID --json`.
+Permission errors expose only validated AWS diagnostic code, operation, region
+and request ID when available, so an agent can identify the failing permission
+without logging raw cloud errors.
+
+### Fix permission limitations
+
+IAM policies can be updated after role creation; server replacement is normally
+unnecessary. On the launch server, run `aws sts get-caller-identity` and capture
+the denied action/resource/region/request ID without credentials. Use the
+identity authorized to administer the dedicated launch role to update its
+Terraform policy and apply a reviewed plan, then verify the original operation
+after propagation. The role's own permissions need not include editing itself.
+An account credential explicitly authorized for bootstrap may create the
+launch server and manage its role; subsequent launches execute on that server.
+
+Inspect the original request's receipt before retrying a write. A recorded
+permission rejection remains the result for that request ID. After confirming
+that the write was rejected and no resource was created, use a new request ID
+for the corrected attempt. A pending or unknown result requires reconciliation
+of the existing request; changing its ID could duplicate a launch.
+
+Separate missing IAM permissions from role trust, `iam:PassRole`, boundaries,
+organization/session/resource policies, Kubernetes RBAC and networking. An
+added Allow does not override an explicit Deny. See AWS's
+[policy editing guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage-edit.html)
+and [AccessDenied reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html).
+Do not repair a denial by switching to the control-plane service role.
 
 ## Register a provider
 
@@ -195,12 +254,12 @@ dreamlake providers launch team/<provider-id> --clear --revision 2 --request-id 
 
 ## Launch EC2 instances
 
-The existing `aws-ec2` declaration can name a Vault AWS credentials file with
-`credentialRef`; `profile` picks one of its profiles. This describes the stored
-configuration schema, not an approved execution route. Do not launch through
-the direct hosted-backend Vault-credential path. First verify the
-[user-configured launch server boundary](#required-launch-boundary); keep new
-launches on hold while that routing is absent or unverified.
+CLI 0.71.0 with the matching backend accepts an enrolled launch server in an `aws-ec2`
+declaration. Its instance role supplies the AWS credentials. For an existing
+provider, use `providers launch-server` to preserve its ID and managed instances.
+Verify the [launch server boundary](#required-launch-boundary) before launching.
+Legacy Vault credential declarations remain readable for inventory; they do not
+authorize new launches or lifecycle writes.
 
 ```json
 {
@@ -209,7 +268,11 @@ launches on hold while that routing is absent or unverified.
   "kind": "aws-ec2",
   "config": {
     "region": "us-east-1",
-    "credentialRef": {"namespace": "team", "entryName": "aws/credentials", "profile": "dev"}
+    "accountId": "123456789012",
+    "launchServer": {
+      "enrollmentId": "1123456789abcdef01234567",
+      "expectedRoleArn": "arn:aws:iam::123456789012:role/user-launch"
+    }
   }
 }
 ```
@@ -250,14 +313,11 @@ launches one Pod in an existing Kubernetes namespace; provisioning the worker
 machines is a separate InfraStack operation. See the
 [Kubernetes setup walkthrough](providers-kubernetes.md).
 
-The existing schema stores an inline kubeconfig reference in Vault. Registering
-it does not establish the required launch-server route. Do not run the launch
-example through a hosted backend that calls Kubernetes directly; the selected
-user-configured launch server must execute it. The kubeconfig
-must contain an HTTPS server, inline CA, and static bearer token or inline client
-certificate/key. Exec plugins, local file references, auth providers and insecure
-TLS are rejected. Keep the credential limited to the workload namespace; node
-inventory also needs cluster-level `get/list` on nodes.
+The following EKS declaration requires CLI 0.71.0 and the matching backend
+launch-server route. Register the exact owned server enrollment and expected IAM role. The
+server obtains its instance-role credentials through IMDSv2, verifies them
+with STS, and uses short-lived EKS authentication. Legacy static kubeconfig
+references are retained only for inspection/migration, not new launch authority.
 
 ```json
 {
@@ -266,9 +326,13 @@ inventory also needs cluster-level `get/list` on nodes.
   "kind": "k8s",
   "config": {
     "cluster": "kube-dev",
-    "context": "dreamlake",
+    "region": "us-east-1",
+    "accountId": "123456789012",
     "namespace": "dreamlake-launch",
-    "credentialRef": {"namespace": "team", "entryName": "kubernetes/kube-dev"}
+    "launchServer": {
+      "enrollmentId": "1123456789abcdef01234567",
+      "expectedRoleArn": "arn:aws:iam::123456789012:role/user-launch"
+    }
   }
 }
 ```

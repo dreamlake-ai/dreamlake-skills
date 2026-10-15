@@ -98,9 +98,11 @@ backend smoke do not prove this architecture is implemented. See the
 
 When explicitly authorized to provision a cluster through that server, use the
 [Kubernetes setup walkthrough](../reference/providers-kubernetes.md) for the
-InfraStack, CPU pool limits, restricted endpoint, Vault kubeconfig and provider
-registration sequence. The Kubernetes launch commands require CLI 0.66.0 or later and the matching
-backend release; do not infer deployment from these docs. Verify
+InfraStack, CPU pool limits, restricted endpoint, EKS IAM/RBAC and enrolled-server
+provider registration sequence. The server binding requires CLI 0.71.0 and the
+matching backend route; legacy kubeconfig inventory does not authorize launches.
+For denied actions, follow the [IAM repair reference](../reference/providers.md#fix-permission-limitations).
+Do not infer deployment from these docs. Verify
 both the worker-node inventory and a completed Pod in each intended pool, then
 record the task-owned teardown plan. Docker-built images run as Pods on existing
 nodes; an accepted Pod launch is not a machine-provisioning or readiness receipt.
