@@ -62,3 +62,14 @@ Stack-to-Note attachment remains proposed. Creating or filing a Note does not
 attach it or grant independent Note access. Reuse the existing [Notes guide](notes.md)
 for canonical source reads, original-revision patches and acknowledged readback;
 preserve Note identity, collaborative revisions and existing sharing.
+
+## Provision Kubernetes capacity and launch containers
+
+When explicitly authorized to provision a cluster, use the
+[Kubernetes setup walkthrough](../reference/providers-kubernetes.md) for the
+InfraStack, CPU pool limits, restricted endpoint, Vault kubeconfig and provider
+registration sequence. The Kubernetes launch commands require the matching
+backend and CLI source release; do not infer deployment from these docs. Verify
+both the worker-node inventory and a completed Pod in each intended pool, then
+record the task-owned teardown plan. Docker-built images run as Pods on existing
+nodes; an accepted Pod launch is not a machine-provisioning or readiness receipt.
