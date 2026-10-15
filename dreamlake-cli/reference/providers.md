@@ -70,6 +70,12 @@ after propagation. The role's own permissions need not include editing itself.
 An account credential explicitly authorized for bootstrap may create the
 launch server and manage its role; subsequent launches execute on that server.
 
+Inspect the original request's receipt before retrying a write. A recorded
+permission rejection remains the result for that request ID. After confirming
+that the write was rejected and no resource was created, use a new request ID
+for the corrected attempt. A pending or unknown result requires reconciliation
+of the existing request; changing its ID could duplicate a launch.
+
 Separate missing IAM permissions from role trust, `iam:PassRole`, boundaries,
 organization/session/resource policies, Kubernetes RBAC and networking. An
 added Allow does not override an explicit Deny. See AWS's

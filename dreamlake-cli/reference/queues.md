@@ -128,7 +128,7 @@ incomplete workload returns a nonzero exit code and an unknown job count rather
 than an empty list. These commands inspect inventory only; they do not submit,
 cancel or modify scheduler jobs.
 
-Known inventory failures include a safe error code and recovery direction in
+Starting with CLI 0.70.1, known inventory failures include a safe error code and recovery direction in
 stderr. For `slurm_worker_identity_denied`, an administrator should compare the
 configured worker binding, enrollment identity and heartbeat freshness. An online
 host alone does not establish that the inventory reader accepts that identity.
