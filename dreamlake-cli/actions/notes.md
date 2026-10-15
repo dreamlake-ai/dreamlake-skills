@@ -111,7 +111,12 @@ earlier lack this command. The server adapter must be enabled: check plan
 standalone `notes move`. It defaults to private resources, old access revoked,
 and external Note filings detached; retention needs explicit review and opt-in.
 Direct access retention covers eligible Project/Note grants and Note share
-links; Artifact/Env old namespace-based link access cannot be retained. Keeping
+links. Retaining Artifact tokens and token-dependent share visits additionally
+requires the compatible PR1170 catalog/token/proxy API and executors, old readers
+drained, and `ARTIFACT_TRANSFER_SHARING_ENABLED=true` (default off); old URLs become
+read-only current-owner-authorized aliases. Older/disabled APIs retain blockers,
+Env links remain unsupported, and a newer client alone does not enable the API
+floor. Keeping
 an external Note filing can still preserve that other Project's live audience
 when direct access is revoked. Source/Workflow/Annotation references block the
 whole request, and no standalone resource transfer is added.

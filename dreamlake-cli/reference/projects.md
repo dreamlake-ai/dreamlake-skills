@@ -96,9 +96,14 @@ The Project and included Notes, Artifacts and Envs become private. Old access is
 `--preserve-access` requests retention of only the exact eligible server
 inventory bound by the source owner's preview and destination acceptance.
 This retains eligible Project people/team grants and Note direct grants/share
-links, not public visibility. Artifact/Env links encode the old namespace and
-cannot be retained: if preservation would retain their link-derived access,
-the preview blocks it. Turn retention off and share again from the destination.
+links, not public visibility. Artifact token/share-visit retention additionally
+requires the compatible catalog/token/proxy API and ownership executors from
+[PR1170](https://github.com/dreamlake-ai/dreamlake-workspace/pull/1170), old readers
+drained, and `ARTIFACT_TRANSFER_SHARING_ENABLED=true` (default off). Old URLs then
+resolve through read-only current-owner-authorized aliases; visits remain tied
+to the live share token. Older/disabled APIs retain their blockers and Env share
+links remain unsupported. No new CLI command or release enables that API floor;
+inspect the full preview before submitting the exact reviewed request.
 Existing external Note filings are detached by default, so old Projects no
 longer reference the moved Notes. This does not delete the Notes or their
 filings inside the transferred Project. `--preserve-external-filings` explicitly

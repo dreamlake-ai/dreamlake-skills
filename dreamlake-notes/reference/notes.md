@@ -3588,8 +3588,15 @@ attachments, with CLI **0.64.0+**, Python SDK **0.31.0+** and the matching backe
 Their IDs, canonical names, versions and original storage locations are retained;
 no file copy or resource-relationship migration is needed. Artifact/Env placements
 in outside Projects are removed even when Note placements are preserved.
-Existing Artifact/Env links include the old namespace, so preserving those shares
-is blocked; revoke them during transfer and share again at the destination.
+On older APIs, including the accepted release above, Artifact/Env link retention
+is blocked. With the compatible Artifact-sharing API from
+[PR1170](https://github.com/dreamlake-ai/dreamlake-workspace/pull/1170), all catalog,
+token/proxy readers and ownership executors upgraded, and
+`ARTIFACT_TRANSFER_SHARING_ENABLED=true`, the reviewed preserve-access choice can
+retain Artifact share tokens and existing share visits through read-only old-URL
+aliases authorized against the current owner. The flag defaults off; a newer CLI
+alone does not enable it. Env share links remain unsupported. Review the complete
+preview; older or disabled deployments retain their blockers.
 In the released versions above, Source, Annotation, Workflow and structural
 content remain explicitly unsupported to avoid requiring broader
 storage/Connection/run migrations.

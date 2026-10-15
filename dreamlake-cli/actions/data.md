@@ -48,9 +48,13 @@ resources become private; external Note filings detach by default. This removes
 old Project references without deleting the Notes or the transferred Project's
 own filings.
 `--preserve-access` retains only eligible reviewed Project/Note grants and Note
-share links, not public visibility. Artifact/Env namespace-based links cannot
-be retained; if that preservation is blocked, turn it off and share again from
-the destination. Keeping an external Note filing can retain its other Project
+share links, not public visibility. Artifact tokens and token-dependent share
+visits additionally require the compatible PR1170 catalog/token/proxy API and
+executors, old readers drained, and `ARTIFACT_TRANSFER_SHARING_ENABLED=true`
+(default off). Old URLs become read-only current-owner-authorized aliases.
+Older/disabled APIs retain blockers; Env links remain unsupported. Check the
+complete preview; a newer client alone does not enable this server capability.
+Keeping an external Note filing can retain its other Project
 audience even with direct access revoked. `--preserve-external-filings` explicitly requests retention of the
 reviewed external **Note** references only. Artifact/Env attachments in other
 Projects always detach. Read `resourceCounts`, complete `resourceNames` and

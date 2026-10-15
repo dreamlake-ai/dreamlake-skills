@@ -262,19 +262,6 @@ See [Agent skills](skills.md).
 | `pipeline workspace host --dist <p>` | Host a bundle, get a `page_url` |
 | `pipeline workspace upload --workspace-id <id> --dist <p>` | Replace a workspace's contents |
 
-## Video and search
-
-| Command | What it does |
-| --- | --- |
-| `video upload <file> [--user] [--project]` | Upload a video straight to BSS |
-| `video download <id> [-o <out>]` | Download a video by BSS id |
-| `vectorize --episode <t> \| --project <t>` | Run CLIP + LLaVA over a scope and index the embeddings |
-
-> **Warning:** `video upload` writes to blob storage only — the file gets no catalog entry,
-> so `list` will not show it and no command can delete it. Use
-> `dreamlake upload` unless you specifically need the raw blob path.
-> `vectorize` additionally needs an external vectorize service and Qdrant.
-
 ## Organizations
 
 | Command | What it does |
