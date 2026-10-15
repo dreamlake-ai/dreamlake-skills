@@ -21,7 +21,7 @@ This is the required architecture, not a claim that the current launch APIs
 implement it. A successful direct-backend EC2/Kubernetes smoke run is only
 implementation evidence. It does not satisfy this boundary. The command syntax
 below remains reference material; launch examples require the verified route.
-The launch-server binding command below is added in CLI 0.71.0;
+The launch-server workflow below targets CLI 0.71.0 or later;
 its backend companion must be deployed before use. Registration or binding alone
 does not establish live readiness.
 

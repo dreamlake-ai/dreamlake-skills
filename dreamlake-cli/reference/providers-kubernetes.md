@@ -1,8 +1,9 @@
 # Kubernetes launch setup
 
-This walkthrough requires CLI 0.66.0 or later and the Kubernetes launch backend.
-Check the deployed backend and installed CLI version before using the `nodes`
-and `instances logs` commands. A cluster needs worker capacity before a Pod can run.
+This walkthrough requires CLI 0.71.0 or later and a backend implementing the
+user-owned launch-server route. Check the deployed backend and installed CLI
+version before binding a provider or launching. A cluster needs worker capacity
+before a Pod can run.
 
 ## Execution requirement
 
