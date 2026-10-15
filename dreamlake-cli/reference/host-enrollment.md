@@ -91,7 +91,13 @@ dreamlake hosts metrics HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --
 ```
 
 Text shows the latest CPU percentage, RAM and disk bytes, source sample timestamp,
-source `stale` flag, and sample freshness at the CLI's read time. Missing metrics
+source `stale` flag, and sample freshness at the CLI's read time. Source-backed
+enrollments require CLI 0.65.0 or later: the command follows a short-lived signed
+GET directly to Source storage, bounded to 2 MiB and 30 seconds. JSON includes
+the requested history tier and readings, never the capability URL or headers.
+Pending uploads and a missing first snapshot remain empty; denied or failed
+Source reads fail without a legacy data proxy. Unconfigured enrollments keep
+the existing transport. Missing metrics
 are `unknown`, including when `latest` is null; an actual zero stays zero.
 Samples older than 90 seconds or marked stale by the source are `stale`.
 Missing/invalid timestamps and timestamps ahead of the client clock are `unknown`.
