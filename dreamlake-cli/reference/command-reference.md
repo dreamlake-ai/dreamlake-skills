@@ -141,14 +141,27 @@ See [Snapshot & launch](snapshot-launch.md).
 
 ## Sources
 
-See [External sources](sources.md).
+See [Sources](sources.md).
 
 | Command | What it does |
 | --- | --- |
-| `source list` | Connected sources in a namespace |
-| `source browse [path] --source <n> [--dirs] [-r] [-0]` | List paths inside a source, one level by default |
+| `source list` | One page of sources in a namespace |
+| `source create <name> [--description <text>]` | Create an empty managed-only source (owner only) |
+| `source import` | Import an external source (S3, Hugging Face) |
+| `source browse [path] --source <n> [--dirs] [--files] [-r] [-0]` | List paths in the resolved view, one level by default; `--dirs`/`--files` filter |
+| `source stat <path> --source <n>` | One exact path in the resolved view, with metadata and origin layer |
 | `source fetch <path> --source <n>` | Mint a short-lived public download URL for one file |
 | `source download <path> --source <n> [-o <dir>] [-r]` | Write bytes to local disk |
+| `source upload <path> --source <n> [--to <prefix>] [-r]` | Upload into the managed layer; **silently replaces** existing managed paths |
+| `source metadata` | Rename a source, or change its description |
+| `source delete-object` | Delete one managed object (immediate, physical) |
+| `source delete-prefix` | Queue a recursive delete of one managed directory |
+| `source external-set` / `external-remove` | Attach or replace / detach a source's external layer (the provider is untouched) |
+| `source enable` / `disable` | Enable (configuration validated first) or disable a source |
+| `source check-access` | Probe a source's upstream (changes nothing) |
+| `source editors` / `editor-add` / `editor-remove` | List, grant or remove per-source Editors |
+| `source references` | Which projects and bindrs organize this source |
+| `source share` / `share-off` / `shares` / `shares-remove` | Turn a share link on or off, list or remove admissions |
 
 ## Libraries
 

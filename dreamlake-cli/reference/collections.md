@@ -20,6 +20,10 @@ Runnables additionally have **versions**: immutable rows keyed by
 > These commands are storage and CRUD. Execution belongs to the lakeshore
 > control plane, and none of these routes reach it.
 
+In CLI 0.68.0+, the [registered Python UDF bridge](registered-udf.md) can execute one
+explicit immutable module version through an existing enrolled host. It is a
+separate command; registration itself still does not execute code.
+
 ## A worked sequence
 
 The full loop: declare a runnable, register two versions of it, read the

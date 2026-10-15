@@ -3,6 +3,10 @@
 `dreamlake upload` sends a file (or a flat directory) to an episode. Large
 files use resumable S3 multipart uploads.
 
+> **Note:** `dreamlake upload` is for episodes. To put original bytes into a Source's
+> managed files, use `dreamlake source upload` — see
+> [Upload files into a Source](sources.md#upload-files-into-a-source).
+
 ## A single file
 
 ```bash file="terminal"

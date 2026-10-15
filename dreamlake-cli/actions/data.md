@@ -11,8 +11,14 @@ dreamlake source download "datasets/run 01/" --source my-bucket -r -o "./local d
 
 Check the target before downloading. Recursive source download preserves the
 relative directory tree. See [uploading](../reference/uploading.md),
-[downloading](../reference/downloading.md) and [external sources](../reference/sources.md)
+[downloading](../reference/downloading.md) and [sources](../reference/sources.md)
 for supported selectors and limits.
+
+To upload files into a Source (not an episode), use
+`dreamlake source upload <path> --source <name> --to <prefix> [-r]` with an
+explicit `--to`. It silently replaces any managed file already at that path, so
+`dreamlake source browse <prefix> --source <name>` first and prefer a fresh
+prefix. See [sources](../reference/sources.md).
 
 ## Project grants and attachments (CLI 0.62.0)
 
