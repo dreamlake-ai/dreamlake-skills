@@ -46,7 +46,7 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "ff1c58315d04a3725907d75366658144141c36bc",
+      "commit": "445f47062056da3b4f0214e35ff0ef0a40d4920b",
       "generatorSha256": "7222b8b50e011b15d1b4c1463a9652f809bd18621b506a72b23647229b03ea06",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "722ffb500a52b1f9bb8d2557ea25aab921582b8d9a4236e9c90d6c99072ebe70",
