@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "edfce3e4ce94ab937a39f1e81a9630e8c6a6862e77554053e1e5628bdd16fbdc",
+  "sourcesSha256": "8e1917720b4f1a398e83085cc3a239c078acc124cac5c95e34d39dbd1a172eb2",
   "files": {
     "dreamlake-cli/SKILL.md": "722ffb500a52b1f9bb8d2557ea25aab921582b8d9a4236e9c90d6c99072ebe70",
     "dreamlake-cli/actions/artifacts.md": "01a1ab26feb4f8b1ac5ec7e6faf382912ff6dfb0b3ff7ee5d1080af6484ea1d3",
@@ -44,13 +44,13 @@
     "dreamlake-cli/reference/notes.md": "4c8236cc3d4921655a99f57e5d3c907395d49e0a81cf065de1aa58087ecbccba",
     "dreamlake-cli/reference/organizations.md": "3c62552f46378bc68e60f186f7e6575e11e1c438c1018a0c96eafbc04a1a69e2",
     "dreamlake-cli/reference/overview.md": "75c92b532a82e61e6ab30a25168053178d2c795ab6af3a0e7b0c65f8a5fac62e",
-    "dreamlake-cli/reference/ownership.md": "bee253a2b8adfc7507ceeb0c429a3530f27d88b8e2f2250c8ca7b3e14cbe0a77",
+    "dreamlake-cli/reference/ownership.md": "7aa73379a3bec9e3cc9d4f5925e438d599d944776b2c2c44f01366bd8a9103b8",
     "dreamlake-cli/reference/pipelines.md": "80ed19ea97a1640aa5dafc6f448e5777dee50e4b81726d68c444683223259b9d",
     "dreamlake-cli/reference/projects.md": "4ed6e113ef3962baa8032ac89f9edf25f9ca9d9b7a116d757855e59d7f76bd6d",
     "dreamlake-cli/reference/provider-lifecycle.md": "f2920ead9f5f5de94afc68f48eeadb22a9c54349347e491650004c39d9c58e9f",
     "dreamlake-cli/reference/providers-kubernetes.md": "d99d0845044826bf2992056e10315a58f356f6dc21f271370870490b27452f18",
     "dreamlake-cli/reference/providers.md": "4169438b189021ddccc62a1b7c5b306821c8ea0d3d1329fe2d7d332fb7ca2390",
-    "dreamlake-cli/reference/queues.md": "1d77117358a4de895a9b298ab1e40d53a4095b82d3daf6bb85b1ad2201c8dce0",
+    "dreamlake-cli/reference/queues.md": "18a787eaf1bad6ae9c3ea5f0783c4f1523bc2878524916852bc12700d28c1107",
     "dreamlake-cli/reference/quick-start.md": "5fb0f9f7439ad80e0906ea25059436e851ec38e97b2fcb5375b0fd7008857a76",
     "dreamlake-cli/reference/registered-udf.md": "f47da725d039dc9607366c2bbd628055e4cce32cfb1e9bc1c00ca50d5757e7bc",
     "dreamlake-cli/reference/release-notes.md": "4b7d961e91df0e09cf4934905b4d1b96aef6cb7b17301cf31ffb2cab2228af98",
