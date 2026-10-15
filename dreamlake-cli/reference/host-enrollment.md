@@ -92,7 +92,7 @@ dreamlake hosts metrics HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --
 
 Text shows the latest CPU percentage, RAM and disk bytes, source sample timestamp,
 source `stale` flag, and sample freshness at the CLI's read time. Source-backed
-enrollments require CLI 0.65.0 or later: the command follows a short-lived signed
+enrollments require CLI 0.65.1 or later: the command follows a short-lived signed
 GET directly to Source storage, bounded to 2 MiB and 30 seconds. JSON includes
 the requested history tier and readings, never the capability URL or headers.
 Pending uploads and a missing first snapshot remain empty; denied or failed
