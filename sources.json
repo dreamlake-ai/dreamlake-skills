@@ -46,19 +46,20 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "6ca6fca9b0a0c42fab3a27fb81ad3260abfc8c54",
+      "commit": "79f1f24eba35fd3ef17b0cb9fc81b3befef68d1b",
       "generatorSha256": "7222b8b50e011b15d1b4c1463a9652f809bd18621b506a72b23647229b03ea06",
       "actionGuides": {
-        "docs/skill-guides/cli/SKILL.md": "70824f536875998584348d862f15531e8efee78bae4915397b593db4acd30fb8",
+        "docs/skill-guides/cli/SKILL.md": "ef6fbb3a6239cc6a27c58d7936cbb395fe80a91f3ba483d5e86dcf9380ab0c12",
         "docs/skill-guides/cli/actions/artifacts.md": "01a1ab26feb4f8b1ac5ec7e6faf382912ff6dfb0b3ff7ee5d1080af6484ea1d3",
         "docs/skill-guides/cli/actions/cloud-vault.md": "9443c94b35daeb4d60e517048442f53db0a02a1e7eb381b74d478f6ec1cb0c02",
         "docs/skill-guides/cli/actions/connect-aws.md": "76ee8348f742e1462053fe2d989c16045c8ec969d69412125d9bfc437e33ef6e",
         "docs/skill-guides/cli/actions/data.md": "4bc6ce75db85e677ec9a6ec7f33b7d9f1ab6c4d0dcc86513b61684529f1f947f",
         "docs/skill-guides/cli/actions/hosts-jobs.md": "29540ec1dcac36cf4d1496a2207b4c63c9f28f3dcda044336faba5b6469bf1e9",
-        "docs/skill-guides/cli/actions/infrastructure.md": "bc9843d8fe0692834d989d0fb8f03e554f78c2009efece9f7b4dafd80a585df7",
+        "docs/skill-guides/cli/actions/infrastructure.md": "6622b29c4be87140ccccb2b39cd3e934a9bbb04a735e8642b256293f8132aada",
         "docs/skill-guides/cli/actions/machines.md": "eb9558f61503571260ec41ef6a8af3774c073e546b19ab1bc38bc2808164c7ff",
         "docs/skill-guides/cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
         "docs/skill-guides/cli/actions/notes.md": "149ea9c82203efbc6ae64611f74f278e250c17b81e1919193119c97de3b379f0",
+        "docs/skill-guides/cli/actions/registered-udf.md": "a4e55b0fcefecdc46fe6a256adf6ebfe2336655e7ea13feabe29ec2f93aaf448",
         "docs/skill-guides/cli/actions/setup.md": "89887dd3255eb3ef447f4d8c889f857ea4c4cf54dd9e77a4297d62818eb6d2f3",
         "docs/skill-guides/cli/actions/workflows.md": "995526747f210e03869441af9bccc4b263ccea488745992764d67b9b01dd7fc5"
       },

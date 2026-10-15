@@ -62,3 +62,35 @@ Stack-to-Note attachment remains proposed. Creating or filing a Note does not
 attach it or grant independent Note access. Reuse the existing [Notes guide](notes.md)
 for canonical source reads, original-revision patches and acknowledged readback;
 preserve Note identity, collaborative revisions and existing sharing.
+
+## Move an existing registration
+
+For a requested Project/workspace consolidation, preserve the existing UUID,
+state endpoint, state bytes and history. Use CLI 0.67.0 or later
+and the matching backend with its receipt migration and admission flag enabled.
+Source and destination require namespace OWNER and Project ADMIN authority.
+
+Preview the explicit destination with `dreamlake infra move STACK_ID --namespace
+OWNER --project PROJECT --dry-run --out review.json`. Inspect blockers and saved
+source/destination IDs, original name, state version/digest and idempotency key.
+For an explicitly approved collision rename, add `--destination-name NAME` to
+preview; never invent an automatic rename. A runbook or active lock may block
+admission. The saved review file must be new and is private.
+
+Execute only the saved intent with `dreamlake infra move STACK_ID --request-file
+review.json --confirm`. The server rechecks authority and state/location; the
+contract is admission-linearized across stores. Do not refresh the preview or
+change destinations during confirmation. The CLI never retries a move write.
+After an ambiguous outcome inspect the same UUID and reconcile, then replay the
+same saved request/key if appropriate. Do not create a replacement stack.
+
+## Provision Kubernetes capacity and launch containers
+
+When explicitly authorized to provision a cluster, use the
+[Kubernetes setup walkthrough](../reference/providers-kubernetes.md) for the
+InfraStack, CPU pool limits, restricted endpoint, Vault kubeconfig and provider
+registration sequence. The Kubernetes launch commands require CLI 0.66.0 or later and the matching
+backend release; do not infer deployment from these docs. Verify
+both the worker-node inventory and a completed Pod in each intended pool, then
+record the task-owned teardown plan. Docker-built images run as Pods on existing
+nodes; an accepted Pod launch is not a machine-provisioning or readiness receipt.
