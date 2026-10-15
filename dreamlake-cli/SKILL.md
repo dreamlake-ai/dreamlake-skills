@@ -15,6 +15,7 @@ options and limits:
 - [Upload an inline image](actions/media.md)
 - [Publish an artifact](actions/artifacts.md)
 - [Manage workflows](actions/workflows.md)
+- [Execute one registered Python UDF (CLI 0.68.0+)](actions/registered-udf.md)
 - [Import and restore cloud configuration](actions/cloud-vault.md)
 - [Provision machines and manage their identities](actions/machines.md)
 - [Inspect hosts and Slurm jobs, or track external work](actions/hosts-jobs.md)

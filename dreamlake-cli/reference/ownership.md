@@ -167,3 +167,36 @@ an unready server adapter.
 Readiness is not execution or destination acceptance. Re-read the manifest
 after any filing change. Keep blocked requests out of `ownership create`; never
 substitute namespace relabeling or copy/delete for a supported move.
+
+## Transfer snapshot storage and cleanup
+
+The matching server release stores large transfer journals in private S3 objects;
+MongoDB keeps their checksummed references. This requires the snapshot-capable
+backend and CLI 0.67.0 or later. Installing a newer CLI does
+not enable server storage or cleanup capabilities.
+
+```bash cli-help="ownership snapshot"
+dreamlake ownership snapshot 000000000000000000000001 --namespace acme
+```
+
+Snapshot inspection returns operation state, object metadata and cleanup
+eligibility. It never downloads journal content or creates a public URL. Use the source
+namespace: only its current authorized owner may inspect snapshot locations.
+The backend snapshot-admission flag remains disabled until all executors are
+upgraded or drained; existing pinned snapshots remain readable for recovery
+and cleanup when new admission is disabled.
+
+```bash cli-help="ownership snapshot-cleanup"
+# Inspect eligibility without deleting anything (the default).
+dreamlake ownership snapshot-cleanup 000000000000000000000001 --namespace acme
+# Delete only after server retention and recovery checks pass.
+dreamlake ownership snapshot-cleanup 000000000000000000000001 --namespace acme --execute
+```
+
+Cleanup applies to one explicit operation. The server refuses active operations
+and operations requiring recovery, and retains terminal snapshots for seven
+days. It checks current eligibility again on execution; a successful dry run
+is not a deletion reservation. Cleanup removes snapshot objects and superseded
+versions under that operation's prefix, while retaining the operation's audit
+record. It does not delete transferred resources. Writes are sent once without
+automatic retries; inspect status again after an ambiguous network failure.

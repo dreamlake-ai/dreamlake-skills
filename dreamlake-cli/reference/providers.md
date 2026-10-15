@@ -169,7 +169,7 @@ dreamlake providers launch team/<provider-id> --clear --revision 2 --request-id 
 - Layer files are checked locally first; a syntax error names its line.
 - EC2 refuses `userData`, Slurm refuses `script`, and GCE refuses boot-script
   metadata: enrollment is injected at launch, and secrets are not stored.
-- Kubernetes providers do not support launch layers.
+- Kubernetes providers support container launch layers with a matching backend release; they create Pods on an existing cluster.
 
 ## Launch EC2 instances
 
@@ -217,6 +217,71 @@ backend pins installer versions and delivers an instance-bound KMS envelope at
 runtime; user data contains no credential. A launch
 receipt is not online/readiness evidence. See [Service accounts](service-accounts.md)
 for grants, retry behavior and revocation.
+
+## Launch a Docker image on Kubernetes
+
+Requires CLI 0.66.0 or later and the Kubernetes launch backend. A `k8s` provider
+launches one Pod in an existing Kubernetes namespace; provisioning the worker
+machines is a separate InfraStack operation. See the
+[Kubernetes setup walkthrough](providers-kubernetes.md).
+
+Store an inline kubeconfig in Vault and register its reference. The kubeconfig
+must contain an HTTPS server, inline CA, and static bearer token or inline client
+certificate/key. Exec plugins, local file references, auth providers and insecure
+TLS are rejected. Keep the credential limited to the workload namespace; node
+inventory also needs cluster-level `get/list` on nodes.
+
+```json
+{
+  "version": 1,
+  "name": "kube-dev",
+  "kind": "k8s",
+  "config": {
+    "cluster": "kube-dev",
+    "context": "dreamlake",
+    "namespace": "dreamlake-launch",
+    "credentialRef": {"namespace": "team", "entryName": "kubernetes/kube-dev"}
+  }
+}
+```
+
+Save the declaration to `provider.json` and the following launch layer to
+`container.jsonl` (each JSON Layer document occupies one line). Use a registry image your cluster can pull, preferably pinned
+by digest. The image's entrypoint is preserved unless `command` is supplied.
+
+```json
+{"image":"public.ecr.aws/docker/library/python:3.12-slim","command":["python","-c"],"args":["print('DreamLake Kubernetes launch passed')"],"resources":{"requests":{"cpu":"100m","memory":"64Mi"},"limits":{"cpu":"500m","memory":"128Mi"}},"nodeSelector":{"dreamlake.ai/tier":"small"}}
+```
+
+```bash
+dreamlake providers register team --file provider.json --launch container.jsonl --request-id kube-register-01 --json
+dreamlake providers preflight team/333333333333333333333333 --json
+dreamlake providers instances launch team/333333333333333333333333 --count 1 --request-id kube-small-01 --json
+dreamlake providers instances list team/333333333333333333333333 --json
+```
+
+```bash cli-help="providers nodes"
+dreamlake providers nodes team/333333333333333333333333 --json
+```
+
+```bash cli-help="providers instances logs"
+dreamlake providers instances logs team/333333333333333333333333 --instance POD_NAME --tail 100 --json
+```
+
+```bash cli-help="providers instances terminate"
+dreamlake providers instances terminate team/333333333333333333333333 --instance POD_NAME --request-id kube-delete-01 --json
+```
+
+Pods use `restartPolicy: Never`; receipt acceptance does not mean the image
+pulled or the workload succeeded. Check its phase and logs. Reusing the same
+request ID recovers the same launch. A committed receipt can outlive its Pod;
+replay does not recreate a deleted Pod. For `pending` or
+`kubernetes_launch_outcome_unknown`, inspect the operation and cluster before
+choosing a new request ID: retries only reconcile the original Pod and never
+submit another create. A new request ID intentionally starts a separate run.
+`start`/`stop`, Nymph enrollment and `--host-name` are EC2 options, not Pod
+operations. Terminating a Pod does not stop cluster charges: scale worker pools
+or destroy the task's InfraStack when finished.
 
 ## Recover a missing response
 

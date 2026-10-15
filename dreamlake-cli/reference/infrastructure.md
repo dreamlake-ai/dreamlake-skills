@@ -90,3 +90,37 @@ inspect `infra list` in the same namespace and project before retrying. A networ
 failure, server failure or invalid acknowledgement reports the outcome as unknown,
 preserving intended metadata in JSON's `intent` field. Reconcile the existing
 record first; do not create another backend as a retry or state migration.
+
+## Move an existing stack registration
+
+Requires CLI 0.67.0 or later, the matching backend, its additive
+PostgreSQL receipt migration and enabled `INFRASTRUCTURE_STACK_MOVE_ENABLED`
+admission flag. The flag is disabled by default. This
+moves the existing registration between Projects/namespaces. The immutable
+stack UUID, HTTP state endpoint, state bytes and history remain intact. An explicit
+`--destination-name NAME` on preview records a reviewed rename for a destination
+name collision; there is no automatic rename. The request pins the old name and
+optional new name, and confirmation does not accept name overrides. It does
+not register a second backend, run Terraform or move provider resources.
+
+```bash cli-help="infra move"
+# Save one reviewed move; no location changes occur during preview.
+dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
+  --namespace fortyfive --project dreamlake-infra --dry-run --out stack-move.json
+# Execute the exact saved intent and optimistic concurrency checks.
+dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
+  --request-file stack-move.json --confirm --json
+```
+
+Preview and execution require namespace OWNER and Project ADMIN authority
+in both the current and destination workspaces. Execution rechecks the stack location/name, state version/digest, destination IDs, current grants
+and absence of a Terraform lock. A changed location/version/digest, renamed or replaced destination, active lock or
+lost authority refuses the move. Review the saved source and destination before
+confirmation; do not edit the review file to bypass a stale or blocked plan.
+
+The CLI sends one execution request without automatic retries. If the network
+fails or an acknowledgement is invalid, inspect `infra status` with the same
+UUID and reconcile its location before retrying. Preserve the original stack;
+never use `infra create` as a move or migration workaround. A runbook binding blocks a move until the backend can prove compatibility in
+the destination. Admission is linearized at the final authority check; this is
+not a distributed transaction with the permissions database.
