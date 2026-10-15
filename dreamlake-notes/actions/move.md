@@ -77,8 +77,13 @@ is off by default. External Note Project filings are removed by default, ending
 inherited access through those mounts without deleting the moved Notes/data.
 Retaining Note filings requires explicit `--preserve-external-filings` and
 destination approval of their live audience, independently of direct-access
-retention. Artifact/Env outside placements always detach, and their old
-namespace-based links cannot be preserved; review the complete preview.
+retention. Artifact/Env outside placements always detach. On APIs implementing
+PR1170's compatible catalog/token/proxy readers and ownership executors, with
+old readers drained and `ARTIFACT_TRANSFER_SHARING_ENABLED=true`, reviewed
+preserve-access can retain Artifact tokens and token-dependent share visits;
+old URLs are read-only aliases authorized against the current owner. Older or
+disabled APIs retain blockers; Env links remain unsupported. A newer client
+alone does not establish that server floor. Review the complete preview.
 Source owner requests and destination owner explicitly accepts. Keep the exact
 request/key on a lost response; use status for a known operation, never rebuild
 or clear a claim/lease. See the [Notes contract](../reference/notes.md#whole-project-and-owned-resources-transfer).

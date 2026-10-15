@@ -107,9 +107,15 @@ files/images/videos and all live source-owned Notes, Artifacts and Envs, with
 the matching CLI 0.64.0+ client. Resources become private and old access is
 revoked by default. Eligible direct access and external Note filings need
 separate reviewed opt-ins; retaining a Note filing can preserve its other
-Project's audience even when direct access is revoked. Artifact/Env link-derived
-access cannot be retained, and their outside Project placements/Bindr memberships
-always detach. Inspect `resourceCounts`, typed `resourceNames` and
+Project's audience even when direct access is revoked. Artifact share tokens and
+token-dependent visits can additionally be retained with the compatible
+catalog/token/proxy API and executors from
+[PR1170](https://github.com/dreamlake-ai/dreamlake-workspace/pull/1170), old readers
+drained, and `ARTIFACT_TRANSFER_SHARING_ENABLED=true` (default off). Old-namespace
+URLs are read-only aliases authorized against the current owner. Older/disabled
+APIs still block that retention, and Env links remain unsupported; installing a
+newer client does not enable the server capability. Artifact/Env outside Project
+placements and Bindr memberships always detach. Inspect `resourceCounts`, typed `resourceNames` and
 `summary.detachedOtherFilings`, not only the Note subset. Unsupported attachments
 block the whole request instead of being silently excluded. Inspect owner-only
 `error.details.blockers` for affected items and reasons in the Web transfer dialog

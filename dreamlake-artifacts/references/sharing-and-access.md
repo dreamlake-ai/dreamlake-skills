@@ -74,5 +74,10 @@ For moving an attached, source-owned Artifact with its whole Project, follow
 using CLI 0.64.0+ and the matching backend. Review the complete typed plan;
 this adds no standalone Artifact move. Use the
 [owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
-for private visibility, old-link revocation, outside-placement removal and
-unchanged storage locations/capability TTLs. Do not substitute copy/delete.
+for private visibility, conditional Artifact-link retention, outside-placement
+removal and unchanged storage locations/capability TTLs. Retention requires the
+compatible catalog/token/proxy readers and ownership executors plus
+`ARTIFACT_TRANSFER_SHARING_ENABLED=true` (default off); older or disabled
+deployments retain preview blockers. Env links remain unsupported. Read aliases
+authorize the current owner and never grant old-member access or serve writes.
+Do not substitute copy/delete.

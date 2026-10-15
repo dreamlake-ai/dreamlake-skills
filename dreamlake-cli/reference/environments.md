@@ -49,9 +49,7 @@ disappears and a note explains why.
 Define a custom environment once with its URLs, then switch by name forever:
 
 ```bash file="terminal"
-dreamlake login --env dev \
-  --url https://dev-api.example.com \
-  --bss https://dev-bss.example.com
+dreamlake login --env dev --url https://dev-api.example.com
 dreamlake auth env use dev
 ```
 
@@ -69,7 +67,6 @@ For one-off commands you can override the active env:
 | Setting | Env var |
 | --- | --- |
 | Server URL | `DREAMLAKE_REMOTE` |
-| BSS URL | `DREAMLAKE_BSS_URL` |
 | Token | `DREAMLAKE_API_KEY` |
 | Web app URL (receipt `open:` links) | `DREAMLAKE_WEB_URL` |
 
@@ -79,7 +76,7 @@ The effective connection lives in two files shared with the Python SDK
 | File | Contents |
 | --- | --- |
 | `~/.dreamlake/tokens.json` | the active token (`dreamlake-token` slot) |
-| `~/.dreamlake/config.json` | `remote_url`, `bss_url`, cached `namespace`, `device_secret` |
+| `~/.dreamlake/config.json` | `remote_url`, cached `namespace`, `device_secret` |
 
 `login` and `auth env use` always rewrite the token and server **together**, so
 the pair can never point at different environments.
