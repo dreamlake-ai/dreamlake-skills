@@ -3590,11 +3590,37 @@ no file copy or resource-relationship migration is needed. Artifact/Env placemen
 in outside Projects are removed even when Note placements are preserved.
 Existing Artifact/Env links include the old namespace, so preserving those shares
 is blocked; revoke them during transfer and share again at the destination.
-Source, Annotation, Workflow and structural content remain explicitly unsupported
-in this release to avoid requiring broader storage/Connection/run migrations.
-Embedding-job records also block, including completed or failed history;
-completing a job does not remove this restriction. Use a Project without these
-records. Check the full preview; a blocked Project never moves only its supported subset.
+In the released versions above, Source, Annotation, Workflow and structural
+content remain explicitly unsupported to avoid requiring broader
+storage/Connection/run migrations.
+
+**Unreleased intended expansion — not yet available in any released backend or
+client.** A reviewed, unreleased backend change extends the same whole-Project
+move to the Project's Tasks and their event history, the Project-owned legacy
+Datasets (the Prisma `Dataset` rows that belong to the Project — standalone
+LabelDatasets are a different feature and are not part of a Project move), owned
+Annotations and eligible pure-managed Sources. Tasks, events and Datasets move
+as dependent rows: they are not manifest members, and the destination inbox sees
+only their redacted counts. Annotations keep
+their original storage location (the move pins the existing bucket/prefix; a
+later same-name annotation created back in the old namespace gets its own
+isolated location and can never overwrite the moved one). A Source qualifies
+only when DreamLake manages its bytes directly — no external provider layer, a
+live Source and healthy storage binding, and no pending or uncertain physical
+operation. A qualifying Source keeps its ID and storage untouched (no file is
+copied or moved, regardless of file count); its attachment to the moved Project
+and that attachment's Bindr references move with it, while its attachments to
+other Projects are explicitly shown in the preview and detached. Existing
+Source sharing (link, admitted people, editors) is revoked by the move —
+keeping it is not supported — and a failed or uncertain managed-file deletion
+must be resolved by an operator first; you can detach that one Source to move
+the rest of the Project. Workflow mounts, episode content, Tracks and
+embedding-job records still block.
+
+Embedding-job records block in every version, including completed or failed
+history; completing a job does not remove this restriction. Use a Project
+without these records. Check the full preview; a blocked Project never moves
+only its supported subset.
 
 Moved Project/resources become private. Other-Project mounts and their Bindr tags are
 removed by default, ending access inherited through those filings. This does not
