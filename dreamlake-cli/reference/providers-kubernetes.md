@@ -81,52 +81,41 @@ review the account, create/change/destroy counts, instance types, limits and
 network before `terraform apply launch.tfplan`. State, locking and history are
 then visible in the InfraStack. Do not commit credentials, plan files or state.
 
-## Bootstrap restricted cluster access
+## Authorize the launch server on EKS
 
-On the user-configured launch server, use explicitly authorized administrator
-access only to create `dreamlake-launch`, its `dreamlake-provider`
-service account, a namespaced Role/RoleBinding for Pods and Pod logs, and a
-ClusterRole/ClusterRoleBinding for read-only node inventory. The Pod role needs
-`create/get/list/delete` on `pods` and `get` on `pods/log`. No secrets, exec,
-cluster-admin or node mutation permission is needed by the provider.
+The launch-server mode in CLI 0.71.0 and its matching backend uses the server's IAM
+role and short-lived EKS authentication. It does not copy a static Vault
+kubeconfig or run a user-supplied credential plugin. The adapter verifies the
+actual STS account and assumed role before reaching the cluster endpoint.
 
-Mint a short-lived service account token with `kubectl create token dreamlake-provider
---namespace dreamlake-launch --duration=24h`; verify the granted expiration.
-The repository includes `examples/kubernetes-launch/rbac.yaml`; inspect its
-namespace and role names, then apply it with administrator credentials.
-Build a kubeconfig containing only the cluster HTTPS endpoint, inline CA, this
-token, and a `dreamlake` context. Store it through stdin:
+In the cluster's Terraform, create an EKS access entry for the dedicated launch
+role and map it to a named Kubernetes group. With the cluster administrator,
+bind that group to a namespaced Role permitting `create/get/list/delete` on
+`pods` and `get` on `pods/log`, plus a ClusterRole permitting `get/list` on
+`nodes`. Create `dreamlake-launch` before binding the provider. These permissions
+cover provider operations; they do not grant workload Pods the launch role.
+Kubernetes RBAC is separate from AWS IAM policy permissions.
 
-```bash
-dreamlake vault add --name team/kubernetes/kube-dev --stdin --request-id kube-credential-01 < provider.kubeconfig
-```
+The launch server needs Python 3 with boto3, access to IMDSv2, AWS STS and EKS,
+and HTTPS access to the cluster endpoint. Prefer the private endpoint in the
+same network. The Nymph transport is outbound, so a new hosted backend IP does
+not require changing the cluster allowlist. An authenticated Nymph hostname or
+heartbeat is not a verified IP address or evidence of successful SSH.
 
-Protect the local file and remove it after the Vault write. Record credential
-expiry and rotate before it expires; the provider does not execute AWS CLI
-plugins or renew tokens. This token is the API client identity; workload Pods use the configured workload
-service account and do not need these API permissions. Kubernetes nodes use containerd to run Docker-built
-OCI images; a Docker daemon on every worker is not required.
+Use [launch-server binding](providers.md#bind-a-launch-server) to migrate an
+existing provider while preserving its ID and existing Pod ownership. Binding
+removes the legacy credential reference. Legacy static credentials may still
+support read-only inspection during migration; they are not a launch fallback.
 
-## Renew the credential
+## Repair permissions
 
-Token expiration is an operational limit, not a launch failure. Check Vault
-metadata with `dreamlake vault show --name team/kubernetes/kube-dev`. Before its
-recorded expiry, use administrator access to mint a new token for the same
-service account and replace only the token in the inline kubeconfig. Save it
-with the observed Vault revision and a new stable request ID:
-
-```bash
-dreamlake vault add --name team/kubernetes/kube-dev --if-match REVISION --stdin --expires-at TOKEN_EXPIRY_UTC --request-id kube-credential-renew-01 < provider.kubeconfig
-```
-
-Remove the private local kubeconfig afterward and repeat `providers nodes` plus
-a small launch to verify the replacement. A lost Vault response must be
-reconciled through `vault write-status --request-id kube-credential-renew-01`
-before retrying identical input. The provider reference stays the same.
-Verify connectivity from the selected launch server. If its egress changes,
-review that server's restricted allowlist; do not substitute a hosted-backend
-task IP or widen access to the internet. Credential renewal does not authorize
-a smoke launch until the required server route is verified.
+Use the [launch-role permission procedure](providers.md#fix-permission-limitations).
+Verify the server's actual IAM role, update its Terraform policy using the
+authorized management identity, and test the previously denied operation.
+For Kubernetes `Forbidden`, inspect the EKS access entry and group RoleBindings;
+adding AWS permissions alone will not change RBAC. IAM policy changes normally
+do not require replacing the launch server. Resolve uncertain launch receipts
+before retrying mutations.
 
 ## Register, launch and verify
 
@@ -169,5 +158,5 @@ To temporarily remove compute, set both pools'
 The EKS control plane, NAT and any retained volumes continue billing. To stop
 all task-owned cluster charges, run `terraform plan -destroy`, review it against
 the task's hosted state, and apply the destroy plan. Retire the provider and
-revoke its Vault credential after teardown. Preserve InfraStack history as the
+remove its dedicated EKS access entry after teardown; retire any legacy Vault credential separately. Preserve InfraStack history as the
 resource inventory and cleanup record.

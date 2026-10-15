@@ -16,6 +16,19 @@ read-only inspection may continue. Current command/schema support and a direct
 backend smoke do not prove this architecture is implemented. See the
 [required launch boundary](../reference/providers.md#required-launch-boundary).
 
+With CLI 0.71.0 and the matching backend, enroll the server, read the provider's
+current revision, then use `providers launch-server` with its exact enrollment,
+expected role ARN, region and stable request ID. Follow the
+[binding procedure](../reference/providers.md#bind-a-launch-server); registration
+alone does not prove execution readiness. A pending or uncertain cloud write
+must be inspected through its durable operation receipt before another action.
+
+For permission failures, use the [repair reference](../reference/providers.md#fix-permission-limitations).
+Record the actual role, denied action, region and request ID, then update the
+dedicated role's Terraform policy with an identity authorized to administer it.
+IAM policies can change after creation. Distinguish IAM from Kubernetes RBAC,
+network access and explicit denies; never switch to service credentials.
+
 Create one namespace-owned service account for each Nymph daemon. Give it only
 explicit project or host grants needed by its workload; the namespace owner
 manages access. A service account is not a human login and does not inherit the

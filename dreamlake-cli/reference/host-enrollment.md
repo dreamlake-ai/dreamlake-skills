@@ -274,6 +274,9 @@ dreamlake hosts enroll --local --name YOUR_NAMESPACE/dev/my-mac \
 dreamlake hosts status YOUR_NAMESPACE/dev/my-mac --json
 ```
 
+Starting with CLI 0.71.0, a version such as `0.1.26` is normalized to the published
+`v0.1.26` installer tag; already prefixed tags and `latest` are preserved.
+
 An existing Nymph binary on PATH is reused; `--nymph-version` selects the
 installer version only when Nymph is missing. Check an existing daemon's version
 before relying on tracked-run support. Homebrew's OpenSSL 3 is discovered under
