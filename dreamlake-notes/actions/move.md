@@ -53,9 +53,26 @@ affected item and reason. Episode content remains unsupported.
 CLI flow is `project move ... --dry-run --out reviewed.json`, review
 scope/access/external audiences, then `--confirm --request-file reviewed.json`.
 The manifest must include the Project and every owned live Note, Artifact and
-Env; do not reduce it to Notes. Foreign resources, Source bindings, Workflow,
-Annotation and structural content block everything. No standalone resource
-transfer is added. Preserve access
+Env; do not reduce it to Notes. In released CLI 0.64.0 / SDK 0.31.0 against the
+released backend, foreign resources, Source bindings, Workflow, Annotation and
+structural content block everything. No standalone resource transfer is added.
+
+**Unreleased v4 expansion — do not assume it on any released backend/client.**
+An unreleased backend closure additionally moves the Project's Tasks/TaskEvents
+and Project-owned legacy Datasets as dependent rows (never manifest members;
+the plan and preview expose only redacted `managedCounts`, and
+`summary.includedCount` still equals the manifest length), and admits owned
+`annotation` and eligible pure-managed `source` manifest members. A Source
+qualifies only with no external layer, a live lifecycle, a healthy internal
+storage binding and no pending/uncertain physical operation; its ID and storage
+stay untouched — no file is copied or moved regardless of file count — its own
+Project binding and Bindr references move by namespace relabel with retained
+IDs, attachments to other Projects are previewed and detached, and existing
+Source sharing/editors are revoked (preservation unsupported). Annotations keep
+their pinned bucket/prefix; a same-name annotation recreated in the old
+namespace gets an isolated location. Released strict clients reject these new
+member types; use a matching unreleased client only when that ships. The exact
+reviewed saved request/key discipline below applies unchanged. Preserve access
 is off by default. External Note Project filings are removed by default, ending
 inherited access through those mounts without deleting the moved Notes/data.
 Retaining Note filings requires explicit `--preserve-external-filings` and
