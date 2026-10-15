@@ -61,6 +61,17 @@ See [installation](installation.md) and [authentication environments](environmen
 if the CLI or intended personal login is missing. Machine credentials and your
 personal login are separate; do not copy a personal token onto the worker.
 
+## Required execution server
+
+New provisioning and workload launches must run through the user's explicitly
+configured launch server and its appropriate IAM role. Verify that selection
+before proceeding; an existing controller enrollment or Vault credential reference
+does not by itself establish it. Do not use control-plane/service IAM, ambient
+service credentials, an operator Vault IAM user or direct hosted-backend provider
+execution. If routing is missing, stop new launches and preserve existing resources;
+read-only inspection can continue. See the
+[launch boundary](providers.md#required-launch-boundary) for implementation limits.
+
 ## Supply only the missing decisions
 
 An agent should inspect the selected project and authenticated records first,
@@ -70,7 +81,7 @@ of creating another provider, enrollment, state key, or instance during a retry.
 | Decision | What to supply or verify |
 | --- | --- |
 | DreamLake destination | Your environment, namespace, existing provider ID/revision if present, and existing Personal AI host/enrollment. |
-| AWS scope and access | Exact account and region; your approved AWS profile/SSO session or Vault credential reference. Never paste secret values into the recipe. |
+| AWS scope and access | Exact account and region, explicitly user-configured launch server and its appropriate IAM role. Verify the runtime identity; do not substitute an operator Vault IAM user. Never paste secret values into the recipe. |
 | Worker | An exact existing EC2 instance ID for reuse, or an explicitly chosen new worker size, pinned AMI, availability zone, key-pair name, network/IAM and storage inputs. |
 | State and results | Existing S3 state bucket/key/region/expected owner with locking, encryption and versioning; a retained results bucket/prefix. |
 | Workload and cost scope | Required tools, CPU/GPU needs, and whether paid AMI building, backend creation, worker provisioning and a small verification run are authorized. |

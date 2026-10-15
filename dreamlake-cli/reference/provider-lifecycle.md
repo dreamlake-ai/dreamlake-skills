@@ -1,5 +1,13 @@
 # Provider lifecycle
 
+Provisioning must execute on the explicitly user-configured launch server with
+its appropriate IAM role. Do not substitute control-plane/service IAM, ambient
+service credentials, an operator Vault IAM user or direct hosted-backend provider
+execution. Verify the route before any apply or workload launch; missing routing
+blocks new provisioning while read-only inspection and existing resources remain
+available. These local CLI commands do not themselves establish that route. See
+[the launch boundary](providers.md#required-launch-boundary).
+
 A **provider** is created deliberately, once, with a name a person chose.
 Everything ephemeral attaches to it: a daemon never creates a provider, it
 *claims* one.
@@ -481,8 +489,11 @@ Reentry preserves edited files. `create --continue` rereads the current inputs;
 it is not permission to replace the scaffold or change its template identity.
 Backend settings are separate from infrastructure variables. Choose an existing
 approved S3 backend with a unique key, expected bucket owner, encryption and
-`use_lockfile=true`; enable bucket versioning. Credentials come from the normal
-AWS credential chain, never those JSON files. See [Terraform state and Vault]
+`use_lockfile=true`; enable bucket versioning. For provisioning, the AWS
+credential chain must resolve to the selected launch server's appropriate IAM
+role, never service credentials or an operator Vault IAM user. Verify that
+identity instead of accepting an ambient fallback. Never put credentials in
+those JSON files. See [Terraform state and Vault]
 (/vault-terraform-state) for backend references and explicit snapshot recovery.
 
 ```bash file="terminal" cli-help="provider plan"

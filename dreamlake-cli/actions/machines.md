@@ -6,6 +6,16 @@ the intended environment using [setup](setup.md) before managing resources.
 These APIs require a compatible server; an older CLI or server is not evidence
 that a capability has shipped.
 
+Before any workload or machine launch, verify the explicitly user-configured
+launch server and its appropriate IAM role. Do not use or broaden control-plane
+or service IAM, substitute ambient service credentials or an operator Vault IAM
+user, or execute provider launches directly from the hosted backend. If the
+server route is missing or unverified, stop new launch/provisioning actions and
+report the gap. Preserve existing resources and unrelated service operation;
+read-only inspection may continue. Current command/schema support and a direct
+backend smoke do not prove this architecture is implemented. See the
+[required launch boundary](../reference/providers.md#required-launch-boundary).
+
 Create one namespace-owned service account for each Nymph daemon. Give it only
 explicit project or host grants needed by its workload; the namespace owner
 manages access. A service account is not a human login and does not inherit the

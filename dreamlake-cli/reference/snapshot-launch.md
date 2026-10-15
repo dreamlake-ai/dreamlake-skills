@@ -7,8 +7,16 @@ dreamlake snapshot                    # archive + register this tree → an id
 dreamlake launch train.py --queue cpu # snapshot, queue it, wait for the result
 ```
 
-Both talk to the **lakeshore control plane** and nothing else. Neither needs
-`dreamlake login`; they need `--server` (or `$LAKESHORE_URL`).
+Both submit control requests to the **lakeshore control plane**. Neither needs
+`dreamlake login`; they need `--server` (or `$LAKESHORE_URL`). This transport does
+not grant the control plane cloud-launch authority. Workload execution must use
+an explicitly user-configured launch server with its appropriate IAM role; verify
+the selected queue's execution route before submitting. No control-plane/service
+IAM, ambient service credentials, operator Vault IAM user or direct hosted-backend
+provider execution may substitute for that server. If the route is unverified,
+hold new workload launches; snapshot preparation and read-only inspection may
+continue. See [the required launch boundary](providers.md#required-launch-boundary).
+This page documents command behavior, not acceptance of that architecture.
 
 ## Run here, or submit
 

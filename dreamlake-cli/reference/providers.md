@@ -2,6 +2,28 @@
 
 `dreamlake providers` stores provider configuration in DreamLake and associates it with your host enrollment. These commands require a server with the provider registration API from [workspace PR #321](https://github.com/dreamlake-ai/dreamlake-workspace/pull/321). Added in CLI 0.14.0; the corresponding Python API is in 0.11.0.
 
+## Required launch boundary
+
+Every workload or machine launch must execute through an explicitly
+user-configured launch server, using that server's appropriate IAM role (and
+scoped provider access where needed). The control-plane/service IAM role is for
+service infrastructure: do not use or broaden it for launches. Ambient service
+credentials, an operator Vault IAM user, or direct hosted-backend provider
+execution are not substitutes for the configured server.
+
+Verify the selected server, its user configuration, execution identity and the
+deployed routing before any launch or provisioning action. If that route is
+missing or unverified, stop new launches and report the gap; do not select a
+default provider or alternate credentials. Preserve existing resources and
+unrelated service operation. Read-only inspection may continue.
+
+This is the required architecture, not a claim that the current launch APIs
+implement it. A successful direct-backend EC2/Kubernetes smoke run is only
+implementation evidence. It does not satisfy this boundary. The command syntax
+below remains reference material; launch examples require the verified route.
+No launch-server selection flag is documented here because no such contract has
+been verified.
+
 ## Register a provider
 
 Save this declaration as `provider.json`. Replace the cluster, partitions and Vault entry with your values. Omit `credentialRef` if no reference is needed; never put credential contents in the declaration.
@@ -173,9 +195,12 @@ dreamlake providers launch team/<provider-id> --clear --revision 2 --request-id 
 
 ## Launch EC2 instances
 
-An `aws-ec2` provider launches instances with credentials from your Vault.
-`credentialRef` names a Vault entry holding an AWS credentials file;
-`profile` picks one of its profiles.
+The existing `aws-ec2` declaration can name a Vault AWS credentials file with
+`credentialRef`; `profile` picks one of its profiles. This describes the stored
+configuration schema, not an approved execution route. Do not launch through
+the direct hosted-backend Vault-credential path. First verify the
+[user-configured launch server boundary](#required-launch-boundary); keep new
+launches on hold while that routing is absent or unverified.
 
 ```json
 {
@@ -225,7 +250,10 @@ launches one Pod in an existing Kubernetes namespace; provisioning the worker
 machines is a separate InfraStack operation. See the
 [Kubernetes setup walkthrough](providers-kubernetes.md).
 
-Store an inline kubeconfig in Vault and register its reference. The kubeconfig
+The existing schema stores an inline kubeconfig reference in Vault. Registering
+it does not establish the required launch-server route. Do not run the launch
+example through a hosted backend that calls Kubernetes directly; the selected
+user-configured launch server must execute it. The kubeconfig
 must contain an HTTPS server, inline CA, and static bearer token or inline client
 certificate/key. Exec plugins, local file references, auth providers and insecure
 TLS are rejected. Keep the credential limited to the workload namespace; node
