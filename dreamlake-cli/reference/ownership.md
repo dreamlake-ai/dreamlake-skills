@@ -206,3 +206,52 @@ is not a deletion reservation. Cleanup removes snapshot objects and superseded
 versions under that operation's prefix, while retaining the operation's audit
 record. It does not delete transferred resources. Writes are sent once without
 automatic retries; inspect status again after an ambiguous network failure.
+
+## Streaming Project transfer — CLI 0.70+
+
+The additive streaming v1 commands require **CLI 0.70.0+** and a matching
+server capability. Client command availability and API runtime readiness are
+separate: installing the CLI does not establish deployment readiness or
+production acceptance. The protocol is separate from the fixed-manifest transfer
+path. An installed CLI alone cannot establish eligibility: the source capability must
+explicitly return `projectTransferStream: { apiVersion: 1, enabled: true }`, the
+stream plan must be executable, and the preview must have no blockers. There is
+no fallback to the fixed-manifest protocol. The server must prove safe resource
+access, stable identities and bounded membership capture before advertising
+execution; a progress ledger alone is insufficient.
+
+```bash
+# Save the exact server-bound streaming review and stable request key.
+dreamlake project move research --namespace personal --to acme --stream --dry-run --preserve-access --preserve-external-filings --out stream-review.json
+# Only after reviewing the full policy/access inventory; owner acceptance is explicit.
+dreamlake project move research --namespace personal --to acme --stream --confirm --request-file stream-review.json --accept-if-owner --wait
+# Inspect the same operation; cursor is opaque and never rebuilt by the CLI.
+dreamlake ownership progress OPERATION_ID --namespace personal
+# Resume that existing operation only; pending requests still need recipient acceptance.
+dreamlake ownership resume OPERATION_ID --namespace personal --confirm
+```
+
+The review binds the root Project ID, source/destination identities, owner/version,
+preview hash, private preserve-policy and idempotency key. Streaming requests omit
+the client resource manifest: the compatible server owns resource-ID cursors,
+dynamic membership capture and final watermark. It must preserve IDs and existing
+content/storage rather than copy blobs. Stream v1 keeps the root Project name unchanged. Explicit repeatable
+`--rename-note NOTE_ID=DESTINATION_SLUG` mappings are bounded to 1,000 unique
+Note IDs and bound into the saved review/hash. The server must reject IDs outside
+the authoritative Project closure and block newly discovered collisions rather
+than rename implicitly. Saved-request overrides are rejected; requests are never automatically retried or accepted.
+A stale or blocked preview requires review, not a reconstructed request/key.
+The preview must explicitly count both Note and other external detachments;
+`--preserve-external-filings` refuses confirmation if either count is nonzero or
+unknown. Even an immediately completed create/replay requires operation-bound
+completed progress with a final watermark and zero pending work before the CLI
+reports completion.
+
+`--wait` remains bounded to 0–60 seconds and requires explicit
+`--accept-if-owner`; timeout is not cancellation or success. Keep the operation
+ID and reviewed file after an ambiguous response. `ownership progress` remains
+read-only when new admission is disabled; resume requires explicit `projectTransferStream.resumeEnabled: true` and
+`--confirm`, validates the existing source-owned streaming operation and never
+creates or accepts another one. Recovery can remain available when new admission
+is disabled; do not infer resume authority from admission alone. These examples document protocol syntax, not a
+production move or live compatibility claim.
