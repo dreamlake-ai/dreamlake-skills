@@ -14,6 +14,16 @@ The recipe and its Recipes Bindr are reviewed code/instructions, not a provider
 configuration database. Prefer the installed `aws-jump-worker` template and
 actual CLI commands; do not build another registry or guess a missing setup API.
 
+Before any workload or machine launch, verify the explicitly user-configured
+launch server and its appropriate IAM role. Do not use or broaden control-plane
+or service IAM, substitute ambient service credentials or an operator Vault IAM
+user, or execute provider launches directly from the hosted backend. If the
+server route is missing or unverified, stop new launch/provisioning actions and
+report the gap. Preserve existing resources and unrelated service operation;
+read-only inspection may continue. Current command/schema support and a direct
+backend smoke do not prove this architecture is implemented. See the
+[required launch boundary](../reference/providers.md#required-launch-boundary).
+
 Inspect the selected environment, namespace, owned provider and existing Personal
 AI host first. Reuse that controller's valid enrollment. The default is an
 external controller plus a distinct EC2 worker, with `reuse-retain` execution
@@ -21,8 +31,8 @@ and retained results. An optional second EC2 jump requires an explicit choice.
 Do not re-enroll, migrate or reconfigure the existing controller to satisfy the
 example. Reuse a suitable existing worker enrollment too.
 
-Ask only for unresolved inputs: AWS account/region and approved credential
-reference/profile; exact existing worker or authorized new-worker/image choices;
+Ask only for unresolved inputs: selected user-configured launch server, its IAM
+role and AWS account/region; exact existing worker or authorized new-worker/image choices;
 state backend and retained results locations; namespace/provider/controller;
 required tools and spending/execution scope. Read known choices from reviewed
 project files and authenticated records. A hostname or label is not ownership.

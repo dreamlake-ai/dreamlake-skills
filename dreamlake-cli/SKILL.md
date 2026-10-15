@@ -21,6 +21,12 @@ options and limits:
 - [Inspect hosts and Slurm jobs, or track external work](actions/hosts-jobs.md)
 - [Inspect Infrastructure Stacks and backend setup](actions/infrastructure.md)
 
+For any workload or machine launch, first read the
+[launch-server requirement](actions/machines.md). Execution must use an explicitly
+user-configured launch server and its appropriate IAM role, never service IAM,
+ambient service credentials, an operator Vault IAM user or direct hosted-backend
+provider execution. Missing routing blocks new launches, not read-only inspection.
+
 Run `dreamlake <command> --help` for command-specific syntax. The bundled
 `reference/` directory remains the complete generated CLI documentation.
 Prefer plain text for people and agents; use `--json` when a program needs

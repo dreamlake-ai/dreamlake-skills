@@ -4,6 +4,21 @@ This walkthrough requires CLI 0.66.0 or later and the Kubernetes launch backend.
 Check the deployed backend and installed CLI version before using the `nodes`
 and `instances logs` commands. A cluster needs worker capacity before a Pod can run.
 
+## Execution requirement
+
+All cluster provisioning and Pod launches must run through the explicitly
+user-configured launch server with its appropriate IAM role and scoped cluster
+access. Verify this route before running the mutating steps below. Do not use
+control-plane/service IAM, ambient service credentials, an operator Vault IAM
+user, or direct hosted-backend Kubernetes execution. If the route is unavailable,
+keep new launches/provisioning on hold and preserve existing resources. See the
+[required launch boundary](providers.md#required-launch-boundary).
+
+The existing direct-backend Kubernetes smoke is implementation evidence only;
+it does not validate this architecture. CLI/backend version support and a Vault
+kubeconfig alone are insufficient acceptance. Read-only inventory and local
+scaffolding can continue while execution routing is corrected.
+
 ## Create the InfraStack
 
 Create a task-specific directory and scaffold the `kube` provider template:
@@ -39,8 +54,10 @@ cpu_node_pools = {
 
 These two pools expose `dreamlake.ai/tier=small` and `large`. Check account quota,
 instance availability and estimated hourly cost before applying. The API is
-private by default. If public access is needed, explicitly allow only operator
-and DreamLake backend egress CIDRs; the template rejects a world-open endpoint.
+private by default. Reach it from the selected launch server. If public access
+is needed, restrict it to that server's verified egress and separately authorized
+administrative access; the template rejects a world-open endpoint. Do not add
+hosted-backend egress as a substitute for the launch server.
 
 Register a hosted state backend in your infrastructure project:
 
@@ -51,8 +68,11 @@ dreamlake infra connect STACK_ID
 
 Add `terraform { backend "http" {} }` to the Terraform root. Apply the environment
 settings printed by `infra connect`, and provide `TF_HTTP_PASSWORD` from your
-DreamLake authentication without writing it into Terraform configuration. Load
-AWS credentials from your authorized Vault profile into the process environment.
+DreamLake authentication without writing it into Terraform configuration. Run
+Terraform provisioning on the selected launch server with its appropriate IAM
+role; verify the actual AWS account and role before planning or applying. Do not
+load an operator Vault IAM user's credentials as a fallback. State-backend
+authentication is separate from AWS provisioning authority.
 For an AWS-hosted Docker smoke image, optionally copy the repository example
 `examples/kubernetes-launch/registry.tf` into this root. It creates a disposable
 ECR repository whose images are deleted on teardown.
@@ -63,7 +83,8 @@ then visible in the InfraStack. Do not commit credentials, plan files or state.
 
 ## Bootstrap restricted cluster access
 
-Use administrator access only to create `dreamlake-launch`, its `dreamlake-provider`
+On the user-configured launch server, use explicitly authorized administrator
+access only to create `dreamlake-launch`, its `dreamlake-provider`
 service account, a namespaced Role/RoleBinding for Pods and Pod logs, and a
 ClusterRole/ClusterRoleBinding for read-only node inventory. The Pod role needs
 `create/get/list/delete` on `pods` and `get` on `pods/log`. No secrets, exec,
@@ -102,9 +123,10 @@ Remove the private local kubeconfig afterward and repeat `providers nodes` plus
 a small launch to verify the replacement. A lost Vault response must be
 reconciled through `vault write-status --request-id kube-credential-renew-01`
 before retrying identical input. The provider reference stays the same.
-If a Fargate backend uses a public task IP, deployments can change its egress;
-refresh the cluster's restricted allowlist from the actual new task ENI before
-claiming connectivity. Do not widen it to the internet as a workaround.
+Verify connectivity from the selected launch server. If its egress changes,
+review that server's restricted allowlist; do not substitute a hosted-backend
+task IP or widen access to the internet. Credential renewal does not authorize
+a smoke launch until the required server route is verified.
 
 ## Register, launch and verify
 
@@ -128,14 +150,21 @@ with `--layer large`. The sample leaves `command` unset to verify the image's
 Docker `ENTRYPOINT` is preserved. Supply `imagePullSecrets` for an existing namespace-local pull secret
 when the registry requires authentication; never put registry passwords in layers.
 
-Acceptance includes a Ready node count matching both pools, one successful
+Architecture acceptance first requires evidence that provisioning and Pod
+creation executed on the selected user-configured launch server with its
+appropriate IAM role and scoped cluster access, without service-role or hosted
+backend fallback. Workload acceptance then includes a Ready node count matching
+both pools, one successful
 launch per pool, useful bounded logs, same-request retry returning the same Pod,
 and deletion limited to provider-owned Pods. The cluster visualization reports
 readiness and allocatable capacity; it does not imply a Nymph enrollment.
 
 ## Stop charges
 
-Delete acceptance Pods first. To temporarily remove compute, set both pools'
+Preserve existing resources while launch routing is corrected; this section
+is not an instruction to tear them down. For separately authorized cleanup, use
+the selected launch server and scoped permissions. Delete acceptance Pods first.
+To temporarily remove compute, set both pools'
 `desired_size = 0` and apply the reviewed Terraform plan; keep `min_size = 0`.
 The EKS control plane, NAT and any retained volumes continue billing. To stop
 all task-owned cluster charges, run `terraform plan -destroy`, review it against

@@ -86,7 +86,17 @@ same saved request/key if appropriate. Do not create a replacement stack.
 
 ## Provision Kubernetes capacity and launch containers
 
-When explicitly authorized to provision a cluster, use the
+Before any workload or machine launch, verify the explicitly user-configured
+launch server and its appropriate IAM role. Do not use or broaden control-plane
+or service IAM, substitute ambient service credentials or an operator Vault IAM
+user, or execute provider launches directly from the hosted backend. If the
+server route is missing or unverified, stop new launch/provisioning actions and
+report the gap. Preserve existing resources and unrelated service operation;
+read-only inspection may continue. Current command/schema support and a direct
+backend smoke do not prove this architecture is implemented. See the
+[required launch boundary](../reference/providers.md#required-launch-boundary).
+
+When explicitly authorized to provision a cluster through that server, use the
 [Kubernetes setup walkthrough](../reference/providers-kubernetes.md) for the
 InfraStack, CPU pool limits, restricted endpoint, Vault kubeconfig and provider
 registration sequence. The Kubernetes launch commands require CLI 0.66.0 or later and the matching
