@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "69e2c440f91ac09aaa304d684d141c440c4391bf",
+      "commit": "a3164b3e42324130f468cc3319c876fd5d079993",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "dd7b7cd9de0d414ef0a03c0c298cea52b8c6adab2a384e959eb6e6b61cf38e17",
@@ -39,17 +39,17 @@
       },
       "scenePages": {
         "docs/pages/scene-generation/+Page.mdx": "d01546ff63b34bdd234a5295f1329da75dc4441a8e2c882358d8af9735a5c292",
-        "docs/pages/libraries/+Page.mdx": "7d4db2a506821e06fb6ba5874589d83a89f62585d61634f15e43dd394faa7969",
+        "docs/pages/libraries/+Page.mdx": "5a60f84c0707e375bb4fc3f018dbcb0bca4046cc44d8012f88d52536ebc82837",
         "docs/pages/scenes/+Page.mdx": "fde653ee51e0cdecafb2eb38bdff47ae410b39903b0a305ce369a6855e11c108",
         "docs/pages/scenes/layers/+Page.mdx": "814a1e4c494dcd2c715a375fae77932059ef4d35945a88044c1938602c181c7e"
       }
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "53dc39673e090a5a35c33af485f265154557e7f4",
+      "commit": "77486e8fb8c492bcc7928cafacf2e44d24a61258",
       "generatorSha256": "7222b8b50e011b15d1b4c1463a9652f809bd18621b506a72b23647229b03ea06",
       "actionGuides": {
-        "docs/skill-guides/cli/SKILL.md": "722ffb500a52b1f9bb8d2557ea25aab921582b8d9a4236e9c90d6c99072ebe70",
+        "docs/skill-guides/cli/SKILL.md": "1fbc456bf24d75512e942b5840458fc592a5d875cfcc5ccee134f977c979a6c9",
         "docs/skill-guides/cli/actions/artifacts.md": "01a1ab26feb4f8b1ac5ec7e6faf382912ff6dfb0b3ff7ee5d1080af6484ea1d3",
         "docs/skill-guides/cli/actions/cloud-vault.md": "9443c94b35daeb4d60e517048442f53db0a02a1e7eb381b74d478f6ec1cb0c02",
         "docs/skill-guides/cli/actions/connect-aws.md": "f12a658b0e9842598caced33bc4a0fc7324670cd05bc0d7dd0e3f2d7de8766b1",
@@ -61,7 +61,7 @@
         "docs/skill-guides/cli/actions/notes.md": "22b7c7e7c59f4f3a559da4108d2ea648ce9f73e165df5164dd40b7cb610cc791",
         "docs/skill-guides/cli/actions/registered-udf.md": "a4e55b0fcefecdc46fe6a256adf6ebfe2336655e7ea13feabe29ec2f93aaf448",
         "docs/skill-guides/cli/actions/setup.md": "89887dd3255eb3ef447f4d8c889f857ea4c4cf54dd9e77a4297d62818eb6d2f3",
-        "docs/skill-guides/cli/actions/workflows.md": "995526747f210e03869441af9bccc4b263ccea488745992764d67b9b01dd7fc5"
+        "docs/skill-guides/cli/actions/workflows.md": "f6c467d023fa7c59fc37d5ea2927e3dd3f8e5b693e4d299f5ab4532c64552fc8"
       },
       "docsPages": "docs/pages/**/+Page.mdx"
     }

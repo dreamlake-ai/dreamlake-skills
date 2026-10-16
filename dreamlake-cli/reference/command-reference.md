@@ -215,6 +215,18 @@ See [Scenes](scenes.md).
 | `scene compose [stack] [-o <dir>] [--force]` | Materialize a layered stack (`dreamlake.layers.json`) into a runnable scene directory (needs `pip install "dreamlake[compose]"`) |
 | `scene delete <name> [--permanent]` / `scene restore <name>` | Soft-delete / restore; `--permanent` purges storage |
 
+## Experiments workspace binding
+
+See [Experiments workspace binding](experiments.md). Unreleased; requires matching
+DreamLake and Dash server changes. All commands require `--namespace <slug>`.
+
+| Command | What it does |
+| --- | --- |
+| `experiments workspaces` | List verified eligible managed Dash workspaces |
+| `experiments binding` | Inspect the current binding and revision |
+| `experiments connect <workspace>` | Preview a unique slug or stable ID; apply requires stable ID, `--instance-id`, `--apply`, and `--expected-revision` |
+| `experiments disconnect` | Preview local detachment; apply requires `--apply --expected-revision`, retaining remote data |
+
 ## Skills
 
 See [Agent skills](skills.md).
