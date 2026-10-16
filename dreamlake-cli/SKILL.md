@@ -14,7 +14,7 @@ options and limits:
 - [Work with Notes](actions/notes.md)
 - [Upload an inline image](actions/media.md)
 - [Publish an artifact](actions/artifacts.md)
-- [Manage workflows](actions/workflows.md)
+- [Register UDFs/agents or manage workflows](actions/workflows.md)
 - [Execute one registered Python UDF (CLI 0.68.0+)](actions/registered-udf.md)
 - [Import and restore cloud configuration](actions/cloud-vault.md)
 - [Provision machines and manage their identities](actions/machines.md)

@@ -17,6 +17,82 @@ the 409 semantics. This group exists because authoring a prompt through
 > DreamLake stores declarations. `dreamlake agents create` writes a row; some
 > other system reads it and does the running.
 
+## Browse, inspect, and save agents
+
+The agent management commands below are implemented in source; they require a
+CLI build containing this change.
+
+```bash cli-help="agents list"
+dreamlake agents list --namespace my-workspace
+# Stable text, even in a terminal; redirected output also defaults to text.
+dreamlake agents list --namespace my-workspace --plain
+# Prefixes match the beginning of a scoped agent name or registry ID.
+dreamlake agents list --prefix my_repo. --project research
+```
+
+On a TTY, use the arrow keys to select an agent and Enter to inspect or edit it.
+Choose **Edit prompt** or **Edit parameters and projects (YAML)** to open your
+configured terminal editor, then choose **Save** to write both together.
+Leaving with **Back / discard changes** does not save. Ctrl+C exits.
+The TUI requires both stdin and stdout to be terminals; pipes print a text table.
+`--json` explicitly selects JSON and bypasses the TUI.
+
+```bash cli-help="agents show"
+dreamlake agents show my_repo.tri --namespace my-workspace
+```
+
+A unique name or ID prefix identifies an agent. Exact matches take precedence;
+ambiguous prefixes fail with the matching names. Show prints the complete prompt
+and parameters. Use `--json` for the registry record.
+
+```bash cli-help="agents edit"
+dreamlake agents edit my_repo.tri --namespace my-workspace
+# Browser form: follow the localhost URL printed by the command.
+dreamlake agents edit my_repo.tri --namespace my-workspace --web
+```
+
+The browser form has separate prompt and YAML parameter fields and a **Save**
+button. Keep the command running while editing; Ctrl+C closes its local server.
+It binds only to `127.0.0.1`, uses a random session URL, and keeps registry
+credentials in the CLI process. On a remote machine, localhost refers to that
+machine; forward its printed port explicitly if you need to use a local browser.
+
+Save validates prompt placeholders, typed arguments, permissions, project
+references, and credential-shaped fields before writing. Other registry metadata
+is preserved. Errors leave the form draft available. An observed concurrent edit
+is refused: reopen the agent before saving. The existing registry PATCH has no
+atomic compare-and-swap contract, so the pre-save check cannot prevent a change
+made in the interval between that check and the write.
+
+These commands update the mutable agent declaration; Save does not execute an
+agent, register an immutable version, or publish it.
+
+## Project affiliation
+
+Affiliate an agent with one or more existing projects in its namespace:
+
+```bash
+dreamlake agents create triage --scope my_repo \
+  --project research --project operations --prompt 'Triage failed runs.'
+dreamlake agents list --project research --plain
+```
+
+Agent frontmatter and the parameter editor accept the same list:
+
+```yaml
+projects: [research, operations]
+arguments:
+  - { name: target, type: string, required: true }
+```
+
+Creation and Save resolve each project with your existing namespace identity.
+Project affiliation is stored as project slug references in `metadata.agent.projects`.
+It is used for organization and list filtering; it does not change registry
+ownership, project access, or create a node in the project's file tree. The
+current project-tree contract does not support agent resources. If a project is
+renamed, update the stored reference in the agent editor. Remove an affiliation
+by removing its slug, or set `projects: []` to remove all.
+
 ## Three ways to write the prompt
 
 ### A heredoc
@@ -86,6 +162,7 @@ The file format is **Claude's agent file** — the same bytes work in
 | `queue` | string | Lakeshore | the queue to submit on |
 | `grants` | list | Lakeshore | `domain.resource.verb` resource grants |
 | `arguments` | list | Lakeshore | typed prompt arguments — see below |
+| `projects` | list of project slugs | Lakeshore | project affiliation in the agent namespace; does not grant access |
 | `channel` | mapping | Lakeshore | `{ kind, target? }`, e.g. `{ kind: http-sse, target: /v1/agents/triage/stream }` |
 
 An `arguments` entry is
@@ -209,3 +286,29 @@ field where you say "and this needs a GPU".
 > **Warning:** The server walks `channel` for credentials at full depth and walks **nothing
 > else** — so a token under `metadata` would be stored in plaintext and returned
 > by `GET`. This command refuses one locally, because the server will not.
+
+## Workspace context
+
+An agent can declare resource references alongside its prompt and arguments:
+
+```yaml
+context:
+  - {kind: repo, repo: udf-recipes, snapshot: SNAPSHOT_ID, path: docs/, mode: ro}
+  - {kind: source, source: training-data, revision: DATA_REVISION, path: samples/, mode: ro}
+  - {kind: bindr, bindr: BINDR_ID, mode: ro}
+```
+
+| Field | Contract |
+| --- | --- |
+| `context[].kind` | `repo`, `source`, or `bindr`. |
+| `context[].repo/source/bindr` | Nonempty reference matching the kind. |
+| `context[].path` | Optional relative path, no traversal or absolute paths. |
+| `context[].mode` | `ro` or `rw`; runtime default is planned as `ro`. |
+| `context[].snapshot` | Optional immutable repo snapshot reference. |
+| `context[].revision` | Optional Source version reference. |
+
+The editor and registration path store validated declarations. They do not
+materialize context or grant resource access. The execution identity must
+resolve and authorize all required resources before starting. Mutable context
+cannot promise exact replay. A reusable named execution workspace is proposed;
+it is distinct from namespace/account ownership and is not resolved by this CLI.

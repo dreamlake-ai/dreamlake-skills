@@ -546,4 +546,3 @@ row and every stored object.
 - [Scenes](scenes.md) — versioned worlds; a library is where a scene's
   ingredients come from.
 - [CLI](https://docs.dreamlake.ai/cli) — install and authenticate `dreamlake`.
-- [Search](https://docs.dreamlake.ai/search) — platform-wide search surfaces.
