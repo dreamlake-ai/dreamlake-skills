@@ -498,3 +498,111 @@ binding arguments. Neither recovery operation rereads a secret or reconnects SSH
 Enrolled hosts use a persistent user service with `runtime.keep_alive_s = -1`, so an idle host remains available instead of exiting after five minutes. Re-enrolling the same host with the fixed client updates the generated configuration. Nymph’s default idle policy for other launch modes is unchanged. This fix is unreleased; deployed hosts require the updated client and reconfiguration.
 
 Re-enrollment regenerates the service configuration. Restore reviewed custom settings, including `private_tracked`, after re-enrollment and verify a fresh signed capability poll before private submission. Re-enrollment does not preserve custom configuration.
+
+## Provision and control machine power
+
+Requires CLI **0.72.0+** and the matching Host power API. Older installed
+clients do not expose these commands; check `dreamlake --version` and command help.
+
+`hosts create` uses the existing provider launch flow and requires automatic
+Nymph enrollment. Choose an existing provider and a full host name in its
+namespace. One host is created per request (`--count 1`); a stable request ID
+allows the same request to recover its instance after an interrupted response.
+Provider configuration, launch layers, credentials and bootstrap prerequisites
+are the same as for `providers instances launch`.
+
+```bash cli-help="hosts create"
+dreamlake hosts create geyang/PROVIDER_ID --host-name geyang/dev/worker \
+  --layer development --request-id create-worker-01
+```
+
+A launch receipt does not prove enrollment or SSH readiness. By default, the
+shared launch flow waits for enrollment and web terminal setup; pending setup
+returns a receipt with recovery instructions. `--no-web-terminal` disables that
+terminal setup and its wait, so inspect enrollment separately.
+
+Inspect the provider binding and cloud-observed power state before choosing a
+power operation. Use the exact enrollment ID reported by this command.
+
+```bash cli-help="hosts power"
+dreamlake hosts power geyang/dev/worker
+dreamlake hosts power HOST_ID --namespace geyang --json
+```
+
+Power commands apply to the machine, not just the Nymph process. They require a
+verified AWS EC2 provider launch binding with its configured launch server.
+Kubernetes and other provider kinds, and manually enrolled laptops or servers,
+are unsupported by the Host power API.
+Names, online status and matching tags cannot establish a cloud-instance binding.
+Start, stop, restart and terminate preserve the Host catalog record and do not
+revoke enrollment credentials. `restart` uses the provider's reboot operation.
+
+```bash cli-help="hosts start"
+dreamlake hosts start geyang/dev/worker --enrollment ENROLLMENT_ID \
+  --request-id start-worker-01
+```
+
+```bash cli-help="hosts stop"
+dreamlake hosts stop geyang/dev/worker --enrollment ENROLLMENT_ID \
+  --request-id stop-worker-01
+```
+
+```bash cli-help="hosts restart"
+dreamlake hosts restart geyang/dev/worker --enrollment ENROLLMENT_ID \
+  --request-id restart-worker-01
+```
+
+```bash cli-help="hosts terminate"
+dreamlake hosts terminate geyang/dev/worker --enrollment ENROLLMENT_ID \
+  --request-id terminate-worker-01 --volumes delete-on-termination
+```
+
+Termination destroys the instance. The required `--volumes delete-on-termination`
+uses AWS's per-volume settings: volumes marked for deletion are deleted; other
+volumes are retained. This is not an all-volumes-retained policy.
+
+Stop, restart and terminate reject recorded active tracked runs unless
+`--allow-active-work` is supplied. That check does not cover all interactive or
+externally launched work and is not an atomic drain. A successful power receipt
+records the provider operation; use `hosts power` to observe the resulting
+instance state. After an uncertain response, reuse the same request ID and
+identical inputs; the CLI never automatically resubmits with a fresh ID.
+
+## SSH and remote commands
+
+Requires CLI **0.72.0+**, deployed Terminal session delegation, and an enrolled
+Nymph with SSH enabled. Linux and macOS clients use the local native OpenSSH
+client with an authenticated host-key pin and a temporary per-session key.
+No inbound SSH port is required on the target for the Nymph relay path.
+
+```bash cli-help="ssh"
+dreamlake ssh geyang/dev/worker
+dreamlake ssh HOST_ID --namespace geyang --enrollment ENROLLMENT_ID
+```
+
+```bash cli-help="hosts ssh"
+dreamlake hosts ssh geyang/dev/worker --duration 1800
+```
+
+Select an exact host by ID or full name. `--enrollment` disambiguates multiple
+eligible enrollments on one host; the client refuses ambiguous selection rather
+than guessing. Session lifetime is 120–1800 seconds (`--duration`, default 1800).
+The 120-second minimum avoids a legacy control-plane deadline mismatch for
+60-second delegations. Use `--timeout` for shorter attached commands.
+
+```bash cli-help="exec"
+dreamlake exec geyang/dev/worker -- uname -a
+dreamlake exec geyang/dev/worker --timeout 30 -- sh -c 'printf "%s\n" "$HOME"'
+```
+
+```bash cli-help="hosts exec"
+dreamlake hosts exec geyang/dev/worker -- python3 -c 'print("hello")'
+```
+
+Place the remote command after `--`. Arguments are passed literally; invoke
+`sh -c` explicitly when shell expansion or pipelines are wanted. Output streams
+to local stdout/stderr and the command returns the remote exit status. SSH
+transport failures return the native SSH error status. `--timeout` closes the
+session and returns 124; it does not guarantee termination of detached remote
+processes. SSH session cleanup removes temporary local keys and closes the
+session. File copy and forwarding remain outside these commands.

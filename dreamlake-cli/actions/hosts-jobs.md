@@ -20,10 +20,36 @@ and preserve local customizations when reviewing conflicts.
 | Read CPU, RAM, and disk observations | `dreamlake hosts metrics HOST --enrollment ID` |
 | Check observed SSH or tracked-run capability | `dreamlake hosts check HOST --enrollment ID --action ssh` or `--action tracked-run` |
 | Register an existing computer | `dreamlake hosts enroll`; follow [machine identity setup](machines.md) |
-| Provision a new machine | [Machine provisioning](machines.md); keep paid launches within the requested scope |
+| Provision and enroll one machine | CLI 0.72.0+ `hosts create PROVIDER --host-name NS/GROUP/HOST`; see [machine provisioning](machines.md) and the [Host power reference](../reference/host-enrollment.md#provision-and-control-machine-power) |
+| Inspect or change managed EC2 machine power | CLI 0.72.0+ `hosts power`, `start`, `stop`, `restart`, `terminate`; see [Host power](../reference/host-enrollment.md#provision-and-control-machine-power) |
+| Open an enrolled host shell | CLI 0.72.0+ `dreamlake ssh HOST` or `hosts ssh`; see [SSH](../reference/host-enrollment.md#ssh-and-remote-commands) |
+| Execute a command on an enrolled host | CLI 0.72.0+ `dreamlake exec HOST -- COMMAND` or `hosts exec`; see [remote commands](../reference/host-enrollment.md#ssh-and-remote-commands) |
 | Launch managed execution or inspect its output/control | [Managed runs](../reference/runs.md): `dreamlake run` and `dreamlake runs` |
 | Track work another launcher already starts | `dreamlake jobs register`, `report`, `list`, and `status` |
 | Inspect Slurm scheduler jobs | Discover `queues slurm clusters`, then `queues slurm jobs CLUSTER_ID --details` |
+
+## Connection and power commands (CLI 0.72.0+)
+
+The SSH/exec and Host create/power routes require CLI 0.72.0+ and matching
+server capabilities. Check installed
+`dreamlake --version`, `dreamlake hosts --help`, `dreamlake ssh --help`, and the
+matching server before using them. An older executable is unsupported, not an
+invitation to guess flags or bypass server authorization.
+
+SSH/exec use the existing Terminal session delegation and Nymph relay with
+native OpenSSH on Linux/macOS. Resolve an exact host and disambiguate enrollment;
+preserve host-key pinning. Arguments after `--` are literal; use `sh -c` only
+for intended shell syntax. A timeout disconnects and returns 124; it does not
+prove detached remote work stopped. File copy remains deferred.
+
+`hosts create` reuses provider launch and requires a host name, one instance,
+and a stable request ID. Keep paid launches within the requested scope. Power
+commands require a verified EC2 launch binding; they change machine power, not
+local daemon state, catalog visibility, or enrollment access. They do not
+support Kubernetes or manually enrolled machines. Explicit enrollment, stable
+request identity, and termination volume disposition are required. Preserve
+those inputs for uncertain-result recovery; do not blindly generate a new ID.
+Recorded tracked-run checks do not establish that a machine is idle or drained.
 
 ## Inspect the intended host
 
