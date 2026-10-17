@@ -299,6 +299,18 @@ See [Agent skills](skills.md).
 | `team member role <org> <team> <user> --role <r>` | Change a role |
 | `team member remove <org> <team> <user>` | Remove a member |
 
+## Terminal sessions
+
+See [Terminal sessions](sessions.md). Requires CLI 0.74.1+ and matching API and terminal gateway deployments.
+
+| Command | What it does |
+| --- | --- |
+| `sessions targets` | Discover authorized targets and exact enrollments |
+| `sessions list` / `sessions show ID` | Read saved descriptors |
+| `sessions create --target ID --cwd PATH --codex-session UUID` | Save without executing; discover or explicitly pin `--enrollment` |
+| `sessions resume UUID --target ID --cwd PATH` | Save/find and attach interactively; `--json` saves only |
+| `sessions open ID` | Reattach in this terminal; Ctrl-] detaches |
+
 ## The CLI itself
 
 See [Installation](installation.md).
