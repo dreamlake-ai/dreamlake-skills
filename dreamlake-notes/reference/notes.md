@@ -1836,6 +1836,14 @@ returned `url`. This is a separate upload from the permission-inheriting
 attachment above; you can skip the attachment step if you only need an inline
 image. Media is not listed by `notes files list`.
 
+The web app's Attachments panel also collects media referenced in the note body.
+Uploaded videos referenced by valid `:video[...]` directives, including inside
+valid column layouts, appear once per URL and support a video preview,
+individual download and inclusion in the all-assets ZIP. External video URLs
+remain playable in the body but are not collected as uploaded attachments;
+directives inside code are not collected. This discovery does not create a
+`notes files` entry or change the uploaded media URL's access.
+
 CLI 0.37.0 and later return that URL directly using your saved login:
 
 ```bash
