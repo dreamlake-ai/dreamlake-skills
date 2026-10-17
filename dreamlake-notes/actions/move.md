@@ -38,52 +38,23 @@ for ownership-busy and lost-authority recovery.
 
 ## Whole Project and owned resources
 
-For a request to move a **whole Project with ordinary files and owned Notes,
-Artifacts and Envs**, use the
-[whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
-and the CLI Projects guide instead of repeating standalone Note moves.
-Mixed Artifact/Env plans require CLI 0.64.0+ or SDK 0.31.0+ and the matching
-accepted backend/RTC deployment; CLI 0.63.0 / SDK 0.30.0 accept Note-only plans.
-Check installed help, the Project adapter capabilities and `plan.executable`;
-unsupported/disabled capability stops the task without copying/deleting content.
-Media-file support requires the companion backend expansion; installing a newer
-skill does not change the deployed server. Inspect itemized plan blockers for the
-affected item and reason. Episode content remains unsupported.
+Use the [whole-Project transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
+and the matching CLI Projects guide. New Project moves use streaming metadata
+transfer; require the advertised compatible streaming capability and review its
+access/resource blockers. Do not fall back to a fixed manifest or per-Note loop.
+Older CLI versions require the explicit `--stream` option; check installed help
+and capability support before submitting. New clients may make streaming the
+default only once that client change is released.
 
-CLI flow is `project move ... --dry-run --out reviewed.json`, review
-scope/access/external audiences, then `--confirm --request-file reviewed.json`.
-The manifest must include the Project and every owned live Note, Artifact and
-Env; do not reduce it to Notes. In released CLI 0.64.0 / SDK 0.31.0 against the
-released backend, foreign resources, Source bindings, Workflow, Annotation and
-structural content block everything. No standalone resource transfer is added.
+Preview with `project move ... --stream --dry-run --out reviewed.json`, inspect
+retained access and external filings, then confirm the exact saved streaming
+request. Streaming keeps the Note RTC binding, content and history unchanged.
+Artifact and Infrastructure support requires the matching runtime adapters;
+unsupported content or audience policies stop the operation without modifying
+access or copying data. The source owner requests and destination owner accepts.
 
-**Unreleased v4 expansion — do not assume it on any released backend/client.**
-An unreleased backend closure additionally moves the Project's Tasks/TaskEvents
-and Project-owned legacy Datasets as dependent rows (never manifest members;
-the plan and preview expose only redacted `managedCounts`, and
-`summary.includedCount` still equals the manifest length), and admits owned
-`annotation` and eligible pure-managed `source` manifest members. A Source
-qualifies only with no external layer, a live lifecycle, a healthy internal
-storage binding and no pending/uncertain physical operation; its ID and storage
-stay untouched — no file is copied or moved regardless of file count — its own
-Project binding and Bindr references move by namespace relabel with retained
-IDs, attachments to other Projects are previewed and detached, and existing
-Source sharing/editors are revoked (preservation unsupported). Annotations keep
-their pinned bucket/prefix; a same-name annotation recreated in the old
-namespace gets an isolated location. Released strict clients reject these new
-member types; use a matching unreleased client only when that ships. The exact
-reviewed saved request/key discipline below applies unchanged. Preserve access
-is off by default. External Note Project filings are removed by default, ending
-inherited access through those mounts without deleting the moved Notes/data.
-Retaining Note filings requires explicit `--preserve-external-filings` and
-destination approval of their live audience, independently of direct-access
-retention. Artifact/Env outside placements always detach. On APIs implementing
-PR1170's compatible catalog/token/proxy readers and ownership executors, with
-old readers drained and `ARTIFACT_TRANSFER_SHARING_ENABLED=true`, reviewed
-preserve-access can retain Artifact tokens and token-dependent share visits;
-old URLs are read-only aliases authorized against the current owner. Older or
-disabled APIs retain blockers; Env links remain unsupported. A newer client
-alone does not establish that server floor. Review the complete preview.
-Source owner requests and destination owner explicitly accepts. Keep the exact
-request/key on a lost response; use status for a known operation, never rebuild
-or clear a claim/lease. See the [Notes contract](../reference/notes.md#whole-project-and-owned-resources-transfer).
+Keep the exact request/key after a lost response. Inspect a known operation
+instead of recreating it. Existing legacy operations retain status, decisions,
+exact request replay and automatic recovery; their readonly legacy plan is
+marked deprecated and cannot authorize new execution. Never clear a claim or
+lease manually. See the [Notes contract](../reference/notes.md#whole-project-and-owned-resources-transfer).

@@ -3606,6 +3606,45 @@ separate from Project inheritance.
 
 ## Whole Project and owned resources transfer
 
+### Current streaming-only workflow
+
+New Project ownership requests use the advertised streaming protocol. Check the
+server's `projectTransferStream.enabled`, the streaming plan's `executable` and
+its complete resource/access blockers independently of the installed client.
+CLI **0.74.2** streams new `project move` requests by default; older compatible
+clients require explicit `--stream`. Do not fall back to a fixed manifest or
+replace a Project move with per-Note copy/delete.
+
+The current stream preserves the provably eligible existing read/write audience
+and external Note Project filings. Unsupported resources or access policies block
+the entire request; do not silently exclude resources, detach placements or revoke
+access to make it proceed. Scene/Env resource references currently block with
+`PROJECT_STREAM_RESOURCE_UNSUPPORTED`; Artifact placements outside the moved
+Project currently block with `PROJECT_STREAM_EXTERNAL_ARTIFACT_UNSUPPORTED`.
+The server discovers resources created during the move and verifies the closure
+before committing ownership. IDs, Note RTC bindings, content, history and storage
+locations stay unchanged; new streaming moves do not rotate Note RTC rooms or
+copy their content. See the [current transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
+for the exact admitted resource and audience profiles.
+
+Source namespace owner requests and destination owner accepts; a Project ADMIN
+grant alone does not authorize transfer. Web uses a fixed preserved-access policy
+and labels streaming versus existing legacy requests. The reviewed button says
+**Request and accept transfer** only when the current actor can accept for the
+destination; otherwise it says **Request transfer** and the receiving owner must
+accept. CLI `--accept-if-owner` remains an explicit authorized option. After a lost
+response, keep the exact saved request/key and inspect the known operation.
+Never manually clear claims or leases.
+
+### Historical fixed-manifest behavior — existing operations only
+
+The remainder of this section records the earlier fixed-manifest implementation
+and its acceptance evidence. Its old access switches, detached-placement defaults
+and RTC room-cutover procedure are **not instructions for new requests**. New
+fixed-manifest Project admission is retired. Existing legacy operations retain
+authorized status, decisions, exact saved-request replay and automatic recovery;
+use their original receipts rather than creating a replacement legacy request.
+
 The backend's October 15, 2026 (Asia/Shanghai) production acceptance used API
 release `8d9e7925`: a 25-Note/205-media fixture passed 20/20 checks, and a mixed
 Project/Note/Artifact/Env fixture passed 22/22 functionality checks. All fixtures

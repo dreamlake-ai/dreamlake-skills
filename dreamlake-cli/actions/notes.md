@@ -94,35 +94,23 @@ namespace updates or an older generic mount API. Consult the
 [Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0451)
 for server and adapter gates; missing readiness is unsupported.
 
-For a whole Project and its owned Notes, CLI 0.63.0 provides `project move`.
-CLI 0.64.0+ and its matching backend also accept owned Artifacts and Envs;
-CLI 0.63.0 rejects mixed plans. Inspect `resourceNames` and `resourceCounts`; never
-reduce a mixed manifest to its Notes. Retention of external filings applies
-only to Notes; Artifact/Env attachments outside the moved Project always detach. With
-the compatible backend this also includes direct ordinary files, images and
-videos; episode content remains unsupported. Inspect itemized blockers for affected
-items and reasons using the Web transfer dialog or an authorized raw API response;
-CLI 0.63.0 prints only the rejected plan error message. It
-automatically loads the complete manifest, saves a read-only review, and uses
-one ownership journal request. Check `project move --help` and the
-[Projects reference](../reference/projects.md) before using it; CLI 0.62.0 and
-earlier lack this command. The server adapter must be enabled: check plan
-`executable` and preview blockers. This whole-Project workflow is separate from
-standalone `notes move`. It defaults to private resources, old access revoked,
-and external Note filings detached; retention needs explicit review and opt-in.
-Direct access retention covers eligible Project/Note grants and Note share
-links. Retaining Artifact tokens and token-dependent share visits additionally
-requires the compatible PR1170 catalog/token/proxy API and executors, old readers
-drained, and `ARTIFACT_TRANSFER_SHARING_ENABLED=true` (default off); old URLs become
-read-only current-owner-authorized aliases. Older/disabled APIs retain blockers,
-Env links remain unsupported, and a newer client alone does not enable the API
-floor. Keeping
-an external Note filing can still preserve that other Project's live audience
-when direct access is revoked. Source/Workflow/Annotation references block the
-whole request, and no standalone resource transfer is added.
-Use one reviewed request and explicit recipient acceptance. Replay the exact
-saved request/hash/key after an uncertain create; never substitute per-Note
-copy/delete or treat an installed client as proof of server readiness.
+Use the matching CLI/server streaming workflow in [Projects](../reference/projects.md).
+New `project move` requests stream by default, preserving eligible access and
+external filings. Older installed clients may require explicit `--stream`; verify
+help and server capabilities independently. Never fall back to a fixed manifest.
+Use `project move PROJECT --namespace SOURCE --to DESTINATION --dry-run --out
+review.json`, inspect resource/access blockers, then `--confirm --request-file
+review.json`. Keep the exact policy/key after a lost response. Unsupported
+resources or audiences stop the whole request without removing access or copying
+content. Stable IDs, Note RTC bindings and history remain in place.
+
+Source namespace owner requests; destination owner accepts. Project ADMIN alone
+cannot transfer. `--accept-if-owner` is explicit and requires current destination
+owner authority. Use known-operation status/progress for recovery; never clear
+claims, replace keys, or emulate the move by per-Note copy/delete. Existing legacy
+saved reviews keep exact replay and existing operations keep decisions/recovery,
+but new legacy admission is retired. Standalone Note ownership transfer remains
+unsupported; same-workspace Note filing is separate.
 
 CLI 0.48.2 adds attachment journal recovery; CLI 0.48.1 does not include it.
 It requires a separately verified journal-enabled API. Check

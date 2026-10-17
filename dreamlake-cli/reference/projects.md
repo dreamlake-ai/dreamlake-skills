@@ -1,5 +1,17 @@
 # Projects & data
 
+## Streaming is the default for new Project moves
+
+New `project move` requests use streaming metadata transfer and preserve eligible
+access and external filings by default. The `--stream` flag remains a compatibility
+alias. Unsupported server capabilities or access/resource policies stop the move;
+there is no fixed-manifest fallback. Keep the exact saved review/key, and confirm
+with `--request-file`. A saved streaming review is recognized without `--stream`.
+Existing legacy saved reviews still use their original protocol for exact replay;
+new legacy admission is rejected by current servers. Existing operations retain
+status, decisions, and recovery. These changes apply after this CLI release; an
+older installed client may need explicit `--stream`.
+
 DreamLake organizes assets in a hierarchy: a **project** contains
 **episodes**, episodes contain **files**. **Bindrs** group episodes, and
 **datasets** group bindrs.
@@ -23,128 +35,46 @@ shares them. `update project` also changes `--name`, `--description`, `--tags`.
 
 ## Move a whole Project and its supported resources
 
-> **Note:** Artifact/Env transfer-plan support requires CLI **0.64.0+** and a compatible
-> backend. CLI 0.63.0 accepts Note-only resource manifests and direct Project
-> files; it rejects a typed Artifact/Env plan. Verify
-> the installed release before relying on the expanded support.
-
-`project move` loads the server's complete Project transfer plan. With the
-updated client and enabled backend it includes every attached, source-owned
-Note, Artifact and Env, plus direct ordinary files, images and videos in
-one atomic ownership request. Project file Node IDs and folder layout remain
-stable; physical storage keys stay unchanged and media bytes are not copied.
-Other byte-backed leaves, such as JSON or audio, also qualify with a supported
-existing storage binding; episode content remains unsupported. Direct file/image/
-video Nodes keep all storage metadata, including `s3Key` and `bssId`, without
-object checks, BSS migration or a new media byte-size cap. Missing objects remain
-missing and do not block the ownership change.
-New requests use current-owner authorization. Already-issued read/upload URLs
-retain their existing expiry and can still access or modify the stored object
-until then; transfer does not immediately revoke those capabilities.
-It never loops over individual Notes or silently skips an
-unsupported attachment. The command was introduced in CLI 0.63.0; expanded
-Artifact/Env plans require the updated client described above. The server
-whole-Project transfer adapter must also be enabled. Check installed
-`project move --help`, the plan's `executable` value and preview blockers
-separately. A disabled or unready server refuses execution; installing the CLI
-does not enable backend writer, storage or RTC capabilities.
+New Project moves use streaming metadata transfer. They retain stable resource
+IDs, Note RTC bindings, content/history and eligible existing access. Membership
+is discovered by the server while people continue working; content and media
+bytes are not copied by this workflow. Resource support and access policy are
+established by the compatible server's explicit streaming capability and preview,
+not by installing a newer CLI. Unsupported resource/audience policies stop the
+whole request; there is no fixed-manifest fallback or per-Note move loop.
 
 ```bash cli-help="project move"
-# Save a complete, read-only review with a stable request key.
+# Save a read-only streaming review with its stable request/key.
 dreamlake project move research --namespace personal --to acme --dry-run --out project-move-review.json
-# Review all typed resources, access inventory and external attachment detachments.
+# Confirm that exact saved review; the recipient must accept separately.
 dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json
-# Optional: explicitly request retention and review a separate preview.
-dreamlake project move research --namespace personal --to acme --dry-run --preserve-external-filings --out retained-filings-review.json
+# Accept only with verified destination owner authority, then wait a bounded time.
+dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json --accept-if-owner --wait
 ```
 
-Only the current source namespace owner can obtain the plan or request the
-transfer. Project ADMIN is insufficient. A recipient namespace owner must
-explicitly accept the operation using `ownership accept`; a cross-user move
-returns a pending operation ID and the destination acceptance command. The
-source owner keeps ownership until the accepted atomic cutover completes.
-For an actor who owns both namespaces, `--accept-if-owner` explicitly requests
-acceptance, requires current destination-owner authority, and may be combined
-with `--wait --wait-timeout 30`. A timeout returns the existing operation and
-status command; it does not start another transfer.
+Eligible access and external filings are preserved by default. Explicit flags
+remain accepted, but saved policies and keys cannot be overridden on replay.
+Review server blockers instead of changing access, dropping resources or silently
+using the older restrictive RTC checkpoint/room-rotation implementation. The
+streaming root Project name stays unchanged; explicit supported Note renames
+must be reviewed and hash-bound before submission. Source namespace owner
+requests and destination namespace owner accepts; Project ADMIN alone does not
+grant source transfer authority. `--accept-if-owner` never accepts for another
+recipient. `--wait-timeout` remains bounded to 0–60 seconds.
 
-Read the server-advertised plan limits. The larger-capacity backend permits
-**512 total manifest resources including the Project**, so at most 511 Notes
-when no Artifacts or Envs consume slots, and **4,096 tree nodes**. Ordinary
-Project files count toward the tree-node limit, not as additional manifest
-resources. The aggregate **5,000-row inventory**, **8 MiB execution ledger** and
-**12 MiB total operation** budgets still apply; row, metadata or body size can
-block a plan before the count limits. Note/NoteFile storage verification remains
-limited to **2,000 objects and 512 MiB**, separately from ordinary Project files.
-An oversized plan fails as a whole; these are ceilings, not a promise that every
-511-Note Project fits. The client never truncates or splits the plan.
-Older servers continue to advertise 20 Notes / 200 tree nodes. The capacity
-increase and direct-media support are server capabilities; CLI 0.63.0 can use
-these with Note-only manifests without a CLI upgrade. Typed Artifact/Env plans
-require the updated client described above.
-Episode content remains unsupported. Blocked plans provide owner-only
-`error.details.blockers` with affected items and reasons; inspect the complete
-response before retrying. CLI 0.63.0 renders the error message rather than the
-422 response details; use the Web transfer dialog or an authorized raw API request
-to read that itemized list.
-Sources, Annotations, Workflows, Tasks, Datasets, Episodes, other unsupported
-resource types, foreign-owned resources and active deletion work produce a structured blocked
-response, never a partial plan. Source relationships retain
-`ProjectSourceBinding`; this command does not migrate them.
+`--stream` remains a compatibility alias. `project transfer-preview` likewise
+reviews the complete streaming Project and never submits; its old `--include-note`
+partial selection is rejected. Older clients may require explicit `--stream`;
+inspect installed help and server readiness independently.
 
-The Project and included Notes, Artifacts and Envs become private. Old access is revoked by default;
-`--preserve-access` requests retention of only the exact eligible server
-inventory bound by the source owner's preview and destination acceptance.
-This retains eligible Project people/team grants and Note direct grants/share
-links, not public visibility. Artifact token/share-visit retention additionally
-requires the compatible catalog/token/proxy API and ownership executors from
-[PR1170](https://github.com/dreamlake-ai/dreamlake-workspace/pull/1170), old readers
-drained, and `ARTIFACT_TRANSFER_SHARING_ENABLED=true` (default off). Old URLs then
-resolve through read-only current-owner-authorized aliases; visits remain tied
-to the live share token. Older/disabled APIs retain their blockers and Env share
-links remain unsupported. No new CLI command or release enables that API floor;
-inspect the full preview before submitting the exact reviewed request.
-Existing external Note filings are detached by default, so old Projects no
-longer reference the moved Notes. This does not delete the Notes or their
-filings inside the transferred Project. `--preserve-external-filings` explicitly
-requests retention of **Note filings only**; review its exact cross-namespace
-effects in a new preview. Artifact/Env attachments in other Projects always
-detach. `summary.detachedOtherFilings` counts those removals, while
-`summary.detachedFilings` includes all removals. This does not delete any resource.
-The complete JSON preview includes server preservation and external filing
-evidence; inspect it before submission rather than inferring access from a
-count or Project membership. The recipient inbox/status returns accepted policy,
-summary counts and the preview hash; it does not expose the source owner's full
-manifest or access/filing inventory. Retaining an external Note filing can keep
-that other Project's existing audience access even when `--preserve-access` is
-off; these are independent choices.
-
-Project, Note, Artifact and Env canonical names remain unchanged by default.
-Artifact/Env canonical names cannot be overridden during transfer; an existing
-destination name blocks the whole transfer. For Project/Note collisions, use
-`--name NEW_PROJECT_NAME` or repeat `--rename-note NOTE_ID=NEW_NAME` to obtain
-and review a new preview. There is no implicit suffix or overwrite. For
-scripted submission without a review file, supply `--confirm --preview-hash
-HASH --idempotency-key KEY`, using the exact reviewed hash and a stable key.
-
-Artifact/Env IDs, versions and original storage bucket/prefix remain stable;
-transfer copies no content. Use the destination resource address after cutover,
-then use the server-returned storage target rather than deriving a key from its
-new namespace. Existing signed URLs and credentials retain their original TTL.
-
-`--json` includes `resourceCounts` for Project, Note, Artifact and Env. The
-complete plan lists every non-root resource in typed `resourceNames`; `noteNames`
-remains the exact Note subset. Older Note-only plans remain compatible.
-
-`--out` refuses to overwrite an existing review file. Replaying a saved review
-keeps its exact policy, including any explicitly reviewed retention; defaults
-never rewrite it. After an ambiguous
-submission, reuse that exact review with `--request-file`; this reaches the
-idempotent journal even if the original Project has already moved. Do not
-rebuild the inventory, replace the key, or emulate a transfer with copy/delete.
-`STALE_PREVIEW` requires a new reviewed preview; inspect the existing operation
-before retrying any uncertain acceptance. Read-only preview performs no owner,
-grant, filing or storage mutation.
+On a lost response, preserve the exact saved review and idempotency key. Use the
+known operation's status/progress before retrying; do not create replacement keys
+or clear claims/leases. Streaming counters and the final watermark establish
+completion. Existing legacy saved reviews retain their original protocol for
+exact authorized replay and existing operations keep status, decisions and
+recovery. Current servers reject new fixed-manifest Project admission with
+`PROJECT_STREAM_REQUIRED`; their deprecated read-only plan cannot authorize new
+execution. Individual resource and same-workspace filing commands are unchanged.
 
 ## Bindrs
 

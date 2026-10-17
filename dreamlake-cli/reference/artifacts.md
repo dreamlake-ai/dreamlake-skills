@@ -169,14 +169,21 @@ delete between that check and mutation can restore its catalog row.
 
 ## Whole-Project ownership transfer
 
-With CLI 0.64.0+ and the matching backend, an attached, source-owned Artifact
-moves with its entire Project through [`project move`](projects.md#move-a-whole-project-and-its-supported-resources).
-This adds no standalone Artifact move. IDs, versions and physical storage stay
-stable; the Artifact becomes private. Old namespace-based links cannot be
-preserved; incompatible access retention blocks preview. Share again from the
-destination after completion. Outside Project placements and Bindr memberships
-always detach, independently of Note filing retention. Resolve destination
-canonical-name collisions first; transfer does not rename Artifacts.
+With CLI 0.74.2+ and a compatible backend, new whole-Project requests use
+streaming metadata transfer through [`project move`](projects.md#move-a-whole-project-and-its-supported-resources).
+An attached, source-owned Artifact moves only when the server's streaming
+capability and preview admit its resource and access policies. IDs, versions and
+physical storage stay stable; this adds no standalone Artifact move or media copy.
+Eligible existing access is preserved by default. The current streaming
+inventory rejects Artifacts placed outside the moving Project with
+`PROJECT_STREAM_EXTERNAL_ARTIFACT_UNSUPPORTED`; the external-filing preservation
+default does not override that blocker. Review the server's resource and
+link/access blockers instead of assuming every audience or namespace-based URL
+can be preserved. Unsupported policies stop the whole request; there is no
+restrictive fixed-manifest fallback.
+Resolve destination canonical-name collisions first; transfer does not rename
+Artifacts. Existing legacy operations retain their original status, exact replay
+and recovery protocol; their restrictive policy is not the new-request default.
 
 Continue to obtain fresh upload credentials, upload to the returned `backendUrl`
 and `refName`, then register the version. Never guess physical keys from the
