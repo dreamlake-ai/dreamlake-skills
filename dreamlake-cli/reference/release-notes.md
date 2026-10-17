@@ -1,5 +1,31 @@
 # Release notes
 
+## 0.74.1 — Native terminal connection fix
+
+Native and npm installations now send the configured Origin header during the
+terminal WebSocket handshake. Bun ignored the previous `origin` option, causing
+0.74.0 to fail before attaching. Upgrade to 0.74.1 for `sessions open` and
+interactive `sessions resume`; existing saved descriptors and remote tmux
+processes are preserved. The gateway still requires its configured allowed Origin.
+
+A compiled transport regression checks that header and the ticket, binary ACK,
+resize, UTF-8 input, detach and raw-mode restoration paths.
+
+## 0.74.0 — Persistent Codex terminal sessions
+
+`dreamlake sessions` saves and reopens the same enrolled-host terminal in the CLI
+and the Sessions page. Select a target with `sessions targets`, then use
+`sessions resume UUID --target ID --cwd PATH` to save and attach, or
+`sessions open SESSION_ID` to reopen its persistent tmux session. Ctrl-] detaches
+without stopping the remote process. The selected host and Unix user must already
+have the Codex conversation, working directory, `codex`, and `tmux`.
+
+`sessions create` and `sessions resume --json` save descriptors without executing.
+`sessions list` and `sessions show` read metadata, not live process status.
+Requires the matching backend `terminal-sessions` API and terminal gateway Codex
+launch support; updating the CLI does not deploy them. See
+[Terminal sessions](sessions.md).
+
 ## 0.73.0 — Host catalog archive and active inventory
 
 `hosts list` now shows verified online hosts by default. Use `--all` to include

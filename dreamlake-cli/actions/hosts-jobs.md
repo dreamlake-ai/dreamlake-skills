@@ -17,6 +17,7 @@ and preserve local customizations when reviewing conflicts.
 | Archive or restore catalog visibility | Check installed support, read `hosts lifecycle HOST_ID`, then use explicit request ID and expected revision with `hosts archive` or `hosts restore`; this never retires runtime |
 | Find active hosts across groups | `dreamlake hosts list`; select the authorized namespace (CLI 0.73.0+: verified online only) |
 | Include offline or unknown hosts | CLI 0.73.0+ `dreamlake hosts list --all`; CLI 0.72.0 lists all states without this flag |
+| Save or reopen an exact Codex terminal session | [Terminal sessions](../reference/sessions.md): `dreamlake sessions targets`, then `create` / `resume` / `open`; requires CLI 0.74.1+ and matching terminal API/gateway |
 | Inspect one host and its enrollments | `dreamlake hosts status` with its returned host ID or full name |
 | Resolve enrollment identities and observed presence | `dreamlake hosts enrollments HOST`; retain its exact enrollment ID |
 | Read CPU, RAM, and disk observations | `dreamlake hosts metrics HOST --enrollment ID` |
@@ -54,6 +55,16 @@ those inputs for uncertain-result recovery; do not blindly generate a new ID.
 Recorded tracked-run checks do not establish that a machine is idle or drained.
 
 ## Inspect the intended host
+
+For persistent Codex terminals (CLI 0.74.1+), select a target and its exact enrollment from
+`sessions targets`, plus the user's requested remote directory and Codex UUID.
+`sessions resume UUID` saves and attaches interactively; `--json` saves only.
+`sessions open ID` reattaches to the descriptor's existing tmux identity. Never
+interpret a saved descriptor or successful list as a running process. Preserve
+the configured account/environment; custom gateways require explicit trusted
+`--gateway` and `--origin`. See the reference for deployment prerequisites. This
+does not replace managed runs, uploads, artifacts, or Notes; it provides terminal
+access only and does not synchronize Codex conversations across hosts.
 
 Use inventory results to resolve identity. Host IDs, enrollment IDs, cloud
 instance IDs, and local Nymph supervisor IDs are different identifiers. Inspect
