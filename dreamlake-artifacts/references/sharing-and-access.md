@@ -69,15 +69,20 @@ not a role guessed from membership. See [Project choice and grouping](https://do
 
 ## Whole-Project transfer boundary
 
-For moving an attached, source-owned Artifact with its whole Project, follow
+An attached, source-owned Artifact can move only with its whole Project when
+its server advertises compatible streaming admission and the complete preview
+confirms the resource and retained-access policy. Follow
 [Projects](https://cli.dreamlake.ai/projects/#move-a-whole-project-and-its-supported-resources)
-using CLI 0.64.0+ and the matching backend. Review the complete typed plan;
-this adds no standalone Artifact move. Use the
-[owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
-for private visibility, conditional Artifact-link retention, outside-placement
-removal and unchanged storage locations/capability TTLs. Retention requires the
-compatible catalog/token/proxy readers and ownership executors plus
-`ARTIFACT_TRANSFER_SHARING_ENABLED=true` (default off); older or disabled
-deployments retain preview blockers. Env links remain unsupported. Read aliases
-authorize the current owner and never grant old-member access or serve writes.
-Do not substitute copy/delete.
+and the [owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
+New requests stream, preserve eligible existing access and keep stable IDs,
+versions and physical storage. Artifact placements outside the moved Project
+currently block with `PROJECT_STREAM_EXTERNAL_ARTIFACT_UNSUPPORTED`; do not
+silently detach them, revoke access or fall back to a fixed manifest. Existing
+links require the runtime's verified access/capability support; do not infer a
+promise from an installed client or change physical storage paths.
+
+Source owner requests and destination owner accepts. This adds no standalone
+Artifact move. After a lost response, keep the exact saved request/key and
+inspect the known operation. Existing legacy operations retain authorized
+status, decisions, exact replay and recovery; that does not admit new legacy
+requests. Never emulate a move through copy/delete or clear a claim or lease.

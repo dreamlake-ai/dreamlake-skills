@@ -1,6 +1,6 @@
 ---
 name: dreamlake-scenes
-description: Package, push, pull, version, and manage MJCF or URDF scenes with the DreamLake CLI, or compose a layered scene from a stack file. Use for simulation scenes and robot models, including moving an owned scene with its whole Project; recordings belong in dreamlake-source.
+description: Package, push, pull, version, and manage MJCF or URDF scenes with the DreamLake CLI, or compose a layered scene from a stack file. Use for simulation scenes and robot models, including checking whole-Project move eligibility for an owned scene; recordings belong in dreamlake-source.
 ---
 # DreamLake Scenes
 

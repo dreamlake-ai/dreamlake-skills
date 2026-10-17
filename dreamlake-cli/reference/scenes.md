@@ -162,15 +162,20 @@ RL environment interfaces retain their technical names.
 
 ## Whole-Project ownership transfer
 
-Scenes use the `env` resource type in Project manifests. With CLI 0.64.0+ and
-the matching backend, every source-owned Env attached to a Project moves with
-that whole Project; see [`project move`](projects.md#move-a-whole-project-and-its-supported-resources).
-This adds no standalone Scene/Env move. IDs, canonical names, versions and
-physical storage stay stable; the resource becomes private. Its old
-namespace-based links cannot be preserved, and incompatible access retention
-blocks preview. Share again from the destination after completion. Outside
-Project placements and Bindr memberships always detach; the Note-only retention
-flag does not preserve them. Resolve destination name collisions first.
+Scenes retain the `env` resource type in transfer contracts. With CLI 0.74.2+
+and a compatible backend, new whole-Project requests use streaming metadata
+transfer; see [`project move`](projects.md#move-a-whole-project-and-its-supported-resources).
+The current streaming inventory does not support Scene/Env resource bindings.
+A Project containing one stops with `PROJECT_STREAM_RESOURCE_UNSUPPORTED`;
+there is no restrictive fixed-manifest fallback or standalone Scene/Env move.
+Do not detach resources or change access merely to bypass that blocker.
+
+Existing legacy operations that included Scenes retain their original status,
+exact replay and recovery protocol. Their reviewed restrictive access and filing
+policy still applies to those operations; it is not a policy for new requests.
+IDs, versions and physical storage are not copied or renamed by that legacy
+ownership workflow. Resolve any destination name collision identified by its
+original review before proceeding through its supported recovery path.
 
 Keep the normal credentials → upload → catalog-registration sequence. Use the
 returned `backendUrl` and refs, never storage paths guessed from the new

@@ -359,8 +359,19 @@ these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
 exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
 
-The [whole-Project and owned-Notes transfer](https://docs.dreamlake.ai/dev/notes/project-note-transfer/)
-supports Project, ordinary Project files/images/videos and owned Notes.
-A mount/reference of this resource blocks
-the entire transfer rather than silently excluding it. Its existing independent
-sharing and released Project-derived content access remain available.
+New [whole-Project transfers](https://docs.dreamlake.ai/dev/notes/project-note-transfer/) require the
+advertised streaming protocol and preserve the eligible existing access and
+Project placements. The current streaming inventory admits ordinary Project
+files/images/videos, owned Notes and eligible Artifacts, but **not Scene/Env
+resource references**. A Scene/Env mount blocks the entire request with
+`PROJECT_STREAM_RESOURCE_UNSUPPORTED`; it is never silently excluded. Check the
+server's preview blockers rather than inferring support from the installed client.
+Do not fall back to a fixed manifest, detach resources silently, or copy/delete
+them to emulate a move. No standalone Scene/Env ownership transfer is added.
+
+Existing legacy operations retain authorized status, decisions, exact saved-request
+replay and automatic recovery, including previously created Scene/Env requests.
+That compatibility does not admit new fixed-manifest Project transfers. Preserve
+the original request/key after a lost response and never clear a claim or lease
+manually. Independent Scene sharing and released Project-derived content access
+remain available.
