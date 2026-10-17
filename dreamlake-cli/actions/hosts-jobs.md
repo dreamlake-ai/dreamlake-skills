@@ -14,7 +14,9 @@ and preserve local customizations when reviewing conflicts.
 
 | Task | Route |
 | --- | --- |
-| Find existing hosts across groups | `dreamlake hosts list`; select the authorized namespace |
+| Archive or restore catalog visibility | Check installed support, read `hosts lifecycle HOST_ID`, then use explicit request ID and expected revision with `hosts archive` or `hosts restore`; this never retires runtime |
+| Find active hosts across groups | `dreamlake hosts list`; select the authorized namespace (CLI 0.73.0+: verified online only) |
+| Include offline or unknown hosts | CLI 0.73.0+ `dreamlake hosts list --all`; CLI 0.72.0 lists all states without this flag |
 | Inspect one host and its enrollments | `dreamlake hosts status` with its returned host ID or full name |
 | Resolve enrollment identities and observed presence | `dreamlake hosts enrollments HOST`; retain its exact enrollment ID |
 | Read CPU, RAM, and disk observations | `dreamlake hosts metrics HOST --enrollment ID` |
@@ -84,6 +86,22 @@ requires trusted, reachable inspection of the same process and an enrollment
 confirmed by hello. Verification covers Linux only and does not establish a fleet
 upgrade, lifecycle controls, or a singleton guarantee. Do not treat an unavailable
 inspection endpoint as proof that the daemon stopped.
+
+## Catalog visibility
+
+Catalog commands require CLI 0.73.0+ and the matching backend.
+Check command help before use. Archive changes only default list visibility;
+runtime, enrollments and credentials remain active and future work is still
+permitted. Do not use archive as retirement, cleanup eligibility or proof of idle.
+Exact ID/full-name status and history links remain available; use
+`hosts list --all --archived include` or `hosts list --all --archived only` to discover archived records.
+
+Select an exact lowercase Host ID and namespace, read `hosts lifecycle`, and
+supply that revision plus an explicit request ID for archive/restore. After an
+ambiguous failure retry the identical tuple. Never silently refresh the revision,
+change the action or generate a new request ID to bypass a conflict. A replayed
+receipt can predate a later opposite action; read lifecycle for current state.
+See the [catalog reference](../reference/host-enrollment.md#archive-and-restore-catalog-records).
 
 ## Read Slurm scheduler jobs
 
