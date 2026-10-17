@@ -57,13 +57,20 @@ not a role guessed from membership. See [Project choice and grouping](https://do
 
 ## Whole-Project transfer boundary
 
-Scenes use the `env` type in Project transfer plans. To move an attached,
-source-owned Scene/Env with its whole Project, follow
-[Projects](https://cli.dreamlake.ai/projects/#move-a-whole-project-and-its-supported-resources)
-using CLI 0.64.0+ and the matching backend. This adds no standalone Scene/Env
-move. Review private visibility, old-link revocation and mandatory removal of
-outside placements in the
-[owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/);
-Note-only filing retention does not preserve Scene/Env placements. Keep the
+Scenes use the `env` resource type, which the current new Project streaming
+inventory does **not** admit. An attached Scene/Env reference blocks the whole
+request with `PROJECT_STREAM_RESOURCE_UNSUPPORTED`; it is never silently
+excluded. Check the server's advertised streaming capability and preview
+blockers in [Projects](https://cli.dreamlake.ai/projects/#move-a-whole-project-and-its-supported-resources)
+and the [owning transfer contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer/).
+Do not fall back to an older fixed-manifest request, detach resources silently,
+revoke access or copy/delete a Scene to emulate an ownership move. There is no
+standalone Scene/Env ownership transfer.
+
+Existing legacy operations that already included Scene/Env resources retain
+status, decisions, exact saved-request replay and automatic recovery. Preserve
+the original key after an uncertain response; never clear a claim or lease.
+This compatibility is not permission to create another legacy transfer.
+Independent Scene sharing and Project-derived access remain separate. Keep the
 normal server-target upload-before-register flow in the
 [owning Scenes guide](https://cli.dreamlake.ai/scenes/#whole-project-ownership-transfer).
