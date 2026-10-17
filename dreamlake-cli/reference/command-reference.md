@@ -301,7 +301,7 @@ See [Agent skills](skills.md).
 
 ## Terminal sessions
 
-See [Terminal sessions](sessions.md). Requires CLI 0.74.0+ and matching API and terminal gateway deployments.
+See [Terminal sessions](sessions.md). Requires CLI 0.74.1+ and matching API and terminal gateway deployments.
 
 | Command | What it does |
 | --- | --- |

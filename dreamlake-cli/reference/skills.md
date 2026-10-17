@@ -213,6 +213,8 @@ dreamlake skill install dreamlake-cli --force
 
 - [ ] Edit docs first; regenerate the skill and command-help examples.
 - [ ] Run source tests and the isolated native packaging test in CI.
+      The native terminal gate must pass a gateway that requires the configured
+      Origin header, then verify binary ACKs, resize, input and clean detach.
 - [ ] Compile all eight platforms from the reviewed commit. The build embeds
       the freshly generated CLI skill and rejects an empty or incomplete bundle.
 - [ ] Test a copied binary outside the checkout with a temporary home and no

@@ -1,9 +1,13 @@
 # Terminal sessions
 
-CLI **0.74.0 or later** provides `dreamlake sessions`, which shares saved terminal
+CLI **0.74.1 or later** provides `dreamlake sessions`, which shares saved terminal
 descriptors with the DreamLake Sessions page. The matching `terminal-sessions`
 API and terminal gateway Codex launch support are required. Updating the CLI
 does not deploy those server capabilities.
+
+Use **0.74.1 or later** for native and npm installations. Version 0.74.0 omitted
+the required WebSocket Origin header in its compiled client and could not attach
+to the production terminal gateway. Saved descriptors from 0.74.0 remain usable.
 
 A descriptor binds the selected target, host enrollment, Unix user, working
 directory, and exact Codex session UUID. It contains no credentials or transcript.

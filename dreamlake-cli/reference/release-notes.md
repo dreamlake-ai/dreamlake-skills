@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.74.1 — Native terminal connection fix
+
+Native and npm installations now send the configured Origin header during the
+terminal WebSocket handshake. Bun ignored the previous `origin` option, causing
+0.74.0 to fail before attaching. Upgrade to 0.74.1 for `sessions open` and
+interactive `sessions resume`; existing saved descriptors and remote tmux
+processes are preserved. The gateway still requires its configured allowed Origin.
+
+A compiled transport regression checks that header and the ticket, binary ACK,
+resize, UTF-8 input, detach and raw-mode restoration paths.
+
 ## 0.74.0 — Persistent Codex terminal sessions
 
 `dreamlake sessions` saves and reopens the same enrolled-host terminal in the CLI
