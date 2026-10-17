@@ -66,6 +66,26 @@ the configured account/environment; custom gateways require explicit trusted
 does not replace managed runs, uploads, artifacts, or Notes; it provides terminal
 access only and does not synchronize Codex conversations across hosts.
 
+CLI 0.75.0+ with the matching managed-session gateway adds `sessions status ID` for a
+bounded runtime observation, `start ID` for detached start/resume, `reconnect ID`
+for attachment without creating a process, and `stop ID --yes` for explicit
+termination guarded by the observed runtime identity. These commands are not
+in CLI 0.74.3 or earlier. `start --json` still executes; `resume --json` remains
+save-only. Stop affects all viewers but preserves the descriptor/conversation;
+do not confuse detach with stop. Legacy unmarked runtimes may be attached, but
+cannot be stopped or adopted by managed commands. Missing dependencies are
+reported without installing packages. After an uncertain mutation response,
+inspect status instead of retrying blindly.
+
+For conversations created directly in Codex, CLI 0.75.0+ `sessions sync`
+requires explicit `--target` or `--all`. It reads one bounded recent-root index
+page per selected enrolled host and idempotently saves descriptors, preserving
+existing human names. It launches no terminal, reads no transcript, installs no
+package, and never runs automatically during list/search/refresh. Continue a
+target with its discovery cursor; registry list uses a separate cursor. Report
+missing indexes/Python or unavailable hosts rather than claiming complete fleet
+coverage. See the owning Sessions reference for scope and deployment gates.
+
 Use inventory results to resolve identity. Host IDs, enrollment IDs, cloud
 instance IDs, and local Nymph supervisor IDs are different identifiers. Inspect
 the returned enrollments rather than guessing which daemon belongs to a host.

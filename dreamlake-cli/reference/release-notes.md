@@ -1,5 +1,26 @@
 # Release notes
 
+## 0.75.0 — Managed terminal lifecycle and explicit Codex discovery
+
+`sessions status`, `start`, `reconnect`, and guarded `stop --yes` distinguish
+observing, starting, attaching and terminating the saved session’s exact tmux
+runtime. Legacy live sessions remain attachable; unrelated or unverified
+processes are never adopted or stopped. Detach still preserves remote work.
+
+`sessions sync --target ID` or explicit `--all` discovers one bounded page of
+recent root Codex conversations per selected enrolled host. It preserves existing
+titles, reports skips and omitted observations, and launches no terminal.
+Registry listing gains pagination, query, machine filters and recent ordering.
+Discovery reads the default `~/.codex` index, not transcripts; Python 3, tmux and
+Codex are never installed automatically. `resume --json` stays save-only, while
+explicit `start --json` and `sync --json` perform their documented operations.
+
+Requires the matching managed-session/discovery gateway and registry pagination
+API; updating the CLI does not deploy them. Native loopback gates cover lifecycle
+identity guards, explicit discovery scope and two-host concurrency alongside the
+existing Origin, terminal stream and bundled-skill checks. See
+[Terminal sessions](sessions.md) for exact limits and failure recovery.
+
 ## 0.74.1 — Native terminal connection fix
 
 Native and npm installations now send the configured Origin header during the
