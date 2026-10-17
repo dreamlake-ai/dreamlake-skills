@@ -1,5 +1,18 @@
 # Release notes
 
+## 0.73.0 — Host catalog archive and active inventory
+
+`hosts list` now shows verified online hosts by default. Use `--all` to include
+offline and unknown connections. `--archived exclude|include|only` independently
+controls catalog visibility; use `--all --archived only` to find offline archived
+entries.
+
+`hosts lifecycle`, `hosts archive` and `hosts restore` inspect and change catalog
+visibility using an exact Host ID, request ID and expected revision. Archive is
+reversible and preserves runtime, credentials, reserved names and history.
+Permanent deletion and runtime retirement are not supported. Requires the
+matching backend catalog API. See [Host enrollment](host-enrollment.md).
+
 ## 0.64.0 — Artifact and Env in whole-Project transfers
 
 CLI 0.64.0 accepts complete typed Project/Note/Artifact/Env plans with
