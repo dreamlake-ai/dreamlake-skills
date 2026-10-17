@@ -55,13 +55,12 @@ History timeline previews return to the current working draft when the pointer
 leaves the timeline. An explicitly placed edit marker or selected change range
 keeps its historical view open; clicking a version label alone does not pin it.
 
-## Experimental native rich Markdown editor
+## Native rich Markdown editor
 
-In **Settings → editor experiments**, enable **Native Markdown editor
-(experimental)** to switch the main Notes editor to the native rich Markdown
-editor. The setting is off by default, applies only in this browser, and takes
-effect immediately. Other browsers and teammates keep their own choice; disable
-it to return to the CodeMirror editor.
+Notes uses the native rich Markdown editor. The former CodeMirror fallback and
+browser experiment switch have been removed, including for browsers that saved
+the old fallback preference. Source mode uses Monaco and keeps the same shared
+Markdown document.
 
 The native editor keeps canonical Markdown in the same collaborative RTC
 document. It supports rich Markdown presentation, formatting and insertion
@@ -89,11 +88,10 @@ with its subtree; converts a root list or task item to a paragraph; or removes
 one quote level. Within text or at a soft wrap, Backspace performs ordinary
 character deletion. **Undo** restores the structural edit as one action. Raw
 Markdown mode keeps literal deletion behavior. These changes apply only to the
-native experiment. Underlined (Setext) headings have no leading marker and
+native editor. Underlined (Setext) headings have no leading marker and
 retain ordinary deletion behavior.
 
-This editor remains experimental, and CodeMirror remains the default. The
-browser preference does not change the CLI, API, note format, or permissions.
+The native editor does not change the CLI, API, note format, or permissions.
 
 Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
 
@@ -150,6 +148,17 @@ and signed-in readers to `/<namespace>/notes`. Details opened inside a project
 retain their return-to-project action. There is no extra sign-in navigation bar.
 
 ### Project and bindr associations
+
+In **New note**, each selected project has a visible remove button. Remove a
+choice and use **Add project** to select its replacement; creation requires at
+least one project with permission to create content. Search matches names and
+slugs. Suggestions combine recent projects with successful note creations in
+this browser: frequency decays with a 14-day half-life, recent use adds a boost,
+and a 10% exploration chance can surface another eligible project when opening
+the picker. Suggestions remain stable while it is open and never change a
+selected destination. History is scoped to the signed-in user and workspace,
+bounded to 128 projects and pruned after 180 days; cancelled or failed drafts
+do not train it. Search remains complete regardless of suggestion order.
 
 Adding a project or bindr from a note changes membership while keeping the
 current note, URL, search and panes open. Choose a destination project inside
@@ -440,6 +449,44 @@ reference links with a definition (`[guide][docs]` or `[docs]`), images, and
 into a placeholder. Task markers (`[ ]` and `[x]`) and brackets inside code
 are not placeholders. Escape the opening bracket (`\[literal]`) when you want
 ordinary bracketed prose without a highlight.
+
+## Columns and video
+
+Use ordinary Markdown inside two equal columns:
+
+```markdown
+<Columns>
+Text on the left.
+<ColumnBreak>
+![Architecture diagram](https://example.com/diagram.png)
+</Columns>
+```
+
+Replace the text with another Markdown image for two images side by side.
+Marker lines start at column zero, outside lists, quotes and code. Use exactly
+one `` and nonempty content on each side. Nested layouts, extra
+dividers and malformed wrappers remain literal. Columns stack in source order
+in narrow note panes and print output.
+
+The native editor shows a preview while inactive. Select it or use **Edit layout** to
+reveal its complete Markdown; moving outside restores the preview. The saved
+content remains ordinary source through undo and collaborative edits. This
+version does not offer simultaneous rich editing inside both columns.
+
+For video, put a direct HTTPS media URL and title in a standalone directive:
+
+```markdown
+:video[https://example.com/demo.mp4]{title="Demo walkthrough"}
+```
+
+Use **Two columns** or **Video** in the `/` insertion menu for a template.
+Videos have native playback controls, do not autoplay and initialize near the
+viewport. A title and source link remain available if playback fails. Entering
+source mode pauses playback; returning to preview can reset it. Use captioned
+media or add a transcript for speech. This increment does not provide captions,
+private attachment streaming or arbitrary video-site embeds. Media URLs are
+used as supplied; share public media bearer URLs only with their intended
+audience. Print/PDF output contains the video title and link.
 
 ## Create and list
 

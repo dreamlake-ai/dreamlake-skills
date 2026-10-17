@@ -2,20 +2,26 @@
 
 ## List and inspect hosts
 
-`hosts list` reads every page of your hosts in one namespace, across all groups
-by default. Omit `--namespace` to use the signed-in personal namespace, or select
-another authorized namespace explicitly. `--group` accepts a single group name.
+CLI 0.73.0 adds active-only listing and `--all`. Earlier versions list all
+connection states without that flag.
+
+`hosts list` reads every page of your hosts in one namespace, across all groups,
+and shows only active hosts with at least one verified online enrollment. Use
+`--all` to include offline hosts and hosts with unknown connection state.
+Omit `--namespace` to use the signed-in personal namespace, or select another authorized namespace explicitly. `--group` accepts a single group name.
 
 ```bash cli-help="hosts list"
 dreamlake hosts list
 dreamlake hosts list --namespace geyang --group workstations
 dreamlake hosts list --json
+dreamlake hosts list --all
 ```
 
-Text lists show host ID, full name, and verified connection state. JSON returns
+Text lists show host ID, full name, catalog state, and verified connection state.
+An older backend without catalog metadata shows catalog state as unknown. JSON returns
 `namespace`, optional `group`, `hosts` (the original host/enrollment records), and
-`total` (the number of distinct hosts collected). A failed page fails the command;
-it does not emit a successful partial listing. Pagination reads a live inventory,
+`total` (the number of distinct hosts shown after filtering). A failed page fails
+the command; it does not emit a successful partial listing. Pagination reads a live inventory,
 not an atomic snapshot; hosts added or removed during the read can change results.
 
 Inspect a full name or the 24-character host ID returned by the API. An ID uses
@@ -30,7 +36,8 @@ dreamlake hosts status 'geyang/workstations/*' --page 2 --page-size 100 --json
 
 Exact status shows a readable enrollment table by default; `--json` preserves the
 backend detail response. The existing wildcard status continues to return one
-paginated JSON response even without `--json`. Use `hosts list` for all pages.
+paginated JSON response even without `--json`. Use `hosts list --all` for all
+pages and connection states.
 
 Connection is `online` when an enrollment has a verified online observation,
 `offline` when every enrollment is verified offline, and otherwise `unknown`.
@@ -39,6 +46,61 @@ last-seen timestamp. A stored offline/pending state without runtime verification
 does not establish current availability. The `hosts status` response does not
 report power, SSH readiness, or job readiness; status displays these as `unknown`.
 An online connection alone does not prove that SSH or any particular workload can run.
+
+## Archive and restore catalog records
+
+Catalog commands require CLI 0.73.0+ and the matching backend API. Archiving only hides a Host from the default catalog list. Runtime,
+enrollments and credentials remain active, and archiving does not prevent future
+work. It does not retire a machine, verify inactivity, stop a service, cancel a
+job, revoke access or terminate a cloud resource.
+
+Host and enrollment IDs, reserved names and job/history links remain unchanged.
+Exact `hosts status` and `hosts enrollments` lookups by ID or full name still work.
+List filters affect visibility, never authorization:
+
+```bash
+dreamlake hosts list --namespace geyang --all --archived include
+dreamlake hosts list --namespace geyang --all --archived only
+```
+
+`--all` controls connection state; `--archived` controls catalog visibility.
+Use both flags to include offline archived hosts. Permanent entry deletion is
+not supported.
+
+Read the catalog revision before submitting a change. Lifecycle commands require
+one exact lowercase 24-character Host ID, not a name or wildcard. Use the revision
+returned by the read; `0` below illustrates a record with no prior catalog changes.
+
+```bash cli-help="hosts lifecycle"
+dreamlake hosts lifecycle HOST_ID --namespace geyang --json
+```
+
+```bash cli-help="hosts archive"
+dreamlake hosts archive HOST_ID --namespace geyang --request-id archive-example-1 --expected-revision 0 --json
+```
+
+```bash cli-help="hosts restore"
+dreamlake hosts restore HOST_ID --namespace geyang --request-id restore-example-1 --expected-revision 1 --json
+```
+
+Every accepted new request increments the revision, including archiving an
+already archived record or restoring an active record. The original archive
+timestamp is retained by repeated archive actions. Restore clears that timestamp.
+All responses state `executionAffected:false` and `retirementSupported:false`.
+
+Retain the request ID, Host ID, namespace, action and expected revision. After an
+ambiguous transport failure, repeat that exact request; the CLI never retries or
+refreshes the revision automatically. Reusing a request ID with different inputs
+returns `409 request_id_conflict`. A stale revision returns
+`409 catalog_revision_conflict`; inspect the current catalog state before choosing
+a new operation. Request IDs are scoped to the authenticated user across hosts
+and namespaces and are distinct from enrollment request IDs.
+
+A retry returns the stored original receipt even after a later opposite action.
+`replayed:true` describes that receipt, not the Host's current catalog state;
+use `hosts lifecycle` for current state. Current namespace and Host ownership are
+required for retries as well as new actions. JSON retains operation/request IDs,
+revision, catalog state and timestamps. Runtime or work admission is unchanged.
 
 ## Inspect enrollments
 
