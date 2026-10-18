@@ -77,3 +77,10 @@ dreamlake artifact push ./draft.md --share
 After a successful push the CLI prints an **open link** to the artifact (its dashboard
 URL, with the `?share=` token appended when `--share` was used) — hand it to the user so
 they can click straight through to view what they uploaded.
+
+CLI 0.78.0 can also affiliate a successful artifact write with its verified saved
+agent session. For explicit selection, automatic context, opt-out, and manual
+link/unlink commands, follow the authoritative
+[session affiliation guide](https://cli.dreamlake.ai/sessions).
+Opening an artifact does not create a link, and a link grants no terminal access.
+An affiliation failure does not undo or misreport a successful content upload.
