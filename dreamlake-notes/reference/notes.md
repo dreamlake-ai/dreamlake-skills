@@ -34,7 +34,9 @@ transfer support is documented separately below.
   coding agent working through bash — edits one while people have it open.
 
 See [Panels and agent control](https://docs.dreamlake.ai/notes/panels) for artifact previews, pinned tabs,
-and programmable native layouts.
+and programmable native layouts. The session-library button in the chat tab
+row opens an available terminal beside the note, keeping the editor in place.
+Session permissions remain separate from note permissions.
 
 In live preview, an opening H1 with content below it is positioned
 above the viewport once, before interaction. Scrolling back to the title keeps it

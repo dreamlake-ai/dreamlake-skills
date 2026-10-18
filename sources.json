@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "eb5ad9b888ab52526f9126a17017a39fd1e68ac6",
+      "commit": "88453b0b9be80d6cf5e1c4ebe1f745824b842be7",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "dd7b7cd9de0d414ef0a03c0c298cea52b8c6adab2a384e959eb6e6b61cf38e17",
@@ -30,12 +30,12 @@
       },
       "docsPages": "docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers,envs,envs/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "ef6181e022d4d6be7e5a1eb6634cc7f77ba43e89160e32f378f18b099de353ec",
+      "pageSha256": "0f20541dd869a8895b450da5dfa1a93b60ece8588c314d1ef928741223e862ce",
       "childPages": {
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
         "docs/pages/notes/markdown/+Page.mdx": "f4ac685c586a7d8c09cc727863cabee468b3bea8efb863d57cd56908e4976f12",
-        "docs/pages/notes/panels/+Page.mdx": "a5f4159e4c82298426cd44ebae33d3412a7317986c2d5a0a814a7369a27cb741"
+        "docs/pages/notes/panels/+Page.mdx": "35edacce2663e74f2953935879c94b497d42d15394d069f98f10393054f0ef03"
       },
       "scenePages": {
         "docs/pages/scene-generation/+Page.mdx": "d01546ff63b34bdd234a5295f1329da75dc4441a8e2c882358d8af9735a5c292",
