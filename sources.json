@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "88453b0b9be80d6cf5e1c4ebe1f745824b842be7",
+      "commit": "f8ece799fc0c032d3e4ee09228e12566479a4044",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "dd7b7cd9de0d414ef0a03c0c298cea52b8c6adab2a384e959eb6e6b61cf38e17",
