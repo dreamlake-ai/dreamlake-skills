@@ -61,6 +61,25 @@ fragments are separate tab targets. Opening either kind of reference from a
 side Note adds a tab in that same side panel. Existing tabs stay mounted and
 retain editor and preview state; these reference clicks do not replace content.
 
+## Sessions beside a note
+
+The session-library button at the left of the chat panel's tab row opens the
+sessions available to your account. Select a session to open a terminal in that
+same panel, beside the note you are editing. Selecting an already-open session
+activates its tab. The note and inactive chats and terminals keep their mounted
+state while you switch tabs. Close a terminal tab to disconnect its viewer; this
+does not stop the remote session.
+
+Restoring a terminal tab from an address shows **Open session**; restoring a
+layout never starts a command. The address contains the saved session ID, not
+terminal output or connection credentials.
+
+The library includes your private sessions and sessions shared with a team you
+belong to. Sharing a note or its layout does not share a terminal. Session access
+is checked separately each time it is opened or reconnected. See
+[Browser terminal](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal) for sharing, machine
+requirements, discovery and managed-session behavior.
+
 ## Agent requests
 
 Each mounted PageViewLayout registers in `window.dreamlakeLayouts` protocol v1.
@@ -75,6 +94,8 @@ artifact's asynchronous authorized loader succeeded.
 
 | View kind | Resource identity | Required content metadata |
 | --- | --- | --- |
+| session-library | namespace | namespace |
+| terminal-session | namespace/session ID | namespace, sessionId |
 | note | note ID | namespace, noteId; optional fragment |
 | artifact | namespace/artifactId | namespace, artifactId; optional fragment |
 | resource | namespace/notes | namespace, resource: notes |
