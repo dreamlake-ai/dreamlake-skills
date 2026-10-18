@@ -91,8 +91,12 @@ The session-library button at the left of the chat panel's tab row opens the
 sessions available to your account. Select a session to open a terminal in that
 same panel, beside the note you are editing. Selecting an already-open session
 activates its tab. The note and inactive chats and terminals keep their mounted
-state while you switch tabs. Close a terminal tab to disconnect its viewer; this
-does not stop the remote session.
+state while you switch tabs. A tmux terminal keeps running when its viewer closes.
+On a machine without tmux, an owner can use **direct** mode; closing or losing that
+connection may stop its foreground process. Direct terminals show this limitation,
+require an explicit reopen to resume, and have no managed Stop or shared attachment.
+They do not reconnect automatically. This requires the matching runtime gateway
+and client; screen and other persistent adapters are not implemented yet.
 
 Use **Up/Down** while a list row has focus to move through visible entries;
 **Enter** activates the focused entry. Arrow navigation does not open terminals

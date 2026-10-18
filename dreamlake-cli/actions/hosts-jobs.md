@@ -59,7 +59,7 @@ Recorded tracked-run checks do not establish that a machine is idle or drained.
 For persistent Codex terminals (CLI 0.74.1+), select a target and its exact enrollment from
 `sessions targets`, plus the user's requested remote directory and Codex UUID.
 `sessions resume UUID` saves and attaches interactively; `--json` saves only.
-`sessions open ID` reattaches to the descriptor's existing tmux identity. Never
+`sessions open ID` opens the descriptor's exact remote conversation. Never
 interpret a saved descriptor or successful list as a running process. Preserve
 the configured account/environment; custom gateways require explicit trusted
 `--gateway` and `--origin`. See the reference for deployment prerequisites. This
@@ -70,12 +70,20 @@ CLI 0.75.0+ with the matching managed-session gateway adds `sessions status ID` 
 bounded runtime observation, `start ID` for detached start/resume, `reconnect ID`
 for attachment without creating a process, and `stop ID --yes` for explicit
 termination guarded by the observed runtime identity. These commands are not
-in CLI 0.74.3 or earlier. `start --json` still executes; `resume --json` remains
+in CLI 0.74.3 or earlier. `start --json` can execute a persistent process; `resume --json` remains
 save-only. Stop affects all viewers but preserves the descriptor/conversation;
 do not confuse detach with stop. Legacy unmarked runtimes may be attached, but
 cannot be stopped or adopted by managed commands. Missing dependencies are
 reported without installing packages. After an uncertain mutation response,
 inspect status instead of retrying blindly.
+
+With CLI 0.81.0+ and a direct-capable gateway, open/resume negotiate tmux when
+available and otherwise an owner-only direct foreground connection. Direct
+`start` reports ready and `executed:false`; use `open` to launch the process on
+connection. Warn that disconnecting may end it. Direct mode has no persistence,
+team viewer attachment, or managed stop; `reconnect` remains tmux attach-only
+and must not launch a replacement. Never install tmux automatically or claim
+screen support. Older gateways retain their existing dependency errors.
 
 For Claude Code sessions, use CLI 0.77.0+ and matching provider-aware API and
 gateway. Select `--provider claude --session UUID` when creating a descriptor;
@@ -202,6 +210,6 @@ For uploaded conversation history, CLI 0.79.0+ provides
 `sessions upload-conversation SESSION_ID --namespace NAMESPACE --file EXPORT
 --json`. Select the exact opted-in export; uploads never open a terminal. The
 Note's contributing-session panel can display the archive and open its saved
-session to the right through the existing managed tmux path. The original host
+session to the right through the supported terminal runtime. The original host
 must retain its native conversation state; an archive cannot migrate it. See
 [session archives](../reference/sessions.md#optional-conversation-upload-0790).
