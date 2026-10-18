@@ -3,7 +3,7 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "ea2a2098d85ae82d4fc26ed453f802f6346f23bf",
+      "commit": "35b4f8c12a417cf2fb9c92423b73be755396bd77",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "dd7b7cd9de0d414ef0a03c0c298cea52b8c6adab2a384e959eb6e6b61cf38e17",
@@ -35,7 +35,7 @@
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
         "docs/pages/notes/markdown/+Page.mdx": "f4ac685c586a7d8c09cc727863cabee468b3bea8efb863d57cd56908e4976f12",
-        "docs/pages/notes/panels/+Page.mdx": "35edacce2663e74f2953935879c94b497d42d15394d069f98f10393054f0ef03"
+        "docs/pages/notes/panels/+Page.mdx": "b0322473817a5c2a35a5fddde3d7f3d92c061d13ade43bae810c3786194e38cd"
       },
       "scenePages": {
         "docs/pages/scene-generation/+Page.mdx": "d01546ff63b34bdd234a5295f1329da75dc4441a8e2c882358d8af9735a5c292",
@@ -46,7 +46,7 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "21d24fd45f2e5b41356b59160c7d57ffc853d977",
+      "commit": "90b586134ccc873ae5c1b1f7434735fdcf505642",
       "generatorSha256": "7222b8b50e011b15d1b4c1463a9652f809bd18621b506a72b23647229b03ea06",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "1fbc456bf24d75512e942b5840458fc592a5d875cfcc5ccee134f977c979a6c9",
@@ -54,7 +54,7 @@
         "docs/skill-guides/cli/actions/cloud-vault.md": "9443c94b35daeb4d60e517048442f53db0a02a1e7eb381b74d478f6ec1cb0c02",
         "docs/skill-guides/cli/actions/connect-aws.md": "f12a658b0e9842598caced33bc4a0fc7324670cd05bc0d7dd0e3f2d7de8766b1",
         "docs/skill-guides/cli/actions/data.md": "40f54ed804ab884c95b01d3538f07c405334476da2ce753b8364ac55b435f234",
-        "docs/skill-guides/cli/actions/hosts-jobs.md": "f295bc3ca29db7fb5d36d1c9943c29856bc1e9edf980594152fb0ba1894fd5ea",
+        "docs/skill-guides/cli/actions/hosts-jobs.md": "b8ec52016e41f0f7516ddcfab7e0bddcc7bd7ad174063b078b4ba9044009be18",
         "docs/skill-guides/cli/actions/infrastructure.md": "a2f2797d0eb16e17facc6095ff2418c61deb5cce133ff55d81fb1f66e0e68990",
         "docs/skill-guides/cli/actions/machines.md": "418ba5f798fea4e916762ac8362640a4d8e881a420a095f84026746de8301498",
         "docs/skill-guides/cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",

@@ -70,6 +70,12 @@ activates its tab. The note and inactive chats and terminals keep their mounted
 state while you switch tabs. Close a terminal tab to disconnect its viewer; this
 does not stop the remote session.
 
+Use **Up/Down** while a list row has focus to move through visible entries;
+**Enter** activates the focused entry. Arrow navigation does not open terminals
+or replace the note. This behavior is shared by actionable note, project, Bindr,
+session, Compute and other item lists. Inputs and editors keep their normal
+caret controls, and inactive panes never reclaim keyboard focus on refresh.
+
 Restoring a terminal tab from an address shows **Open session**; restoring a
 layout never starts a command. The address contains the saved session ID, not
 terminal output or connection credentials.

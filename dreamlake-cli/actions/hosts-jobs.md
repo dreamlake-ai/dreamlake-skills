@@ -17,7 +17,7 @@ and preserve local customizations when reviewing conflicts.
 | Archive or restore catalog visibility | Check installed support, read `hosts lifecycle HOST_ID`, then use explicit request ID and expected revision with `hosts archive` or `hosts restore`; this never retires runtime |
 | Find active hosts across groups | `dreamlake hosts list`; select the authorized namespace (CLI 0.73.0+: verified online only) |
 | Include offline or unknown hosts | CLI 0.73.0+ `dreamlake hosts list --all`; CLI 0.72.0 lists all states without this flag |
-| Save or reopen an exact Codex terminal session | [Terminal sessions](../reference/sessions.md): `dreamlake sessions targets`, then `create` / `resume` / `open`; requires CLI 0.74.1+ and matching terminal API/gateway |
+| Save or reopen an exact agent terminal session | [Terminal sessions](../reference/sessions.md): `dreamlake sessions targets`, then `create` / `resume` / `open`; Codex requires CLI 0.74.1+ and matching terminal API/gateway; Claude requires CLI 0.77.0+ and provider-aware services |
 | Inspect one host and its enrollments | `dreamlake hosts status` with its returned host ID or full name |
 | Resolve enrollment identities and observed presence | `dreamlake hosts enrollments HOST`; retain its exact enrollment ID |
 | Read CPU, RAM, and disk observations | `dreamlake hosts metrics HOST --enrollment ID` |
@@ -76,6 +76,18 @@ do not confuse detach with stop. Legacy unmarked runtimes may be attached, but
 cannot be stopped or adopted by managed commands. Missing dependencies are
 reported without installing packages. After an uncertain mutation response,
 inspect status instead of retrying blindly.
+
+For Claude Code sessions, use CLI 0.77.0+ and matching provider-aware API and
+gateway. Select `--provider claude --session UUID` when creating a descriptor;
+use `--claude-config-dir /absolute/path` only for its actual custom Claude configuration
+root. `--codex-session` remains the Codex UUID option. The saved descriptor
+determines the provider on later `open`, `start` and `reconnect` actions. Claude resumes with its
+existing authentication and permissions; never add a permission-bypass flag.
+Automatic Claude discovery requires Nymph 0.1.31+ and the matching product API.
+Check installed and deployed support rather than treating a skill update as an
+upgrade. The reference distinguishes registered history, process observations,
+native working/waiting/idle/error states, and stale/unknown evidence; recent file
+activity alone does not prove a running session or its model provider.
 
 For conversations created directly in Codex, CLI 0.75.0+ `sessions sync`
 requires explicit `--target` or `--all`. It reads one bounded recent-root index

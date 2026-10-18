@@ -15,6 +15,27 @@ The remote host must already have that conversation under the selected user's
 Codex state, the requested directory, `codex`, and `tmux` installed. A session
 UUID does not move a conversation between computers or users.
 
+## Claude Code and observed states
+
+Provider-aware clients also list and open Claude Code sessions registered by a
+compatible machine collector. Use `--provider claude --session <uuid>` when
+saving one explicitly, and `--claude-config-dir <absolute-path>` if it uses a
+custom Claude configuration root. `--codex-session` remains the Codex-compatible
+UUID option. The default provider is Codex.
+
+```bash
+dreamlake sessions create --provider claude --session <uuid> --target <target-id> --cwd /absolute/repository --namespace geyang
+```
+
+The descriptor reports the agent tool separately from `modelProvider`. Its
+`runState` and `runStateObservedAt` describe the latest machine observation;
+stale observations become `unknown`. `running` confirms a matching process,
+not active model work. Supported native Codex daemons additionally report
+`working`, `waiting`, `idle`, or `error` through metadata-only status reads. Listing does not open terminals or SSH-poll each row.
+Use `sessions status` for the selected managed terminal's current lifecycle.
+Claude resumes with its existing permissions and login; the CLI adds no bypass.
+These additions require matching provider-aware API, gateway and collector releases.
+
 ## Select the host
 
 Authenticate with your intended personal account and select the environment.
