@@ -2,6 +2,12 @@
 
 ## List and inspect hosts
 
+In CLI 0.76.0 and later, bare `dreamlake hosts` defaults to `hosts list`,
+and accepts the same list options directly. `dreamlake hosts -h` shows both
+listing options and host commands; `dreamlake hosts list -h` shows only listing
+help. See [collection defaults](command-reference.md#collection-defaults-and-help).
+Earlier releases require explicit `list`.
+
 CLI 0.73.0 adds active-only listing and `--all`. Earlier versions list all
 connection states without that flag.
 

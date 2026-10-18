@@ -1,5 +1,17 @@
 # Release notes
 
+## 0.76.0 — Collection defaults and combined help
+
+Collection groups with an existing `list` command now default to listing.
+For example, `dreamlake hosts --all` is equivalent to `dreamlake hosts list --all`.
+Parent `-h` combines listing options and the command menu; explicit `list -h`
+remains available for focused help. This applies to nested collections too,
+while required scopes and other subcommand options remain unchanged.
+
+Managed Sessions filters and pagination from 0.75.0 are preserved: bare
+`sessions` accepts the same registry query, machine, cursor and sort options as
+`sessions list`. No backend or Nymph update is needed for this CLI change.
+
 ## 0.75.0 — Managed terminal lifecycle and explicit Codex discovery
 
 `sessions status`, `start`, `reconnect`, and guarded `stop --yes` distinguish
