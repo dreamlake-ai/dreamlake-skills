@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.80.0 — Stack paths in the project resource tree
+
+`infra create --path` places a new stack in its Project's resource tree, next to
+Notes and folders (default `infra/NAME/ENVIRONMENT`). `infra status` and `infra list`
+print `Path:`. `infra move --destination-path` changes only a stack's path inside
+its own Project; the review pins the current path, and UUID, backend URL and state
+are unchanged. Stacks that have a path cannot yet move to another Project. Requires
+the matching stack-path API; older servers keep working and show `Path: unassigned`.
+
 ## 0.78.0 — Note and artifact session affiliations
 
 `sessions link`, `unlink`, and paginated `resources` connect exact saved sessions

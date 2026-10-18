@@ -12,7 +12,9 @@ to the production terminal gateway. Saved descriptors from 0.74.0 remain usable.
 A descriptor binds the selected target, host enrollment, Unix user, working
 directory, and exact Codex session UUID. It contains no credentials or transcript.
 The remote host must already have that conversation under the selected user's
-Codex state, the requested directory, `codex`, and `tmux` installed. A session
+Codex state, the requested directory, and `codex` installed. Persistent terminals
+use `tmux`; CLI **0.81.0+** with a matching gateway can connect directly when
+tmux is unavailable. A session
 UUID does not move a conversation between computers or users.
 
 ## Claude Code and observed states
@@ -114,12 +116,22 @@ dreamlake sessions resume 01a13cbc-d4a7-7893-81cc-39696769c454 \
 
 It saves or finds the matching descriptor, obtains a short-lived gateway ticket,
 and attaches an interactive terminal. On the **selected remote host**, the gateway
-starts `codex resume` in the requested directory under a deterministic tmux
-session, or attaches to that same tmux session if it exists. Repeated opens share
-the same process; an existing Codex process started outside this tmux session is
-not automatically discovered or adopted.
+negotiates the available runtime. With tmux, it starts `codex resume` in the
+requested directory under a deterministic tmux session, or attaches to that same
+session if it exists. Repeated persistent opens share the same process; existing
+agent processes outside that managed session are not adopted.
 
-Press **Ctrl-]** to detach while leaving the remote session running. Ctrl-C goes
+With CLI **0.81.0+** and a compatible gateway, a host without tmux uses a direct
+foreground connection for the session owner. The CLI reports this before
+connecting. The process starts only when the authorized terminal ticket is
+consumed, and **disconnecting may end it**. Use `sessions open` explicitly to
+resume again; `reconnect` never starts a replacement. Direct mode has no detached
+start, managed stop, or team viewer attachment. Only one direct connection can
+use a saved session at a time; close it before opening another. It installs no
+packages.
+Only tmux and direct mode are currently supported; screen is not an adapter yet.
+
+With tmux, press **Ctrl-]** to detach while leaving the remote session running. Ctrl-C goes
 to the remote program. Terminal resizing is forwarded. Exiting Codex ends its
 remote process; closing the connection keeps a running tmux session available.
 If access expires or the connection breaks, run `sessions open` with the same
@@ -177,11 +189,15 @@ only. A status response is a timestamped observation, not continuous monitoring.
 dreamlake sessions start SESSION_ID --namespace geyang --json
 ```
 
-`start` explicitly starts Codex in detached, managed tmux, keeps an already
+When tmux is available, `start` explicitly starts the agent in detached, managed
+tmux, keeps an already
 running process, or resumes the saved conversation after an owned pane exits.
-Unlike `resume --json`, **`start --json` executes**; JSON changes its output only.
-Managed `open` and interactive `resume` start or verify the runtime before
-requesting an attachment that cannot create another process.
+Unlike `resume --json`, **`start --json` can execute** a persistent process; JSON
+does not suppress that action. With CLI 0.81.0+ and direct-mode gateway support,
+a missing tmux instead returns `kind: direct`, `status: ready`, and
+`executed: false`. This is a dependency preflight, not a running process. Use
+`open` to connect and launch it. Managed tmux attachment cannot create another
+process; an authorized direct ticket starts its foreground process on connection.
 If Codex exits immediately, `start` reports its observed state and exits nonzero;
 `open` declines the attachment. Use `status` to inspect the retained pane state.
 
@@ -202,13 +218,16 @@ dreamlake sessions stop SESSION_ID --namespace geyang --yes --json
 reads fresh status and submits the exact generation and pane identity; a changed
 runtime is rejected instead of stopping its replacement. An absent runtime is
 already stopped. Closing a browser tab or pressing Ctrl-] only detaches; neither
-operation is `stop`. The saved descriptor and Codex conversation remain, and a
+operation is `stop` for tmux. In direct mode, disconnection may end the process
+and managed `stop` is unavailable. The saved descriptor and Codex conversation remain, and a
 later explicit `start` or `open` can resume them.
 
 Older, unmarked tmux sessions report `legacy`. A live legacy session can still
 be attached without replacing it, but cannot be stopped or restarted through
-managed lifecycle commands because ownership is unverified. Missing tmux or
-Codex is reported as `dependency_missing`; these commands install no packages
+managed lifecycle commands because ownership is unverified. Older gateways report
+missing tmux as `dependency_missing`; direct-capable gateways negotiate direct
+readiness on `start` instead. Missing agent executables still block opening.
+These commands install no packages
 and adopt no unrelated process. Unavailable hosts are reported separately from
 absent runtimes.
 

@@ -45,6 +45,9 @@ project inventory. `dreamlake infra create NAME --namespace OWNER --project PROJ
 metadata and an empty backend; it provisions no resources. Stack creation requires
 ADMIN authority. Use `--directory ''` for the repository root and retain the
 returned immutable stack UUID. Existing state is not copied or migrated.
+Each stack also gets one path in the Project resource tree; pass `--path
+infra/k3s/prod` or accept the default `infra/NAME/ENV`. A path occupied by a
+Note, folder or stack returns 409; choose another path rather than overwriting.
 
 Creation sends one request without automatic retries or a request-ID idempotency
 contract. If the result is unknown, the receipt is invalid, or a conflict is
@@ -74,7 +77,11 @@ Preview the explicit destination with `dreamlake infra move STACK_ID --namespace
 OWNER --project PROJECT --dry-run --out review.json`. Inspect blockers and saved
 source/destination IDs, original name, state version/digest and idempotency key.
 For an explicitly approved collision rename, add `--destination-name NAME` to
-preview; never invent an automatic rename. A runbook or active lock may block
+preview; never invent an automatic rename. To change only the tree path, preview
+the stack's own namespace/project with `--destination-path NEW/PATH`; the UUID and
+state stay unchanged. The review pins the current path, so re-preview if it is
+reported stale. A stack with a path cannot yet move to another Project; report
+the `STACK_MOVE_PATH_CROSS_PROJECT_UNSUPPORTED` blocker instead of working around it. A runbook (for cross-Project moves) or active lock may block
 admission. The saved review file must be new and is private.
 
 Execute only the saved intent with `dreamlake infra move STACK_ID --request-file

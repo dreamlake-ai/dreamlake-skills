@@ -73,7 +73,7 @@ of execution or health. Infrastructure READ access is enforced on every request.
 ```bash cli-help="infra create"
 dreamlake infra create analytics --namespace fortyfive --project dreamlake-infra \
   --environment production --repository https://github.com/example/repo \
-  --directory infra/analytics --json
+  --directory infra/analytics --path infra/analytics/production --json
 ```
 
 Creation requires project ADMIN access and registers an empty stack backend;
@@ -83,6 +83,15 @@ starting with a letter or digit. Repository URLs require HTTPS without embedded
 credentials, query or fragment. The Terraform directory is relative, allows an
 empty string for the repository root, and rejects traversal, backslashes, leading
 slashes and control characters. The encoded metadata body cannot exceed 8192 bytes.
+
+Requires CLI 0.80.0 or later and the matching API. Every stack has one path in
+its Project's resource tree, next to Notes and folders: `--path infra/k3s/prod` (default `infra/NAME/ENVIRONMENT`). Paths are
+canonical `/`-separated segments using the same characters as names, at most 16
+segments and 255 characters. A path is unique in the Project regardless of
+environment; a Note, folder or other stack already there refuses creation with
+HTTP 409. The path is a logical address only: not the Terraform directory and not
+part of any cloud resource name. `infra status` and `infra list` print `Path:`
+(`unassigned` for a stack registered before paths and not yet backfilled).
 
 Exactly one POST is sent. Creation has no request-ID/idempotency contract and is
 never automatically retried. HTTP 409 indicates an existing/conflicting stack;
@@ -103,6 +112,15 @@ name collision; there is no automatic rename. The request pins the old name and
 optional new name, and confirmation does not accept name overrides. It does
 not register a second backend, run Terraform or move provider resources.
 
+`--destination-path PATH` on preview changes the stack's place in its own
+Project tree (path-only move). The review pins the current path; if the path
+changes before confirmation the move refuses as stale and needs a new preview.
+The tree node keeps its identity and bindr tags, and the UUID, backend URL,
+state, versions, lock history and runbook binding stay unchanged. Moving a stack
+that already has a path to another Project is blocked
+(`STACK_MOVE_PATH_CROSS_PROJECT_UNSUPPORTED`) until cross-store reconciliation is
+available. Tree folder moves, renames and deletes refuse to move or drop a stack.
+
 ```bash cli-help="infra move"
 # Save one reviewed move; no location changes occur during preview.
 dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
@@ -110,6 +128,10 @@ dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
 # Execute the exact saved intent and optimistic concurrency checks.
 dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
   --request-file stack-move.json --confirm --json
+# Path-only move: same namespace/project, new place in its resource tree.
+dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
+  --namespace fortyfive --project dreamlake-infra \
+  --destination-path platform/aws/analytics --dry-run --out stack-path.json
 ```
 
 Preview and execution require namespace OWNER and Project ADMIN authority
