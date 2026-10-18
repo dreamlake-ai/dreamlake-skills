@@ -1,5 +1,25 @@
 # Release notes
 
+## 0.78.0 — Note and artifact session affiliations
+
+`sessions link`, `unlink`, and paginated `resources` connect exact saved sessions
+to Notes and artifacts across namespaces. Links preserve both resources' current
+permissions; they do not share terminals or launch processes.
+
+Acknowledged note content writes and artifact pushes can automatically record an
+exact saved-session or native-session context. Reads and failed writes add no
+affiliation traffic. The bounded lookup refuses ambiguous or missing registration;
+a link failure warns without turning a successful content write into a failure.
+Retry only the relation using `sessions link`. Requires the matching resource-session
+API. See [Terminal sessions](sessions.md) for context variables and limits.
+
+## 0.77.0 — Claude Code and observed session states
+
+Provider-aware session commands support Claude Code with `--provider claude`,
+`--session`, and optional `--claude-config-dir`. Listings report observed run states
+separately from managed terminal lifecycle. Requires matching API, gateway and
+machine collector releases; existing Codex flags remain compatible.
+
 ## 0.76.0 — Collection defaults and combined help
 
 Collection groups with an existing `list` command now default to listing.

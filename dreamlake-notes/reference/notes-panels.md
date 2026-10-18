@@ -63,12 +63,42 @@ retain editor and preview state; these reference clicks do not replace content.
 
 ## Sessions beside a note
 
+Notes and all artifact kinds can have multiple saved sessions linked to them.
+The session library offers **All sessions** and **Linked to note** (or
+**Linked to artifact**). Use the row's **Link** or **Unlink** action to change
+affiliations. On an artifact page, **Sessions** in the header opens the same
+session panel beside the artifact. Opening or viewing a resource does not create
+a link. Links preserve exact saved-session IDs and remain separate from the tabs
+currently open in a panel.
+
+Affiliations grant no additional access. Listing a link requires current read
+access to both the resource and the session; changing it requires resource write
+access and session read access. Moving a resource rechecks its current owner and
+permissions. Deletion or revoked access hides the corresponding links. A private
+session never becomes team-visible merely because its note or artifact is public.
+
+CLI 0.78.0 can link successful note/artifact writes to an explicitly selected
+saved session, or an unambiguous owned session matching the current native
+conversation UUID. An unresolved context leaves the successful content write
+intact and reports the affiliation failure separately. Historical resources are
+linked only from verified evidence or explicit selection, never from title matches.
+Set `DREAMLAKE_TERMINAL_SESSION_ID` and `DREAMLAKE_SESSION_NAMESPACE` to select
+an exact saved context; opening a terminal does not inject these variables.
+The same native UUID registered under multiple machine bindings can be ambiguous,
+so automatic affiliation is not guaranteed for every native session.
+
 The session-library button at the left of the chat panel's tab row opens the
 sessions available to your account. Select a session to open a terminal in that
 same panel, beside the note you are editing. Selecting an already-open session
 activates its tab. The note and inactive chats and terminals keep their mounted
 state while you switch tabs. Close a terminal tab to disconnect its viewer; this
 does not stop the remote session.
+
+Use **Up/Down** while a list row has focus to move through visible entries;
+**Enter** activates the focused entry. Arrow navigation does not open terminals
+or replace the note. This behavior is shared by actionable note, project, Bindr,
+session, Compute and other item lists. Inputs and editors keep their normal
+caret controls, and inactive panes never reclaim keyboard focus on refresh.
 
 Restoring a terminal tab from an address shows **Open session**; restoring a
 layout never starts a command. The address contains the saved session ID, not

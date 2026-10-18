@@ -122,3 +122,15 @@ ID/request/key/namespace; use `files status OP --note NOTE`, then explicit
 stop an admitted operation before write authorization; uncertain or write-started
 work is not safe to delete/resend. Current authority and original actor are
 required. See [attachments](../reference/notes-attachments.md#recover-an-attachment-operation-cli-0482).
+<!-- Session affiliation requires CLI 0.78.0+ and the matching API. -->
+
+When a task produces or edits a Note, preserve its exact session context.
+CLI 0.78.0+ automatically links successful note writes when `CODEX_THREAD_ID`,
+explicit `CLAUDE_SESSION_ID`, or the pair `DREAMLAKE_TERMINAL_SESSION_ID` /
+`DREAMLAKE_SESSION_NAMESPACE` resolves one owned registered session. Presence
+labels are not proof of a native session. If auto-link warns, the note write
+still succeeded: use `sessions link SESSION_ID --namespace SESSION_NAMESPACE
+--resource-namespace NOTE_NAMESPACE --note NOTE_ID --json` to retry only the link.
+Do not repeat a successful edit or guess historical links by title. Read-only
+work does not add affiliations; linking never opens a terminal.
+
