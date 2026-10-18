@@ -197,3 +197,11 @@ This route does not replace [uploads](data.md), revision-aware [Notes](notes.md)
 Use an SDK for requested SDK integration or a documented CLI gap, after checking
 that the SDK and server actually support the operation; an SDK is not evidence
 that a proposed daemon or runner capability exists.
+
+For uploaded conversation history, CLI 0.79.0+ provides
+`sessions upload-conversation SESSION_ID --namespace NAMESPACE --file EXPORT
+--json`. Select the exact opted-in export; uploads never open a terminal. The
+Note's contributing-session panel can display the archive and open its saved
+session to the right through the existing managed tmux path. The original host
+must retain its native conversation state; an archive cannot migrate it. See
+[session archives](../reference/sessions.md#optional-conversation-upload-0790).

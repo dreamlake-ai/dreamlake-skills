@@ -287,3 +287,66 @@ development. Redirects are refused. Tickets travel in the initial WebSocket
 message, never the URL or command output. No local scientific workload, direct
 SSH alternative, shell command evaluation, or ambient credential substitution
 is used by these commands.
+
+## Optional conversation upload (0.79.0+)
+
+CLI 0.79.0 adds conversation archives to the session affiliations introduced in
+0.78.0. The matching conversation API is required.
+
+Select an exact export to upload its readable conversation text:
+
+```bash cli-help="sessions upload-conversation"
+dreamlake sessions upload-conversation SESSION_ID --namespace geyang \
+  --file /absolute/path/to/conversation.jsonl --json
+```
+
+The file can be a native Codex rollout, Claude Code JSONL export, or version 1
+DreamLake conversation JSON. Its native session identity must match the saved
+session. User/assistant text and tool calls/results are included; binary images,
+attachments and private reasoning blocks are not imported. No home-directory
+scan or credential/configuration upload occurs. Review the selected file: its
+text becomes readable to people who can already read that saved session.
+
+For an opted-in workflow, set `DREAMLAKE_CONVERSATION_FILE` to that exact export
+path. Successful note and artifact writes then affiliate the session and upload
+its conversation snapshot. `DREAMLAKE_SESSION_AFFILIATION=0` disables both automatic
+operations. Without the file setting, uploads remain metadata-only. This does not
+extend auto-affiliation to resource kinds beyond notes and artifacts.
+
+The automatic path retains its combined three-second deadline and no retry;
+archive or metadata failures warn while preserving successful content writes.
+Retry only `sessions upload-conversation` or `sessions link`, never the original
+content upload. Standalone archive uploads have normal bounded API deadlines and
+require owner access. Concurrent replacements fail with a revision conflict.
+
+Exports are limited to 32 MiB input and 8 MiB normalized conversation, with at most
+20,000 messages. Oversized or mismatched files are rejected without truncation.
+A new upload replaces the snapshot; there is no background transcript watcher.
+Note and artifact operations continue normally if metadata is missing or wrong.
+
+The Note activity panel shows contributing sessions before related resources.
+Select one to read its uploaded history, then choose **Continue this conversation
+here** to open its saved terminal to the right. The gateway uses the existing
+managed tmux integration and rechecks execution authority. An archive remains
+readable without a live host, but cannot recreate missing native Codex/Claude
+state or move a conversation between hosts. Resource links and transcript text
+never select a new execution target or grant terminal permission.
+
+## Optional resource activity context (0.79.0+)
+
+Resource activity attribution is separate from managed Terminal sessions. On a
+server supporting the resource activity API, CLI reads/edits of Notes, Repo
+records and InfraStack state can carry a conversation identity:
+
+```bash
+export DREAMLAKE_SESSION_PROVIDER=codex
+export DREAMLAKE_SESSION_ID=YOUR_CONVERSATION_ID
+export DREAMLAKE_SESSION_NAME="Launch API work"
+```
+
+When no explicit ID is supplied, `CODEX_THREAD_ID` supplies Codex context if
+present. Missing or malformed optional context is ignored; it cannot block a
+note read or save. Legacy `DREAMLAKE_AGENT_ID` still supplies Notes presence and
+agent attribution. Session context does not change permissions or create a
+managed terminal session, and it is sent only to supported resource routes.
+This capability requires the companion resource activity backend release.

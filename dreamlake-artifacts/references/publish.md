@@ -84,3 +84,8 @@ link/unlink commands, follow the authoritative
 [session affiliation guide](https://cli.dreamlake.ai/sessions).
 Opening an artifact does not create a link, and a link grants no terminal access.
 An affiliation failure does not undo or misreport a successful content upload.
+
+CLI 0.79.0 adds explicitly selected conversation snapshots. Follow the same
+[session guide](https://cli.dreamlake.ai/sessions/#optional-conversation-upload-0790)
+for opt-in, exact export identity, access and size limits. Missing or failed
+archives leave successful artifact writes intact; retry only the archive/link.
