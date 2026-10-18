@@ -82,6 +82,10 @@ saved session, or an unambiguous owned session matching the current native
 conversation UUID. An unresolved context leaves the successful content write
 intact and reports the affiliation failure separately. Historical resources are
 linked only from verified evidence or explicit selection, never from title matches.
+Set `DREAMLAKE_TERMINAL_SESSION_ID` and `DREAMLAKE_SESSION_NAMESPACE` to select
+an exact saved context; opening a terminal does not inject these variables.
+The same native UUID registered under multiple machine bindings can be ambiguous,
+so automatic affiliation is not guaranteed for every native session.
 
 The session-library button at the left of the chat panel's tab row opens the
 sessions available to your account. Select a session to open a terminal in that
