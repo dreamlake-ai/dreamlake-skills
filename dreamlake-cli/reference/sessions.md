@@ -36,6 +36,50 @@ Use `sessions status` for the selected managed terminal's current lifecycle.
 Claude resumes with its existing permissions and login; the CLI adds no bypass.
 These additions require matching provider-aware API, gateway and collector releases.
 
+## Link notes and artifacts (0.78.0+)
+
+With the matching resource-session API deployed, a saved session can be linked
+to multiple notes and artifacts, including resources in another namespace.
+Linking requires resource write access and session read access. Every list checks
+both permissions again; sharing a resource does not share its terminal.
+
+```bash cli-help="sessions link"
+dreamlake sessions link SESSION_ID --namespace geyang \
+  --resource-namespace fortyfive --note NOTE_ID --json
+dreamlake sessions link SESSION_ID --namespace geyang \
+  --resource-namespace fortyfive --artifact loss-plot --json
+```
+
+```bash cli-help="sessions unlink"
+dreamlake sessions unlink SESSION_ID --namespace geyang \
+  --resource-namespace fortyfive --artifact loss-plot --json
+```
+
+```bash cli-help="sessions resources"
+dreamlake sessions resources SESSION_ID --namespace geyang --page-size 25 --json
+```
+
+`resources` returns bounded pages (maximum 50); continue with its `nextCursor`.
+These commands only change or read affiliations. They never open, start or stop
+terminals and never modify note or artifact content.
+
+Successful note creation/body/section writes and artifact pushes automatically
+link a known session context. Set `DREAMLAKE_TERMINAL_SESSION_ID` and
+`DREAMLAKE_SESSION_NAMESPACE` to select an exact saved session. Otherwise the CLI
+uses `CODEX_THREAD_ID` or explicitly supplied `CLAUDE_SESSION_ID`, only when one
+exact owned registered session matches. Arbitrary `DREAMLAKE_AGENT_ID` presence
+labels, similar titles and directories are not native session identities.
+
+Automatic affiliation makes at most one bounded catalog lookup and one
+idempotent metadata write, with a three-second combined deadline and no retry.
+Repeated successful links are deduplicated briefly within the CLI process.
+Ordinary reads and failed content writes add no affiliation requests. Missing or
+ambiguous registration produces a warning without changing the content command's
+successful result; retry only the link with `sessions link`, not the upload/edit.
+Set `DREAMLAKE_SESSION_AFFILIATION=0` to disable automatic affiliation. Historical
+resources require exact evidence or an explicit link; they are not assigned by
+guessing authorship.
+
 ## Select the host
 
 Authenticate with your intended personal account and select the environment.
