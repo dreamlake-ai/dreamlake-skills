@@ -134,3 +134,12 @@ still succeeded: use `sessions link SESSION_ID --namespace SESSION_NAMESPACE
 Do not repeat a successful edit or guess historical links by title. Read-only
 work does not add affiliations; linking never opens a terminal.
 
+
+CLI 0.79.0+ can also upload a selected conversation export. With user opt-in, set
+`DREAMLAKE_CONVERSATION_FILE` to the exact native Codex/Claude export before the
+write. No file setting means metadata only. Missing, mismatched or unavailable
+archives do not fail the content write; retry only `sessions upload-conversation
+SESSION_ID --namespace SESSION_NAMESPACE --file EXPORT --json`. See
+[session archives](../reference/sessions.md#optional-conversation-upload-0790)
+for identity, size and access limits. An archive is readable history, not a
+portable native resume state. Never collect unrelated conversations or secrets.

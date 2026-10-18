@@ -27,3 +27,20 @@ Recent presence expires after about 60 seconds without activity; completed edit
 highlights fade over 5 seconds on an exact matching live revision. Roster readback
 verifies presence, not browser highlights. Only claim visual verification after
 observing the highlight. See [agent collaboration](../reference/notes-collaboration.md).
+
+## Contributing sessions and optional history
+
+Presence IDs above identify an editing task; they do not identify a resumable
+Codex/Claude conversation. CLI 0.78.0+ links successful Note writes to one exact
+owned registered session from `CODEX_THREAD_ID`, explicit `CLAUDE_SESSION_ID`, or
+`DREAMLAKE_TERMINAL_SESSION_ID` plus `DREAMLAKE_SESSION_NAMESPACE`. Missing or wrong
+metadata must not block the Note. Retry only `sessions link` after a warning, not
+the successful content edit; never guess historical contributors from titles.
+
+With explicit user opt-in, CLI 0.79.0+ accepts `DREAMLAKE_CONVERSATION_FILE` for an
+exact native export, or `sessions upload-conversation SESSION_ID --namespace NS
+--file EXPORT --json`. This uploads readable conversation text under the saved
+session's permissions. No setting means metadata only. A Note's contributing
+sessions panel can show the archive and continue the saved session through tmux
+in a panel to the right. The original host must retain its native state; sharing
+a Note does not grant terminal access. See [the CLI session guide](https://cli.dreamlake.ai/sessions/).
