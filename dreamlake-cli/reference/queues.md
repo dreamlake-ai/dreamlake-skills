@@ -1,5 +1,31 @@
 # Mount a queue server
 
+## Host, worker and queue access are separate layers
+
+**Fabric — Add Host** establishes machine identity, connectivity and management,
+including SSH, browser terminals and remote commands. Go directly to
+[host enrollment](host-enrollment.md#fabric-add-host). It requires an authorized
+execution connection in the host's DreamLake owner namespace, with no queue
+creation or queue mount prerequisite.
+
+**Runtime — worker process** associates a process with a selected queue and
+consumes jobs. Configure the worker and queue association using the deployed
+Lakeshore tooling, start consumption, then verify a small submitted job completes.
+See the [Lakeshore documentation](https://docs.dreamlake.ai/lakeshore/) for your
+deployment's worker and submission API/SDK. Host enrollment does not perform
+these Runtime steps.
+
+**Queue mount — client access configuration** lets a client access queue
+collections. The commands below do not register a Host, register or start a
+worker, or submit a job. Reuse an existing authorized connection, or create a
+personal queue mount when that inspection registration is needed.
+
+These are not disjoint machine categories. The same Host can support general
+development and also run one or more queue-consuming worker processes. A queue
+mount's inability to Add Host does not mean Add Host is globally unavailable.
+
+## Configure optional queue inspection access
+
 The queue commands are present in CLI 0.81.0. Availability also depends on the
 DreamLake server. Check `dreamlake --version` and `dreamlake queues --help`;
 a successful listing does not establish enrollment or job execution capability.

@@ -1,5 +1,13 @@
 # Inspect hosts, Slurm jobs, and external tracking
 
+Add Host is the Fabric layer for machine identity, connectivity and management,
+including development, SSH, terminals and remote commands. No queue mount or
+queue consumer is required. Select an authorized execution connection with the
+same DreamLake owner as the host name prefix. A Runtime worker is a separate
+process bound to a queue; the same Host can support development and workers.
+Use the [Runtime worker route](lakeshore.md#runtime-attach-a-worker-process-to-a-queue)
+for queue association, consumer readiness and job-consumption verification.
+
 Use [setup](setup.md) to authenticate and select the intended environment. Check
 the installed CLI version and command help against the [Hosts reference](../reference/host-enrollment.md)
 and the [Jobs](../reference/jobs.md) and [Slurm inventory](../reference/queues.md#read-slurm-scheduler-jobs)

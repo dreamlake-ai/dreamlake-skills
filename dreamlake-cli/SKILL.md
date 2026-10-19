@@ -9,7 +9,7 @@ Start with the task guide, then consult the bundled reference page for complete
 options and limits:
 
 - [Install, authenticate, and choose an environment](actions/setup.md)
-- [Connect Lakeshore and verify ownership, namespaces, and execution limits](actions/lakeshore.md)
+- [Connect Lakeshore: Host enrollment, Runtime workers, and queue access](actions/lakeshore.md)
 - [Connect AWS to DreamLake with the curated starter](actions/connect-aws.md)
 - [Upload or download data](actions/data.md)
 - [Work with Notes](actions/notes.md)

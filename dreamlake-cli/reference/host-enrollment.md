@@ -1,5 +1,21 @@
 # Host enrollment
 
+## Fabric: Add Host
+
+Add Host establishes machine identity, connectivity and management for SSH,
+browser terminals and remote commands. It does not require creating a queue,
+mounting a queue server, or starting a queue consumer. The current backend uses
+an authorized execution connection owned by the same DreamLake namespace as the
+host name prefix; choose that connection before [enrollment](#enrollment).
+
+A Runtime worker is a process that associates with a queue and consumes jobs.
+The same Host can be used for development and run worker processes. Configure
+worker queue association and consumption separately, then verify an actual job
+completes; Host online status does not establish Runtime worker readiness. A
+queue mount is client queue-access configuration, not Host or worker registration.
+Its execution rejection is not evidence that Add Host is globally unavailable.
+See [the layer boundaries](queues.md#host-worker-and-queue-access-are-separate-layers).
+
 ## List and inspect hosts
 
 In CLI 0.76.0 and later, bare `dreamlake hosts` defaults to `hosts list`,
