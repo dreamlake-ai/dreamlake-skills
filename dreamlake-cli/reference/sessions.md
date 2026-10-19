@@ -405,7 +405,7 @@ Select a Codex or Claude row to open its saved terminal in the panel to the righ
 No conversation upload is required; reading uploaded history is a separate action.
 The gateway uses the supported persistent or direct terminal runtime and rechecks
 execution authority. If the saved descriptor has no verified host binding, the
-terminal panel explains the missing connection; **Check connection** reloads that
+terminal panel explains the missing connection; **Check connection again** reloads that
 descriptor without selecting a host or uploading content.
 
 An archive remains readable without a live host, but cannot recreate missing

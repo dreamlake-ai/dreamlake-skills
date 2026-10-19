@@ -226,7 +226,6 @@ For uploaded conversation history, CLI 0.79.0+ provides
 --json`. Select the exact opted-in export; uploads never open a terminal. The
 Note's contributing-session row opens its saved terminal to the right without
 requiring an archive. Read uploaded history through its separate reading action.
-A missing verified host binding is explained in the terminal panel; **Check
-connection** reloads that descriptor without selecting a host. The original host
+A missing verified host binding is explained in the terminal panel; **Check connection again** reloads that descriptor without selecting a host. The original host
 must retain its native conversation state; an archive cannot migrate it. See
 [session archives](../reference/sessions.md#optional-conversation-upload-0790).

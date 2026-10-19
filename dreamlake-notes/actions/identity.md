@@ -44,7 +44,7 @@ session's permissions. No setting means metadata only. A Note's contributing
 sessions row opens the saved terminal in the panel to the right; it never requires
 a transcript upload first. Conversation history is a separate reading action.
 If the descriptor has no verified host binding, the terminal panel explains the
-missing connection; **Check connection** reloads it without selecting a host.
+missing connection; **Check connection again** reloads it without selecting a host.
 The original host must retain its native state; sharing a Note does not grant
 terminal access. See [the CLI session guide](https://cli.dreamlake.ai/sessions/).
 

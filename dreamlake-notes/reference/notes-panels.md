@@ -79,7 +79,7 @@ currently open in a panel.
 Click a Codex or Claude row in **Contributing sessions** to open its terminal in
 the panel to the right. An uploaded conversation is not required. This action
 keeps terminal intent even when the saved session has no verified host binding:
-the terminal panel explains the missing connection, and **Check connection**
+the terminal panel explains the missing connection, and **Check connection again**
 reloads that exact descriptor. It never selects a host from the title or directory,
 requests a transcript upload, or changes the Note. Standalone conversation history
 remains a separate reading action.
