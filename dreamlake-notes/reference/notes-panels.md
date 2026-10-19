@@ -4,6 +4,11 @@ DreamLake views use the native UIKit panel surface: drag, dock, resize, tab and
 close work the same for note editors, note lists, artifact views and explicitly
 opened web previews.
 
+Note and artifact tabs share a 240px preferred width and
+130px minimum width in compact layouts. Titles use an ellipsis when needed;
+the reference control stays after the title, before the close button. Notes
+retain their short hash labels and artifacts use a copy icon.
+
 The [UIKit layout controller](https://uikit.dreamlake.ai/components/layout-controller)
 owns destination addressing and the forkable starting-layout → command → result
 catalog. DreamLake supplies resource descriptors, view loaders and interaction

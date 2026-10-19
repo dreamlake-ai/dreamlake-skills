@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "d8afafb2c93268ec81d0c5b62c04dced1867712924548c862290f91bc0421805",
+  "sourcesSha256": "a14b2dd5bf044cc8e9ad32c1a3175c05acaad75336cb9a2852a76f83b8b5b731",
   "files": {
     "dreamlake-cli/SKILL.md": "1fbc456bf24d75512e942b5840458fc592a5d875cfcc5ccee134f977c979a6c9",
     "dreamlake-cli/actions/artifacts.md": "a203cbd5d2efa90aa79d7dd9df596e4646e5c93a52b0e8e3bb6ee32efd3585cd",
@@ -96,10 +96,10 @@
     "dreamlake-notes/reference/notes-legacy.md": "daae5b43bae08cff14c45c761e988aff95e1b33b20c0beb385d6e184fa92b765",
     "dreamlake-notes/reference/notes-linked-items.md": "22c8cdf18dcbb20b94ebf1120e3cb8dcfcdeeee21b41135678c76bda9c54f495",
     "dreamlake-notes/reference/notes-markdown.md": "611ca5ff43c4782b6f9decd939b17265772a62e23c570ce8fe2b336387a22f2f",
-    "dreamlake-notes/reference/notes-panels.md": "9c96978a25b50a44958ccbc851ff126936e06142e7b5fed1b09fb3ca54d48d99",
+    "dreamlake-notes/reference/notes-panels.md": "d1beffd93bb9d7663362c1550db5d95a50d6e1735715e7457839ca7343121d5b",
     "dreamlake-notes/reference/notes-reading.md": "2110d7f54b597da8001af42a5fd83d4990ae1605423dbb904c276af830e85747",
     "dreamlake-notes/reference/notes-suggest-diff.md": "2150681e371ce2d4589e6caad9551f8f32528f0002bd42978e29395c32d1f3cd",
-    "dreamlake-notes/reference/notes.md": "05cf1ea5110c8da6d9a9856fab48ee095142970700ba1978c9c235207b1131cd",
+    "dreamlake-notes/reference/notes.md": "c82436c8b44ec77d91c2b0a692bb322676cf033da4306c6dc3b9aa21c1bc937a",
     "dreamlake-scene-generation/SKILL.md": "193a6f1a21c0e006c1f692547015aa4296a192f8804ecf0a0d1eaacd0cb5b7d9",
     "dreamlake-scene-generation/actions/compose-and-validate.md": "7030ab987d9f6f26ae686ffef727d4fc492678b4457f15c620e1a1427ab12ee7",
     "dreamlake-scene-generation/actions/design-and-inspect.md": "4514fc88814b55c3c288480dcccffe628f86c07bb3a1e377504044e558e94ad4",
