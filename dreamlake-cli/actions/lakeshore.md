@@ -14,7 +14,13 @@ Read [setup](setup.md), then the [queue reference](../reference/queues.md).
    hidden prompt or stdin. Never use the server admin token as a mount token.
 4. Read back the connection and run `queues inspect`. Inspect jobs and workers
    separately. Queue mounts cannot supply `hosts enroll --lakeshore-id`;
-   enrollment requires an authorized execution connection. Follow
+   enrollment requires an authorized execution connection owned by the same
+   DreamLake namespace as the host name prefix. An org-owned connection for
+   `acme` does not enroll `alice/...` hosts; those need an `alice`-owned execution
+   connection. A cross-namespace ID can return `lakeshore_not_found` even when
+   visible, while an online queue mount still returns HTTP 409
+   `queue_mount_execution_unsupported`. Preserve the intended host ownership;
+   do not rename it just to bypass the constraint. Follow
    [hosts](hosts-jobs.md) for that independent operation.
 5. A connection label is not a remote namespace rename. Verify the deployed
    rename API and preserve the namespace ID, workloads and token bindings.

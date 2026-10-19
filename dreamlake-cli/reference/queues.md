@@ -108,7 +108,18 @@ A queue mount provides collection inspection. It is not an execution connection:
 `hosts enroll --lakeshore-id` rejects a queue mount with
 `queue_mount_execution_unsupported`. Obtain an explicitly authorized execution
 connection before enrollment; a successful queue probe does not prove SSH,
-worker enrollment, or workload readiness. See [host enrollment](host-enrollment.md).
+worker enrollment, or workload readiness.
+
+The execution connection's **DreamLake owner namespace must match the host name's
+namespace**. For example, an execution connection owned by `acme` can be selected
+for `acme/workstations/alice-mac`, subject to enrollment permissions. It cannot be
+selected for `alice/workstations/alice-mac`: that host requires an execution
+connection owned by `alice`. The enrollment lookup filters by owner namespace
+before matching `--lakeshore-id`, so a cross-namespace ID can return
+`lakeshore_not_found` even when the user can view that shared connection. A shared
+Lakeshore URL, remote namespace, or token does not remove this ownership boundary.
+Do not change the host's intended owner just to bypass it. See
+[host enrollment](host-enrollment.md).
 
 Before changing a remote namespace name, inspect the deployed API and record its
 immutable ID. Renaming a DreamLake connection label does not change that name.

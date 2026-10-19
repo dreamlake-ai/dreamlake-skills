@@ -237,6 +237,20 @@ Enrollment checks these prerequisites before creating an identity or requesting
 a grant.
 
 Use `--lakeshore-id` when your namespace has multiple control-plane connections.
+Select an execution connection owned by the same DreamLake namespace as the
+host's `--name` prefix. An org-owned connection for `acme` can enroll an authorized
+`acme/workstations/alice-mac` host; `alice/workstations/alice-mac` requires an
+`alice`-owned execution connection. The server filters connections by that owner
+namespace, so a cross-namespace ID can return `lakeshore_not_found` despite being
+visible in the UI. Remote Lakeshore namespaces and connection labels do not
+change this rule.
+
+A Vault-backed queue mount is not an execution connection. Even when queue
+inspection is online, enrollment rejects that mount with HTTP 409
+`queue_mount_execution_unsupported`. Resolve the intended host owner and its
+authorized execution connection before running enrollment. See
+[connection ownership](queues.md#ownership-execution-and-namespace-names).
+
 The command prints a request ID before enrollment. After an interrupted request,
 repeat the same inputs with `--request-id <id>`. If the API returns `retryAt`, wait
 until that time before starting a new request. JSON errors retain the request ID

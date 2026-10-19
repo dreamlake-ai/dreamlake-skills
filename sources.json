@@ -47,7 +47,7 @@
     },
     "cli": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-cli",
-      "commit": "f513fbf969bb13189660ac5a83828cf364872c19",
+      "commit": "0fd54e48fe6c61693b20c7acd11f1845f8042ac3",
       "generatorSha256": "7222b8b50e011b15d1b4c1463a9652f809bd18621b506a72b23647229b03ea06",
       "actionGuides": {
         "docs/skill-guides/cli/SKILL.md": "91487173ac86721b9ff5f842366b8a51e7aad1f4e9acfb08e46018fdcf25db7d",
@@ -57,7 +57,7 @@
         "docs/skill-guides/cli/actions/data.md": "40f54ed804ab884c95b01d3538f07c405334476da2ce753b8364ac55b435f234",
         "docs/skill-guides/cli/actions/hosts-jobs.md": "e039a9f5d66600711781e7a9889acfc37ced121951bf5fabb7f918093f69aeca",
         "docs/skill-guides/cli/actions/infrastructure.md": "a1413a8dea23f08387f6cdfb1970771b0230cd99473f07f123775193b153d0dc",
-        "docs/skill-guides/cli/actions/lakeshore.md": "96d3c50f5038e923b0ed913c4ca3e45f90bd0263ff51c6273c966e4057d8c335",
+        "docs/skill-guides/cli/actions/lakeshore.md": "773aa6f09bf35f510f9bc79711e973816abe54117135632811970e1dd4917d17",
         "docs/skill-guides/cli/actions/machines.md": "418ba5f798fea4e916762ac8362640a4d8e881a420a095f84026746de8301498",
         "docs/skill-guides/cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
         "docs/skill-guides/cli/actions/notes.md": "550cfa4eee52772379bbbc69b3eab8f967aa9c45eb2685c9bb7aedf7d7490540",
