@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.82.0 — Session registration and public defaults
+
+Adds metadata-only native session registration, automatic registration before
+post-save affiliation, explicit private creation overrides, actionable target
+access errors, and credential redaction before conversation upload. Requires the
+matching API release; deployment and public package propagation are separate checks.
+
 ## 0.80.0 — Stack paths in the project resource tree
 
 `infra create --path` places a new stack in its Project's resource tree, next to
