@@ -76,6 +76,14 @@ session panel beside the artifact. Opening or viewing a resource does not create
 a link. Links preserve exact saved-session IDs and remain separate from the tabs
 currently open in a panel.
 
+Click a Codex or Claude row in **Contributing sessions** to open its terminal in
+the panel to the right. An uploaded conversation is not required. This action
+keeps terminal intent even when the saved session has no verified host binding:
+the terminal panel explains the missing connection, and **Check connection again**
+reloads that exact descriptor. It never selects a host from the title or directory,
+requests a transcript upload, or changes the Note. Standalone conversation history
+remains a separate reading action.
+
 Affiliations grant no additional access. Listing a link requires current read
 access to both the resource and the session; changing it requires resource write
 access and session read access. Moving a resource rechecks its current owner and
