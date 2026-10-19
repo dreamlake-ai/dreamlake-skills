@@ -48,8 +48,8 @@ whole request; there is no fixed-manifest fallback or per-Note move loop.
 dreamlake project move research --namespace personal --to acme --dry-run --out project-move-review.json
 # Confirm that exact saved review; the recipient must accept separately.
 dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json
-# Accept only with verified destination owner authority, then wait a bounded time.
-dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json --accept-if-owner --wait
+# Accept only with verified destination namespace authority, then wait a bounded time.
+dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json --accept-if-authorized --wait
 ```
 
 Eligible access and external filings are preserved by default. Explicit flags
@@ -57,9 +57,10 @@ remain accepted, but saved policies and keys cannot be overridden on replay.
 Review server blockers instead of changing access, dropping resources or silently
 using the older restrictive RTC checkpoint/room-rotation implementation. The
 streaming root Project name stays unchanged; explicit supported Note renames
-must be reviewed and hash-bound before submission. Source namespace owner
-requests and destination namespace owner accepts; Project ADMIN alone does not
-grant source transfer authority. `--accept-if-owner` never accepts for another
+must be reviewed and hash-bound before submission. An authorized source namespace member requests and an authorized destination
+namespace member accepts. Personal namespaces require their own actor; active
+organization members can act for their organization. Project ADMIN alone does
+not grant source namespace transfer authority. `--accept-if-authorized` never accepts for another
 recipient. `--wait-timeout` remains bounded to 0–60 seconds.
 
 `--stream` remains a compatibility alias. `project transfer-preview` likewise
@@ -206,3 +207,7 @@ and an unscoped STS fallback are never issued through Project-only authority;
 these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
 exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
+
+`--accept-if-owner` remains a compatibility alias for `--accept-if-authorized`.
+Both use current server action capabilities; neither bypasses source or destination
+authorization or unsupported access-preservation blockers.

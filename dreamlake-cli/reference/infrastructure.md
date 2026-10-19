@@ -146,3 +146,58 @@ UUID and reconcile its location before retrying. Preserve the original stack;
 never use `infra create` as a move or migration workaround. A runbook binding blocks a move until the backend can prove compatibility in
 the destination. Admission is linearized at the final authority check; this is
 not a distributed transaction with the permissions database.
+
+## Source candidate: access-preserving transfer
+
+These commands require the new server Stack transfer protocol, which is default
+off pending its explicit PostgreSQL migration, compatible reader fleet and live
+acceptance. They are a source candidate, not a claim of production availability.
+`infra move` remains a different explicit access-scope relocation; no command
+falls back to it when the transfer capability is unavailable.
+
+Source namespace organization MEMBER can request and destination MEMBER can accept.
+This never grants secret-bearing state Read, Terraform Write, Project Admin, launch
+or IAM access. Stack UUID, backend URL, state/history and existing access scopes
+remain intact. Mounted and runbook-bound stacks remain blocked in this stage.
+
+Save a new private review file; existing files are never overwritten:
+
+```bash cli-help="infra transfer plan"
+dreamlake infra transfer plan 616658fd-531c-4bb9-8f52-7ebcbaa350b9 \
+  --namespace fortyfive --project dreamlake-infra \
+  --out stack-transfer.json
+```
+
+Review source/destination namespace and Project IDs, singleton Stack UUID, preservation
+policy and blockers. The saved SHA256 binds that exact request and destination.
+Create only from an executable review:
+
+```bash cli-help="infra transfer create"
+dreamlake infra transfer create 616658fd-531c-4bb9-8f52-7ebcbaa350b9 \
+  --request-file stack-transfer.json --confirm --accept-if-authorized
+```
+
+`--accept-if-authorized` preflights destination namespace acceptance before creating
+a request. Omit it when someone else will accept; the source-only request stays
+pending and changes no owner. The output contains its operation ID. Unknown
+responses are never automatically retried or treated as completed; inspect that
+same operation before deciding whether to replay the same request.
+
+A recipient can save the server's bounded public receipt for review:
+
+```bash cli-help="infra transfer status"
+dreamlake infra transfer status 616658fd-531c-4bb9-8f52-7ebcbaa350b1 \
+  --out stack-transfer-acceptance.json
+```
+
+Then explicitly accept that reviewed operation:
+
+```bash cli-help="infra transfer accept"
+dreamlake infra transfer accept 616658fd-531c-4bb9-8f52-7ebcbaa350b1 \
+  --request-file stack-transfer-acceptance.json --confirm
+```
+
+The CLI requires the same operation, root Stack UUID, source/destination namespaces
+and Projects, metadata-only protocol and preserved access. A completed receipt
+must confirm committed ownership. It does not download Terraform state or execute
+Terraform, copy resources, change backend URLs or alter cloud permissions.

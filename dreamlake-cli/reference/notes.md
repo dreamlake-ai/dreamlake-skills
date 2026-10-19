@@ -65,20 +65,56 @@ Search matches titles and indexed bodies by case-insensitive substring. Results
 include matching sections. For exact locations across notes, use
 [`notes grep`](notes-reading.md#search-passages).
 
+## Transfer a standalone Note
+
+`notes transfer` uses a recipient-accepted metadata transfer. It requires a
+matching server that advertises a metadata-only Note transfer plan; updating the
+CLI alone does not enable it. The command keeps the Note ID, content and RTC
+history in place: a 700 MB history is not downloaded or copied for the transfer.
+Preview the access inventory and blockers before submitting.
+
+```bash cli-help="notes transfer"
+dreamlake notes transfer NOTE_ID --namespace alice --to acme \
+  --dry-run --out note-transfer.json
+# Submit the exact reviewed file; the authorized destination member accepts separately.
+dreamlake notes transfer NOTE_ID --namespace alice --to acme \
+  --confirm --request-file note-transfer.json
+# If you also have destination acceptance authority:
+dreamlake notes transfer NOTE_ID --namespace alice --to acme \
+  --confirm --request-file note-transfer.json --accept-if-authorized --wait
+```
+
+Only eligible private Notes and provable preserved access are admitted in this
+stage. Existing access and external Project filings are required to be preserved;
+unsupported audiences or placements return blockers, without a legacy fallback.
+This does not add support for every other resource type. For whole Projects use
+[`project move`](projects.md#move-a-whole-project-and-its-supported-resources).
+
+The review file is private and created without overwriting another file. Keep
+its request key after an uncertain response; do not rebuild a request or retry a
+mutation automatically. Inspect the exact operation with `ownership status`.
+An authorized destination member accepts through `ownership accept OPERATION_ID --namespace
+acme` or the transfer inbox. `--accept-if-authorized` verifies that authority before
+submission. `--accept-if-owner` remains a compatibility alias. Personal namespaces
+require their own actor; active organization members can request or accept for
+their organization, according to the current server capabilities. A bounded
+`--wait` ending does not cancel the transfer.
+
 ## Move a note into a workspace
 
 This section describes standalone `notes move`, available starting with CLI
 0.45.1; CLI 0.45.0 and earlier lack it. Same-namespace Project filing is supported.
-**Standalone Note ownership transfer across namespaces is unsupported.** Its
-preview reports blockers and cannot be applied as a cross-namespace move.
+`notes move` does not submit recipient-accepted cross-namespace ownership requests.
+Use [`notes transfer`](#transfer-a-standalone-note) for that workflow. Its own
+cross-namespace preview remains blocked.
 For a whole Project and all its owned Notes, use
 [`project move`](projects.md#move-a-whole-project-and-its-supported-resources)
 with an enabled whole-Project server adapter. CLI 0.64.0+ and its matching
 backend also include owned Artifact/Env attachments; published 0.63.0 rejects
 those mixed plans. Review the full typed manifest, not only Notes. External
 filing retention applies only to Notes; Artifact/Env placements outside the
-moved Project always detach. This adds no standalone Note or other resource
-ownership transfer, and Source/Workflow/Annotation attachments still block it.
+moved Project always detach. That Project path does not replace standalone
+`notes transfer`; unsupported Source/Workflow/Annotation attachments still block it.
 
 ```bash cli-help="notes move"
 # Standalone cross-namespace Note transfer is unavailable (exit 3).
