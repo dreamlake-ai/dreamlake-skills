@@ -143,3 +143,13 @@ SESSION_ID --namespace SESSION_NAMESPACE --file EXPORT --json`. See
 [session archives](../reference/sessions.md#optional-conversation-upload-0790)
 for identity, size and access limits. An archive is readable history, not a
 portable native resume state. Never collect unrelated conversations or secrets.
+
+
+CLI 0.82.0+ with the matching API registers a missing native session as metadata
+only after a successful content write. New sessions default public; set
+`DREAMLAKE_SESSION_VISIBILITY=private` for a private new record. Existing privacy
+is preserved. If metadata fails, never replay the Note write: run `sessions
+register --provider codex --session <native-uuid> --cwd /original/directory`, then
+link the returned saved ID. No target discovery, enrollment repair or terminal
+start is needed. Conversation upload remains explicit; review custom secrets
+before publication even though client and server redact recognized credentials.
