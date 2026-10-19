@@ -8,9 +8,10 @@ Prefer the Notes rich-component form:
 :artifact[geyang/pitch-deck]
 ```
 
-Click the development artifact header’s `#…` badge to copy the full bracket
-reference. The badge shows the last six ID characters, but copying retains the
-namespace and complete ID. This does not create a share link or change access.
+Click the copy icon after the artifact header title to copy the full bracket
+reference, including the namespace and complete ID. Artifact headers use this
+icon in both wide and compact layouts; Note headers retain their short hash
+badges. This does not create a share link or change access.
 
 Use the owner namespace and stable artifact ID returned by the CLI. Brackets hold
 primary content; optional named attributes belong in braces. This follows the
