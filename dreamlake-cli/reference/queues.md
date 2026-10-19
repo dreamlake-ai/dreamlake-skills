@@ -1,9 +1,8 @@
 # Mount a queue server
 
-**Unreleased.** These commands are implemented in the development branch. They
-require the matching DreamLake server change; an installed release may still
-report `unknown command 'queues'`. They have not been released or verified on a
-hosted deployment.
+The queue commands are present in CLI 0.81.0. Availability also depends on the
+DreamLake server. Check `dreamlake --version` and `dreamlake queues --help`;
+a successful listing does not establish enrollment or job execution capability.
 
 1. **Check your DreamLake login.** These commands use the same environment and
    account as your other DreamLake commands. The first version supports personal
@@ -79,6 +78,54 @@ All commands support `--namespace <DreamLake namespace>` and `--json`.
 This first slice registers a server and reads its collections. Job submission
 and changes to queues or workers are separate work. For direct Python queue
 usage, see the [dreamlake-lakeshore Python SDK](https://docs.dreamlake.ai/lakeshore/python-sdk).
+
+## Ownership, execution, and namespace names
+
+A connection has several independent identifiers:
+
+| Identifier | Meaning |
+| --- | --- |
+| DreamLake namespace | Account or organization that owns the registration |
+| Connection name/prefix | Label for that registration; changing it does not rename remote resources |
+| Lakeshore URL | Control plane deployment |
+| Lakeshore namespace | Server-side scope selected by the access token |
+| DreamLake project | Separate project authorization; not inferred from the prefix or remote namespace |
+
+Vault-backed `queues mount` currently accepts only the signed-in user's personal
+DreamLake namespace. On the production API checked on 2026-10-18, an org mount
+was rejected with HTTP 400. An org Vault existing does not establish support for
+org queue mounts. Do not silently create personal copies when the user requests
+one org-owned connection, or pass an admin credential as its access token.
+
+A queue mount provides collection inspection. It is not an execution connection:
+`hosts enroll --lakeshore-id` rejects a queue mount with
+`queue_mount_execution_unsupported`. Obtain an explicitly authorized execution
+connection before enrollment; a successful queue probe does not prove SSH,
+worker enrollment, or workload readiness. See [host enrollment](host-enrollment.md).
+
+Before changing a remote namespace name, inspect the deployed API and record its
+immutable ID. Renaming a DreamLake connection label does not change that name.
+Only use a supported in-place rename that preserves the ID, resources and token
+bindings; verify both the new name and compatibility for active clients.
+Do not delete/recreate a namespace to simulate rename. A local implementation or
+merged commit is not proof the deployed API supports the operation. If the API
+rejects the name field, leave the running namespace intact and report the release
+dependency. Keep connection setup pending until the intended name is verified.
+
+When a setup attempt fails ambiguously, list connections before retrying and
+retain the original credential receipt securely. Never mint another token just
+to retry registration. Tokens created for abandoned attempts should be revoked
+explicitly after checking that no connection uses them.
+
+## Maintaining the setup guide
+
+Correct discovered setup mistakes in this source guide and its task action,
+then regenerate and check the DreamLake skill references. Keep account-specific
+URLs, token values and operational receipts in the team's private Note, not in
+public skills. Update that Note in place with its current revision, preserve
+linked setup-example directives, and read back the saved content. Track source,
+CLI release, docs publication, skill synchronization and live verification
+separately; never convert an unverified step into a success claim.
 
 ## Read Slurm scheduler jobs
 
