@@ -57,6 +57,33 @@ History timeline previews return to the current working draft when the pointer
 leaves the timeline. An explicitly placed edit marker or selected change range
 keeps its historical view open; clicking a version label alone does not pin it.
 
+## Contributing session registration
+
+CLI 0.82.0+ with the matching session API records native Codex/Claude provenance
+after an acknowledged content write. If a native UUID has no saved descriptor,
+metadata-only registration creates one without a host enrollment or terminal
+launch. A native UUID and a DreamLake saved session ID are different identifiers.
+
+New sessions default to PUBLIC, including automatic registration and imports.
+Existing private/team records keep their sharing. Set
+`DREAMLAKE_SESSION_VISIBILITY=private` for a private new automatic registration,
+or `DREAMLAKE_SESSION_AFFILIATION=0` to disable affiliation. This policy applies
+to sessions only; it does not change the Note's visibility.
+
+A metadata warning never invalidates an acknowledged Note save. Retry only
+session registration, linkage or explicit conversation upload; do not repeat the
+Note write. Use `dreamlake sessions register --provider codex --session
+<native-uuid> --cwd /original/directory --json`, then `sessions link <saved-id>
+--namespace <personal-namespace> --resource-namespace <note-namespace> --note
+<note-id>`. A target-discovery 403 is separate from metadata registration and
+must not be repaired by changing credentials or restarting a terminal.
+
+Conversation upload stays explicit. Recognized credentials are redacted by both
+CLI and API, and historical archive reads are sanitized. Review custom secrets
+before selecting an export: pattern redaction is not exhaustive. Public readers
+can read public session metadata and saved conversations but cannot execute in
+the terminal or read private resources merely because they are linked.
+
 ## Native rich Markdown editor
 
 Notes uses the native rich Markdown editor. The former CodeMirror fallback and

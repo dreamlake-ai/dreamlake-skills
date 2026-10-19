@@ -130,6 +130,18 @@ This uses the connection credential store, not the personal queue-mount Vault
 adapter. Registering it does not grant every member execution or host enrollment
 rights. Verify the returned permissions and each intended operation separately.
 
+An execution connection and matching owner namespace are necessary but not
+sufficient. Its credential must explicitly authorize minting host-enrollment
+grants on the deployed control plane. A normal namespace access token, an
+`authMode: token` response, or a `legacy` connection label does not prove this
+authority. Verify the deployed enrollment API and its credential capabilities
+before claiming readiness; local source containing a scoped capability does not
+prove that production supports it. Do not distribute the global admin token to
+users as a workaround. If enrollment fails at grant minting, retain the existing
+host identity and request ID, diagnose the authorization failure, and use the
+supported retry flow after it is resolved. Do not rename or recreate the host
+to bypass it.
+
 A queue mount provides collection inspection. It is not an execution connection:
 `hosts enroll --lakeshore-id` rejects a queue mount with
 `queue_mount_execution_unsupported`. Obtain an explicitly authorized execution
