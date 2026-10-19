@@ -8,6 +8,13 @@ process bound to a queue; the same Host can support development and workers.
 Use the [Runtime worker route](lakeshore.md#runtime-attach-a-worker-process-to-a-queue)
 for queue association, consumer readiness and job-consumption verification.
 
+Verify that the selected connection's credential can mint host-enrollment
+grants on the deployed control plane; an ordinary namespace access token,
+`authMode: token`, or `legacy` label alone is insufficient evidence. A source-only
+scoped capability is not deployment proof. Do not hand users a global admin token.
+Retain pending host identity and request ID through grant-authorization failures;
+resolve authority and use supported retries instead of renaming/recreating.
+
 Use [setup](setup.md) to authenticate and select the intended environment. Check
 the installed CLI version and command help against the [Hosts reference](../reference/host-enrollment.md)
 and the [Jobs](../reference/jobs.md) and [Slurm inventory](../reference/queues.md#read-slurm-scheduler-jobs)

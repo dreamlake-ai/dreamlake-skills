@@ -21,6 +21,18 @@ limitation, not evidence that Add Host is globally unavailable. Verify host
 online, terminal/SSH and remote-command readiness separately; do not claim a
 particular user's successful enrollment without live readback.
 
+An execution connection and matching owner namespace are necessary but not
+sufficient. Its credential must explicitly authorize minting host-enrollment
+grants on the deployed control plane. A normal namespace access token, an
+`authMode: token` response, or a `legacy` connection label does not prove this
+authority. Verify the deployed enrollment API and its credential capabilities
+before claiming readiness; local source containing a scoped capability does not
+prove that production supports it. Do not distribute the global admin token to
+users as a workaround. If enrollment fails at grant minting, retain the existing
+host identity and request ID, diagnose the authorization failure, and use the
+supported retry flow after it is resolved. Do not rename or recreate the host
+to bypass it.
+
 ## Runtime: attach a worker process to a queue
 
 Resolve the target queue, runtime and worker permissions. Inspect existing
