@@ -401,12 +401,17 @@ A new upload replaces the snapshot; there is no background transcript watcher.
 Note and artifact operations continue normally if metadata is missing or wrong.
 
 The Note activity panel shows contributing sessions before related resources.
-Select one to read its uploaded history, then choose **Continue this conversation
-here** to open its saved terminal to the right. The gateway uses the existing
-managed tmux integration and rechecks execution authority. An archive remains
-readable without a live host, but cannot recreate missing native Codex/Claude
-state or move a conversation between hosts. Resource links and transcript text
-never select a new execution target or grant terminal permission.
+Select a Codex or Claude row to open its saved terminal in the panel to the right.
+No conversation upload is required; reading uploaded history is a separate action.
+The gateway uses the supported persistent or direct terminal runtime and rechecks
+execution authority. If the saved descriptor has no verified host binding, the
+terminal panel explains the missing connection; **Check connection** reloads that
+descriptor without selecting a host or uploading content.
+
+An archive remains readable without a live host, but cannot recreate missing
+native Codex/Claude state or move a conversation between hosts. Resource links
+and transcript text never select a new execution target or grant terminal
+permission. Standalone Sessions conversation reading remains available.
 
 ## Optional resource activity context (0.79.0+)
 

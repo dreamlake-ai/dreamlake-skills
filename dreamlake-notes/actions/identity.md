@@ -41,9 +41,12 @@ With explicit user opt-in, CLI 0.79.0+ accepts `DREAMLAKE_CONVERSATION_FILE` for
 exact native export, or `sessions upload-conversation SESSION_ID --namespace NS
 --file EXPORT --json`. This uploads readable conversation text under the saved
 session's permissions. No setting means metadata only. A Note's contributing
-sessions panel can show the archive and continue the saved session through tmux
-in a panel to the right. The original host must retain its native state; sharing
-a Note does not grant terminal access. See [the CLI session guide](https://cli.dreamlake.ai/sessions/).
+sessions row opens the saved terminal in the panel to the right; it never requires
+a transcript upload first. Conversation history is a separate reading action.
+If the descriptor has no verified host binding, the terminal panel explains the
+missing connection; **Check connection** reloads it without selecting a host.
+The original host must retain its native state; sharing a Note does not grant
+terminal access. See [the CLI session guide](https://cli.dreamlake.ai/sessions/).
 
 
 With CLI 0.82.0+ and the matching API, missing native sessions are registered
