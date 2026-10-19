@@ -97,6 +97,13 @@ was rejected with HTTP 400. An org Vault existing does not establish support for
 org queue mounts. Do not silently create personal copies when the user requests
 one org-owned connection, or pass an admin credential as its access token.
 
+The Lakeshores page has a separate connection-registration flow used for
+execution connections. An authorized org owner can register one under the org
+through that flow; ordinary members receive the server-defined read permissions.
+This uses the connection credential store, not the personal queue-mount Vault
+adapter. Registering it does not grant every member execution or host enrollment
+rights. Verify the returned permissions and each intended operation separately.
+
 A queue mount provides collection inspection. It is not an execution connection:
 `hosts enroll --lakeshore-id` rejects a queue mount with
 `queue_mount_execution_unsupported`. Obtain an explicitly authorized execution
