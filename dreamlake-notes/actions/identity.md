@@ -44,3 +44,12 @@ session's permissions. No setting means metadata only. A Note's contributing
 sessions panel can show the archive and continue the saved session through tmux
 in a panel to the right. The original host must retain its native state; sharing
 a Note does not grant terminal access. See [the CLI session guide](https://cli.dreamlake.ai/sessions/).
+
+
+With CLI 0.82.0+ and the matching API, missing native sessions are registered
+as metadata before affiliation; no host/terminal discovery is needed. New
+sessions default public. Use `DREAMLAKE_SESSION_VISIBILITY=private` for a private
+new registration; existing privacy is retained. For a metadata failure after a
+successful save, register the exact native UUID with `sessions register`, then
+link its returned saved ID. Never replay the Note write. Review custom secrets
+before selecting a conversation export; client/server redaction is not exhaustive.

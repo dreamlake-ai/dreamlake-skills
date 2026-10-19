@@ -17,6 +17,63 @@ use `tmux`; CLI **0.81.0+** with a matching gateway can connect directly when
 tmux is unavailable. A session
 UUID does not move a conversation between computers or users.
 
+## Registration and visibility (0.82.0+)
+
+With the matching API release, **all newly registered sessions default to public**:
+UI creation, API creation, CLI creation, metadata-only imports and machine sync.
+Public uses DreamLake PUBLIC read semantics: anyone can read session metadata and
+an uploaded, redacted conversation. It does not grant terminal execution, resource
+editing, or access to linked private Notes/artifacts. Private and team sessions
+retain their existing access rules. Existing records without a visibility field
+remain private/team; synchronization never resets an existing sharing choice.
+
+Use `--visibility private` when creating/registering/syncing new sessions. This
+option affects new records only. To change an existing session explicitly:
+
+```bash cli-help="sessions visibility"
+dreamlake sessions visibility <saved-id> --namespace <personal-namespace> --visibility private
+```
+
+Register a native Codex/Claude UUID without a host, gateway, or terminal process:
+
+```bash cli-help="sessions register"
+dreamlake sessions register --provider codex --session <native-uuid> --cwd /absolute/repository --json
+# Explicit private override for a new registration:
+dreamlake sessions register --provider claude --session <native-uuid> --cwd /absolute/repository --visibility private --json
+```
+
+This returns a **saved descriptor ID**, distinct from the native UUID. Registration
+is idempotent for the personal owner/provider/native ID. It reuses an unambiguous
+existing registration; conflicting saved identities require explicit selection.
+A metadata-only session has `archiveOnly: true`, null `launch`, and no host
+binding. It can be linked and read but cannot open a terminal. A later verified
+host registration with the same owner/provider/UUID and exact cwd can bind the
+same descriptor, preserving privacy and resource links.
+
+CLI 0.82.0+ automatically registers metadata after an acknowledged Note/artifact
+content write when `CODEX_THREAD_ID` or `CLAUDE_SESSION_ID` supplies an exact native
+UUID. Set `DREAMLAKE_SESSION_VISIBILITY=private` for a private new registration,
+or `DREAMLAKE_SESSION_AFFILIATION=0` to disable affiliation. Explicit saved context
+uses `DREAMLAKE_TERMINAL_SESSION_ID` with `DREAMLAKE_SESSION_NAMESPACE`.
+No transcript is uploaded unless an export is explicitly selected.
+
+If the CLI says **Content saved; optional session metadata was not fully recorded**,
+do not repeat the content write. Retry `sessions register`, then `sessions link`
+using the returned saved ID; retry `upload-conversation` separately if needed.
+`terminal_access_denied` from `sessions targets` is an execution/discovery authority
+failure, not evidence that the Note save failed. Metadata registration does not
+need target discovery. Do not change enrollment credentials to repair attribution.
+
+Conversation upload redacts recognized credential assignments, authorization
+headers, common provider tokens, JWTs, private keys and signed URL parameters in
+all message roles. The API repeats redaction and sanitizes historical archive
+reads, including archives made public later. Pattern detection cannot recognize
+every arbitrary secret: review a selected export and remove custom secrets before
+publishing. Private reasoning and binary attachments are omitted by native import.
+
+Public session unlock icons appear on hover or keyboard focus. Private sessions
+keep an orange lock visible in lists, details and session navigation.
+
 ## Claude Code and observed states
 
 Provider-aware clients also list and open Claude Code sessions registered by a
