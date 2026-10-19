@@ -28,6 +28,17 @@ host identity and request ID, diagnose the authorization failure, and use the
 supported retry flow after it is resolved. Do not rename or recreate the host
 to bypass it.
 
+SSH, remote commands and Session terminals have a separate authorization check.
+On control-plane versions supporting scoped SSH delegation, an administrator
+must grant the execution connection's namespace token access to the exact enrolled
+worker using `POST /v1/namespaces/:ns/workers/:workerId/ssh-grants` with
+`{"token_id":"<connection-token-id>"}`. `canEnrollHosts` alone does not grant SSH.
+The connection can then request a short-lived, identity-bound SSH delegation;
+revoking its token or worker grant invalidates derived sessions. Do not share the
+admin credential or grant unrelated workers as a workaround. Verify a real SSH
+command after deployment; online status or a terminal target listing is insufficient.
+A stale/offline daemon must reconnect before execution can be verified.
+
 ## List and inspect hosts
 
 In CLI 0.76.0 and later, bare `dreamlake hosts` defaults to `hosts list`,
