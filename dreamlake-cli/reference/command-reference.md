@@ -362,3 +362,32 @@ See [Installation](installation.md).
 ## Unreleased prefix KMS policies
 
 `vault kms show`, `preview --key`, `activate --key --request-id`, and `status <request-id>` use an explicit personal `--prefix` for policy operations. Activation requires an operator-approved key reference and an empty prefix. [Paired CLI/Python usage](vault-kms.md).
+
+## Library immutable-generation compatibility
+
+When the server requires Library upload protocol 2, `library push`, `library add`
+and `library rm` publish a complete immutable generation. Unchanged local files
+are uploaded into that generation; retained remote files and generated artifacts
+are streamed through a private local cache rather than left pointing at an old
+mutable prefix. This costs more upload traffic than the legacy differential
+path, but an old cleanup can never delete a newly published generation.
+
+The CLI negotiates the server's upload capabilities before writing. It uses the
+legacy path only when the server explicitly allows it or the older server has
+no capability endpoint. A v2 failure, missing required session support or unknown
+capability response never downgrades to a legacy write. No new command flag is
+needed. The server floor is independently gated and must not activate before a
+compatible CLI and reader fleet are accepted.
+
+Re-run the same command after interruption. The private local journal keeps the
+stable session key, exact full-content fingerprint, prepared multipart plans and
+completed-part ETags. The CLI reads authoritative per-session file presence
+before retrying; it does not treat 412 or NoSuchUpload as success. Lost register
+acknowledgements resolve through the durable session receipt. Expired sessions
+start a fresh unique generation automatically. A changed source or a revision
+conflict cannot rebase an existing session or fall back to the old protocol.
+Local upload snapshots prevent concurrent source edits from changing the bytes
+already planned for that session. Successful publication removes signed plans
+and temporary snapshots; ordinary generated-file caches retain their existing
+cache behavior. A previous publication receipt records its own published
+revision, even if another writer has already advanced the current library.

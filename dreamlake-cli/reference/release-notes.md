@@ -1,5 +1,23 @@
 # Release notes
 
+## 0.84.0 — Recoverable resource transfer clients
+
+- Project moves negotiate the server's explicit streaming version and preserve that version through review, apply, progress and receipt replay. Existing v1 requests remain exact; v2 errors never cause a downgrade.
+- Generic singleton metadata transfers support the separately advertised Pipeline profile without reading code or history.
+- `infra transfer plan/create/status/accept` uses Infrastructure's dedicated review and immutable receipt protocol; namespace transfer authority does not grant stack state or provider permissions.
+- Library push/add/rm use immutable upload generations only when the server advertises protocol v2. Private local recovery journals retain file fingerprints and multipart progress; bounded session status/presence reconciles uncertain responses. Once v2 is selected, errors never fall back to the legacy writer.
+
+These are client capabilities, not a declaration that every server adapter is enabled. Each requires its matching server reader/storage floor and admission capability. Source transfer remains unsupported; Project streaming v2 covers Note, Artifact, Env/Scene and Annotation, while Pipeline and Infrastructure use their separate transfer profiles. No provider launch or IAM authority is added.
+
+## 0.83.0 — Recipient-accepted metadata transfers
+
+Adds `notes transfer` and `ownership transfer note|artifact|env|annotation` with
+saved request review, per-type capability checks and exact committed receipts.
+`scene` aliases `env`. Content and RTC history are not loaded or exported.
+`--accept-if-authorized` uses destination authority; `--accept-if-owner` remains
+a compatibility alias. Each resource profile requires its matching enabled API
+adapter; recognizing a CLI type does not enable the backend.
+
 ## 0.82.0 — Session registration and public defaults
 
 Adds metadata-only native session registration, automatic registration before

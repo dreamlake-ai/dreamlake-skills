@@ -9,9 +9,53 @@ Artifact/Env plans require CLI 0.64.0+ and the matching backend; CLI
 That workflow loads the complete server plan and uses one atomic ownership
 request. It requires an enabled whole-Project server adapter; check plan
 `executable`, preview blockers and current capabilities. A client installation
-alone does not prove backend writer, storage or RTC readiness. This expansion
-adds no standalone resource-transfer command. Sources, Workflows, Annotations
+alone does not prove backend writer, storage or RTC readiness. Standalone Notes use [`notes transfer`](notes.md#transfer-a-standalone-note),
+with a separately admitted metadata-only server plan. This expansion does not
+enable arbitrary resource types. Sources, Workflows, Annotations
 and structural/episode content still block a whole-Project move.
+
+## Transfer an individual resource
+
+`ownership transfer TYPE ID` uses the same metadata-only review/apply protocol as
+[`notes transfer`](notes.md#transfer-a-standalone-note). Recognized types are
+`note`, `artifact`, `env`, `annotation`, and (in this source candidate) `pipeline`; `scene` is an alias for canonical
+`env`. Each type requires its own versioned server capability with
+`metadataOnly: true` and an enabled transfer plan. Recognizing a type in the CLI
+is not evidence that its server adapter has shipped or been activated. Pipeline
+support is a source candidate after published CLI 0.83; require the matching
+`pipelineTransfer` version-1 metadata-only capability. A Pipeline transfer moves
+its identity and ownership metadata without reading the graph or version history.
+
+```bash cli-help="ownership transfer"
+dreamlake ownership transfer artifact ARTIFACT_ID --namespace alice --to acme \
+  --dry-run --out artifact-transfer.json
+# Review the full access inventory and blockers, then submit that exact file.
+dreamlake ownership transfer artifact ARTIFACT_ID --namespace alice --to acme \
+  --confirm --request-file artifact-transfer.json --accept-if-authorized --wait
+# Scene resources use the canonical env adapter, only if advertised and enabled.
+dreamlake ownership transfer scene SCENE_ID --namespace alice --to acme --dry-run
+# Pipeline requires the separately advertised metadata adapter.
+dreamlake ownership transfer pipeline PIPELINE_ID --namespace alice --to acme \
+  --dry-run --out pipeline-transfer.json
+```
+
+The command preserves the resource ID and does not read or copy content, blobs,
+or RTC history. Access and external filing preservation are required; server
+blockers stop submission. A source namespace actor requests, and an authorized
+destination namespace actor accepts. Personal namespaces require their own
+actor; active organization members use the server's current action capabilities.
+`--accept-if-owner` remains a compatibility alias for `--accept-if-authorized`.
+
+Requests bind the resource type and ID, opaque metadata version, both namespaces,
+preservation policy, preview hash and stable key. Save the private review file,
+and keep that exact file/key after an uncertain response. `ownership status`
+inspects the same operation. Exact saved-key replay can reach the server while
+new admission is paused; an unsent key remains blocked there. No mutation retries
+or legacy fallback occur. A bounded wait ending is not cancellation.
+
+Infrastructure, Source, Workflow, Bindr, Chat, files and datasets are not enabled
+by this command. Their existing specialized commands and server limits remain
+separate; never substitute a raw ownership PATCH or copy/delete operation.
 
 Organization/team deletion currently returns an explicit
 unsupported lifecycle error until retained successor authority and complete
@@ -32,7 +76,8 @@ A resource-specific preview request is a saved JSON object with `apiVersion: 1`,
 `resource`, `expectedOwner`, `expectedVersion`, `destinationNamespaceId`, an
 explicit `manifest` and a stable `idempotencyKey`. Namespace IDs are opaque,
 including legacy strings. Source editors and Project ADMIN grants do not confer
-transfer authority. Only current namespace owners can transfer or accept.
+transfer authority. Personal namespace owners and active organization members can transfer or accept
+for their namespaces when the corresponding action capability is allowed.
 For a whole Project, prefer `project move` to derive the complete typed resource
 manifest from the server plan. A hand-built partial manifest cannot skip
 attached resources or turn an unsupported attachment into a partial ownership move.
@@ -77,7 +122,7 @@ dreamlake ownership cancel 000000000000000000000001 --namespace acme
 Retry creation with the **same saved request and key** after an ambiguous network
 failure. The CLI does not automatically retry writes or rebuild previews.
 `STALE_PREVIEW` requires another preview; `LOST_AUTHORITY` requires a currently
-authorized owner. Reusing a key with a changed request returns
+authorized namespace actor. Reusing a key with a changed request returns
 `IDEMPOTENCY_CONFLICT`. Cancellation during preparation starts abort recovery;
 writers stay fenced until cleanup completes. Cancellation after committing is
 refused. `RECOVERY_REQUIRED` needs reconciliation: after the ownership switch,
@@ -98,7 +143,7 @@ dreamlake ownership inspect <resource-id> --type project --namespace acme
 dreamlake ownership manifest <resource-id> --type source --namespace acme
 ```
 
-Manifest inspection requires current namespace-owner authority. It returns
+Manifest inspection requires the current server-advertised namespace authority. It returns
 bounded structure/filing inventories, resource version, grant/editor IDs and
 active operation blockers. No secrets, provider paths or storage bindings appear.
 For a whole-Project move, `project move` uses the dedicated complete transfer
@@ -159,14 +204,14 @@ dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace f
 dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive --include-note NOTE_ID --json
 ```
 
-Requires current source-namespace ownership and access to destination capability
+Requires current source namespace transfer authority and access to destination capability
 metadata. Returns exit 3 for blockers or unready/missing adapters, 1 for denial or
 invalid responses, and 0 only for a ready preview. No transfer operation is
 created and no filing detachment is approved. Pipes and `--json` return the
 server preview, selected manifest and request. The server rejects an incomplete
 whole-Project manifest; do not treat this helper as a partial-transfer escape.
 Filing is separate from ownership. Explicit Project permissions can grant Note
-content access, while ownership still requires current namespace-owner authority.
+content access; ownership transfer separately requires the namespace action capability.
 The helper never selects all Project resources implicitly and does not enable
 an unready server adapter.
 
@@ -223,8 +268,8 @@ execution; a progress ledger alone is insufficient.
 ```bash
 # Save the exact server-bound streaming review and stable request key.
 dreamlake project move research --namespace personal --to acme --stream --dry-run --preserve-access --preserve-external-filings --out stream-review.json
-# Only after reviewing the full policy/access inventory; owner acceptance is explicit.
-dreamlake project move research --namespace personal --to acme --stream --confirm --request-file stream-review.json --accept-if-owner --wait
+# Only after reviewing the full policy/access inventory; recipient acceptance is explicit.
+dreamlake project move research --namespace personal --to acme --stream --confirm --request-file stream-review.json --accept-if-authorized --wait
 # Inspect the same operation; cursor is opaque and never rebuilt by the CLI.
 dreamlake ownership progress OPERATION_ID --namespace personal
 # Resume that existing operation only; pending requests still need recipient acceptance.
@@ -248,10 +293,37 @@ completed progress with a final watermark and zero pending work before the CLI
 reports completion.
 
 `--wait` remains bounded to 0–60 seconds and requires explicit
-`--accept-if-owner`; timeout is not cancellation or success. Keep the operation
+`--accept-if-authorized`; timeout is not cancellation or success. Keep the operation
 ID and reviewed file after an ambiguous response. `ownership progress` remains
 read-only when new admission is disabled; resume requires explicit `projectTransferStream.resumeEnabled: true` and
 `--confirm`, validates the existing source-owned streaming operation and never
 creates or accepts another one. Recovery can remain available when new admission
 is disabled; do not infer resume authority from admission alone. These examples document protocol syntax, not a
 production move or live compatibility claim.
+
+`--accept-if-owner` remains a compatibility alias for `--accept-if-authorized`.
+Both use current server action capabilities; neither bypasses source or destination
+authorization or unsupported access-preservation blockers.
+
+### Project stream version negotiation
+
+The catalog-capable Project streaming companion keeps the public API envelope
+`apiVersion:1`, `mode:'stream'` and adds explicit `streamVersion:2`. New CLI
+reviews select v2 only when the server advertises both `streamVersions:[1,2]`
+and `defaultStreamVersion:2`. Missing version negotiation or a missing default
+selects v1. The CLI explicitly pins the selected version on the plan URL so a
+server-side default change cannot silently upgrade an older review.
+
+The reviewed plan, request, preview, operation and progress must all carry the
+same stream version. A v2 error never retries through v1. Existing saved v1
+reviews remain unchanged under a v2 default, and exact saved v1/v2 replay keeps
+its original idempotency key, policy and version even when new admission is
+disabled. The server decides whether that exact replay has an existing durable
+operation; this does not authorize a new disabled request. Resume retains the
+existing request body; the stored operation ID determines its executor, and the
+CLI verifies the returned version and final progress watermark.
+
+This source companion does not mean v2 is enabled in production or that every
+resource type is portable. The server's independently accepted profile and
+preview blockers remain authoritative. No Note history, object payload, client
+manifest or RTC content is copied by the transfer command.

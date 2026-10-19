@@ -113,3 +113,22 @@ Do not infer deployment from these docs. Verify
 both the worker-node inventory and a completed Pod in each intended pool, then
 record the task-owned teardown plan. Docker-built images run as Pods on existing
 nodes; an accepted Pod launch is not a machine-provisioning or readiness receipt.
+
+## Access-preserving Stack transfer — source candidate
+
+Use `infra transfer plan`, `create`, `status`, and `accept` for the new saved-review
+and recipient-acceptance protocol only when its server migration/reader floor is
+activated. Follow the owning Infrastructure page. Keep `infra move` as its distinct
+explicit access-scope relocation; never fall back automatically.
+
+The plan saves an exclusive private SHA256-bound singleton review. Creation takes
+that exact file and `--confirm`; `--accept-if-authorized` preflights destination
+authority before creating anything. Otherwise share the operation ID with an
+authorized recipient, who saves `infra transfer status OP --out review.json` and
+accepts with `infra transfer accept OP --request-file review.json --confirm`.
+Acknowledge completion only when the metadata receipt confirms `ownerCommitted`.
+An unknown write result includes the operation ID for read-only reconciliation;
+never blindly replay with a new key. Source/destination organization MEMBER
+transfer authority does not grant stack Read/Write/Admin, launch or IAM authority.
+Mounted/runbook-bound profiles remain blocked. This guidance is unreleased source,
+not evidence that a production endpoint or installed CLI already supports it.

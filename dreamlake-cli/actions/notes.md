@@ -104,13 +104,14 @@ review.json`. Keep the exact policy/key after a lost response. Unsupported
 resources or audiences stop the whole request without removing access or copying
 content. Stable IDs, Note RTC bindings and history remain in place.
 
-Source namespace owner requests; destination owner accepts. Project ADMIN alone
-cannot transfer. `--accept-if-owner` is explicit and requires current destination
-owner authority. Use known-operation status/progress for recovery; never clear
+Personal namespaces require their own actor; active organization members can
+request and accept for their organization when current action capabilities allow.
+Project ADMIN alone cannot transfer. `--accept-if-authorized` is explicit and
+requires current destination acceptance authority. Use known-operation status/progress for recovery; never clear
 claims, replace keys, or emulate the move by per-Note copy/delete. Existing legacy
 saved reviews keep exact replay and existing operations keep decisions/recovery,
-but new legacy admission is retired. Standalone Note ownership transfer remains
-unsupported; same-workspace Note filing is separate.
+but new legacy admission is retired. Standalone Note ownership transfer uses
+`notes transfer` below; same-workspace `notes move` filing stays separate.
 
 CLI 0.48.2 adds attachment journal recovery; CLI 0.48.1 does not include it.
 It requires a separately verified journal-enabled API. Check
@@ -144,6 +145,38 @@ SESSION_ID --namespace SESSION_NAMESPACE --file EXPORT --json`. See
 for identity, size and access limits. An archive is readable history, not a
 portable native resume state. Never collect unrelated conversations or secrets.
 
+## Standalone recipient-accepted Note transfer
+
+Use `notes transfer NOTE_ID --namespace SOURCE --to DESTINATION --dry-run --out
+note-transfer.json` when the server returns a metadata-only singleton Note plan.
+Review access and blockers, then submit with the same command's `--confirm
+--request-file note-transfer.json`. Existing eligible access and external filings
+are preserved; unsupported profiles fail closed. Content and RTC history are not
+loaded or exported, even for a large history. An authorized destination member must accept
+using the inbox or `ownership accept`; `--accept-if-authorized --wait` is explicit and
+verifies destination authority before submitting.
+`--accept-if-owner` remains a compatibility alias; action capabilities determine
+authority, including active organization members. Keep the exact file/key after
+an uncertain response and inspect `ownership status`; do not retry writes, copy
+and delete, or fall back to legacy RTC transfer. `notes move` remains the separate
+same-workspace filing workflow. Other resource types require their own admitted
+server adapter and are not enabled by this Note command.
+
+## Other singleton metadata transfers
+
+Use `ownership transfer TYPE ID --namespace SOURCE --to DESTINATION --dry-run
+--out review.json` for an independently advertised `artifact`, `env` (or `scene`
+alias), `annotation`, or source-candidate `pipeline` metadata adapter. Pipeline
+requires its own `pipelineTransfer` capability; CLI 0.83 does not include this
+new consumer. Never read the graph or version history to transfer its metadata. `note` uses the same protocol as
+`notes transfer`. Require the matching per-type metadata-only capability and
+enabled plan, review blockers/access, then apply the exact file with `--confirm
+--request-file review.json`; optional `--accept-if-authorized --wait` verifies
+destination authority. Type recognition is not proof of backend publication or
+activation. Preserve the type, ID, opaque version, policy and stable key. Never
+load or export content/history, retry an uncertain mutation, borrow another
+resource's capability, or use a legacy fallback. Infrastructure, Source, Bindr,
+Workflow, Chat, files and datasets remain separate unsupported types here.
 
 CLI 0.82.0+ with the matching API registers a missing native session as metadata
 only after a successful content write. New sessions default public; set
