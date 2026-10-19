@@ -1,5 +1,21 @@
 # Host enrollment
 
+## Fabric: Add Host
+
+Add Host establishes machine identity, connectivity and management for SSH,
+browser terminals and remote commands. It does not require creating a queue,
+mounting a queue server, or starting a queue consumer. The current backend uses
+an authorized execution connection owned by the same DreamLake namespace as the
+host name prefix; choose that connection before [enrollment](#enrollment).
+
+A Runtime worker is a process that associates with a queue and consumes jobs.
+The same Host can be used for development and run worker processes. Configure
+worker queue association and consumption separately, then verify an actual job
+completes; Host online status does not establish Runtime worker readiness. A
+queue mount is client queue-access configuration, not Host or worker registration.
+Its execution rejection is not evidence that Add Host is globally unavailable.
+See [the layer boundaries](queues.md#host-worker-and-queue-access-are-separate-layers).
+
 ## List and inspect hosts
 
 In CLI 0.76.0 and later, bare `dreamlake hosts` defaults to `hosts list`,
@@ -237,6 +253,20 @@ Enrollment checks these prerequisites before creating an identity or requesting
 a grant.
 
 Use `--lakeshore-id` when your namespace has multiple control-plane connections.
+Select an execution connection owned by the same DreamLake namespace as the
+host's `--name` prefix. An org-owned connection for `acme` can enroll an authorized
+`acme/workstations/alice-mac` host; `alice/workstations/alice-mac` requires an
+`alice`-owned execution connection. The server filters connections by that owner
+namespace, so a cross-namespace ID can return `lakeshore_not_found` despite being
+visible in the UI. Remote Lakeshore namespaces and connection labels do not
+change this rule.
+
+A Vault-backed queue mount is not an execution connection. Even when queue
+inspection is online, enrollment rejects that mount with HTTP 409
+`queue_mount_execution_unsupported`. Resolve the intended host owner and its
+authorized execution connection before running enrollment. See
+[connection ownership](queues.md#ownership-execution-and-namespace-names).
+
 The command prints a request ID before enrollment. After an interrupted request,
 repeat the same inputs with `--request-id <id>`. If the API returns `retryAt`, wait
 until that time before starting a new request. JSON errors retain the request ID
