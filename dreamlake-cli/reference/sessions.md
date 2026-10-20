@@ -178,6 +178,20 @@ requested directory under a deterministic tmux session, or attaches to that same
 session if it exists. Repeated persistent opens share the same process; existing
 agent processes outside that managed session are not adopted.
 
+A gateway with the Codex native-writer guard refuses a **new** managed or direct
+process when it positively observes a writable handle to that exact conversation's
+local rollout file. CLI **0.84.1+** preserves the `native_session_active` error and
+recovery guidance; older clients may show only HTTP 409. Continue in the existing
+Codex chat. If a managed terminal is already running, `sessions reconnect` attaches
+without creating another process. Do not retry automatically or terminate the
+original chat to clear the error.
+
+This guard is Codex-only and reads file/process metadata, not conversation content.
+It does not block attachment to an existing managed tmux session. Missing,
+unsupported or inconclusive observations retain the previous behavior; the absence
+of an error does **not** prove there is no other writer. The guard does not adopt
+native app sessions or provide a global exclusive-writer lock.
+
 With CLI **0.81.0+** and a compatible gateway, a host without tmux uses a direct
 foreground connection for the session owner. The CLI reports this before
 connecting. The process starts only when the authorized terminal ticket is

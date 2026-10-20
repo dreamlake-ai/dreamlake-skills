@@ -59,6 +59,18 @@ keeps its historical view open; clicking a version label alone does not pin it.
 
 ## Contributing session registration
 
+Switching Notes preserves open session tabs and their panel placement. Opening
+another Note's contributing session selects that session in the conversation
+panel and leaves the previous session open in the background. A session already
+open is focused instead of duplicated. Drag tabs between panels to arrange the
+workspace. A standalone Sessions list panel can be closed; closing a panel or
+tab does not terminate its session.
+
+Viewing a Note, selecting a session tab, switching Notes, and moving panels do
+not create contributing-session links. Automatic affiliation follows an
+acknowledged content write; explicit Link/Unlink actions remain available.
+Temporary presence is separate from a persistent session association.
+
 CLI 0.82.0+ with the matching session API records native Codex/Claude provenance
 after an acknowledged content write. If a native UUID has no saved descriptor,
 metadata-only registration creates one without a host enrollment or terminal

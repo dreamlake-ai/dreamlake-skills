@@ -92,6 +92,13 @@ cannot be stopped or adopted by managed commands. Missing dependencies are
 reported without installing packages. After an uncertain mutation response,
 inspect status instead of retrying blindly.
 
+With CLI 0.84.1+ and the matching gateway guard, `native_session_active` reports
+positive writable-file evidence for that exact Codex conversation and refuses a
+new terminal process. Continue in the existing Codex chat; do not terminate it or
+automatically retry. Use `sessions reconnect` only for an already-running managed
+terminal. Missing/unknown probe results do not establish exclusive access, and this
+Codex-only guard does not adopt native sessions or read conversation contents.
+
 With CLI 0.81.0+ and a direct-capable gateway, open/resume negotiate tmux when
 available and otherwise an owner-only direct foreground connection. Direct
 `start` reports ready and `executed:false`; use `open` to launch the process on
