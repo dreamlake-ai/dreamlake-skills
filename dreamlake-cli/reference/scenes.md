@@ -70,6 +70,10 @@ dreamlake scene restore cassie
 dreamlake scene delete cassie --permanent  # purge storage — irreversible
 ```
 
+With a server that includes the dreamlake-workspace #1343 fix (not yet
+released), either delete removes the scene from every project it was filed in,
+and `restore` brings it back unfiled.
+
 `pull` downloads every file over presigned URLs and verifies each against its
 content hash, so the reconstructed directory is byte-identical to what was
 pushed. It needs no special tooling server-side — any HTTP client can follow

@@ -32,6 +32,10 @@ dreamlake scene delete my-scene --permanent   # purge storage + catalog — IRRE
 
 Never pass `--permanent` unless the user explicitly asked to erase storage.
 
+On a server that includes the dreamlake-workspace #1343 fix (not yet released), either
+delete also removes the scene from every project it was filed in. `restore` then brings
+it back unfiled; add it to a project again if the user wants it there.
+
 ## Project-derived access
 
 The backend and Web update are released. CLI Project attachment commands require
