@@ -95,6 +95,49 @@ dreamlake artifact push ./report.md --share
 readable through the printed `?share=` link. Both settings persist on the
 artifact; a later push without the flag does not reset them.
 
+## Link previews
+
+Every artifact page carries Open Graph tags, so a link pasted into Slack,
+Twitter/X, LinkedIn or a chat tool unfurls as a card: the title, a
+description, and a cover image. With CLI 0.85.0+ and a server that includes
+dreamlake-workspace #1383, you decide what the card says.
+
+```bash file="terminal" cli-help="artifact meta set"
+# At push time:
+dreamlake artifact push ./report.html --id q1-dashboard \
+  --description "Revenue, churn and pipeline for the quarter" \
+  --cover ./cover.png
+
+# Or after the fact, for an artifact that already exists:
+dreamlake artifact meta set q1-dashboard --description "Revenue, churn and pipeline"
+dreamlake artifact meta set q1-dashboard --cover ./cover.png
+dreamlake artifact meta show q1-dashboard
+
+# Back to the automatic description / the default card:
+dreamlake artifact meta set q1-dashboard --clear-description --clear-cover
+```
+
+What a card shows depends on who can see the artifact:
+
+- **Public** — the real title, description and cover.
+- **Private, opened through a `?share=` link** — the same real card: the link
+  is the credential, so anyone holding it (a chat tool's preview bot
+  included) sees the title, description and cover. The content still needs
+  a signed-in viewer.
+- **Private, no token** — a generic DreamLake card, indistinguishable from a
+  link that points nowhere. Nothing about the artifact leaks.
+
+Values you set are yours: a later `push` keeps the title, the description
+and the cover unless that push passes `--title`, `--description` or
+`--cover` again; `meta set --clear-…` returns a field to automatic. Without
+a description the card shows a one-line summary built from the title and
+kind; without a cover it shows the default DreamLake card.
+
+Cover images are PNG, JPEG or WebP, at least 600×315, at most 2 MiB;
+1200×630 is the size every platform renders well. Keep the subject in the
+middle — some platforms crop the edges. Platforms cache a card for days, so a
+changed cover or a revoked share link can keep showing in old messages.
+
 ## Listing, deleting, restoring
 
 ```bash file="terminal"

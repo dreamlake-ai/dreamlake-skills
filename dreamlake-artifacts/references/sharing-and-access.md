@@ -16,6 +16,25 @@ To stop sharing, use `dreamlake artifact share revoke <id>` (CLI 0.32.4+) or the
 
 > Sharing grants read access to signed-in recipients. Revocation blocks link-derived access while sharing is disabled; recorded recipients may regain access if sharing is enabled again. Public visibility and membership are independent.
 
+## Link cards (Open Graph)
+
+Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card
+(title, description, cover — see [Publish](publish.md) for setting them).
+What the card shows follows visibility:
+
+- **Public** — the real title, description and cover.
+- **Share link** — the same real card. **Anyone holding the `?share=` URL sees
+  it, a chat tool's preview bot included**; only the content still needs a
+  signed-in viewer. Warn the user before pasting a share link where the card
+  itself would be the leak.
+- **Private, no token** — a generic DreamLake card, indistinguishable from a
+  dead link; nothing about the artifact leaks.
+
+Platforms cache cards for days; a changed cover or a revoked share link can keep
+showing in messages already posted. A user's own permissions never reach a
+platform's preview bot — rich previews of plain private links are not available.
+Source: [link previews](https://docs.dreamlake.ai/artifacts#make-the-link-card-yours).
+
 ## Browsing in the app
 
 `/<namespace>/profile?tab=artifacts` and `/<namespace>/artifacts` reuse the same

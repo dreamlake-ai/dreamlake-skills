@@ -1,13 +1,24 @@
 # Publish an artifact
 
 ```bash
-dreamlake artifact push ./dashboard.html --title "Q1 Dashboard"
+dreamlake artifact push ./dashboard.html --title "Q1 Dashboard" \
+  --description "Revenue, churn and pipeline for the quarter"
 dreamlake artifact list
 ```
 
 Use an explicit artifact ID when updating an existing artifact so a push
 versions the intended item. See [artifacts](../reference/artifacts.md) for
 supported content types, visibility and sharing.
+
+Give a new artifact a one-sentence `--description` (CLI 0.85.0+): it is the
+text its link card shows when the URL is shared. Update it when the content
+meaningfully changes; do not restate it on every re-push — a description,
+title or cover the user set stays until it is explicitly replaced, and a
+push without the flag leaves it alone. Covers (`--cover`, PNG/JPEG/WebP,
+1200×630) are optional; without one the card shows the default DreamLake
+image. `dreamlake artifact meta show ID` reports what the card shows now;
+`meta set ID --clear-description` / `--clear-cover` returns to automatic.
+Private artifacts only reveal their card through a `?share=` link.
 
 An owned Artifact can move with its whole Project when the compatible server's
 streaming preview confirms support and preserved access. See

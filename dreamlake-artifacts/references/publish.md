@@ -27,7 +27,8 @@ for limits, retry behavior, and older-viewer compatibility.
 
 ```bash
 dreamlake artifact push <file> [--title "Title"] [--kind KIND] [--id ID] \
-    [--namespace NS] [--visibility public|private] [--share]
+    [--namespace NS] [--visibility public|private] [--share] \
+    [--description "One sentence"] [--cover cover.png]
 ```
 
 - `<file>` — the file to publish (required).
@@ -41,6 +42,18 @@ dreamlake artifact push <file> [--title "Title"] [--kind KIND] [--id ID] \
   without logging in.
 - `--share` — issue a share token so the artifact can be opened via a `?share=` link
   (see Sharing).
+- `--description` (CLI 0.85.0+) — the sentence the artifact's link card shows when
+  its URL is pasted into Slack, Twitter/X, LinkedIn or a chat tool. Give every new
+  artifact one; update it when the content meaningfully changes.
+- `--cover` (CLI 0.85.0+) — the card's image: PNG, JPEG or WebP, at least 600×315
+  and at most 2 MiB, 1200×630 recommended. Optional; without one the card shows the
+  default DreamLake image. The gallery and list cards use the same cover.
+
+A title, description or cover the user set **survives later pushes**: a push without
+the flag keeps the stored value, so do not restate them on every re-push. Set or clear
+them later with `dreamlake artifact meta set <id> [--description …|--clear-description]
+[--cover …|--clear-cover]`; `dreamlake artifact meta show <id>` reports what the card
+shows now. See [link previews](https://cli.dreamlake.ai/artifacts#link-previews).
 
 ### Kind auto-detection (by extension)
 
@@ -58,8 +71,9 @@ If the extension isn't recognized, pass `--kind` explicitly.
 ### Examples
 
 ```bash
-# Publish a dashboard (kind auto-detected as html)
-dreamlake artifact push ./dashboard.html --title "Q1 Dashboard"
+# Publish a dashboard (kind auto-detected as html) with its link-card description
+dreamlake artifact push ./dashboard.html --title "Q1 Dashboard" \
+    --description "Revenue, churn and pipeline for the quarter"
 
 # Publish a React component with a stable id
 dreamlake artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart"
