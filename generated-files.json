@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "5b74479d022cc33804f04a37565732101db82544d00e69147da555edcc5de7f2",
+  "sourcesSha256": "5ad041d2688bec0ed451edf581bb045b067f3711694556b5c53f9febf6ef4daf",
   "files": {
     "dreamlake-cli/SKILL.md": "ead5da653588f576df00f9dbc0ef9c63112b8b36dd6022cf655c5bf4305215be",
     "dreamlake-cli/actions/artifacts.md": "a203cbd5d2efa90aa79d7dd9df596e4646e5c93a52b0e8e3bb6ee32efd3585cd",
@@ -20,7 +20,7 @@
     "dreamlake-cli/reference/analytics.md": "a10c1832a71dfb6672214c24975f1599c4b7249220885e3e4d7e146e14263fc2",
     "dreamlake-cli/reference/artifacts.md": "78f6aed5d6d01b312766d7d7fe4e6feb0f829f83f31de2bd69c552e0ef45e3f8",
     "dreamlake-cli/reference/collections.md": "f004638fe389b4c39209125e75139bff5b9c4c95f7d14fcbf5e71942212cbe0b",
-    "dreamlake-cli/reference/command-reference.md": "f67852365fd8a3aca8daf8869f9e0a2740fdca031ed5f364dbf514469a93c6e9",
+    "dreamlake-cli/reference/command-reference.md": "baf7049e8285f221e94c633a268bdb3381ee23d1fdd75cb5ad241f4fb4c8e0bc",
     "dreamlake-cli/reference/connect-aws.md": "05777faee8f4efef7dc12e47a82e95afd2fe1cb048658e72ab06c1035552f02f",
     "dreamlake-cli/reference/dev-notes-npm-publication.md": "67d4a9b9c4bc8e01963d3829ea4cb79cd7289413b4c23192e4c8789a4a38b19c",
     "dreamlake-cli/reference/dev-notes-queue-mount-release.md": "c327e13062120e904c242dc2830b24ff9ab39c6cd1d98c6135d432989f540829",
@@ -50,7 +50,7 @@
     "dreamlake-cli/reference/overview.md": "75c92b532a82e61e6ab30a25168053178d2c795ab6af3a0e7b0c65f8a5fac62e",
     "dreamlake-cli/reference/ownership.md": "ae4e84c81b4c5303e24afab226e97d76c87d22fb286f5a5773e0de6a3a7852a4",
     "dreamlake-cli/reference/pipelines.md": "80ed19ea97a1640aa5dafc6f448e5777dee50e4b81726d68c444683223259b9d",
-    "dreamlake-cli/reference/projects.md": "c67adc08e99b15f856cf2895256c4c539fd2fc251d8ad9fda59eea5515e974dc",
+    "dreamlake-cli/reference/projects.md": "dde629bbd5b69dead35d345c7a1a5e371256ff6bd321fbe08a7972420f0b2054",
     "dreamlake-cli/reference/provider-lifecycle.md": "f2920ead9f5f5de94afc68f48eeadb22a9c54349347e491650004c39d9c58e9f",
     "dreamlake-cli/reference/providers-kubernetes.md": "71a3b8ee2da4987f2c4b635737d53d8fa4ed577e32285fdd6ff2b0a97da0d7d1",
     "dreamlake-cli/reference/providers.md": "6cb81de763756e3c71d96c18e35e6413c685f924b641185972e9389d7c575aa1",
