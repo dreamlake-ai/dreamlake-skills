@@ -54,8 +54,10 @@ dreamlake workflow update my-flow --description "..." --tags a,b
 dreamlake workflow delete my-flow          # soft — version history survives
 ```
 
-`workflow delete` also removes the workflow from every project it was filed
-in. There is no restore; a new workflow with the same name can take its place.
+With a server that includes the dreamlake-workspace #1343 fix (not yet
+released), `workflow delete` also removes the workflow from every project it
+was filed in. There is no restore; a new workflow with the same name can then
+take its place.
 
 `workflow create` and `workflow update --file` handle a separate,
 script-based workflow format. They are unrelated to `push` and do not share

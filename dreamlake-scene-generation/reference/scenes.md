@@ -346,6 +346,8 @@ access through the others. No resource share links or acceptance records are
 created, copied or revoked by Project sharing. Attach requires the target
 Project's content-create permission and the resource's own sharing-management
 permission; readable content cannot be redistributed by a reader.
+A resource owned by another namespace attaches only through its owner's
+[cross-namespace mount grant](https://docs.dreamlake.ai/api/external-mounts/).
 
 The Project-sharing backend and Web update are released. CLI attachment
 commands require 0.62.0 or later; Python Project support requires SDK 0.29.0
