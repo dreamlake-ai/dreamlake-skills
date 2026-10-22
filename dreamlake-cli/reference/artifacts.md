@@ -112,6 +112,9 @@ same `--id` also un-deletes it.
 `--permanent` removes the stored objects as well as the catalog row. It cannot
 be undone and it reports how many objects it purged.
 
+Both forms remove the artifact from every project it was filed in. `restore`
+and an un-deleting push bring it back unfiled, so add it to a project again.
+
 > **Warning:** `push` asks the server for short-lived, scoped credentials and then writes to
 > object storage itself. The file never passes through the API server, so there
 > is no request size limit. Credentials cover the server-returned resource
