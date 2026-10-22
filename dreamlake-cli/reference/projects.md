@@ -23,15 +23,24 @@ dreamlake create project my-robots --description "robot captures"   # private
 dreamlake create project shared-set --public                        # public
 dreamlake update project my-robots --public                         # flip visibility
 dreamlake list project
-dreamlake delete project my-robots                                  # hard-delete the whole subtree
+dreamlake delete project my-robots                                  # soft delete; the slug becomes free
 ```
 
 Projects are **private by default**; `--public` / `--visibility public`
 shares them. `update project` also changes `--name`, `--description`, `--tags`.
 
-> **Warning:** `delete project` / `delete episode` / `delete file` permanently remove the
-> node and its subtree (including the underlying storage objects). The CLI
-> prompts for confirmation unless you pass `--yes`.
+> **Warning:** `delete project` is a soft delete with no restore. Everything filed in the
+> project (Notes, artifacts, workflows, annotations, envs, Sources) is unfiled
+> and kept; its files and episodes stay stored but can no longer be opened; every
+> user, team and service-account grant on it is removed; and its slug becomes
+> free, so a new project can take it with a new ID. It is refused while a job
+> submitted to the project is still queued, running or being cancelled.
+> This needs a server with the project deletion contract (issue #1340); before
+> it, the endpoint this command uses hard-deleted the project's whole subtree.
+> 
+> `delete episode` / `delete file` permanently remove the node and its subtree
+> (including the underlying storage objects). Every delete prompts for
+> confirmation unless you pass `--yes`.
 
 ## Move a whole Project and its supported resources
 

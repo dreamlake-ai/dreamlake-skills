@@ -89,7 +89,7 @@ See [Selected SSH import](ssh-sync.md) for file restrictions, revisions and part
 | --- | --- |
 | `create project <name> [--public] [--visibility <v>]` | Create a project (private by default) |
 | `update project <slug> [--name] [--description] [--visibility] [--tags]` | Update a project |
-| `delete project <slug> [--yes]` | Hard-delete a project and its subtree |
+| `delete project <slug> [--yes]` | Soft-delete a project: resources kept, files inaccessible, slug freed; no restore |
 | `create bindr <name> --project <t> [--episode <glob>]` | Create a bindr (episode members) |
 | `update bindr <name> --project <t> [--add <glob>] [--remove <glob>]` | Add/remove episodes |
 | `delete bindr <name> --project <t>` | Delete a bindr |
