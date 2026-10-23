@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "a9e74cadaa19ea9aa0b7bcefc0e5a905d6356aa7efcf96e1a9b192cc7ce3cb7f",
+  "sourcesSha256": "4b24395971a5852aa7fe8ebff3e19669f3eaa623b3ce7d65b676c81fd1bf59cb",
   "files": {
     "dreamlake-cli/SKILL.md": "ead5da653588f576df00f9dbc0ef9c63112b8b36dd6022cf655c5bf4305215be",
     "dreamlake-cli/actions/artifacts.md": "f1468a61a3700487e7e77ae7421202d73d4b1bbd4d240205aeb65de7b73edbdc",
@@ -80,7 +80,7 @@
     "dreamlake-cli/reference/workflows.md": "06fafe66501db57d65d34dce756c01d4f15de7b6598a315d634eb6c997abd6f5",
     "dreamlake-notes/SKILL.md": "dd7b7cd9de0d414ef0a03c0c298cea52b8c6adab2a384e959eb6e6b61cf38e17",
     "dreamlake-notes/actions/attachments.md": "6393b46609fbf844d87af66a353fa56c09f9e93a99a5d5e0f282679e0d3757da",
-    "dreamlake-notes/actions/create.md": "ecbd9f7b697cb59f6986b9ac770ba24140452abcd179b1a14dbc802a76361b82",
+    "dreamlake-notes/actions/create.md": "c21506bfb5680955ac75d8b23b52aad17e3337ca83527f19cad0d37466cff136",
     "dreamlake-notes/actions/edit.md": "4c3888cc78e457288c0e15a0ed0237e1b9b65fe26a14d6a6aedf520c73d069bf",
     "dreamlake-notes/actions/identity.md": "aaec7338bf332138db7a8f2897e17e9050da9718fd475dcab254939f26f1ad5a",
     "dreamlake-notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
@@ -100,7 +100,7 @@
     "dreamlake-notes/reference/notes-panels.md": "43e8fba9144d0a4dd81100126e88449cd1220b0d0716182bd64ebec702b59f46",
     "dreamlake-notes/reference/notes-reading.md": "2110d7f54b597da8001af42a5fd83d4990ae1605423dbb904c276af830e85747",
     "dreamlake-notes/reference/notes-suggest-diff.md": "2150681e371ce2d4589e6caad9551f8f32528f0002bd42978e29395c32d1f3cd",
-    "dreamlake-notes/reference/notes.md": "1fb2123dfd853065c5fbad15f87e56ed1b77d03bb971cc51defa7aac4c9c70ba",
+    "dreamlake-notes/reference/notes.md": "202d4cf56824e3ace5de4400311690b7cc84e312a51820a199d2fd071fcdd695",
     "dreamlake-scene-generation/SKILL.md": "193a6f1a21c0e006c1f692547015aa4296a192f8804ecf0a0d1eaacd0cb5b7d9",
     "dreamlake-scene-generation/actions/compose-and-validate.md": "7030ab987d9f6f26ae686ffef727d4fc492678b4457f15c620e1a1427ab12ee7",
     "dreamlake-scene-generation/actions/design-and-inspect.md": "4514fc88814b55c3c288480dcccffe628f86c07bb3a1e377504044e558e94ad4",
