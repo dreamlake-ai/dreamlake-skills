@@ -3,12 +3,12 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "c62af550549e9b63d06775a7c88bee9483646472",
+      "commit": "f9aa997219aeaf6d9d02c5f0aa15a7820c7c1dca",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "dd7b7cd9de0d414ef0a03c0c298cea52b8c6adab2a384e959eb6e6b61cf38e17",
         "docs/skill-guides/notes/actions/attachments.md": "6393b46609fbf844d87af66a353fa56c09f9e93a99a5d5e0f282679e0d3757da",
-        "docs/skill-guides/notes/actions/create.md": "ecbd9f7b697cb59f6986b9ac770ba24140452abcd179b1a14dbc802a76361b82",
+        "docs/skill-guides/notes/actions/create.md": "c21506bfb5680955ac75d8b23b52aad17e3337ca83527f19cad0d37466cff136",
         "docs/skill-guides/notes/actions/edit.md": "4c3888cc78e457288c0e15a0ed0237e1b9b65fe26a14d6a6aedf520c73d069bf",
         "docs/skill-guides/notes/actions/identity.md": "aaec7338bf332138db7a8f2897e17e9050da9718fd475dcab254939f26f1ad5a",
         "docs/skill-guides/notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
@@ -30,7 +30,7 @@
       },
       "docsPages": "docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers,envs,envs/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "93bfe6d7873a1f9025985cc03122209eabe2a01d832be1b440d580cbb84e1472",
+      "pageSha256": "d9ac19cd85771d4523a9fadf01005a7ed74a85000b8c2271b306c18d7e7ddabd",
       "childPages": {
         "docs/pages/notes/activity/+Page.mdx": "65d92a3ff6d72de225d2e7283659db539df4993e488349f8c3a6bba1b8038e53",
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",

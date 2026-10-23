@@ -169,6 +169,29 @@ returns 401 rather than silently falling back to anonymous access. Anonymous
 searches do not activate or flush collaborative rooms. Creating, editing and
 sharing notes still require authentication and their existing permissions.
 
+## Profile introduction
+
+A namespace's public note whose slug equals the namespace slug is shown at the
+top of its profile Overview, for personal and organization namespaces. To add
+one, create a note titled with the namespace slug and make it public; to remove
+it, make it private or delete it. Notes are private by default and are never
+published automatically.
+
+A note's slug is derived from its title when the note is created and does not
+change when the title changes, so retitling the introduction keeps it in place.
+If another note already holds the slug, a new note receives a numbered suffix
+and does not match; make the existing note public instead. Renaming the
+namespace changes which slug matches.
+
+`GET /namespaces/:slug/introduction` returns the note's metadata and a
+short-lived presigned body URL, or `note: null` and `content: null` when the
+namespace has no live public match. It ignores credentials: members and share
+link holders receive the same public-only answer as anonymous readers, so a
+private note with the matching slug is never returned. Unknown or deleted
+namespaces, and namespaces whose owning user or organization is deleted, return
+404. Like other read-only content reads, the body is the last persisted
+snapshot and can trail an open editing session by a few seconds.
+
 ## Browsing in the app
 
 `/<namespace>/profile?tab=notes` and `/<namespace>/notes` reuse the same
