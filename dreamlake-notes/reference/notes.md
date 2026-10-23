@@ -183,6 +183,18 @@ If another note already holds the slug, a new note receives a numbered suffix
 and does not match; make the existing note public instead. Renaming the
 namespace changes which slug matches.
 
+The Overview shows the note's body in a card, without its title or a link to the
+note. Unlike other note views, which show HTML in a note as text, it renders the
+HTML subset a GitHub profile README uses: layout tables, images, links,
+`<details>`/`<summary>` and text formatting such as `<b>`, `<br>` and `<sub>`,
+with Markdown inside them. Only `align`, `alt`, `colspan`, `height`, `href`,
+`open`, `reversed`, `rowspan`, `src`, `start`, `title`, `valign` and `width`
+attributes are kept. Images load only from absolute `http(s)` URLs; links may
+be `http(s)`, `mailto` or relative, and open in a new tab. Everything else is
+dropped, including scripts, event attributes, `style`, `class`, `id`, `data-*`,
+SVG, MathML, forms and embedded frames. Attach note files with Markdown image
+syntax; an HTML `<img>` does not resolve `files/` paths.
+
 `GET /namespaces/:slug/introduction` returns the note's metadata and a
 short-lived presigned body URL, or `note: null` and `content: null` when the
 namespace has no live public match. It ignores credentials: members and share
