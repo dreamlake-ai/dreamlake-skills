@@ -41,3 +41,7 @@ to apply policy/config changes and verify runtime separately. Local consent does
 not replace server ACLs or manage independent transcript archive collectors.
 Do not enroll duplicate daemons, convert legacy access automatically, or assume
 a locally saved policy is already enforced by a running older binary.
+
+Use CLI 0.86.1+ for named Nymph enrollments. Version 0.86.0 could ignore a
+subcommand enrollment selector and mutate the default profile; upgrade before
+grants, revocations, configuration edits or restarts of a named enrollment.

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourcesSha256": "30f8c98f55155cc251c8d14db8489f60722dc09333c0c7b02e048e5fc5f4f4d2",
+  "sourcesSha256": "916dfc26368b9f7910cba842fdeda791a0d744780190342c2d608944790e68c8",
   "files": {
     "dreamlake-cli/SKILL.md": "ead5da653588f576df00f9dbc0ef9c63112b8b36dd6022cf655c5bf4305215be",
     "dreamlake-cli/actions/artifacts.md": "f1468a61a3700487e7e77ae7421202d73d4b1bbd4d240205aeb65de7b73edbdc",
@@ -14,7 +14,7 @@
     "dreamlake-cli/actions/media.md": "afaa53f77fb6b18ca8d01c840e15444467f3c27e4501d3df37417ea209d2496a",
     "dreamlake-cli/actions/notes.md": "cfdf47c7d299b48e968e20c3d1ea595eb16b5767f40046e78b1cff8fe1ace3c1",
     "dreamlake-cli/actions/registered-udf.md": "a4e55b0fcefecdc46fe6a256adf6ebfe2336655e7ea13feabe29ec2f93aaf448",
-    "dreamlake-cli/actions/setup.md": "d178c3fdd862ee0024c6fb26b311a1d0fbc1f35e6b21920ebe5e558ed4f70861",
+    "dreamlake-cli/actions/setup.md": "7fe1e48adc76cbaba6685ec7807618a45d669fb0cca1618253272393a576d07a",
     "dreamlake-cli/actions/workflows.md": "f6c467d023fa7c59fc37d5ea2927e3dd3f8e5b693e4d299f5ab4532c64552fc8",
     "dreamlake-cli/reference/agents.md": "0f6cb45f0eb18044e8be76fa739bec974245e4ff85e459ff85c0770fd53c8577",
     "dreamlake-cli/reference/analytics.md": "a10c1832a71dfb6672214c24975f1599c4b7249220885e3e4d7e146e14263fc2",
@@ -28,7 +28,7 @@
     "dreamlake-cli/reference/downloading.md": "056808a0f44a28b6dc1f4d1b1e42c438e5476c75100f4bc88c8e1d59dc1d7b79",
     "dreamlake-cli/reference/dreamrc-visualization.md": "9c37e3eafca986b5665fa1a36ea6f5394d2cc7668803f7ba992f082894ada17e",
     "dreamlake-cli/reference/dreamrc.md": "f4486d1ed6128536381a4d84208d6d954f2d8b8a53193046d497f7d3ca69de63",
-    "dreamlake-cli/reference/environments.md": "97b5e09d581ef8a4d79a30a424d9fcc197472b61868cc7b7258409c96e3c5a24",
+    "dreamlake-cli/reference/environments.md": "c56b16f1ce7382dc00c17210b65065a34cbd5b567773ff6d298862bd59c40369",
     "dreamlake-cli/reference/experiments.md": "9970819fba05802e7da14519f56da89bdbddcfd8f51a2c7f33bb6e29920e927c",
     "dreamlake-cli/reference/host-enrollment.md": "b14ec8dc7d9078085982136aab1da55de63b803262c4226c8aa3761d0438a450",
     "dreamlake-cli/reference/infrastructure.md": "c49dced9c1bc5528509b2bc7a0be012a5996d06d23cb72d024e0214f617c2a5f",

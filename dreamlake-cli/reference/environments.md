@@ -175,6 +175,11 @@ dreamlake nymph config --name alice/computers/laptop
 dreamlake nymph config set --name alice/computers/laptop --poll-seconds 30 --max-invocations 4
 ```
 
+Use CLI **0.86.1+** when selecting a named enrollment. It honors `--name` on
+parent or final commands and rejects conflicting selections before any mutation.
+CLI 0.86.0 could silently use the default profile for subcommand operations even
+when a name was provided; upgrade before managing multiple enrollments.
+
 Configuration edits validate with the installed Nymph parser before committing.
 They do not change `access.json`. Select a managed enrollment by its full name
 when the automatic `namespace/computers/hostname` name does not apply.
