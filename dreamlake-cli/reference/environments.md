@@ -120,3 +120,100 @@ the next saved one (or clears the connection if none is left).
 > **Note:** State previously lived at `~/.config/dreamlake`. The first run of a newer
 > CLI moves it into `~/.dreamlake` automatically — logins survive, nothing
 > to redo.
+
+## Optional Nymph setup after login
+
+The login consent and local overview require CLI **0.86.0 or newer** and the
+companion Nymph **0.1.32 or newer**. These are source requirements; do not treat
+an older installed release as supporting this flow.
+
+After successful interactive device login, the CLI offers an optional background
+service with a default **No** response:
+
+```text
+Enable Nymph background service?
+Supports uploads, command execution and other tools; access permissions are managed separately. [y/N]
+```
+
+Enter, No and cancellation leave service and access settings unchanged. Token
+login, noninteractive stdin/stdout and CI do not prompt. Use `login --no-nymph`
+to skip the offer. Existing local instances are shown for review; login does not
+register a second daemon or automatically migrate a legacy installation. Setup
+failure does not undo successful authentication.
+
+```bash cli-help="nymph"
+dreamlake nymph
+dreamlake nymph --json
+```
+
+The overview keeps three things separate:
+
+| Area | Authority |
+| --- | --- |
+| Configuration | The local `nymph.toml`: pacing and runtime settings |
+| Access | A separate private `access.json`, bound to the control plane, namespace and machine |
+| Runtime | Read-only local instance observations; missing observations remain unknown |
+
+Fresh managed setup defaults both automatic upload and command execution access
+to **denied**. Enabling the service does not grant either permission. Enrollment
+still requires an authorized Lakeshore connection; this command does not create
+a control plane or copy your personal login token into Nymph. A Nymph binary
+without the separate-policy interface is refused before enrollment grants are
+requested. Configure or upgrade Nymph first when that prerequisite is missing.
+
+```bash cli-help="nymph setup"
+dreamlake nymph setup --name alice/computers/laptop --lakeshore-id CONNECTION_ID
+```
+
+Configuration is managed independently of access:
+
+```bash cli-help="nymph config"
+dreamlake nymph config --name alice/computers/laptop
+```
+
+```bash cli-help="nymph config set"
+dreamlake nymph config set --name alice/computers/laptop --poll-seconds 30 --max-invocations 4
+```
+
+Configuration edits validate with the installed Nymph parser before committing.
+They do not change `access.json`. Select a managed enrollment by its full name
+when the automatic `namespace/computers/hostname` name does not apply.
+
+```bash cli-help="nymph access show"
+dreamlake nymph access show --name alice/computers/laptop
+```
+
+```bash cli-help="nymph access grant"
+dreamlake nymph access grant upload --name alice/computers/laptop
+dreamlake nymph access grant command-execution --name alice/computers/laptop
+```
+
+Each grant has its own default-No confirmation. For automation, `--yes` explicitly
+approves only that one permission. Revoke independently:
+
+```bash cli-help="nymph access revoke"
+dreamlake nymph access revoke upload --name alice/computers/laptop
+dreamlake nymph access revoke command-execution --name alice/computers/laptop
+```
+
+Changes are saved locally and take effect after restarting that enrollment;
+configuration inspection is not evidence of a running process applying them.
+
+```bash cli-help="nymph restart"
+dreamlake nymph restart --name alice/computers/laptop
+```
+
+The daemon fails closed on missing, malformed, foreign-scope or non-private managed
+policies. Upload access controls Nymph's automatic session metadata, compute metrics
+and experiment reporting; it does not enable a transcript archive by itself.
+Command access covers remote jobs, exec, setup scripts, SSH and remote updates,
+including their requested outputs. Server-side authorization is additionally
+required: local consent cannot grant access to another account or bypass an API
+ACL. Already-running commands finish under the prior startup snapshot until the
+restart/drain completes.
+
+Independent transcript archive services retain their own configuration and
+credentials. The overview labels that boundary; changing Nymph consent does not
+silently alter an existing archive collector. Legacy installations with no managed
+access file retain their current behavior and are displayed as **unmanaged /
+unknown**, not as newly consented or denied.

@@ -29,3 +29,15 @@ machine configuration. See [machine authentication](../reference/machine-auth.md
 CLI 0.56.0 and later support quiet product-analytics opt-out with
 `dreamlake telemetry disable --quiet` or `DREAMLAKE_TELEMETRY=0`. See
 [product analytics](../reference/analytics.md) for scope and limitations.
+
+For CLI 0.86.0+ with Nymph 0.1.32+, interactive device login can offer optional
+background-service setup, default No. See the Nymph section in
+[environments](../reference/environments.md). `dreamlake nymph` separates service
+configuration, local access policy and runtime observation. Fresh managed setup
+denies upload and command execution independently. Configuration edits do not
+change access. Grant one permission at a time; only explicit `--yes` bypasses
+that permission's default-No confirmation. Restart the exact managed enrollment
+to apply policy/config changes and verify runtime separately. Local consent does
+not replace server ACLs or manage independent transcript archive collectors.
+Do not enroll duplicate daemons, convert legacy access automatically, or assume
+a locally saved policy is already enforced by a running older binary.
