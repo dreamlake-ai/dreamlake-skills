@@ -131,7 +131,11 @@ Values you set are yours: a later `push` keeps the title, the description
 and the cover unless that push passes `--title`, `--description` or
 `--cover` again; `meta set --clear-…` returns a field to automatic. Without
 a description the card shows a one-line summary built from the title and
-kind; without a cover it shows the default DreamLake card.
+kind. Without a cover, DreamLake renders one for you: a screenshot of the
+artifact as the viewer shows it, taken within about fifteen minutes of a
+push (a new version gets a new screenshot) — the default DreamLake card
+stands in until then. The gallery and list cards use the same image.
+`meta show` reports whether the current cover is yours or generated.
 
 Cover images are PNG, JPEG or WebP, at least 600×315, at most 2 MiB;
 1200×630 is the size every platform renders well. Keep the subject in the

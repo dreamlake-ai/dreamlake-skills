@@ -45,11 +45,26 @@ Metadata is plain text; JSON escaping supports `\"`, `\\` and `\n`. Duplicate or
 unknown attributes and malformed quoting keep the directive literal. Existing
 colors and plain highlights are unchanged.
 
-The app reuses the inline/sidebar comments toggle: hover over or keyboard-focus
-the highlighted text for a small uikit popover showing only its handle and
-comment. No extra icon is needed. Sidebar mode shows existing comment cards.
-Click highlighted text or the sidebar edit action to reveal its Markdown.
-Read-only notes expose no edit controls.
+Use the existing inline/sidebar comments toggle to review annotations. Sidebar
+mode shows comment cards; clicking the highlighted text or a sidebar reveal
+action exposes its Markdown source. Read-only notes expose no edit controls.
+In the sidebar, **done** removes a highlight and its comment while keeping the
+passage text. It is an undoable editor change; read-only notes have no Done
+control. Insert, delete, and replace suggestions keep their separate accept/reject
+actions. Connectors follow the annotation color, and hovering a card emphasizes
+its passage and line in either theme. These browser controls require a frontend
+including `de637cdb`; the CLI source syntax is unchanged.
+
+Both supported forms can carry a comment:
+
+```markdown
+:highlight[Review needed]{user="geyang" comment="Check the source"}
+:highlight{text="Review needed" user="geyang" comment="Check the source"}
+```
+
+Attribute-only comments require a frontend containing the scanner fix from
+`752c4df2` to appear in the comment rail. Both forms are accepted as Note source
+by CLI 0.86.1; frontend rendering and CLI storage support are separate.
 
 No dedicated highlight command is needed. `notes create --text` or `--file` stores
 the syntax, and `notes replace` edits it by matching text. Set `NOTE_ID` to the
