@@ -15,8 +15,8 @@ text its link card shows when the URL is shared. Update it when the content
 meaningfully changes; do not restate it on every re-push — a description,
 title or cover the user set stays until it is explicitly replaced, and a
 push without the flag leaves it alone. Covers (`--cover`, PNG/JPEG/WebP,
-1200×630) are optional; without one the card shows the default DreamLake
-image. `dreamlake artifact meta show ID` reports what the card shows now;
+1200×900, 4:3) are optional; without one DreamLake screenshots the artifact
+itself within about fifteen minutes of a push. `dreamlake artifact meta show ID` reports what the card shows now;
 `meta set ID --clear-description` / `--clear-cover` returns to automatic.
 Private artifacts only reveal their card through a `?share=` link.
 

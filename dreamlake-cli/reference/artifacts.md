@@ -113,7 +113,7 @@ dreamlake artifact meta set q1-dashboard --description "Revenue, churn and pipel
 dreamlake artifact meta set q1-dashboard --cover ./cover.png
 dreamlake artifact meta show q1-dashboard
 
-# Back to the automatic description / the default card:
+# Back to the automatic description / the generated cover:
 dreamlake artifact meta set q1-dashboard --clear-description --clear-cover
 ```
 
@@ -138,8 +138,10 @@ stands in until then. The gallery and list cards use the same image.
 `meta show` reports whether the current cover is yours or generated.
 
 Cover images are PNG, JPEG or WebP, at least 600×315, at most 2 MiB;
-1200×630 is the size every platform renders well. Keep the subject in the
-middle — some platforms crop the edges. Platforms cache a card for days, so a
+1200×900 (4:3) is the size to make — the same shape as the generated covers
+and the default card, and what the gallery and list wells are cut for. Keep
+the subject in the middle — some platforms crop the edges (a 16:9 chat card
+shows the middle band of a 4:3 image). Platforms cache a card for days, so a
 changed cover or a revoked share link can keep showing in old messages.
 
 ## Listing, deleting, restoring
