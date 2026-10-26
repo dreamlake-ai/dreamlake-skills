@@ -46,11 +46,12 @@ dreamlake artifact push <file> [--title "Title"] [--kind KIND] [--id ID] \
   its URL is pasted into Slack, Twitter/X, LinkedIn or a chat tool. Give every new
   artifact one; update it when the content meaningfully changes.
 - `--cover` (CLI 0.85.0+) — the card's image: PNG, JPEG or WebP, at least 600×315
-  and at most 2 MiB, 1200×630 recommended. Optional: without one, DreamLake
-  generates a cover — a screenshot of the artifact as the viewer shows it, taken
-  within about fifteen minutes of a push (a new version gets a new screenshot); the
-  default DreamLake card stands in until then. The gallery and list cards use the
-  same cover. Pass `--cover` only when the user wants a specific image.
+  and at most 2 MiB, 1200×900 (4:3) recommended — the shape of the generated covers
+  and the default card. Optional: without one, DreamLake generates a cover — a
+  screenshot of the artifact as the viewer shows it, taken within about fifteen
+  minutes of a push (a new version gets a new screenshot); the default DreamLake
+  card stands in until then. The gallery and list cards use the same cover. Pass
+  `--cover` only when the user wants a specific image.
 
 A title, description or cover the user set **survives later pushes**: a push without
 the flag keeps the stored value, so do not restate them on every re-push. Set or clear
