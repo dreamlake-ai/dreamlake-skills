@@ -147,10 +147,18 @@ interactive stdin is refused. Patches are limited to 8,000,000 UTF-8 bytes.
 
 | Exit | Meaning | Next action |
 | --- | --- | --- |
-| `1` | Invalid options, authentication, transport, or missing baseline | Read the diagnostic; retain your files |
+| `1` | Invalid options, authentication, transport, missing baseline, or a proven unsubmitted patch | Read the diagnostic; retain your files |
 | `3` | Stale EXACT/read precondition or invalid original identities | Inspect current state and review the edit |
 | `4` | RTC acknowledgment unavailable; outcome may be ambiguous | Read resulting state before deciding whether to resubmit |
 | `5` | Patch rejected against its original snapshot | Correct the patch using that source |
+
+A current API503 with `error: "rtc_unavailable"` and exactly
+`mutation: {apiVersion: 1, started: false, phase: "baseline_read"}` proves that
+the requested native edit did not start. The CLI reports **patch not submitted**,
+exits1, and leaves the original baseline and draft intact. This does not prove
+that other collaborators made no changes. An absent, malformed or unsupported
+marker proves nothing: submission remains unknown and exit4 still applies. The
+CLI never guesses from the error sentence or downgrades APIs to recover a write.
 
 The CLI does not automatically retry an HTTP patch. Separate requests do not
 share an idempotency receipt. If an acknowledgment is lost, keep the original

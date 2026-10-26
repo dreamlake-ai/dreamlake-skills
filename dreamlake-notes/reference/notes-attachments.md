@@ -24,7 +24,7 @@ dreamlake notes files list 'assets/*.png' --note release-plan --limit 50
 dreamlake notes files list --note release-plan --json
 ```
 
-## Upload an inline image and return its URL
+## Upload inline media and return its URL
 
 Check `dreamlake notes media upload --help` for availability. Requires CLI 0.37.0 or later. If unavailable in your installed CLI, use the
 [HTTP upload example](https://docs.dreamlake.ai/notes/#get-an-image-url-for-markdown-or-html)
@@ -39,7 +39,7 @@ IMAGE_URL=$(dreamlake notes media upload ./diagram.png)
 
 Choose one of those commands: each invocation uploads a new media object.
 No note ID, namespace, `curl`, `jq` or `--json` is required. The command uses
-saved login credentials and supports `--remote` and `--token`. Images and
+saved login credentials and supports `--remote` and `--token`. For video embedding syntax, see [Videos](https://cli.dreamlake.ai/notes/videos/). Images and
 videos are accepted; the server detects the type from the bytes. Optional
 `--json` returns `url`, `contentType` and `sizeBytes`.
 

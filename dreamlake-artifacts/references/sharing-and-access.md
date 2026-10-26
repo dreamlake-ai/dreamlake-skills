@@ -22,7 +22,8 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card
 (title, description, cover — see [Publish](publish.md) for setting them).
 What the card shows follows visibility:
 
-- **Public** — the real title, description and cover.
+- **Public** — the real title, description and cover (the user's own, or the
+  screenshot DreamLake generates — see Publish).
 - **Share link** — the same real card. **Anyone holding the `?share=` URL sees
   it, a chat tool's preview bot included**; only the content still needs a
   signed-in viewer. Warn the user before pasting a share link where the card

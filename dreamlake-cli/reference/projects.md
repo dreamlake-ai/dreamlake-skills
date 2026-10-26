@@ -94,6 +94,7 @@ A **bindr** groups episodes (matched by a glob over their node path).
 dreamlake create bindr front-cam --project my-robots --episode "camera/front/*"
 dreamlake update bindr front-cam --project my-robots --add "2026/04/*"
 dreamlake update bindr front-cam --project my-robots --remove "run-bad"
+dreamlake update bindr front-cam --project my-robots --add-note NOTE_ID   # CLI 0.87.0+
 dreamlake list bindr --project my-robots
 dreamlake delete bindr front-cam --project my-robots
 ```

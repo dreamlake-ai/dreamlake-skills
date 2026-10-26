@@ -84,14 +84,21 @@ previews exit 3 and must not be repeated as execution requests. Filing inside
 the note's current workspace can execute under its owner's login when
 `executable` is true and the user authorized it. Organization notes remain
 readable/editable by all current members. Do not simulate a transfer by copying
-and deleting the note. See [moving a note](../reference/notes.md#move-a-note-into-a-workspace).
+and deleting the note. See [moving a note](../reference/notes-projects.md#move-a-note-into-a-workspace).
+
+To change a filed note's folder inside one project (CLI 0.87.0+), run
+`notes move NOTE_ID --namespace NS --project PROJECT --folder PATH --dry-run`,
+then repeat without `--dry-run`. The folder must already exist; bindr tags and
+access are kept. Tag a filed note with a bindr via `update bindr BINDR --project
+PROJECT@NS --add-note NOTE_ID` rather than a raw API call. See
+[moving to a folder](../reference/notes-projects.md#move-a-note-to-another-folder-in-a-project).
 
 Project filing is separate from ownership. The CLI 0.45.1 additions
 `notes create --project SLUG` (repeatable) and `notes projects ID --namespace NS`
 cover new-note filing and current filing inspection. Check installed help first:
 0.44.3 and earlier lack them. Never emulate an existing-note move through copy/delete,
 namespace updates or an older generic mount API. Consult the
-[Notes reference](../reference/notes.md#create-and-inspect-project-filing-cli-0451)
+[Notes reference](../reference/notes-projects.md#create-and-inspect-project-filing-cli-0451)
 for server and adapter gates; missing readiness is unsupported.
 
 Use the matching CLI/server streaming workflow in [Projects](../reference/projects.md).

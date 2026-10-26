@@ -9,7 +9,7 @@ Artifact/Env plans require CLI 0.64.0+ and the matching backend; CLI
 That workflow loads the complete server plan and uses one atomic ownership
 request. It requires an enabled whole-Project server adapter; check plan
 `executable`, preview blockers and current capabilities. A client installation
-alone does not prove backend writer, storage or RTC readiness. Standalone Notes use [`notes transfer`](notes.md#transfer-a-standalone-note),
+alone does not prove backend writer, storage or RTC readiness. Standalone Notes use [`notes transfer`](notes-transfers.md#transfer-a-standalone-note),
 with a separately admitted metadata-only server plan. This expansion does not
 enable arbitrary resource types. Sources, Workflows, Annotations
 and structural/episode content still block a whole-Project move.
@@ -17,12 +17,12 @@ and structural/episode content still block a whole-Project move.
 ## Transfer an individual resource
 
 `ownership transfer TYPE ID` uses the same metadata-only review/apply protocol as
-[`notes transfer`](notes.md#transfer-a-standalone-note). Recognized types are
-`note`, `artifact`, `env`, `annotation`, and (in this source candidate) `pipeline`; `scene` is an alias for canonical
+[`notes transfer`](notes-transfers.md#transfer-a-standalone-note). Recognized types are
+`note`, `artifact`, `env`, `annotation`, `pipeline`, and (in this source candidate) `source`; `scene` is an alias for canonical
 `env`. Each type requires its own versioned server capability with
 `metadataOnly: true` and an enabled transfer plan. Recognizing a type in the CLI
 is not evidence that its server adapter has shipped or been activated. Pipeline
-support is a source candidate after published CLI 0.83; require the matching
+support requires the matching
 `pipelineTransfer` version-1 metadata-only capability. A Pipeline transfer moves
 its identity and ownership metadata without reading the graph or version history.
 
@@ -37,6 +37,9 @@ dreamlake ownership transfer scene SCENE_ID --namespace alice --to acme --dry-ru
 # Pipeline requires the separately advertised metadata adapter.
 dreamlake ownership transfer pipeline PIPELINE_ID --namespace alice --to acme \
   --dry-run --out pipeline-transfer.json
+# Source requires its own enabled metadata-only capability.
+dreamlake ownership transfer source SOURCE_ID --namespace alice --to acme \
+  --dry-run --out source-transfer.json
 ```
 
 The command preserves the resource ID and does not read or copy content, blobs,
@@ -53,7 +56,13 @@ inspects the same operation. Exact saved-key replay can reach the server while
 new admission is paused; an unsent key remains blocked there. No mutation retries
 or legacy fallback occur. A bounded wait ending is not cancellation.
 
-Infrastructure, Source, Workflow, Bindr, Chat, files and datasets are not enabled
+Source support in this candidate requires its own `sourceTransfer` version-1
+metadata-only capability. The server defines eligible managed Source profiles;
+external backing stores, active physical mutations, unsupported project bindings
+or access audiences can block the request without changing ownership. A Source
+transfer does not copy objects, rewrite history, or retarget live provider work.
+
+Infrastructure, Library, Workflow, Bindr, Chat, files and datasets are not enabled
 by this command. Their existing specialized commands and server limits remain
 separate; never substitute a raw ownership PATCH or copy/delete operation.
 
