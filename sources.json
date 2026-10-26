@@ -3,13 +3,13 @@
   "sources": {
     "workspace": {
       "repository": "https://github.com/dreamlake-ai/dreamlake-workspace",
-      "commit": "cdc703e86645bf5624ad9085b38a6534cfb4a14f",
+      "commit": "dc1af7b29d34e2307d79072fb287788a3f3372a1",
       "generatorSha256": "6889f906dd64ad88debb51774e9d8d9c56fa45c60ca41ccf543f88b648aab129",
       "actionGuides": {
         "docs/skill-guides/notes/SKILL.md": "dd7b7cd9de0d414ef0a03c0c298cea52b8c6adab2a384e959eb6e6b61cf38e17",
         "docs/skill-guides/notes/actions/attachments.md": "6393b46609fbf844d87af66a353fa56c09f9e93a99a5d5e0f282679e0d3757da",
         "docs/skill-guides/notes/actions/create.md": "c21506bfb5680955ac75d8b23b52aad17e3337ca83527f19cad0d37466cff136",
-        "docs/skill-guides/notes/actions/edit.md": "4c3888cc78e457288c0e15a0ed0237e1b9b65fe26a14d6a6aedf520c73d069bf",
+        "docs/skill-guides/notes/actions/edit.md": "80677e6f3013998da4baf6de45e792159276a8212ee40816ec76409df5cb4fb6",
         "docs/skill-guides/notes/actions/identity.md": "aaec7338bf332138db7a8f2897e17e9050da9718fd475dcab254939f26f1ad5a",
         "docs/skill-guides/notes/actions/media.md": "ecb08f01ee3000188501d19361b5409cc2c5fdcfd4bf2c354c661e37c0e11caf",
         "docs/skill-guides/notes/actions/move.md": "38aa9bc3d5121934f666991c429d4cd04ffc478fe6ebf5763fb16b59be3545b7",
@@ -30,12 +30,12 @@
       },
       "docsPages": "docs/pages/{notes,scene-generation,libraries,scenes,scenes/layers,envs,envs/layers}/+Page.mdx",
       "page": "docs/pages/notes/+Page.mdx",
-      "pageSha256": "510624c34d356ff0793445fa7b258df18e2d3c3d6475013ab2a2926e4ce12a09",
+      "pageSha256": "2e67d9b65dc7152885a27194fe4f6ff17a65b553d70546103ca455df48a5ca5b",
       "childPages": {
         "docs/pages/notes/activity/+Page.mdx": "65d92a3ff6d72de225d2e7283659db539df4993e488349f8c3a6bba1b8038e53",
         "docs/pages/notes/embeds/+Page.mdx": "efbf34aebdd9221c7a6eff5b3f7c2826e11a2cbfdf94b61992d4e22a28443060",
         "docs/pages/notes/linked-items/+Page.mdx": "743188c43a9467cf8fcd1065d2427cf4248950f2f483abbf8b3343ca0eb6cb95",
-        "docs/pages/notes/markdown/+Page.mdx": "f4ac685c586a7d8c09cc727863cabee468b3bea8efb863d57cd56908e4976f12",
+        "docs/pages/notes/markdown/+Page.mdx": "9be2b3e0d697d70169236414a0a485d677889dfea43e3701dba619aac96f90a4",
         "docs/pages/notes/panels/+Page.mdx": "d40288506679d560ef07af0ee30c0e46c54306c63e0bd89bac6263b22ede8e2a"
       },
       "scenePages": {
