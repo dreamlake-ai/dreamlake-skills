@@ -171,17 +171,23 @@ sharing notes still require authentication and their existing permissions.
 
 ## Profile introduction
 
-A namespace's public note whose slug equals the namespace slug is shown at the
-top of its profile Overview, for personal and organization namespaces. To add
-one, create a note titled with the namespace slug and make it public; to remove
-it, make it private or delete it. Notes are private by default and are never
-published automatically.
+A namespace's public note whose title is exactly the namespace slug is shown
+at the top of its profile Overview, for personal and organization namespaces.
+To add one, create a note titled with the namespace slug and make it public; to
+remove it, make it private, delete it or retitle it. Notes are private by
+default and are never published automatically.
 
-A note's slug is derived from its title when the note is created and does not
-change when the title changes, so retitling the introduction keeps it in place.
-If another note already holds the slug, a new note receives a numbered suffix
-and does not match; make the existing note public instead. Renaming the
-namespace changes which slug matches.
+The match is on the title alone and is exact, including case. The note's own
+slug plays no part: a note whose slug equals the namespace slug but whose title
+differs is not the introduction, and a matching title still matches when its
+slug received a numbered suffix. When several live public notes carry the
+title, the one created first is shown; notes created at the same instant fall
+back to the lower note ID. Private and deleted notes are skipped, so an earlier
+private note does not hide a later public one, and publishing that earlier note
+makes it the introduction. Editing a note's body or summary never reorders the
+eligible notes. Changing a note's title or visibility, or deleting it, can make
+it eligible or ineligible and so change which note is shown. Renaming the
+namespace changes which title matches.
 
 The Overview shows the note's body in a card, without its title or a link to the
 note. Unlike other note views, which show HTML in a note as text, it renders the
@@ -199,7 +205,7 @@ syntax; an HTML `<img>` does not resolve `files/` paths.
 short-lived presigned body URL, or `note: null` and `content: null` when the
 namespace has no live public match. It ignores credentials: members and share
 link holders receive the same public-only answer as anonymous readers, so a
-private note with the matching slug is never returned. Unknown or deleted
+private note with the matching title is never returned. Unknown or deleted
 namespaces, and namespaces whose owning user or organization is deleted, return
 404. Like other read-only content reads, the body is the last persisted
 snapshot and can trail an open editing session by a few seconds.
@@ -225,16 +231,36 @@ retain their return-to-project action. There is no extra sign-in navigation bar.
 
 ### Project and bindr associations
 
-In **New note**, each selected project has a visible remove button. Remove a
-choice and use **Add project** to select its replacement; creation requires at
-least one project with permission to create content. Search matches names and
-slugs. Suggestions combine recent projects with successful note creations in
-this browser: frequency decays with a 14-day half-life, recent use adds a boost,
-and a 10% exploration chance can surface another eligible project when opening
-the picker. Suggestions remain stable while it is open and never change a
-selected destination. History is scoped to the signed-in user and workspace,
-bounded to 128 projects and pruned after 180 days; cancelled or failed drafts
-do not train it. Search remains complete regardless of suggestion order.
+In **New note**, choose **private** or **public** below the name; a note is
+private unless you choose public, and the projects it is filed into never change
+that choice. Anyone can read a public note, including signed-out visitors.
+Projects are optional: a note can be filed under none, one or several. Below
+the visibility choice, the dialog lists the projects where you can create
+content, each with a checkbox, its name and its slug; check as many as you need.
+The list header shows how many are selected and offers **Clear selection**. In
+the search field, the arrow keys move through the list, Enter checks or
+unchecks a project, and Escape clears the search. From the notes list nothing
+is preselected; from a project's **+ new note**, that project is preselected
+and can be unchecked, in which case the note opens on its own page. If you
+cannot create content in any project, the dialog says so and creates the note
+without one.
+
+Search matches names and slugs across every project you can read, not only the
+loaded pages, and lists those you can write to. The list loads more projects as
+you scroll. Selected projects come first, then suggestions that combine recent
+projects with successful note creations in this browser: frequency decays with
+a 14-day half-life and recent use adds a boost. Checking a project does not
+move it; after a search is cleared, selections return to the top. History is
+scoped to the signed-in user and workspace, bounded to 128 projects and pruned
+after 180 days; cancelled or failed drafts do not train it.
+
+The notes list and grid show the projects each note is filed in, as links to
+those projects: two per list row and one per grid card, with a **+N** button that
+expands the rest in place. Only projects you can read are listed, so a note with
+no line may still be filed in projects you cannot see. A project from another
+namespace is prefixed with that namespace, and same-named projects show their
+slug. `GET /namespaces/:slug/notes` and `GET /me/notes/shared` return these as
+`projects: [{ id, slug, name, namespaceSlug }]` on each row.
 
 Adding a project or bindr from a note changes membership while keeping the
 current note, URL, search and panes open. Choose a destination project inside
@@ -333,6 +359,27 @@ These database checks do not certify all Note writers. Deletion's final database
 phase is fenced, but its preceding RTC/storage effects are not durably excluded
 by that transaction. Activation, body sync, files/uploads, saved versions, media
 and issued capabilities still require separate transfer-readiness evidence.
+
+### Proving a patch was not submitted
+
+If preparing the current native body baseline fails before the requested edit
+starts, the write API keeps HTTP503/`rtc_unavailable` and adds this current
+versioned submission status:
+
+```json
+{"error":"rtc_unavailable","mutation":{"apiVersion":1,"started":false,"phase":"baseline_read"}}
+```
+
+This proves only that this request did not reach its requested native edit; it
+does not claim that other collaborators or internal room initialization changed
+nothing. The API logs the request ID, actual preparation stage and the same
+marker, without patch/source text or capabilities. Read failures do not carry a
+mutation marker. Once native submission begins, an unavailable or lost ACK does
+not receive this proof: a503 can still mean that the edit committed.
+
+The CLI recognizes only this exact typed marker and preserves the baseline and
+draft. Missing, malformed or unsupported marker versions remain unknown; they
+never trigger automatic mutation retry, revision refresh or API downgrade.
 
 ### Activation conflicts and acknowledged edits
 
@@ -610,6 +657,39 @@ dl.shared_with_me()
 
 Titles may repeat — the slug takes a suffix — so keep `note.id` rather than
 the name you passed.
+
+### Duplicate a note
+
+The note's **Duplicate** action creates an independent private note from the
+current visible editor text, including local edits not yet synchronized. It
+copies the attachment snapshot captured when the request is admitted, preserving
+exact bytes, logical paths and content types. The source's body, RTC room,
+sharing and history stay unchanged; the copy has a new room and no inherited
+share link or saved-version history.
+
+The optimized server contract is
+`POST /namespaces/:slug/notes/:noteId/duplicate` with
+`{name, text, projects?, bindrIds?}`. It requires current namespace membership,
+independent source-read authority, and write access to every requested project
+and bindr. The text is literal Unicode, with at most 4 MiB of UTF-8 bytes; it is
+not trimmed or normalized. Requested bindrs must belong to requested projects.
+
+A successful 201 returns `{note, rtc: {rtcDocId}, contentSha256, sizeBytes, files}`.
+`contentSha256` is lowercase SHA-256 hex over the acknowledged UTF-8 text;
+`sizeBytes` is its UTF-8 byte count. Each file receipt is
+`{path, etag, sizeBytes, contentType}`, where `etag` is lowercase SHA-256 hex of
+the copied bytes. The browser verifies the text receipt instead of rereading the
+entire body. The server initializes only the new native room, verifies its text,
+and copies attachments with two bounded get/hash/put workers; it does not send
+attachment bytes through the browser or reset an existing room.
+
+Concurrent attachment mutation between admission and publication is rejected.
+Later source edits do not change the captured copy. A failed operation after
+creation returns `duplicate_incomplete` and `createdNoteId`; the partial note
+and original room binding are retained for inspection. A timeout without a
+receipt is also uncertain: inspect the created notes before trying again.
+Neither server nor browser automatically replays an uncertain creation or deletes
+its possible result. This endpoint does not add a CLI command or SDK method.
 
 ## Note summaries
 

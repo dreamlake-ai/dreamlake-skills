@@ -13,8 +13,9 @@ asks for a public note. For larger body content, use `--file draft.md`. The
 optional `--summary` is limited to 4,000 characters and remains independent of
 the collaborative body. See the [Notes reference](../reference/notes.md#create-and-list).
 
-To give a namespace a profile introduction, title the note with the namespace
-slug and add `--public` only when the user asked for it to be shown publicly.
-Confirm the returned slug equals the namespace slug; an existing note with that
-slug makes the new one receive a suffix, so make that note public instead. See
+To give a namespace a profile introduction, title the note exactly with the
+namespace slug and add `--public` only when the user asked for it to be shown
+publicly. The title decides, not the returned note slug, which may carry a
+numbered suffix. If an earlier public note already has that title, it stays the
+introduction; edit that note instead of creating another. See
 [Profile introduction](../reference/notes.md#profile-introduction).
