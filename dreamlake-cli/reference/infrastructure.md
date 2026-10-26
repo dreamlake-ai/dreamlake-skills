@@ -1,4 +1,14 @@
-# Infrastructure metadata
+# Infrastructure stacks
+
+Infrastructure Stacks help teammates self-serve Terraform setups and hand work to
+people or automation without asking where the code or latest state lives. Reuse
+one immutable stack UUID for one environment. Git shares configuration;
+DreamLake's HTTP backend shares state and coordinates writers through PostgreSQL.
+The backend stores state and locks; Terraform runs on your authorized runner.
+
+See the [state coordination diagram and team handoff guide](https://docs.dreamlake.ai/infrastructure-stacks)
+for the architecture. The walkthrough below covers both manual and automated
+execution. Stack registration alone does not deploy infrastructure.
 
 These six commands require CLI 0.58.0 or later and a compatible Infrastructure
 API. CLI 0.57.0 does not include `dreamlake infra`. Check the installed version
@@ -43,6 +53,148 @@ second stack is not migration. Runbook attachment
 CLI commands remain proposed; use existing Notes commands for collaborative
 revision-aware reading and editing. Project filing alone does not grant Note
 access or attach a runbook to a stack.
+
+## Manual and automated Terraform
+
+First discover the intended namespace/project with `infra list`, confirm the
+repository, relative Terraform root and environment with `infra status`, and
+retain its UUID. An existing environment uses its existing backend. Creating
+another stack, copying state or changing its name is not a lock-recovery path.
+
+Both operators and automation need explicit Infrastructure access. A normal
+Terraform plan acquires a lock and therefore needs WRITE, not just READ. Cloud
+permissions are separate from DreamLake permissions. New workload or machine
+provisioning must use the [configured launch-server boundary](providers.md#required-launch-boundary)
+and that server's appropriate IAM role. Run the following on the authorized
+Terraform executor; a laptop or CI coordinator may submit through that route.
+
+### Shared backend setup
+
+Commit an empty HTTP backend block to the existing Terraform root:
+
+```hcl
+terraform {
+  backend "http" {}
+}
+```
+
+Run `dreamlake infra connect STACK_UUID` and review the printed environment for
+the intended remote. It does not execute its output. Supply `DREAMLAKE_TOKEN`
+privately from the authorized credential mechanism; do not echo it or pass it
+in backend command-line arguments. A login used by the CLI does not automatically
+export this shell variable. The HTTP adapter accepts the delegating user's token;
+a cloud OIDC identity or machine enrollment proof does not replace it.
+
+For production, both paths use this setup, replacing the example UUID with the
+verified existing stack ID. Other deployments must use the remote printed by
+`infra connect` instead of these production URLs.
+
+```bash
+# In the existing Terraform root, with credentials privately injected.
+: "${DREAMLAKE_TOKEN:?Supply the authorized backend token privately}"
+export STACK_ID=da8e49cf-1b37-446f-9494-9620faf3192d
+export TF_HTTP_ADDRESS="https://api.dreamlake.ai/infrastructure/stacks/$STACK_ID/state"
+export TF_HTTP_LOCK_ADDRESS="$TF_HTTP_ADDRESS/lock"
+export TF_HTTP_UNLOCK_ADDRESS="$TF_HTTP_ADDRESS/lock"
+export TF_HTTP_LOCK_METHOD=POST
+export TF_HTTP_UNLOCK_METHOD=DELETE
+export TF_HTTP_USERNAME=dreamlake
+export TF_HTTP_PASSWORD="$DREAMLAKE_TOKEN"
+```
+
+Commit the provider lockfile and pin the team's Terraform version. Keep `.terraform/`,
+state and saved plans out of Git. Initialize every checkout independently. If the
+root already uses another backend or local state, stop for the explicitly scoped
+migration procedure and preserve a private backup; ordinary setup must not silently
+migrate, copy or reset state.
+
+### Manual operation
+
+Pull the intended reviewed commit and check the cloud identity, account/region,
+variable sources and stack lock. With the shared environment above:
+
+```bash
+umask 077
+terraform init -input=false -lockfile=readonly
+terraform validate
+terraform plan -input=false -lock-timeout=5m -out=tfplan
+terraform show tfplan
+# After reviewing this plan and within the authorized apply scope:
+terraform apply -input=false -lock-timeout=5m tfplan
+```
+
+The plan file and its displayed output can contain secrets. Keep both private.
+Applying a saved plan executes its reviewed actions without another interactive
+approval prompt. A plan releases its lock when done; if another operator changes
+state before apply, replan and review the new result. Afterward verify the actual
+resources/application, inspect stack history and leave a non-secret run receipt.
+
+### Automated operation
+
+Use an isolated checkout on the configured executor. Set its exact commit,
+Terraform version, root, input variables and stack UUID explicitly. Inject the
+backend credential and the appropriate provider identity at runtime with shell
+tracing disabled. Do not send credentials to untrusted pull-request code. Cloud
+OIDC may supply provider credentials; DreamLake backend authentication remains a
+separate supported credential. Apply must preserve the reviewed configuration,
+provider selections and variables; do not rebuild from a moving branch.
+
+The planning stage uses the shared backend environment and runs:
+
+```bash
+export TF_IN_AUTOMATION=1
+umask 077
+terraform init -input=false -lockfile=readonly
+terraform validate
+terraform plan -input=false -lock-timeout=5m -out=tfplan
+```
+
+Retain `tfplan` only in restricted temporary storage with the commit, Terraform
+version and a checksum. The apply stage follows the team's existing authorization
+policy, verifies that exact artifact and inputs, and runs:
+
+```bash
+terraform apply -input=false -lock-timeout=5m tfplan
+```
+
+If stages use different workers, initialize the same reviewed checkout/backend on
+the apply worker and inject credentials there too. Reject stale plans and require
+a fresh plan/review; never disable locking. Serialize automation by stack UUID
+and avoid canceling an active apply to make room for a newer run. A CI queue only
+serializes its own jobs; the backend lock protects against local operators and
+other schedulers as well. Do not implement a timeout handler that force-unlocks
+or blindly retries apply.
+
+This is a runner workflow, not a built-in DreamLake execution queue. Optional
+scheduled drift checks can run `terraform plan -detailed-exitcode` with normal
+locking: exit 0 means no changes, 2 means a proposed difference, and 1 means an
+error. Report drift for review instead of automatically applying it. Use bounded
+lock waits so a check does not block an active operator indefinitely.
+
+### Handoff and recovery
+
+Keep the stack UUID, repo/root, environment, account/region, runner, required
+roles, variable references, verification commands and recovery owner in a
+canonical runbook. Record the applied commit/run link, outcome and health checks.
+Separate Terraform-owned settings from settings owned by a deployment workflow.
+Use `infra status`, `infra history` and `infra events` for retained metadata;
+a state version is not evidence of a healthy deployment.
+
+After a lost response or interrupted apply, inspect that same stack and runner,
+the state history and actual provider resources before repeating work. Cloud
+changes and SQL state publication are not one atomic transaction. Locks survive
+API restarts and have no automatic expiry. Confirm the original process stopped
+before recovery; backend unlock requires its original authenticated actor and
+lock ID. No ordinary ADMIN override is exposed. Do not assume every Terraform
+version's `force-unlock` supplies the JSON lock body this backend requires.
+
+Validate adoption with two independent checkouts on a disposable environment:
+verify shared-state readback, exclusive locking, a fresh plan after release and
+rejection of stale/conflicting state. Test interrupted-run recovery without
+unlocking an active process. Keep credentials, raw state and saved plans out of
+Notes and public CI output. See HashiCorp's [HTTP backend](https://developer.hashicorp.com/terraform/language/backend/http)
+and [automation guide](https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform)
+for client configuration and plan artifact handling.
 
 ## Retained metadata
 
