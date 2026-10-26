@@ -19,6 +19,52 @@ Read the [project brief](https://example.com/brief).
 Use `status` for inline code.
 ```
 
+## Footnotes and reference entries
+
+Use a named citation in the prose and a matching definition on its own line:
+
+```markdown
+This claim has a source[^robotics]. Another claim uses the same source[^robotics].
+
+[^robotics]: Reference text with a [source link](https://example.com/research).
+
+[^background]: Background reading that is not cited yet.
+```
+
+The app renders citations in prose as linked superscripts. Reference entries
+use `[1]: ` labels at the same size and baseline as their text, including
+a colon and a space before the entry content. They are not superscripts. The
+`^` belongs to the Markdown syntax and does not appear in rendered entry
+labels. The editor reveals the original syntax when editing it, and source mode always retains it.
+
+Numbers follow first citation order, rather than the spelling of the source key.
+Uncited definitions receive numbers after cited definitions and remain visible
+in both the editor and read-only view, including any suggested edits inside them.
+An entry without a citation has no return link. A cited entry links back from its
+editor label; the reader shows separate return links. Inline citations navigate
+to their matching definition within the current note preview.
+
+A defined `[^name]` takes priority over placeholder syntax. A citation without a
+matching definition remains literal, as do escaped references and references
+inside code. Keep keys and canonical source unchanged when making a display-only
+correction; do not replace `[^name]` with its rendered number in saved Markdown.
+
+## LaTeX math
+
+Use `\(` and `\)` for inline math, and `\[` and `\]` for display math:
+
+```markdown
+Inline \(x^2 + \frac{1}{2}\) stays in the paragraph.
+
+\[
+E = mc^2
+\]
+```
+
+`\{` is not a display-math delimiter. Math renders in the rich editor and
+read-only view while preserving its LaTeX source. Move into the expression to
+edit its source. Code spans and fenced code keep these delimiters literal.
+
 ## Nested ordered lists
 
 Write ordered lists with numeric Markdown markers (`1.` or `1)`) and indent

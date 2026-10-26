@@ -134,6 +134,12 @@ retain ordinary deletion behavior.
 
 The native editor does not change the CLI, API, note format, or permissions.
 
+See [Markdown authoring](https://docs.dreamlake.ai/notes/markdown/) for named footnotes and LaTeX math.
+Only inline citations are superscript; reference entries use normal-sized
+`[1]: ` labels on the text baseline, with a space before their content. Uncited
+definitions remain visible, including suggestions, without broken return links.
+Rendering never rewrites their source.
+
 Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
 
 {/* <!-- skill-entrypoint:start --> */}
@@ -1001,6 +1007,8 @@ These aliases apply to suggested edits, not other directive types.
 
 Insertions are underlined and deletions struck through in the note. A replacement
 shows both. Inline mode shows these text changes without cards or hover popups.
+Sidebar cards identify the action on the left as `insert:`, `delete:` or
+`replace:` rather than a generic suggestion label.
 Switch to Sidebar in a wide pane for **accept · reject** actions. Compact cards
 replace the table of contents in its existing column and follow passages visible
 in the current viewport. Dense groups scroll inside that column. Hovering or

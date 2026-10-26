@@ -41,6 +41,15 @@ Use JSON only when a program needs structured receipts. If the installed CLI lac
 Markdown reads, use the explicitly documented [legacy conditional edits](../reference/notes-legacy.md);
 never pass a legacy ETag as a v2 revision.
 
+## Markdown source
+
+For footnotes, math and other authoring syntax, consult the bundled
+[Markdown authoring reference](../reference/notes-markdown.md). Preserve named
+`[^key]` citations and `[^key]:` definitions in source; rendered numbers and
+baseline labels are presentation only. Uncited definitions and their suggestions
+must not be discarded. Use `\(...\)` for inline math and `\[...\]` for display
+math, not `\{`. Retain the normal revision guard and acknowledged readback.
+
 ## Versions and availability
 
 When changing technical implementation or availability claims, add or update one
