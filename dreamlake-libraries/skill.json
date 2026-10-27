@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-libraries",
-  "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect and check freshness without downloading, pull one asset or the whole tree byte-identical, and add or remove single assets remotely.",
+  "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
   "requires": ["dreamlake-cli"],
   "docs": [
     "https://docs.dreamlake.ai/libraries",

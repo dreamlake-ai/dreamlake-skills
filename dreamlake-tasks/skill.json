@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-tasks",
-  "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Notes for prompts, comments, details and acceptance. Use for DreamLake task tracking inside a Project, not for execution scheduling; check the installed CLI and the target server before every operation.",
+  "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Notes for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",
   "requires": [
     "dreamlake-cli"
   ],

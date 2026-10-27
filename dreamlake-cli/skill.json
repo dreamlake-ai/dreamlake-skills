@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-cli",
-  "description": "Install and sign in to the DreamLake CLI, choose an environment, upload and download data, browse or upload Sources, move whole Projects between namespaces, transfer a single resource's ownership, link writes to agent sessions, and manage Vault, hosts, Slurm inventory, machines, Infrastructure Stacks, Lakeshore and AWS connections, UDF registration and workflow push. Routes artifact, note, task, scene, dataset, workflow-authoring and annotation work to their own skills.",
+  "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, hosts, Slurm, machines, infrastructure, Lakeshore, AWS and UDFs; routes domain work to other skills.",
   "requires": [],
   "docs": [
     "https://cli.dreamlake.ai/",

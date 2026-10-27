@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-notes",
-  "description": "Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files, get inline image URLs, create notes, set summaries, file into Projects, turn list items into linked Notes or artifact references, and transfer a standalone Note. Use the Python SDK only for explicit SDK integration or a documented CLI gap.",
+  "description": "Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create notes, set summaries, file into Projects, link list items to Notes or artifacts, transfer a standalone Note.",
   "requires": [
     "dreamlake-cli"
   ],
