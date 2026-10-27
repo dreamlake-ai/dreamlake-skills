@@ -1,6 +1,6 @@
 ---
 name: dreamlake-lakeshore
-description: Operate DreamLake compute through the CLI — connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and externally launched jobs, provision machines through a user-configured launch server, manage Infrastructure Stacks, connect AWS. Use for any host, machine, queue, Stack or AWS-connection task. Not for uploads, Notes, artifacts, scenes or datasets.
+description: Operate DreamLake compute through the CLI — connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and externally launched jobs, provision machines through a user-configured launch server, discover and collaborate on Infrastructure Stacks (manual or automated Terraform setup), connect AWS. Use for any host, machine, queue, Stack or AWS-connection task. Not for uploads, Notes, artifacts, scenes or datasets.
 ---
 
 # DreamLake Lakeshore and compute
@@ -29,7 +29,7 @@ evidence standard are in [machines](actions/machines.md).
 | Hosts, enrollments, metrics, SSH/exec, power, catalog visibility, agent terminal sessions | [hosts](actions/hosts.md) |
 | Read Slurm scheduler jobs; register and report externally launched work | [jobs](actions/jobs.md) |
 | Machine identities, service accounts, launch-server binding, provisioning and EC2 launches | [machines](actions/machines.md) |
-| Infrastructure Stacks: inspect, register an empty backend, move, Kubernetes capacity | [infrastructure](actions/infrastructure.md) |
+| Infrastructure Stacks: discover and collaborate (manual and automated Terraform setup), register an empty backend, move, Kubernetes capacity | [infrastructure](actions/infrastructure.md) |
 | "Connect AWS to DreamLake" with the curated starter | [connect-aws](actions/connect-aws.md) |
 
 Each action is one task: commands first, exceptions after. Flag detail is in

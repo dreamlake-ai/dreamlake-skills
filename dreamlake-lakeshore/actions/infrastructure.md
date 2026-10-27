@@ -1,4 +1,4 @@
-# Inspect Infrastructure Stacks and register empty backends
+# Collaborate on Infrastructure Stacks
 
 Infrastructure commands require CLI 0.58.0 or later and a compatible API. CLI
 0.57.0 does not include `infra`. Check the installed version and command help
@@ -36,6 +36,43 @@ History follows descending version cursors; events follow increasing decimal
 sequence cursors. Preserve the returned event `nextCursor` for a later read.
 Both reads are bounded and exclude raw state and Terraform output. Metadata
 events do not establish execution success or current resource health.
+
+## Manual operators and automation
+
+Use the [manual and automated Terraform walkthrough](../reference/cli-infrastructure.md#manual-and-automated-terraform)
+when the task includes setup or an authorized Terraform operation. Both paths
+reuse the canonical UUID/backend; discover before creating. Confirm the repo/root,
+environment, provider identity and configured execution route. New workload or
+machine provisioning follows the launch-server boundary below. Stack access alone
+does not authorize an apply or supply cloud permissions.
+
+- For a person, initialize the reviewed checkout with private backend credentials,
+  retain locking, review a fresh saved plan and apply within the authorized scope.
+  A normal plan needs WRITE because it acquires a lock. CLI login does not export
+  `TF_HTTP_PASSWORD`; use the supported private credential mechanism.
+- For automation, pin commit/tool/provider versions and input sources. Inject
+  DreamLake and provider credentials separately on the authorized runner. Serialize
+  jobs by stack UUID without canceling active applies; keep backend locking for
+  coordination with manual users and other schedulers. Protect the exact plan
+  artifact through review/apply; replan if stale. A cloud OIDC token does not
+  authenticate the DreamLake HTTP backend. The backend is not an execution queue.
+- For drift monitoring, use a bounded, locking plan and distinguish no change,
+  differences and errors. A scheduled check does not authorize remediation.
+- After uncertain apply/publication, inspect the same runner, UUID, history and
+  provider resources before retrying. Never replace a stack or use `-lock=false`.
+  Locks do not expire on disconnect. Verify the original runner stopped before
+  authorized recovery; require the original actor/lock ID and check the client's
+  unlock-body compatibility. Do not promise an ADMIN override or automatic unlock.
+- Leave a discoverable runbook with stack ID, repo/root, environment/account,
+  runner/roles, variable and credential references, verification/recovery commands,
+  commit/run link, observed outcome and remaining work. Separate Terraform-owned
+  resources from CI-owned deployment settings. Keep raw state/plans and secrets
+  private. A persisted version is not a health check.
+
+For adoption, use disposable resources to verify two independent operators share
+state, only one can hold the lock, the next operator replans after release, and
+uncertain outcomes preserve the original stack for reconciliation. Distinguish
+configured, executed and verified; docs examples alone do not establish CI setup.
 
 ## Register an empty backend
 

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "74bdffd",
+  "version": "e7679ad",
   "skills": {
     "dreamlake-annotations": {
       "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
@@ -37,7 +37,7 @@
       "files": 14
     },
     "dreamlake-lakeshore": {
-      "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and externally launched jobs, provision machines through a user-configured launch server, manage Infrastructure Stacks, and connect AWS.",
+      "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and external jobs, provision machines through a user-configured launch server, collaborate on Infrastructure Stacks, and connect AWS.",
       "requires": [
         "dreamlake-cli"
       ],
