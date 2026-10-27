@@ -1,4 +1,4 @@
-# Video Episodes Python
+# Upload annotated robot video (VideoAnnotation preset)
 
 ## Prerequisites
 

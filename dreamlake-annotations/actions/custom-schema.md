@@ -1,4 +1,4 @@
-# Custom Schema Python
+# Write any schema you define (generic Annotation)
 
 ## Flow B — any schema you define (generic Annotation)
 
