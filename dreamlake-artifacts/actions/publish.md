@@ -69,17 +69,25 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
 - What the card reveals depends on visibility — see [share](share.md) before
   pasting a share link anywhere.
 
+## Upload transport
+
+The CLI uploads before it registers: it obtains upload credentials, writes the
+bytes to the `backendUrl` and `refName` the server returned, then registers the
+version. Keep that order in any client you write and never derive a storage key
+from the namespace or artifact name. A `409 UPLOAD_RESERVATION_REQUIRED` on the
+first registration (an upload that crossed a server upgrade or a whole-Project
+transfer) means: obtain fresh credentials, re-upload to the newly returned
+target, then register — retrying the registration alone cannot pick a safe
+target. Credentials and signed URLs already issued keep their original finite
+TTL; a transfer does not revoke them. Source:
+[Whole-Project ownership transfer](../reference/cli-artifacts.md#whole-project-ownership-transfer).
+
 ## Session affiliation (optional)
 
-CLI 0.78.0 can affiliate a successful artifact write with its verified saved
-agent session, and 0.79.0 adds explicitly selected conversation snapshots.
-Opening an artifact does not create a link, a link grants no terminal access,
-and an affiliation or archive failure never undoes or misreports a successful
-upload — retry only the link/archive. Selection, automatic context, opt-out
-and manual link/unlink:
-[Link notes and artifacts](../reference/cli-sessions.md#link-notes-and-artifacts-0780)
-and
-[Optional conversation upload](../reference/cli-sessions.md#optional-conversation-upload-0790).
+A push on CLI 0.78.0+ can be affiliated with the agent session that made it; an
+affiliation failure never undoes or misreports the upload, so retry only the
+link, never the push. Selection, opt-out and manual link/unlink are the
+`session-links` action of `dreamlake-cli`.
 
 ## Examples
 
