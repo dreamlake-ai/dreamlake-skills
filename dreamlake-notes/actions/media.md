@@ -21,4 +21,4 @@ URL. Uploading media does not edit a note. If insertion is requested, follow the
 Anyone holding the media URL can read it; making a note private does not revoke
 it. Use this route only when that access matches the user's request.
 
-See [image markup and upload details](../reference/notes-attachments.md#upload-an-inline-image-and-return-its-url).
+See [image markup and upload details](../reference/cli-notes-attachments.md#upload-inline-media-and-return-its-url).

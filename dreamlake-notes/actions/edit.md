@@ -26,7 +26,7 @@ Use the item's address and line hints to identify the selected text. Ranges
 refer to original source, including list markers and indentation. Apply the
 absolute code-point range in `edit.dff`; never patch generated comments or write
 the annotated Markdown back as source. For a complete DFF example and escaping rules, read
-[editing with patches](../reference/notes-editing.md). Keep the source passage,
+[editing with patches](../reference/cli-notes-editing.md). Keep the source passage,
 revision and patch together. Exclude the normal read's metadata header from the
 source being edited. Pass the opaque revision unchanged: never fabricate,
 decode, or replace it with the content hash or a legacy ETag. If a target sentence may repeat, check its
@@ -38,13 +38,13 @@ If the patch returns 412, preserve the original baseline and proposed patch,
 stop, then read current source and reconcile before making another write. Do
 not use `--force` or fetch a fresh revision just to make the old patch pass.
 Use JSON only when a program needs structured receipts. If the installed CLI lacks addressed
-Markdown reads, use the explicitly documented [legacy conditional edits](../reference/notes-legacy.md);
+Markdown reads, use the explicitly documented [legacy conditional edits](../reference/cli-notes-legacy.md);
 never pass a legacy ETag as a v2 revision.
 
 ## Markdown source
 
 For footnotes, math and other authoring syntax, consult the bundled
-[Markdown authoring reference](../reference/notes-markdown.md). Preserve named
+[Markdown authoring reference](../reference/docs-notes-markdown.md). Preserve named
 `[^key]` citations and `[^key]:` definitions in source; rendered numbers and
 baseline labels are presentation only. Uncited definitions and their suggestions
 must not be discarded. Use `\(...\)` for inline math and `\[...\]` for display
@@ -77,4 +77,4 @@ For punctuation-heavy changes, generate a unified diff from the unchanged
 baseline file and an edited copy, then submit it with `patch --format diff
 --base-revision "$BASE"`. This avoids manually escaping inline-DFF delimiters.
 A literal read does not change the patch format's syntax. See
-[editing with patches](../reference/notes-editing.md#literal-text-without-inline-dff-escaping).
+[editing with patches](../reference/cli-notes-editing.md#literal-text-without-inline-dff-escaping).

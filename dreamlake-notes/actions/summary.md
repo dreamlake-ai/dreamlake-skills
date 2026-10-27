@@ -19,4 +19,4 @@ after leaving an organization and body-edit access alone are insufficient. Use
 `--namespace <slug>` for an organization note. With no setter option, the
 command reads the current value; `--json` returns `{note, summary}`, with
 `summary: null` when unset. Setter options are mutually exclusive. File contents
-are used as-is, including a final newline. See the [Notes reference](../reference/notes.md#note-summaries).
+are used as-is, including a final newline. See the [Notes reference](../reference/docs-notes.md#note-summaries).

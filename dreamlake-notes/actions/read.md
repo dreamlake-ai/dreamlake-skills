@@ -45,8 +45,8 @@ dreamlake notes read --legacy "$NOTE_ID" --start-line 40 --end-line 80
 
 For a whole-source delta, retain the plain-text read's `hash` and pass it to
 `--since`; `hash` and opaque write `revision` are different tokens. Use
-`--json` only when a program needs parsed fields. See [reading and changes](../reference/notes-reading.md)
-and [the full Notes guide](../reference/notes.md).
+`--json` only when a program needs parsed fields. See [reading and changes](../reference/cli-notes-reading.md)
+and [the full Notes guide](../reference/docs-notes.md).
 
 For saved checkpoints or a missing earlier draft, use [versions and recovery](versions.md).
 Recovery requires a complete source read; scoped or annotated reads cannot supply its hash.
@@ -58,7 +58,7 @@ is set.
 
 For comment targeting in HTML reads, use the emitted `sN.cK` ID with `--tag` and
 the same revision. Saved comments also expose persistent `data-comment-id`;
-HTML target IDs are revision-local. See [comment targets](../reference/notes.md#comment-targets-in-html-reads).
+HTML target IDs are revision-local. See [comment targets](../reference/docs-notes.md#comment-targets-in-html-reads).
 
 ## Literal agent markup
 
@@ -79,3 +79,5 @@ visibility alone never reveals private Notes. Independent Note links and
 namespace membership remain valid. Detachment or Project grant revocation removes
 only that source of access. Do not mint a Note share link to simulate Project
 access; use the reader's own credentials and inspect current Note permissions.
+Grant semantics for every resource type are the `project-access` action of
+`dreamlake-cli`.
