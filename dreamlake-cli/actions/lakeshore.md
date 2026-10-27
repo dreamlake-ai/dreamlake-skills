@@ -7,7 +7,7 @@ support development, terminals and one or more queue-consuming worker processes.
 ## Fabric: Add Host for machine identity, connectivity and management
 
 For Add Host, SSH, browser terminals or remote commands, follow
-[host enrollment](hosts-jobs.md) and its [reference](../reference/host-enrollment.md).
+[host enrollment](hosts-jobs.md) and its [reference](../reference/cli-host-enrollment.md).
 No queue creation, queue mount, or worker consumer is a prerequisite.
 The current implementation requires an authorized execution connection owned by
 the same DreamLake namespace as the host name prefix. An org connection owned by
@@ -60,7 +60,7 @@ Host online status and collection visibility alone do not prove worker readiness
 
 ## Queue mount: client access configuration
 
-Use the [queue reference](../reference/queues.md) to inspect resources. Reuse an
+Use the [queue reference](../reference/cli-queues.md) to inspect resources. Reuse an
 existing authorized connection. A personal Vault-backed `queues mount` is an
 optional client registration for queue access; it registers neither a Host nor
 a Runtime worker and does not submit jobs. Org queue mounts are currently
@@ -81,8 +81,8 @@ hidden prompt or stdin. Never use the server admin token. Read back and run
 2. After an uncertain write, reread before retrying; reuse the existing access
    token receipt rather than minting duplicates. Do not echo credentials.
 
-When improving onboarding documentation, fix authoritative docs first, generate
-skills, and verify freshness. Keep private team configuration in its existing
+When improving onboarding documentation, fix the authoritative docs page first,
+then this skill's action, and verify the installed copy. Keep private team configuration in its existing
 revisioned Note and preserve linked example directives. Record actual tested
 versions, failures and remaining release dependencies. Source changes, publishing,
 installed readback, connection readiness and execution readiness are distinct.

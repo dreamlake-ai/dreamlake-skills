@@ -18,44 +18,30 @@ inject those same literal values into every later Notes command environment.
 Do not generate a new UUID for each command or change global shell configuration.
 
 No separate join is needed. After the first intended live read, inspect
-`dreamlake notes presence "$NOTE_ID"` (CLI 0.31.0+) and match the task ID and name.
-The roster command does not join. If attribution is missing, check the variables
-in the process doing the read/edit before treating it as a UI regression.
-Never replay a successful edit just to produce a highlight.
+`dreamlake notes presence "$NOTE_ID"` (CLI 0.31.0+) and match the task ID and
+name. The roster command does not join. If attribution is missing, check the
+variables in the process doing the read or edit before treating it as a UI
+regression. Never replay a successful edit just to produce a highlight, and do
+not replay saved edits to test attribution.
 
 Recent presence expires after about 60 seconds without activity; completed edit
-highlights fade over 5 seconds on an exact matching live revision. Roster readback
-verifies presence, not browser highlights. Only claim visual verification after
-observing the highlight. See [agent collaboration](../reference/notes-collaboration.md).
+highlights fade over 5 seconds on an exact matching live revision. Roster
+readback verifies presence, not browser highlights. Only claim visual
+verification after observing the highlight. See
+[one identity per task](../reference/cli-notes-collaboration.md#one-identity-per-task).
 
-## Contributing sessions and optional history
+## Contributing sessions
 
-Presence IDs above identify an editing task; they do not identify a resumable
-Codex/Claude conversation. CLI 0.78.0+ links successful Note writes to one exact
-owned registered session from `CODEX_THREAD_ID`, explicit `CLAUDE_SESSION_ID`, or
-`DREAMLAKE_TERMINAL_SESSION_ID` plus `DREAMLAKE_SESSION_NAMESPACE`. Missing or wrong
-metadata must not block the Note. Retry only `sessions link` after a warning, not
-the successful content edit; never guess historical contributors from titles.
-
-With explicit user opt-in, CLI 0.79.0+ accepts `DREAMLAKE_CONVERSATION_FILE` for an
-exact native export, or `sessions upload-conversation SESSION_ID --namespace NS
---file EXPORT --json`. This uploads readable conversation text under the saved
-session's permissions. No setting means metadata only. A Note's contributing
-sessions row opens the saved terminal in the panel to the right; it never requires
-a transcript upload first. Conversation history is a separate reading action.
-If the descriptor has no verified host binding, the terminal panel explains the
-missing connection; **Check connection again** reloads it without selecting a host.
-The original host must retain its native state; sharing a Note does not grant
-terminal access. See [the CLI session guide](https://cli.dreamlake.ai/sessions/).
-
-
-With CLI 0.82.0+ and the matching API, missing native sessions are registered
-as metadata before affiliation; no host/terminal discovery is needed. New
-sessions default public. Use `DREAMLAKE_SESSION_VISIBILITY=private` for a private
-new registration; existing privacy is retained. For a metadata failure after a
-successful save, register the exact native UUID with `sessions register`, then
-link its returned saved ID. Never replay the Note write. Review custom secrets
-before selecting a conversation export; client/server redaction is not exhaustive.
+Presence IDs identify an editing task; they do not identify a resumable Codex
+or Claude conversation. CLI 0.78.0+ links a successful Note write to one exact
+owned registered session from `CODEX_THREAD_ID`, explicit `CLAUDE_SESSION_ID`,
+or `DREAMLAKE_TERMINAL_SESSION_ID` plus `DREAMLAKE_SESSION_NAMESPACE`; missing
+or wrong metadata never blocks the Note. After a warning retry only the link,
+never the content edit, and never guess historical contributors from titles.
+The link, register (CLI 0.82.0+) and opt-in conversation upload (CLI 0.79.0+)
+commands, their visibility defaults and the terminal-panel behaviour of a
+Note's contributing-session row are the `session-links` action of
+`dreamlake-cli`. Sharing a Note never grants terminal access.
 
 ## Retained session tabs
 
@@ -66,7 +52,7 @@ open is focused instead of duplicated. Drag tabs between panels to arrange the
 workspace. A standalone Sessions list panel can be closed; closing a panel or
 tab does not terminate its session.
 
-Viewing a Note, selecting a session tab, switching Notes, and moving panels do
+Viewing a Note, selecting a session tab, switching Notes and moving panels do
 not create contributing-session links. Automatic affiliation follows an
-acknowledged content write; explicit Link/Unlink actions remain available.
+acknowledged content write; explicit Link and Unlink actions remain available.
 Temporary presence is separate from a persistent session association.

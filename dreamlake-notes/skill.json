@@ -1,0 +1,32 @@
+{
+  "name": "dreamlake-notes",
+  "description": "Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files, get inline image URLs, create notes, set summaries, file into Projects, turn list items into linked Notes or artifact references, and transfer a standalone Note. Use the Python SDK only for explicit SDK integration or a documented CLI gap.",
+  "requires": [
+    "dreamlake-cli"
+  ],
+  "docs": [
+    "https://docs.dreamlake.ai/notes",
+    "https://docs.dreamlake.ai/notes/activity",
+    "https://docs.dreamlake.ai/notes/embeds",
+    "https://docs.dreamlake.ai/notes/linked-items",
+    "https://docs.dreamlake.ai/notes/markdown",
+    "https://docs.dreamlake.ai/notes/panels",
+    "https://cli.dreamlake.ai/notes",
+    "https://cli.dreamlake.ai/notes/getting-started",
+    "https://cli.dreamlake.ai/notes/reading",
+    "https://cli.dreamlake.ai/notes/editing",
+    "https://cli.dreamlake.ai/notes/collaboration",
+    "https://cli.dreamlake.ai/notes/versions",
+    "https://cli.dreamlake.ai/notes/legacy",
+    "https://cli.dreamlake.ai/notes/rich-content",
+    "https://cli.dreamlake.ai/notes/videos",
+    "https://cli.dreamlake.ai/notes/attachments",
+    "https://cli.dreamlake.ai/notes/columns",
+    "https://cli.dreamlake.ai/notes/deletion",
+    "https://cli.dreamlake.ai/notes/projects",
+    "https://cli.dreamlake.ai/notes/sharing",
+    "https://cli.dreamlake.ai/notes/suggest-diff",
+    "https://cli.dreamlake.ai/notes/transfers"
+  ],
+  "tools": null
+}

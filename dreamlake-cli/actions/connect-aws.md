@@ -6,7 +6,7 @@ or the curated DreamLake starter recipe. For ordinary CLI login use
 [machines](machines.md). Do not convert an existing project's requested flow
 into a different provisioning method.
 
-This guide is bundled starting in CLI 0.54.0. Read [Connect AWS](../reference/connect-aws.md) and the
+This guide is bundled starting in CLI 0.54.0. Read [Connect AWS](../reference/cli-connect-aws.md) and the
 [public starter archive](https://cli.dreamlake.ai/recipes/aws-starter-1.0.0.tar.gz)
 with its [provenance manifest](https://cli.dreamlake.ai/recipes/aws-starter-1.0.0.json).
 Verify the archive SHA-256 before extraction. GitHub source access is optional.
@@ -22,7 +22,7 @@ server route is missing or unverified, stop new launch/provisioning actions and
 report the gap. Preserve existing resources and unrelated service operation;
 read-only inspection may continue. Current command/schema support and a direct
 backend smoke do not prove this architecture is implemented. See the
-[required launch boundary](../reference/providers.md#required-launch-boundary).
+[required launch boundary](../reference/cli-providers.md#required-launch-boundary).
 
 Inspect the selected environment, namespace, owned provider and existing Personal
 AI host first. Reuse that controller's valid enrollment. The default is an
@@ -89,6 +89,6 @@ Use locked/versioned encrypted S3 as authoritative state. Vault may hold
 nonsecret references and explicitly selected encrypted-at-rest snapshots;
 revision/idempotency is not Terraform backend locking. No automatic scan, state
 upload, raw log indexing, migration or cleanup. For user-requested Notes updates,
-use [Notes](notes.md) with fresh normal read output/revision; write authored
+use the `dreamlake-notes` skill with fresh normal read output/revision; write authored
 progress only, never state, secrets or raw terminal output. Uploads, artifacts,
 workflows and explicit SDK integration retain their own task boundaries.
