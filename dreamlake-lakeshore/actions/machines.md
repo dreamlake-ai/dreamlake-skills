@@ -2,7 +2,7 @@
 
 Use the installed CLI help and [service accounts reference](../reference/cli-service-accounts.md)
 with the [providers reference](../reference/cli-providers.md). Authenticate and select
-the intended environment using [setup](setup.md) before managing resources.
+the intended environment using the `setup` action of `dreamlake-cli` before managing resources.
 These APIs require a compatible server; an older CLI or server is not evidence
 that a capability has shipped.
 

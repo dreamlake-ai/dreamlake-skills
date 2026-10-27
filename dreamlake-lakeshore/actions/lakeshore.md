@@ -1,13 +1,13 @@
 # Connect Lakeshore and verify its scope
 
-Read [setup](setup.md), then identify the requested layer before giving commands.
+Read the `setup` action of `dreamlake-cli`, then identify the requested layer before giving commands.
 A Host and a worker are not mutually exclusive machine types: the same Host can
 support development, terminals and one or more queue-consuming worker processes.
 
 ## Fabric: Add Host for machine identity, connectivity and management
 
 For Add Host, SSH, browser terminals or remote commands, follow
-[host enrollment](hosts-jobs.md) and its [reference](../reference/cli-host-enrollment.md).
+[host enrollment](hosts.md) and its [reference](../reference/cli-host-enrollment.md).
 No queue creation, queue mount, or worker consumer is a prerequisite.
 The current implementation requires an authorized execution connection owned by
 the same DreamLake namespace as the host name prefix. An org connection owned by

@@ -4,7 +4,7 @@ Infrastructure commands require CLI 0.58.0 or later and a compatible API. CLI
 0.57.0 does not include `infra`. Check the installed version and command help
 before using these examples.
 
-Authenticate and choose the intended environment using [setup](setup.md). These
+Authenticate and choose the intended environment using the `setup` action of `dreamlake-cli`. These
 commands use the authenticated user flow and require explicit Infrastructure project authority;
 organization membership or a publicly readable project does not grant stack access.
 Infrastructure READ authority includes access to secret-bearing Terraform state,

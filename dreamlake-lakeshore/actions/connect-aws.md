@@ -2,7 +2,7 @@
 
 Use this guide for “connect AWS to DreamLake,” a first-time AWS worker setup,
 or the curated DreamLake starter recipe. For ordinary CLI login use
-[setup](setup.md); for a specifically requested managed provider launch use
+the `setup` action of `dreamlake-cli`; for a specifically requested managed provider launch use
 [machines](machines.md). Do not convert an existing project's requested flow
 into a different provisioning method.
 

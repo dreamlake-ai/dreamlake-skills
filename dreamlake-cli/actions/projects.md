@@ -5,7 +5,8 @@ atomic ownership request. There is no standalone move for an Artifact,
 Scene/Env, Workflow, Source, Task or Infrastructure Stack through this command:
 a standalone Note uses `notes transfer` (skill `dreamlake-notes`), one
 Artifact/Env/Annotation/Pipeline/Source uses [ownership](ownership.md), and a
-Stack uses `infra move` or `infra transfer` in [infrastructure](infrastructure.md).
+Stack uses `infra move` or `infra transfer` (the `infrastructure` action of
+`dreamlake-lakeshore`).
 
 ```bash
 # 1. Save a read-only review bound to a stable request key.

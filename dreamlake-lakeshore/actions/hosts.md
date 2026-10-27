@@ -1,4 +1,4 @@
-# Inspect hosts, Slurm jobs, and external tracking
+# Inspect hosts, enrollments and terminal sessions
 
 Add Host is the Fabric layer for machine identity, connectivity and management,
 including development, SSH, terminals and remote commands. No queue mount or
@@ -15,11 +15,11 @@ scoped capability is not deployment proof. Do not hand users a global admin toke
 Retain pending host identity and request ID through grant-authorization failures;
 resolve authority and use supported retries instead of renaming/recreating.
 
-Use [setup](setup.md) to authenticate and select the intended environment. Check
-the installed CLI version and command help against the [Hosts reference](../reference/cli-host-enrollment.md)
-and the [Jobs](../reference/cli-jobs.md) and [Slurm inventory](../reference/cli-queues.md#read-slurm-scheduler-jobs)
-references. The `hosts enrollments`, `hosts metrics`, `hosts check`, and
-`queues slurm` routes require CLI 0.57.0+ and their matching backend APIs.
+Authenticate and select the intended environment first (the `setup` action of
+`dreamlake-cli`). Check the installed CLI version and command help against the
+[Hosts reference](../reference/cli-host-enrollment.md). The `hosts enrollments`,
+`hosts metrics` and `hosts check` routes require CLI 0.57.0+ and their matching
+backend APIs. Slurm inventory and external job tracking are in [jobs](jobs.md).
 A merged source change, updated docs, or an installed skill does not establish
 that the executable or server supports it. Updating the CLI does
 not update installed skills; follow [skill installation](../reference/cli-skills.md)
@@ -43,8 +43,8 @@ and preserve local customizations when reviewing conflicts.
 | Open an enrolled host shell | CLI 0.72.0+ `dreamlake ssh HOST` or `hosts ssh`; see [SSH](../reference/cli-host-enrollment.md#ssh-and-remote-commands) |
 | Execute a command on an enrolled host | CLI 0.72.0+ `dreamlake exec HOST -- COMMAND` or `hosts exec`; see [remote commands](../reference/cli-host-enrollment.md#ssh-and-remote-commands) |
 | Launch managed execution or inspect its output/control | [Managed runs](../reference/cli-runs.md): `dreamlake run` and `dreamlake runs` |
-| Track work another launcher already starts | `dreamlake jobs register`, `report`, `list`, and `status` |
-| Inspect Slurm scheduler jobs | Discover `queues slurm clusters`, then `queues slurm jobs CLUSTER_ID --details` |
+| Track work another launcher already starts | [jobs](jobs.md) |
+| Inspect Slurm scheduler jobs | [jobs](jobs.md) |
 
 ## Connection and power commands (CLI 0.72.0+)
 
@@ -176,58 +176,5 @@ change the action or generate a new request ID to bypass a conflict. A replayed
 receipt can predate a later opposite action; read lifecycle for current state.
 See the [catalog reference](../reference/cli-host-enrollment.md#archive-and-restore-catalog-records).
 
-## Read Slurm scheduler jobs
-
-Discover configured clusters with `dreamlake queues slurm clusters --namespace NS`,
-then use the returned cluster ID with `dreamlake queues slurm jobs CLUSTER_ID
---namespace NS --details`. The default table includes usernames, job names,
-partitions, and observed states. No user filter is added; inspect snapshot scope,
-effective Unix user, workload visibility, and completeness before claiming which
-jobs are visible. Configured clusters do not establish access to every cluster.
-
-Use `--details` for all 18 scheduler detail fields covering user identity,
-name/partition, reason/account/QoS/priority, resources, and times, plus canonical
-job/attempt, queue, allocation, and array metadata. `--json` retains the full
-snapshot. Missing, unset, invalid, or older-server fields stay `Unknown`. Keep
-raw TRES/GPU labels and per-CPU/per-node memory units; do not invent a GPU total
-or total memory. Scheduler node counts are distinct from verified node mappings.
-Start/end times may be forecasts, not proof of execution or completion.
-
-Reading does not refresh the observation. Check its timestamps, freshness, and
-cache errors: stale values are historical, and unavailable or incomplete
-workloads return nonzero with unknown job count, not an empty queue. These
-commands inspect scheduler inventory; they do not submit, cancel, or modify jobs.
-`jobs list` instead reads explicit external tracking reports, and `queues jobs`
-reads Lakeshore invocations. Do not interchange their IDs or register a tracking
-record merely to inspect an existing scheduler job.
-
-## Track externally launched work
-
-1. Resolve an accessible host with `hosts list` in the intended namespace. Use
-   the actual `Host.id` returned by the API for `jobs register --host`, not a
-   host name, enrollment ID, or illustrative design-note ID.
-2. Register with an explicit request ID. Retain the namespace, host, name, and
-   request ID for identical retries after an uncertain result. Registration
-   creates only a tracking record; it does not launch or discover a process.
-3. Report only conditions observed by the external runner. For retryable reports,
-   retain `--reported-at` and the same payload; follow the reference's timestamp
-   and terminal-state rules. Reporting `cancelled` does not stop a process.
-4. Inspect `jobs status` and the report age/freshness. A fresh report still does
-   not verify live execution; an old `running` report does not prove failure.
-   `jobs list` reads one page, so continue pagination when needed. Preserve
-   access errors rather than presenting them as an empty inventory.
-
-General Jobs logs, cancellation, waiting, artifacts, and execution lifecycle
-controls are not supplied by external tracking. Use `runs` commands only for
-actual managed runs; do not pass external job IDs to them. Do not automatically
-capture or index program, tool, or terminal output.
-
-This route does not replace [uploads](data.md), revision-aware Notes (skill
-`dreamlake-notes`), artifact publication (skill `dreamlake-artifacts`) or
-[workflow management](workflows.md).
-Use an SDK for requested SDK integration or a documented CLI gap, after checking
-that the SDK and server actually support the operation; an SDK is not evidence
-that a proposed daemon or runner capability exists.
-
 Uploading a session's conversation history (CLI 0.79.0+) and linking Note or
-Artifact writes to a session are in [session-links](session-links.md).
+Artifact writes to a session are the `session-links` action of `dreamlake-cli`.

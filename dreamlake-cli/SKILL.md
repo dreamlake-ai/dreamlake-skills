@@ -1,11 +1,12 @@
 ---
 name: dreamlake-cli
-description: Install and sign in to the DreamLake CLI, choose an environment, upload and download data, browse or upload Sources, move whole Projects between namespaces, transfer a single resource's ownership, link writes to agent sessions, and manage Vault, hosts, Slurm inventory, machines, Infrastructure Stacks, Lakeshore and AWS connections, UDF registration and workflow push. Routes artifact, note, task, scene, dataset, workflow-authoring and annotation work to their own skills.
+description: Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows. Routes compute (hosts, machines, Lakeshore, Stacks, AWS) to dreamlake-lakeshore and artifact, note, task, scene, dataset, workflow-authoring and annotation work to their own skills.
 ---
 
 # DreamLake CLI
 
 This is the base skill: the CLI itself and the operations no domain skill owns.
+Compute (hosts, machines, Lakeshore, Stacks, AWS) is `dreamlake-lakeshore`.
 Pick one action; each is one task, command first and exceptions after. Domain
 work has its own skill (second table) and this skill does not repeat its steps.
 
@@ -20,11 +21,6 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Transfer one Artifact, Env/Scene, Annotation, Pipeline or Source | [ownership](actions/ownership.md) |
 | Link a Note or Artifact write to the agent's session; upload a conversation | [session-links](actions/session-links.md) |
 | Import or restore cloud configuration; Terraform state snapshots in Vault | [cloud-vault](actions/cloud-vault.md) |
-| Hosts, enrollments, metrics, terminal sessions, Slurm jobs, external job tracking | [hosts-jobs](actions/hosts-jobs.md) |
-| Provision machines, service accounts, launch-server binding, EC2 launches | [machines](actions/machines.md) |
-| Infrastructure Stacks: inspect, register a backend, move, Kubernetes capacity | [infrastructure](actions/infrastructure.md) |
-| Connect Lakeshore: Add Host, Runtime workers, queue mounts | [lakeshore](actions/lakeshore.md) |
-| "Connect AWS to DreamLake" with the curated starter | [connect-aws](actions/connect-aws.md) |
 | Register UDF or agent definitions from `.dreamrc` | [runnable-register](actions/runnable-register.md) |
 | Execute one registered Python UDF on an owned host | [registered-udf](actions/registered-udf.md) |
 | Push or list a workflow spec | [workflows](actions/workflows.md) |
@@ -33,6 +29,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 
 | Task | Skill |
 | --- | --- |
+| Lakeshore, hosts, terminal sessions, Slurm and external jobs, machines, Infrastructure Stacks, AWS | `dreamlake-lakeshore` |
 | Publish, version, share, restore artifacts | `dreamlake-artifacts` |
 | Read, edit, version, attach, inline images, references, transfer a Note | `dreamlake-notes` |
 | Task folders, subtasks, progress, events, linked Notes | `dreamlake-tasks` |
@@ -43,11 +40,10 @@ work has its own skill (second table) and this skill does not repeat its steps.
 
 ## Launch-server requirement
 
-Before any workload or machine launch, read the rule in [machines](actions/machines.md).
-Execution must use an explicitly user-configured launch server and its appropriate
-IAM role, never service IAM, ambient service credentials, an operator Vault IAM
-user, or direct provider execution from the hosted backend. A missing or
-unverified route blocks new launches, not read-only inspection.
+Any workload or machine launch must go through an explicitly user-configured
+launch server, never service IAM or direct provider execution from the hosted
+backend; the rule and its evidence standard are the `machines` action of
+`dreamlake-lakeshore`.
 
 ## Conventions
 
