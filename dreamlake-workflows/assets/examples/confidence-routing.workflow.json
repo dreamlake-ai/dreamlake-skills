@@ -1,0 +1,235 @@
+{
+  "version": 1,
+  "name": "confidence-routing",
+  "stages": [
+    {
+      "id": "score",
+      "title": "Score"
+    },
+    {
+      "id": "route",
+      "title": "Route"
+    },
+    {
+      "id": "resolve",
+      "title": "Resolve"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "score_conf",
+      "kind": "compute",
+      "stageId": "score",
+      "title": "score_confidence",
+      "compute": {
+        "udf": "ml.score_confidence"
+      },
+      "outputs": [
+        {
+          "name": "out",
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "is_confident",
+      "kind": "control",
+      "stageId": "route",
+      "title": "is_confident",
+      "control": {
+        "type": "condition",
+        "expression": "confidence >= 0.95"
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "tier_switch",
+      "kind": "control",
+      "stageId": "route",
+      "title": "tier_switch",
+      "control": {
+        "type": "switch",
+        "cases": [
+          {
+            "name": "high",
+            "expression": "conf >= 0.75"
+          },
+          {
+            "name": "mid",
+            "expression": "conf >= 0.40"
+          },
+          {
+            "name": "low",
+            "expression": "conf < 0.40"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "auto_accept",
+      "kind": "compute",
+      "stageId": "resolve",
+      "title": "auto_accept",
+      "compute": {
+        "udf": "labels.auto_accept"
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "table"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "second_model",
+      "kind": "uda",
+      "stageId": "resolve",
+      "title": "second_model",
+      "uda": {
+        "instructions": "Re-check mid-confidence labels; correct or confirm each.",
+        "model": "claude-haiku",
+        "tools": [
+          "Read"
+        ],
+        "permissions": [
+          "dreamlake.datasets.read"
+        ],
+        "queue": "cpu-lane"
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "table"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "human_review",
+      "kind": "uda",
+      "stageId": "resolve",
+      "title": "human_review",
+      "uda": {
+        "instructions": "Queue low-confidence samples for expert annotation.",
+        "permissions": [
+          "dreamlake.datasets.update"
+        ],
+        "queue": "review-queue"
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "table"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "assemble",
+      "kind": "compute",
+      "stageId": "resolve",
+      "title": "assemble_accepted",
+      "compute": {
+        "udf": "datasets.assemble"
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "table",
+          "collect": true
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "dataset"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "score_conf",
+      "to": "is_confident"
+    },
+    {
+      "id": "e2",
+      "from": "is_confident",
+      "fromPort": "true",
+      "to": "auto_accept"
+    },
+    {
+      "id": "e3",
+      "from": "is_confident",
+      "fromPort": "false",
+      "to": "tier_switch"
+    },
+    {
+      "id": "e4",
+      "from": "tier_switch",
+      "fromPort": "high",
+      "to": "auto_accept"
+    },
+    {
+      "id": "e5",
+      "from": "tier_switch",
+      "fromPort": "mid",
+      "to": "second_model"
+    },
+    {
+      "id": "e6",
+      "from": "tier_switch",
+      "fromPort": "low",
+      "to": "human_review"
+    },
+    {
+      "id": "e7",
+      "from": "tier_switch",
+      "fromPort": "default",
+      "to": "human_review"
+    },
+    {
+      "id": "e8",
+      "from": "auto_accept",
+      "to": "assemble"
+    },
+    {
+      "id": "e9",
+      "from": "second_model",
+      "to": "assemble"
+    },
+    {
+      "id": "e10",
+      "from": "human_review",
+      "to": "assemble"
+    }
+  ]
+}

@@ -11,19 +11,17 @@ permissions are the defaults; existing sessions stay running. Honor an explicit
 request for narrower access. Ask only when the intended app or workspace is
 unclear from context; otherwise use the current workspace.
 
-For each new-session request, choose a fresh title and terminal name. Reuse
-those identifiers only when retrying that same launch, not for a request to
-start another session. A quoted trigger discussed as wording is not a launch
-request by itself.
+For each new-session request, choose a fresh title and terminal name; reuse
+them only when retrying that same launch, never for another session. A quoted
+trigger discussed as wording is not a launch request by itself.
 
 Create a named Remote Control session using the host's existing Claude login.
 This skill defaults to `bypassPermissions`, as requested by its full-access
-purpose. Honor a user's narrower permission choice. No global settings change.
+purpose; honor a user's narrower permission choice. No global settings change.
 
 ## Launch
 
-For a newly provisioned machine, first read the
-[fresh-host prerequisites and manual gaps](references/remote-sessions.md#fresh-host-prerequisites-and-manual-gaps).
+For a newly provisioned machine, first read [fresh-host](actions/fresh-host.md).
 This launcher expects an authenticated host and an existing working directory.
 
 1. Choose the requested directory and recognizable title; default to the current
@@ -34,7 +32,7 @@ This launcher expects an authenticated host and an existing working directory.
 2. Resolve the helper relative to this skill and run:
 
    ```bash
-   python3 scripts/launch_remote.py --cwd /absolute/workspace --name "Remote workspace"
+   python3 tools/launch_remote.py --cwd /absolute/workspace --name "Remote workspace"
    ```
 
    It starts `claude remote-control --name … --spawn session --permission-mode
@@ -57,7 +55,7 @@ This launcher expects an authenticated host and an existing working directory.
 ## Recovery
 
 - For another session in a folder already served by `claude remote-control`,
-  use the [interactive launch](references/remote-sessions.md#another-session-in-the-same-folder).
+  use the [interactive launch](actions/remote-sessions.md#another-session-in-the-same-folder).
   Keep the existing session running.
 - A timeout leaves the session intact and returns an attach command. Inspect it;
   do not repeatedly create sessions or restart unrelated Claude processes.
@@ -71,5 +69,12 @@ This launcher expects an authenticated host and an existing working directory.
   reported limitation, not a reason to change organization controls or silently
   launch with different permissions.
 
-Read [compatibility and lifecycle notes](references/remote-sessions.md) for
+Read [compatibility and lifecycle notes](actions/remote-sessions.md) for
 startup failures, session cleanup, and the authoritative upstream references.
+
+## Canonical source
+
+No DreamLake docs page (`docs: []`): the procedure lives here, the helper in
+`tools/`. The CLI contract is Anthropic's — https://code.claude.com/docs/en/remote-control,
+https://code.claude.com/docs/en/permission-modes, https://code.claude.com/docs/en/cli-reference;
+check installed help over any assumption about flags.

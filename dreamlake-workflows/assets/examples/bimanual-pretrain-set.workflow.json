@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "name": "bimanual-pretrain-set",
+  "description": "Sample egocentric clips, VLM-label, transcode, publish after review.",
+  "stages": [
+    {
+      "id": "collect",
+      "title": "Collect & filter"
+    },
+    {
+      "id": "annotate",
+      "title": "Annotate"
+    },
+    {
+      "id": "publish",
+      "title": "Publish"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "clip_source",
+      "kind": "compute",
+      "stageId": "collect",
+      "title": "clip_source",
+      "compute": {
+        "udf": "catalog.list_clips"
+      },
+      "outputs": [
+        {
+          "name": "out",
+          "type": "samples"
+        }
+      ]
+    },
+    {
+      "id": "take_sample",
+      "kind": "sampler",
+      "stageId": "collect",
+      "title": "take_sample",
+      "sampler": {
+        "strategy": "bernoulli",
+        "fraction": 0.1,
+        "min_size": 50,
+        "seed": 42
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "samples"
+        }
+      ]
+    },
+    {
+      "id": "vlm_labeler",
+      "kind": "uda",
+      "stageId": "annotate",
+      "title": "vlm_labeler",
+      "uda": {
+        "instructions": "Label the task, sub-task and active hand for each clip.",
+        "model": "qwen-vl-72b",
+        "tools": [
+          "Read"
+        ],
+        "permissions": [
+          "dreamlake.datasets.read",
+          "dreamlake.datasets.create"
+        ],
+        "queue": "gpu-a10g"
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "samples"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "dataset"
+        }
+      ],
+      "execution": {
+        "retry": {
+          "max_attempts": 2
+        },
+        "timeout": "4h"
+      }
+    },
+    {
+      "id": "transcode",
+      "kind": "compute",
+      "stageId": "annotate",
+      "title": "clip_transcode",
+      "compute": {
+        "udf": "media.transcode_clips",
+        "params": {
+          "codec": "h264",
+          "container": "mp4"
+        },
+        "provider": {
+          "launcher": "EC2",
+          "instance_type": "g5.xlarge",
+          "dispatch": "daemon"
+        }
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "samples"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "directory"
+        }
+      ],
+      "execution": {
+        "retry": {
+          "max_attempts": 3,
+          "backoff": {
+            "initial": "10s",
+            "factor": 2.0,
+            "max": "5m"
+          }
+        },
+        "timeout": "2h",
+        "cache": {
+          "enabled": true,
+          "version": "1"
+        }
+      }
+    },
+    {
+      "id": "review_gate",
+      "kind": "control",
+      "stageId": "publish",
+      "title": "review_gate",
+      "control": {
+        "type": "approval",
+        "message": "Review labels before publish",
+        "timeout_s": 172800
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "dataset"
+        }
+      ]
+    },
+    {
+      "id": "publish_ds",
+      "kind": "compute",
+      "stageId": "publish",
+      "title": "dataset_publish",
+      "compute": {
+        "udf": "datasets.publish_version"
+      },
+      "inputs": [
+        {
+          "name": "in",
+          "type": "dataset"
+        },
+        {
+          "name": "media",
+          "type": "directory"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "dataset"
+        }
+      ],
+      "outputBinding": {
+        "kind": "dataset",
+        "project": "workflows",
+        "pathTemplate": "workflows/{workflow}/{runId}/{nodeId}"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "clip_source",
+      "to": "take_sample"
+    },
+    {
+      "id": "e2",
+      "from": "take_sample",
+      "to": "vlm_labeler"
+    },
+    {
+      "id": "e3",
+      "from": "clip_source",
+      "to": "transcode"
+    },
+    {
+      "id": "e4",
+      "from": "vlm_labeler",
+      "to": "review_gate"
+    },
+    {
+      "id": "e5",
+      "from": "review_gate",
+      "to": "publish_ds"
+    },
+    {
+      "id": "e6",
+      "from": "transcode",
+      "to": "publish_ds",
+      "toPort": "media"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "dreamlake-example",
+  "description": "Example skill that shows the required layout; copy this directory to start a new skill.",
+  "requires": [],
+  "docs": [
+    "https://docs.dreamlake.ai/artifacts",
+    "https://cli.dreamlake.ai/artifacts",
+    "https://cli.dreamlake.ai/projects"
+  ],
+  "tools": null
+}

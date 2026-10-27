@@ -1,0 +1,13 @@
+version: 1
+dataset:
+  format: folder
+  episodes: "episodes/*/"
+views:
+  - view: mujoco
+    qpos: [frames]        # series slot → named channel columns
+    meta: [episode]       # file slot → episode.json
+    height: 420
+    # env: ns/laundry     # optional: scene-only env — hand channels skip
+  - view: timeline         # shared clock + playback bar
+  - view: lineChart
+    series: [{ field: [frames, 'ctrl.*'] }]

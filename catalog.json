@@ -1,215 +1,148 @@
 {
-  "version": 1,
+  "schema": 1,
+  "version": "e7679ad",
   "skills": {
     "dreamlake-annotations": {
-      "maintenance": "manual-product",
-      "edit": "dreamlake-annotations/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/annotations",
-        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
-      ],
-      "overlaps": [
-        "video-labeling-workflow"
-      ]
-    },
-    "dreamlake-artifact-authoring": {
-      "maintenance": "manual-product",
-      "edit": "dreamlake-artifact-authoring/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/artifacts"
-      ],
-      "overlaps": [
-        "dreamlake-artifacts"
-      ]
+      "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
+      "requires": [],
+      "tools": {
+        "python": ">=3.10",
+        "packages": [
+          "dreamlake",
+          "dreamdb"
+        ]
+      },
+      "files": 5
     },
     "dreamlake-artifacts": {
-      "maintenance": "manual-product",
-      "edit": "dreamlake-artifacts/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/artifacts",
-        "https://cli.dreamlake.ai/artifacts",
-        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
+      "description": "Author content that renders inside DreamLake's isolated offline artifact frame, then publish, version, list, share, revoke, remove and restore artifacts with the CLI, and reference them from Notes.",
+      "requires": [
+        "dreamlake-cli"
       ],
-      "overlaps": [
-        "dreamlake-cli",
-        "dreamlake-artifact-authoring"
-      ]
+      "tools": null,
+      "files": 14
     },
     "dreamlake-cli": {
-      "maintenance": "generated",
-      "source_repos": [
-        "cli"
-      ],
-      "edit": "https://github.com/dreamlake-ai/dreamlake-cli/tree/main/docs",
-      "review_docs": [],
-      "overlaps": [
-        "dreamlake-artifacts",
-        "dreamlake-notes",
-        "dreamlake-scenes",
-        "dreamlake-libraries",
-        "dreamlake-source",
-        "workflow-publish"
-      ]
+      "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows; routes compute and domain work elsewhere.",
+      "requires": [],
+      "tools": null,
+      "files": 12
     },
-    "dreamlake-dataset-viz": {
-      "maintenance": "manual-product",
-      "edit": "dreamlake-dataset-viz/",
-      "review_docs": [
-        "https://viz.dreamlake.ai/dataset-viz/spec.md"
+    "dreamlake-datasets": {
+      "description": "Get a robot dataset reachable and rendered in DreamLake: lay out the files, upload or link them as a Source, prove the paths a workflow will read, and write the .dreamrc that binds fields to views, including MuJoCo/URDF sim playback.",
+      "requires": [
+        "dreamlake-cli"
       ],
-      "overlaps": [
-        "dreamlake-source",
-        "sim-to-mcap"
-      ]
+      "tools": null,
+      "files": 14
     },
-    "dreamlake-scenes": {
-      "maintenance": "manual-product",
-      "edit": "dreamlake-scenes/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/scenes/",
-        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
+    "dreamlake-lakeshore": {
+      "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and external jobs, provision machines through a user-configured launch server, collaborate on Infrastructure Stacks, and connect AWS.",
+      "requires": [
+        "dreamlake-cli"
       ],
-      "overlaps": [
-        "dreamlake-cli",
-        "dreamlake-scene-generation"
-      ]
+      "tools": null,
+      "files": 8
     },
     "dreamlake-libraries": {
-      "maintenance": "manual-product",
-      "edit": "dreamlake-libraries/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/libraries/"
+      "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
+      "requires": [
+        "dreamlake-cli"
       ],
-      "overlaps": [
-        "dreamlake-cli",
-        "dreamlake-scene-generation"
-      ]
+      "tools": null,
+      "files": 8
     },
     "dreamlake-notes": {
-      "maintenance": "generated",
-      "source_repos": [
-        "workspace",
-        "cli"
-      ],
-      "edit": "https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/notes",
-      "review_docs": [
-        "https://cli.dreamlake.ai/notes/"
-      ],
-      "overlaps": [
+      "description": "Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create notes, set summaries, file into Projects, link list items to Notes or artifacts, transfer a standalone Note.",
+      "requires": [
         "dreamlake-cli"
-      ]
-    },
-    "dreamlake-scene-generation": {
-      "maintenance": "generated",
-      "source_repos": [
-        "workspace"
       ],
-      "edit": "https://github.com/dreamlake-ai/dreamlake-workspace/tree/main/docs/skill-guides/scene-generation",
-      "review_docs": [],
-      "overlaps": [
-        "dreamlake-scenes",
-        "dreamlake-libraries"
-      ]
+      "tools": null,
+      "files": 14
     },
-    "dreamlake-source": {
-      "maintenance": "manual-product",
-      "edit": "dreamlake-source/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/sources/",
-        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
+    "dreamlake-scenes": {
+      "description": "Build, validate and publish MuJoCo (MJCF) and URDF scenes on DreamLake: source and measure assets, derive placements, author the base scene, compose layered stacks, validate physics per body, package, push, preview, pull back byte-identical, version, delete and restore.",
+      "requires": [
+        "dreamlake-cli"
       ],
-      "overlaps": [
-        "dreamlake-cli",
-        "remote-source-check",
-        "dreamlake-dataset-viz"
-      ]
+      "tools": {
+        "python": ">=3.10",
+        "packages": [
+          "mujoco>=3.2",
+          "numpy",
+          "pytest"
+        ]
+      },
+      "files": 17
     },
-    "launch-codex-chat": {
-      "maintenance": "standalone",
-      "edit": "launch-codex-chat/",
-      "review_docs": [
-        "https://learn.chatgpt.com/docs/app-server"
+    "dreamlake-tasks": {
+      "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Notes for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",
+      "requires": [
+        "dreamlake-cli"
       ],
-      "overlaps": []
+      "tools": null,
+      "files": 10
     },
-    "remote-source-check": {
-      "maintenance": "manual-product",
-      "edit": "remote-source-check/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/sources/"
+    "dreamlake-workflows": {
+      "description": "Design a DreamLake WorkflowSpec v1 from a natural-language data-production, labeling or training goal, validate it against the bundled schema, publish it to the right namespace with the CLI, and recover from validation errors.",
+      "requires": [
+        "dreamlake-cli"
       ],
-      "overlaps": [
-        "dreamlake-source",
-        "video-labeling-workflow"
-      ]
-    },
-    "sim-to-mcap": {
-      "maintenance": "manual-product",
-      "edit": "sim-to-mcap/",
-      "review_docs": [
-        "https://viz.dreamlake.ai/dataset-viz/reference.md"
-      ],
-      "overlaps": [
-        "dreamlake-dataset-viz"
-      ]
-    },
-    "video-labeling-workflow": {
-      "maintenance": "manual-product",
-      "edit": "video-labeling-workflow/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/workflows/"
-      ],
-      "overlaps": [
-        "workflow-generator",
-        "workflow-publish",
-        "remote-source-check"
-      ]
-    },
-    "workflow-generator": {
-      "maintenance": "manual-product",
-      "edit": "workflow-generator/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/workflows/"
-      ],
-      "overlaps": [
-        "dreamlake-cli",
-        "workflow-publish",
-        "video-labeling-workflow"
-      ]
-    },
-    "workflow-publish": {
-      "maintenance": "manual-product",
-      "edit": "workflow-publish/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/workflows/",
-        "https://docs.dreamlake.ai/dev/notes/project-note-transfer/"
-      ],
-      "overlaps": [
-        "dreamlake-cli",
-        "workflow-generator",
-        "video-labeling-workflow"
-      ]
+      "tools": null,
+      "files": 11
     },
     "launch-claude-remote": {
-      "maintenance": "standalone",
-      "edit": "launch-claude-remote/",
-      "review_docs": [
-        "https://code.claude.com/docs/en/remote-control",
-        "https://code.claude.com/docs/en/permission-modes"
-      ],
-      "overlaps": [
-        "launch-codex-chat"
-      ]
+      "description": "Create a new named Claude Remote Control session with maximum permissions in a detached tmux terminal on this host, so the user can continue in their Claude app; keeps existing sessions running.",
+      "requires": [],
+      "tools": {
+        "python": ">=3.8",
+        "packages": []
+      },
+      "files": 7
     },
-    "dreamlake-envs": {
-      "maintenance": "manual-product",
-      "edit": "dreamlake-envs/",
-      "review_docs": [
-        "https://docs.dreamlake.ai/scenes/"
+    "launch-codex-chat": {
+      "description": "Create a new named, resumable Codex chat with maximum permissions on this host's running app-server daemon, so the user can continue it in their Codex app; keeps existing sessions and daemons running.",
+      "requires": [],
+      "tools": {
+        "python": ">=3.8",
+        "packages": []
+      },
+      "files": 8
+    },
+    "sim-to-mcap": {
+      "description": "Roll a trained policy out in a local Python physics simulator and write an indexed MCAP with Foxglove /tf, /robot and /metrics channels that DreamLake plays natively, then hand the file to dreamlake-datasets.",
+      "requires": [
+        "dreamlake-datasets"
       ],
-      "overlaps": [
-        "dreamlake-scenes"
-      ]
+      "tools": {
+        "python": ">=3.10",
+        "packages": [
+          "foxglove-sdk",
+          "trimesh",
+          "numpy"
+        ]
+      },
+      "files": 10
+    },
+    "video-labeling-workflow": {
+      "description": "Create and publish the fixed DreamLake video subtask-labeling workflow: collect the source, video and reference-annotation paths, verify the worker can read them, fill the bundled template, confirm with the user, and push a workflow they can Run from the canvas.",
+      "requires": [
+        "dreamlake-workflows",
+        "dreamlake-datasets"
+      ],
+      "tools": null,
+      "files": 7
     }
+  },
+  "renamed": {
+    "dreamlake-artifact-authoring": "dreamlake-artifacts",
+    "dreamlake-dataset-viz": "dreamlake-datasets",
+    "dreamlake-envs": "dreamlake-scenes",
+    "dreamlake-note-references": "dreamlake-notes",
+    "dreamlake-scene-generation": "dreamlake-scenes",
+    "dreamlake-source": "dreamlake-datasets",
+    "remote-source-check": "dreamlake-datasets",
+    "workflow-generator": "dreamlake-workflows",
+    "workflow-publish": "dreamlake-workflows"
   }
 }

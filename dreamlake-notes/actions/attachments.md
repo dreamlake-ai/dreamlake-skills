@@ -17,9 +17,10 @@ dreamlake notes files preview report.html --note "$NOTE_ID" --open
 ```
 
 Uploads and downloads preserve bytes. `cat` is for text and refuses binary
-content. `rm` moves a file to trash; restore with its file ID. `--share` creates
-a non-expiring public preview link, while `--revoke` withdraws all copies. Minting
-requires the note's sharing permission; withdrawing requires edit permission.
+content. `rm` moves a file to trash; restore with its file ID. Public preview
+links are minted with `--share` and withdrawn with `--revoke` (lifetime and
+scope: [preview and share](../reference/cli-notes-attachments.md#preview-and-share)).
+Minting requires the note's sharing permission; withdrawing requires edit permission.
 Repeated minting keeps the existing link. Do not mint public links merely to work
 around a denied signed-in read. The transactional sharing implementation is
 included in the verified API release. Isolated tests cover lost authority,
@@ -30,7 +31,7 @@ immutable-upload implementation is enabled, and atomic copy and the default
 named-version catalog writer are included in the verified API release. Durable
 purge and transfer adapters remain disabled. Strict runtime and read-only metadata
 verification do not establish production attachment-write or user acceptance.
-See [attachments](../reference/notes-attachments.md) and [the full Notes guide](../reference/notes.md).
+See [attachments](../reference/cli-notes-attachments.md) and [the full Notes guide](../reference/docs-notes.md).
 
 ## Move or trash with a content precondition
 
@@ -87,8 +88,8 @@ or the original-actor check. The release performed only two selected status GETs
 not attachment writes or provider-failure recovery. Raw streaming journal,
 durable purge and transfer adapters remain disabled. Raw inventory's separate
 merged source candidate is not a live recovery capability.
-See [copy publication](../reference/notes.md#copy-an-attachment-within-a-note) and
-[the recovery workflow](../reference/notes.md#recover-a-text-or-copy-publication).
+See [copy publication](../reference/docs-notes.md#copy-an-attachment-within-a-note) and
+[the recovery workflow](../reference/docs-notes.md#recover-a-text-or-copy-publication).
 
 ## Replace text conditionally
 

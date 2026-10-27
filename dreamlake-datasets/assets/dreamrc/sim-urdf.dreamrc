@@ -1,0 +1,12 @@
+version: 1
+dataset:
+  format: folder
+  episodes: "episodes/*/"
+views:
+  - view: urdf
+    joints: [frames]      # series slot → URDF joint columns
+    meta: [episode]       # file slot → episode.json (sim "urdf")
+    height: 480
+  - view: timeline
+  - view: lineChart
+    series: [{ field: [frames, left_knee_joint] }]

@@ -1,12 +1,20 @@
-import importlib.util
+"""Offline tests for scripts/catalog.py."""
 import json
 from pathlib import Path
 import tempfile
 import unittest
 
-spec = importlib.util.spec_from_file_location('catalog', Path(__file__).with_name('catalog.py'))
-catalog = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(catalog)
+import catalog
+
+
+def make_skill(root, name, requires=(), tools=None, docs=()):
+    skill = root / name
+    (skill / 'actions').mkdir(parents=True)
+    (skill / 'skill.json').write_text(json.dumps({'name': name, 'description': f'{name} does things',
+                                                  'requires': list(requires), 'docs': list(docs), 'tools': tools}))
+    (skill / 'SKILL.md').write_text('skill')
+    (skill / 'actions' / 'do.md').write_text('do')
+    return skill
 
 
 class CatalogTests(unittest.TestCase):
@@ -14,76 +22,85 @@ class CatalogTests(unittest.TestCase):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         self.root = Path(temp.name)
-        self.skills = {
-            'product': {'maintenance': 'generated', 'source_repos': ['cli'],
-                        'edit': 'https://github.com/example/cli/tree/main/docs',
-                        'review_docs': [], 'overlaps': ['utility']},
-            'utility': {'maintenance': 'standalone', 'edit': 'utility/',
-                        'review_docs': [], 'overlaps': []},
-        }
-        for name in self.skills:
-            (self.root / name).mkdir()
-            (self.root / name / 'SKILL.md').write_text('skill')
-        (self.root / 'README.md').write_text('\n'.join(f'[skill](./{name}/SKILL.md)' for name in self.skills))
-        self.sources = {'cli': {'repository': 'https://github.com/example/cli', 'commit': 'a' * 40}}
-        self.write('sources.json', {'sources': self.sources})
-        self.write('generated-files.json', {'files': {'product/SKILL.md': 'hash'}})
-        (self.root / 'MAINTENANCE.md').write_text('Before\n' + catalog.START + '\n' + catalog.END + '\nAfter\n')
-        self.save()
+        self.cli = make_skill(self.root, 'dreamlake-cli')
+        self.notes = make_skill(self.root, 'dreamlake-notes', requires=['dreamlake-cli'],
+                                tools={'python': '>=3.12', 'packages': ['mujoco']})
+        (self.notes / 'reference').mkdir()
+        (self.notes / 'reference' / 'cli-notes.md').write_text('generated')
+        (self.notes / 'reference' / 'docs-notes.md').write_text('generated')
+        (self.notes / 'tools').mkdir()
+        (self.notes / 'tools' / 'x.py').write_text('')
+        (self.notes / 'tools' / '__pycache__').mkdir()
+        (self.notes / 'tools' / '__pycache__' / 'x.cpython-312.pyc').write_bytes(b'')
+        (self.notes / '.DS_Store').write_bytes(b'')
+        make_skill(self.root, '_template')
+        (self.root / '.hidden').mkdir()
+        (self.root / 'scripts').mkdir()
+        (self.root / 'renamed.json').write_text(json.dumps({'workflow-publish': 'dreamlake-workflows',
+                                                            'dreamlake-source': 'dreamlake-datasets'}))
 
-    def write(self, name, value):
-        (self.root / name).write_text(json.dumps(value))
+    def test_build_shape(self):
+        built = catalog.build(self.root, version='v2026.10.27')
+        self.assertEqual(built, {
+            'schema': 1,
+            'version': 'v2026.10.27',
+            'skills': {
+                'dreamlake-cli': {'description': 'dreamlake-cli does things', 'requires': [], 'tools': None, 'files': 3},
+                'dreamlake-notes': {'description': 'dreamlake-notes does things', 'requires': ['dreamlake-cli'],
+                                    'tools': {'python': '>=3.12', 'packages': ['mujoco']}, 'files': 4},
+            },
+            'renamed': {'dreamlake-source': 'dreamlake-datasets', 'workflow-publish': 'dreamlake-workflows'},
+        })
+        self.assertEqual(list(built), ['schema', 'version', 'skills', 'renamed'])
 
-    def save(self):
-        self.write('catalog.json', {'version': 1, 'skills': self.skills})
+    def test_version_falls_back_without_git(self):
+        self.assertEqual(catalog.build(self.root)['version'], catalog.FALLBACK_VERSION)
 
-    def test_inventory_and_source_revision_drift(self):
-        catalog.update(self.root)
-        catalog.update(self.root, check=True)
-        page = (self.root / 'MAINTENANCE.md').read_text()
-        self.assertTrue(page.startswith('Before\n'))
-        self.assertTrue(page.endswith('\nAfter\n'))
-        self.assertIn('not checked by this report', page)
-        self.sources['cli']['commit'] = 'b' * 40
-        self.write('sources.json', {'sources': self.sources})
-        with self.assertRaisesRegex(ValueError, 'stale'):
-            catalog.update(self.root, check=True)
+    def test_write_then_check_ignores_version(self):
+        catalog.write(self.root, version='v1')
+        self.assertEqual(catalog.check(self.root), [])
+        text = (self.root / 'catalog.json').read_text()
+        self.assertTrue(text.endswith('}\n'))
+        (self.root / 'catalog.json').write_text(text.replace('"v1"', '"v2"'))
+        self.assertEqual(catalog.check(self.root), [])
 
-    def test_new_skill_cannot_bypass_registration(self):
-        (self.root / 'unregistered').mkdir()
-        (self.root / 'unregistered/SKILL.md').write_text('skill')
-        with self.assertRaisesRegex(ValueError, 'coverage mismatch'):
-            catalog.load(self.root)
+    def test_check_detects_drift(self):
+        catalog.write(self.root, version='v1')
+        make_skill(self.root, 'dreamlake-new')
+        problems = catalog.check(self.root)
+        self.assertEqual(problems, ['catalog.json: does not list dreamlake-new', 'run scripts/catalog.py to regenerate'])
+        catalog.write(self.root, version='v1')
+        (self.notes / 'actions' / 'more.md').write_text('more')
+        self.assertIn('catalog.json: entry for dreamlake-notes is stale', catalog.check(self.root))
+        catalog.write(self.root, version='v1')
+        (self.root / 'renamed.json').write_text('{}')
+        self.assertIn('catalog.json: renamed differs from renamed.json', catalog.check(self.root))
+        catalog.write(self.root, version='v1')
+        data = json.loads((self.root / 'catalog.json').read_text())
+        (self.root / 'catalog.json').write_text(json.dumps(data))
+        self.assertIn('catalog.json: formatting differs from scripts/catalog.py output', catalog.check(self.root))
+        (self.root / 'catalog.json').unlink()
+        self.assertEqual(catalog.check(self.root), ['catalog.json is missing; run scripts/catalog.py'])
 
-    def test_generated_owner_cannot_be_relabeled_standalone(self):
-        self.skills['product']['maintenance'] = 'standalone'
-        self.save()
-        with self.assertRaisesRegex(ValueError, 'no generated catalog owner'):
-            catalog.load(self.root)
+    def test_name_must_match_directory(self):
+        (self.cli / 'skill.json').write_text(json.dumps({'name': 'other', 'description': 'd', 'requires': [],
+                                                        'docs': [], 'tools': None}))
+        with self.assertRaisesRegex(catalog.CatalogError, 'differs from the directory name'):
+            catalog.build(self.root, version='v1')
 
-    def test_manual_skill_cannot_claim_generation_without_manifest(self):
-        self.skills['utility'].update(maintenance='generated', source_repos=['cli'],
-                                     edit='https://github.com/example/cli/tree/main/docs')
-        self.save()
-        with self.assertRaisesRegex(ValueError, 'generated SKILL.md'):
-            catalog.load(self.root)
+    def test_renamed_is_required_and_must_be_a_mapping(self):
+        (self.root / 'renamed.json').unlink()
+        with self.assertRaisesRegex(catalog.CatalogError, 'renamed.json is missing'):
+            catalog.build(self.root, version='v1')
+        (self.root / 'renamed.json').write_text('[]')
+        with self.assertRaisesRegex(catalog.CatalogError, 'must map'):
+            catalog.build(self.root, version='v1')
 
-    def test_manual_product_requires_docs(self):
-        self.skills['utility']['maintenance'] = 'manual-product'
-        self.save()
-        with self.assertRaisesRegex(ValueError, 'paired review'):
-            catalog.load(self.root)
-
-    def test_unknown_overlap_and_missing_discovery(self):
-        self.skills['utility']['overlaps'] = ['missing']
-        self.save()
-        with self.assertRaisesRegex(ValueError, 'unknown or self overlap'):
-            catalog.load(self.root)
-        self.skills['utility']['overlaps'] = []
-        self.save()
-        (self.root / 'README.md').write_text('[skill](./product/SKILL.md)')
-        with self.assertRaisesRegex(ValueError, 'README discovery'):
-            catalog.load(self.root)
+    def test_main(self):
+        self.assertEqual(catalog.main(['--root', str(self.root), '--check']), 1)
+        self.assertEqual(catalog.main(['--root', str(self.root), '--version', 'v9']), 0)
+        self.assertEqual(json.loads((self.root / 'catalog.json').read_text())['version'], 'v9')
+        self.assertEqual(catalog.main(['--root', str(self.root), '--check']), 0)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,11 @@
+{
+  "dreamlake-artifact-authoring": "dreamlake-artifacts",
+  "dreamlake-dataset-viz": "dreamlake-datasets",
+  "dreamlake-envs": "dreamlake-scenes",
+  "dreamlake-note-references": "dreamlake-notes",
+  "dreamlake-scene-generation": "dreamlake-scenes",
+  "dreamlake-source": "dreamlake-datasets",
+  "remote-source-check": "dreamlake-datasets",
+  "workflow-generator": "dreamlake-workflows",
+  "workflow-publish": "dreamlake-workflows"
+}

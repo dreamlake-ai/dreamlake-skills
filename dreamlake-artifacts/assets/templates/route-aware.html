@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- kind: html — query/fragment state through window.dreamlake.route.
+     Route data is public, user-controlled state: never a secret. Use
+     route.navigate (not location.search) so the iframe is not reloaded. -->
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font: 16px/1.6 system-ui, sans-serif; padding: 1rem; }
+  @media (prefers-color-scheme: dark) { body { background: #0b0b0c; color: #e5e5e5; } }
+</style>
+</head>
+<body>
+  <div id="slide"></div>
+  <button id="next">Next slide</button>
+  <script>
+    const route = window.dreamlake.route;
+    function render() {
+      const params = new URLSearchParams(route.search);
+      document.getElementById('slide').textContent = params.get('slide') || '1';
+    }
+    const unsubscribe = route.subscribe(render);
+    render();
+    document.getElementById('next').onclick = async () => {
+      const params = new URLSearchParams(route.search);
+      params.set('slide', String((Number(params.get('slide')) || 1) + 1));
+      await route.navigate({ search: params.toString(), hash: '#overview' });
+    };
+  </script>
+</body>
+</html>

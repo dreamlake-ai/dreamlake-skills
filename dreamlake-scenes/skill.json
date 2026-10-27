@@ -1,0 +1,17 @@
+{
+  "name": "dreamlake-scenes",
+  "description": "Build, validate and publish MuJoCo (MJCF) and URDF scenes on DreamLake: source and measure assets, derive placements, author the base scene, compose layered stacks, validate physics per body, package, push, preview, pull back byte-identical, version, delete and restore.",
+  "requires": ["dreamlake-cli"],
+  "docs": [
+    "https://docs.dreamlake.ai/scene-generation",
+    "https://docs.dreamlake.ai/scene-generation/quickstart",
+    "https://docs.dreamlake.ai/scenes",
+    "https://docs.dreamlake.ai/scenes/layers",
+    "https://cli.dreamlake.ai/scenes",
+    "https://cli.dreamlake.ai/projects"
+  ],
+  "tools": {
+    "python": ">=3.10",
+    "packages": ["mujoco>=3.2", "numpy", "pytest"]
+  }
+}

@@ -6,15 +6,20 @@ note ID for future commands and browser links.
 ```bash
 dreamlake notes create "Design Doc" --text "# Design Doc\n"
 dreamlake notes create "Design Doc" --summary "Decision and open questions"
+dreamlake notes create "Design Doc" --file draft.md --project my-project   # file at creation (CLI 0.45.1+)
 ```
 
-Notes are private by default. Add `--public` only when the request explicitly
-asks for a public note. For larger body content, use `--file draft.md`. The
-optional `--summary` is limited to 4,000 characters and remains independent of
-the collaborative body. See the [Notes reference](../reference/notes.md#create-and-list).
+Add `--public` only when the request explicitly asks for a public note
+(visibility default: [quick start](../reference/cli-notes-getting-started.md#quick-start)).
+For larger body content, use `--file draft.md`. The optional `--summary`
+remains independent of the collaborative body (length limit:
+[Note summaries](../reference/docs-notes.md#note-summaries)).
+`--project SLUG` is repeatable and absent in CLI 0.44.3
+and earlier; see [move](move.md) for filing rules. See
+[create and list](../reference/docs-notes.md#create-and-list).
 
 To give a namespace a profile introduction, title the note with the namespace
 slug and add `--public` only when the user asked for it to be shown publicly.
 Confirm the returned slug equals the namespace slug; an existing note with that
 slug makes the new one receive a suffix, so make that note public instead. See
-[Profile introduction](../reference/notes.md#profile-introduction).
+[profile introduction](../reference/docs-notes.md#profile-introduction).

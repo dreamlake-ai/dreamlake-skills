@@ -1,0 +1,13 @@
+{
+  "name": "dreamlake-annotations",
+  "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
+  "requires": [],
+  "docs": [
+    "https://docs.dreamlake.ai/annotations",
+    "https://docs.dreamlake.ai/annotations/reference",
+    "https://docs.dreamlake.ai/workspaces",
+    "https://docs.dreamlake.ai/dev/notes/project-resource-sharing",
+    "https://docs.dreamlake.ai/api/project-queries"
+  ],
+  "tools": { "python": ">=3.10", "packages": ["dreamlake", "dreamdb"] }
+}

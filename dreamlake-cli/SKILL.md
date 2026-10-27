@@ -1,38 +1,64 @@
 ---
 name: dreamlake-cli
-description: "Use the DreamLake CLI to upload and download data, manage workspace resources, Notes, artifacts, workflows, hosts, Slurm inventory, external job tracking, and Infrastructure Stack discovery and shared Terraform setup for manual operators or automation. Use for 'connect AWS to DreamLake', curated AWS worker setup, command setup and troubleshooting; use an SDK only when the task requires SDK integration or the CLI lacks the needed operation."
+description: Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows. Routes compute (hosts, machines, Lakeshore, Stacks, AWS) to dreamlake-lakeshore and artifact, note, task, scene, dataset, workflow-authoring and annotation work to their own skills.
 ---
 
 # DreamLake CLI
 
-Start with the task guide, then consult the bundled reference page for complete
-options and limits:
+This is the base skill: the CLI itself and the operations no domain skill owns.
+Compute (hosts, machines, Lakeshore, Stacks, AWS) is `dreamlake-lakeshore`.
+Pick one action; each is one task, command first and exceptions after. Domain
+work has its own skill (second table) and this skill does not repeat its steps.
 
-- [Install, authenticate, and choose an environment](actions/setup.md)
-- [Connect Lakeshore: Host enrollment, Runtime workers, and queue access](actions/lakeshore.md)
-- [Connect AWS to DreamLake with the curated starter](actions/connect-aws.md)
-- [Upload or download data](actions/data.md)
-- [Work with Notes](actions/notes.md)
-- [Upload an inline image](actions/media.md)
-- [Publish an artifact](actions/artifacts.md)
-- [Register UDFs/agents or manage workflows](actions/workflows.md)
-- [Execute one registered Python UDF (CLI 0.68.0+)](actions/registered-udf.md)
-- [Import and restore cloud configuration](actions/cloud-vault.md)
-- [Provision machines and manage their identities](actions/machines.md)
-- [Inspect hosts and Slurm jobs, or track external work](actions/hosts-jobs.md)
-- [Collaborate on Infrastructure Stacks: manual and automated setup](actions/infrastructure.md)
+## Actions
 
-For any workload or machine launch, first read the
-[launch-server requirement](actions/machines.md). Execution must use an explicitly
-user-configured launch server and its appropriate IAM role, never service IAM,
-ambient service credentials, an operator Vault IAM user or direct hosted-backend
-provider execution. Missing routing blocks new launches, not read-only inspection.
+| Request | Action |
+| --- | --- |
+| Install, log in, choose the environment; machine identity, telemetry, Nymph | [setup](actions/setup.md) |
+| Upload or download episode data; browse or upload files in a Source | [data](actions/data.md) |
+| Grant or revoke Project access; attach or detach a resource | [project-access](actions/project-access.md) |
+| Move a whole Project and its owned resources to another namespace | [projects](actions/projects.md) |
+| Transfer one Artifact, Env/Scene, Annotation, Pipeline or Source | [ownership](actions/ownership.md) |
+| Link a Note or Artifact write to the agent's session; upload a conversation | [session-links](actions/session-links.md) |
+| Import or restore cloud configuration; Terraform state snapshots in Vault | [cloud-vault](actions/cloud-vault.md) |
+| Register UDF or agent definitions from `.dreamrc` | [runnable-register](actions/runnable-register.md) |
+| Execute one registered Python UDF on an owned host | [registered-udf](actions/registered-udf.md) |
+| Push or list a workflow spec | [workflows](actions/workflows.md) |
 
-Run `dreamlake <command> --help` for command-specific syntax. The bundled
-`reference/` directory remains the complete generated CLI documentation.
-Prefer plain text for people and agents; use `--json` when a program needs
-structured output. Python and TypeScript APIs are appropriate for explicit SDK
-integration or a documented CLI capability gap.
+## Domain skills (install by name)
 
-The source map and action guides are maintained with CLI docs. Public sync
-records the source commit, generator and guide hashes.
+| Task | Skill |
+| --- | --- |
+| Lakeshore, hosts, terminal sessions, Slurm and external jobs, machines, Infrastructure Stacks, AWS | `dreamlake-lakeshore` |
+| Publish, version, share, restore artifacts | `dreamlake-artifacts` |
+| Read, edit, version, attach, inline images, references, transfer a Note | `dreamlake-notes` |
+| Task folders, subtasks, progress, events, linked Notes | `dreamlake-tasks` |
+| Scenes, MJCF/URDF packaging, asset libraries | `dreamlake-scenes` |
+| Robot datasets, Source connection and path checks, `.dreamrc` | `dreamlake-datasets` |
+| Author, validate and publish WorkflowSpecs | `dreamlake-workflows` |
+| Annotations through the Python SDK | `dreamlake-annotations` |
+
+## Launch-server requirement
+
+Any workload or machine launch must go through an explicitly user-configured
+launch server, never service IAM or direct provider execution from the hosted
+backend; the rule and its evidence standard are the `machines` action of
+`dreamlake-lakeshore`.
+
+## Conventions
+
+- Run `dreamlake <command> --help` for syntax; actions do not restate flags.
+- Plain text is for people and agents; add `--json` only when a program parses the output.
+- Check the installed `dreamlake --version` against each action's version floor. A
+  merged change, updated docs or an installed skill does not prove that the
+  executable or the server supports a command.
+- Use the Python or TypeScript SDK only for explicit SDK integration or a documented
+  CLI capability gap.
+
+## Canonical source
+
+Product facts live on the documentation sites, not in this skill: cli.dreamlake.ai
+(commands), docs.dreamlake.ai (product) and viz.dreamlake.ai (visualization). Every
+page is fetchable as Markdown at `<page-url>.md`, and each site's full corpus is at
+`<site>/llms-full.txt`. `reference/` holds the pages listed in `skill.json` `docs[]`,
+fetched by CI as `reference/cli-<slug>.md`; do not edit them.

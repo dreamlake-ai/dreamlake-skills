@@ -1,0 +1,33 @@
+# dreamlake.yml — optional curation for a DreamLake asset library.
+# Every key is optional: keep only what you need. Paths are relative to the
+# library root. This is a normal source file, pushed and pulled with the tree.
+library: # catalog identity
+  title: My Props
+  description: "…"
+  provider: "…"
+  homepage: https://…
+  license: CC-BY-4.0 # library default, per-asset overridable
+  tags: [kitchen, props]
+  upstream: { repo: "https://…", commit: "…" }
+discover: # override discovery (globs, * and **)
+  assets: ["*"]
+  exclude: ["docs/**"]
+defaults: # applied to every asset unless overridden — exactly category, license, tags; only tags merges
+  category: object
+assets: # per-asset overrides, keyed by id (= directory name)
+  mug_blue:
+    title: Classic Blue Mug
+    description: "…"
+    category: object
+    tags: [kitchen]
+    license: CC-BY-4.0
+    attribution: "© …" # required credit line for CC-BY-style
+    entry: mug_blue/model.xml
+    entryPoints:
+      scene: { kind: scene, file: mug_blue/scene.xml }
+    files: ["mug_blue/**"] # reshape which files belong (globs)
+    thumbnail: mug_blue/photo.png # your own image instead of a render
+  courtyard: # multi-file splat whose layout detection missed
+    kind: splat
+    format: sog # or: lod
+    entry: courtyard/meta.json # or: courtyard/lod-meta.json

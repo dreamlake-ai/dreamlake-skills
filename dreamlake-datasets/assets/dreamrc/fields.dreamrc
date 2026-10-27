@@ -1,0 +1,6 @@
+version: 1
+dataset:
+  format: lerobot        # lerobot | umi | mcap — or folder, with:
+  episodes: auto         # folder uses a glob instead: "episodes/*/"
+views:
+  - view: fields         # prints every field with dtype, shape and names
