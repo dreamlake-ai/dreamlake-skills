@@ -5,11 +5,12 @@ went. They were attached to the migration PR and ticked line by line; nothing
 here is read by the tooling. The authoritative layout and rules are in
 [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
-## The 13 skills
+## The 14 skills
 
 | Skill | Table | Requires |
 |---|---|---|
 | `dreamlake-cli` | [dreamlake-cli.md](dreamlake-cli.md) | — |
+| `dreamlake-lakeshore` | [dreamlake-lakeshore.md](dreamlake-lakeshore.md) | `dreamlake-cli` |
 | `dreamlake-notes` | [dreamlake-notes.md](dreamlake-notes.md) | `dreamlake-cli` |
 | `dreamlake-tasks` | [dreamlake-tasks.md](dreamlake-tasks.md) | `dreamlake-cli` |
 | `dreamlake-artifacts` | [dreamlake-artifacts.md](dreamlake-artifacts.md) | `dreamlake-cli` |
@@ -38,6 +39,12 @@ separate). The reasons, from the tables:
 | `sim-to-mcap` | fold into `dreamlake-datasets` | Rolling a trained policy out in a local simulator and writing MCAP is a distinct user goal that an RL/sim user installs on its own. It requires `dreamlake-datasets` and hands off by name to that skill's `upload`, `connect`, `dreamrc` and `validate` actions. |
 | `video-labeling-workflow` | fold into `dreamlake-workflows` | The procedure is four distinct user-facing steps (~14 KB of prose) with confirmation gates, plus an 11 KB measured template; it is a product demo a user installs on its own. It requires `dreamlake-workflows` (publish) and `dreamlake-datasets` (the `check` action). |
 
+## Split during integration
+
+| Skill | Split from | Why |
+|---|---|---|
+| `dreamlake-lakeshore` | `dreamlake-cli` | After the merge `dreamlake-cli` was 74.6 KB hand-written in 15 actions, past both soft caps; the compute loop (Lakeshore connection, hosts and terminal sessions, Slurm and external jobs, machines, Infrastructure Stacks, AWS) is a distinct goal, so its five actions moved out (with `hosts-jobs` split into `hosts` and `jobs`), leaving `dreamlake-cli` at 10 actions / ~35 KB. |
+
 ## Retired names
 
 [`renamed.json`](../../renamed.json) carries these nine mappings; the CLI
@@ -57,4 +64,5 @@ prints the new name when an old one is installed.
 
 `dreamlake-tasks`, `dreamlake-libraries`, `sim-to-mcap`,
 `video-labeling-workflow`, `dreamlake-annotations`, `launch-claude-remote` and
-`launch-codex-chat` keep their names and are not in `renamed.json`.
+`launch-codex-chat` keep their names, `dreamlake-lakeshore` is new, and none
+of them is in `renamed.json`.

@@ -11,11 +11,14 @@ package; the integrator must confirm the destination carries it.
   its notes/artifacts/media actions, and the Tasks sources add 21 KB and seven
   more one-task actions (merge-caution rule 2b/4). Mapping: `_migration/dreamlake-tasks.md`.
   `renamed.json`/`catalog.json` need no `dreamlake-tasks` rename entry.
-- `dreamlake-cli` now has 15 actions (13 before, minus `artifacts`, `notes`,
+- `dreamlake-cli` had 15 actions after S2 (13 before, minus `artifacts`, `notes`,
   `media`; plus `project-access`, `projects`, `ownership`, `session-links`,
-  `runnable-register`). Hand-written size ~68 KB. `hosts-jobs.md` remains one
-  file covering hosts, terminal sessions, Slurm and external tracking; it is a
-  candidate for a later split but was not restructured here.
+  `runnable-register`), 74.6 KB hand-written: past both soft caps (50 KB, 12
+  actions). **Integration split:** `lakeshore`, `machines`, `infrastructure`,
+  `connect-aws` and `hosts-jobs` moved to the new skill `dreamlake-lakeshore`
+  (requires `dreamlake-cli`), and `hosts-jobs.md` was split there into
+  `hosts.md` and `jobs.md`. `dreamlake-cli` keeps 10 actions (~35 KB); see
+  [dreamlake-lakeshore.md](dreamlake-lakeshore.md) for the moved rows.
 - `actions/media.md` was dropped as a byte-identical duplicate of
   `dreamlake-notes/actions/media.md`; SKILL.md routes inline images to `dreamlake-notes`.
 - `actions/artifacts.md` was deleted (brief allowed pointer-or-delete); its
@@ -100,22 +103,24 @@ package; the integrator must confirm the destination carries it.
 
 | Source section | Destination |
 | --- | --- |
-| Whole files | same path, text unchanged; `../reference/X.md` → `../reference/cli-X.md`; `[Notes](notes.md)` / `[Notes guide](notes.md)` → "the `dreamlake-notes` skill" (connect-aws, infrastructure) |
+| `cloud-vault.md`, `registered-udf.md` (whole files) | same path, text unchanged; `../reference/X.md` → `../reference/cli-X.md` |
+| `connect-aws.md`, `machines.md`, `infrastructure.md` (whole files) | `dreamlake-lakeshore/actions/<same name>.md` (integration split), text unchanged except `[setup](setup.md)` → "the `setup` action of `dreamlake-cli`"; `[Notes](notes.md)` / `[Notes guide](notes.md)` → "the `dreamlake-notes` skill" (connect-aws, infrastructure) |
 
 ## Source: `actions/lakeshore.md`
 
 | Source section | Destination |
 | --- | --- |
-| Fabric / Runtime / Queue mount / Shared connection sections | `actions/lakeshore.md`, unchanged; links → `cli-host-enrollment`, `cli-queues` |
-| Last paragraph "fix authoritative docs first, generate skills, and verify freshness" | `actions/lakeshore.md`, reworded to "fix the authoritative docs page first, then this skill's action, and verify the installed copy" (old generator retired by RFC §6/§10); rest of paragraph unchanged |
+| Fabric / Runtime / Queue mount / Shared connection sections | `dreamlake-lakeshore/actions/lakeshore.md` (integration split), unchanged; links → `cli-host-enrollment`, `cli-queues`; `[setup](setup.md)` → "the `setup` action of `dreamlake-cli`" |
+| Last paragraph "fix authoritative docs first, generate skills, and verify freshness" | `dreamlake-lakeshore/actions/lakeshore.md`, reworded to "fix the authoritative docs page first, then this skill's action, and verify the installed copy" (old generator retired by RFC §6/§10); rest of paragraph unchanged |
 
 ## Source: `actions/hosts-jobs.md`
 
 | Source section | Destination |
 | --- | --- |
-| All sections through "Track externally launched work" | `actions/hosts-jobs.md`, unchanged; links → `cli-host-enrollment`, `cli-jobs`, `cli-queues`, `cli-skills`, `cli-sessions`, `cli-runs` |
-| "This route does not replace [uploads], [Notes], [artifact publication], [workflow management]" | same paragraph; Notes/artifacts now named as skills |
-| Final paragraph: conversation upload 0.79.0+, contributing-session row, "Check connection again", host keeps native state | `actions/session-links.md` §Upload a conversation export; `hosts-jobs.md` ends with a one-line pointer |
+| Intro, operation table, connection and power commands, inspect the intended host (terminal sessions), catalog visibility | `dreamlake-lakeshore/actions/hosts.md` (integration split), unchanged; links → `cli-host-enrollment`, `cli-skills`, `cli-sessions`, `cli-runs`; the Slurm and external-tracking table rows point at `jobs.md` |
+| "Read Slurm scheduler jobs", "Track externally launched work" | `dreamlake-lakeshore/actions/jobs.md` (integration split), unchanged plus a short intro; links → `cli-jobs`, `cli-queues`, `cli-runs` |
+| "This route does not replace [uploads], [Notes], [artifact publication], [workflow management]" | `dreamlake-lakeshore/actions/jobs.md`, same paragraph; uploads and workflow push now named as `dreamlake-cli` actions, Notes/artifacts as skills |
+| Final paragraph: conversation upload 0.79.0+, contributing-session row, "Check connection again", host keeps native state | `actions/session-links.md` §Upload a conversation export; `dreamlake-lakeshore/actions/hosts.md` ends with a one-line pointer to that action by name |
 
 ## Source: `dreamlake-cli/reference/*.md` (69 generated files)
 
