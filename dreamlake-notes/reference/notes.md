@@ -1425,6 +1425,12 @@ concurrent edits. Add CLI `--exact` or Python `exact=True` to require that the
 original revision is still current. A stale exact request requires review;
 never replace its baseline with a fresh revision merely to make it pass.
 
+**Unreleased server fix:** merge mode refuses, with HTTP 412 `stale` and no
+write, any patch that overlaps a change made after its baseline, including
+text appended at the same end of the note. Disjoint edits still merge. The
+CLI's bundled `notes-editing` reference ("Overlapping concurrent changes")
+gives the exact rule and recovery.
+
 Python's default append returns a `PatchReceipt`; CLI `--json` returns its
 revision and hash. Read back that acknowledged revision before claiming the
 intended result. If a write outcome is unknown, reconcile it before resubmitting.
