@@ -154,20 +154,23 @@ worked example.
 
 ## Acceptance before merge
 
-1. Install the branch's copy of the skill and everything in its `requires`
-   into a temporary project for both agents. The CLI installs its released
-   bundle, so copy the working tree:
+1. Install the **branch working tree's** copy of the skill and its whole
+   `requires` closure (transitive: a required skill's own `requires` come
+   too) into a temporary project for both agents. Never use
+   `dreamlake skill install` for this step: it installs the released bundle,
+   so it would test the old version. Resolve the closure from `catalog.json`
+   (run `python3 scripts/catalog.py` first if `skill.json` changed):
 
    ```bash
+   closure=$(python3 -c 'import json,sys;c=json.load(open("catalog.json"))["skills"];s=set();q=[sys.argv[1]]
+   while q: n=q.pop(); s.add(n); q+=[r for r in c[n]["requires"] if r not in s]
+   print(" ".join(sorted(s)))' <name>)
    tmp="$(mktemp -d)"; mkdir -p "$tmp/.claude/skills" "$tmp/.agents/skills"
-   for s in <name> $(python3 -c "import json; print(' '.join(json.load(open('<name>/skill.json'))['requires']))"); do
-     cp -R "$s" "$tmp/.claude/skills/" && cp -R "$s" "$tmp/.agents/skills/"
-   done
+   for s in $closure; do cp -R "$s" "$tmp/.claude/skills/" && cp -R "$s" "$tmp/.agents/skills/"; done
    ```
 
-   After the release, `dreamlake skill install <name> --agent claude --dir "$tmp"`
-   and `dreamlake skill install <name> --agent codex --dir "$tmp"` re-check the
-   released copy.
+   Only after the release does `dreamlake skill install <name> --agent claude --dir "$tmp"`
+   (and `--agent codex`) re-check what users actually get.
 2. Open the installed `SKILL.md` and read it back word for word.
 3. Start Claude Code and Codex in `$tmp` and run three requests each: a
    representative task; an SDK-only request; a capability the skill does not
