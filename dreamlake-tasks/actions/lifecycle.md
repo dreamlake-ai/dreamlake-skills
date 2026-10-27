@@ -14,8 +14,8 @@ dreamlake tasks status set vault/entries/write-recovery --status done --at '2026
 - `end` alone does not imply done; `done` does not imply acceptance. If the work
   ends unsuccessfully, log context and leave status `not_done`. End may be known
   with unknown start, and a known end cannot precede a known start.
-- Progress is an absolute `{mode, completed, total?, unit}` snapshot. Omitting
-  `--total` makes the total unknown, including when a previous total was known.
+- Progress is an absolute `{mode, completed, total?, unit}` snapshot; what an
+  omitted `--total` means is in [floating-point progress](../reference/cli-tasks.md#floating-point-progress).
   Mode and unit stay fixed until reopen; use a separate task or an explicitly
   designed reset to change them. No mixed-unit or recursive numeric rollup is implied.
 - Reuse an event ID only when replaying precisely the same update; each new

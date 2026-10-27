@@ -55,9 +55,9 @@ action capabilities allow. Project ADMIN, Source EDIT and creator attribution ar
 not transfer authority. `--accept-if-authorized` verifies destination authority
 before submitting and never accepts for another recipient; `--accept-if-owner` is
 a compatibility alias. The wait is bounded (bound and `--wait-timeout`:
-[accept, then wait](../reference/cli-projects.md#accept-only-with-verified-destination-namespace-authority-then-wait-a-bounded-time));
+[accept, then wait](../reference/cli-projects.md#move-a-whole-project-and-its-supported-resources));
 a timeout is neither cancellation nor success. Acceptance expiry:
-[ownership](../reference/cli-ownership.md#source-requires-its-own-enabled-metadata-only-capability).
+[ownership](../reference/cli-ownership.md#transfer-an-individual-resource).
 
 ## Streaming protocol (CLI 0.70.0+)
 
@@ -71,7 +71,7 @@ preserve policy and idempotency key; saved policies and keys cannot be overridde
 on replay, and a stale or blocked preview needs a new review, not a rebuilt
 request. The root Project name stays unchanged; repeatable
 `--rename-note NOTE_ID=SLUG` mappings (bounded in count:
-[ownership](../reference/cli-ownership.md#resume-that-existing-operation-only-pending-requests-still-need-recipient-acceptance)) are hash-bound,
+[ownership](../reference/cli-ownership.md#streaming-project-transfer--cli-070)) are hash-bound,
 IDs outside the Project closure are rejected and collisions block instead of
 renaming implicitly. `--preserve-access` and `--preserve-external-filings` are the
 defaults; the latter refuses confirmation while any Note or other external

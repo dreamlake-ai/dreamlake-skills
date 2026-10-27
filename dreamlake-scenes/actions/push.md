@@ -12,11 +12,10 @@ Only push after the staged directory passed [package](package.md) and
 [validate](validate.md) checks **and the user asked to publish**. Flags
 (`--entry`, `--type`, `--visibility`, `--share`, `--thumbnail`, …):
 `dreamlake scene push --help` and [Push a version](../reference/cli-scenes.md#push-a-version).
-`--visibility public` opens the viewer without login
-(defaults: [Visibility](../reference/cli-scenes.md#visibility)),
-`--share` mints a `?share=` link; `--type isaaclab` is stored and pullable
-but only `mujoco` and `urdf` have viewers; `--thumbnail` is covered in
-[thumbnail](thumbnail.md).
+Which `--type` values have a viewer and what `--visibility` and `--share`
+change: [Push a version](../reference/cli-scenes.md#push-a-version) and
+[Visibility](../reference/cli-scenes.md#visibility); `--thumbnail` is covered
+in [thumbnail](thumbnail.md).
 
 ## Entry auto-detection
 

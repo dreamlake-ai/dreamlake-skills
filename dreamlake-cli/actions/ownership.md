@@ -35,7 +35,7 @@ Request format and the `ownership preview`, `create`, `accept`, `reject`,
   provider work or credentials.
 - A source-namespace actor requests and an authorized destination actor accepts
   (inbox, or `ownership accept`; expiry:
-  [ownership](../reference/cli-ownership.md#source-requires-its-own-enabled-metadata-only-capability)). Personal
+  [ownership](../reference/cli-ownership.md#transfer-an-individual-resource)). Personal
   namespaces need their own actor; active organization members use the server's
   current action capabilities. `--accept-if-authorized --wait` verifies
   destination authority first; `--accept-if-owner` is a compatibility alias; a

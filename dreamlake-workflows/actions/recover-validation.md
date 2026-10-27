@@ -30,7 +30,8 @@ picker on the page can pin an older successful version.
 
 ## Notes
 
-- `--name <name>` overrides the spec's own `name` field.
+- Where the workflow name comes from and how `--name` interacts with the
+  spec's `name` field: [Pushing a spec](../reference/cli-workflows.md#pushing-a-spec).
 - A run's DATASET lands in the workflow's namespace, beside the workflow. It
   used to follow the caller's token instead, so a workflow published to an org
   produced annotations in the personal namespace of whoever pressed Run — findable

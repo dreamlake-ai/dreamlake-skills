@@ -32,7 +32,7 @@ with `?share=` appended when `--share` was used) — hand it to the user.
   snippet). The kind is auto-detected from the extension; override with
   `--kind` when detection is wrong or the extension is unrecognised.
 - Pass `--visibility public` only when the user wants it readable without
-  login; `--share` mints a share token in the same step ([share](share.md)).
+  login; add `--share` when a share link is wanted in the same step ([share](share.md)).
   Defaults: [Visibility and sharing](../reference/cli-artifacts.md#visibility-and-sharing).
 
 ## Incremental uploads

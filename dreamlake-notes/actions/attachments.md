@@ -17,9 +17,10 @@ dreamlake notes files preview report.html --note "$NOTE_ID" --open
 ```
 
 Uploads and downloads preserve bytes. `cat` is for text and refuses binary
-content. `rm` moves a file to trash; restore with its file ID. `--share` creates
-a non-expiring public preview link, while `--revoke` withdraws all copies. Minting
-requires the note's sharing permission; withdrawing requires edit permission.
+content. `rm` moves a file to trash; restore with its file ID. Public preview
+links are minted with `--share` and withdrawn with `--revoke` (lifetime and
+scope: [preview and share](../reference/cli-notes-attachments.md#preview-and-share)).
+Minting requires the note's sharing permission; withdrawing requires edit permission.
 Repeated minting keeps the existing link. Do not mint public links merely to work
 around a denied signed-in read. The transactional sharing implementation is
 included in the verified API release. Isolated tests cover lost authority,
