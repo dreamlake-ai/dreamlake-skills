@@ -1,0 +1,72 @@
+# Read the catalog and visualize
+
+## Public catalog reads
+
+`GET /namespaces/:slug/annotations` accepts requests without an Authorization
+header. Anonymous callers and authenticated nonmembers receive only live public
+annotation rows; namespace members retain access to their private rows. A supplied
+invalid or expired token returns 401.
+
+Public annotation details (`GET /namespaces/:slug/annotations/:name`) and
+content reads (`POST /namespaces/:slug/annotations/:name/presign-read`) also accept
+anonymous requests. Both check the annotation's current visibility. Private,
+missing and deleted annotations return 404 to callers without access; namespace
+members can still read their private annotations. Presigned reads retain the
+existing path validation and expiry limits. Upload credentials, creation,
+editing and deletion still require authentication and membership.
+
+## Browsing in the app
+
+`/<namespace>/profile?tab=annotations` and `/<namespace>/annotations` share the
+same catalog. Personal owners and organization members see the resources and
+operations permitted to them; anonymous visitors and visitors to someone else's
+namespace see public annotations only. Profile has an identity rail, while the
+application has resource navigation for the URL's namespace.
+
+Public details open without a sign-in redirect and retain the namespace sidebar.
+The detail header returns anonymous readers to the Profile annotations tab and
+signed-in readers to `/<namespace>/annotations`. Embedded viewers return to their
+containing project. See [reference/docs-workspaces.md](../reference/docs-workspaces.md); the owning guide is
+[reference/docs-annotations.md](../reference/docs-annotations.md).
+
+## Visualize
+
+Preset annotations: web app → **Annotations** → name (full viz).
+Custom-schema annotations: catalog entry today (generic track browser on
+the roadmap) — read back through the SDK. Local preset backend:
+
+```bash
+npx http-server /abs/path -p 8791 --cors
+# open <app>/annotation-debug?space=http://localhost:8791/refs/main
+```
+
+## Project-derived access
+
+The backend and Web update are released. CLI Project attachment commands require
+0.62.0 or later; Python Project support requires SDK 0.29.0 or later. Check
+installed versions separately from server support.
+
+The released Project-sharing backend adds authenticated explicit Project grants to
+Annotation content access: READ permits content reads; WRITE/ADMIN permit
+supported uploads. Project visibility alone does not open private content.
+Independent resource access remains valid after detachment or grant revocation.
+Catalog/schema management, deletion and ownership remain separately authorized.
+Project-only uploads require resource-scoped temporary credentials; static
+custom-S3 identities or an unscoped fallback return
+`DELEGATED_UPLOAD_UNSUPPORTED` (403). Do not retry a denial as namespace access.
+See [reference/docs-dev-notes-project-resource-sharing.md](../reference/docs-dev-notes-project-resource-sharing.md).
+
+For a new Project attachment, require independent resource sharing-management
+authority and actual Project WRITE/ADMIN; ordinary organization-member READ or
+public Project visibility is insufficient. Grouping an already-live attachment
+into a Bindr of that same Project needs Project write authority and resource
+readability, without sharing it again. Use the server's current `canBind` result,
+not a role guessed from membership. See
+[reference/docs-api-project-queries.md](../reference/docs-api-project-queries.md).
+
+## Whole-Project transfer
+
+An Annotation mount or reference still blocks the entire Project ownership
+move: route complete-Project requests to the `projects` action of
+`dreamlake-cli`, and never silently detach an Annotation, omit it from a
+manifest, or copy/delete it to report a partial move as complete.

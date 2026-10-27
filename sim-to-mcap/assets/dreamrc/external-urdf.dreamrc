@@ -1,0 +1,19 @@
+version: 1
+name: Robot rollout
+dataset:
+  format: mcap
+  episodes: auto
+views:
+  - view: recon3d
+    up: z
+    originMarker: axes
+    tracks:
+      - { field: "/tf::*", as: transform3d }
+    models:
+      - "https://huggingface.co/datasets/live9080/dreamlake-robots/resolve/main/g1/g1_29dof.urdf"
+    trail: { ahead: 1, behind: 0.5 }
+  - view: timeline
+  - view: lineChart
+    title: "/metrics"
+    series:
+      - "/metrics"

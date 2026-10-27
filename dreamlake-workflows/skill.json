@@ -1,0 +1,14 @@
+{
+  "name": "dreamlake-workflows",
+  "description": "Design a DreamLake WorkflowSpec v1 from a natural-language data-production, labeling or training goal, validate it against the bundled schema, publish it to the right namespace with the CLI, and recover from validation errors.",
+  "requires": ["dreamlake-cli"],
+  "docs": [
+    "https://docs.dreamlake.ai/workflows",
+    "https://docs.dreamlake.ai/workflows/node-types",
+    "https://docs.dreamlake.ai/workflows/agent-permissions",
+    "https://docs.dreamlake.ai/workflows/cjs-vs-python",
+    "https://docs.dreamlake.ai/api/project-queries",
+    "https://cli.dreamlake.ai/workflows"
+  ],
+  "tools": null
+}
