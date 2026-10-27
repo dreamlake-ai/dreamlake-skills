@@ -71,6 +71,40 @@ identities. EXACT instead rejects the intervening revision with exit `3` and
 zero patch writes. MERGE preserves unrelated concurrent edits; it does not
 promise that overlapping edits express either author's intended final sentence.
 
+### Overlapping concurrent changes
+
+The DreamLake server checks overlap in MERGE mode since `06fbbe65`, deployed to
+production on 2026-10-27. No CLI update is needed. Earlier servers could keep two
+replacements of the same word side by side (for example
+`browser-overlapCLI-overlap`) with exit `0`.
+
+MERGE refuses the whole patch with exit `3` (HTTP 412 `stale`,
+message `merge refused: …`) and writes nothing when a change made after your
+read overlaps any hunk. The check compares collaborative character identities,
+not text, so an identical word elsewhere in the note never matches. A hunk
+overlaps when, since your read:
+
+- a character it replaces or deletes was changed, deleted or replaced, even by
+  an identical replacement;
+- new text appeared inside its span or directly at either edge, with no
+  original character in between;
+- the character directly before or after the span was deleted; or
+- for a pure insertion, new text was inserted at the same position, or a
+  neighbouring character was deleted.
+
+Adjacent edits are treated as overlapping on purpose: replacing `shared` in
+`shared baseline` still merges with a concurrent edit to `baseline`, because the
+original space between them is unchanged, but not with text typed directly
+against `shared`. Two concurrent appends at the end of a note also conflict.
+Disjoint hunks continue to merge, and EXACT is unchanged.
+
+The server checks and commits against the same revision, so a change that lands
+in between is never written over: the server re-checks the same original intent
+at most three times, then refuses with `merge refused: the note kept changing`.
+On a refusal, keep your original baseline and draft, read the note, review the
+concurrent change and reconcile. Never use `--force` or substitute a newer
+baseline for the old patch.
+
 Both modes validate against the retained original snapshot. Missing snapshots,
 invalid ranges, and mismatched old text are errors. There is no fuzzy matching
 against the latest source and no automatic baseline refresh.
@@ -148,7 +182,7 @@ interactive stdin is refused. Patches are limited to 8,000,000 UTF-8 bytes.
 | Exit | Meaning | Next action |
 | --- | --- | --- |
 | `1` | Invalid options, authentication, transport, missing baseline, or a proven unsubmitted patch | Read the diagnostic; retain your files |
-| `3` | Stale EXACT/read precondition or invalid original identities | Inspect current state and review the edit |
+| `3` | Stale EXACT/read precondition, invalid original identities, or a MERGE overlap refusal | Inspect current state and review the edit |
 | `4` | RTC acknowledgment unavailable; outcome may be ambiguous | Read resulting state before deciding whether to resubmit |
 | `5` | Patch rejected against its original snapshot | Correct the patch using that source |
 

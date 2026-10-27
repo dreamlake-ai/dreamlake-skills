@@ -26,6 +26,10 @@ The detail header returns anonymous readers to `/<namespace>/profile?tab=scenes`
 and signed-in readers to `/<namespace>/scenes`. Details opened inside a project
 retain their return-to-project action. There is no extra sign-in navigation bar.
 
+In the development UI, project and bindr grids reuse a scene's saved thumbnail.
+Scenes without a saved thumbnail keep their type icon until a member opens the
+viewer to capture one or supplies a cover (see [Thumbnails](#thumbnails)).
+
 ## Generate with chat
 
 Members can also create and edit scenes from the browser, by prompting an
