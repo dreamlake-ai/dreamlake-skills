@@ -15,6 +15,10 @@ from pathlib import Path
 
 import pytest
 
+# The tools import mujoco; without it every test would fail on import, so skip
+# the whole module (CI runs plain pytest without the simulator installed).
+pytest.importorskip("mujoco")
+
 TOOLS = Path(__file__).parent
 
 # A composed-style scene: colon-prefixed names exactly as `Attach` layers
