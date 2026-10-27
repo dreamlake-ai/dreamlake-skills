@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "9b5411b",
+  "version": "74bdffd",
   "skills": {
     "dreamlake-annotations": {
       "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
@@ -23,10 +23,10 @@
       "files": 14
     },
     "dreamlake-cli": {
-      "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, hosts, Slurm, machines, infrastructure, Lakeshore, AWS and UDFs; routes domain work to other skills.",
+      "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows; routes compute and domain work elsewhere.",
       "requires": [],
       "tools": null,
-      "files": 17
+      "files": 12
     },
     "dreamlake-datasets": {
       "description": "Get a robot dataset reachable and rendered in DreamLake: lay out the files, upload or link them as a Source, prove the paths a workflow will read, and write the .dreamrc that binds fields to views, including MuJoCo/URDF sim playback.",
@@ -35,6 +35,14 @@
       ],
       "tools": null,
       "files": 14
+    },
+    "dreamlake-lakeshore": {
+      "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and externally launched jobs, provision machines through a user-configured launch server, manage Infrastructure Stacks, and connect AWS.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 8
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",

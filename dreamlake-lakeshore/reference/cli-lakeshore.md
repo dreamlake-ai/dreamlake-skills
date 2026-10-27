@@ -118,5 +118,5 @@ messages name the verb rather than saying "forbidden".
 These five verbs manage the **row in DreamLake**. Standing up the
 infrastructure the row describes — scaffolding terraform, resolving the
 decisions, planning, applying, and putting a daemon on the result — is the
-[provider lifecycle](cli-provider-lifecycle.md), and it is designed to be driven by
+[provider lifecycle](https://cli.dreamlake.ai/provider-lifecycle), and it is designed to be driven by
 an agent.

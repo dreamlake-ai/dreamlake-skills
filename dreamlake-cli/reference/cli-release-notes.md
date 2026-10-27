@@ -126,7 +126,7 @@ entries.
 visibility using an exact Host ID, request ID and expected revision. Archive is
 reversible and preserves runtime, credentials, reserved names and history.
 Permanent deletion and runtime retirement are not supported. Requires the
-matching backend catalog API. See [Host enrollment](cli-host-enrollment.md).
+matching backend catalog API. See [Host enrollment](https://cli.dreamlake.ai/host-enrollment).
 
 ## 0.64.0 — Artifact and Env in whole-Project transfers
 
@@ -174,7 +174,7 @@ The bundled skill routes “connect AWS to DreamLake” to a first-time setup gu
 and a reviewed, checksum-verifiable starter download. It reuses the existing
 AWS Terraform template, separates infrastructure from enrollment and worker
 readiness, and provides a basic tools image with reusable Docker/Kubernetes
-SDK profiles and a reconnectable smoke command. See [Connect AWS](cli-connect-aws.md).
+SDK profiles and a reconnectable smoke command. See [Connect AWS](https://cli.dreamlake.ai/connect-aws).
 
 The source recipes repository remains private; only explicitly selected, reviewed
 files are distributed publicly. Local configuration, keys, tokens, Terraform state
@@ -210,7 +210,7 @@ with the same authorization, identity and verified-online checks as Linux.
 Retries preserve the key and avoid restarting an unchanged healthy agent.
 macOS requires Python 3, OpenSSL Ed25519 support and an active graphical login;
 Homebrew paths are included for `uv`. No SSH server, sudo or system daemon is
-used. See [Host enrollment](cli-host-enrollment.md#macos-prerequisites-and-service-lifecycle)
+used. See [Host enrollment](https://cli.dreamlake.ai/host-enrollment#macos-prerequisites-and-service-lifecycle)
 for prerequisites, recovery, session availability and validation limits.
 
 ## 0.49.0 — Personal AI AWS setup and explicit state snapshots
@@ -674,7 +674,7 @@ CLI **0.20.2** disables pooled connection reuse in the native Vault transport so
 
 Introduced `dreamlake queues mount`, `mounts`, `inspect`, `list`, `jobs`, `workers`, `token` and `unmount`, with explicit namespaces, hidden token input and Vault storage. Native artifacts and npm packages were uploaded, but this pinned source predates the Vault transport fix in 0.20.2. Native channel promotion was held. Use the combined 0.21.1 release to retain the Vault fix. Existing 0.21.0 artifacts remain unchanged.
 
-[Queue commands](cli-queues.md) · [Validation and publication history](cli-dev-notes-queue-mount-release.md).
+[Queue commands](https://cli.dreamlake.ai/queues) · [Validation and publication history](cli-dev-notes-queue-mount-release.md).
 
 ## 0.20.1 — 2026-09-15
 
@@ -690,7 +690,7 @@ Adds private repository setup with explicit selected credential mappings and aut
 - `dreamlake runs capabilities <namespace> --json` reports authenticated server support and limits. Host readiness is verified separately at submission.
 - Existing password verification/reservation and Task commands remain included. This release does not implement remote password mutation or enable backend private execution.
 
-[Paired CLI/Python examples](cli-runs.md) cover submission, discovery, status and cancellation. Private production activation requires the reviewed worker termination fix and fresh acceptance. Validation: 1,019 CLI tests, typecheck and the 33-page documentation build passed. All eight platform binaries built with embedded WASM checks; the native binary reports 0.20.0 with dependencies detached. A fresh isolated registry installation passed the installed binary hash, version and capability-help checks. Public native latest and npm latest/next resolve to 0.20.0. [Release and manifest](https://github.com/dreamlake-ai/dreamlake-cli/releases/tag/v0.20.0).
+[Paired CLI/Python examples](https://cli.dreamlake.ai/runs) cover submission, discovery, status and cancellation. Private production activation requires the reviewed worker termination fix and fresh acceptance. Validation: 1,019 CLI tests, typecheck and the 33-page documentation build passed. All eight platform binaries built with embedded WASM checks; the native binary reports 0.20.0 with dependencies detached. A fresh isolated registry installation passed the installed binary hash, version and capability-help checks. Public native latest and npm latest/next resolve to 0.20.0. [Release and manifest](https://github.com/dreamlake-ai/dreamlake-cli/releases/tag/v0.20.0).
 
 ## 0.19.1 — 2026-09-14
 
@@ -769,7 +769,7 @@ bindings are included. Target and jump credentials are selected separately;
 interactive saving defaults to N, quiet grants no consent, and automation uses
 explicit selections and protected descriptors. Enrollment success survives a
 saving failure; uncertain writes and saved-but-unbound entries retain recovery
-metadata. [CLI/Python examples](cli-host-enrollment.md#save-selected-credentials-after-enrollment).
+metadata. [CLI/Python examples](https://cli.dreamlake.ai/host-enrollment#save-selected-credentials-after-enrollment).
 
 Paired Python release: 0.12.0. Source implementation is merged in
 [CLI #47](https://github.com/dreamlake-ai/dreamlake-cli/pull/47),

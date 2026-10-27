@@ -37,7 +37,7 @@ the host-enrollment versus queue-mount flow decision in
 Ge review and testing are not inferred from agent verification.
 
 [Validation receipt](https://github.com/dreamlake-ai/dreamlake-workspace/issues/274#issuecomment-5677450623)
-· [Queue mount guide](cli-queues.md)
+· [Queue mount guide](https://cli.dreamlake.ai/queues)
 · [Release notes](cli-release-notes.md)
 · [Master #247](https://github.com/dreamlake-ai/dreamlake-workspace/issues/247)
 

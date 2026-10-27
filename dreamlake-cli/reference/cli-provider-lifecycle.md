@@ -8,7 +8,7 @@ service credentials, an operator Vault IAM user or direct hosted-backend provide
 execution. Verify the route before any apply or workload launch; missing routing
 blocks new provisioning while read-only inspection and existing resources remain
 available. These local CLI commands do not themselves establish that route. See
-[the launch boundary](cli-providers.md#required-launch-boundary).
+[the launch boundary](https://cli.dreamlake.ai/providers#required-launch-boundary).
 
 A **provider** is created deliberately, once, with a name a person chose.
 Everything ephemeral attaches to it: a daemon never creates a provider, it
@@ -455,7 +455,7 @@ under you.
 
 The five CRUD verbs on the provider *row* in DreamLake — `create` from a file,
 `list`, `show`, `update`, `delete` — are a different surface, documented in
-[Lakeshore resources](cli-lakeshore.md). The lifecycle verbs on this page are leaves
+[Lakeshore resources](https://cli.dreamlake.ai/lakeshore). The lifecycle verbs on this page are leaves
 on that same `provider` group; both keep working.
 
 ## AWS jump and distinct worker template (CLI 0.49.0+)

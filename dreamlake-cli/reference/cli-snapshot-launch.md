@@ -17,7 +17,7 @@ the selected queue's execution route before submitting. No control-plane/service
 IAM, ambient service credentials, operator Vault IAM user or direct hosted-backend
 provider execution may substitute for that server. If the route is unverified,
 hold new workload launches; snapshot preparation and read-only inspection may
-continue. See [the required launch boundary](cli-providers.md#required-launch-boundary).
+continue. See [the required launch boundary](https://cli.dreamlake.ai/providers#required-launch-boundary).
 This page documents command behavior, not acceptance of that architecture.
 
 ## Run here, or submit

@@ -138,7 +138,7 @@ See [Agents](cli-agents.md).
 
 ## Lakeshore resources
 
-See [Lakeshore resources](cli-lakeshore.md). Substitute `storage` or `queue-def` for
+See [Lakeshore resources](https://cli.dreamlake.ai/lakeshore). Substitute `storage` or `queue-def` for
 `provider` — the five verbs are identical.
 
 | Command | What it does |

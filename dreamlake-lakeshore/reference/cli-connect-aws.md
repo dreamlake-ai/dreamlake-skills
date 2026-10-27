@@ -59,7 +59,7 @@ dreamlake providers --help
 dreamlake hosts enroll --help
 ```
 
-See [installation](cli-installation.md) and [authentication environments](cli-environments.md)
+See [installation](https://cli.dreamlake.ai/installation) and [authentication environments](https://cli.dreamlake.ai/environments)
 if the CLI or intended personal login is missing. Machine credentials and your
 personal login are separate; do not copy a personal token onto the worker.
 
@@ -333,7 +333,7 @@ chain, not backend arguments or Terraform variables. See HashiCorp's
 Terraform's `sensitive` flag hides presentation; state and saved plans can still
 contain those values. See [sensitive state handling](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
-[Vault state tools](cli-vault-terraform-state.md) support nonsecret backend references
+[Vault state tools](https://cli.dreamlake.ai/vault-terraform-state) support nonsecret backend references
 and an optional, explicitly selected encrypted-at-rest snapshot. A snapshot is
 backup evidence, not an active backend, a Terraform lock, or proof of current
 state freshness. Never discover or upload active state automatically. Keep

@@ -443,7 +443,7 @@ DreamLake backend, with configured CLI checksums, machine audience, dedicated
 KMS key and instance profile. The provider's account/region and launch layer's
 profile ARN must match that configuration. These are release prerequisites,
 not a claim that the current hosted deployment has enabled them. See
-[machine authentication](cli-machine-auth.md) for readiness, login separation and
+[machine authentication](https://cli.dreamlake.ai/machine-auth) for readiness, login separation and
 recovery. Keep interactive human login in a separate Unix account from the
 background `dreamlake-agent` account.
 
