@@ -1,11 +1,9 @@
-# Prepare a Scene
+# Package a self-contained scene directory
 
-## 1. Extract a self-contained directory
-
-One pushed directory holds one scene. The pushed directory must contain the entry file at
-its **root** and every file the scene references **inside** the directory —
-scenes living in a larger repo usually reach outside themselves
-(`../../assets/...`), so extract first:
+One pushed directory holds one scene. The entry file sits at its **root** and
+every file the scene references lives **inside** the directory. Scenes in a
+larger repo usually reach outside themselves (`../../assets/...`), so extract
+first:
 
 ```bash
 # every path the scene pulls in — meshes, textures, includes, hfields all use file="…"
@@ -48,8 +46,25 @@ cd /tmp/scenes/my-scene && python -c \
 For a URDF, check the mesh paths instead: every `filename="…"` (relative or
 `package://…`) must resolve against the pushed directory.
 
+## Keep the directory clean
+
+The push uploads **everything** under the directory. Videos, logs,
+notebooks, `__pycache__/`, previews and render outputs do not belong in it —
+stage a clean copy rather than pushing a repo subfolder that also holds
+outputs.
+
+## Add cover framing while you are here
+
+If the scene has no `<camera name="thumbnail">`, no camera at all, and no
+`<statistic>`/`<visual><global>` framing, add it now — see
+[thumbnail](thumbnail.md). The cover shows the t=0 keyframe pose.
+
 ## Stop conditions
 
-If any `<include>`, mesh, texture, hfield, compiler directory, or URDF mesh reference cannot be resolved from the staged directory, stop and report the exact missing path. Do not push an incomplete scene.
+If any `<include>`, mesh, texture, hfield, compiler directory, or URDF mesh
+reference cannot be resolved from the staged directory, stop and report the
+exact missing path. Do not push an incomplete scene.
 
-For a prepare-only request, return the staged directory and the validation result; do not upload it. Continue to [push a scene](./push-environment.md) only when publishing was requested.
+For a prepare-only request, return the staged directory and the validation
+result; do not upload it. Continue to [push](push.md) only when publishing
+was requested.
