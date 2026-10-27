@@ -1,19 +1,139 @@
 {
   "schema": 1,
-  "version": "6a2a02d",
-  "skills": {},
+  "version": "9b5411b",
+  "skills": {
+    "dreamlake-annotations": {
+      "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
+      "requires": [],
+      "tools": {
+        "python": ">=3.10",
+        "packages": [
+          "dreamlake",
+          "dreamdb"
+        ]
+      },
+      "files": 5
+    },
+    "dreamlake-artifacts": {
+      "description": "Author content that renders inside DreamLake's isolated offline artifact frame, then publish, version, list, share, revoke, remove and restore artifacts with the CLI, and reference them from Notes.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 14
+    },
+    "dreamlake-cli": {
+      "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, hosts, Slurm, machines, infrastructure, Lakeshore, AWS and UDFs; routes domain work to other skills.",
+      "requires": [],
+      "tools": null,
+      "files": 17
+    },
+    "dreamlake-datasets": {
+      "description": "Get a robot dataset reachable and rendered in DreamLake: lay out the files, upload or link them as a Source, prove the paths a workflow will read, and write the .dreamrc that binds fields to views, including MuJoCo/URDF sim playback.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 14
+    },
+    "dreamlake-libraries": {
+      "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 8
+    },
+    "dreamlake-notes": {
+      "description": "Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create notes, set summaries, file into Projects, link list items to Notes or artifacts, transfer a standalone Note.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 14
+    },
+    "dreamlake-scenes": {
+      "description": "Build, validate and publish MuJoCo (MJCF) and URDF scenes on DreamLake: source and measure assets, derive placements, author the base scene, compose layered stacks, validate physics per body, package, push, preview, pull back byte-identical, version, delete and restore.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": {
+        "python": ">=3.10",
+        "packages": [
+          "mujoco>=3.2",
+          "numpy",
+          "pytest"
+        ]
+      },
+      "files": 17
+    },
+    "dreamlake-tasks": {
+      "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Notes for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 10
+    },
+    "dreamlake-workflows": {
+      "description": "Design a DreamLake WorkflowSpec v1 from a natural-language data-production, labeling or training goal, validate it against the bundled schema, publish it to the right namespace with the CLI, and recover from validation errors.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 11
+    },
+    "launch-claude-remote": {
+      "description": "Create a new named Claude Remote Control session with maximum permissions in a detached tmux terminal on this host, so the user can continue in their Claude app; keeps existing sessions running.",
+      "requires": [],
+      "tools": {
+        "python": ">=3.8",
+        "packages": []
+      },
+      "files": 7
+    },
+    "launch-codex-chat": {
+      "description": "Create a new named, resumable Codex chat with maximum permissions on this host's running app-server daemon, so the user can continue it in their Codex app; keeps existing sessions and daemons running.",
+      "requires": [],
+      "tools": {
+        "python": ">=3.8",
+        "packages": []
+      },
+      "files": 8
+    },
+    "sim-to-mcap": {
+      "description": "Roll a trained policy out in a local Python physics simulator and write an indexed MCAP with Foxglove /tf, /robot and /metrics channels that DreamLake plays natively, then hand the file to dreamlake-datasets.",
+      "requires": [
+        "dreamlake-datasets"
+      ],
+      "tools": {
+        "python": ">=3.10",
+        "packages": [
+          "foxglove-sdk",
+          "trimesh",
+          "numpy"
+        ]
+      },
+      "files": 10
+    },
+    "video-labeling-workflow": {
+      "description": "Create and publish the fixed DreamLake video subtask-labeling workflow: collect the source, video and reference-annotation paths, verify the worker can read them, fill the bundled template, confirm with the user, and push a workflow they can Run from the canvas.",
+      "requires": [
+        "dreamlake-workflows",
+        "dreamlake-datasets"
+      ],
+      "tools": null,
+      "files": 7
+    }
+  },
   "renamed": {
     "dreamlake-artifact-authoring": "dreamlake-artifacts",
     "dreamlake-dataset-viz": "dreamlake-datasets",
     "dreamlake-envs": "dreamlake-scenes",
-    "dreamlake-libraries": "dreamlake-scenes",
     "dreamlake-note-references": "dreamlake-notes",
     "dreamlake-scene-generation": "dreamlake-scenes",
     "dreamlake-source": "dreamlake-datasets",
-    "dreamlake-tasks": "dreamlake-cli",
     "remote-source-check": "dreamlake-datasets",
-    "sim-to-mcap": "dreamlake-datasets",
-    "video-labeling-workflow": "dreamlake-workflows",
     "workflow-generator": "dreamlake-workflows",
     "workflow-publish": "dreamlake-workflows"
   }
