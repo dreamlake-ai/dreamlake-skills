@@ -15,19 +15,25 @@ drifts from what is actually released.
 
 | Skill | Use it for | Requires |
 |---|---|---|
-| `dreamlake-cli` | Install and log in, pick an environment, upload and download, browse and upload Sources, Tasks, whole-Project transfer, Vault, hosts and Slurm, infrastructure, Lakeshore, AWS access; routes every other task to the right skill | — |
-| `dreamlake-notes` | Read, edit, collaborate on, attach to, reference, version and restore Notes | `dreamlake-cli` |
-| `dreamlake-artifacts` | Write content that renders in the offline artifact frame; publish, version, share, revoke, delete and restore artifacts | `dreamlake-cli` |
-| `dreamlake-scenes` | Package and push MJCF/URDF scenes, publish and search asset libraries, generate and layer scenes, validate physics per body, preview and read back | `dreamlake-cli` |
-| `dreamlake-datasets` | Lay out robot data, connect a Source, verify paths, write `.dreamrc`, convert simulation rollouts to MCAP | `dreamlake-cli` |
-| `dreamlake-workflows` | Write a WorkflowSpec from a description or a fixed template, validate it locally, publish and review | `dreamlake-cli` |
-| `dreamlake-annotations` | Upload and revise annotated training episodes with the Python SDK | — |
-| `launch-claude-remote` | Start another Claude remote session | — |
-| `launch-codex-chat` | Start another Codex session | — |
+| `dreamlake-cli` | Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, hosts, Slurm, machines, infrastructure, Lakeshore, AWS and UDFs; routes domain work to other skills. | — |
+| `dreamlake-notes` | Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create notes, set summaries, file into Projects, link list items to Notes or artifacts, transfer a standalone Note. | `dreamlake-cli` |
+| `dreamlake-tasks` | Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Notes for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server. | `dreamlake-cli` |
+| `dreamlake-artifacts` | Author content that renders inside DreamLake's isolated offline artifact frame, then publish, version, list, share, revoke, remove and restore artifacts with the CLI, and reference them from Notes. | `dreamlake-cli` |
+| `dreamlake-scenes` | Build, validate and publish MuJoCo (MJCF) and URDF scenes on DreamLake: source and measure assets, derive placements, author the base scene, compose layered stacks, validate physics per body, package, push, preview, pull back byte-identical, version, delete and restore. | `dreamlake-cli` |
+| `dreamlake-libraries` | Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets. | `dreamlake-cli` |
+| `dreamlake-datasets` | Get a robot dataset reachable and rendered in DreamLake: lay out the files, upload or link them as a Source, prove the paths a workflow will read, and write the .dreamrc that binds fields to views, including MuJoCo/URDF sim playback. | `dreamlake-cli` |
+| `sim-to-mcap` | Roll a trained policy out in a local Python physics simulator and write an indexed MCAP with Foxglove /tf, /robot and /metrics channels that DreamLake plays natively, then hand the file to dreamlake-datasets. | `dreamlake-datasets` |
+| `dreamlake-workflows` | Design a DreamLake WorkflowSpec v1 from a natural-language data-production, labeling or training goal, validate it against the bundled schema, publish it to the right namespace with the CLI, and recover from validation errors. | `dreamlake-cli` |
+| `video-labeling-workflow` | Create and publish the fixed DreamLake video subtask-labeling workflow: collect the source, video and reference-annotation paths, verify the worker can read them, fill the bundled template, confirm with the user, and push a workflow they can Run from the canvas. | `dreamlake-workflows`, `dreamlake-datasets` |
+| `dreamlake-annotations` | Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation. | — |
+| `launch-claude-remote` | Create a new named Claude Remote Control session with maximum permissions in a detached tmux terminal on this host, so the user can continue in their Claude app; keeps existing sessions running. | — |
+| `launch-codex-chat` | Create a new named, resumable Codex chat with maximum permissions on this host's running app-server daemon, so the user can continue it in their Codex app; keeps existing sessions and daemons running. | — |
 
 Earlier skills were merged into these; [`renamed.json`](renamed.json) maps
 each retired name (`dreamlake-source`, `workflow-publish`, ...) to its
-successor, and `dreamlake skill install <old name>` prints the new one.
+successor, and `dreamlake skill install <old name>` prints the new one. Where
+each section of the old skills went is recorded in
+[`docs/migration-0010/`](docs/migration-0010/README.md).
 
 ## Install
 
@@ -42,7 +48,8 @@ dreamlake skill update                         # refresh what is installed
 
 By hand: every release carries `skills.tar.gz`, whose top-level entries are
 the skill directories, and `catalog.json`, which lists each skill with its
-`requires`. Download the latest, extract it, and copy the skill directory plus
+`requires` and, under `assets`, the tarball's sha256 and size so you can verify
+the download. Download the latest, extract it, and copy the skill directory plus
 every directory it requires into your agent's skills folder: `.claude/skills/`
 for Claude Code or `.agents/skills/` for Codex, either in the project or in
 your home directory.
