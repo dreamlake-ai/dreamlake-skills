@@ -1,0 +1,7 @@
+{
+  "name": "launch-codex-chat",
+  "description": "Create a new named, resumable Codex chat with maximum permissions on this host's running app-server daemon, so the user can continue it in their Codex app; keeps existing sessions and daemons running.",
+  "requires": [],
+  "docs": [],
+  "tools": { "python": ">=3.8", "packages": [] }
+}
