@@ -59,6 +59,7 @@ The full schema is [`skill.schema.json`](skill.schema.json).
 | `<name>/skill.json` | one per skill | you | name, description, `requires`, `docs` URLs, `tools` | the skill's identity; the input to everything else |
 | `renamed.json` | one per repository | you | old name -> new name | one line when a skill is merged or renamed; the CLI points users at the new name |
 | `catalog.json` | one per repository | `scripts/catalog.py` from every `skill.json`, `renamed.json` and the release tag | every skill's description, `requires`, `tools` and file count; the `renamed` map; the version | the one small file the CLI downloads for `skill list` and dependency resolution |
+| `dist/catalog.json` (release asset only) | one per release | `scripts/package.py` | the committed `catalog.json` plus `assets.skills.tar.gz` = `{sha256, bytes}` of the tarball | lets the installer verify the download; the committed file never carries `assets` |
 | `references.lock` | one per repository | `scripts/sync_references.py` | per fetched page: source URL, docs-site version, sha256 of the fetched bytes and of the written file | lets CI prove offline that `reference/` was not edited by hand, and shows which docs version a fact came from |
 
 `catalog.json` is derived from `skill.json`; `check.py` fails when they
@@ -140,9 +141,10 @@ directory, regenerate `catalog.json`.
 Pull requests run `check.py --offline` and the unit tests. Nightly, CI fetches
 every `reference/`, validates, commits any change to `main`, and when `main`
 differs from the last tag it tags `vYYYY.MM.DD` (`.N` when that date is
-taken), builds `skills.tar.gz` and `catalog.json`, and publishes a GitHub
-release. The `dreamlake` CLI installs from that release; its own repository
-pins a tag in `skills.lock`.
+taken), builds `skills.tar.gz` and `catalog.json` (the committed catalog plus
+the tarball's `assets` hash and size), and publishes a GitHub release. The
+`dreamlake` CLI installs from that release; its own repository pins a tag in
+`skills.lock`.
 
 Push with an explicit ref, `git push origin HEAD:refs/heads/<branch>`, never a
 bare `git push`.

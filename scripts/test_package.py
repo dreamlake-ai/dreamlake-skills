@@ -1,5 +1,6 @@
 """Offline tests for scripts/package.py."""
 import gzip
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -60,7 +61,12 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(by_name['dreamlake-notes/tools/run.py'].mode, 0o755)
         self.assertEqual(by_name['dreamlake-cli/SKILL.md'].mode, 0o644)
         self.assertTrue(all(m.mtime == package.DEFAULT_EPOCH and m.uid == 0 and m.uname == '' for m in members))
-        self.assertEqual(json.loads(catalog_copy.read_text()), json.loads((self.root / 'catalog.json').read_text()))
+        committed = json.loads((self.root / 'catalog.json').read_text())
+        release = json.loads(catalog_copy.read_text())
+        self.assertNotIn('assets', committed)
+        self.assertEqual(release.pop('assets'), {'skills.tar.gz': {'sha256': digest, 'bytes': len(first)}})
+        self.assertEqual(release, committed)
+        self.assertEqual(list(json.loads(catalog_copy.read_text())), ['schema', 'version', 'skills', 'renamed', 'assets'])
         # gzip header carries no timestamp or name
         self.assertEqual(first[4:8], b'\x00\x00\x00\x00')
         with gzip.open(io.BytesIO(first)) as gz:
@@ -69,6 +75,18 @@ class PackageTests(unittest.TestCase):
         archive2, _, digest2, _ = package.build(self.root, out)
         self.assertEqual(archive2.read_bytes(), first)
         self.assertEqual(digest2, digest)
+
+    def test_release_catalog_hash_matches_archive(self):
+        archive, catalog_copy, digest, _ = package.build(self.root, self.root / 'dist')
+        assets = json.loads(catalog_copy.read_text())['assets']['skills.tar.gz']
+        self.assertEqual(assets['sha256'], hashlib.sha256(archive.read_bytes()).hexdigest())
+        self.assertEqual(assets['bytes'], archive.stat().st_size)
+        self.assertEqual(digest, assets['sha256'])
+        # The committed catalog.json must stay release-key free.
+        committed = json.loads((self.root / 'catalog.json').read_text())
+        (self.root / 'catalog.json').write_text(json.dumps({**committed, 'assets': {}}))
+        with self.assertRaisesRegex(package.PackageError, "carries 'assets'"):
+            package.build(self.root, self.root / 'dist')
 
     def test_catalog_must_match_directories(self):
         make_skill(self.root, 'dreamlake-extra')

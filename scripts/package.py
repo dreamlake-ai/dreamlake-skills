@@ -6,8 +6,13 @@ directory with a skill.json except _template/), including their generated
 reference/. Dotfiles, __pycache__ and *.pyc are left out. The archive is
 deterministic: entries are sorted, ownership is cleared, every mtime is
 SOURCE_DATE_EPOCH (default 2024-01-01T00:00:00Z) and the gzip header carries
-no timestamp or file name. catalog.json is copied unchanged, so run
-`scripts/catalog.py --version <tag>` first.
+no timestamp or file name. dist/catalog.json is the repository catalog.json
+(run `scripts/catalog.py --version <tag>` first) plus one release-only key:
+
+  "assets": {"skills.tar.gz": {"sha256": "<hex>", "bytes": <n>}}
+
+so an installer can verify the download. The committed catalog.json never
+carries `assets`.
 """
 from __future__ import annotations
 
@@ -17,7 +22,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import shutil
 import sys
 import tarfile
 
@@ -28,6 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DIST_DIR = 'dist'
 ARCHIVE_NAME = 'skills.tar.gz'
 DEFAULT_EPOCH = 1704067200  # 2024-01-01T00:00:00Z
+ASSETS_KEY = 'assets'
 
 
 class PackageError(Exception):
@@ -71,7 +76,10 @@ def build(root, out_dir, epoch=DEFAULT_EPOCH):
     catalog_path = root / catalog.CATALOG_FILE
     if not catalog_path.is_file():
         raise PackageError(f'{catalog.CATALOG_FILE} is missing; run scripts/catalog.py --version <tag>')
-    listed = json.loads(catalog_path.read_text(encoding='utf-8')).get('skills', {})
+    committed = json.loads(catalog_path.read_text(encoding='utf-8'))
+    listed = committed.get('skills', {})
+    if ASSETS_KEY in committed:
+        raise PackageError(f'{catalog.CATALOG_FILE} carries {ASSETS_KEY!r}; that key is written only into {DIST_DIR}/ by this script')
     if set(listed) != set(names):
         raise PackageError(f'{catalog.CATALOG_FILE} lists {sorted(listed)} but the skill directories are {names}; '
                            f'run scripts/catalog.py --version <tag>')
@@ -86,8 +94,9 @@ def build(root, out_dir, epoch=DEFAULT_EPOCH):
             else:
                 with open(path, 'rb') as handle:
                     tar.addfile(info, handle)
-    shutil.copyfile(catalog_path, out_dir / catalog.CATALOG_FILE)
     digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+    release = {**committed, ASSETS_KEY: {ARCHIVE_NAME: {'sha256': digest, 'bytes': archive.stat().st_size}}}
+    (out_dir / catalog.CATALOG_FILE).write_text(catalog.dumps(release), encoding='utf-8')
     return archive, out_dir / catalog.CATALOG_FILE, digest, names
 
 
@@ -105,7 +114,7 @@ def main(argv=None):
         return 1
     print(f'{archive}: {len(names)} skill(s) ({", ".join(names)})')
     print(f'sha256 {digest}')
-    print(f'{catalog_copy}: copied')
+    print(f'{catalog_copy}: {catalog.CATALOG_FILE} plus {ASSETS_KEY}.{ARCHIVE_NAME} (sha256, bytes)')
     return 0
 
 
