@@ -58,11 +58,11 @@ deployment or resource health.
 
 Use `--json` when another program needs metadata. Invalid credentials or an
 inaccessible stack require access review, not an alternate endpoint or copied
-credential. Use the [Infrastructure reference](../reference/infrastructure.md)
+credential. Use the [Infrastructure reference](../reference/cli-infrastructure.md)
 for complete options, pagination limits and release status.
 
 Stack-to-Note attachment remains proposed. Creating or filing a Note does not
-attach it or grant independent Note access. Reuse the existing [Notes guide](notes.md)
+attach it or grant independent Note access. Reuse the `dreamlake-notes` skill
 for canonical source reads, original-revision patches and acknowledged readback;
 preserve Note identity, collaborative revisions and existing sharing.
 
@@ -101,14 +101,14 @@ server route is missing or unverified, stop new launch/provisioning actions and
 report the gap. Preserve existing resources and unrelated service operation;
 read-only inspection may continue. Current command/schema support and a direct
 backend smoke do not prove this architecture is implemented. See the
-[required launch boundary](../reference/providers.md#required-launch-boundary).
+[required launch boundary](../reference/cli-providers.md#required-launch-boundary).
 
 When explicitly authorized to provision a cluster through that server, use the
-[Kubernetes setup walkthrough](../reference/providers-kubernetes.md) for the
+[Kubernetes setup walkthrough](../reference/cli-providers-kubernetes.md) for the
 InfraStack, CPU pool limits, restricted endpoint, EKS IAM/RBAC and enrolled-server
 provider registration sequence. The server binding requires CLI 0.71.0 and the
 matching backend route; legacy kubeconfig inventory does not authorize launches.
-For denied actions, follow the [IAM repair reference](../reference/providers.md#fix-permission-limitations).
+For denied actions, follow the [IAM repair reference](../reference/cli-providers.md#fix-permission-limitations).
 Do not infer deployment from these docs. Verify
 both the worker-node inventory and a completed Pod in each intended pool, then
 record the task-owned teardown plan. Docker-built images run as Pods on existing

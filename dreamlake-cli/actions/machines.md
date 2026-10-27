@@ -1,7 +1,7 @@
 # Machine identities and provisioning
 
-Use the installed CLI help and [service accounts reference](../reference/service-accounts.md)
-with the [providers reference](../reference/providers.md). Authenticate and select
+Use the installed CLI help and [service accounts reference](../reference/cli-service-accounts.md)
+with the [providers reference](../reference/cli-providers.md). Authenticate and select
 the intended environment using [setup](setup.md) before managing resources.
 These APIs require a compatible server; an older CLI or server is not evidence
 that a capability has shipped.
@@ -14,16 +14,16 @@ server route is missing or unverified, stop new launch/provisioning actions and
 report the gap. Preserve existing resources and unrelated service operation;
 read-only inspection may continue. Current command/schema support and a direct
 backend smoke do not prove this architecture is implemented. See the
-[required launch boundary](../reference/providers.md#required-launch-boundary).
+[required launch boundary](../reference/cli-providers.md#required-launch-boundary).
 
 With CLI 0.71.0 and the matching backend, enroll the server, read the provider's
 current revision, then use `providers launch-server` with its exact enrollment,
 expected role ARN, region and stable request ID. Follow the
-[binding procedure](../reference/providers.md#bind-a-launch-server); registration
+[binding procedure](../reference/cli-providers.md#bind-a-launch-server); registration
 alone does not prove execution readiness. A pending or uncertain cloud write
 must be inspected through its durable operation receipt before another action.
 
-For permission failures, use the [repair reference](../reference/providers.md#fix-permission-limitations).
+For permission failures, use the [repair reference](../reference/cli-providers.md#fix-permission-limitations).
 Record the actual role, denied action, region and request ID, then update the
 dedicated role's Terraform policy with an identity authorized to administer it.
 IAM policies can change after creation. Distinguish IAM from Kubernetes RBAC,

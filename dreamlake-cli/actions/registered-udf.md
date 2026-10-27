@@ -2,7 +2,7 @@
 
 Requires CLI 0.68.0 or later with `runnable run` and `runnable receipt`. Check
 the installed version before using these commands. See
-[the complete contract](../reference/registered-udf.md).
+[the complete contract](../reference/cli-registered-udf.md).
 
 1. Use an immutable full SHA-256 UDF reference with version-owned repo ID,
    source file and entrypoint metadata. Do not substitute mutable head fields

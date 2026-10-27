@@ -16,13 +16,13 @@ Retain pending host identity and request ID through grant-authorization failures
 resolve authority and use supported retries instead of renaming/recreating.
 
 Use [setup](setup.md) to authenticate and select the intended environment. Check
-the installed CLI version and command help against the [Hosts reference](../reference/host-enrollment.md)
-and the [Jobs](../reference/jobs.md) and [Slurm inventory](../reference/queues.md#read-slurm-scheduler-jobs)
+the installed CLI version and command help against the [Hosts reference](../reference/cli-host-enrollment.md)
+and the [Jobs](../reference/cli-jobs.md) and [Slurm inventory](../reference/cli-queues.md#read-slurm-scheduler-jobs)
 references. The `hosts enrollments`, `hosts metrics`, `hosts check`, and
 `queues slurm` routes require CLI 0.57.0+ and their matching backend APIs.
 A merged source change, updated docs, or an installed skill does not establish
 that the executable or server supports it. Updating the CLI does
-not update installed skills; follow [skill installation](../reference/skills.md)
+not update installed skills; follow [skill installation](../reference/cli-skills.md)
 and preserve local customizations when reviewing conflicts.
 
 ## Choose the operation
@@ -32,17 +32,17 @@ and preserve local customizations when reviewing conflicts.
 | Archive or restore catalog visibility | Check installed support, read `hosts lifecycle HOST_ID`, then use explicit request ID and expected revision with `hosts archive` or `hosts restore`; this never retires runtime |
 | Find active hosts across groups | `dreamlake hosts list`; select the authorized namespace (CLI 0.73.0+: verified online only) |
 | Include offline or unknown hosts | CLI 0.73.0+ `dreamlake hosts list --all`; CLI 0.72.0 lists all states without this flag |
-| Save or reopen an exact agent terminal session | [Terminal sessions](../reference/sessions.md): `dreamlake sessions targets`, then `create` / `resume` / `open`; Codex requires CLI 0.74.1+ and matching terminal API/gateway; Claude requires CLI 0.77.0+ and provider-aware services |
+| Save or reopen an exact agent terminal session | [Terminal sessions](../reference/cli-sessions.md): `dreamlake sessions targets`, then `create` / `resume` / `open`; Codex requires CLI 0.74.1+ and matching terminal API/gateway; Claude requires CLI 0.77.0+ and provider-aware services |
 | Inspect one host and its enrollments | `dreamlake hosts status` with its returned host ID or full name |
 | Resolve enrollment identities and observed presence | `dreamlake hosts enrollments HOST`; retain its exact enrollment ID |
 | Read CPU, RAM, and disk observations | `dreamlake hosts metrics HOST --enrollment ID` |
 | Check observed SSH or tracked-run capability | `dreamlake hosts check HOST --enrollment ID --action ssh` or `--action tracked-run` |
 | Register an existing computer | `dreamlake hosts enroll`; follow [machine identity setup](machines.md) |
-| Provision and enroll one machine | CLI 0.72.0+ `hosts create PROVIDER --host-name NS/GROUP/HOST`; see [machine provisioning](machines.md) and the [Host power reference](../reference/host-enrollment.md#provision-and-control-machine-power) |
-| Inspect or change managed EC2 machine power | CLI 0.72.0+ `hosts power`, `start`, `stop`, `restart`, `terminate`; see [Host power](../reference/host-enrollment.md#provision-and-control-machine-power) |
-| Open an enrolled host shell | CLI 0.72.0+ `dreamlake ssh HOST` or `hosts ssh`; see [SSH](../reference/host-enrollment.md#ssh-and-remote-commands) |
-| Execute a command on an enrolled host | CLI 0.72.0+ `dreamlake exec HOST -- COMMAND` or `hosts exec`; see [remote commands](../reference/host-enrollment.md#ssh-and-remote-commands) |
-| Launch managed execution or inspect its output/control | [Managed runs](../reference/runs.md): `dreamlake run` and `dreamlake runs` |
+| Provision and enroll one machine | CLI 0.72.0+ `hosts create PROVIDER --host-name NS/GROUP/HOST`; see [machine provisioning](machines.md) and the [Host power reference](../reference/cli-host-enrollment.md#provision-and-control-machine-power) |
+| Inspect or change managed EC2 machine power | CLI 0.72.0+ `hosts power`, `start`, `stop`, `restart`, `terminate`; see [Host power](../reference/cli-host-enrollment.md#provision-and-control-machine-power) |
+| Open an enrolled host shell | CLI 0.72.0+ `dreamlake ssh HOST` or `hosts ssh`; see [SSH](../reference/cli-host-enrollment.md#ssh-and-remote-commands) |
+| Execute a command on an enrolled host | CLI 0.72.0+ `dreamlake exec HOST -- COMMAND` or `hosts exec`; see [remote commands](../reference/cli-host-enrollment.md#ssh-and-remote-commands) |
+| Launch managed execution or inspect its output/control | [Managed runs](../reference/cli-runs.md): `dreamlake run` and `dreamlake runs` |
 | Track work another launcher already starts | `dreamlake jobs register`, `report`, `list`, and `status` |
 | Inspect Slurm scheduler jobs | Discover `queues slurm clusters`, then `queues slurm jobs CLUSTER_ID --details` |
 
@@ -174,7 +174,7 @@ supply that revision plus an explicit request ID for archive/restore. After an
 ambiguous failure retry the identical tuple. Never silently refresh the revision,
 change the action or generate a new request ID to bypass a conflict. A replayed
 receipt can predate a later opposite action; read lifecycle for current state.
-See the [catalog reference](../reference/host-enrollment.md#archive-and-restore-catalog-records).
+See the [catalog reference](../reference/cli-host-enrollment.md#archive-and-restore-catalog-records).
 
 ## Read Slurm scheduler jobs
 
@@ -222,17 +222,12 @@ controls are not supplied by external tracking. Use `runs` commands only for
 actual managed runs; do not pass external job IDs to them. Do not automatically
 capture or index program, tool, or terminal output.
 
-This route does not replace [uploads](data.md), revision-aware [Notes](notes.md),
-[artifact publication](artifacts.md), or [workflow management](workflows.md).
+This route does not replace [uploads](data.md), revision-aware Notes (skill
+`dreamlake-notes`), artifact publication (skill `dreamlake-artifacts`) or
+[workflow management](workflows.md).
 Use an SDK for requested SDK integration or a documented CLI gap, after checking
 that the SDK and server actually support the operation; an SDK is not evidence
 that a proposed daemon or runner capability exists.
 
-For uploaded conversation history, CLI 0.79.0+ provides
-`sessions upload-conversation SESSION_ID --namespace NAMESPACE --file EXPORT
---json`. Select the exact opted-in export; uploads never open a terminal. The
-Note's contributing-session row opens its saved terminal to the right without
-requiring an archive. Read uploaded history through its separate reading action.
-A missing verified host binding is explained in the terminal panel; **Check connection again** reloads that descriptor without selecting a host. The original host
-must retain its native conversation state; an archive cannot migrate it. See
-[session archives](../reference/sessions.md#optional-conversation-upload-0790).
+Uploading a session's conversation history (CLI 0.79.0+) and linking Note or
+Artifact writes to a session are in [session-links](session-links.md).
