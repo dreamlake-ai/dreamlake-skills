@@ -46,10 +46,10 @@ re-validate, then push — and re-apply it after every recompose (keep the
 block in a file beside the stack). The viewer opens at keyframe 0 when one
 exists, but keyframe honoring is a source change awaiting a viewer
 deployment — which versions actually honor it and what t=0 shows:
-[Drive it](reference/docs-scenes.md#drive-it); confirm visually rather than
+[Drive it](../reference/docs-scenes.md#drive-it); confirm visually rather than
 assuming.
 
 Owning method pages:
-[Validate physics — and know what a pass means](reference/docs-scene-generation.md#validate-physics--and-know-what-a-pass-means)
+[Validate physics — and know what a pass means](../reference/docs-scene-generation.md#validate-physics--and-know-what-a-pass-means)
 and
-[Initial state and keyframes](reference/docs-scene-generation.md#initial-state-and-keyframes).
+[Initial state and keyframes](../reference/docs-scene-generation.md#initial-state-and-keyframes).

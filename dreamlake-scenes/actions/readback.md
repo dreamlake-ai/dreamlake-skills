@@ -8,7 +8,7 @@ diff -rq /tmp/scenes/my-scene /tmp/check               # byte-identical
 
 Flags (`-o`, `--force` to write into a non-empty directory, `@N`):
 `dreamlake scene pull --help` and
-[List, pull, delete](reference/cli-scenes.md#list-pull-delete).
+[List, pull, delete](../reference/cli-scenes.md#list-pull-delete).
 
 ## Rules
 
@@ -28,4 +28,4 @@ python tools/scene_validate.py /tmp/check --settle <body>
   that keeps it editable ([iterate](iterate.md)).
 - Do the round trip whenever the scene will be consumed elsewhere.
 
-Owning page: [Pull it back](reference/docs-scenes.md#pull-it-back).
+Owning page: [Pull it back](../reference/docs-scenes.md#pull-it-back).

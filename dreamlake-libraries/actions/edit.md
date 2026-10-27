@@ -9,7 +9,7 @@ dreamlake library rm <ns>/<name> my-mug old-chair      # server reclaims their f
 No full local copy needed — these edit the remote library directly. Flags
 (`--id --title --description --category --tags --license --attribution`,
 `--replace`, `--json`): `dreamlake library add --help` and
-[Add or remove one asset](reference/docs-libraries.md#add-or-remove-one-asset).
+[Add or remove one asset](../reference/docs-libraries.md#add-or-remove-one-asset).
 
 ## Rules
 

@@ -12,7 +12,7 @@ for installed support. These change metadata only — no upload, no new
 version. Run the mutating steps only when the user asked to grant or revoke
 access, and run `get` before and after a change to verify it. Flags,
 `--json` fields and the exact recipe:
-[Manage existing share links](reference/cli-artifacts.md#manage-existing-share-links).
+[Manage existing share links](../reference/cli-artifacts.md#manage-existing-share-links).
 
 ## Visibility and sharing are independent
 
@@ -55,7 +55,7 @@ Platforms cache cards for days: a changed cover or a revoked link can keep
 showing in messages already posted. A user's own permissions never reach a
 platform's preview bot — rich previews of plain private links are not
 available. Source:
-[Make the link card yours](reference/docs-artifacts.md#make-the-link-card-yours).
+[Make the link card yours](../reference/docs-artifacts.md#make-the-link-card-yours).
 
 ## Project-derived access
 
@@ -82,8 +82,8 @@ support.
   Use the server's current `canBind` result, not a role guessed from
   membership
   ([Project choice and grouping](https://docs.dreamlake.ai/api/project-queries/)).
-- Contract: [Project attachment access](reference/docs-artifacts.md#project-attachment-access),
-  [CLI project attachment commands](reference/cli-projects.md#project-attachment-access-cli-0620)
+- Contract: [Project attachment access](../reference/docs-artifacts.md#project-attachment-access),
+  [CLI project attachment commands](../reference/cli-projects.md#project-attachment-access-cli-0620)
   and the
   [owning access notes](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
 

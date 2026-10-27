@@ -10,7 +10,8 @@ dist/ and dot-prefixed ones; _template/ included):
   - SKILL.md has frontmatter with the same name, at most 80 lines, and ends with '## Canonical source'
   - actions/ holds at least one .md page
   - no legacy references/ directory; reference/ holds only generated files
-  - every relative link in SKILL.md and actions/*.md resolves to a file inside the skill
+  - every relative link in SKILL.md, actions/*.md and assets/**/*.md is resolved from the
+    file that holds it (standard Markdown) and lands on a file inside the skill
   - tools/test_*.py pass under pytest (a warning if pytest is not installed)
 Repository-wide:
   - renamed.json maps retired names to existing skills
@@ -229,7 +230,8 @@ def check_reference_dir(skill_dir, report):
 
 def check_links(skill_dir, report):
     name = skill_dir.name
-    pages = [skill_dir / 'SKILL.md', *sorted((skill_dir / 'actions').glob('*.md'))]
+    pages = [skill_dir / 'SKILL.md', *sorted((skill_dir / 'actions').glob('*.md')),
+             *sorted((skill_dir / 'assets').rglob('*.md'))]
     skill_root = skill_dir.resolve()
     for page in pages:
         if not page.is_file():

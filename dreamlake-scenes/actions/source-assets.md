@@ -77,4 +77,4 @@ Scopes, filters, `info`/`stat`, `--json` and the hit format are in the
   the pulled asset.
 
 Owning method page:
-[Source assets that will actually work](reference/docs-scene-generation.md#source-assets-that-will-actually-work).
+[Source assets that will actually work](../reference/docs-scene-generation.md#source-assets-that-will-actually-work).

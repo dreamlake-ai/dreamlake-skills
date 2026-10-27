@@ -4,7 +4,7 @@ Use this when an HTML or React artifact needs shareable query/fragment state —
 slides, tabs, filters, a selected item — that survives copy-link, back/forward
 and a Note deep link. The complete contract (URL shapes, handshake, history
 semantics, limits) is in
-[Artifact paths and local routing](reference/docs-artifacts.md#artifact-paths-and-local-routing);
+[Artifact paths and local routing](../reference/docs-artifacts.md#artifact-paths-and-local-routing);
 this page is the authoring discipline. Start from
 [`assets/templates/route-aware.html`](../assets/templates/route-aware.html).
 

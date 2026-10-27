@@ -6,7 +6,7 @@ dreamlake artifact restore <id> [--namespace <slug>]         # undo a soft delet
 dreamlake artifact delete <id> --permanent [-y]              # purge — IRREVERSIBLE
 ```
 
-Options: [Listing, deleting, restoring](reference/cli-artifacts.md#listing-deleting-restoring)
+Options: [Listing, deleting, restoring](../reference/cli-artifacts.md#listing-deleting-restoring)
 or `dreamlake artifact delete --help`.
 
 ## Soft delete
@@ -38,7 +38,7 @@ external mount grants. It works on live or already-trashed artifacts, uses a
 stronger confirmation prompt, and **cannot be undone**. Never pass `-y` with
 `--permanent` unless the user has explicitly confirmed they want the artifact
 gone forever. The dashboard equivalent is **Delete forever** inside the
-Trash. Source: [Delete it (safely)](reference/docs-artifacts.md#delete-it-safely).
+Trash. Source: [Delete it (safely)](../reference/docs-artifacts.md#delete-it-safely).
 
 An owned artifact moves with its whole Project; see the `projects` action of
 `dreamlake-cli`.

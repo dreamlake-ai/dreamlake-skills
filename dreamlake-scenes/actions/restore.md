@@ -7,7 +7,7 @@ dreamlake scene delete my-scene --permanent   # purge storage + catalog — IRRE
 ```
 
 Options: `dreamlake scene delete --help` and
-[List, pull, delete](reference/cli-scenes.md#list-pull-delete).
+[List, pull, delete](../reference/cli-scenes.md#list-pull-delete).
 
 ## Safety rules
 
@@ -17,7 +17,7 @@ Options: `dreamlake scene delete --help` and
   released), either delete also removes the scene from every project it was
   filed in. `restore` then brings it back unfiled; add it to a project again
   if the user wants it there.
-- Owning page: [Delete it (safely)](reference/docs-scenes.md#delete-it-safely).
+- Owning page: [Delete it (safely)](../reference/docs-scenes.md#delete-it-safely).
 
 ## Project-derived access
 
@@ -40,13 +40,13 @@ SDK 0.29.0 or later. Check installed versions separately from server support.
   and resource readability, without sharing it again. Use the server's
   current `canBind` result, not a role guessed from membership
   ([Project choice and grouping](https://docs.dreamlake.ai/api/project-queries/)).
-- Contract: [Project attachment access](reference/docs-scenes.md#project-attachment-access),
-  [CLI project attachment commands](reference/cli-projects.md#project-attachment-access-cli-0620)
+- Contract: [Project attachment access](../reference/docs-scenes.md#project-attachment-access),
+  [CLI project attachment commands](../reference/cli-projects.md#project-attachment-access-cli-0620)
   and the
   [owning access notes](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
 
 Independent scene sharing (`--visibility`, `--share`) is set at push time —
-[push](push.md) and [Visibility](reference/cli-scenes.md#visibility).
+[push](push.md) and [Visibility](../reference/cli-scenes.md#visibility).
 
 An owned scene moves with its whole Project; see the `projects` action of
 `dreamlake-cli`.

@@ -14,7 +14,7 @@ receipt instead of assuming it incremented. The CLI reports uploaded and
 reused files. Shared meshes dedupe **across scenes** in the same namespace.
 Receipt and retry rules: [push](push.md); verification:
 [readback](readback.md). Owning page:
-[Version it](reference/docs-scenes.md#version-it--only-changes-upload).
+[Version it](../reference/docs-scenes.md#version-it--only-changes-upload).
 
 ## Edit = edit the editable source
 

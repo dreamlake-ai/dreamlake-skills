@@ -4,7 +4,7 @@ Start from [`assets/dreamlake.yml`](../assets/dreamlake.yml) — every key is
 optional, so write only the keys you need and delete the rest. Place it at
 the library root; it is a normal source file, pushed and pulled with the
 tree. Full key reference:
-[`dreamlake.yml` — optional curation](reference/docs-libraries.md#dreamlakeyml--optional-curation).
+[`dreamlake.yml` — optional curation](../reference/docs-libraries.md#dreamlakeyml--optional-curation).
 
 ## When you need it at all
 

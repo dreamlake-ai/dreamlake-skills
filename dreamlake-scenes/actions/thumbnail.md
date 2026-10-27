@@ -61,4 +61,4 @@ as `qpos0`/a keyframe, not rely on the sim running
   PNG (≤ 512 KiB); it works on a no-change push as a thumbnail-only update.
 
 Both are marked *manual* and won't be auto-overwritten for that version.
-Owning page: [Thumbnails](reference/docs-scenes.md#thumbnails).
+Owning page: [Thumbnails](../reference/docs-scenes.md#thumbnails).

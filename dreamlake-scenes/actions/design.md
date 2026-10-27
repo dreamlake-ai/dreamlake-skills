@@ -102,6 +102,6 @@ for framing, lighting, scale cues, and material tone, then adjust and
 re-render.
 
 MJCF authoring patterns and thumbnail behavior:
-[Scenes](reference/docs-scenes.md); the full method:
-[Derive placements](reference/docs-scene-generation.md#derive-placements--never-guess)
-and [Design the base scene](reference/docs-scene-generation.md#design-the-base-scene).
+[Scenes](../reference/docs-scenes.md); the full method:
+[Derive placements](../reference/docs-scene-generation.md#derive-placements--never-guess)
+and [Design the base scene](../reference/docs-scene-generation.md#design-the-base-scene).

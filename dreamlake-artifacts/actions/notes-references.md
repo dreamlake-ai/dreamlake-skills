@@ -50,7 +50,7 @@ update does not deploy panel behaviour. Never put a share token inside
 rich-reference attributes.
 
 Owning pages:
-[Reference an artifact from a Note](reference/docs-artifacts.md#reference-an-artifact-from-a-note-development-preview),
-[Artifact panels in Notes](reference/docs-artifacts.md#artifact-panels-in-notes-development-preview)
+[Reference an artifact from a Note](../reference/docs-artifacts.md#reference-an-artifact-from-a-note-development-preview),
+[Artifact panels in Notes](../reference/docs-artifacts.md#artifact-panels-in-notes-development-preview)
 and the
 [Notes grammar](https://docs.dreamlake.ai/notes/#artifact-references-development-preview).

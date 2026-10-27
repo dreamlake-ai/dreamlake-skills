@@ -2,8 +2,8 @@
 
 What the CLI assumes about a library directory, what the viewer assumes
 about the assets, and the traps that follow. Facts here mirror
-[Asset Libraries](reference/docs-libraries.md) and the
-[Libraries Reference](reference/docs-libraries-reference.md); on any
+[Asset Libraries](../reference/docs-libraries.md) and the
+[Libraries Reference](../reference/docs-libraries-reference.md); on any
 conflict the docs win.
 
 ## Your directory is the format
@@ -83,7 +83,7 @@ reconcile deletes the files. Limits: ≤50k assets, ≤1M file entries, ≤60k
 splat scenes yields a ~60 MB manifest). Legacy `assets.json`-at-root
 libraries keep working (server fallback); the first new-style push migrates
 them. Endpoints, request/response shapes and the search hit schema:
-[Libraries Reference](reference/docs-libraries-reference.md).
+[Libraries Reference](../reference/docs-libraries-reference.md).
 
 ## Gotchas
 

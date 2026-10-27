@@ -12,8 +12,8 @@ dreamlake library pull <ns>/<name> --all -o ./copy                  # + platform
 ```
 
 Flags and scopes: `dreamlake library <cmd> --help`,
-[Search it](reference/docs-libraries.md#search-it) and
-[The read path](reference/docs-libraries-reference.md#the-read-path).
+[Search it](../reference/docs-libraries.md#search-it) and
+[The read path](../reference/docs-libraries-reference.md#the-read-path).
 Every command takes `--json`: `list` and `search` emit the raw HTTP
 response; `info`, `stat`, `add`, `rm`, `push`, `pull` emit stable structured
 reports. Prefer the default output for ordinary reads; `--json` is for

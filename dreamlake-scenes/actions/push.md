@@ -11,7 +11,7 @@ dreamlake scene create <dir>                              # push that FAILS if t
 Only push after the staged directory passed [package](package.md) and
 [validate](validate.md) checks **and the user asked to publish**. Flags
 (`--entry`, `--type`, `--visibility`, `--share`, `--thumbnail`, …):
-`dreamlake scene push --help` and [Push a version](reference/cli-scenes.md#push-a-version).
+`dreamlake scene push --help` and [Push a version](../reference/cli-scenes.md#push-a-version).
 Private by default; `--visibility public` opens the viewer without login,
 `--share` mints a `?share=` link; `--type isaaclab` is stored and pullable
 but only `mujoco` and `urdf` have viewers; `--thumbnail` is covered in
@@ -46,7 +46,7 @@ pass `--push-layers` to push those layers as their own scenes first, pin,
 and recompose (prefer this; provenance stays resolvable), or
 `--allow-local` to push anyway with the provenance permanently marked
 non-resolvable — only when the user accepts that. Details:
-[Pushing a composed scene](reference/cli-scenes.md#pushing-a-composed-scene).
+[Pushing a composed scene](../reference/cli-scenes.md#pushing-a-composed-scene).
 
 ## Preview in the browser
 
@@ -59,10 +59,10 @@ honor), upgrade to CLI ≥ 0.45.0 (its receipts target the web app), or use
 your namespace's Scenes page. Only `mujoco`-type scenes get the interactive
 simulating viewer (`urdf` gets the kinematic poser). The first member visit
 captures the gallery thumbnail. What t=0 shows — and which viewer versions
-honor keyframe 0 — is in [Drive it](reference/docs-scenes.md#drive-it);
+honor keyframe 0 — is in [Drive it](../reference/docs-scenes.md#drive-it);
 confirm visually rather than assuming. Where the catalog, profile tab and
 detail header take anonymous and signed-in readers:
-[Browsing in the app](reference/docs-scenes.md#browsing-in-the-app).
+[Browsing in the app](../reference/docs-scenes.md#browsing-in-the-app).
 
 ## Traps
 

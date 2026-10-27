@@ -7,7 +7,7 @@ dreamlake artifact push <file> [--title "Title"] [--id <id>] [--kind <kind>] \
 ```
 
 Flag semantics and the kind/extension table:
-[Pushing](reference/cli-artifacts.md#pushing) or `dreamlake artifact push --help`.
+[Pushing](../reference/cli-artifacts.md#pushing) or `dreamlake artifact push --help`.
 After a successful push the CLI prints an **open link** (the dashboard URL,
 with `?share=` appended when `--share` was used) — hand it to the user.
 
@@ -44,7 +44,7 @@ file, including for older self-hosted viewers; `--no-incremental` remains a
 compatibility alias and is the spelling to use on CLI 0.39.1. Both formats can
 coexist in one history — keep the same `--id`. Limits, retry behaviour and
 older-viewer compatibility:
-[Incremental uploads](reference/cli-artifacts.md#incremental-uploads).
+[Incremental uploads](../reference/cli-artifacts.md#incremental-uploads).
 
 ## Link card (title, description, cover)
 
@@ -64,8 +64,8 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
   every re-push. Change or clear them later with
   `dreamlake artifact meta set <id> …` and inspect with
   `dreamlake artifact meta show <id>`. See
-  [Link previews](reference/cli-artifacts.md#link-previews) and
-  [Make the link card yours](reference/docs-artifacts.md#make-the-link-card-yours).
+  [Link previews](../reference/cli-artifacts.md#link-previews) and
+  [Make the link card yours](../reference/docs-artifacts.md#make-the-link-card-yours).
 - What the card reveals depends on visibility — see [share](share.md) before
   pasting a share link anywhere.
 
@@ -77,9 +77,9 @@ Opening an artifact does not create a link, a link grants no terminal access,
 and an affiliation or archive failure never undoes or misreports a successful
 upload — retry only the link/archive. Selection, automatic context, opt-out
 and manual link/unlink:
-[Link notes and artifacts](reference/cli-sessions.md#link-notes-and-artifacts-0780)
+[Link notes and artifacts](../reference/cli-sessions.md#link-notes-and-artifacts-0780)
 and
-[Optional conversation upload](reference/cli-sessions.md#optional-conversation-upload-0790).
+[Optional conversation upload](../reference/cli-sessions.md#optional-conversation-upload-0790).
 
 ## Examples
 

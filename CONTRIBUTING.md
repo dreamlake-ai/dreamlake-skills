@@ -81,7 +81,12 @@ check fails.
 - `reference/` is generated. Change `docs[]` only when a new skill needs pages
   or the docs site gained a page the skill should carry; day-to-day docs
   changes need nothing here.
-- Links inside a skill are relative to the file they are in and must resolve.
+- Links inside a skill are standard Markdown: relative to the file that holds
+  them, never to the skill root, and `check.py` fails any that do not resolve.
+  From `SKILL.md` write `actions/publish.md` and `reference/cli-artifacts.md`;
+  from `actions/*.md` write `../reference/cli-artifacts.md`, `../assets/x.json`
+  and `share.md` for a sibling action; from `assets/<dir>/*.md` add one more
+  `../`. A link must stay inside its skill; other skills are named, not linked.
 - Before release, install the skill into an isolated directory and read it
   back word for word.
 

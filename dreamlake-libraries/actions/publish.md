@@ -10,7 +10,7 @@ Push is zero-config: the CLI discovers assets by convention
 ([`assets/library-conventions.md`](../assets/library-conventions.md)),
 hashes files with a local cache and generates the wire manifest itself —
 users never see or write sha256s. Flags: `dreamlake library push --help` and
-[Push it](reference/docs-libraries.md#push-it).
+[Push it](../reference/docs-libraries.md#push-it).
 
 ## What a push does
 
@@ -77,7 +77,7 @@ uv run python -m dreamlake.assets_tools.import_mujoco_scanned_objects <checkout>
 
 The GSO importer ASCII-sanitizes ids (`Pokémon_*` → `Pokemon_*`), keeping
 the original in `upstream.id`. See
-[Start from a known repo](reference/docs-libraries.md#start-from-a-known-repo).
+[Start from a known repo](../reference/docs-libraries.md#start-from-a-known-repo).
 
 ## Verify
 

@@ -9,9 +9,9 @@ dreamlake scene compose ./dreamlake.layers.json -o ./composed
 
 The complete grammar (every field, the six annotated stack shapes, v2
 migration, the engine boundary) is the
-[Scene Layers Reference](reference/docs-scenes-layers.md); this page is the
+[Scene Layers Reference](../reference/docs-scenes-layers.md); this page is the
 authoring discipline. Flags: `dreamlake scene compose --help` and
-[Compose a layered scene](reference/cli-scenes.md#compose-a-layered-scene).
+[Compose a layered scene](../reference/cli-scenes.md#compose-a-layered-scene).
 
 ## Two equally valid routes
 
@@ -119,7 +119,7 @@ Then author the stack:
   through MjSpec". SDK ≥ 0.23.1 also accepts `xyaxes`/`euler`/`axisangle`/
   `zaxis` in opinions. On 0.23.0, compute the quat, or author the `xyaxes`
   in the layer's own MJCF (that path works) —
-  [`tag: "Update"`](reference/docs-scenes-layers.md#tag-update--the-meta-component).
+  [`tag: "Update"`](../reference/docs-scenes-layers.md#tag-update--the-meta-component).
 - Boolean flags (`active`, `castshadow`, body `mocap`) take `true`/`false`;
   on MuJoCo 3.8, 0.23.0 fails coercing them (works on 3.14; fixed in
   0.23.1) — another reason to compose on 3.14.
@@ -152,9 +152,9 @@ copy is fully pinned (`@v`); local srcs embed with `"unpinned": true`.
 Common compose errors — merge name collision, strict-match miss on a
 pre-attach name, ambiguous address, unresolved refs, missing engine, the
 MuJoCo 3.2 and `xyaxes` failures above — with remedies:
-[Common errors](reference/docs-scenes-layers.md#common-errors). A v2
+[Common errors](../reference/docs-scenes-layers.md#common-errors). A v2
 `{source, compose}` file is refused with a mapping table:
-[Migrating a v2 stack](reference/docs-scenes-layers.md#migrating-a-v2-stack).
+[Migrating a v2 stack](../reference/docs-scenes-layers.md#migrating-a-v2-stack).
 
 Then [validate](validate.md) the composed directory. Pushing a stack that
 still references local `./` layers is refused — the `--push-layers` /

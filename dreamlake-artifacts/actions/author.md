@@ -48,7 +48,7 @@ Other facts that matter:
   see below), so `html` must bring its own CSS. The HTML document receives
   only a zero-margin, zero-padding reset before author styles; explicit author
   spacing still takes precedence. See
-  [preview spacing](reference/docs-artifacts.md#preview-spacing).
+  [preview spacing](../reference/docs-artifacts.md#preview-spacing).
 - **The frame fills its container** (100% width/height). Design responsive;
   let wide content (tables, code, diagrams) scroll in its own container,
   never the page.

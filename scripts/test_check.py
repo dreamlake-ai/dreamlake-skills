@@ -184,6 +184,18 @@ class CheckTests(unittest.TestCase):
             'dreamlake-cli: actions/do.md:1: link /notes is root-absolute; use a full URL or a path relative to this file',
             'dreamlake-cli: actions/do.md:1: link ../../dreamlake-notes/SKILL.md leaves the skill; refer to other skills by name',
         ])
+        # Links are resolved from the file that holds them, not from the skill root.
+        page.write_text('[root-relative](reference/cli-artifacts.md) [file-relative](../reference/cli-artifacts.md)\n')
+        self.assertEqual([f for f in self.failures() if 'actions/do.md' in f], [
+            'dreamlake-cli: actions/do.md:1: link reference/cli-artifacts.md does not resolve to a file',
+        ])
+        nested = self.cli / 'assets' / 'examples' / 'README.md'
+        nested.parent.mkdir(parents=True)
+        nested.write_text('[ok](../../reference/cli-artifacts.md) [bad](../reference/cli-artifacts.md) '
+                          '[action](../../actions/do.md)\n')
+        self.assertEqual([f for f in self.failures() if 'assets/' in f], [
+            'dreamlake-cli: assets/examples/README.md:1: link ../reference/cli-artifacts.md does not resolve to a file',
+        ])
 
     def test_requires_closure_and_cycles(self):
         meta = json.loads((self.cli / 'skill.json').read_text())
