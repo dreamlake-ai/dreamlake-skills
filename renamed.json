@@ -2,14 +2,10 @@
   "dreamlake-artifact-authoring": "dreamlake-artifacts",
   "dreamlake-dataset-viz": "dreamlake-datasets",
   "dreamlake-envs": "dreamlake-scenes",
-  "dreamlake-libraries": "dreamlake-scenes",
   "dreamlake-note-references": "dreamlake-notes",
   "dreamlake-scene-generation": "dreamlake-scenes",
   "dreamlake-source": "dreamlake-datasets",
-  "dreamlake-tasks": "dreamlake-cli",
   "remote-source-check": "dreamlake-datasets",
-  "sim-to-mcap": "dreamlake-datasets",
-  "video-labeling-workflow": "dreamlake-workflows",
   "workflow-generator": "dreamlake-workflows",
   "workflow-publish": "dreamlake-workflows"
 }
