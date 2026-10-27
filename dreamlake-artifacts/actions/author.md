@@ -57,6 +57,30 @@ Other facts that matter:
   prefer `@media (prefers-color-scheme: ...)` or colors that work on either
   ground.
 
+## Video files you make
+
+Save every video you produce (a render, a screen or canvas capture, a demo
+clip) as **MP4 with H.264 video**, unless there is a specific reason not to.
+MP4/H.264 plays in every browser, including Safari and iOS, where WebM is
+unreliable.
+
+- Encode with `yuv420p` pixels and `+faststart`, so playback starts before
+  the whole file has loaded:
+
+  ```bash
+  ffmpeg -i in.webm -c:v libx264 -pix_fmt yuv420p -crf 20 \
+    -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -movflags +faststart out.mp4
+  ```
+
+  The `scale` filter rounds odd sizes to even ones, which H.264 requires.
+- In-browser recording with `MediaRecorder` often yields WebM. Ask for MP4
+  first (`MediaRecorder.isTypeSupported('video/mp4;codecs=avc1.42E01E')`);
+  when it is unsupported, record WebM and convert it as above before the file
+  is saved, committed or published.
+- Keep WebM only when MP4 cannot do the job, for example a clip that needs an
+  alpha channel. Write the reason next to the file.
+- In a Git repository, track MP4 files with Git LFS.
+
 ## Pick the right kind
 
 | Kind | Use for | Renders as |
@@ -149,6 +173,8 @@ render as highlighted source; they are never executed.
 - Relying on Tailwind classes inside an `html` artifact → they don't apply
   there.
 - Fetching data at runtime → no network. Embed the data in the file.
+- A WebM video → may not play in Safari or on iOS. Convert it to MP4/H.264
+  (see [video files you make](#video-files-you-make)).
 - Reading `location.search` for state in an `html` artifact → it runs in an
   opaque `about:srcdoc` child whose `location` is not the artifact address;
   use `dreamlake.route` ([routing](routing.md)).
@@ -161,5 +187,6 @@ render as highlighted source; they are never executed.
 4. **Responsive**; wide content scrolls in its own container, not the page.
 5. `react`: defines `App`, no imports. `html`: ships its own CSS.
    `markdown`: no inline HTML.
+6. Any video you made is **MP4/H.264**, or the reason for WebM is written down.
 
 Then continue with [publish](publish.md).
