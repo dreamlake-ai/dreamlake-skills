@@ -31,34 +31,31 @@ with `?share=` appended when `--share` was used) — hand it to the user.
 - **Kind must match the content** (a `.jsx` React component vs. a `.js` code
   snippet). The kind is auto-detected from the extension; override with
   `--kind` when detection is wrong or the extension is unrecognised.
-- Private by default. `--visibility public` makes it readable without login;
-  `--share` mints a share token in the same step ([share](share.md)).
+- Pass `--visibility public` only when the user wants it readable without
+  login; `--share` mints a share token in the same step ([share](share.md)).
+  Defaults: [Visibility and sharing](../reference/cli-artifacts.md#visibility-and-sharing).
 
 ## Incremental uploads
 
-CLI 0.39.1 and later uses incremental storage by default for
-`dreamlake artifact push <file> --id <id>`: the first push establishes chunks,
-later pushes send only new compressed chunks. CLI 0.38.0 through 0.39.0
-requires `--incremental` to opt in. `--full` (CLI 0.39.2+) uploads the entire
-file, including for older self-hosted viewers; `--no-incremental` remains a
-compatibility alias and is the spelling to use on CLI 0.39.1. Both formats can
-coexist in one history — keep the same `--id`. Limits, retry behaviour and
-older-viewer compatibility:
-[Incremental uploads](../reference/cli-artifacts.md#incremental-uploads).
+Current CLIs store repeated pushes of the same `--id` incrementally (only new
+chunks upload) and both storage formats coexist in one history, so keep the
+same `--id` across versions. Reach for `--full` only when an older
+self-hosted viewer must read the version. Which CLI versions default to
+incremental, the opt-in and opt-out spellings, the size limit and retry
+behaviour: [Incremental uploads](../reference/cli-artifacts.md#incremental-uploads).
 
 ## Link card (title, description, cover)
 
 Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
 
-- `--description` (CLI 0.85.0+): the sentence the card shows in Slack,
-  Twitter/X, LinkedIn or a chat tool. Give every new artifact one; update it
-  when the content meaningfully changes.
-- `--cover` (CLI 0.85.0+): PNG, JPEG or WebP, at least 600×315, at most
-  2 MiB, 1200×900 (4:3) recommended. Optional — without one DreamLake
-  generates a cover: a screenshot of the artifact as the viewer shows it,
-  taken within about fifteen minutes of a push (a new version gets a new
-  screenshot); the default DreamLake card stands in until then. Pass
-  `--cover` only when the user wants a specific image.
+- `--description`: the sentence the card shows in Slack, Twitter/X, LinkedIn
+  or a chat tool. Give every new artifact one; update it when the content
+  meaningfully changes.
+- `--cover` is optional: without one DreamLake generates a cover from a
+  screenshot of the artifact shortly after each push, with the default card
+  standing in until then. Pass `--cover` only when the user wants a specific
+  image. Accepted formats, size bounds, the recommended shape and the CLI
+  version both flags need: [Link previews](../reference/cli-artifacts.md#link-previews).
 - A title, description or cover the user set **survives later pushes**: a
   push without the flag keeps the stored value, so do not restate them on
   every re-push. Change or clear them later with

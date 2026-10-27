@@ -10,7 +10,8 @@ dreamlake source upload ./my-dataset --source <name> --recursive --to <prefix>
 ```
 
 For one file, omit `--recursive`; use `--to` to select a destination prefix.
-The CLI supports up to 1,000 files and 10 GiB per upload. For an unanswered
+Per-command file-count and size limits:
+[Upload files into a Source](../reference/cli-sources.md#upload-files-into-a-source). For an unanswered
 request, retry with the same `--idempotency-key` so it cannot create a second
 write. `upload` never creates or links a source: a namespace owner creates an
 empty managed-only Source with `dreamlake source create`, and external storage

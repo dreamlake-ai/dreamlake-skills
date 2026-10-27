@@ -46,7 +46,8 @@ metadata and an empty backend; it provisions no resources. Stack creation requir
 ADMIN authority. Use `--directory ''` for the repository root and retain the
 returned immutable stack UUID. Existing state is not copied or migrated.
 Each stack also gets one path in the Project resource tree; pass `--path
-infra/k3s/prod` or accept the default `infra/NAME/ENV`. A path occupied by a
+infra/k3s/prod` or accept the documented default
+([register an empty backend](../reference/cli-infrastructure.md#register-an-empty-backend)). A path occupied by a
 Note, folder or stack returns 409; choose another path rather than overwriting.
 
 Creation sends one request without automatic retries or a request-ID idempotency

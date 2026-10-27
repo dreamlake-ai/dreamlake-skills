@@ -32,37 +32,23 @@ users never see or write sha256s. Flags: `dreamlake library push --help` and
 
 ## Thumbnails and semantic search
 
-- `--thumbnails` renders 640px WebP previews (offscreen MuJoCo; **only
-  `mjcf` renders** — mesh/splat/image are skipped and only counted, so ship
-  those a `thumbnail.png`/`preview.png` at the asset root or a `thumbnail:`
-  in `dreamlake.yml`). Renders upload as PLATFORM artifacts under the
-  reserved `files/.dreamlake/` area — never into the user's directory. A
-  re-push WITHOUT the flag carries existing platform thumbnails forward.
-  Needs `pip install "dreamlake[compose]"`.
-- `--embed` computes the vectors that enable semantic search (768-d,
-  thumbnails + metadata text); content-hash cached, so re-runs only encode
-  what changed. **Requires `--thumbnails` in the same push** — and image
-  vectors come from thumbnails, so an asset with no thumbnail gets text
-  vectors only. Needs `pip install "dreamlake[embed]"`. Without usable
-  embeddings, search silently stays keyword-only — never an error.
-- `--model <name>` selects the encoder for `--embed`: `siglip2` (default,
-  and the ONLY space DreamLake search queries), `clip` (explicitly legacy →
-  keyword-only here), or a raw open_clip name. Omitted, the Python tool
-  decides — which is also where `DREAMLAKE_EMBED_MODEL` is read.
-  `dreamlake` ≥ 0.25.0 defaults to SigLIP2, so a plain
-  `--thumbnails --embed` is correct; `--model` without `--embed` errors.
-  The push prints the encoder it used and warns if it is not SigLIP2:
-
-  ```
-  vectors: .dreamlake/vectors.json + .dreamlake/vectors.f32 (open_clip/ViT-B-16-SigLIP2/webli, 768-d)
-  ```
-
-  `--json` exposes it as `embedModel`.
+- `--thumbnails` renders previews at push time and uploads them as platform
+  artifacts, never into the user's directory; a re-push without the flag
+  carries the existing ones forward. Only `mjcf` assets render: ship a
+  `thumbnail.*`/`preview.*` at the asset root (or `thumbnail:` in
+  `dreamlake.yml`) for mesh, splat and image assets, or they stay blank in
+  the grid and get text vectors only.
+- `--embed` computes the vectors that turn on semantic search and belongs in
+  the same push as `--thumbnails`. Leave `--model` out unless the user asks
+  for a specific encoder: the server searches one vector space only, and a
+  sidecar embedded with another model is keyword-only with no error at
+  query time — the push warns, nothing after it does. Without usable
+  embeddings, search silently stays keyword-only.
+- Preview size and format, the encoder list and default, the Python extras
+  each flag needs, cache behaviour and the `--dry-run`/`--verify`/`--force`
+  semantics: [Push it](../reference/docs-libraries.md#push-it).
 - **Confirm the library is searchable** with
-  `dreamlake library info <ns>/<name>` — `semantic` must be `true`. A
-  sidecar embedded with a different model than the server's query encoder
-  (`open_clip/ViT-B-16-SigLIP2/webli`) is keyword-only with no error at
-  query time — the push warns, nothing after it does.
+  `dreamlake library info <ns>/<name>` — `semantic` must be `true`.
 
 ## Importers for known repos
 

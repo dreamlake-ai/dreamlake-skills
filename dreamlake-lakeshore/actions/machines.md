@@ -74,8 +74,9 @@ CLI 0.52.1; consult the host enrollment reference for local
 Linux/macOS prerequisites. Keep the request ID for identical-input retries and
 never treat a pending receipt as online.
 
-Host enrollment and automatically enrolled provider launches enable web terminal
-by default in CLI 0.53.0. The selected option enables Nymph SSH for that Unix user; the gateway discovers
+Whether web terminal is enabled on host enrollment and on enrolled provider
+launches, and since which CLI, is in [web terminal](../reference/cli-host-enrollment.md#web-terminal)
+and [after an enrolled launch](../reference/cli-providers.md#web-terminal-after-an-enrolled-launch). The selected option enables Nymph SSH for that Unix user; the gateway discovers
 the exact signed enrollment and authorizes bounded sessions through the owner account. Use `--no-web-terminal` to opt out;
 never grant unrelated or previously enrolled workers as a side effect. This
 requires the owner-scoped discovery/delegation API, a compatible control plane, Nymph 0.1.11+

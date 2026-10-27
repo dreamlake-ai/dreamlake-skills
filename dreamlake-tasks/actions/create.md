@@ -10,7 +10,9 @@ dreamlake tasks add vault/entries/write-recovery --title 'Write recovery' --blur
 dreamlake tasks list vault --tree --to-json
 ```
 
-`--kind` defaults to `task`. The create response returns stable IDs and
+The `--kind` default is in
+[set scope once per session](../reference/cli-tasks.md#set-scope-once-per-session).
+The create response returns stable IDs and
 revisions: persist the IDs for API and evidence links, use readable paths only
 for lookup, and use the returned current revision for edits. Paths are
 project-unique and at most 32 levels deep; each task has one structural parent

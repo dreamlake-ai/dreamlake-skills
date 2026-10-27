@@ -23,7 +23,8 @@ structured integration.
 
 `list --all` is the scope survey: read the per-library descriptions to
 decide WHERE to search, then search there — with no `--library` the search
-fans out over up to 50 most recently updated visible libraries. Each hit
+fans out over a bounded number of recently updated visible libraries
+([scope defaults](../reference/docs-libraries.md#from-the-terminal-scope-defaults-to-every-library-you-can-see)). Each hit
 prints as ONE line — `ns/lib/asset  score  kind  license  — description` —
 closed by a `N of T hits · semantic on|off` footer; fetch a hit's
 `thumbnailUrl` (in `--json`) when you need to SEE the asset before

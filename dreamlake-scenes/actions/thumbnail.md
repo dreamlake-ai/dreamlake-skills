@@ -58,7 +58,7 @@ as `qpos0`/a keyframe, not rely on the sim running
   view as the cover (the angle is remembered and re-used for later
   versions).
 - `dreamlake scene push <dir> --thumbnail cover.png` uploads a ready-made
-  PNG (≤ 512 KiB); it works on a no-change push as a thumbnail-only update.
+  cover (format and size limit: [Thumbnails](../reference/docs-scenes.md#thumbnails)); it works on a no-change push as a thumbnail-only update.
 
 Both are marked *manual* and won't be auto-overwritten for that version.
 Owning page: [Thumbnails](../reference/docs-scenes.md#thumbnails).

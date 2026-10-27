@@ -40,8 +40,8 @@ Never request secret values in chat, Terraform inputs or user data.
 
 Run `dreamlake provider create -n NAME --provider aws-jump-worker --json`.
 Read its AGENT.md, ADAPT.md and schemas. Fill terraform.tfvars.json and backend.json
-in the returned terraform directory. Defaults are `reference-existing` and
-`controller_mode=external`. A new worker uses `mode=create`; preserve external
+in the returned terraform directory (shipped defaults:
+[scaffold, fill inputs and plan](../reference/cli-connect-aws.md#scaffold-fill-inputs-and-plan)). A new worker uses `mode=create`; preserve external
 controller mode unless the user explicitly wants dual EC2. `create` never applies.
 
 Drive `create --continue`, `plan`, and authorized `apply --yes` through `status`,
