@@ -1,0 +1,13 @@
+version: 1
+dataset:
+  format: lerobot
+  episodes: auto
+views:
+  - view: videoStack
+    cameras: ['observation.images.*']         # glob: every camera
+    overlays:
+      - { field: observation.keypoints_2d, as: keypoints }
+  - view: lineChart
+    series: [{ field: observation.state }]    # one trace per named dim
+  - view: timeline
+    tracks: [{ field: subtask_index, as: segments }]
