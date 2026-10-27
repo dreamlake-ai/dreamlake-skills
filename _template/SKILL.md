@@ -5,6 +5,13 @@ description: Template for a DreamLake skill; copy it to start a new one. It perf
 
 # dreamlake-example
 
+<!-- Author notes (delete this block):
+  Replace, in order: the frontmatter description (trigger + task boundary,
+  <= 300 chars in skill.json), the "When to use" bullets, the routing table
+  (one row per request shape -> one action), and the intro below. Keep the
+  "Canonical source" section. Stay under 80 lines. Rules and the full
+  procedure: CONTRIBUTING.md, "Writing rules" and "Create a new skill". -->
+
 This directory is the one shape every skill in this repository has. Copy it to
 `<name>/`, set `name` in `skill.json` and in the frontmatter above, and replace
 this text. A SKILL.md does two things: it says when to use the skill, and it

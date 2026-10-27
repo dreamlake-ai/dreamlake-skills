@@ -1,5 +1,12 @@
 # Publish a report as an artifact and hand back its link
 
+<!-- Author notes (delete this block): one task per page, named after the
+  task. Replace the title, "Before you start", "Steps" and "Exceptions"; keep
+  commands first and exceptions after. Link flag meaning, defaults and limits
+  to ../reference/<site>-<slug>.md#<heading> instead of restating them, and
+  name other skills (`the setup action of dreamlake-cli`) instead of linking
+  them. Rules: CONTRIBUTING.md, "Writing rules". -->
+
 One task per page. Commands first, exceptions after. Flag details are not
 restated here; they are in `reference/` or in `--help`.
 

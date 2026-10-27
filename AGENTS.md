@@ -18,9 +18,11 @@ skill another docs page, add its URL to `docs[]` and run the sync.
 Validation is `python3 scripts/check.py` (use `--offline` to skip the live
 URL check) plus `python3 -m unittest discover -s scripts -p 'test_*.py'`.
 Regenerate `catalog.json` with `python3 scripts/catalog.py` after changing any
-`skill.json` or `renamed.json`. Read [CONTRIBUTING.md](CONTRIBUTING.md) for
-the layout, the writing rules and the release flow; do not maintain a second
-policy here.
+`skill.json` or `renamed.json`. [CONTRIBUTING.md](CONTRIBUTING.md) is the
+single procedure: the lifecycle, the layout, the writing rules, how to maintain,
+create, split, rename or retire a skill, the size caps (defined once under
+"Maintain an existing skill"), the acceptance a PR needs and the release flow.
+Do not maintain a second policy here or in any skill.
 
 Releases are date tags cut by the nightly workflow; the `dreamlake` CLI
 installs from the release assets `skills.tar.gz` and `catalog.json`. A merged

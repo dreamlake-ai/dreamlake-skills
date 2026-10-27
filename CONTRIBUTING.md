@@ -1,10 +1,26 @@
-# Contributing a skill
+# Contributing
+
+This file is the one procedure for this repository: how a skill is shaped,
+maintained, created, accepted and released. README.md, AGENTS.md and the
+templates point here and restate nothing.
+
+## Lifecycle
+
+```
+edit <name>/ ──▶ python3 scripts/check.py ──▶ PR (check.yml: check.py --offline + unit tests)
+   ──▶ merge to main ──▶ nightly (nightly.yml): sync_references.py ──▶ commit ──▶ tag vYYYY.MM.DD
+   ──▶ release: skills.tar.gz + catalog.json ──▶ users: dreamlake skill update
+   ──▶ dreamlake-cli repository bumps skills.lock to the tag (its embedded dreamlake-cli skill)
+
+product fact changed ──▶ edit the product repository's docs/pages ──▶ docs site deploys
+   ──▶ next nightly refreshes reference/ (no skill edit)
+```
 
 Two rules decide where a change goes:
 
 - A **product fact** (a command, flag, API, behaviour) is wrong or missing:
   fix the docs site in its product repository. The skill picks it up on the
-  next nightly sync. Do not patch the fact into an action page.
+  next nightly sync. Never patch the fact into an action page.
 - A **task step**, exception or troubleshooting note is wrong or missing:
   change `<skill>/actions/` here and open a PR.
 
@@ -40,7 +56,8 @@ Every skill has exactly this shape; `_template/` is a complete example.
 ```
 
 - `name` equals the directory name and matches `^[a-z][a-z0-9-]*$`.
-- `description` is one sentence: the user goal the skill owns.
+- `description` is one sentence of at most 300 characters stating the task
+  boundary: what the skill owns and, when it helps routing, what it does not.
 - `requires` lists every skill this one hands off to. The installer installs
   them together; CI checks that each exists and that there is no cycle.
 - `docs` lists page URLs on `docs.dreamlake.ai`, `cli.dreamlake.ai` or
@@ -52,7 +69,7 @@ Every skill has exactly this shape; `_template/` is a complete example.
 
 The full schema is [`skill.schema.json`](skill.schema.json).
 
-## The three metadata files
+## The metadata files
 
 | File | Scope | Written by | Holds | Why it exists |
 |---|---|---|---|---|
@@ -72,13 +89,15 @@ check fails.
 - `SKILL.md` does two things: says when to use the skill, and routes the
   request to one action. Its frontmatter `description` states the task
   boundary; it is not a keyword list. It ends with a `## Canonical source`
-  section naming the docs sites. Validate the description with both agents on
-  three kinds of request: a representative task, an SDK request, and a
-  capability the skill does not have.
-- One action, one page. Commands first, exceptions after. For flag detail,
-  point at a page in `reference/` or at `--help`; do not restate it.
+  section naming the docs sites.
+- One action, one page. Commands first, exceptions after. Keep the *why* and
+  *when*; for what a flag means, its defaults, limits, formats or package
+  dependencies, link the exact section: `../reference/<site>-<slug>.md#<heading>`
+  (a real heading of the fetched page, not a `#` comment inside a code block)
+  or say `--help`. Do not restate it: the nightly fetch cannot fix a hand-written copy.
 - A wrong fact is fixed on the docs site, never patched in an action.
-- Declare `requires`. Refer to other skills by name, never by path.
+- Declare `requires`. Refer to other skills by name (`the publish action of
+  dreamlake-workflows`), never by path.
 - `reference/` is generated. Change `docs[]` only when a new skill needs pages
   or the docs site gained a page the skill should carry; day-to-day docs
   changes need nothing here.
@@ -87,9 +106,88 @@ check fails.
   From `SKILL.md` write `actions/publish.md` and `reference/cli-artifacts.md`;
   from `actions/*.md` write `../reference/cli-artifacts.md`, `../assets/x.json`
   and `share.md` for a sibling action; from `assets/<dir>/*.md` add one more
-  `../`. A link must stay inside its skill; other skills are named, not linked.
-- Before release, install the skill into an isolated directory and read it
-  back word for word.
+  `../`. A link must stay inside its skill.
+- Stay under the size caps in [Maintain an existing skill](#maintain-an-existing-skill);
+  past them, split by user goal rather than trimming steps.
+
+## Maintain an existing skill
+
+| You want to | Do |
+|---|---|
+| Change a step, an exception or a troubleshooting note | Edit `<name>/actions/<action>.md`; keep the page one task. Run `python3 scripts/check.py --offline`. |
+| Fix a wrong product fact | Open the docs page it came from (first line of the `reference/` file names the URL) and fix it in that product repository's `docs/pages`. The next nightly refreshes `reference/`. Never patch the action. |
+| Add or drop a reference page | Edit `docs[]` in `<name>/skill.json` (page URL without `.md`; `curl -fsI <url>.md` must be 200), then `python3 scripts/sync_references.py --skill <name>`; commit `reference/` and `references.lock` with the change. |
+| Add a tool | Script in `tools/` plus `tools/test_<tool>.py`; tests must skip cleanly when a package is absent (`pytest.importorskip("mujoco")`); declare the runtime in `skill.json.tools`. `check.py` runs the tests under pytest. |
+| Add an asset | Schema, template, example or contract in `assets/`; link it from the action as `../assets/<file>`. |
+| Rename or retire a skill | `git mv <old> <new>` (or delete the directory); add `"<old>": "<new>"` to `renamed.json`; update `requires` in every dependent `skill.json`; replace mentions by name; write `docs/migration-<topic>/<old>.md` (source section -> destination); `python3 scripts/catalog.py`. |
+| Split a skill that grew past the caps | New directory with its own `skill.json` (`requires` the parent when it hands off to it); `git mv` the actions; turn cross-skill links into names; split `docs[]` by what each action links and re-sync both skills; migration note as above; README table row. |
+
+### Size caps
+
+These are defined here and referenced everywhere else:
+
+- about 50 KB of hand-written text per skill (SKILL.md + actions + text assets; `tools/` and `reference/` do not count);
+- about 12 actions;
+- `SKILL.md` at most 80 lines (`check.py` enforces this one).
+
+Past a cap, split by user goal; do not trim steps to fit. The split of
+`dreamlake-lakeshore` out of `dreamlake-cli` in `docs/migration-0010/` is the
+worked example.
+
+## Create a new skill
+
+1. `cp -R _template <name>`; delete the comment blocks the template carries.
+2. `skill.json`: `name` equal to the directory; `description` of at most 300
+   characters written as task boundaries; `requires`; `docs[]`; `tools`.
+3. Verify every `docs[]` URL serves Markdown: `curl -fsI <url>.md` returns 200
+   (`index.md` for a site root). Pages are listed at `<site>/llms.txt`.
+4. `SKILL.md` (at most 80 lines): the trigger (when to use, when not), a routing
+   table from request to one action, and the `## Canonical source` section.
+5. One action per task in `actions/`: commands first, exceptions after, flag
+   detail as links into `../reference/`.
+6. `python3 scripts/sync_references.py --skill <name>`, then
+   `python3 scripts/catalog.py`, then `python3 scripts/check.py` (online: checks
+   the URLs) and `python3 -m unittest discover -s scripts -p 'test_*.py'`.
+7. Add the row to the README skills table (description from `skill.json`).
+8. Run the acceptance below and open the PR with `reference/`,
+   `references.lock` and `catalog.json` included.
+
+## Acceptance before merge
+
+1. Install the branch's copy of the skill and everything in its `requires`
+   into a temporary project for both agents. The CLI installs its released
+   bundle, so copy the working tree:
+
+   ```bash
+   tmp="$(mktemp -d)"; mkdir -p "$tmp/.claude/skills" "$tmp/.agents/skills"
+   for s in <name> $(python3 -c "import json; print(' '.join(json.load(open('<name>/skill.json'))['requires']))"); do
+     cp -R "$s" "$tmp/.claude/skills/" && cp -R "$s" "$tmp/.agents/skills/"
+   done
+   ```
+
+   After the release, `dreamlake skill install <name> --agent claude --dir "$tmp"`
+   and `dreamlake skill install <name> --agent codex --dir "$tmp"` re-check the
+   released copy.
+2. Open the installed `SKILL.md` and read it back word for word.
+3. Start Claude Code and Codex in `$tmp` and run three requests each: a
+   representative task; an SDK-only request; a capability the skill does not
+   have. Pass means: the agent opens the intended action; the SDK request is
+   handled or declined the way `SKILL.md` says; the unsupported capability is
+   refused without invented commands.
+4. Paste the six results (three per agent) in the PR.
+
+## PR checklist
+
+- [ ] The change is a step/exception (here) or a fact (docs site), not a fact patched into an action.
+- [ ] `python3 scripts/check.py --offline` and `python3 -m unittest discover -s scripts -p 'test_*.py'` pass; output in the PR.
+- [ ] No hand edits under any `reference/`; `references.lock` and `catalog.json` regenerated when `docs[]` or `skill.json` changed.
+- [ ] Flag semantics are links into `../reference/<page>.md#<heading>`, not restated.
+- [ ] Links are file-relative and stay inside the skill; other skills are named.
+- [ ] `requires` closure is right; `renamed.json` updated for a rename or merge.
+- [ ] Moved or retired files have a note under `docs/migration-<topic>/`.
+- [ ] Size caps respected, or the skill was split.
+- [ ] Acceptance results for both agents pasted.
+- [ ] Nothing private or operational in any page: this repository and its releases are public.
 
 ## How reference pages are fetched
 
@@ -123,19 +221,6 @@ python3 scripts/catalog.py --check
 python3 scripts/package.py                         # dist/skills.tar.gz and dist/catalog.json, as the release does
 ```
 
-## Adding a skill
-
-1. Copy `_template/` to `<name>/`; set `name` in `skill.json` and in the
-   `SKILL.md` frontmatter; fill `description`, `requires` and `docs`.
-2. Write `SKILL.md` and the action pages. Delete the example action.
-3. Run `python3 scripts/sync_references.py --skill <name>` to fetch
-   `reference/`, then `python3 scripts/catalog.py`.
-4. Run `python3 scripts/check.py` and the unit tests; open a PR with the
-   generated `reference/`, `references.lock` and `catalog.json` included.
-
-Merging or renaming a skill: add one line to `renamed.json`, delete the old
-directory, regenerate `catalog.json`.
-
 ## Releases
 
 Pull requests run `check.py --offline` and the unit tests. Nightly, CI fetches
@@ -144,7 +229,7 @@ differs from the last tag it tags `vYYYY.MM.DD` (`.N` when that date is
 taken), builds `skills.tar.gz` and `catalog.json` (the committed catalog plus
 the tarball's `assets` hash and size), and publishes a GitHub release. The
 `dreamlake` CLI installs from that release; its own repository pins a tag in
-`skills.lock`.
+`skills.lock` and embeds the `dreamlake-cli` skill at that tag.
 
 Push with an explicit ref, `git push origin HEAD:refs/heads/<branch>`, never a
 bare `git push`.

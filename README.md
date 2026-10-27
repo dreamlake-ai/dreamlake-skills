@@ -88,6 +88,10 @@ references.lock    generated record of every fetched reference page (scripts/syn
 scripts/           sync_references.py, check.py, catalog.py, package.py and their tests
 ```
 
-How to write or change a skill, and the commands behind CI, are in
-[CONTRIBUTING.md](CONTRIBUTING.md). Releases are tagged `vYYYY.MM.DD` by the
-nightly workflow whenever `main` has moved since the previous tag.
+## Contributing
+
+Edit a skill, run `python3 scripts/check.py`, open a PR; after the merge the
+nightly workflow refreshes every `reference/`, tags `vYYYY.MM.DD` when `main`
+has moved, and publishes the release that `dreamlake skill update` installs.
+Everything else, from fixing a step to creating or splitting a skill and the
+acceptance a PR needs, is in [CONTRIBUTING.md](CONTRIBUTING.md).
