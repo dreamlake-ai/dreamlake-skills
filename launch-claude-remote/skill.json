@@ -1,0 +1,7 @@
+{
+  "name": "launch-claude-remote",
+  "description": "Create a new named Claude Remote Control session with maximum permissions in a detached tmux terminal on this host, so the user can continue in their Claude app; keeps existing sessions running.",
+  "requires": [],
+  "docs": [],
+  "tools": { "python": ">=3.8", "packages": [] }
+}
