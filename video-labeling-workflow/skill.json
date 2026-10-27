@@ -1,0 +1,10 @@
+{
+  "name": "video-labeling-workflow",
+  "description": "Create and publish the fixed DreamLake video subtask-labeling workflow: collect the source, video and reference-annotation paths, verify the worker can read them, fill the bundled template, confirm with the user, and push a workflow they can Run from the canvas.",
+  "requires": ["dreamlake-workflows", "dreamlake-datasets"],
+  "docs": [
+    "https://docs.dreamlake.ai/workflows",
+    "https://cli.dreamlake.ai/workflows"
+  ],
+  "tools": null
+}

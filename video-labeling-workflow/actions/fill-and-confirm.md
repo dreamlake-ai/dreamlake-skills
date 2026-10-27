@@ -2,7 +2,7 @@
 
 ### 4. Fill the template
 
-Copy `../reference/template.workflow.json` and substitute:
+Copy [`../assets/templates/video-labeling.workflow.json`](../assets/templates/video-labeling.workflow.json) and substitute:
 
 | Placeholder | Value |
 |---|---|
@@ -96,7 +96,8 @@ spec will carry — not what they typed, what you resolved:
 >
 > 确认无误我就创建。
 
-Then stop and wait for an answer. This is the last point where a swapped pair of
+Then stop and wait for an answer; only after confirmation continue with
+[publish-and-handoff](publish-and-handoff.md). This is the last point where a swapped pair of
 paths or the wrong namespace costs one line instead of a failed run — and the
 one moment the user can see the whole reference at once, which is the reason it
 is spelled out rather than summarised as "validated ✓".

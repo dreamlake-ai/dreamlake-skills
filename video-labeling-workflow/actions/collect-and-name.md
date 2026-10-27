@@ -11,13 +11,14 @@ Say **workflow**, never "pipeline". Keep every message short. Announce nothing;
 just ask for what you need, then report the link.
 
 Internally: the graph is not yours to design. Fill
-`../reference/template.workflow.json` and change nothing else. Do not route this
-through `workflow-generator` — that skill designs new graphs from a description,
-and is only appropriate when the user wants something this workflow does not do.
+`../assets/templates/video-labeling.workflow.json` and change nothing else. Do not
+route this through the `design` action of `dreamlake-workflows` — that designs new
+graphs from a description, and is only appropriate when the user wants something
+this workflow does not do.
 
 ## The workflow
 
-Five stages, nine nodes — `../reference/template.workflow.json`:
+Five stages, nine nodes — `../assets/templates/video-labeling.workflow.json`:
 
 ```
 prepare    video_source ──┬─→ video_to_lerobot ─→ subtask_labeler (uda) ─┬────────┐
@@ -85,7 +86,7 @@ runs on whatever machine the chat is hosted on, which is not necessarily anyone'
 laptop.
 
 If the user already supplied everything in their opening message, skip this and
-go straight to validation.
+go straight to validation ([check-inputs](check-inputs.md)).
 
 Why each matters (for your own judgement, not to recite): the reference file
 needs `phase_captions` to score against; the task description is fed to the

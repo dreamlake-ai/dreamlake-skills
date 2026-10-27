@@ -1,6 +1,6 @@
 # Publish And Handoff
 
-### 5. Publish — invoke `workflow-publish`
+### 5. Publish — run the `publish` action of `dreamlake-workflows`
 
 Pass the target namespace through if the user named one. It validates and
 pushes, then reports the canvas URL.
