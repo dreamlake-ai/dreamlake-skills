@@ -48,17 +48,18 @@ dreamlake skill update                         # refresh what is installed
 ```
 
 By hand: every release carries `skills.tar.gz`, whose top-level entries are
-the skill directories, and `catalog.json`, which lists each skill with its
-`requires` and, under `assets`, the tarball's sha256 and size so you can verify
-the download. Download the latest, extract it, and copy the skill directory plus
-every directory it requires into your agent's skills folder: `.claude/skills/`
-for Claude Code or `.agents/skills/` for Codex, either in the project or in
-your home directory.
+the skill directories plus `catalog.json`, and a separate `catalog.json` that
+also records the tarball's sha256 and size under `assets` so you can verify the
+download. Unpack, read `catalog.json`, and copy the skill directory and every
+directory in its `requires` closure (follow `requires` transitively) into your
+agent's skills folder: `.claude/skills/` for Claude Code or `.agents/skills/`
+for Codex, either in the project or in your home directory.
 
 ```bash
 curl -fsSL -o skills.tar.gz \
   https://github.com/dreamlake-ai/dreamlake-skills/releases/latest/download/skills.tar.gz
 mkdir -p dreamlake-skills && tar -xzf skills.tar.gz -C dreamlake-skills
+python3 -c 'import json;print(json.load(open("dreamlake-skills/catalog.json"))["skills"]["dreamlake-artifacts"]["requires"])'
 mkdir -p .claude/skills
 cp -R dreamlake-skills/dreamlake-artifacts dreamlake-skills/dreamlake-cli .claude/skills/
 ```

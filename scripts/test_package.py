@@ -50,6 +50,7 @@ class PackageTests(unittest.TestCase):
         with tarfile.open(archive) as tar:
             members = tar.getmembers()
         self.assertEqual([m.name for m in members], [
+            'catalog.json',
             'dreamlake-cli', 'dreamlake-cli/SKILL.md', 'dreamlake-cli/actions', 'dreamlake-cli/actions/do.md',
             'dreamlake-cli/reference', 'dreamlake-cli/reference/cli-x.md', 'dreamlake-cli/skill.json',
             'dreamlake-notes', 'dreamlake-notes/SKILL.md', 'dreamlake-notes/actions', 'dreamlake-notes/actions/do.md',
@@ -58,6 +59,12 @@ class PackageTests(unittest.TestCase):
         ])
         by_name = {m.name: m for m in members}
         self.assertTrue(by_name['dreamlake-cli'].isdir())
+        # The archived catalog is the committed one: top level = skill dirs + catalog.json, and no `assets`.
+        self.assertEqual(sorted(n for n in by_name if '/' not in n), ['catalog.json', 'dreamlake-cli', 'dreamlake-notes'])
+        with tarfile.open(archive) as tar:
+            archived = json.load(tar.extractfile('catalog.json'))
+        self.assertEqual(archived, json.loads((self.root / 'catalog.json').read_text()))
+        self.assertNotIn('assets', archived)
         self.assertEqual(by_name['dreamlake-notes/tools/run.py'].mode, 0o755)
         self.assertEqual(by_name['dreamlake-cli/SKILL.md'].mode, 0o644)
         self.assertTrue(all(m.mtime == package.DEFAULT_EPOCH and m.uid == 0 and m.uname == '' for m in members))

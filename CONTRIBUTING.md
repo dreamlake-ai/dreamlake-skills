@@ -226,8 +226,10 @@ python3 scripts/package.py                         # dist/skills.tar.gz and dist
 Pull requests run `check.py --offline` and the unit tests. Nightly, CI fetches
 every `reference/`, validates, commits any change to `main`, and when `main`
 differs from the last tag it tags `vYYYY.MM.DD` (`.N` when that date is
-taken), builds `skills.tar.gz` and `catalog.json` (the committed catalog plus
-the tarball's `assets` hash and size), and publishes a GitHub release. The
+taken), builds `skills.tar.gz` (every skill directory plus the committed
+`catalog.json` at the archive root, so a manual installer can read `requires`
+offline) and the release `catalog.json` (the committed catalog plus the
+tarball's `assets` hash and size), and publishes a GitHub release. The
 `dreamlake` CLI installs from that release; its own repository pins a tag in
 `skills.lock` and embeds the `dreamlake-cli` skill at that tag.
 

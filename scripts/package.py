@@ -3,7 +3,9 @@
 
 The tarball's top-level entries are the skill directories (every top-level
 directory with a skill.json except _template/), including their generated
-reference/. Dotfiles, __pycache__ and *.pyc are left out. The archive is
+reference/, plus the committed catalog.json (without `assets`) so a manual
+installer can read `requires` from the archive. Dotfiles, __pycache__ and
+*.pyc are left out. The archive is
 deterministic: entries are sorted, ownership is cleared, every mtime is
 SOURCE_DATE_EPOCH (default 2024-01-01T00:00:00Z) and the gzip header carries
 no timestamp or file name. dist/catalog.json is the repository catalog.json
@@ -40,7 +42,8 @@ class PackageError(Exception):
 
 
 def entries(root):
-    """Yield (archive name, path, is_dir) in a fixed order: each skill, its directories, its files."""
+    """Yield (archive name, path, is_dir) in a fixed order: catalog.json, then each skill, its directories, its files."""
+    yield catalog.CATALOG_FILE, root / catalog.CATALOG_FILE, False
     for skill_dir in catalog.skill_dirs(root):
         yield skill_dir.name, skill_dir, True
         seen = set()
