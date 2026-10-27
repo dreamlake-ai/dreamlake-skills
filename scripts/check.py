@@ -5,6 +5,8 @@ Per skill directory (every top-level directory except scripts/, docs/, evidence/
 dist/ and dot-prefixed ones; _template/ included):
   - skill.json exists and is valid against skill.schema.json; name equals the directory name
   - requires names existing skills, never itself, and the graph has no cycles
+  - top-level entries are only skill.json, SKILL.md, actions/, tools/, assets/, reference/
+    and agents/ (optional Codex UI metadata: openai.yaml or other *.yaml files, nothing else)
   - SKILL.md has frontmatter with the same name, at most 80 lines, and ends with '## Canonical source'
   - actions/ holds at least one .md page
   - no legacy references/ directory; reference/ holds only generated files
@@ -37,6 +39,10 @@ RENAMED_FILE = 'renamed.json'
 TEMPLATE_DIR = '_template'
 NON_SKILL_DIRS = {'scripts', 'docs', 'evidence', 'dist', 'node_modules', '__pycache__'}
 LEGACY_DIRS = ('references',)
+SKILL_FILES = {sync.SKILL_FILE, 'SKILL.md'}
+SKILL_DIRS = {'actions', 'tools', 'assets', sync.REFERENCE_DIR, 'agents'}
+AGENTS_DIR = 'agents'
+AGENT_META_SUFFIXES = ('.yaml', '.yml')
 MAX_SKILL_LINES = 80
 CANONICAL_HEADING = '## Canonical source'
 NAME_RE = re.compile(r'^[a-z][a-z0-9-]*$')
@@ -177,6 +183,29 @@ def check_skill_md(skill_dir, meta, report):
         report.fail(name, f"the '{CANONICAL_HEADING}' section of SKILL.md is empty")
 
 
+def check_layout(skill_dir, report):
+    """Only the sanctioned entries at the top of a skill; agents/ holds Codex metadata (*.yaml) only."""
+    name = skill_dir.name
+    for entry in sorted(skill_dir.iterdir()):
+        if entry.name.startswith('.') or entry.name == '__pycache__' or entry.name in LEGACY_DIRS:
+            continue
+        if entry.is_dir():
+            if entry.name not in SKILL_DIRS:
+                report.fail(name, f'{entry.name}/ is not part of a skill; allowed directories are '
+                                  f'{", ".join(sorted(SKILL_DIRS))}')
+        elif entry.name not in SKILL_FILES:
+            report.fail(name, f'{entry.name} is not part of a skill; top-level files are '
+                              f'{" and ".join(sorted(SKILL_FILES))}')
+    agents = skill_dir / AGENTS_DIR
+    if agents.is_dir():
+        for entry in sorted(agents.iterdir()):
+            if entry.name.startswith('.'):
+                continue
+            if entry.is_dir() or entry.suffix not in AGENT_META_SUFFIXES:
+                report.fail(name, f'{AGENTS_DIR}/{entry.name}: {AGENTS_DIR}/ holds only Codex UI metadata '
+                                  f'(openai.yaml); put other material in actions/, assets/ or tools/')
+
+
 def check_actions(skill_dir, report):
     actions = skill_dir / 'actions'
     if not actions.is_dir() or not any(actions.glob('*.md')):
@@ -269,6 +298,7 @@ def check_skill(skill_dir, schema, report, run_tests=True):
             meta = None
     if meta is not None and name != TEMPLATE_DIR and meta['name'] != name:
         report.fail(name, f'{sync.SKILL_FILE}: name {meta["name"]!r} must equal the directory name')
+    check_layout(skill_dir, report)
     check_skill_md(skill_dir, meta, report)
     check_actions(skill_dir, report)
     check_reference_dir(skill_dir, report)

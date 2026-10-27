@@ -71,7 +71,7 @@ without a person at the keyboard, set two variables explicitly:
 ## Repository layout
 
 ```
-<name>/            one skill: skill.json, SKILL.md, actions/, optional tools/ and assets/, generated reference/
+<name>/            one skill: skill.json, SKILL.md, actions/, optional tools/, assets/ and agents/ (Codex UI metadata, openai.yaml), generated reference/
 _template/         copy this to start a new skill
 skill.schema.json  what skill.json must look like
 renamed.json       retired skill names -> current names

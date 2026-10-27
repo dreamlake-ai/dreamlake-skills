@@ -19,6 +19,7 @@ Every skill has exactly this shape; `_template/` is a complete example.
   actions/*.md        one task per page, commands first, exceptions after (hand-written)
   tools/              optional scripts; must ship tests as tools/test_*.py (hand-written)
   assets/             optional schemas, templates, examples, contracts (hand-written)
+  agents/             optional, Codex UI metadata (`openai.yaml`); nothing else goes here
   reference/*.md      docs pages fetched by CI from skill.json docs[]; never edited by hand
 ```
 

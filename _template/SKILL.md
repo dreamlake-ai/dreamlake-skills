@@ -33,6 +33,7 @@ repeat flag details; it points at a page in `reference/` or at `--help`.
 - Other skills are referred to by name (`dreamlake-cli`), never by path.
 - `requires` in `skill.json` lists every skill this one hands off to; the
   installer installs them together.
+- `agents/` is optional and holds only Codex UI metadata (`openai.yaml`).
 
 ## Canonical source
 

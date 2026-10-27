@@ -141,6 +141,23 @@ class CheckTests(unittest.TestCase):
         path.unlink()
         self.assertFailure('dreamlake-cli: missing SKILL.md')
 
+    def test_layout_rules(self):
+        (self.cli / 'notes.txt').write_text('')
+        self.assertFailure('dreamlake-cli: notes.txt is not part of a skill; top-level files are SKILL.md and skill.json')
+        (self.cli / 'notes.txt').unlink()
+        (self.cli / 'scripts').mkdir()
+        self.assertFailure('dreamlake-cli: scripts/ is not part of a skill; allowed directories are '
+                           'actions, agents, assets, reference, tools')
+        (self.cli / 'scripts').rmdir()
+        (self.cli / 'agents').mkdir()
+        (self.cli / 'agents' / 'openai.yaml').write_text('interface:\n  display_name: "CLI"\n')
+        self.assertEqual([f for f in self.failures() if 'agents' in f], [])
+        (self.cli / 'agents' / 'README.md').write_text('')
+        self.assertFailure('dreamlake-cli: agents/README.md: agents/ holds only Codex UI metadata (openai.yaml)')
+        (self.cli / 'agents' / 'README.md').unlink()
+        (self.cli / 'agents' / 'sub').mkdir()
+        self.assertFailure('dreamlake-cli: agents/sub: agents/ holds only Codex UI metadata (openai.yaml)')
+
     def test_actions_and_reference_dir_rules(self):
         (self.cli / 'actions' / 'do.md').unlink()
         self.assertFailure('dreamlake-cli: actions/ must hold at least one .md page')
