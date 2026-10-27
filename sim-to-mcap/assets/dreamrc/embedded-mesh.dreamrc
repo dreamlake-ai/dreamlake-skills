@@ -1,0 +1,19 @@
+version: 1
+name: Robot rollout
+dataset:
+  format: mcap
+  episodes: auto
+views:
+  - view: recon3d
+    up: z
+    originMarker: axes
+    tracks:
+      - { field: "/tf::*", as: transform3d }   # every body pose over time
+    geometry:
+      - "/robot::*"                             # every embedded body mesh
+    trail: { ahead: 1, behind: 0.5 }            # motion trail around the playhead
+  - view: timeline
+  - view: lineChart
+    title: "/metrics"
+    series:
+      - "/metrics"                              # every scalar column as a trace

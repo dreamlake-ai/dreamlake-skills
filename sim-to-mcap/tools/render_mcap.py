@@ -135,6 +135,17 @@ def robot_mesh_entities(env):
 # ---------------------------------------------------------------------------
 # Sim-agnostic core — writes the MCAP.
 # ---------------------------------------------------------------------------
+def wxyz_to_xyzw(q):
+    """MuJoCo / mjlab store quaternions as wxyz; Foxglove `Quaternion` is xyzw."""
+    w, x, y, z = (float(v) for v in q)
+    return x, y, z, w
+
+
+def log_time_ns(step, step_dt):
+    """Nanosecond log time of control step `step` at period `step_dt` seconds."""
+    return int(step * step_dt * 1e9)
+
+
 def main():
     import torch  # noqa: F401  (mjlab policies are torch; harmless elsewhere)
 
@@ -146,14 +157,16 @@ def main():
         with torch.no_grad():
             action = policy(obs)
         obs, reward, done, _ = env.step(action)
-        ns = int(t * STEP_DT * 1e9)
+        ns = log_time_ns(t, STEP_DT)
 
         # /tf : one FrameTransform per body (MuJoCo quat wxyz -> Foxglove xyzw)
-        tfs = [FrameTransform(
-                   parent_frame_id="world", child_frame_id=name,
-                   translation=Vector3(x=float(p[0]), y=float(p[1]), z=float(p[2])),
-                   rotation=Quaternion(x=float(q[1]), y=float(q[2]), z=float(q[3]), w=float(q[0])))
-               for name, p, q in body_world_poses(env)]
+        tfs = []
+        for name, p, q in body_world_poses(env):
+            x, y, z, w = wxyz_to_xyzw(q)
+            tfs.append(FrameTransform(
+                parent_frame_id="world", child_frame_id=name,
+                translation=Vector3(x=float(p[0]), y=float(p[1]), z=float(p[2])),
+                rotation=Quaternion(x=x, y=y, z=z, w=w)))
         foxglove.log("/tf", FrameTransforms(transforms=tfs), log_time=ns)
 
         # /robot : the meshes, ONCE, frame-locked

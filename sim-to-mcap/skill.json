@@ -1,0 +1,14 @@
+{
+  "name": "sim-to-mcap",
+  "description": "Roll a trained policy out in a local Python physics simulator and write an indexed MCAP with Foxglove /tf, /robot and /metrics channels that DreamLake plays natively, then hand the file to dreamlake-datasets.",
+  "requires": ["dreamlake-datasets"],
+  "docs": [
+    "https://docs.dreamlake.ai/sim-rollouts",
+    "https://docs.dreamlake.ai/sources",
+    "https://viz.dreamlake.ai/dataset-viz/reference",
+    "https://viz.dreamlake.ai/dataset-viz/spec",
+    "https://viz.dreamlake.ai/dataset-viz/views",
+    "https://viz.dreamlake.ai/dataset-viz/robots"
+  ],
+  "tools": { "python": ">=3.10", "packages": ["foxglove-sdk", "trimesh", "numpy"] }
+}

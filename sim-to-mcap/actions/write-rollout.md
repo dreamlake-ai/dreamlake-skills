@@ -1,6 +1,6 @@
-# Write Rollout
+# Write the rollout: three channels in Foxglove schemas
 
-## 1. Emit three channels, in Foxglove schemas
+## 1. Emit three channels
 
 DreamLake reads MCAP through Foxglove/ROS well-known schemas with **zero
 config** — pick the schema and it renders. A robot rollout maps to exactly
@@ -14,7 +14,9 @@ three channels:
 
 The motion lives in `/tf`; the shape lives in `/robot`; the numbers live in
 `/metrics`. They are independent — a tf-only file already renders as a moving
-skeleton, and `/robot` or a URDF (step 3) puts a body on it.
+skeleton, and `/robot` or a URDF ([embody](embody.md)) puts a body on it.
+Which schemas decode, and how:
+[reference/viz-dataset-viz-reference.md](../reference/viz-dataset-viz-reference.md).
 
 Install the writer once:
 
@@ -25,7 +27,8 @@ pip install foxglove-sdk       # writes indexed MCAP with well-known schemas
 ## 2. Roll out and write
 
 The shape of the loop (full runnable template in
-[`reference/render_mcap.py`](../reference/render_mcap.py)):
+[`tools/render_mcap.py`](../tools/render_mcap.py) — replace the three
+`# === mjlab-specific ===` hooks for another simulator):
 
 ```python
 import foxglove
@@ -63,29 +66,5 @@ Two rules the writer must follow:
   with `frame_locked=True` and no lifetime; each mesh entity's `frame_id` is a
   body name, so the one-time meshes ride the per-step `/tf` and the file stays small.
 
-## 3. Give it a body — embedded mesh OR a URDF
-
-Two ways to get the mesh onto the skeleton. Pick one.
-
-| | **(a) Embed the mesh** | **(b) Point at a URDF** |
-|---|---|---|
-| where the mesh lives | inside the `.mcap`, on `/robot` | an external `.urdf` named in the `.dreamrc` |
-| `.dreamrc` binding | `geometry: ["/robot::*"]` | `models: ["…/robot.urdf"]` |
-| file size | larger (carries geometry) | smaller (tf-only rollout) |
-| self-contained | ✅ one file, no external dep | needs the URL reachable + link names = tf frame names |
-
-**(a) Embed as OBJ or GLB — never STL.** DreamLake's mesh loader accepts
-`glb` / `gltf` / `obj` only. If your sim's mesh assets are STL, convert per
-body at write time (e.g. read `mesh_vert`/`mesh_face` from the model, apply
-each geom's `pos`/`quat`, `trimesh.export(file_type="obj")`), and set the
-`ModelPrimitive` `media_type="model/obj"`. STL bytes are silently dropped and
-the robot renders as bare axes.
-
-**(b) Reuse a URDF preset.** If DreamLake's robot registry
-(`live9080/dreamlake-robots`) has your robot and its link names match your tf
-frame names, skip embedding entirely — emit a tf-only MCAP and let the
-`.dreamrc` load the URDF:
-`models: ["https://huggingface.co/datasets/live9080/dreamlake-robots/resolve/main/g1/g1_29dof.urdf"]`.
-
-Both are covered as complete, validated `.dreamrc` files in
-[`reference/dreamrc-examples.md`](../reference/dreamrc-examples.md).
+Next: [embody](embody.md) — decide whether the mesh travels inside the file or
+comes from a URDF.
