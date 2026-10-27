@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" role="img" aria-label="Push, then share">
+  <!-- kind: svg — a complete element with a viewBox so it scales; it is centered and capped at 100% width.
+       Use currentColor so it stays legible on the light and dark base. -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <rect x="8" y="30" width="120" height="60" rx="8" fill="none" stroke="currentColor"/>
+  <text x="68" y="65" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="currentColor">Push artifact</text>
+  <path d="M128 60 H184" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="192" y="30" width="120" height="60" rx="8" fill="none" stroke="currentColor"/>
+  <text x="252" y="65" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="currentColor">Share link</text>
+</svg>

@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- kind: html — a complete self-contained document. The injected base styles
+     and Tailwind do NOT apply here; ship every style inline. No external
+     scripts, stylesheets, fonts, images or fetches (CSP). -->
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font: 16px/1.6 system-ui, sans-serif; padding: 0; }
+  @media (prefers-color-scheme: dark) { body { background: #0b0b0c; color: #e5e5e5; } }
+  .card { max-width: 40rem; margin: 0 auto; }
+</style>
+</head>
+<body>
+  <main class="card"><h1>Hello</h1><p>Self-contained HTML artifact.</p></main>
+</body>
+</html>

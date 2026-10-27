@@ -1,0 +1,5 @@
+%% kind: mermaid — the file is the diagram source, nothing else.
+flowchart LR
+  A[Push artifact] --> B{visibility?}
+  B -->|public| C[Anyone can view]
+  B -->|private| D[Members + share link]
