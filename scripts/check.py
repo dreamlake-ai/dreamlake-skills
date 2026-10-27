@@ -12,7 +12,8 @@ dist/ and dot-prefixed ones; _template/ included):
   - no legacy references/ directory; reference/ holds only generated files
   - every relative link in SKILL.md, actions/*.md and assets/**/*.md is resolved from the
     file that holds it (standard Markdown) and lands on a file inside the skill
-  - tools/test_*.py pass under pytest (a warning if pytest is not installed)
+  - tools/test_*.py pass under pytest (a warning if pytest is not installed, or if every
+    test skipped itself because a package from skill.json tools is missing)
 Repository-wide:
   - renamed.json maps retired names to existing skills
   - catalog.json equals what scripts/catalog.py generates (version ignored)
@@ -45,6 +46,7 @@ SKILL_DIRS = {'actions', 'tools', 'assets', sync.REFERENCE_DIR, 'agents'}
 AGENTS_DIR = 'agents'
 AGENT_META_SUFFIXES = ('.yaml', '.yml')
 MAX_SKILL_LINES = 80
+PYTEST_NO_TESTS_COLLECTED = 5  # pytest's exit status when every test was skipped at import time
 CANONICAL_HEADING = '## Canonical source'
 NAME_RE = re.compile(r'^[a-z][a-z0-9-]*$')
 FRONTMATTER_RE = re.compile(r'\A---\n(.*?)\n---(?:\n|\Z)', re.S)
@@ -271,6 +273,10 @@ def check_tools(skill_dir, report, run_tests=True):
         report.warn(name, 'pytest is not installed; tools tests skipped')
         return
     proc = subprocess.run([sys.executable, '-m', 'pytest', '-q'], cwd=tools, capture_output=True, text=True)
+    if proc.returncode == PYTEST_NO_TESTS_COLLECTED:
+        report.warn(name, 'tools tests: nothing ran; every test skipped itself, probably because a package '
+                          f'listed in {sync.SKILL_FILE} tools is not installed here')
+        return
     if proc.returncode != 0:
         tail = '\n'.join((proc.stdout + proc.stderr).strip().split('\n')[-15:])
         report.fail(name, f'tools tests failed (python -m pytest -q in {name}/tools):\n{tail}')

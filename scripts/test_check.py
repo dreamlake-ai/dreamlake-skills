@@ -248,6 +248,18 @@ class CheckTests(unittest.TestCase):
         self.assertFailure(f'dreamlake-notes: docs[] page is not served as Markdown: {DOCS}/missing.md: HTTP 404',
                            self.failures(offline=False, fetch=fetch))
 
+    def test_tools_tests_all_skipped_is_a_warning(self):
+        if importlib.util.find_spec('pytest') is None:
+            self.skipTest('pytest is not installed')
+        tools = self.notes / 'tools'
+        tools.mkdir()
+        (tools / 'test_tools.py').write_text('import pytest\npytest.importorskip("no_such_module_for_this_test")\n'
+                                             'def test_never_runs():\n    assert False\n')
+        report = check.check_repo(self.root, offline=True)
+        self.assertEqual([f for f in report.failures if 'tools' in f], [])
+        self.assertIn('dreamlake-notes: tools tests: nothing ran; every test skipped itself, probably because a '
+                      'package listed in skill.json tools is not installed here', report.warnings)
+
     def test_tools_tests_run_or_warn(self):
         tools = self.notes / 'tools'
         tools.mkdir()
