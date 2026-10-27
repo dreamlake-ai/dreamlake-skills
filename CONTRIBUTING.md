@@ -103,9 +103,9 @@ version:
 ## Commands
 
 ```bash
-python3 scripts/check.py --offline                 # everything CI checks on a PR
+python3 scripts/check.py --offline                 # everything CI checks on a PR, incl. every tools/test_*.py under pytest
 python3 scripts/check.py                           # plus: every docs[] page answers 200 as Markdown
-python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 -m unittest discover -s scripts -p 'test_*.py'   # the scripts' own tests; tools/ tests live with their skill
 
 python3 scripts/sync_references.py                 # refresh reference/ and references.lock
 python3 scripts/sync_references.py --skill <name>  # one skill only
