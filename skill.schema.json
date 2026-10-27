@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/dreamlake-ai/dreamlake-skills/main/skill.schema.json",
+  "title": "DreamLake skill metadata (skill.json)",
+  "description": "One per skill directory. name must equal the directory name. docs lists the pages that CI fetches into reference/; each entry is a page URL on docs.dreamlake.ai, cli.dreamlake.ai or viz.dreamlake.ai, without .md and without a trailing slash (the site root is the only URL that ends in a slash).",
+  "type": "object",
+  "required": ["name", "description", "requires", "docs", "tools"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Skill name; equals the directory name."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "pattern": "^[^\\n]+$",
+      "description": "One sentence: the user goal this skill owns."
+    },
+    "requires": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "description": "Skills installed together with this one; every name must exist in this repository."
+    },
+    "docs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(?!.*\\.md$)https://(docs|cli|viz)\\.dreamlake\\.ai/(?:[A-Za-z0-9][A-Za-z0-9._~-]*(?:/[A-Za-z0-9][A-Za-z0-9._~-]*)*)?$"
+      },
+      "description": "Page URLs fetched as <url>.md into reference/<site>-<slug>.md."
+    },
+    "tools": {
+      "description": "Runtime the scripts in tools/ need, or null when there are none.",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["python"],
+          "additionalProperties": false,
+          "properties": {
+            "python": {
+              "type": "string",
+              "pattern": "^(>=|<=|==|~=|!=|>|<)?[0-9]+(\\.[0-9]+)*(,(>=|<=|==|~=|!=|>|<)[0-9]+(\\.[0-9]+)*)*$",
+              "description": "Python version requirement, for example \">=3.12\"."
+            },
+            "packages": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 },
+              "description": "pip package names the tools import."
+            }
+          }
+        }
+      ]
+    }
+  }
+}

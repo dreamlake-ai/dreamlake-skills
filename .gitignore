@@ -27,3 +27,6 @@
 # Python validation caches.
 __pycache__/
 *.pyc
+
+# Release assets built by scripts/package.py.
+dist/

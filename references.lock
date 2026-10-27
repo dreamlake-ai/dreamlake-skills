@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "skills": {
+    "_template": [
+      {
+        "url": "https://docs.dreamlake.ai/artifacts",
+        "file": "reference/docs-artifacts.md",
+        "version": "unknown",
+        "source_sha256": "9008edcda0e171e30a37883d4fbc7956170eb11aa4912027ed9f77c0f19a04bd",
+        "sha256": "c07414d18074821d609b439725dc1b8db658dd83bb3a40dfb5fddeed985983eb"
+      },
+      {
+        "url": "https://cli.dreamlake.ai/artifacts",
+        "file": "reference/cli-artifacts.md",
+        "version": "unknown",
+        "source_sha256": "e08451ee5539ccb8fddb266f4c60c8ea295bd9b4f86ed5cc34db6bc44c9f35f0",
+        "sha256": "211138b4847cdbd0aecdb9188cfce14a1efdb4782635708851ce64a08b686761"
+      },
+      {
+        "url": "https://cli.dreamlake.ai/projects",
+        "file": "reference/cli-projects.md",
+        "version": "unknown",
+        "source_sha256": "ddc44e094fbd6c18c5b5b499866797cad3c7642d0dddb3053cd36a09689fcd76",
+        "sha256": "d6735212356edda99695e2b8eabdd32cfde0ca3c8765e9e11c506b9d45ff6e26"
+      }
+    ]
+  }
+}
