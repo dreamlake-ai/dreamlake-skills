@@ -147,6 +147,11 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(sync.split_source_line('# T\n'), ('unknown', '# T\n'))
         self.assertEqual(sync.split_source_line('<!-- source: https://x/y.md -->\n# T')[0], 'unknown')
         self.assertEqual(sync.split_source_line('<!--source: https://x/y.md @  -->\nbody')[0], 'unknown')
+        # The docs sites will emit `<!-- source: <url> @ <version> <short git hash> -->`;
+        # everything between `@` and `-->` is the version string, hash included.
+        line = '<!-- source: https://docs.dreamlake.ai/artifacts.md @ 0.1.44 9f3c2ab -->'
+        self.assertEqual(sync.split_source_line(line + '\n# T\n'), ('0.1.44 9f3c2ab', '# T\n'))
+        self.assertEqual(sync.split_source_line(line.replace(' -->', '-->') + '\n# T\n')[0], '0.1.44 9f3c2ab')
 
     def test_render_header_and_body(self):
         raw = b'<!-- source: https://cli.dreamlake.ai/artifacts.md @ 1.2.3 deadbeef -->\r\n# A\r\n\r\n[p](/projects.md#x)\r\n'
