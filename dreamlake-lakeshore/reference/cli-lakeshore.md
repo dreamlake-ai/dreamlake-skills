@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/lakeshore.md at unknown; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/lakeshore.md at 0.89.0 f14de9c; do not edit -->
 
 # Lakeshore resources
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.102 757a8c39; do not edit -->
 
 # Profiles and workspaces
 
@@ -117,6 +117,22 @@ profiles show member avatars and directory views to members. The member and
 team directory is members-only: signed-out visitors and nonmembers see the
 organization's public identity and catalogs, and its Members and Teams tabs say
 the directory is visible to members. Governance remains permission-controlled.
+
+### Inviting members
+
+Organization owners add people from **Members → + invite**. Search finds an
+existing DreamLake user by name, username or email. For someone without an
+account yet, type their full email address and choose **Invite by email**,
+optionally with a role and teams. The invitation appears in the members list as
+*invited · not signed up yet*, under the **invited** filter, and only owners can
+see it. The first time that person signs in to DreamLake with the invited email,
+they join with the chosen role and teams and the row becomes a normal member.
+Owners can revoke a pending invitation from its row.
+
+Signing in is a separate gate. DreamLake uses Vuer accounts, and new accounts
+may wait for approval before they can sign in at all. If the invited person sees
+a waiting-list page, a Vuer auth administrator adds their email to DreamLake's
+allowed emails. The organization invitation is kept until they get through.
 
 ## Your Dashboard
 

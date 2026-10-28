@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.102 757a8c39; do not edit -->
 
 # Linked note items
 
@@ -56,4 +56,9 @@ Do not retry extraction or rewrite a parent from stale text to bypass a sync hol
 
 ## Agent skill
 
-[Download the linked-note skill](https://docs.dreamlake.ai/skills/dreamlake-note-references.zip). Extract `dreamlake-note-references` into your agent's skills directory. The skill covers raw token storage, nested item extraction, concurrency checks, and CLI readback.
+Linked-item extraction, raw full-ID references, concurrency checks and CLI
+readback are part of the `dreamlake-notes` skill: run `dreamlake init` once,
+then `dreamlake skill install dreamlake-notes`; or copy `dreamlake-notes/`
+and `dreamlake-cli/` from the latest
+[dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
+tarball into your agent's skills directory.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/panels.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.102 757a8c39; do not edit -->
 
 # Panels and agent control
 

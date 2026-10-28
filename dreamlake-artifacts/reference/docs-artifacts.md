@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.102 757a8c39; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -69,6 +69,10 @@ switcher are separate from that owner. See [Profiles and workspaces](docs-worksp
 The detail header returns anonymous readers to `/<namespace>/profile?tab=artifacts`
 and signed-in readers to `/<namespace>/artifacts`. Details opened inside a project
 retain their return-to-project action. There is no extra sign-in navigation bar.
+
+In the development UI, project and bindr grids also show an artifact's saved
+cover. The card keeps its type icon when no cover is available or the image
+cannot load; it does not render the artifact body to make a project thumbnail.
 
 ## Push one
 
@@ -163,20 +167,21 @@ dreamlake artifact delete report --permanent  # erase forever — no undo
 
 ## Let Claude do it
 
-Add the [artifacts skills](https://github.com/dreamlake-ai/dreamlake-skills) and
-ask Claude to *"push this dashboard as a dreamlake artifact and share it"*:
+Install the [artifacts skill](https://github.com/dreamlake-ai/dreamlake-skills)
+and ask Claude to *"push this dashboard as a dreamlake artifact and share it"*:
 
 ```bash
-git clone https://github.com/dreamlake-ai/dreamlake-skills.git ~/dreamlake-skills
-mkdir -p ~/.claude/skills
-ln -s ~/dreamlake-skills/dreamlake-artifacts ~/.claude/skills/
-ln -s ~/dreamlake-skills/dreamlake-artifact-authoring ~/.claude/skills/
+dreamlake init                              # once: pick your agent and scope
+dreamlake skill install dreamlake-artifacts
 ```
 
-Install both skills: one publishes, the other prepares content for the offline
-rendering frame. To update both, run `git -C ~/dreamlake-skills pull --ff-only`.
-Use a project's `.claude/skills/` directory for project scope. If a skill already
-exists, inspect and preserve local edits before replacing it with a symlink.
+One skill covers both halves: preparing content for the offline rendering
+frame, and publishing, versioning and sharing it. `dreamlake skill update`
+brings in new releases without touching files you have edited. Without the
+CLI, download `skills.tar.gz` from the latest
+[dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
+and copy `dreamlake-artifacts/` and `dreamlake-cli/` into `~/.claude/skills/`
+(or a project's `.claude/skills/`).
 
 ## Next steps
 

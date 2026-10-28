@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.102 757a8c39; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -141,8 +141,12 @@ prefix targets that org, and membership is checked per request.
 
 ## Let Claude do it
 
-Add the [annotations skill](https://github.com/dreamlake-ai/dreamlake-skills) and
-skip the SDK — describe what you want, it makes the calls:
+Install the [annotations skill](https://github.com/dreamlake-ai/dreamlake-skills)
+(`dreamlake init` once, then `dreamlake skill install dreamlake-annotations`;
+or copy `dreamlake-annotations/` from the latest
+[release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest) tarball
+into your agent's skills directory) and skip the SDK — describe what you
+want, it makes the calls:
 
 | You say                                                          | It does                                     |
 | ---------------------------------------------------------------- | ------------------------------------------- |

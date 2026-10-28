@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.102 757a8c39; do not edit -->
 
 {/* FigWf* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -18,10 +18,11 @@
 
 ## How you use it
 
-One round, from a sentence to a published dataset. Skills live in
-[dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills).
+One round, from a sentence to a published dataset. Skills are written in
+[dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills) and
+installed by the CLI.
 
-1. **Install the CLI and the three skills.**
+1. **Install the CLI and the video-labeling skill.**
 
    [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) is where
    you talk to it — install that first.
@@ -29,10 +30,14 @@ One round, from a sentence to a published dataset. Skills live in
    | Skill | Does |
    |---|---|
    | `video-labeling-workflow` | fills the template, drives the whole round |
-   | `remote-source-check` | proves your source really holds those paths |
-   | `workflow-publish` | validates and pushes, and asks which namespace |
+   | `dreamlake-datasets` | proves your source really holds those paths |
+   | `dreamlake-workflows` | validates and pushes, and asks which namespace |
 
-   Install all three — the first invokes the other two by name.
+   Install the first — it requires the other two, so `skill install` pulls
+   them in, and it invokes them by name. Without the CLI, copy all three
+   directories and `dreamlake-cli/` from the latest
+   [release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest) tarball
+   into `~/.claude/skills/`.
 
    `--env prod` is worth typing. Without it `login` targets whichever
    environment is **active on that machine**, so anyone who has ever logged into

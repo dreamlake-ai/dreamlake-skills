@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.102 757a8c39; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -27,6 +27,10 @@ switcher are separate from that owner. See [Profiles and workspaces](https://doc
 The detail header returns anonymous readers to `/<namespace>/profile?tab=scenes`
 and signed-in readers to `/<namespace>/scenes`. Details opened inside a project
 retain their return-to-project action. There is no extra sign-in navigation bar.
+
+In the development UI, project and bindr grids reuse a scene's saved thumbnail.
+Scenes without a saved thumbnail keep their type icon until a member opens the
+viewer to capture one or supplies a cover (see [Thumbnails](#thumbnails)).
 
 ## Generate with chat
 
@@ -273,17 +277,19 @@ dreamlake scene delete cassie --permanent  # erase storage — no undo
 
 ## Let Claude do it
 
-Add the [scenes skill](https://github.com/dreamlake-ai/dreamlake-skills),
+Install the [scenes skill](https://github.com/dreamlake-ai/dreamlake-skills),
 point at a repo, and say *"push the MuJoCo scenes in here to DreamLake"*:
 
 ```bash
-git clone https://github.com/dreamlake-ai/dreamlake-skills.git ~/dreamlake-skills
-mkdir -p ~/.claude/skills
-ln -s ~/dreamlake-skills/dreamlake-scenes ~/.claude/skills/
+dreamlake init                           # once: pick your agent and scope
+dreamlake skill install dreamlake-scenes
 ```
 
-Update with `git -C ~/dreamlake-skills pull --ff-only`. If a skill already
-exists, preserve local edits before replacing it with a symlink.
+`dreamlake skill update` brings in new releases and leaves your local edits
+alone. Without the CLI, download `skills.tar.gz` from the latest
+[dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
+and copy `dreamlake-scenes/` and `dreamlake-cli/` into your agent's skills
+directory.
 
 The `dreamlake-scenes` skill does the part that isn't a single command:
 extracting a **self-contained directory** from a scene that references

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scene-generation/quickstart.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scene-generation/quickstart.md at 0.1.102 757a8c39; do not edit -->
 
 # Scene Generation Quickstart
 
@@ -10,7 +10,7 @@
 
 ## What the skill gives you
 
-`dreamlake-scene-generation` teaches a coding agent (Claude Code, or any
+`dreamlake-scenes` teaches a coding agent (Claude Code, or any
 Skills-compatible client) the complete scene workflow:
 
 - **Source assets from anywhere** — download models from the internet (the
@@ -80,40 +80,34 @@ into the venv instead.
 
 ## Install the skill
 
-The skill is distributed through the public
+Scene generation ships in the `dreamlake-scenes` skill, written in the public
 [dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills)
-repository. Each top-level directory there is one complete, self-contained
-skill folder — `SKILL.md`, action guides, the runnable `tools/`, and the
-generated reference pages. Install the **whole folder**, and **symlink
-rather than copy**, so a `git pull` in the checkout updates the installed
-skill:
+repository: `SKILL.md`, one action page per task, the runnable `tools/`
+(physics validation and reporting) and the reference pages fetched from
+these docs. The `dreamlake` CLI installs it:
 
 ```bash
-git clone https://github.com/dreamlake-ai/dreamlake-skills.git ~/dreamlake-skills
+# once: pick Claude or Codex, and project or user scope
+dreamlake init
 
-# user-scoped — available in all your projects
-mkdir -p ~/.claude/skills
-ln -s ~/dreamlake-skills/dreamlake-scene-generation ~/.claude/skills/
-
-# or project-scoped — only inside one repository
-mkdir -p .claude/skills
-ln -s ~/dreamlake-skills/dreamlake-scene-generation .claude/skills/
+# installs dreamlake-scenes and dreamlake-cli, which it requires
+dreamlake skill install dreamlake-scenes
 ```
 
-If your clone predates this skill, `git -C ~/dreamlake-skills pull --ff-only`
-first; a checkout that already carries `dreamlake-scene-generation/` works
-as-is.
+`dreamlake init` remembers the agent and scope; `--global` or `--dir` on a
+later command overrides them for one install.
 
-Keep the trailing slash on the destination: `ln -s <src> ~/.claude/skills/`
-refuses to clobber an existing entry of the same name. If `ln` reports
-`File exists`, inspect the existing skill and preserve local edits before
-replacing it.
+**Updating safely.** `dreamlake skill update dreamlake-scenes` brings in a
+new release: unchanged files are replaced, files you have edited are
+reported as conflicts and kept unless you pass `--force`, and nothing the
+installer did not write is touched. `dreamlake skill list` shows the
+installed and latest versions.
 
-**Updating safely.** Because the install is a symlink, updates are just
-`git -C <checkout> pull --ff-only`. If you have customized the skill,
-commit your edits on a local branch first and `git pull --rebase` (or
-merge) so an update can never silently overwrite them — never edit an
-uncommitted working tree you also pull into.
+Without the CLI, download `skills.tar.gz` from the latest
+[dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
+and copy `dreamlake-scenes/` and `dreamlake-cli/` into `~/.claude/skills/`
+(user scope) or `.claude/skills/` (one project). A copied directory has no
+install manifest, so its first `dreamlake skill update` needs `--force`.
 
 The agent discovers the skill from its frontmatter and picks it up when a
 scene request matches — no registration step.

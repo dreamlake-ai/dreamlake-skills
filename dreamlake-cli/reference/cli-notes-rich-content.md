@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/rich-content.md at unknown; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/rich-content.md at 0.89.0 f14de9c; do not edit -->
 
 # Rich content and HTML
 

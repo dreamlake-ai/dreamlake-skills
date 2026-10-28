@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.102 757a8c39; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -203,21 +203,24 @@ pushing and versioning scenes is the [envs guide](https://docs.dreamlake.ai/scen
 
 ## Let Claude do it
 
-Add the two [source skills](https://github.com/dreamlake-ai/dreamlake-skills),
+Install the [datasets skill](https://github.com/dreamlake-ai/dreamlake-skills),
 point at a folder, and say *"visualize this dataset in DreamLake"*:
 
-| Skill | Does |
+| Step | Does |
 | --- | --- |
-| `dreamlake-source` | inspects the data, preps the layout, gets it linked, verifies the source |
-| `dreamlake-dataset-viz` | writes and debugs the `.dreamrc` — bindings, validation, iteration |
+| connect | inspects the data, preps the layout, gets it linked, verifies the source |
+| `.dreamrc` | writes and debugs the `.dreamrc` — bindings, validation, iteration |
 
 ```bash
-git clone https://github.com/dreamlake-ai/dreamlake-skills
-mkdir -p ~/.claude/skills
-cp -r dreamlake-skills/{dreamlake-source,dreamlake-dataset-viz} ~/.claude/skills/
+dreamlake init                             # once: pick your agent and scope
+dreamlake skill install dreamlake-datasets
 ```
 
-Install both — source gets the bytes connected, dataset-viz makes them render.
+One skill does both — it gets the bytes connected, then makes them render.
+Without the CLI, download `skills.tar.gz` from the latest
+[dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
+and copy `dreamlake-datasets/` and `dreamlake-cli/` into your agent's skills
+directory.
 
 ## Next steps
 

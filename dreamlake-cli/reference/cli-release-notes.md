@@ -1,6 +1,34 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at unknown; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.89.0 f14de9c; do not edit -->
 
 # Release notes
+
+## 0.88.1 — Trusted home aliases for Nymph settings
+
+- Managed Nymph commands accept trusted home-directory aliases such as
+  `/home/geyang -> /export/work/geyang`, resolving the home before looking up
+  the existing enrollment. This avoids rejecting an otherwise private setup.
+- Settings beneath the resolved home still reject symlinks. Home ownership,
+  directory permissions and private-file checks remain enforced. No enrollment
+  identity or access permissions change.
+
+## 0.88.0 — Agent skills installed from dreamlake-skills v2026.10.27
+
+- Agent skills are authored in the public [dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills)
+  repository and installed from its releases: `dreamlake init` picks the agent
+  and scope and installs the embedded `dreamlake-cli` skill offline;
+  `dreamlake skill install|update|remove|list` work from the release's
+  `catalog.json` and `skills.tar.gz` (checksum-verified), record every
+  install in `<skill>/.dreamlake-skill.json`, and never delete or overwrite
+  a file that manifest does not vouch for. See [Agent skills](cli-skills.md).
+- This release embeds dreamlake-skills `v2026.10.27` (`skills.lock`: tag,
+  commit and tarball sha256, verified at build time; the embedded catalog
+  lists 14 skills). The embedded skill is no longer generated from this site,
+  and the downloadable skill zip is gone.
+- `skill update` never downgrades on its own (`--allow-downgrade`), `--force`
+  only overwrites files you edited, and `skill remove` keeps edited files.
+- Every markdown export of this site (`<page>.md`, `llms-full.txt`) now opens
+  with `<!-- source: <page url> @ <cli version> <git hash> -->` so a fetched copy
+  records where and when it came from.
 
 ## 0.84.0 — Recoverable resource transfer clients
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.102 757a8c39; do not edit -->
 
 # Notes
 
@@ -538,17 +538,22 @@ local draft. Download a held draft through the sync dropdown instead.
 ## For coding agents
 
 ```bash
-git clone https://github.com/dreamlake-ai/dreamlake-skills.git ~/dreamlake-skills
-mkdir -p ~/.claude/skills
-ln -s ~/dreamlake-skills/dreamlake-notes ~/.claude/skills/
+dreamlake init                          # once: pick your agent and scope
+dreamlake skill install dreamlake-notes
 ```
 
-`git pull` then updates it. Use `.claude/skills/` for one project.
-`dreamlake-cli` in the same repo is the full CLI reference.
+`dreamlake skill update` then updates it. `dreamlake init` chooses between
+your user directory and one project, and the `dreamlake-cli` skill that the
+Notes skill requires is installed with it. Without the CLI, download
+`skills.tar.gz` from the latest
+[dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
+and copy `dreamlake-notes/` and `dreamlake-cli/` into your agent's skills
+directory.
 
-The Notes skill's procedure is generated from this guide. Correct examples
-here first, then regenerate the docs reference and synchronize the public
-skills repository using the [docs-to-skills procedure](https://docs.dreamlake.ai/dev/skills).
+The skill's reference pages are fetched from this guide's published
+Markdown; its procedures are written in the
+[dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills) repository.
+Correct a fact here first and a step there; see [Skills](https://docs.dreamlake.ai/dev/skills).
 
 ## Placeholders
 
@@ -1426,6 +1431,13 @@ merges against the original collaborative identities, preserving unrelated
 concurrent edits. Add CLI `--exact` or Python `exact=True` to require that the
 original revision is still current. A stale exact request requires review;
 never replace its baseline with a fresh revision merely to make it pass.
+
+Since server `06fbbe65` (production, 2026-10-27), merge mode refuses, with
+HTTP 412 `stale` and no write, any patch that overlaps a change made after its
+baseline, including text appended at the same end of the note. Python reports
+this as `NoteChanged`. Disjoint edits still merge. The
+CLI's bundled `notes-editing` reference ("Overlapping concurrent changes")
+gives the exact rule and recovery.
 
 Python's default append returns a `PatchReceipt`; CLI `--json` returns its
 revision and hash. Read back that acknowledged revision before claiming the

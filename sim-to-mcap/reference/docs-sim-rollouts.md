@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sim-rollouts.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sim-rollouts.md at 0.1.102 757a8c39; do not edit -->
 
 {/* Figures come from the site-wide mdxComponents map (SimRolloutFigures) — no
     import needed. The page is figure-led: each section opens with a diagram,
@@ -96,7 +96,9 @@ Embed the mesh for a self-contained file, or — if DreamLake's robot registry
 ## Let Claude do it
 
 The [sim-to-mcap skill](https://github.com/dreamlake-ai/dreamlake-skills)
-runs this end to end and hands off to the source and dataset-viz skills:
+(`dreamlake init` once, then `dreamlake skill install sim-to-mcap`, which
+pulls in `dreamlake-datasets`) runs the rollout end to end and hands off to
+the datasets skill for upload and `.dreamrc`:
 
 | You say | It does |
 | --- | --- |
@@ -110,4 +112,4 @@ runs this end to end and hands off to the source and dataset-viz skills:
 
     Every `.dreamrc` key and view option, next to a live playground.
 
-    The runnable template and the write → upload → render hand-off.
+    The runnable rollout template and the write → upload → render hand-off.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries.md at unknown; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.102 757a8c39; do not edit -->
 
 # Asset Libraries
 
@@ -540,6 +540,25 @@ contract, and the composed read patterns are in
 
 Soft delete hides a library (restorable); **purge** permanently deletes the
 row and every stored object.
+
+## Let Claude do it
+
+Install the [libraries skill](https://github.com/dreamlake-ai/dreamlake-skills),
+point at a directory of assets, and say *"push this as a library, then find
+me a mug"*:
+
+```bash
+dreamlake init                              # once: pick your agent and scope
+dreamlake skill install dreamlake-libraries
+```
+
+The skill does the curation that isn't a single command — `dreamlake.yml`,
+licenses, thumbnails and embeddings, search scope, adding or removing one
+asset — on top of `dreamlake library push`, `search` and `pull`. Without
+the CLI, download `skills.tar.gz` from the latest
+[dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
+and copy `dreamlake-libraries/` and `dreamlake-cli/` into your agent's
+skills directory.
 
 ## Next steps
 

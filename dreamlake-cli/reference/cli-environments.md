@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at unknown; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.89.0 f14de9c; do not edit -->
 
 # Environments
 
@@ -155,6 +155,15 @@ The overview keeps three things separate:
 | Configuration | The local `nymph.toml`: pacing and runtime settings |
 | Access | A separate private `access.json`, bound to the control plane, namespace and machine |
 | Runtime | Read-only local instance observations; missing observations remain unknown |
+
+Since 0.88.1, managed Nymph commands accept trusted home-directory aliases, such
+as `/home/geyang` pointing to `/export/work/geyang`. The CLI resolves the home
+directory before locating the existing enrollment; it does not re-enroll the
+machine or change its permissions. The home target must belong to the current
+user, with trusted owners and no group/other-writable directories in either
+path (root-owned sticky ancestors such as `/tmp` are allowed). Symlinks beneath
+the resolved home, including linked settings files, remain rejected. Private
+file ownership and permission checks still apply.
 
 Fresh managed setup defaults both automatic upload and command execution access
 to **denied**. Enabling the service does not grant either permission. Enrollment
