@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.92.0 a5d6dff; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.94.0 cbe0f3f; do not edit -->
 
 # Projects & data
 

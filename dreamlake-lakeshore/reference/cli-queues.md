@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/queues.md at 0.92.0 a5d6dff; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/queues.md at 0.94.0 cbe0f3f; do not edit -->
 
 # Mount a queue server
 
@@ -201,6 +201,41 @@ that, not the requested one.
 Only future claims change. A job the worker already claimed keeps running; cancel
 it separately if needed. A long poll already in progress stops claiming at its
 next attempt. Changing the switch needs `lakeshore:use` on the mount.
+
+## Pin a worker to dedicated queues
+
+> Requires CLI 0.94.0 or later, and a Lakeshore control plane and DreamLake
+> server with the worker queue pin. Otherwise the command reports that the control plane
+> predates it, and nothing changes.
+
+A pinned worker claims queued jobs **only** from its pinned queues. Its poll
+queue (`default` for a Nymph without `DREAMLAKE_QUEUE`), its memberships and
+pool siblings are ignored, and nothing is created automatically. Create the
+queue first:
+
+```bash cli-help="queues create"
+dreamlake queues create lab fixture --namespace geyang
+```
+
+```bash cli-help="queues worker-pin"
+dreamlake queues worker-pin lab WORKER_ID --namespace geyang
+dreamlake queues worker-pin lab WORKER_ID --namespace geyang --queue fixture --host geyang/dev/worker
+dreamlake queues worker-pin lab WORKER_ID --namespace geyang --clear --host geyang/dev/worker --json
+```
+
+Without `--queue` or `--clear`, the command shows the stored pin. Changing it
+needs `lakeshore:use` on the mount **and** ownership of the worker's host:
+`--host` names that host, and it must be bound to `WORKER_ID` on this mount.
+The control plane rejects `default`, wildcards, unknown queues and inactive
+queues. While a pinned queue is archived or drained, the worker claims nothing;
+it never falls back to another queue. The pin survives restarts and reconnects.
+Tracked runs, heartbeat, control and exec are unaffected, and a disabled
+`worker-claims` switch still stops all claims.
+
+Pin a worker while its claims are disabled, read the pin back, then enable
+claims. To undo, reverse the order: disable claims and confirm `claimJobs:
+false` **before** clearing the pin or moving to a control plane without the pin.
+Otherwise the worker would claim from its poll queue again.
 
 ## Maintaining the setup guide
 
