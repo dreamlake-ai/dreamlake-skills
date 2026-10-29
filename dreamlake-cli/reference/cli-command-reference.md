@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.94.0 cbe0f3f; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.94.0 8badc55; do not edit -->
 
 # Command reference
 

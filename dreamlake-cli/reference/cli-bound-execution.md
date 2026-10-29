@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.94.0 cbe0f3f; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.94.0 8badc55; do not edit -->
 
 # Execute a bound UDF on a queue
 
@@ -111,9 +111,10 @@ dreamlake runnable execution-receipt exec/acme/recipes.process@EXECUTION_DIGEST 
 
 ## Run through DreamLake on an owned host (`--target`)
 
-With `--target namespace/group/host`, no control-plane credential is used on
-your machine or the worker. The DreamLake server uses the host enrollment's
-connection on your behalf; you must own the host, and its worker must be pinned
+With `--target namespace/group/host`, the submitting CLI and the UDF need no
+control-plane token. The DreamLake server uses the host enrollment's
+connection on your behalf, and the worker daemon keeps its normal enrollment
+credentials; you must own the host, and its worker must be pinned
 to the queue you name (see [Pin a worker to dedicated queues](../queues/)).
 
 ```bash
@@ -137,7 +138,7 @@ enrollment and worker are part of the task key and invocation ID, so the same
 inputs on another worker are a different task. The server checks the pin,
 re-reads the control-plane CodeRepo and the stored archive bytes against the
 binding, and submits with the archive inline. Only the target worker can
-claim the attempt, and the worker needs no control-plane token. Inputs are at
+claim the attempt, and the UDF run needs no control-plane token. Inputs are at
 most 16 KiB. Repeating the identical command returns the same invocation. Changed
 inputs (or queue, timeout or target) are a different task, with a new task key and
 invocation ID. A request that keeps an old task key or invocation ID with changed

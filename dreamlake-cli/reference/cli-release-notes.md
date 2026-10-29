@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.94.0 cbe0f3f; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.94.0 8badc55; do not edit -->
 
 # Release notes
 
@@ -8,8 +8,9 @@
   UDF version to one configured snapshot and locked runtime, submit
   recoverable queue attempts and read their receipts. With
   `--target <namespace/group/host>`, DreamLake submits the attempt to that
-  host's worker and returns the receipt; the client and the worker need no
-  control-plane token. An identical repeat returns the same invocation
+  host's worker and returns the receipt; the submitting CLI and the UDF need
+  no control-plane token (the server and the worker daemon keep their normal
+  credentials). An identical repeat returns the same invocation
   instead of running again. Needs `dreamlake-lakeshore` 0.5.1 or newer on
   the submitting machine and the worker. See
   [Execute a bound UDF on a queue](cli-bound-execution.md).
