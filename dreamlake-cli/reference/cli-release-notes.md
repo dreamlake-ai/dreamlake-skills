@@ -1,6 +1,37 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.92.0 a5d6dff; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.94.0 8badc55; do not edit -->
 
 # Release notes
+
+## 0.94.0 — Bound executions on a pinned worker
+
+- `dreamlake runnable bind | execute | execution-receipt` bind a registered
+  UDF version to one configured snapshot and locked runtime, submit
+  recoverable queue attempts and read their receipts. With
+  `--target <namespace/group/host>`, DreamLake submits the attempt to that
+  host's worker and returns the receipt; the submitting CLI and the UDF need
+  no control-plane token (the server and the worker daemon keep their normal
+  credentials). An identical repeat returns the same invocation
+  instead of running again. Needs `dreamlake-lakeshore` 0.5.1 or newer on
+  the submitting machine and the worker. See
+  [Execute a bound UDF on a queue](cli-bound-execution.md).
+- `dreamlake queues create` creates a queue, and
+  `dreamlake queues worker-pin` shows, sets or clears the queues one worker
+  claims from (`--host` is required to change it). See
+  [Pin a worker to dedicated queues](https://cli.dreamlake.ai/queues#pin-a-worker-to-dedicated-queues).
+- Existing commands and their `--json` output are unchanged.
+
+## 0.93.0 — Skills for Claude Code and Codex in one run
+
+- `dreamlake init` and every `dreamlake skill` subcommand accept
+  `--agent all`, or a comma-separated list such as `claude,codex`. Each
+  agent gets its own managed copy, in `.claude/skills/` and
+  `.agents/skills/`, from one catalog and one download. The guided
+  `dreamlake init` offers "Claude Code and Codex" as a choice. See
+  [Where it goes](cli-skills.md#where-it-goes).
+- With one agent, every command and its `--json` output are unchanged.
+  With several, results carry `agents`, and `remove` and `list` report per
+  agent. A choice of several agents is saved so that older CLIs still read
+  its first agent.
 
 ## 0.92.0 — Stop a worker from claiming jobs
 

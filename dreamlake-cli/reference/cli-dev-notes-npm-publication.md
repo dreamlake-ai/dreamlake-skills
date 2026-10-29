@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/dev/notes/npm-publication.md at 0.92.0 a5d6dff; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/dev/notes/npm-publication.md at 0.94.0 8badc55; do not edit -->
 
 # npm publication gate
 

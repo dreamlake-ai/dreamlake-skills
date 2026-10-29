@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/skills.md at 0.92.0 a5d6dff; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/skills.md at 0.94.0 8badc55; do not edit -->
 
 # Agent skills
 
@@ -12,8 +12,8 @@ tarball.
 
 ## Setup
 
-Run `dreamlake init` once. It asks which agent you use (Claude Code or Codex)
-and where skills should go (this project or your home directory), remembers
+Run `dreamlake init` once. It asks which agent you use (Claude Code, Codex,
+or both) and where skills should go (this project or your home directory), remembers
 both, installs the embedded `dreamlake-cli` skill without touching the
 network, and lists the other skills in the catalog.
 
@@ -30,16 +30,21 @@ dreamlake skill update
 dreamlake init
 dreamlake init --agent codex
 dreamlake init --agent claude --global
+# Claude Code and Codex: one copy in each agent's directory
+dreamlake init --agent all --global
 ```
 
 With `--agent`, `init` runs without prompts and still saves the choice; add
 `--global` to save global scope. Non-interactive or `--json` usage requires
-`--agent codex` or `--agent claude`. Canceling the guided setup writes nothing,
+`--agent` with `claude`, `codex`, `all`, or a comma-separated list such as
+`claude,codex`. Canceling the guided setup writes nothing,
 not even the preference.
 
 The choice is saved as `{ "agent", "scope" }` in
 `~/.local/state/dreamlake/skill-preferences.json` (`$XDG_STATE_HOME` is
-honoured). Every `skill` subcommand defaults to it; `--agent`, `--global`,
+honoured). Several agents are saved as `{ "agent", "agents", "scope" }`:
+`agents` is the list and `agent` its first entry, so a CLI older than
+multi-agent support still reads the file and uses that one agent. Every `skill` subcommand defaults to it; `--agent`, `--global`,
 `--project` and `--dir <path>` override it for one invocation without changing
 it. With nothing saved and no `--agent`, commands use Claude Code and the
 current project and print a one-line hint to run `dreamlake init`.
@@ -65,6 +70,8 @@ dreamlake skill list --agent codex --json
 dreamlake skill install dreamlake-cli
 # A catalog skill plus whatever it requires, from the latest release
 dreamlake skill install dreamlake-notes --agent codex
+# One copy for Claude Code and one for Codex
+dreamlake skill install dreamlake-notes --agent all --global
 # Replace files you edited with the release copies
 dreamlake skill install dreamlake-notes --force
 ```
@@ -108,6 +115,14 @@ saved global scope. `--dir <path>` replaces the project root and overrides `--gl
 skill directory itself. Codex's supported
 [skill locations](https://developers.openai.com/codex/skills) include
 `.agents/skills`.
+
+Requires CLI 0.93.0 or later: `--agent all` (or `claude,codex`, or what
+`init` saved) selects both rows of the table: every `install`, `update` and `remove` handles each agent's copy on
+its own, with its own manifest, from one catalog and one download. `update`
+with names skips an agent that does not have the skill, and `remove` skips an
+agent where it is absent; a skill absent under every selected agent is still
+`not-installed`. When only one agent's copy conflicts, the suggested `--force`
+command names that agent alone.
 
 ## Sources and versions
 
@@ -464,6 +479,49 @@ adopted — then also `unmanaged: true`) carries `message`. `update` adds
 `kept` lists, relative to `target`, every file left behind: manifest files
 you edited and files the manifest never listed. `remove` has only `removed`
 and `error` statuses.
+
+### Several agents
+
+With one agent every object above is unchanged. With several, the top-level
+`agent` is replaced by `agents`, and:
+
+- `install`, `update` and `init` list one entry per agent and skill in
+  `skills`, each with an `agent`; `init`'s `preferences` carries `agents`.
+- `remove` puts one single-agent result per agent in `removals`; the top level
+  has `agents`, `scope`, `skill`, `status` (`error` when any removal failed)
+  and that failure's `error` and `kind`.
+- `list` replaces each row's `project` and `global` with `installs`, keyed by
+  agent.
+
+```json file="dreamlake skill list --agent all --json"
+{
+  "status": "ok",
+  "source": "embedded-skills",
+  "agents": ["claude", "codex"],
+  "catalog": { "version": "v2026.10.27", "origin": "embedded" },
+  "skills": [
+    {
+      "name": "dreamlake-cli",
+      "description": "Install, log in, upload and download with the dreamlake CLI.",
+      "requires": [],
+      "files": 41,
+      "embedded": true,
+      "latest": "v2026.10.27",
+      "installs": {
+        "claude": {
+          "project": { "path": "/work/.claude/skills/dreamlake-cli", "state": "absent", "version": null },
+          "global":  { "path": "/home/you/.claude/skills/dreamlake-cli", "state": "installed", "version": "v2026.10.27" }
+        },
+        "codex": {
+          "project": { "path": "/work/.agents/skills/dreamlake-cli", "state": "absent", "version": null },
+          "global":  { "path": "/home/you/.agents/skills/dreamlake-cli", "state": "installed", "version": "v2026.10.27" }
+        }
+      }
+    }
+  ],
+  "nextAction": null
+}
+```
 
 Error `kind` values: `invalid-agent`, `agent-required`, `canceled`,
 `invalid-name`, `unknown-skill`, `renamed`, `ambiguous`, `bad-catalog`,
