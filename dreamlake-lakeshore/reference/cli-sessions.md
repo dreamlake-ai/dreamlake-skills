@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.89.0 f14de9c; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.92.0 a5d6dff; do not edit -->
 
 # Terminal sessions
 
@@ -447,3 +447,38 @@ note read or save. Legacy `DREAMLAKE_AGENT_ID` still supplies Notes presence and
 agent attribution. Session context does not change permissions or create a
 managed terminal session, and it is sent only to supported resource routes.
 This capability requires the companion resource activity backend release.
+
+## Search scope and access
+
+Session list/search defaults to your personal namespace. Scope never widens
+merely because a query has no matches. Explicit examples:
+
+```bash
+dreamlake sessions list --query RTC
+dreamlake sessions list --owner geyang --query RTC
+dreamlake sessions list --team fortyfive --query RTC
+dreamlake sessions list --scope available --query RTC
+```
+
+`--scope mine` cannot combine with `--owner` or `--team`. Owner is an exact personal
+namespace; team is the organization slug/id used by session sharing. A team
+filter selects sessions explicitly shared with that organization, not every
+member's private conversations. Available scope includes your sessions and
+sessions you are currently allowed to read. Metadata and uploaded redacted
+human conversation text are searchable; unsynced machine transcripts are not.
+The TypeScript `sessions(namespace).available({ owner, team, q })` uses the same
+filters. A named person/team grants no access; revoked membership applies on
+the next request. Built-in agent chats remain owner-only. Public Codex/Claude
+sessions can be read anonymously; current registration defaults new records to
+public unless explicitly private. Search does not change that visibility or
+grant permission to message or execute a session.
+
+Broad available transcript searches return `terminal_search_scope_too_large` above 64
+owner/namespace groups or 256 owner/team policy-check units (at most 768 policy database calls). Narrow the request
+with `--owner` or `--team`; the server never silently drops owners. Anonymous
+searches without an explicit owner match metadata only. Team slugs accept `@` prefixes.
+Historical built-in agent conversations are indexed on their next turn.
+
+The deterministic scope limit returns HTTP 422; narrow the query instead of
+retrying it. Listings with no keyword keep their existing pagination and do not
+enumerate all owner groups.

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/queues.md at 0.89.0 f14de9c; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/queues.md at 0.92.0 a5d6dff; do not edit -->
 
 # Mount a queue server
 
@@ -174,6 +174,33 @@ When a setup attempt fails ambiguously, list connections before retrying and
 retain the original credential receipt securely. Never mint another token just
 to retry registration. Tokens created for abandoned attempts should be revoked
 explicitly after checking that no connection uses them.
+
+## Stop a worker from claiming jobs
+
+Requires CLI 0.92.0 or later. On a Lakeshore control plane or DreamLake
+deployment without the worker job-claim switch, the command reports that the
+switch is unavailable, and nothing changes.
+
+A management-only host, such as a launch server, can stay reachable without
+consuming any queue. Take the worker ID from `dreamlake queues workers lab`:
+
+```bash cli-help="queues worker-claims"
+dreamlake queues worker-claims lab WORKER_ID --namespace geyang
+dreamlake queues worker-claims lab WORKER_ID --namespace geyang --disable
+dreamlake queues worker-claims lab WORKER_ID --namespace geyang --enable --json
+```
+
+Without a flag, the command shows the current value. `--disable` stops the
+worker from claiming new queued jobs and tracked runs from every queue,
+including `default`, its memberships and pool siblings. Heartbeat, control
+commands, setup and remote exec keep working. The value is stored by the
+control plane, so it survives daemon restarts and reconnects. Nymph needs no
+configuration change. The command always reads the stored value back and prints
+that, not the requested one.
+
+Only future claims change. A job the worker already claimed keeps running; cancel
+it separately if needed. A long poll already in progress stops claiming at its
+next attempt. Changing the switch needs `lakeshore:use` on the mount.
 
 ## Maintaining the setup guide
 
