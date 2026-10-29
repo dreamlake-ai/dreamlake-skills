@@ -16,9 +16,10 @@ the installed version before using these commands. See
    `runnable receipt NAMESPACE/RUN_ID --json`. Use existing run logs/cancel as needed.
 
 This is a managed host run, not a queue invocation or external Job report. Registry
-and CP snapshot IDs remain null for inline single-module delivery. Archive-bound
-versions, dependency installation, agents, asynchronous/generator UDFs and generalized
-relaunch are unsupported. Request acceptance is not completion. Unknown/crashed
+and CP snapshot IDs remain null for inline single-module delivery. Dependency
+installation, agents, asynchronous/generator UDFs and generalized relaunch are
+unsupported here; a UDF that needs its snapshot and a locked runtime is
+[bound-execution](bound-execution.md). Request acceptance is not completion. Unknown/crashed
 worker claims remain unresolved under the existing execution policy.
 
 Upload, Notes, artifact and workflow tasks keep their existing guides. Use SDKs

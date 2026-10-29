@@ -58,6 +58,13 @@ Verify worker association and readiness for the selected queue, submit a small
 authorized job through a supported API/SDK, and inspect its consumption and result.
 Host online status and collection visibility alone do not prove worker readiness.
 
+To dedicate a worker to one queue (required for a `--target` bound execution,
+the bound-execution action of `dreamlake-cli`), create the queue, then
+[pin the worker](../reference/cli-queues.md#pin-a-worker-to-dedicated-queues)
+(CLI 0.94.0+) while its claims are disabled, read the pin back, and only then
+enable claims. Undo in reverse: disable claims and confirm `claimJobs: false`
+before clearing the pin. Changing a pin needs ownership of the worker's host.
+
 ## Queue mount: client access configuration
 
 Use the [queue reference](../reference/cli-queues.md) to inspect resources. Reuse an

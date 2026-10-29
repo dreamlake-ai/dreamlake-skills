@@ -23,6 +23,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Import or restore cloud configuration; Terraform state snapshots in Vault | [cloud-vault](actions/cloud-vault.md) |
 | Register UDF or agent definitions from `.dreamrc` | [runnable-register](actions/runnable-register.md) |
 | Execute one registered Python UDF on an owned host | [registered-udf](actions/registered-udf.md) |
+| Bind a registered UDF to a snapshot and locked runtime; execute it on a queue or pinned worker | [bound-execution](actions/bound-execution.md) |
 | Push or list a workflow spec | [workflows](actions/workflows.md) |
 
 ## Domain skills (install by name)
