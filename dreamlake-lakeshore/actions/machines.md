@@ -23,6 +23,12 @@ expected role ARN, region and stable request ID. Follow the
 alone does not prove execution readiness. A pending or uncertain cloud write
 must be inspected through its durable operation receipt before another action.
 
+A launch server manages cloud resources and must not consume shared jobs. An
+enrolled worker claims from `default`, and removing `default` membership is not
+supported. With CLI 0.92.0, run `dreamlake queues worker-claims <prefix>
+<worker-id> --disable` and check that the printed value is `false`; heartbeat
+and remote exec continue. See [stop a worker from claiming jobs](../reference/cli-queues.md#stop-a-worker-from-claiming-jobs).
+
 For permission failures, use the [repair reference](../reference/cli-providers.md#fix-permission-limitations).
 Record the actual role, denied action, region and request ID, then update the
 dedicated role's Terraform policy with an identity authorized to administer it.
