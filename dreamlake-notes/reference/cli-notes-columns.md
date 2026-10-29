@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/columns.md at 0.92.0 a5d6dff; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/columns.md at 0.94.0 8badc55; do not edit -->
 
 # Columns and rows
 
