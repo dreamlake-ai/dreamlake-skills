@@ -33,6 +33,20 @@ purge and transfer adapters remain disabled. Strict runtime and read-only metada
 verification do not establish production attachment-write or user acceptance.
 See [attachments](../reference/cli-notes-attachments.md) and [the full Notes guide](../reference/docs-notes.md).
 
+## Reference an attachment from the body
+
+To show an attached file in the note body, write `:attachment[path]` with the
+path exactly as `files list` prints it (`shots.json`, `figures/plot.png`), or
+`:attachment{id="<24-hex file id>"}` from `files list --json` when the file may
+be renamed. Optional `{label="…"}` replaces the file name on the chip and
+`{inline}` shows an image, video or audio attachment in place. Edit the body
+through the normal [edit](edit.md) workflow; the directive stores a reference
+only and uploads nothing. Keep the source exactly as written when patching
+around it: the app renders the chip, a path that is not attached renders "not
+found", and HTML snapshots show the directive as text. Never substitute a media
+URL or a preview link for the path. Syntax and limits:
+[rich content](../reference/cli-notes-rich-content.md).
+
 ## Move or trash with a content precondition
 
 `files mv <file> <path>` and `files rm <file>` accept `--if-match <etag>`.
