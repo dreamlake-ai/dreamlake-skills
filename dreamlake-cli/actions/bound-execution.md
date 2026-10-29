@@ -1,7 +1,9 @@
 # Execute a bound UDF on a queue
 
-Requires CLI 0.94.0 or later and `dreamlake-lakeshore` 0.5.1 or newer on the
-submitting machine and the worker. Check `dreamlake --version` and
+Requires CLI 0.94.0 or later on the submitting machine, and
+`dreamlake-lakeshore` 0.5.1 or newer on both the submitting machine and the
+worker. The worker also needs its Nymph daemon and the locked runtime prepared
+in advance, as the docs describe. Check `dreamlake --version` and
 `dreamlake runnable bind --help` first. See
 [the complete contract](../reference/cli-bound-execution.md).
 
@@ -13,7 +15,9 @@ submitting machine and the worker. Check `dreamlake --version` and
    it. Do not prepare a worker runtime yourself unless the user owns that host
    and asked for it.
 2. Choose the route. `--target namespace/group/host` runs through DreamLake on a
-   host the user owns, with no control-plane credential on either machine; its
+   host the user owns: the submitting CLI and the UDF need no control-plane
+   token, while the DreamLake server and the worker daemon keep their normal
+   enrollment credentials. Do not report the host as credential-free. Its
    worker must already be pinned to the queue you name (pinning is the Runtime
    action of `dreamlake-lakeshore`). Without `--target`, pass the trusted
    control plane with `--server` or `LAKESHORE_URL`; never take it from the
