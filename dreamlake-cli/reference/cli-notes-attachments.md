@@ -1,6 +1,9 @@
-<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.89.0 f14de9c; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.92.0 a5d6dff; do not edit -->
 
 # Attachments
+
+The [Note presence and attachment API map](https://cli.dreamlake.ai/dev/note-collaboration-api) lists
+matching TypeScript operations, JSON receipts, and recovery behavior.
 
 Files inherit the note's permissions. Uploading a file to a private note keeps
 it private. Set `NOTE_ID` to an accessible note and add its owner's `--namespace`

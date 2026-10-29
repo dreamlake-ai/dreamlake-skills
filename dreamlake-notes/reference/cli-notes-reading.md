@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.89.0 f14de9c; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.92.0 a5d6dff; do not edit -->
 
 # Reading and changes
 
@@ -240,3 +240,19 @@ all offsets refer to the original source. Do not write annotated output back.
 Default source reads remain unchanged. The annotated view supports snapshot
 scopes and `--at`, but cannot combine with `--since`, `--linger`, or `--json`.
 HTML-source notes require `--view html`.
+
+## Addressed reading view
+
+`dreamlake notes read NOTE_ID --view markdown` uses the shared v2 reading view.
+It prints actual line breaks and addressed block hints, automatically draining
+pages pinned to the first revision. A failed continuation exits unsuccessfully;
+stdout may contain the completed prefix, so consumers must check the exit code.
+Generated hints are reading metadata, never an edit baseline. Use `--json` source
+reads to retain canonical content and the original opaque edit revision.
+
+TypeScript callers use `api.notes(namespace).readView(noteId, { at, start,
+section, tag, toc, limit })`. Follow `next` with the first `revision` until
+`complete` is true. Offsets address Unicode code points in the reading view.
+The 32 KiB page budget measures JSON-escaped text bytes. This contract requires
+a backend supporting `view=reading`; older backends fail rather than silently
+returning a different representation.

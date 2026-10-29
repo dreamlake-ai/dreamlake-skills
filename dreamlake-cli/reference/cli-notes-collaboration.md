@@ -1,6 +1,9 @@
-<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.89.0 f14de9c; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.92.0 a5d6dff; do not edit -->
 
 # Live collaboration
+
+The [Note presence and attachment API map](https://cli.dreamlake.ai/dev/note-collaboration-api) lists
+matching TypeScript operations, JSON receipts, and recovery behavior.
 
 Use `read --linger` when you want to stay with someone in a note. It registers
 your presence, prints the initial source and participants, and streams updates

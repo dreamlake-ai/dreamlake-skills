@@ -1,6 +1,15 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.89.0 f14de9c; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.92.0 a5d6dff; do not edit -->
 
 # Release notes
+
+## 0.92.0 — Stop a worker from claiming jobs
+
+- `dreamlake queues worker-claims <prefix> <worker-id> [--disable|--enable]`
+  shows or sets whether one worker claims new queued jobs and tracked runs
+  through a queue mount. A disabled worker keeps heartbeat, control commands,
+  setup and remote exec. The command prints the value the control plane stored.
+  Jobs already claimed are not cancelled. See
+  [Stop a worker from claiming jobs](https://cli.dreamlake.ai/queues#stop-a-worker-from-claiming-jobs).
 
 ## 0.88.1 — Trusted home aliases for Nymph settings
 
