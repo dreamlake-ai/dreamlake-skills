@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations/reference.md at 0.1.103 882a8ced; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations/reference.md at 0.1.106 513428f0; do not edit -->
 
 # Annotations Reference
 
@@ -429,6 +429,13 @@ frame indices vs camera names — so don't name a camera a bare number.
   one init segment, so height/fps/fragment length cannot vary per episode —
   that is why they live on `create`, not `add_episode`.
 - **Aspect ratio is per camera track**, not per annotation.
+- **Playback timing is per camera track.** From SDK 0.32.1, a new camera
+  track plays frame *n* at exactly *n* / fps.
+  - A camera track created by an earlier SDK keeps its encoding, so new
+    episodes still fit on it. Its playback runs 2 frames late (67 ms at
+    30 fps).
+  - For accurate timing on that footage, publish it to a new annotation or
+    a new camera.
 - **Revisions are versioned, bounded, and never in-place.** Each
   episode-level value carries up to 1024 revisions; readers always resolve
   to the newest; history stays in the timeline.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.103 882a8ced; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.106 513428f0; do not edit -->
 
 # Linked note items
 
@@ -45,6 +45,42 @@ never invent resources. Saved attribute forms and `[ owner name ]` remain suppor
 The artifact extension is a development preview, not a verified production release.
 Artifact IDs require their namespace; references grant no access. See
 [Notes reference syntax](docs-notes.md#artifact-references-development-preview).
+
+## Experiments, projects and folders
+
+Every path starts with the DreamLake namespace. Experiments ids are the ones in
+the Experiments URL, `/<namespace>/experiments/<project id>/<experiment id>`.
+
+```markdown
+:dashboard[geyang/398712/baselines]
+:dashboard[geyang/398712]
+:experiment[geyang/398712/exp-3]
+:project[geyang/demo-project]
+:folder[geyang/demo-project/datasets/2026]
+```
+
+- `:dashboard[<namespace>/<project id>/<folder path>]` shows that folder's
+  `.dashrc` charts on a panel beside the note. Omit the folder path for the
+  project root.
+- `:experiment[<namespace>/<project id>/<experiment id>]` opens one experiment
+  on a panel.
+- `:project[<namespace>/<project slug>]` and
+  `:folder[<namespace>/<project slug>/<folder path>]` link to the DreamLake
+  project and to a folder inside it.
+
+Badges show titles only after your access is checked. Otherwise they read
+**Unavailable dashboard** (or experiment, project, folder) and do nothing when
+clicked. A reference grants no access. Invalid paths stay literal text. Use
+`:experiment`, not `:run`: in DreamLake, runs are Lakeshore function
+invocations.
+
+## Create a note from a reference
+
+Type `:note[` followed by a title. Below the matching notes, choose
+**Create note “title”**. The new private note is filed like an extracted item,
+and the typed text is replaced with `:note[<full-note-id>]`. If creation
+fails, the typed text is restored. Readers who cannot edit the note are not
+offered this.
 
 ## Sync recovery
 
