@@ -22,7 +22,7 @@ note. One action per task:
 | Create a note or a namespace profile introduction | [create](actions/create.md) |
 | Read or set the catalog summary | [summary](actions/summary.md) |
 | File into a Project, change its folder, inspect filing | [move](actions/move.md) |
-| `:note[...]` and `:artifact[...]` references, extraction, side panel, placeholders | [references](actions/references.md) |
+| `:note[...]`, `:artifact[...]`, `:dashboard`/`:experiment`/`:project`/`:folder` references, extraction, side panel, placeholders | [references](actions/references.md) |
 | Transfer a standalone Note to another namespace | [transfer](actions/transfer.md) |
 
 Moving a whole Project with its Notes is the `projects` action of `dreamlake-cli`;

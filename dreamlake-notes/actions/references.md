@@ -1,8 +1,8 @@
 # Reference Notes and artifacts from list items
 
 Use this to extract a list or checklist item into a linked Note, to edit an
-existing note reference, or to write `:note[...]`, `:artifact[...]` and
-placeholder directives. It does not create a Task or mark work complete; Tasks
+existing note reference, or to write `:note[...]`, `:artifact[...]`,
+experiment, project and folder references, and placeholder directives. It does not create a Task or mark work complete; Tasks
 that link Note items are `dreamlake-tasks`.
 
 ## Representation
@@ -36,6 +36,38 @@ artifacts stay unresolved. Keep source unchanged in reads and patches. API HTML
 maps the entire reference atomically without fetching private metadata.
 Production availability is not yet verified. See
 [artifact references](../reference/docs-notes.md#artifact-references-development-preview).
+
+## Experiments, project and folder references
+
+Write `:dashboard[<ns>/<dash project id>/<folder path>]` for a folder's
+`.dashrc` dashboard (omit the path for the project root),
+`:experiment[<ns>/<dash project id>/<experiment id>]` for one experiment, and
+`:project[<ns>/<project slug>]` or `:folder[<ns>/<project slug>/<folder path>]`
+for a DreamLake project or folder.
+
+1. Take the Dash ids from the Experiments URL
+   (`/<ns>/experiments/<project id>/<experiment id>`) that the user gave or that
+   you read. Never substitute a project name, slug or run name for a Dash id,
+   and never guess an id.
+2. For `:project` and `:folder`, use the DreamLake project slug, not its
+   display name.
+3. Do not write `:run[...]`: in DreamLake, runs are Lakeshore function
+   invocations, and `:run` is not a reference.
+4. Preserve existing source exactly. An invalid path stays literal text; an
+   unreadable target renders as **Unavailable …**. Neither is a reason to
+   rewrite the reference, and a reference grants no access.
+
+Syntax and badge behavior:
+[experiments, projects and folders](../reference/docs-notes-linked-items.md#experiments-projects-and-folders).
+
+## Create a note from a `:note[` reference (UI)
+
+In the editor, typing `:note[` plus a title offers **Create note “title”**
+below the matching notes. Prefer an existing match over creating a duplicate.
+Creation is not idempotent: if it fails or its result is unclear, check Notes
+for the title before trying again. Through the CLI, create the note first
+(`notes create`), then write `:note[<full-note-id>]` with the returned ID. See
+[create a note from a reference](../reference/docs-notes-linked-items.md#create-a-note-from-a-reference).
 
 ## Fragment syntax
 
