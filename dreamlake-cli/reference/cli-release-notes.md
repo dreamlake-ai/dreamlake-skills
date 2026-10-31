@@ -1,6 +1,19 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.97.1 086d6d7; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.97.2 1633dd9; do not edit -->
 
 # Release notes
+
+## 0.97.2 — Session titles from Claude Code transcripts
+
+- Session discovery reads the `aiTitle` and `customTitle` rows that Claude Code
+  writes, so a session imported from a transcript carries its title. A custom
+  title set in Claude Code wins over generated ones; among rows of one kind the
+  last one wins. Older exports with a plain `title` field still work. See
+  [Terminal sessions](cli-sessions.md).
+- New guide [Third-party API keys in pass and Vault](cli-vault-api-keys.md): one
+  convention for keeping a service API key in the local `pass` store and in
+  Vault under `<owner>/cli/<service>/api-key` with the variable its tooling reads.
+- The embedded `dreamlake-cli` agent skill is dreamlake-skills v2026.10.31,
+  which adds the `api-keys` action and carries that page.
 
 ## 0.95.0 — Relative entry expiry
 
