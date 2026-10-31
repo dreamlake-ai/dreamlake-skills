@@ -1,10 +1,13 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.106 513428f0; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.107 798b16d5; do not edit -->
 
 # Notes
 
 Read [Markdown authoring](docs-notes-markdown.md), [Embeds and query arguments](docs-notes-embeds.md),
 [Panels](docs-notes-panels.md), and [Linked note items](docs-notes-linked-items.md) for focused guides.
-This page retains the complete CLI/API reference and existing section links.
+The [Notes API design](https://docs.dreamlake.ai/notes/api) specifies the unreleased shared-interface
+target with tabbed CLI, TypeScript, Python and model-tool examples. Its proposed
+methods and guarantees are not a claim of installed-client or server support.
+This page retains the detailed CLI/API reference and existing section links.
 [Whole Project and owned resources transfer](#whole-project-and-owned-resources-transfer)
 includes Artifact/Env with CLI 0.64.0+ or SDK 0.31.0+ and the matching backend;
 CLI 0.63.0 / SDK 0.30.0 support the Note-only manifest. Standalone Note transfer
@@ -636,7 +639,6 @@ omitted. This reader change does not enable ownership transfer.
 dreamlake notes create "Design Doc"
 dreamlake notes create "Design Doc" --file draft.md
 dreamlake notes create "Design Doc" --text "# Design Doc"
-dreamlake notes create "Design Doc" --summary "Decision and open questions"
 dreamlake notes create "Design Doc" --public        # default is private
 
 dreamlake notes list
@@ -652,10 +654,8 @@ import dreamlake as dl
 
 note = dl.create_note(
     "<namespace>", "Design Doc", text="# Design Doc\n",
-    summary="Decision and open questions",
 )
 note.id, note.namespace, note.etag
-note.summary
 
 dl.list_notes("<namespace>")
 dl.list_notes("<namespace>", limit=20, offset=20)
@@ -700,30 +700,15 @@ its possible result. This endpoint does not add a CLI command or SDK method.
 
 ## Note summaries
 
-> **Note:** Summary support requires a compatible Notes server and CLI release. This
-> source documentation describes the new contract; older installed clients may
-> not recognize the command or fields yet.
+> **Note:** A compatible Notes server exposes summary metadata. Published CLI 0.94.0 has
+> neither `notes summary` nor `notes create --summary`; Python 0.32.1 has no
+> summary helpers. TypeScript `notes.create` accepts an optional `summary`.
+> Check client and server capabilities separately.
 
 A note may have a short, optional summary for catalogs and quick context. The
 summary is metadata separate from the collaborative body. Body edits and
 revision checks leave it unchanged. Summaries can contain up to 4,000
 characters; older notes without one return `null`.
-
-Create a note with a summary or update one later:
-
-```bash cli-help="notes summary"
-dreamlake notes summary "$NOTE_ID"                   # read the summary
-dreamlake notes summary "$NOTE_ID" --text "Decision and open questions"
-dreamlake notes summary "$NOTE_ID" --file summary.txt
-cat summary.txt | dreamlake notes summary "$NOTE_ID" --file -
-dreamlake notes summary "$NOTE_ID" --clear
-```
-
-The CLI also accepts `--summary <text>` when creating a note. A summary set
-from a file is used as-is; multiline text is allowed. `--text`, `--file`, and
-`--clear` are mutually exclusive. Use `--namespace <slug>` for an organization
-note. Reads and writes can use `--json`; a summary read returns `{note,
-summary}`, while a mutation returns the updated Note metadata.
 
 The owner of the namespace or the Note's creator who is still a current member
 of that namespace can set or clear a summary, the same as for a title or
@@ -734,17 +719,15 @@ existing summary. `GET /notes/:noteId` and catalog list responses return the
 summary separately from the body. A summary update does not create a body
 revision or change its content hash.
 
-In Python, `create_note(..., summary=...)` sets it on creation. A `Note` exposes
-its available summary as `note.summary`; call `note.read_metadata()` to refresh
-metadata, or `note.update_summary(text)` to set it and
-`note.update_summary(None)` to clear it. These operations do not write the
-collaborative body. `NoteRef` rows from `list_notes(...)` also expose their
-available summary.
+Python SDK 0.32.1 does not expose `summary` in `create_note` or provide
+`Note.summary`, `read_metadata`, or `update_summary` helpers. Use the
+REST metadata endpoints above for summaries; do not pass those unsupported
+arguments to the Python SDK.
 
 GraphQL's authorized `Query.note(namespaceSlug:, id:)` returns the nullable
 `Note.summary` field alongside `id`, `name`, and visible project/Bindr
 associations. It is a metadata-only read; body content is not returned. Use the
-REST metadata PATCH, CLI, or Python SDK to update the summary.
+REST metadata PATCH to update the summary.
 
 ## Link to a note in the browser
 

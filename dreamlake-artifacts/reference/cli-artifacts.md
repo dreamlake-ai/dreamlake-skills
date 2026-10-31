@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.94.0 8badc55; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.97.1 086d6d7; do not edit -->
 
 # Artifacts
 
@@ -45,6 +45,44 @@ dreamlake artifact push ./chart.jsx --kind react --id sales-chart
 dreamlake artifact push ./chart.jsx --id sales-chart   # v2 of the same artifact
 ```
 
+## Multiple HTML pages
+
+Directory uploads are available in the multi-page implementation and require a
+viewer with page-bundle support. Deploy the updated artifact frame before using
+this feature; `--full` changes storage encoding, not viewer compatibility.
+
+```bash file="terminal"
+dreamlake artifact push ./report --entry index.html --id quarterly-report
+```
+
+The directory becomes one version of one artifact. The default entry is
+`index.html`; use `--entry guide/start.html` for another page. Links such as
+`guide/about.html?filter=recent#details` and `../index.html` navigate within the
+artifact. Viewer addresses use `?art.page=guide%2Fabout.html`; other page query
+parameters use the existing `art.` namespace. `page` is reserved as the document
+selector within bundles. Back, Forward, reload and shared links preserve the
+selected page. A page absent from a selected version shows an error with a way
+back to that version's entry page.
+
+Each `.html`/`.htm` page must be self-contained: embed its scripts, styles and
+media. Separate CSS, JavaScript and asset files are rejected. This is not a
+general static-site host: relative fetches, programmatic `location` navigation,
+forms and downloads of bundled documents are unsupported. External links retain
+the existing new-tab behavior; explicit targets and modified internal clicks
+open a DreamLake viewer for the selected page.
+
+Limits are 128 pages, 32 MiB for both page content and the encoded envelope,
+16 directory levels and 1024 visited directory entries. Paths must be NFC
+Unicode, at most 512 characters, with no ASCII whitespace, backslashes, percent signs,
+URL delimiters or `.`/`..` segments. Paths differing only by case are rejected.
+Symlinks are rejected. Dotfiles and hidden directories are omitted. Invalid
+entries, unsupported files and oversized bundles fail before upload.
+
+Each push captures the complete page set. Deleting a local page removes it from
+the next version; older versions remain intact. Existing visibility, sharing,
+metadata and incremental chunk reuse apply to the entire artifact. Older
+viewers show an update-required message without executing any bundled page.
+
 ## Incremental uploads
 
 Starting in CLI 0.39.1, artifact pushes use incremental storage by default.
@@ -62,6 +100,9 @@ dreamlake artifact push ./dashboard.html --id q1-dashboard
 
 # Compatibility with older self-hosted viewers:
 dreamlake artifact push ./dashboard.html --id q1-dashboard --full
+
+# Multiple self-contained HTML pages (requires an updated viewer):
+dreamlake artifact push ./report --entry index.html --id quarterly-report
 ```
 
 The first incremental push establishes the chunks. Later pushes reuse identical

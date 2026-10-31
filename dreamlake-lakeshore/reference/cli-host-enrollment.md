@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.94.0 8badc55; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.97.1 086d6d7; do not edit -->
 
 # Host enrollment
 
@@ -401,7 +401,8 @@ Starting with CLI 0.71.0, a version such as `0.1.26` is normalized to the publis
 `v0.1.26` installer tag; already prefixed tags and `latest` are preserved.
 
 An existing Nymph binary on PATH is reused; `--nymph-version` selects the
-installer version only when Nymph is missing. Check an existing daemon's version
+installer version only when Nymph is missing. To move an enrolled host to another release,
+use [`hosts upgrade`](#upgrade-nymph-on-enrolled-hosts). Check an existing daemon's version
 before relying on tracked-run support. Homebrew's OpenSSL 3 is discovered under
 both `/opt/homebrew` (Apple Silicon) and `/usr/local` (Intel). Apple's bundled
 LibreSSL may not support the required Ed25519 operation; enrollment checks this
@@ -707,11 +708,20 @@ dreamlake ssh HOST_ID --namespace geyang --enrollment ENROLLMENT_ID
 dreamlake hosts ssh geyang/dev/worker --duration 1800
 ```
 
-Select an exact host by ID or full name. `--enrollment` disambiguates multiple
-eligible enrollments on one host; the client refuses ambiguous selection rather
-than guessing. Session lifetime is 120–1800 seconds (`--duration`, default 1800).
+Select an exact host by ID or full name. A single ready SSH enrollment is selected
+automatically. With CLI 0.96.0+, when several are ready, an interactive terminal offers a chooser
+showing each Unix user, UID, readiness and enrollment ID. Without a terminal, the
+CLI prints those choices with copyable commands and exits without connecting.
+`--enrollment` selects an exact enrollment directly; scripts can use it to avoid
+prompts. Cancelling the chooser opens no session. Session lifetime is 120–1800 seconds (`--duration`, default 1800).
 The 120-second minimum avoids a legacy control-plane deadline mismatch for
 60-second delegations. Use `--timeout` for shorter attached commands.
+
+When the control plane answers HTTP 503 `controlplane_busy`, it refused the
+delegation before creating a session, so the client resubmits it: up to four
+attempts within 25 seconds, waiting `Retry-After` (at most 5 seconds) or an
+exponential backoff, whichever is longer. Any other delegation failure is
+reported without resubmission, because it may have created a session.
 
 ```bash cli-help="exec"
 dreamlake exec geyang/dev/worker -- uname -a
@@ -729,3 +739,133 @@ transport failures return the native SSH error status. `--timeout` closes the
 session and returns 124; it does not guarantee termination of detached remote
 processes. SSH session cleanup removes temporary local keys and closes the
 session. File copy and forwarding remain outside these commands.
+
+## Upgrade nymph on enrolled hosts
+
+`dreamlake hosts upgrade` installs an exact Nymph release on enrolled hosts and
+restarts each host's Nymph service exactly once. `dreamlake hosts rollback`
+restores the binary that the last upgrade replaced. Both run the enrollment
+bootstrap on the host through the same Nymph relay as `dreamlake exec`, so the
+host needs a ready SSH enrollment (web terminal), Python 3, and the service that
+`hosts enroll` installed. No inbound SSH port or saved SSH credential is used.
+
+```bash cli-help="hosts upgrade"
+dreamlake hosts upgrade geyang/dev/worker --nymph-version 0.1.32 --dry-run
+dreamlake hosts upgrade geyang/dev/worker --nymph-version 0.1.32
+dreamlake hosts upgrade 'geyang/lab/*' --nymph-version 0.1.32 --concurrency 4 --max-failures 2
+dreamlake hosts upgrade --all --namespace geyang --nymph-version 0.1.32 --json
+```
+
+```bash cli-help="hosts rollback"
+dreamlake hosts rollback geyang/dev/worker
+dreamlake hosts rollback geyang/dev/worker --upgrade-id 20261029-001 --json
+```
+
+Select hosts by host ID, `namespace/group/host` or a quoted `namespace/group/*`,
+or every host in one namespace with `--all`. A host selected more than once is
+processed once. Hosts without a verified online enrollment are reported as
+`skipped` and not contacted. `--nymph-version` must be an exact release
+(`0.1.32` or `v0.1.32`); fleet upgrades never use `latest`.
+
+`--dry-run` connects to each host read-only and reports its installed version,
+the planned step (`upgrade`, `restart`, `current` or `blocked:restart_pending`),
+any pending restart, whether a rollback is available, and leftover jobs that a
+real run would remove. It changes nothing.
+
+### What happens on each host
+
+1. On macOS, removes the leftover restart job from the October 2026 fleet
+   upgrade, using the same rule as `self-update`: only a submitted
+   `ai.dreamlake.refresh.*` launchd job that runs this user's
+   `~/.local/share/dreamlake/fleet-upgrades/<id>/restart.py`.
+2. Refuses to start while an earlier restart is still due (`restart_pending`).
+   The CLI then verifies that earlier restart first and, if it verified, applies
+   the requested action once; it never stacks a second pending restart.
+3. If the service binary already reports the requested version and the running
+   process started from it, reports `current` and does nothing else. If only
+   the restart is missing, schedules the restart without downloading.
+4. Downloads the release with the official installer
+   (`https://dreamlake.ai/dreamlake/nymph/install.sh`, which verifies the
+   archive's published SHA-256) into a staging directory, and checks that the
+   staged binary reports the requested version.
+5. Keeps the replaced binary, then swaps the new one into place with an atomic
+   rename in the binary's own directory. The binary is the one named by the
+   service definition (LaunchAgent `ProgramArguments` or systemd `ExecStart`),
+   not whichever `nymph` is first on PATH. A symlinked, package-managed or
+   root-owned binary is refused (`nymph_binary_unmanaged`); upgrade it with its
+   own installer.
+6. Schedules one delayed restart (`--restart-delay`, default 15 seconds) and
+   returns. If the restart cannot be scheduled, the previous binary is restored.
+
+Each run writes `~/.local/share/dreamlake/fleet-upgrades/<YYYYMMDD-NNN>/` on the
+host: `nymph` (installed binary), `previous-nymph` (replaced binary),
+`receipt.json` (versions, SHA-256 digests, service, PIDs and the restart
+schedule), `restart.sh`, and after the restart `restart.started`,
+`restart.log`, `restart.pid`, `restart.exit` and `verification.json`. One host
+lock serializes upgrade, verification and rollback (`upgrade_in_progress`).
+Directories are not pruned automatically.
+
+### The one-shot restart
+
+The restart must run after the command that scheduled it has ended: that
+command's session is relayed by the Nymph being restarted.
+
+- **macOS:** a plain background process in its own session (`setsid`) that
+  sleeps and then runs `launchctl kickstart -k` on the host's agent. It is never
+  registered with launchd (no `launchctl submit`, no `KeepAlive`), so nothing
+  can start it again, and leaving Nymph's process group means neither the
+  session ending nor Nymph's own teardown stops it early. The 2026-10 upgrade
+  used `launchctl submit`, whose jobs launchd keeps alive; that job restarted
+  Nymph about every 15 seconds for a week.
+- **Linux:** a transient systemd user timer, `systemd-run --user --on-active=<delay>
+  --collect` with `RemainAfterElapse=no`, running `systemctl --user restart` on
+  the host's unit. It runs in the user manager, outside Nymph's cgroup (a child of
+  Nymph would be killed by its own restart). The timer fires once, the service
+  has no `Restart=`, and systemd unloads both afterwards.
+
+On both systems `restart.sh` first creates `restart.started` with `noclobber`;
+any later execution finds the marker and exits without restarting.
+
+### Verification
+
+After the restart delay the CLI reconnects (retrying while the relay comes back,
+up to `--verify-timeout`, default 300 seconds) and the host checks that:
+
+- the restart ran exactly once (`restart.log` has one entry) and exited 0;
+- the Nymph PID changed, equals the PID recorded right after that restart, and
+  stayed the same for `--stable-seconds` (default 15);
+- on macOS, launchd counts exactly one new start of the agent; on Linux the
+  unit's invocation changed and systemd recorded no automatic restarts;
+- the restart helper has finished, and the installed binary has the recorded
+  SHA-256 and reports the expected version.
+
+The host result lists PIDs before and after, the restart count, each check and
+the names of failed checks. A failed check marks the host `failed`.
+
+### Rollback
+
+`hosts rollback` restores `previous-nymph` from the newest upgrade receipt for
+the service binary (or the receipt named by `--upgrade-id`, one host only) and
+verifies one restart the same way. It refuses when the installed binary is not
+the one that upgrade installed (`rollback_receipt_mismatch`) or the kept binary
+no longer matches its recorded digest. Rollback writes its own receipt, so it
+can itself be rolled back. Receipts from the ad-hoc 2026-10 upgrade are not used.
+
+### Fleet behavior and results
+
+`--concurrency` (1–16, default 1) bounds hosts processed at once; one host is
+never processed twice at the same time. After `--max-failures` failed hosts
+(default 1) no new host is started; hosts in progress finish, and the rest are
+reported as `not_started`. Each host ends as `upgraded`, `rolled_back`,
+`current`, `planned` (dry run), `failed`, `skipped` or `not_started`.
+
+Outcomes are appended as JSON Lines while the run proceeds, to `--record` or
+`~/.dreamlake/hosts-upgrades/<run>.jsonl`: one `run` entry, a `scheduled` entry
+when a restart is scheduled, one `host` entry per finished host and a final
+`summary`. The command prints a table, or the full report with `--json`, and
+exits 0 only when every selected host is `upgraded`, `rolled_back`, `current` or
+`planned`.
+
+If verification times out, the host may still have restarted correctly; run
+`hosts upgrade` again with the same version: a verified or running new binary is
+reported as `current`, and a still-due restart is verified rather than repeated.

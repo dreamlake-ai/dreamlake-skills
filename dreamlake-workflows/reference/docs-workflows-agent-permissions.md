@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows/agent-permissions.md at 0.1.106 513428f0; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows/agent-permissions.md at 0.1.107 798b16d5; do not edit -->
 
 # Agent Permissions
 
