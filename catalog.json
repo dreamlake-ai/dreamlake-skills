@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.10.29",
+  "version": "v2026.10.30",
   "skills": {
     "dreamlake-annotations": {
       "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
@@ -53,12 +53,12 @@
       "files": 8
     },
     "dreamlake-notes": {
-      "description": "Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create notes, set summaries, file into Projects, link list items to Notes or artifacts, transfer a standalone Note.",
+      "description": "Work with DreamLake Notes through the CLI: find, read, edit with revision guards, archive or restore notes and folders, manage versions and collaboration, attach files and media, create and file notes, link references, and transfer a standalone Note.",
       "requires": [
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 14
+      "files": 15
     },
     "dreamlake-scenes": {
       "description": "Build, validate and publish MuJoCo (MJCF) and URDF scenes on DreamLake: source and measure assets, derive placements, author the base scene, compose layered stacks, validate physics per body, package, push, preview, pull back byte-identical, version, delete and restore.",

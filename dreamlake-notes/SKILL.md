@@ -1,6 +1,6 @@
 ---
 name: dreamlake-notes
-description: Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files, get inline image URLs, create notes, set summaries, file into Projects, turn list items into linked Notes or artifact references, and transfer a standalone Note. Use the Python SDK only for explicit SDK integration or a documented CLI gap.
+description: Work with DreamLake collaborative Notes through the CLI: archive or restore notes and folders, find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files, get inline image URLs, create notes, set summaries, file into Projects, turn list items into linked Notes or artifact references, and transfer a standalone Note. Use the Python SDK only for explicit SDK integration or a documented CLI gap.
 ---
 
 # DreamLake Notes
@@ -20,6 +20,7 @@ note. One action per task:
 | Get an image URL for Markdown or HTML | [media](actions/media.md) |
 | Attachments: upload, list, download, preview, share, move, copy, write, recover | [attachments](actions/attachments.md) |
 | Create a note or a namespace profile introduction | [create](actions/create.md) |
+| Archive or restore notes and folders; inspect archived items; SDK archival integration | [archive](actions/archive.md) |
 | Read or set the catalog summary | [summary](actions/summary.md) |
 | File into a Project, change its folder, inspect filing | [move](actions/move.md) |
 | `:note[...]`, `:artifact[...]`, `:dashboard`/`:experiment`/`:project`/`:folder` references, extraction, side panel, placeholders | [references](actions/references.md) |

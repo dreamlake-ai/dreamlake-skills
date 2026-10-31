@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-notes",
-  "description": "Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create notes, set summaries, file into Projects, link list items to Notes or artifacts, transfer a standalone Note.",
+  "description": "Work with DreamLake Notes through the CLI: find, read, edit with revision guards, archive or restore notes and folders, manage versions and collaboration, attach files and media, create and file notes, link references, and transfer a standalone Note.",
   "requires": [
     "dreamlake-cli"
   ],
