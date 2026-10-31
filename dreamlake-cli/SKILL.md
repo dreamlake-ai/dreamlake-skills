@@ -21,6 +21,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Transfer one Artifact, Env/Scene, Annotation, Pipeline or Source | [ownership](actions/ownership.md) |
 | Link a Note or Artifact write to the agent's session; upload a conversation | [session-links](actions/session-links.md) |
 | Import or restore cloud configuration; Terraform state snapshots in Vault | [cloud-vault](actions/cloud-vault.md) |
+| Store a third-party API key in `pass` and Vault; load it into the variable a tool reads | [api-keys](actions/api-keys.md) |
 | Register UDF or agent definitions from `.dreamrc` | [runnable-register](actions/runnable-register.md) |
 | Execute one registered Python UDF on an owned host | [registered-udf](actions/registered-udf.md) |
 | Bind a registered UDF to a snapshot and locked runtime; execute it on a queue or pinned worker | [bound-execution](actions/bound-execution.md) |
