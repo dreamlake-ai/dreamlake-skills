@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.94.0 8badc55; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.97.1 086d6d7; do not edit -->
 
 # Command reference
 
@@ -53,6 +53,9 @@ explicit `list`.
 | Command | What it does |
 | --- | --- |
 | `vault add -p <prefix> -n <name> --stdin --request-id <id>` | Create or replace with `--if-match`; retain ID for uncertain response recovery |
+| `vault add -p <prefix> -n <name> --stdin --env <VARIABLE>` | Create from stdin and save the variable name `vault get --to-envs` exports; the value is never an argument |
+| `vault get -n <path> [-n ALIAS=<path>] --to-envs [--env-prefix <p>]` | Emit `export` lines named by the saved `--env`, or by `ALIAS`; wrap in `eval "$(…)"` |
+| `vault add -p <prefix> -n <name> --stdin --expires-in 90d` | Relative retrieval expiry (`s`, `m`, `h`, `d`, `w`); `--expires-at` takes an exact UTC timestamp and `--no-expiry` clears one |
 | `vault write-status --request-id <id>` | Authenticated metadata receipt for an identified write |
 | `vault import --ssh -p <prefix> [--config <file>]` | Empty checklist, explicit profile/key selection and destination review |
 | `vault import --ssh -p <prefix> --dry-run` | Metadata discovery; no private-key reads or vault calls |
@@ -69,6 +72,8 @@ explicit `list`.
 See [Vault operations](cli-vault-operations.md) for the 0.16 commands and paired Python 0.13 examples.
 
 Choose exactly one of `--ssh` or `--pass-otp`. Ordinary `--pass` is reserved and rejected.
+For an API key, pipe from `pass` into `vault add --stdin --env`; see
+[Third-party API keys](cli-vault-api-keys.md) for the naming convention and retrieval.
 Legacy `vault ssh sync` and `vault pass sync --otp` remain compatibility aliases.
 
 See [Selected SSH import](cli-ssh-sync.md) for file restrictions, revisions and partial retries.

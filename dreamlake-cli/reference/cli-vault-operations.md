@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-operations.md at 0.94.0 8badc55; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-operations.md at 0.97.1 086d6d7; do not edit -->
 
 # Vault operations
 
@@ -58,6 +58,31 @@ Receipts are encrypted and recoverable for 24 hours. This is a recovery deadline
 not HOTP code expiry. Missing/expired receipts leave an ambiguous outcome; the
 original tuple cannot advance the counter again. Scoped retrieval keys cannot
 generate codes. General entry replacement cannot roll an HOTP counter back.
+
+## Entry expiry
+
+`vault add` accepts an optional retrieval expiry. `--expires-at` takes an exact
+UTC RFC3339 timestamp. **Starting with CLI 0.95.0:** `--expires-in` takes a
+relative duration measured on the local clock at upload time and converts it to
+the same UTC timestamp before the request is sent. Units are `s`, `m`, `h`, `d`
+and `w`; whole numbers only, each unit at most once, for example `90d`, `12h` or
+`1w3d`. `--no-expiry` explicitly clears an existing expiry. The three options
+are mutually exclusive. Omitting all of them preserves the entry's current
+expiry on replacement.
+
+The stored timestamp is what the server returns in metadata; after the expiry,
+ordinary vault reads of the entry are refused until it is replaced. Match the
+vault expiry to the credential's own expiry so a stale copy never outlives the
+token it holds.
+
+```bash cli-help="vault add"
+# Keep a 90-day registry token for exactly as long as the registry honors it.
+pbpaste | dreamlake vault add -p alice -n cli/npm/access-token --stdin --expires-in 90d --env NPM_TOKEN
+# An exact UTC timestamp works the same way.
+pbpaste | dreamlake vault add -p alice -n cli/npm/access-token --stdin --expires-at 2027-01-24T00:00:00Z
+# Replace a value and clear its expiry, pinning the current revision.
+pbpaste | dreamlake vault add -p alice -n cli/npm/access-token --stdin --if-match 2 --no-expiry
+```
 
 ## Metadata pages
 

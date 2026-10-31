@@ -1,6 +1,15 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.94.0 8badc55; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.97.1 086d6d7; do not edit -->
 
 # Release notes
+
+## 0.95.0 — Relative entry expiry
+
+`vault add --expires-in <duration>` sets a retrieval expiry relative to the local
+clock at upload time (`90d`, `12h`, `1w3d`; units `s`, `m`, `h`, `d`, `w`, each at
+most once). It converts to the same UTC RFC3339 value that `--expires-at` sends,
+so no server change is required. `--expires-at`, `--expires-in` and `--no-expiry`
+are mutually exclusive; omitting all three still preserves the current expiry on
+replacement. [Guide](cli-vault-operations.md#entry-expiry).
 
 ## 0.94.0 — Bound executions on a pinned worker
 
