@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/installation.md at 0.94.0 8badc55; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/installation.md at 0.97.1 086d6d7; do not edit -->
 
 # Installation
 
@@ -71,6 +71,12 @@ dreamlake self-update --status         # version, channel, pin, last check
 Installing an exact version **pins** it — auto-update stays paused until you
 pick a channel again. Without that, the updater would quietly move you off
 the version you asked for.
+
+On macOS, every update check (background or `dreamlake self-update`) also
+removes the leftover nymph restart job from the October 2026 fleet upgrade, if
+present: a submitted `ai.dreamlake.refresh.*` launchd job running
+`~/.local/share/dreamlake/fleet-upgrades/<id>/restart.py`, which restarted
+nymph every ~15 seconds. No other job is touched.
 
 On Windows there is no background updater at all: Windows locks a running
 `.exe`, so updates are always an explicit `dreamlake self-update`.

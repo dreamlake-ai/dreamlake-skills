@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes.md at 0.94.0 8badc55; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes.md at 0.97.1 086d6d7; do not edit -->
 
 # Notes
 
@@ -27,4 +27,42 @@ your terminal. Choose a guide for the task at hand.
 - [Sharing and visibility](cli-notes-sharing.md) — links, access roles, and public/private visibility.
 - [Project filing](cli-notes-projects.md) — create and inspect project affiliations.
 - [Ownership transfers](cli-notes-transfers.md) — preview and transfer a standalone Note.
+- [Archive notes and folders](https://cli.dreamlake.ai/notes/archival) — hide inactive work and restore it on edit.
 - [Delete a note](cli-notes-deletion.md) — remove a whole Note.
+
+## Cross-interface API design
+
+The [Notes API design](https://docs.dreamlake.ai/notes/api/) is the detailed
+implementation target shared by the CLI, TypeScript, Python and model-facing
+tools. Its method-family pages cover [reading](https://docs.dreamlake.ai/notes/api/reading/),
+[editing](https://docs.dreamlake.ai/notes/api/editing/),
+[collaboration and replay](https://docs.dreamlake.ai/notes/api/collaboration/),
+[resource lifecycle](https://docs.dreamlake.ai/notes/api/resources/),
+[moving and renaming](https://docs.dreamlake.ai/notes/api/moving/), and
+[stdin/stdout/stderr](https://docs.dreamlake.ai/notes/api/cli/).
+
+**The redesigned examples are unreleased contracts, not installed-command
+availability.** Use this CLI site's command guides and installed `--help` for
+current syntax. Publishing the design does not upgrade clients, deploy server
+capabilities, or update the pinned agent skill.
+
+Current commands already support canonical source, mapped reading views,
+original-revision patches, and presence/live following. The redesign changes
+some defaults and argument shapes; do not substitute them into existing scripts:
+
+| Area | Current CLI | Implementation target |
+| --- | --- | --- |
+| Read default | Canonical source with metadata | Source-mapped default; explicit exact-source export |
+| Mapped inspection | `read --view markdown` or `--view html` | Shared mapped read contract with explicit scope and ranges |
+| Line selection | Existing separate start/end flags and compatibility constraints | One `--lines START:END` pair |
+| Namespace | `--namespace` in current Notes examples | Consistent `--namespace` / `--ns` source-context aliases |
+| Create | Positional name required | Name and initial text optional |
+| Watch | `read --linger` with current debounce/throttle behavior | Bounded `watch`, normalized events and durable net content catch-up |
+| Append | Existing separator-LF behavior | Verbatim supplied text with no automatic separator |
+| Move | Current filing/transfer workflows and flags | One move facade with separate destination fields |
+
+A source revision, content hash, metadata version and watch continuation have
+different purposes. Keep original edit baselines and acknowledged receipts;
+never replay an uncertain mutation solely because a newer design offers a
+cleaner name for it. The family pages identify remaining implementation and
+protocol decisions explicitly.
