@@ -53,4 +53,4 @@ Owning pages:
 [Reference an artifact from a Note](../reference/docs-artifacts.md#reference-an-artifact-from-a-note-development-preview),
 [Artifact panels in Notes](../reference/docs-artifacts.md#artifact-panels-in-notes-development-preview)
 and the
-[Notes grammar](https://docs.dreamlake.ai/notes/#artifact-references-development-preview).
+[Notes grammar](https://docs.dreamlake.ai/notes/writing/#artifact-references-development-preview).

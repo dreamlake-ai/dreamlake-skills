@@ -13,13 +13,13 @@ Add `--public` only when the request explicitly asks for a public note
 (visibility default: [quick start](../reference/cli-notes-getting-started.md#quick-start)).
 For larger body content, use `--file draft.md`. The optional `--summary`
 remains independent of the collaborative body (length limit:
-[Note summaries](../reference/docs-notes.md#note-summaries)).
+[Note summaries](../reference/docs-notes-browsing.md#note-summaries)).
 `--project SLUG` is repeatable and absent in CLI 0.44.3
 and earlier; see [move](move.md) for filing rules. See
-[create and list](../reference/docs-notes.md#create-and-list).
+[create and list](../reference/docs-notes-browsing.md#create-and-list).
 
 To give a namespace a profile introduction, title the note with the namespace
 slug and add `--public` only when the user asked for it to be shown publicly.
 Confirm the returned slug equals the namespace slug; an existing note with that
 slug makes the new one receive a suffix, so make that note public instead. See
-[profile introduction](../reference/docs-notes.md#profile-introduction).
+[profile introduction](../reference/docs-notes-browsing.md#profile-introduction).
