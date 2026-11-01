@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.107 798b16d5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.109 6515c563; do not edit -->
 
 # Markdown authoring
 
@@ -185,7 +185,7 @@ following passages visible in the current viewport. Click highlighted text in th
 editor or use the sidebar edit action to reveal its original source.
 Use canonical public handles, not display names or internal user IDs. Attribution
 is self-declared; legacy names remain unresolved. See
-[Highlight metadata](docs-notes.md#highlight-metadata) for escaping and revision-safe agent edits.
+[Highlight metadata](docs-notes-writing.md#highlight-metadata) for escaping and revision-safe agent edits.
 
 ### Highlight preview in both themes
 

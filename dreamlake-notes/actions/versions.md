@@ -18,7 +18,7 @@ Check each command's `--help`, preserve `--namespace`, and read by version ID.
 full read: a stale hash or `409 note_changed` needs review, never a blind retry
 or a copied Note. An empty saved-version list does not establish whether
 autosaved history remains. See
-[CLI version operations](../reference/docs-notes.md#use-the-cli-for-saved-versions)
+[CLI version operations](../reference/docs-notes-history.md#use-the-cli-for-saved-versions)
 and [saved versions](../reference/cli-notes-versions.md).
 
 **Release status, October 9, 2026:** the verified API release includes catalog
@@ -47,7 +47,7 @@ for an unkeyed or otherwise uncertain save, use the reconciliation below.
 ## Recover a retained snapshot
 
 For an old retained draft that was never tagged, follow the executable
-[retained snapshot recovery workflow](../reference/docs-notes.md#recover-a-retained-snapshot)
+[retained snapshot recovery workflow](../reference/docs-notes-history.md#recover-a-retained-snapshot)
 (CLI detail: [recover a retained snapshot](../reference/cli-notes-versions.md#recover-a-retained-snapshot)).
 First preserve a full source baseline (exact bytes, revision and content hash)
 for the same stable Note ID and namespace, and preserve the old source with its
@@ -72,7 +72,7 @@ report concurrent live edits without writing over them.
 
 After a timeout, transport or 5xx error, failed readback or unknown create
 result, follow
-[uncertain-save reconciliation](../reference/docs-notes.md#reconcile-an-uncertain-save)
+[uncertain-save reconciliation](../reference/docs-notes-history.md#reconcile-an-uncertain-save)
 before considering another POST: paginate `hist` with `nextCursor`/`--before`,
 compare candidate revision, hash and operation metadata, then read candidate IDs
 to compare exact text. Tags are not unique, idempotent or idempotency keys. A

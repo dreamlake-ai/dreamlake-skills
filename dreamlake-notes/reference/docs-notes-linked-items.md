@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.107 798b16d5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.109 6515c563; do not edit -->
 
 # Linked note items
 
@@ -44,7 +44,7 @@ are invalid. Other preferred forms are `:bindr[id]`,
 never invent resources. Saved attribute forms and `[ owner name ]` remain supported.
 The artifact extension is a development preview, not a verified production release.
 Artifact IDs require their namespace; references grant no access. See
-[Notes reference syntax](docs-notes.md#artifact-references-development-preview).
+[Notes reference syntax](docs-notes-writing.md#artifact-references-development-preview).
 
 ## Experiments, projects and folders
 
@@ -87,7 +87,7 @@ offered this.
 Each open note has its own collaborative state. If sending pauses, preserve the
 local draft before choosing **Out of sync ▾ → Use server version**. Downloading
 the parent draft does not back up unsent text in the child editor. Follow the
-[Notes recovery steps](docs-notes.md#reconnect-and-recovery) for each affected note.
+[Notes recovery steps](docs-notes-collaboration.md#reconnect-and-recovery) for each affected note.
 Do not retry extraction or rewrite a parent from stale text to bypass a sync hold.
 
 ## Agent skill

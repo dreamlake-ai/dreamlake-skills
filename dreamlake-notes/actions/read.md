@@ -58,7 +58,7 @@ is set.
 
 For comment targeting in HTML reads, use the emitted `sN.cK` ID with `--tag` and
 the same revision. Saved comments also expose persistent `data-comment-id`;
-HTML target IDs are revision-local. See [comment targets](../reference/docs-notes.md#comment-targets-in-html-reads).
+HTML target IDs are revision-local. See [comment targets](../reference/docs-notes-html-reads.md#comment-targets-in-html-reads).
 
 ## Literal agent markup
 

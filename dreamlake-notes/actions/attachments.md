@@ -88,8 +88,8 @@ or the original-actor check. The release performed only two selected status GETs
 not attachment writes or provider-failure recovery. Raw streaming journal,
 durable purge and transfer adapters remain disabled. Raw inventory's separate
 merged source candidate is not a live recovery capability.
-See [copy publication](../reference/docs-notes.md#copy-an-attachment-within-a-note) and
-[the recovery workflow](../reference/docs-notes.md#recover-a-text-or-copy-publication).
+See [copy publication](../reference/docs-notes-files.md#copy-an-attachment-within-a-note) and
+[the recovery workflow](../reference/docs-notes-files.md#recover-a-text-or-copy-publication).
 
 ## Replace text conditionally
 

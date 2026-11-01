@@ -35,8 +35,8 @@ keep the original filing and use additive filing only when that matches the
 request. Do not blindly retry a conflict or network failure: resolve the stable
 ID and inspect its current workspace and project associations before deciding
 what remains. See [move a note into a workspace](../reference/cli-notes-projects.md#move-a-note-into-a-workspace),
-[moving between workspaces](../reference/docs-notes.md#moving-between-workspaces-development-preview)
-and [concurrent writes](../reference/docs-notes.md#metadata-permissions-and-concurrent-writes)
+[moving between workspaces](../reference/docs-notes-sharing.md#moving-between-workspaces-development-preview)
+and [concurrent writes](../reference/docs-notes-sharing.md#metadata-permissions-and-concurrent-writes)
 for ownership-busy and lost-authority recovery.
 
 ## Folders and bindr tags (CLI 0.87.0+)

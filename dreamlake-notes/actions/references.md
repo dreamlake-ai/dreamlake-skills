@@ -35,7 +35,7 @@ share token. These tags grant no access and do not publish content; unavailable
 artifacts stay unresolved. Keep source unchanged in reads and patches. API HTML
 maps the entire reference atomically without fetching private metadata.
 Production availability is not yet verified. See
-[artifact references](../reference/docs-notes.md#artifact-references-development-preview).
+[artifact references](../reference/docs-notes-writing.md#artifact-references-development-preview).
 
 ## Experiments, project and folder references
 
@@ -90,7 +90,7 @@ as `[ owner name ]`. Notes display blue boxes as `[ owner name ]`, with
 immediately inside both brackets: `[text]`, `[ text]` and `[text ]` are not
 placeholders. Keep actual Markdown links/references and `#note:<full-note-id>`
 as references; never replace them with placeholder text. Code and task markers
-stay literal. Examples: [placeholders](../reference/docs-notes.md#placeholders).
+stay literal. Examples: [placeholders](../reference/docs-notes-writing.md#placeholders).
 
 ## UI workflow: turn a list item into a note
 
@@ -120,7 +120,7 @@ download that note's local draft before selecting **Out of sync ▾ → Use serv
 version**. This discards the local draft and fetches server content; it does not
 overwrite the server. Do not retry extraction or write stale parent text to
 bypass a hold. CLI reads cannot retrieve another browser tab's unsent draft.
-Follow [reconnect and recovery](../reference/docs-notes.md#reconnect-and-recovery).
+Follow [reconnect and recovery](../reference/docs-notes-collaboration.md#reconnect-and-recovery).
 
 ## CLI workflow
 
