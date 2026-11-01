@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.107 798b16d5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.109 6515c563; do not edit -->
 
 # Profiles and workspaces
 
@@ -37,7 +37,7 @@ organization namespaces alike. There is no setting; publishing that note is the
 whole mechanism. Everyone, including members, sees the same public
 introduction, read-only and above recent projects. A private, deleted, empty or
 differently slugged note shows nothing, and the area is simply absent when
-there is no introduction. See [Notes](https://docs.dreamlake.ai/notes#profile-introduction). The global
+there is no introduction. See [Notes](https://docs.dreamlake.ai/notes/browsing#profile-introduction). The global
 **Cmd+Shift+D** (or **Ctrl+Shift+D**) developer switch controls discovery of
 experimental features, not access rights. Turning it on never grants access to
 private resources.
@@ -197,7 +197,7 @@ and complete pagination. A failed workspace is shown as an error with retry;
 successful workspaces remain available. Public visitor lists keep their existing
 namespace-only behavior. Creation requires one concrete workspace.
 
-The [Move note dialog](https://docs.dreamlake.ai/notes#moving-between-workspaces-development-preview)
+The [Move note dialog](https://docs.dreamlake.ai/notes/sharing#moving-between-workspaces-development-preview)
 uses this control for destination selection. It offers concrete workspaces and
 writable projects, and requires an access preview before the move is confirmed.
 Changing search scope alone never transfers a note or changes permissions.

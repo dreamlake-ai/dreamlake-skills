@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows/cjs-vs-python.md at 0.1.107 798b16d5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows/cjs-vs-python.md at 0.1.109 6515c563; do not edit -->
 
 # CJS Workflows vs Python Pipelines
 
@@ -237,7 +237,7 @@ snapshot, upserted while the run progresses). Rendered as a metro map: phase
 bands with agent cards strung along a spine.
 
 **P.** `Pipeline` → `PipelineVersion` (`sourceCode` plus the derived `graph`) →
-`NodeState` for runtime status. Rendered by uikit's `` as node
+`NodeState` for runtime status. Rendered by uikit's `<PipelineGraph>` as node
 cards joined by typed edges, solid for `data` and dashed for `mask`.
 
 Both version immutably, and both mint the same kind of identifier: a

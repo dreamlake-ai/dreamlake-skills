@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.107 798b16d5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.109 6515c563; do not edit -->
 
 # Project and Note queries
 
@@ -70,6 +70,19 @@ GraphQL endpoint does not reject queries by depth, alias count or cost. The
 request-local sharing above is a partial cost reduction
 ([#1370](https://github.com/dreamlake-ai/dreamlake-workspace/issues/1370)),
 not a limit.
+
+## Archive state and associations
+
+`Note.archivedAt` and `Node.archivedAt` describe independent archive state.
+`Node.children(includeArchived: true)` includes archived items; active children
+are the default. Archiving does not remove project filings or Bindr membership,
+so `note.nodes` continues to describe actual associations. These association
+reads are not an active-only content catalog. The legacy REST `contents` and
+`descendants` inventory endpoints also retain archived entries when the archive
+filter is omitted; pass `includeArchived=false` explicitly for active browsing.
+
+See [Note and folder archival](https://docs.dreamlake.ai/api/archival) for REST filters, saved-edit
+restoration, permissions and current client operations.
 
 ## Query a Note's locations
 

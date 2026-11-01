@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.107 798b16d5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.109 6515c563; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -39,6 +39,9 @@ dreamlake source browse [path] --source <name>           # one level; -r to recu
 dreamlake source stat <path> --source <name>             # one path, which layer it resolves from
 dreamlake source download <path> --source <name> -o ./out # spot-check a file
 ```
+
+Public GitHub repository support is an [implementation preview](./github/),
+with commit-pinned reads and explicit pilot limits.
 
 ## Shape the dataset
 

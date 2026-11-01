@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.107 798b16d5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.109 6515c563; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -43,13 +43,13 @@ and `#artifact:geyang/pitch-deck` also work in the local development
 UI. The tag resolves the title and opens the artifact panel to the right of the Note without changing
 permissions or visibility. Static API HTML preserves the reference as an unresolved,
 atomic source span; it does not embed artifact content or share-token URLs.
-Production deployment is not yet verified. See [Notes reference syntax](https://docs.dreamlake.ai/notes#artifact-references-development-preview).
+Production deployment is not yet verified. See [Notes reference syntax](https://docs.dreamlake.ai/notes/writing#artifact-references-development-preview).
 
 ### Slide and section reference syntax
 
 `:artifact[geyang/pitch-deck#slide-3]` retains an existing target ID; `#/3` is
 valid only if the artifact defines that route. Clicking sends the fragment to
-the reusable panel through `dreamlake.route.hash`, retaining its running iframe. See [fragment syntax](https://docs.dreamlake.ai/notes#fragment-reference-syntax-development-preview).
+the reusable panel through `dreamlake.route.hash`, retaining its running iframe. See [fragment syntax](https://docs.dreamlake.ai/notes/writing#fragment-reference-syntax-development-preview).
 
 ## Browsing in the app
 
