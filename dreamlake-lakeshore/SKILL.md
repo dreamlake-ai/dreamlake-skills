@@ -27,6 +27,7 @@ evidence standard are in [machines](actions/machines.md).
 | --- | --- |
 | Connect Lakeshore: Add Host, Runtime workers, queue mounts, shared connection upkeep | [lakeshore](actions/lakeshore.md) |
 | Hosts, enrollments, metrics, SSH/exec, power, catalog visibility, agent terminal sessions | [hosts](actions/hosts.md) |
+| Move a personally owned host between namespaces, keeping it private | [move a host](actions/host-move.md) |
 | Read Slurm scheduler jobs; register and report externally launched work | [jobs](actions/jobs.md) |
 | Machine identities, service accounts, launch-server binding, provisioning and EC2 launches | [machines](actions/machines.md) |
 | Infrastructure Stacks: discover and collaborate (manual and automated Terraform setup), register an empty backend, move, Kubernetes capacity | [infrastructure](actions/infrastructure.md) |

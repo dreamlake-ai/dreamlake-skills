@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.10.31.1",
+  "version": "v2026.11.02",
   "skills": {
     "dreamlake-annotations": {
       "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
@@ -42,7 +42,7 @@
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 8
+      "files": 9
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
