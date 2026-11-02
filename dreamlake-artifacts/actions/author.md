@@ -1,8 +1,12 @@
 # Author artifact content
 
-Use this whenever you create or repair the file itself. Pick the kind, make
-the file self-contained for the sandbox, style it deliberately, run the
-checklist, then hand it to [publish](publish.md). Start from the matching
+For a built Vike/Vite site, first follow
+[static builds (unreleased)](publish.md#static-builds-unreleased); do not flatten
+its chunks into HTML when using that workflow. The guidance below applies to
+existing single-file artifacts.
+
+Pick the kind, make the file self-contained for the sandbox, style it deliberately,
+run the checklist, then hand it to [publish](publish.md). Start from the matching
 template in `assets/templates/` when one exists.
 
 ## The rendering environment (read this first — it drives every choice)
