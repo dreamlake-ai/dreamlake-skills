@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.100.0 335c539; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.100.0 1d4eb3e; do not edit -->
 
 # Artifacts
 
@@ -44,6 +44,60 @@ artifact, because the slug changes with it.
 dreamlake artifact push ./chart.jsx --kind react --id sales-chart
 dreamlake artifact push ./chart.jsx --id sales-chart   # v2 of the same artifact
 ```
+
+## Static sites with on-demand files (unreleased)
+
+Use `--site` with a **built client directory** to preserve its HTML, CSS,
+JavaScript chunks, images, WASM, data and media as separate files. The viewer
+loads the requested page; the browser and your application decide which other
+resources to request. Vite/Vike bundling and dynamic imports are preserved.
+
+```bash file="terminal"
+# Vike: prerender the site first; upload dist/client, not dist/server.
+dreamlake artifact push ./dist/client --site --id simulation
+
+# A client-only SPA can explicitly opt into extensionless-route fallback.
+dreamlake artifact push ./dist --site --spa --id dashboard
+```
+
+This mode requires the new server, viewer and frame, plus configured isolated
+content hosting. The CLI checks server availability before uploading. It does
+not run a build or an SSR server. For Vike, use prerendering; root-relative asset
+URLs, prerendered routes, client routing and lazy imports work on the site's own
+origin. `--spa` falls back to the entry HTML only for document requests to
+extensionless paths; missing scripts, images and data still return 404.
+
+Each push publishes one immutable file manifest. Files with identical content
+within the artifact are reused, including across versions. File uploads finish
+before the manifest and version are published. Removing a local file removes it
+from the next version, while older versions retain their files. All resources
+remain pinned to the selected version; permissions and sharing apply to the
+whole artifact. Text/WASM responses use HTTP compression, media supports byte
+ranges, and browser caches are private. No archive download or history replay
+is required before rendering.
+
+There is no fixed aggregate upload-size limit for `--site`. Limits are 4096 files,
+32 MiB per HTML page, 32 directory levels and a 2 MiB manifest. Each individual
+file is limited to 5 GiB by the current
+[single-PUT object-storage transport](https://docs.aws.amazon.com/AmazonS3/latest/userguide/upload-objects.html);
+larger individual files need splitting or a future multipart transfer path.
+Files are hashed in bounded chunks and streamed from disk without buffering the
+whole site. Source changes detected during hashing or before upload fail the
+push, and signed checksums bind uploaded bytes to the manifest before publication.
+File sizes and their total must fit exact
+safe-integer accounting. Files must have NFC relative paths without spaces,
+URL delimiters, backslashes, dot-prefixed segments or case-insensitive
+collisions. `_dreamlake/` is reserved. Hidden entries are omitted and symlinks
+are rejected. Upload only the intended build output, not your project or server
+directory. Small resources may stay bundled together; large or optional
+resources should stay separate. Embedding them in HTML still forces their bytes
+into the initial page download.
+
+Existing single-file uploads and directory uploads without `--site` retain their
+formats and behavior. `--full` still selects the original storage encoding for
+legacy uploads; a site is already a complete version manifest regardless of that
+flag. Older viewers show an update-required message for a site. Existing embedded
+artifacts are not automatically extracted or converted.
 
 ## Multiple HTML pages
 
@@ -97,6 +151,9 @@ compatibility alias; use that spelling with CLI 0.39.1.
 ```bash file="terminal" cli-help="artifact push"
 dreamlake artifact push ./dashboard.html --id q1-dashboard
 # Edit the file, then repeat the same command to upload only new chunks.
+
+# Static build with on-demand assets (unreleased; requires configured site hosting):
+dreamlake artifact push ./dist/client --site --id simulation
 
 # Compatibility with older self-hosted viewers:
 dreamlake artifact push ./dashboard.html --id q1-dashboard --full

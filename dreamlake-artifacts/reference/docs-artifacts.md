@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.110 e71a6f30; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.110 30598db3; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -8,6 +8,66 @@
   An artifact is one renderable file — an HTML page, a React component, a
   Markdown doc, an SVG, a Mermaid diagram, or a code snippet — that you push
   from the terminal and view as a live page in the dashboard.
+
+## Static build directories
+
+`dreamlake artifact push ./dist/client --site --id my-site` preserves a static
+Vike/Vite build's HTML, scripts, styles and assets as separate files. The browser
+loads requested files and lazy imports normally; DreamLake does not choose a new
+chunking strategy. Add `--spa` only for extensionless client routes that need the
+entry document as a fallback. Server-rendered applications require a static export.
+
+Each version stores a small `dreamlake-artifact-files/1` descriptor pointing to a
+complete, immutable manifest. Objects are addressed by SHA-256 and reused across
+versions of the artifact; removed files disappear from the new manifest. Uploads
+finish before publishing the version. Existing single-file and inline multi-page
+artifacts retain their format and viewer behavior. New sites require the updated
+server, app and frame; older viewers show an upgrade message. Existing packed HTML
+must be rebuilt to gain deferred asset loading.
+
+Hosting uses an isolated HTTPS origin per artifact and manifest. A short-lived
+HttpOnly, partitioned cookie grants access to that version; the frame renews it
+without reloading the document. Authority is checked on every network request.
+Browser-cached assets can remain available for up to four minutes after revocation;
+HTML revalidates. Login and share credentials stay in the parent viewer. Ordinary
+workers work; persistent service workers are refused. External network requests
+and nested frames are restricted by the content CSP. Browsers must permit the
+partitioned session cookie. This is static hosting, with no application backend.
+
+### Enable hosting
+
+1. Route a dedicated wildcard content domain and TLS certificate to the server,
+   preserving the Host header. Keep content origins separate from the application,
+   API and trusted artifact frame. Do not enable shared caching of private responses.
+2. Set server `ARTIFACT_SITE_DOMAIN` to that domain and set
+   `ARTIFACT_FRAME_ORIGIN` / `ARTIFACT_APP_ORIGIN` to the deployed trusted origins.
+   The GitHub deployment workflows read these nonsecret values from repository or
+   environment variables and pass them to both ECS and EKS. An unset site domain
+   keeps hosting disabled; changing a variable requires a deployment to take effect.
+3. Build and deploy the frame with the same `VITE_ARTIFACT_SITE_DOMAIN`; its generated
+   CSP allows only that content wildcard. Deploy the matching app and CLI.
+4. Verify `GET /artifacts/site-capabilities`, upload a small site, and check private
+   and public access, navigation, lazy imports, renewal and legacy versions.
+
+The CLI refuses `--site` before uploading when the server does not advertise
+hosting support. There is no fixed aggregate byte limit for static sites. Limits
+remain 4,096 files, a 2 MiB manifest and 32 MiB per HTML document.
+The CLI uses a single S3 PUT per file, with a 5 GiB per-file transfer limit;
+hidden files are omitted and symlinks, unsafe paths and case collisions rejected.
+File sizes and their sum must be exactly representable as nonnegative safe integers.
+Large media is streamed and supports byte-range requests; only requested HTML and
+the manifest are buffered under their size limits.
+No database migration is required. Self-hosted deployments must provision wildcard
+DNS/TLS and deploy matching components before enabling hosting. Verify the
+capability endpoint and a complete browser session on the target; local tests
+alone do not establish live support.
+
+For a cross-repository browser regression, build the UI fixture with
+`node scripts/build-artifact-site-fixture.mjs` and its frame with
+`VITE_ARTIFACT_SITE_DOMAIN=content.test pnpm build:frame`. From `dreamlake-server`,
+run `ARTIFACT_UI_ROOT=/absolute/ui ARTIFACT_CLI_ROOT=/absolute/cli pnpm exec tsx scripts/artifact-site-browser.ts`.
+It uses a local HTTPS server, the actual CLI collector and gateway, and a real
+Vike static build to test deferred loads, routing, isolation and legacy switching.
 
 ## Preview spacing
 
