@@ -1,6 +1,6 @@
 # Move a private host between namespaces
 
-Check the installed command before selecting a host:
+For a CLI request, check the installed command before selecting a host:
 
 ```shell
 dreamlake --version
@@ -8,12 +8,22 @@ dreamlake hosts --help
 dreamlake hosts move --help
 ```
 
-**Unreleased companion workflow:** use this action only with the matching
-host-move CLI and server. If the installed help has no move command, report
-that capability gap; do not substitute a raw ownership update or re-enrollment.
-Product facts and the released limits belong in the
-[host reference](../reference/cli-host-enrollment.md).
+Use the supported surface for the task. An absent CLI command is a client
+capability gap; it does not establish that the server or a published SDK lacks
+the operation. For an SDK request, use the requested language's matching,
+documented API rather than shell commands or another SDK language. If the CLI
+lacks the operation and the user has not specified an SDK language, the
+published Python API described in the
+[product host guide](../reference/docs-lakeshore-hosts-enroll.md) can complete
+the authorized task with the same guards. Verify that client's installed
+capability and the deployed server before mutation. State native CLI availability
+separately; if neither supported route is available, report the gap and stop.
+Never substitute a raw ownership update or re-enrollment.
 
+Product facts and limits live in the [product host guide](../reference/docs-lakeshore-hosts-enroll.md)
+and [CLI host reference](../reference/cli-host-enrollment.md). Use the documented
+authentication path for the selected client, confirm the intended deployment and
+signed-in namespace, and keep credentials out of output.
 1. Resolve the exact personal computer, its source namespace and intended
    destination. Inventory may contain test hosts, worker machines and multiple
    enrollments; do not interpret “my computers” as permission to move every row.
@@ -22,8 +32,9 @@ Product facts and the released limits belong in the
    than moving resources. A move is appropriate when the computer itself should
    be filed in the destination.
 3. Request the supported move preview. Review the resulting name, personal
-   owner, private access and all blockers. Keep the complete preview for the
-   guarded apply; use the current command help for its input format.
+   owner, private access, retained-session/run policies, exposure changes and
+   all blockers. Keep the complete preview for the guarded apply; use the
+   selected client's documentation or command help for its input format.
 4. Apply that reviewed preview within the user's requested scope, retaining its
    request identity. Do not detach dependencies, delete sessions, rotate keys or
    widen permissions to make a blocked move pass.
@@ -36,7 +47,7 @@ through the supported replay path. Do not generate a replacement request or
 silently obtain a newer preview. A historical receipt does not prove the host's
 current namespace after a later move.
 
-For a TypeScript or Python integration request, use the matching SDK's documented
-host-move preview/apply API with the same guards. Do not replace a requested SDK
-integration with shell commands or treat an installed SDK as proof of a server
-rollout. State implementation, release and live verification separately.
+An installed SDK alone is not proof of a server rollout. Follow the selected
+client's documented preview/apply contract; do not invent method names or relax
+guards to bridge a version mismatch. State implementation, release and live
+verification separately.

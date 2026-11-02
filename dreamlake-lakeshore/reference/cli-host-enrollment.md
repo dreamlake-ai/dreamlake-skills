@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.100.0 335c539; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.100.0 1d4eb3e; do not edit -->
 
 # Host enrollment
 
@@ -895,3 +895,54 @@ exits 0 only when every selected host is `upgraded`, `rolled_back`, `current` or
 If verification times out, the host may still have restarted correctly; run
 `hosts upgrade` again with the same version: a verified or running new binary is
 reported as `current`, and a still-due restart is verified rather than repeated.
+
+## Move a private host between namespaces
+
+**Unreleased implementation:** requires the matching host-move server and client.
+The move changes the namespace and name prefix while preserving the Host ID,
+personal owner, enrollments and machine keys. Organization membership does not
+give another member access to the computer. Existing execution connections stay
+bound to their original owner namespace and remain independently authorized.
+
+Preview first with the exact Host ID from inventory:
+
+```bash cli-help="hosts move"
+dreamlake hosts move HOST_ID --namespace alice --to acme --dry-run --json
+```
+
+The preview includes `revision`, `previewHash`, destination name, private owner
+and dependency blockers. Review the full preview before applying. Apply never
+refreshes the preview or invents a request ID:
+
+```bash
+dreamlake hosts move HOST_ID --namespace alice --to acme --confirm \
+  --request-id laptop-move-001 --expected-revision REVISION \
+  --preview-hash PREVIEW_HASH --json
+```
+
+Replace the placeholders with the reviewed values. Pending enrollment grants,
+name/key collisions, retained sessions/runs/jobs, service-account or provider
+bindings, Slurm inventory bindings and managed metrics Sources can block a move.
+The server preview is authoritative; never detach dependencies or re-enroll a
+machine to bypass a blocker. The operation makes no control-plane writes and
+does not restart Nymph.
+
+After an uncertain response, retry the exact original source namespace, host,
+destination, request ID, expected revision and hash. A historical replay receipt
+does not establish the host's current location after a subsequent move. Read
+the destination inventory and exact host status back; terminal/metrics readiness
+need separate verification.
+
+The public TypeScript API uses the same guarded routes:
+
+```ts
+const hosts = createClient(options).hosts('alice')
+const preview = await hosts.movePreview(hostId, 'acme')
+// Review the preview before applying.
+const request = { destinationNamespace: 'acme', requestId: 'laptop-move-001',
+  expectedRevision: preview.revision, previewHash: preview.previewHash }
+const receipt = await hosts.move(hostId, request)
+```
+
+Switching the built-in agent with `/su NAMESPACE` is a separate session-scope
+operation. It changes neither host ownership nor the application's workspace.
