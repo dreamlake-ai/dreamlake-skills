@@ -1,6 +1,61 @@
-<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.100.0 335c539; do not edit -->
 
-# Experiments workspace binding
+# Experiments
+
+## Native project runs
+
+The DreamLake-native backend stores new runs under a DreamLake project. These
+commands require a server with native Experiments enabled and your existing
+DreamLake login. The run key makes creation idempotent; inspect the run after an
+uncertain write before retrying.
+
+```bash cli-help="experiments runs list"
+dreamlake experiments runs list --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs create"
+dreamlake experiments runs create trial_1 --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs log"
+dreamlake experiments runs log "$RUN_ID" "training started" --level info --namespace fortyfive --project research
+```
+
+Archive hides a run from default lists while preserving its data. Restore makes
+it visible again; neither operation deletes historical Dash data.
+
+```bash cli-help="experiments runs archive"
+dreamlake experiments runs archive "$RUN_ID" --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs restore"
+dreamlake experiments runs restore "$RUN_ID" --namespace fortyfive --project research
+```
+
+Terminal runs can be moved to trash and restored without changing their
+archive state. Running runs must finish before deletion. Historical Dash runs
+remain on the old service.
+
+```bash cli-help="experiments runs delete"
+dreamlake experiments runs delete "$RUN_ID" --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs trash list"
+dreamlake experiments runs trash list --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs trash restore"
+dreamlake experiments runs trash restore "$RUN_ID" --namespace fortyfive --project research
+```
+
+Run files use DreamLake's existing project file storage. Address the episode by
+the run key you created; file upload uses your DreamLake login.
+
+```bash
+dreamlake upload checkpoint.bin --episode research@fortyfive:trial_1 --to /models
+```
+
+## Historical Dash workspace binding
 
 **Unreleased.** Requires the matching DreamLake and Dash server changes. These
 commands have not been released or verified on a hosted deployment.
@@ -56,9 +111,6 @@ Success always emits a JSON receipt. With `--json`, errors emit
 is not confirmation of its outcome: inspect `binding` before retrying after a
 network interruption.
 
-This phase connects existing workspaces and preserves both systems' permissions.
-Researchers continue logging through the existing Python ml-dash SDK; this CLI
-does not create experiments, unify SDK authentication, or migrate storage.
-Authorized members read metrics on the DreamLake organization Experiments page;
-binding administration alone does not grant Dash data access. Managed onboarding
-and Source-backed storage remain later phases.
+Binding administration preserves existing Dash workspaces for historical reads.
+It does not move their data or grant Dash data access. New native runs use
+DreamLake project permissions and storage.

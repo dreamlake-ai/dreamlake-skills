@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.109 6515c563; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.110 e71a6f30; do not edit -->
 
 # Writing and formatting
 
@@ -49,6 +49,31 @@ Rendering never rewrites their source.
 Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs only when a required operation is unavailable through the CLI or the task explicitly requires SDK integration.
 
 {/* <!-- skill-entrypoint:start --> */}
+
+### Links and Cmd+K
+
+There are three ways to make a link in the rich editor:
+
+- **Paste a URL over selected text.** Select the words and paste an `http` or
+  `https` URL to get `[words](url)`. This applies only when the selection is one
+  line of plain text that isn't already a link, a URL or code. Any other paste
+  is inserted as it is.
+- **Type `/link` at the start of a line.** The "/" menu's **Link** command
+  inserts `[link text](https://)` with the URL selected, ready to type over.
+- **Press Cmd+K** (Ctrl+K on Windows and Linux). This inserts the same link
+  around the selected text, with the URL placeholder selected.
+
+In developer mode, Cmd+K means one thing everywhere: it opens the agent's ⌘K
+window. This includes the note editor, Vim mode and source mode. The note's text
+and selection stay as they were, so Cmd+Enter can still hand the selection to
+the agent. Use paste or `/link` for links there. With developer mode off,
+Cmd+K in the rich editor inserts a link as before. Source mode (Monaco) has no
+link shortcut.
+
+Also in developer mode, **Cmd+Option+K** (Ctrl+Alt+K on Windows and Linux) opens
+or closes the agent's ⌘K window from anywhere, with no exceptions: note editors,
+source mode, any input, the agent's own input and browser terminals. A browser
+terminal otherwise keeps Cmd+K for its shell.
 
 ## Placeholders
 

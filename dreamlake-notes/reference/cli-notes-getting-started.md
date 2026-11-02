@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.100.0 335c539; do not edit -->
 
 # Create and find notes
 
@@ -40,6 +40,11 @@ dreamlake notes list --shared
 dreamlake notes list --namespace acme
 dreamlake notes list --include-archived
 ```
+`--ns` is an alias of `--namespace` on every Notes command; both are the source
+namespace to look in, never a destination. `--offset N` pages by rows
+(`--limit 20 --offset 20` is the second page). The CLI looks a note ID up in
+`--ns` or your configured namespace, so pass `--ns` for another workspace's
+note; the TypeScript facade (`dl.notes(noteId)`) discovers the owner itself.
 
 ```bash cli-help="notes search"
 dreamlake notes search "release plan"
@@ -60,6 +65,8 @@ Search matches titles and indexed bodies by case-insensitive substring.
 dreamlake notes create "Release plan" --text "Draft checklist"
 printf '# Release plan\n' | dreamlake notes create "Release plan" --file - --json
 ```
+The title is optional: `dreamlake notes create --ns your-workspace` creates an
+empty note named `Untitled`; `--file -` reads the initial source from stdin.
 
 New notes are private unless you pass `--public`. Repeated titles get distinct
 slugs; keep the returned ID. Use a file or `printf` for multiline text.

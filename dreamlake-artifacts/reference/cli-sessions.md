@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.100.0 335c539; do not edit -->
 
 # Terminal sessions
 
@@ -42,11 +42,27 @@ Register a native Codex/Claude UUID without a host, gateway, or terminal process
 dreamlake sessions register --provider codex --session <native-uuid> --cwd /absolute/repository --json
 # Explicit private override for a new registration:
 dreamlake sessions register --provider claude --session <native-uuid> --cwd /absolute/repository --visibility private --json
+# From inside a Claude Code session: register it, print the saved ID and the control send recipe,
+# and write an env file other shells can source so their note/artifact writes link to it:
+dreamlake sessions register --provider claude --session "${CLAUDE_SESSION_ID:-$CLAUDE_CODE_SESSION_ID}" --cwd "$PWD" --visibility private --write-env "$HOME/.dreamlake/sessions/current.env"
 ```
 
 This returns a **saved descriptor ID**, distinct from the native UUID. Registration
-is idempotent for the personal owner/provider/native ID. It reuses an unambiguous
-existing registration; conflicting saved identities require explicit selection.
+is idempotent for the personal owner/provider/native ID: registering the same
+provider and UUID again (from another directory, on another day) returns the
+existing saved session, never a second one. It reuses an unambiguous existing
+registration; conflicting saved identities require explicit selection. Without
+`--json` the command prints the saved ID, the recipe that lets a runner message
+it (one `control restart --permission … --raise` that records the level — a
+registered session has none, and a runner refuses a turn for a session
+without one, `--permission` on `send` notwithstanding — then plain
+`control send` / `control status`) and, with `--write-env <path>`, the file it wrote:
+`export DREAMLAKE_TERMINAL_SESSION_ID='…'` and `export
+DREAMLAKE_SESSION_NAMESPACE='…'` (exported, so `source`-ing it hands the pair to
+every `dreamlake` process that shell starts), mode 600, the explicit
+saved-session context described below. The
+[`/dreamlake` Claude Code skill](https://cli.dreamlake.ai/dev/claude-code-skill) wraps exactly this
+command.
 A metadata-only session has `archiveOnly: true`, null `launch`, and no host
 binding. It can be linked and read but cannot open a terminal. A later verified
 host registration with the same owner/provider/UUID and exact cwd can bind the
@@ -54,7 +70,10 @@ same descriptor, preserving privacy and resource links.
 
 CLI 0.82.0+ automatically registers metadata after an acknowledged Note/artifact
 content write when `CODEX_THREAD_ID` or `CLAUDE_SESSION_ID` supplies an exact native
-UUID. Set `DREAMLAKE_SESSION_VISIBILITY=private` for a private new registration,
+UUID. `CLAUDE_CODE_SESSION_ID`, which Claude Code exports to every command it
+runs, is accepted as the Claude fallback, so writes made from inside a Claude
+Code session link without any setup; an explicit `CLAUDE_SESSION_ID` wins when
+both are set. Set `DREAMLAKE_SESSION_VISIBILITY=private` for a private new registration,
 or `DREAMLAKE_SESSION_AFFILIATION=0` to disable affiliation. Explicit saved context
 uses `DREAMLAKE_TERMINAL_SESSION_ID` with `DREAMLAKE_SESSION_NAMESPACE`.
 No transcript is uploaded unless an export is explicitly selected.
@@ -75,6 +94,67 @@ publishing. Private reasoning and binary attachments are omitted by native impor
 
 Public session unlock icons appear on hover or keyboard focus. Private sessions
 keep an orange lock visible in lists, details and session navigation.
+
+## Start Claude Code or Codex under DreamLake
+
+```bash cli-help="claude"
+# Interactive Claude Code, registered private before it starts, acceptEdits (workspace-write):
+dreamlake claude
+# One headless turn at plan level; everything after the wrapper's flags goes to claude unchanged:
+dreamlake claude --permission read-only -p "Summarize the open PRs" --model opus
+```
+
+```bash cli-help="codex"
+dreamlake codex --permission full-access "Fix the failing test"
+```
+
+`dreamlake claude …` mints the native session UUID, registers it
+(`sessions register`, idempotent, private by default) **before** Claude Code
+starts, writes the env file `~/.dreamlake/sessions/<uuid>.env`, and runs
+`claude --session-id <uuid> --permission-mode <mode> …` with
+`DREAMLAKE_TERMINAL_SESSION_ID` / `DREAMLAKE_SESSION_NAMESPACE` exported, so
+every `dreamlake` call the session makes links to it and the
+[hook relay](https://cli.dreamlake.ai/dev/claude-code-hooks) finds it without a lookup. `--permission`
+maps `read-only` / `workspace-write` (default) / `full-access` onto `plan` /
+`acceptEdits` / `bypassPermissions` (Codex: `--sandbox read-only` /
+`workspace-write` / `danger-full-access`). Every provider flag that would make
+the process run under something other than the recorded level is refused with
+the wrapper flag to use instead: Claude `--session-id`, `--permission-mode`,
+`--dangerously-skip-permissions`, `--permission-prompt-tool`,
+`--allowedTools` / `--disallowedTools`; Codex `--sandbox` / `-s`,
+`--ask-for-approval` / `-a`, `--full-auto`,
+`--dangerously-bypass-approvals-and-sandbox` and `-c` / `--config` overrides
+of `sandbox_mode`, `approval_policy` or `sandbox_*`. Anything after `--` goes
+to the provider literally. The terminal
+is handed over untouched; Ctrl-C reaches the provider, not the wrapper. When
+the provider exits the wrapper beats `stopped`, uploads the transcript
+(`--no-upload` skips it; a failure names the `upload-conversation` command to
+retry) and exits with the provider's exit code. Before the launch, stderr
+names the saved session and the recipe that lets a runner message it (below).
+
+`dreamlake codex …` cannot register first: Codex has no `--session-id` and
+names its thread only in its own rollout file. The wrapper runs
+`codex -C <cwd> --sandbox <mode> …`, then adopts the **one** rollout created in
+this directory at or after the moment the launch began (a rollout from before
+it, however recent, is another session's), registers it, writes its env file
+and uploads the transcript; with none it reports `no rollout created`, with
+several it names them, and in both cases registers nothing and prints the
+`sessions register --provider codex --session <thread-id>` line to run by
+hand. Inside the session, `dreamlake` calls link through the
+`CODEX_THREAD_ID` Codex sets. Both wrappers start the provider in a clean
+environment: an inherited `DREAMLAKE_TERMINAL_SESSION_ID` /
+`DREAMLAKE_SESSION_NAMESPACE` pair (a sourced env file, a parent agent
+session) and inherited provider identities are dropped, so a child's writes
+never link to its parent's session.
+
+Registration records no permission level (the route takes none), and a runner
+refuses a turn for a session without one (`permission_level_unknown`) —
+`--permission` on `control send` does not help. The recipe both wrappers
+print is therefore one `sessions control restart <id> --permission <level>
+--raise --namespace <ns>` (a raise from "unrecorded": confirmed on a terminal,
+on a runner started with `--max-human-permission <level>`), which records the
+level the wrapper launched with, followed by plain `control send`. The same
+recipe is printed by `sessions register`.
 
 ## Claude Code and observed states
 
@@ -127,8 +207,9 @@ terminals and never modify note or artifact content.
 Successful note creation/body/section writes and artifact pushes automatically
 link a known session context. Set `DREAMLAKE_TERMINAL_SESSION_ID` and
 `DREAMLAKE_SESSION_NAMESPACE` to select an exact saved session. Otherwise the CLI
-uses `CODEX_THREAD_ID` or explicitly supplied `CLAUDE_SESSION_ID`, only when one
-exact owned registered session matches. Arbitrary `DREAMLAKE_AGENT_ID` presence
+uses `CODEX_THREAD_ID`, an explicitly supplied `CLAUDE_SESSION_ID` or Claude
+Code's own `CLAUDE_CODE_SESSION_ID`, only when one exact owned registered
+session matches. Arbitrary `DREAMLAKE_AGENT_ID` presence
 labels, similar titles and directories are not native session identities.
 
 Automatic affiliation makes at most one bounded catalog lookup and one
@@ -253,10 +334,21 @@ managed-session gateway. CLI 0.74.3 and earlier do not provide them.
 dreamlake sessions status SESSION_ID --namespace geyang --json
 ```
 
-`status` performs a bounded observation on the exact enrolled host. It reports
-the tmux runtime, pane identity, viewer count, and dependencies; it does not
-start Codex or read terminal contents. `list` and `show` remain saved metadata
-only. A status response is a timestamped observation, not continuous monitoring.
+`status` reads the saved descriptor first (`/terminal-sessions/:id/metadata`)
+and prints what the session itself last reported: its **live state**
+(`running`, `waiting-for-user`, … from its hooks or runner, see
+[live state](https://cli.dreamlake.ai/sessions/control#live-state-and-subagent-events)), the current
+tool and prompt head, the recorded permission level (and the level the runner
+last ran under when they differ), its runner, and the Nymph `runState`. A
+session registered without a host (`sessions register`, a runner start)
+answers from that alone, instead of the 503 / 409 the gateway used to return
+for it. For a gateway-saved descriptor (one with a target) `status` then also
+performs the bounded observation on the exact enrolled host — tmux runtime,
+pane identity, viewer count, dependencies — without starting Codex or reading
+terminal contents; a gateway that cannot answer is reported inline as
+`Runtime: unavailable (…)` (`runtimeError` in JSON) and the command still
+succeeds. `list` and `show` remain saved metadata only. A status response is a
+timestamped observation; `sessions watch` is the continuous view.
 
 ```bash cli-help="sessions start"
 dreamlake sessions start SESSION_ID --namespace geyang --json

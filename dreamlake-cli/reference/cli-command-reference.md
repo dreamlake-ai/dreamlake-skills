@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.100.0 335c539; do not edit -->
 
 # Command reference
 
@@ -255,10 +255,10 @@ See [Scenes](cli-scenes.md).
 | `scene compose [stack] [-o <dir>] [--force]` | Materialize a layered stack (`dreamlake.layers.json`) into a runnable scene directory (needs `pip install "dreamlake[compose]"`) |
 | `scene delete <name> [--permanent]` / `scene restore <name>` | Soft-delete / restore; `--permanent` purges storage |
 
-## Experiments workspace binding
+## Experiments
 
-See [Experiments workspace binding](cli-experiments.md). Unreleased; requires matching
-DreamLake and Dash server changes. All commands require `--namespace <slug>`.
+See [Experiments](cli-experiments.md). Native run commands require a server with native
+Experiments enabled and both `--namespace <slug>` and `--project <slug>`.
 
 | Command | What it does |
 | --- | --- |
@@ -266,6 +266,10 @@ DreamLake and Dash server changes. All commands require `--namespace <slug>`.
 | `experiments binding` | Inspect the current binding and revision |
 | `experiments connect <workspace>` | Preview a unique slug or stable ID; apply requires stable ID, `--instance-id`, `--apply`, and `--expected-revision` |
 | `experiments disconnect` | Preview local detachment; apply requires `--apply --expected-revision`, retaining remote data |
+| `experiments runs list` | List native project runs, with cursor pagination |
+| `experiments runs create <key>` | Create or recover a native run by stable key |
+| `experiments runs log <id> <message>` | Append one log entry |
+| `experiments runs archive <id>` / `experiments runs restore <id>` | Hide or restore a native run without deleting data |
 
 ## Skills
 
@@ -273,7 +277,8 @@ See [Agent skills](cli-skills.md).
 
 | Command | What it does |
 | --- | --- |
-| `skill list [--json]` | Bundled skills, and whether each is installed at project or global scope |
+| `skill list [--local] [--remote] [--refresh] [--json]` | The skills catalog — from the server's registry when logged in, else the embedded snapshot — and whether each is installed at project or global scope |
+| `skill read <name> [--file <path>] [--local] [--remote] [--json]` | Print one file of a skill (`SKILL.md` by default) with the bundle's tag and commit; `--json` has the fields of the agent's `dreamlake_skills_read` |
 | `skill install [name] [--global] [--dir <path>] [--force]` | Copy one into `.claude/skills/`; refuses to overwrite without `--force` |
 
 ## Artifacts

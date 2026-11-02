@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/versions.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/versions.md at 0.100.0 335c539; do not edit -->
 
 # Saved versions
 
@@ -89,7 +89,7 @@ not the live read's `content` and write-baseline envelope.
 
 ## Recover a retained snapshot
 
-Use the [authoritative retained-snapshot recovery workflow](https://docs.dreamlake.ai/notes#recover-a-retained-snapshot)
+Use the [authoritative retained-snapshot recovery workflow](https://docs.dreamlake.ai/notes/history/#recover-a-retained-snapshot)
 when an older full source is retained but missing from saved versions.
 `note tag` checkpoints the **current** live source; it cannot import an older
 snapshot. The CLI has no historical-revision save option or checkpoint/journal

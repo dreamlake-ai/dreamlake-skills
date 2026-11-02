@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.100.0 335c539; do not edit -->
 
 # Host enrollment
 
@@ -714,6 +714,32 @@ showing each Unix user, UID, readiness and enrollment ID. Without a terminal, th
 CLI prints those choices with copyable commands and exits without connecting.
 `--enrollment` selects an exact enrollment directly; scripts can use it to avoid
 prompts. Cancelling the chooser opens no session. Session lifetime is 120–1800 seconds (`--duration`, default 1800).
+
+With CLI 0.100.0+, when the selector names no host (a keyword such as
+`dreamlake ssh gpu`, a misspelled or missing `namespace/group/host`, or an
+unknown ID) and the command runs in a terminal, a host picker opens in place
+of a bare error:
+
+<video src="/images/ssh-picker/ssh-picker.mp4" autoPlay loop muted playsInline controls style={{ maxWidth: "100%", borderRadius: "8px" }} />
+
+The picker is the `hosts list` table filtered to hosts whose name or ID
+contains the keyword, case-insensitively, with every match highlighted and the
+best match first: an exact name or host segment, then one the keyword starts,
+then any containing name, then IDs. The top row is selected. Typing filters
+further, `↑`/`↓` move the selection, and Tab completes what you typed toward
+the selected host one `/` segment at a time (`gpu14` → `lakeco/gpu14/` →
+`lakeco/gpu14/gpu14-ctrl`). Enter connects to the selected host and prints the
+full command it ran, so the next call can skip the picker. Esc or Ctrl-C
+cancels with the original error and exit code. A `namespace/group/host`
+selector that matches nothing as a whole falls back to its last segment, and
+the namespace is taken from the selector when it has one. Twenty rows are shown
+at a time, offline hosts included; `NO_COLOR` drops the highlight and the
+inverse selection bar.
+
+When stderr is a terminal but stdin is not (input piped in), the error is
+followed by the same filtered table as static text and nothing is connected;
+rerun with the full name or ID. Without a terminal, and on sign-in, namespace
+or network errors, the error is printed alone and the inventory is not read.
 The 120-second minimum avoids a legacy control-plane deadline mismatch for
 60-second delegations. Use `--timeout` for shorter attached commands.
 

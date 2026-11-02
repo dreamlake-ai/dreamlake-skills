@@ -1,6 +1,111 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.100.0 335c539; do not edit -->
 
 # Release notes
+
+## 0.100.0 — `ssh` and `exec` pick a host from a keyword
+
+- `dreamlake ssh <keyword>` and `dreamlake exec <keyword> -- …`: when the
+  selector names no host and the command runs in a terminal, a picker lists
+  the hosts whose name or ID contains the keyword, best match first and
+  highlighted, with the top row selected. Typing filters, `↑`/`↓` move, Tab
+  completes the typed text toward the selected host one `/` segment at a time,
+  Enter connects and echoes the full command, Esc cancels with the original
+  error. With stderr on a terminal but stdin piped, the error is followed by
+  the same table as static text and nothing is connected. Without a terminal
+  the error is unchanged and no inventory is read. See
+  [SSH and remote commands](https://cli.dreamlake.ai/host-enrollment#ssh-and-remote-commands).
+
+## 0.99.0 — Sessions: live state, restart with a raise rule, wrappers; skills read
+
+Sessions control plane, batch 2 ([control plane](https://cli.dreamlake.ai/sessions/control),
+[hooks](https://cli.dreamlake.ai/dev/claude-code-hooks)). The server routes these commands use ship
+separately; against an older server they answer 404.
+
+- `sessions control restart <id> --permission <level> [--raise] [--prompt]
+  [--mode] [--reason]`: stop and resume the same conversation under a new
+  recorded level. Lowering always passes; raising needs `--raise`, a typed
+  confirmation on a terminal, and a runner started with
+  `sessions serve --max-human-permission <level>` (advertised as
+  `capabilities.humanPermissionCap`, shown by `sessions runners`). The built-in
+  agent never raises; a child never passes its parent. Receipts echo `argv`
+  (the exact command line, every turn kind), `previousPermissionLevel`,
+  `stopped` and `effectivePermissionLevel`; pods refuse
+  (`pod_restart_unsupported`). `sessions permission <id> <level> [--raise]
+  [--reason]` moves the record only (`PATCH …/permission`); the runner records
+  the launch level of every tmux process and relaunches a live one under the
+  record before typing into it when the two differ (unrecorded: refused until
+  a restart). A session registered without a runner start has no level and is
+  refused until one `control restart --permission … --raise` records it.
+- Hook relay: `sessions heartbeat --state <liveState> [--tool] [--prompt-head]
+  [--hook-stdin] …` and `sessions event --kind SubagentStart|SubagentStop
+  [--subagent] [--name] [--finished] [--tokens] [--hook-stdin]`, one bounded
+  request each, the prompt head truncated to 200 characters and never printed,
+  exit 1 never 2. `--hook-stdin` reads Claude Code's hook JSON (only
+  `session_id`, `tool_name`, `prompt`, `agent_id`, `agent_type`) and finds the
+  saved session through the env file `sessions register --write-env` wrote,
+  also via `CLAUDE_CODE_SESSION_ID`. The runner reports `running` every 10 s
+  while it executes a turn, then the outcome. Ready-to-copy `settings.json`
+  hooks: [Claude Code hooks for live state](https://cli.dreamlake.ai/dev/claude-code-hooks).
+- `sessions status <id>` reads the descriptor first (live state, current tool,
+  permission level, runner) and answers for native and runner sessions instead
+  of the gateway's 503 / 409; `sessions tree <id>` shows managed children and
+  native subagents; `sessions watch [--session <id>] [--json]` follows the SSE
+  stream (readable lines, or NDJSON) and exits 0 on the server's 15-minute
+  `end`.
+- `dreamlake claude …` / `dreamlake codex …`: start the stock CLI under
+  DreamLake — register first (Claude; Codex adopts its rollout afterwards),
+  export the saved-session pair, map `--permission` onto `--permission-mode` /
+  `--sandbox`, upload the transcript on exit, keep the provider's exit code.
+- Runner fixes (batch 1): `CLAUDE_CONFIG_DIR` is exported only for the user's
+  own, logged-in, non-default profile (receipts say `claudeConfig.reason`);
+  the writer guard ignores the runner's own previous turn; tmux 3.5a targets
+  (`=name:`), launch nonces and orphan teardown that removes only a worktree
+  carrying this creation's identity file at the tip git created; `sessions
+  register --write-env` writes exported, shell-quoted assignments; failed and
+  uncertain receipts carry `result.error` with exit code, signal and redacted
+  output tails; the runner deregisters itself on exit (`DELETE
+  …/session-runners/:id`, `runners.deregister`); an owner's cancel reaches the
+  provider within about 2 s on its own clock.
+- `dreamlake skill read <name> [--file <path>] [--local|--remote]` prints one
+  file of any catalog skill without installing it, from the server's registry
+  when logged in or the embedded bundle, naming the source, tag and commit;
+  `skill list` shows the same catalog. TypeScript: `dl.skills.list()`,
+  `dl.skills.skill(name)`, `dl.skills.read({ skill, path })`,
+  `dl.skills.file({ skill, path, ifNoneMatch })`.
+- `@dreamlake/dreamlake-cli/api`: `sessions(ns).permission`, `heartbeat`,
+  `event`, `tree`, `watch` (async generator), `runners.deregister`;
+  `PERMISSION_LEVELS`, `isPermissionRaise`, `LIVE_STATES`, `WatchEvent`,
+  `SessionTree`, `restart` in `COMMAND_KINDS`.
+
+## 0.98.0 — Notes API contract: callable facade, mapped default, verbatim append
+
+- `@dreamlake/dreamlake-cli/api`: `dl.notes(noteId)` opens a local handle (IDs
+  are primary; the owning namespace is read from the note's metadata on first
+  use) with `read({ view, at, lines, section, address })`, verbatim `append`,
+  `replace`/`insert`/`remove` with exactly one selector, `write`, `patch`,
+  `outline`, `find`, `diff`, `presence`, `visit`, `versions`, `files.move` and
+  `move`; `dl.notes.list` and `dl.notes.create` are the collection operations
+  and `dl.notes.namespace(ns)` scopes a dynamic namespace. Every operation
+  takes one named object; `at` is a snapshot or a revision, never a hash.
+- `dreamlake notes read` prints the mapped Markdown view by default, in a
+  terminal or a pipe; `--view source` prints the exact source bytes only (no
+  header, no added newline); `--json` is one snapshot object. `--lines a:b`
+  reads a focused slice with its code-point address and `scope`.
+- `notes append` is verbatim: exactly the given text, no separator added.
+- `--ns` aliases `--namespace`. `replace`, `remove` (alias of `delete`) and
+  `insert` take the note ID positionally with `--lines a:b`, `--address ID`,
+  `--before/--after ID`, `--cursor N` and `--file`; `create` without a title
+  makes `Untitled`; `move --to-project/--to-folder`; `find`/`toc --at` report
+  `note`, `hash` and `revision`; `list --offset`.
+- `--command-id <id>` on `append`, `patch`, `write`, `replace`, `insert`,
+  `delete` and `notes command-status NOTE ID`: public command identity, the
+  answer to safe replay of a lost-response append (opt-in; server support ships
+  separately). Write receipts carry `outcome`, `commandId` and `replayed`;
+  failures are typed outcomes: not submitted (exit 1), settled refusal (3/5),
+  uncertain (4).
+- Scripts that parsed plain `notes read` text or the old `--view source` header
+  must switch to `--json`. See [Reading](cli-notes-reading.md) and
+  [Editing](cli-notes-editing.md).
 
 ## 0.97.2 — Session titles from Claude Code transcripts
 

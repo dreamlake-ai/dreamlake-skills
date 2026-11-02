@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/projects.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/projects.md at 0.100.0 335c539; do not edit -->
 
 # Project filing
 
@@ -64,6 +64,9 @@ dreamlake notes move NOTE_ID --to-namespace current-workspace --project research
 # Relocate the note to an existing folder of one project (CLI 0.87.0+).
 dreamlake notes move NOTE_ID --namespace acme --project research --folder reports/2026 --dry-run
 ```
+`--to-project` and `--to-folder` are the contract spellings of `--project` and
+`--folder`; `--ns` asserts the source namespace. A display-name change
+(`--name`) is not part of the move contract this CLI can send.
 
 Run under the source namespace owner's login. Same-namespace filing requires
 write access to every requested project, preserves other project associations,
