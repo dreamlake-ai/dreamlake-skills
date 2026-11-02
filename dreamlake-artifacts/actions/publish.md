@@ -40,9 +40,9 @@ and an interaction that loads optional code/data. Reuse the same artifact ID
 for the next version. If hosting is unavailable, report that prerequisite;
 do not silently replace the requested build with an embedded HTML bundle.
 
-Consult the [CLI guide](https://cli.dreamlake.ai/artifacts#static-sites-with-on-demand-files)
+Consult the [CLI guide](../reference/cli-artifacts.md#static-sites-with-on-demand-files)
 for versions, options and compatibility, and the
-[hosting guide](https://docs.dreamlake.ai/artifacts#static-build-directories)
+[hosting guide](../reference/docs-artifacts.md#static-build-directories)
 for deployment requirements. Existing upload defaults are unchanged.
 
 ## Self-contained HTML pages
