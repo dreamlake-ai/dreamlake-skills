@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/dev/notes/project-resource-sharing.md at 0.1.109 6515c563; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/dev/notes/project-resource-sharing.md at 0.1.110 e71a6f30; do not edit -->
 
 # Project resource access inheritance
 

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/skills.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/skills.md at 0.100.0 335c539; do not edit -->
 
 # Agent skills
 
@@ -8,7 +8,9 @@ and published as a release: a `catalog.json` listing every skill and a
 `skills.tar.gz` holding their directories. The `dreamlake` CLI is the installer.
 It carries one skill, `dreamlake-cli`, embedded for offline use; everything else
 is downloaded from the latest release. Manual install is unpacking the same
-tarball.
+tarball. Reading a skill needs no install: `skill read` prints any file of
+any catalog skill from the server's registry (or the embedded bundle), with the
+revision it came from.
 
 ## Setup
 
@@ -53,16 +55,31 @@ current project and print a one-line hint to run `dreamlake init`.
 
 ```bash file="terminal" cli-help="skill"
 dreamlake skill list
+dreamlake skill read dreamlake-notes
 dreamlake skill install dreamlake-notes
 dreamlake skill update
 dreamlake skill remove dreamlake-notes
 ```
 
 ```bash file="terminal" cli-help="skill list"
+# The server's registry when logged in, else the embedded snapshot
 dreamlake skill list
+# Choose the source; --local never uses the network
+dreamlake skill list --local
+dreamlake skill list --remote
 # Fetch the latest catalog and show it next to the installed versions
 dreamlake skill list --refresh
 dreamlake skill list --agent codex --json
+```
+
+```bash file="terminal" cli-help="skill read"
+# SKILL.md, from the server's registry when logged in, else the embedded bundle
+dreamlake skill read dreamlake-notes
+# One file inside the skill
+dreamlake skill read dreamlake-notes --file actions/read.md
+# Choose the source; --json carries the same fields as the agent's dreamlake_skills_read
+dreamlake skill read dreamlake-cli --local --json
+dreamlake skill read dreamlake-scenes --remote
 ```
 
 ```bash file="terminal" cli-help="skill install"
@@ -94,10 +111,119 @@ dreamlake skill remove dreamlake-notes --agent codex --global --json
 | Command | Reads | Writes | Network |
 | --- | --- | --- | --- |
 | `init` | embedded bundle and catalog snapshot | preference file, `dreamlake-cli` | never |
-| `skill list` | catalog snapshot, install manifests | nothing | only with `--refresh` |
+| `skill list` | server registry when logged in, else catalog snapshot; install manifests | nothing | when logged in, unless `--local`; `--refresh` fetches the release |
+| `skill read <name> [--file <path>]` | server registry when logged in, else the embedded bundle | nothing | when logged in, unless `--local` |
 | `skill install <name...>` | latest `catalog.json`, `skills.tar.gz` | the named skills and their `requires` | yes; `dreamlake-cli` alone works offline |
 | `skill update [name...]` | latest `catalog.json`, `skills.tar.gz`, manifests | changed, new and retired files | yes; `dreamlake-cli` alone works offline |
 | `skill remove <name>` | the manifest | deletes listed, unedited files | never |
+
+## Reading a skill
+
+`skill read <name>` prints one file of a skill — `SKILL.md` unless `--file
+<path>` names another — so an agent or a script can load a skill without
+installing it. `skill list` shows the same catalog. Both answer from one of
+two sources, and every answer names the source and the bundle's tag and commit:
+
+| Source | What it is | Chosen when |
+| --- | --- | --- |
+| `remote` | the server's read-only skills registry (`GET /skills`, `GET /skills/:skill`, `GET /skills/:skill/files/*`), serving the bundle the server pins | a login is saved, or `--remote` |
+| `local` | the bundle embedded in this CLI — `dreamlake-cli` and the catalog snapshot — offline | no login, or `--local` |
+
+`--remote` without a login is `kind: "not-logged-in"` with `dreamlake login`
+as the next action; `--local` with `--remote` is `kind: "invalid-source"`.
+Without a flag, a registry that cannot answer at all — unreachable, `503
+skills_unavailable`, `503 skills_lock_mismatch`, a refused token — falls back
+to the embedded bundle with one stderr warning that says why; `--remote` never
+falls back. A refusal about the skill itself (`skill_not_found`,
+`skill_file_not_found`, `skill_path_invalid`, `skill_file_binary`) is
+reported as such and the embedded copy is not consulted, because it would
+answer a different question. Only `dreamlake-cli` is embedded: reading
+another catalog skill with `--local` is `kind: "not-embedded"`, and the next
+action is the same read with `--remote`.
+
+When the server's pin is not this CLI's, every remote answer carries one
+stderr line and nothing else changes:
+
+```text file="stderr"
+⚠ skills pin differs: this CLI embeds v2026.10.27 (3f9c1a2b7d04); the server answered v2026.10.29.1 (7d13e08e9260)
+```
+
+`skill list --json` repeats it under `registry.mismatch`. It is a warning,
+never a failure: the bytes are the server's and the version reported is theirs.
+
+The body is the whole of stdout, so `skill read` pipes; the header goes to
+stderr:
+
+```text file="stderr"
+skill read  dreamlake-notes/actions/read.md
+  source:     remote v2026.10.29.1 (7d13e08e9260)
+```
+
+A retired name resolves through the catalog's `renamed` map, and the answer
+says so (a `renamed:` line; `renamedFrom` in JSON). Paths are relative,
+forward-slash, inside the skill: `..` is refused with `skill_path_invalid`
+before anything is read, and a file that is not UTF-8 text with
+`skill_file_binary` — the same checks, with the same codes, as the server's.
+
+### One contract, three surfaces
+
+`dreamlake skill read --json`, the TypeScript `dl.skills.read({ skill, path })`
+([TypeScript API](https://cli.dreamlake.ai/dev/typescript-api#skills)) and the built-in agent's
+`dreamlake_skills_read` tool are one operation. All three return `tag`,
+`commit`, `skill`, `renamedFrom` (only when the name was retired), `path`,
+`sha256`, `content`, `files`, `filesTotal` and `filesTruncated`, and refuse
+with the same codes. The agent tool pages long files (`start`, `end`, `total`,
+`next`, `complete`) and clips its file index to a budget, setting
+`filesTruncated` when it did; the CLI and the TypeScript API return the whole
+file and the whole index, so the paging fields never appear, `filesTruncated`
+is always `false` and `filesTotal` equals `files.length`. The CLI adds
+`source`, `status` and `nextAction`:
+
+```json file="dreamlake skill read dreamlake-notes --file actions/read.md --json"
+{
+  "status": "ok",
+  "source": "remote",
+  "tag": "v2026.10.29.1",
+  "commit": "7d13e08e92608d5904a106f30d4f423d3f8fb387",
+  "skill": "dreamlake-notes",
+  "path": "actions/read.md",
+  "sha256": "c764d972177ef61daec3ad849b360854dfc46782bb5ecd49794eecf783825504",
+  "content": "# Read a note\n…",
+  "files": ["SKILL.md", "actions/read.md", "reference/cli-notes.md", "skill.json"],
+  "filesTotal": 4,
+  "filesTruncated": false,
+  "nextAction": null
+}
+```
+
+`sha256` is the hash of `content`; the CLI and the TypeScript API verify it
+against the skill's file index (and the file route's ETag) before answering.
+The embedded bundle is held to its pin the same way: the manifest the build
+wrote beside it indexes every file with its hash, `files` is that index, and
+a bundled file that was edited after the build, or is indexed but gone, is
+refused with `kind: "skill-file-mismatch"` rather than attributed to the
+commit it no longer matches; the next action is the same read with
+`--remote`. A file on disk that the manifest never indexed is
+`skill_file_not_found`.
+
+On failure the object is `{ "status": "error", "error", "kind", "code"?,
+"nextAction" }`. `code` is the registry's identifier when the refusal is one
+it defines; `kind` is the CLI's:
+
+| `code` | HTTP | `kind` | Meaning |
+| --- | --- | --- | --- |
+| `skills_unavailable` | 503 | `skills-unavailable` | the server could not load its bundle |
+| `skills_lock_mismatch` | 503 | `skills-lock-mismatch` | the server's bundle does not match its `skills.lock` |
+| `skill_not_found` | 404 | `skill-not-found`; `not-embedded` when `--local` knows the name but has no copy | no such skill |
+| `skill_file_not_found` | 404 | `skill-file-not-found` | the skill has no such file |
+| `skill_path_invalid` | 400 | `skill-path-invalid` | not a relative path inside the skill |
+| `skill_file_binary` | 415 | `skill-file-binary` | the file is not UTF-8 text |
+
+Kinds without a `code` are the CLI's own: `not-logged-in`, `invalid-source`,
+`unauthorized` (the server refused the saved login), `registry-unreachable`,
+`no-bundle`, `skill-file-mismatch` (the embedded copy is not what its manifest
+pinned) and `read-failed`. `skill_result_too_large` (413) and
+`skill_range_invalid` (400) belong to the paged agent tool only.
 
 ## Where it goes
 
@@ -354,6 +480,7 @@ exactly one object and stderr stays empty.
   "source": "embedded-skills",
   "agent": "claude",
   "catalog": { "version": "v2026.10.27", "origin": "embedded" },
+  "registry": { "source": "local", "tag": "v2026.10.27", "commit": "3f9c1a2b7d04e6b8c1d0f2a4b6c8d0e2f4a6b8c0" },
   "latest": { "version": "v2026.11.02", "origin": "release" },
   "skills": [
     {
@@ -375,7 +502,12 @@ exactly one object and stderr stays empty.
 edited or removed), `unmanaged` (a directory with no valid manifest; `error`
 says why when one was rejected), or `blocked` (something that is not a
 directory is in the way). When `--refresh` fails, `latest` is
-`{ "error", "url" }` and the rest of the object is unchanged.
+`{ "error", "url" }` and the rest of the object is unchanged. `catalog.origin`
+is `remote` when the rows came from the server's registry, `embedded` for the
+snapshot (with `catalog.unreachable` saying why a default remote fell back) and
+`none` when this build carries neither; `registry` is the pin that answered —
+`source`, `tag`, `commit`, and `mismatch` when the server's differs from the
+embedded one. See [Reading a skill](#reading-a-skill).
 
 ```json file="dreamlake init --agent codex --json"
 {

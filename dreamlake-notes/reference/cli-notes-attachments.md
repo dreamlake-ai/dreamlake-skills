@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.100.0 335c539; do not edit -->
 
 # Attachments
 
@@ -32,7 +32,7 @@ dreamlake notes files list --note release-plan --json
 ## Upload inline media and return its URL
 
 Check `dreamlake notes media upload --help` for availability. Requires CLI 0.37.0 or later. If unavailable in your installed CLI, use the
-[HTTP upload example](https://docs.dreamlake.ai/notes/#get-an-image-url-for-markdown-or-html)
+[HTTP upload example](https://docs.dreamlake.ai/notes/files/#get-an-image-url-for-markdown-or-html)
 with a valid API bearer token.
 
 After `dreamlake login`, upload an image and print only its embeddable URL:

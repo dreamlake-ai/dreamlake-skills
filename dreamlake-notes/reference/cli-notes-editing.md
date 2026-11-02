@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.100.0 335c539; do not edit -->
 
 # Editing with patches
 
@@ -16,14 +16,15 @@ without a trailing newline. Keep the baseline unchanged while preparing the patc
 set -euo pipefail
 dreamlake notes create "Patch tutorial" --text 'Hello world.' > created.txt
 NOTE_ID=$(sed -n 's/^  id //p' created.txt)
-dreamlake notes read "$NOTE_ID" > baseline.txt
-# Normal reads print note, hash, and revision before the source.
-BASE=$(sed -n '3s/^revision: //p' baseline.txt)
-dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" > receipt.txt <<'PATCH'
+dreamlake notes read "$NOTE_ID" --view source --json > baseline.json
+# A plain text read is the mapped reading view and --view source is bytes only;
+# --json is the structured snapshot with note, hash and revision.
+BASE=$(jq -er .revision baseline.json)
+dreamlake notes patch "$NOTE_ID" --file - --base-revision "$BASE" --json > receipt.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
-ACK=$(sed -n '3s/^revision: //p' receipt.txt)
+ACK=$(jq -er .revision receipt.json)
 dreamlake notes read "$NOTE_ID" --if-match "$ACK"
 # Expect Hello team. Inspect the result; do not repeat a successful patch.
 ```
@@ -43,7 +44,7 @@ dreamlake notes read "$NOTE_ID" --json > baseline.json
 BASE=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > base.md
 
-dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" \
+dreamlake notes patch "$NOTE_ID" --file - --base-revision "$BASE" \
   --json > receipt.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
@@ -175,9 +176,16 @@ note. If the files match, stop without sending a patch. Empty patch input is rej
 
 `--dry-run` prints the proposed request without submitting it. It does **not**
 ask the server to validate the patch or prove that a later write will succeed.
-Input can be a here-document, a pipe, `--file -`, `--file path`, or `--diff string`.
-Choose one. Explicit file/string input conflicts with redirected stdin;
-interactive stdin is refused. Patches are limited to 8,000,000 UTF-8 bytes.
+Input is `--diff string`, `--file path`, or `--file -` for stdin (a here-document
+or a pipe). Choose one. Stdin is read only with `--file -`: a pipe is never
+consumed implicitly, and `--diff`/`--file path` ignore whatever stdin is, so the
+result does not depend on how the command was launched. With a terminal on
+`--file -`, a hint to end input goes to stderr. Patches are limited to
+8,000,000 UTF-8 bytes.
+Every write refuses text that adds a generated reading-view header
+(`<!-- notes-reading-view revision=…`). `notes patch` sends without reading
+the note, so for it the check is best-effort on the patch's insertion payloads
+(adjacent hunks included); the server is the authoritative enforcement point.
 
 ## Handle a failure
 
@@ -201,6 +209,39 @@ share an idempotency receipt. If an acknowledgment is lost, keep the original
 baseline and draft, inspect the note, and reconcile. Never attach a newer revision
 to an old patch merely to make it pass. A later successful read does not by itself
 prove whether an earlier ambiguous request committed.
+
+## Retry-safe writes with `--command-id`
+
+`append`, `patch`, `write`, `replace`, `insert` and `delete` accept
+`--command-id ID`: a caller-stable identity of 8–128 characters from
+`A-Z a-z 0-9 . _ : -`, checked before any request. The server binds the id to a
+fingerprint of the original intent (note, baseline revision, mode, format and
+patch). Retrying the same id with the same intent returns the stored receipt
+with `replayed: true` and commits nothing. The same id with different intent is
+refused with `409 command_intent_mismatch`; an unfinished or unresolved command
+answers `409 command_in_progress` or `409 command_outcome_unknown`. This is the
+Notes API contract's public command identity: the answer to safely replaying an
+append whose response was lost. It is opt-in in this release; the server side
+ships separately, and until it does a receipt without the echo exits `4`.
+
+```bash
+dreamlake notes append "$NOTE_ID" --text "Hello" --base-revision "$BASE" \
+  --command-id "release-note-2026-10-30-0001" --json
+dreamlake notes command-status "$NOTE_ID" release-note-2026-10-30-0001 --json
+```
+
+Every v2 write receipt carries `outcome` (`accepted`, or `no-write` when the
+compiled edit set was empty), `commandId` (`null` without the flag) and
+`replayed`. With `--command-id`, a receipt that does not echo the id exits `4`:
+the server predates command identity, the write may have been applied, and a
+retry would not be deduplicated. A lost acknowledgment with `--command-id` also
+exits `4`, and the diagnostic names the id: retry with the same id, or read
+`notes command-status NOTE_ID COMMAND_ID`, which reports `pending`, `accepted`,
+`no-write` or `unknown` with the stored receipt or error, or
+`404 command_not_found`. Without the flag nothing new is sent, so older servers
+keep working. `--command-id` requires the v2 write: it cannot combine with
+`--legacy`, `--force`, `--section`, or the legacy `--if-match` of `replace`,
+`insert` and `delete`.
 
 Next: [Live collaboration](cli-notes-collaboration.md). For existing section/text
 mutation scripts, see [Legacy commands](cli-notes-legacy.md).
@@ -275,11 +316,11 @@ be current. Overlapping identity changes or unavailable original snapshots can
 reject; preserve the original baseline and addition for review.
 
 `--text`, `--file`, `--file -`, and piped stdin retain literal text, Unicode and
-line endings. When the nonempty original source lacks a final LF, append inserts
-one LF before the addition, including an empty addition. Otherwise it inserts
-exactly the addition. A genuinely empty insertion performs no write and JSON
-reports `noChange: true` with the observed snapshot revision; it does not claim a
-new acknowledgment. The EOF offset counts Unicode code points, and patch syntax
+line endings. Append is **verbatim**: exactly the addition is inserted at the
+original document end, with no separator added, even when the original lacks
+a final LF (`printf '\nHello\n'` supplies the separating newline deliberately).
+An empty addition performs no write and JSON reports `noChange: true` with the
+observed snapshot revision; it does not claim a new acknowledgment. The EOF offset counts Unicode code points, and patch syntax
 characters and source controls are escaped before transport.
 
 Human `--dry-run` keeps the composed original source plus addition on stdout,
@@ -344,6 +385,15 @@ revision. These compatibility flags cannot combine with `--base-revision` or
 `--exact`. Section mutation keeps its existing contract. Replacement and deletion
 use the original-revision contracts below in CLI 0.60.0 or later.
 
+### Contract spellings (CLI 0.98.0)
+
+The note may be given positionally: `dreamlake notes insert "$NOTE_ID" --after s1.p2
+--file addition.md --base-revision "$BASE" --json` inserts the file's exact UTF-8
+text, verbatim, at the end of that mapped element's full original span (`--before`
+inserts at its start; `--cursor N` at an original code-point position). Addresses
+come from a mapped read of the same revision. `--text`, `--file PATH` and
+`--file -` are mutually exclusive.
+
 ## Replace and delete original-source spans (CLI 0.60.0+)
 
 Original-revision replacement and deletion require CLI 0.60.0 or later and the
@@ -404,6 +454,22 @@ The original-revision migrations of section write, `add-section`, and
 `rm-section` remain unshipped. Their existing ETag-based interfaces remain
 available. Runbook attachment is separate proposed work and is not included
 in CLI 0.61.0; no legacy Note route or compatibility option is retired.
+
+### Contract spellings (CLI 0.98.0)
+
+`notes remove` is an alias of `notes delete` (selected source, never the Note).
+With a span selector the note may be given positionally and no query is needed:
+
+```bash
+dreamlake notes replace "$NOTE_ID" --lines 40:42 --file replacement.md --base-revision "$BASE" --json
+dreamlake notes replace "$NOTE_ID" --address s1.p2 --text "Hi" --base-revision "$BASE" --json
+dreamlake notes remove "$NOTE_ID" --lines 40:42 --base-revision "$BASE" --json
+```
+
+`--lines a:b` takes exactly two integers (1-based, inclusive; the span includes
+its line terminators). `--address ID` selects the full original span of a mapped
+element at the snapshot revision, nested content included. `--file` supplies the
+exact replacement text; empty replacement text deletes the span.
 
 ## Write a target body against its original source (CLI 0.61.0+)
 

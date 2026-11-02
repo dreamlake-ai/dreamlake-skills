@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/installation.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/installation.md at 0.100.0 335c539; do not edit -->
 
 # Installation
 
@@ -71,6 +71,12 @@ dreamlake self-update --status         # version, channel, pin, last check
 Installing an exact version **pins** it — auto-update stays paused until you
 pick a channel again. Without that, the updater would quietly move you off
 the version you asked for.
+
+> **Warning:** The install lives under that machine's `~/.local/share/dreamlake`, so every
+> computer you use updates on its own schedule. A feature that works on one
+> machine and prints an older error on another usually means the second one
+> hasn't picked up the release yet: run `dreamlake --version` there, then
+> `dreamlake self-update`.
 
 On macOS, every update check (background or `dreamlake self-update`) also
 removes the leftover nymph restart job from the October 2026 fleet upgrade, if

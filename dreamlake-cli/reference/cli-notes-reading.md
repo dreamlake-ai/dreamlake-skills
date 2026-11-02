@@ -1,9 +1,10 @@
-<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.97.2 1633dd9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.100.0 335c539; do not edit -->
 
 # Reading and changes
 
 Set `NOTE_ID` to an ID or slug from `dreamlake notes list`. Add `--namespace`
-when the note belongs to an organization. The shell examples use `jq`.
+(or its alias `--ns`) when the note belongs to an organization: the CLI looks an
+ID or slug up in that namespace or your configured one. The shell examples use `jq`.
 
 ## Save a snapshot
 
@@ -15,8 +16,11 @@ REVISION=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > base.md
 ```
 
-`base.md` is exact source, including its final-newline state. Plain `read > file`
-also saves metadata and is **not** a source-only export.
+`base.md` is exact source, including its final-newline state. Plain `read` prints
+the mapped Markdown reading view, generated hints included, and is **not** a
+source export; `--json` is the structured snapshot, and `--view source` prints
+the exact source bytes only (no header, no added newline), so
+`dreamlake notes read "$NOTE_ID" --view source > note.md` is a byte-exact export.
 
 | Field | Use it for |
 | --- | --- |
@@ -85,12 +89,11 @@ dreamlake notes sections release-plan
 dreamlake notes sections release-plan --json
 ```
 
-Use the returned heading anchor to read a passage. Partial reads currently use
-the explicit compatibility interface:
+Use the returned heading anchor to read a passage. Section reads use the
+explicit compatibility interface; for a line range use `--lines` (below):
 
 ```bash
 dreamlake notes read "$NOTE_ID" --legacy --section outline --numbered
-dreamlake notes read "$NOTE_ID" --legacy --start-line 40 --end-line 80
 ```
 
 Sections include their heading and all subsections, ending at the next heading
@@ -98,6 +101,28 @@ of the same or higher level. Duplicate headings receive suffixed anchors;
 `preamble` addresses text before the first heading. Lines are 1-based and inclusive.
 A partial read is not a complete patch baseline: its validator covers the whole
 note, while its source is only a slice. Never upload that slice as the whole body.
+
+## Read a line range
+
+```bash
+dreamlake notes read "$NOTE_ID" --lines 40:80
+dreamlake notes read "$NOTE_ID" --lines 40:80 --json
+```
+
+`--lines a:b` takes two integers, 1-based and inclusive, and prints the exact
+source slice with its global address: after `note`, `hash` and `revision` the
+text header carries `scope: lines a:b chars s:e` (Unicode code points,
+end-exclusive, in the complete source) and `complete: false`, then the slice.
+The JSON form is `note`, `hash` (of the complete source), `revision`, `lines`,
+`chars`, `scope` (`{"lines": [a, b]}`), the `content` slice, `complete: false`
+and `next` (the line after `b`, when the note has one). It has no whole-note `content`, so a focused read
+cannot be mistaken for a complete body: never upload it as the whole note. The
+last line's newline belongs to it; a final newline does not start a line.
+Ranges past the end are refused, not clamped. `--lines a:b --view source`
+prints only the slice bytes. `--lines` combines with `--at` and `--if-match`, and not with `--legacy`, `--start-line`, `--end-line`,
+`--numbered`, `--since`, `--linger` or the mapped views. The conversion from
+lines to code points is done by the CLI and by the TypeScript API
+(`note.read({ lines: [40, 80] })`), never by hand.
 
 ## Search passages
 
@@ -110,10 +135,12 @@ dreamlake notes toc --note "$NOTE_ID"
 ```
 
 `search` finds notes; `find` searches one note; `grep` returns locations across
-notes as `slug:line:column`. Literal queries are case-insensitive by default;
-regex queries are case-sensitive by default. JSON hits include the legacy ETag
-and character range. Use the [legacy editing interface](cli-notes-legacy.md) with
-those validators, or capture a full current snapshot for a v2 patch.
+notes as `slug:line:column`. `find` and `toc` read the v2 snapshot: their JSON
+carries `note`, `hash`, `revision` and code-point ranges, `--at REVISION` pins a
+retained snapshot, and a literal `find` query is case-sensitive unless
+`--no-case-sensitive`. `grep` hits still carry legacy ETags and character ranges;
+use the [legacy editing interface](cli-notes-legacy.md) with those validators, or
+capture a full current snapshot for a v2 patch.
 
 ## Verify a particular revision
 
@@ -237,22 +264,29 @@ includes its nested content. CLI 0.34.1 adds list-container hints to Markdown re
 The CLI inserts comments such as `<!-- s1.ul2.li3 chars=11:29 lines=3:4 -->` before
 original Markdown blocks. These hints are reading metadata, not article content;
 all offsets refer to the original source. Do not write annotated output back.
-Default source reads remain unchanged. The annotated view supports snapshot
+The annotated view is the default text output of `notes read`; `--view source`
+prints the exact source bytes only, and `--json`, `--since` and `--lines` always
+return exact source. The annotated view supports snapshot
 scopes and `--at`, but cannot combine with `--since`, `--linger`, or `--json`.
-HTML-source notes require `--view html`.
+HTML-source notes require `--view html`; a defaulted text read of an
+HTML-source note prints exact source instead.
 
 ## Addressed reading view
 
-`dreamlake notes read NOTE_ID --view markdown` uses the shared v2 reading view.
+`dreamlake notes read NOTE_ID` (the text default; `--view markdown` says so
+explicitly) uses the shared v2 reading view.
 It prints actual line breaks and addressed block hints, automatically draining
 pages pinned to the first revision. A failed continuation exits unsuccessfully;
 stdout may contain the completed prefix, so consumers must check the exit code.
 Generated hints are reading metadata, never an edit baseline. Use `--json` source
 reads to retain canonical content and the original opaque edit revision.
 
-TypeScript callers use `api.notes(namespace).readView(noteId, { at, start,
-section, tag, toc, limit })`. Follow `next` with the first `revision` until
-`complete` is true. Offsets address Unicode code points in the reading view.
+TypeScript callers use the facade: `const note = dl.notes(noteId)` opens a
+local handle by stable ID; `await note.read()` is the exact snapshot,
+`note.read({ view: "mapped", section, address, at })` the reading view and
+`note.read({ lines: [40, 80] })` a focused slice. The page-level
+`dl.notes.namespace(ns).readView(noteId, { at, start, section, tag, toc, limit })`
+remains: follow `next` with the first `revision` until `complete` is true. Offsets address Unicode code points in the reading view.
 The 32 KiB page budget measures JSON-escaped text bytes. This contract requires
 a backend supporting `view=reading`; older backends fail rather than silently
 returning a different representation.
