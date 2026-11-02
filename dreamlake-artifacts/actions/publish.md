@@ -21,7 +21,30 @@ with `?share=` appended when `--share` was used) — hand it to the user.
    `not authenticated. run 'dreamlake login' first.`
 3. A push writes to the user's own namespace by default; `--namespace <slug>`
    targets another namespace the user is a member of.
-4. The file passes the [author](author.md) checklist.
+4. For a single-file artifact, complete the [author](author.md) checklist.
+   For a static build, use the unreleased workflow below.
+
+## Static builds (unreleased)
+
+```bash
+# Only with a compatible CLI and configured static-site hosting:
+dreamlake artifact push ./dist/client --site --id my-site
+```
+
+Keep this workflow opt-in. Check `dreamlake artifact push --help` and target
+hosting availability first; an installed skill does not enable the feature.
+Build/prerender the site, select its client output directory, and preserve the
+bundler's chunks and lazy imports. Do not upload the source tree or server build.
+After pushing, open the viewer and check the entry page, a nested route, reload,
+and an interaction that loads optional code/data. Reuse the same artifact ID
+for the next version. If hosting is unavailable, report that prerequisite;
+do not silently replace the requested build with an embedded HTML bundle.
+
+This is unreleased guidance, not a change to existing upload defaults. Consult the
+[draft CLI guide](https://github.com/dreamlake-ai/dreamlake-cli/blob/feat/artifact-file-loading/docs/pages/artifacts/+Page.mdx#static-sites-with-on-demand-files-unreleased)
+for options and compatibility, and the
+[draft hosting guide](https://github.com/dreamlake-ai/dreamlake-workspace/blob/feat/artifact-file-loading/docs/pages/artifacts/+Page.mdx#static-build-directories-unreleased)
+for deployment requirements. Published references will catch up after release.
 
 ## Versioning is by `--id`
 
