@@ -1,7 +1,7 @@
 # Author artifact content
 
 For a built Vike/Vite site, first follow
-[static builds (unreleased)](publish.md#static-builds-unreleased); do not flatten
+[static builds](publish.md#static-builds); do not flatten
 its chunks into HTML when using that workflow. The guidance below applies to
 existing single-file artifacts.
 
