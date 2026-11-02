@@ -46,6 +46,16 @@ for options and compatibility, and the
 [draft hosting guide](https://github.com/dreamlake-ai/dreamlake-workspace/blob/feat/artifact-file-loading/docs/pages/artifacts/+Page.mdx#static-build-directories-unreleased)
 for deployment requirements. Published references will catch up after release.
 
+## Self-contained HTML pages
+
+For the existing self-contained HTML page workflow, read
+[Multiple HTML pages](../reference/cli-artifacts.md#multiple-html-pages)
+before bundling or pushing. Check the installed command's `--help` and the
+target viewer's support, then check the directory against the documented
+content and size limits. Apply the [author](author.md) checklist to each page.
+For a single-file artifact, keep the file workflow above; a new directory
+option alone is not a reason to repackage an existing artifact.
+
 ## Versioning is by `--id`
 
 - `--id` is the stable artifact id. Omit it and it is slugified from the
