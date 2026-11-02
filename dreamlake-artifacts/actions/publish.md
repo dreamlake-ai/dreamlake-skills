@@ -23,6 +23,16 @@ with `?share=` appended when `--share` was used) — hand it to the user.
    targets another namespace the user is a member of.
 4. The file passes the [author](author.md) checklist.
 
+## Choose the input
+
+For a directory of HTML pages, read
+[Multiple HTML pages](../reference/cli-artifacts.md#multiple-html-pages)
+before bundling or pushing. Check the installed command's `--help` and the
+target viewer's support, then check the directory against the documented
+content and size limits. Apply the [author](author.md) checklist to each page.
+For a single-file artifact, keep the file workflow above; a new directory
+option alone is not a reason to repackage an existing artifact.
+
 ## Versioning is by `--id`
 
 - `--id` is the stable artifact id. Omit it and it is slugified from the
