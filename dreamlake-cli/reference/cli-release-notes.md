@@ -1,6 +1,22 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.102.1 a8631f5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.103.0 7d26e7f; do not edit -->
 
 # Release notes
+
+## 0.102.3 — Reviewed cross-project Infrastructure paths
+
+- `infra move` preserves a stack's resource-tree path when moving its registration to another Project. Preview binds the source path and intended destination; an explicit `--destination-path` selects another placement.
+- Confirmation verifies path, identity and completion before reporting success. Unconfirmed writes retain the stack UUID and operation ID for reconciliation, without an automatic retry.
+- The TypeScript API exports `InfrastructureStackMovePreviewInput` and `InfrastructureStackMoveRequest`. UUIDs, HTTP state backends and Terraform resources remain unchanged.
+
+Requires the matching cross-project Infrastructure move API. Bindr membership and runbook blockers remain enforced. The separate recipient-accepted `infra transfer` lifecycle is capability-gated and has no fallback to relocation. Bundled skills remain pinned to published v2026.11.03.2.
+
+## 0.102.2 — Note contributing sessions
+
+- `notes contributors` lists persistent sessions and their observed creation/edit evidence, separately from manually linked sessions.
+- Note presence and editing share optional native or saved-session context. The server records confirmed contributions; the CLI no longer follows each Note write with a separate affiliation request.
+- The SDK exposes `notes.namespace(namespace).contributors(noteId)`. Missing or malformed optional metadata does not prevent content saves; no-op and failed writes do not establish authorship.
+
+Requires the matching Note contributor API. Artifact affiliation and explicit conversation uploads retain their existing behavior. The bundled skills remain pinned to published v2026.11.03.2.
 
 ## 0.102.1 — Faster repeat incremental artifact uploads
 

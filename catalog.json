@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.03.3-2-g979009c",
+  "version": "v2026.11.03.3-3-g097e469",
   "skills": {
     "dreamlake-annotations": {
       "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
