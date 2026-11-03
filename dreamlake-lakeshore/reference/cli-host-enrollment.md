@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.101.0 ee22d17; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.102.0 320c576; do not edit -->
 
 # Host enrollment
 
@@ -898,7 +898,7 @@ reported as `current`, and a still-due restart is verified rather than repeated.
 
 ## Move a private host between namespaces
 
-**Unreleased implementation:** requires the matching host-move server and client.
+**CLI 0.102.0+:** requires the matching host-move server.
 The move changes the namespace and name prefix while preserving the Host ID,
 personal owner, enrollments and machine keys. Organization membership does not
 give another member access to the computer. Existing execution connections stay
@@ -921,8 +921,23 @@ dreamlake hosts move HOST_ID --namespace alice --to acme --confirm \
 ```
 
 Replace the placeholders with the reviewed values. Pending enrollment grants,
-name/key collisions, retained sessions/runs/jobs, service-account or provider
+name/key collisions, unsupported run dependencies, retained jobs, service-account or provider
 bindings, Slurm inventory bindings and managed metrics Sources can block a move.
+With the matching retained-session adapter, saved terminal sessions keep their
+IDs, original namespaces and links. They become private to their existing owner;
+public visibility and organization sharing are removed. The optional `sessions`
+preview/receipt field reports `count`, policy
+`retain_original_namespace_make_private`, and `accessChanges.public` / `.shared`.
+Review those access changes before applying; older clients without this field
+remain compatible, and servers without the adapter may block retained sessions.
+
+The optional `runs` preview/receipt field reports `count`, `terminal`, `active`
+and policy `retain_original_namespace_acknowledged_runs`. With the matching
+adapter, ordinary run history and acknowledged executions retain their original
+namespaces, IDs, targets, output, statuses, execution IDs and cancellation intent.
+A move does not cancel, restart or relaunch active work. Pending delivery,
+private/reporting runs and other unsupported run dependencies remain blockers.
+
 The server preview is authoritative; never detach dependencies or re-enroll a
 machine to bypass a blocker. The operation makes no control-plane writes and
 does not restart Nymph.
