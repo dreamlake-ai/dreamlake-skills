@@ -178,3 +178,12 @@ See the [catalog reference](../reference/cli-host-enrollment.md#archive-and-rest
 
 Uploading a session's conversation history (CLI 0.79.0+) and linking Note or
 Artifact writes to a session are the `session-links` action of `dreamlake-cli`.
+
+## Change an existing host address
+
+Inspect the exact Host ID and current name before renaming. Use `hosts rename`
+with the current name as the concurrency guard; retain identical inputs after an
+uncertain response. See the [rename reference](../reference/cli-host-enrollment.md#rename-a-host-without-re-enrolling)
+for syntax and client support. Preserve enrollment and machine keys instead of
+registering another daemon to change its display address. Read back the new name
+and verify SSH separately; an online heartbeat does not establish a working shell.
