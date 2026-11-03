@@ -1,6 +1,12 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.101.0 ee22d17; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.102.0 320c576; do not edit -->
 
 # Release notes
+
+## 0.102.0 — private Host moves and persistent CLI namespace selection
+
+Move a personally owned Host into another namespace without changing its Host ID or re-enrolling its machine. `hosts move --dry-run` previews private owner access and dependency blockers; applying requires the reviewed revision, preview hash and stable request ID. The TypeScript API exposes `hosts(namespace).movePreview` and `move`. The matching server enforces ownership, private access and exact-input replay. Agent namespace selection is available as `/su <namespace>` in the matching built-in agent GUI.
+
+`dreamlake su <namespace>` persists the default namespace for later CLI commands while keeping your login identity unchanged; an explicit `--namespace` wins. Login and environment changes clear the selection. Native SSH now maintains bounded backpressure under large output bursts and preserves TLS identity checks and timeout cleanup.
 
 ## 0.101.0 — Static artifact builds with on-demand files
 

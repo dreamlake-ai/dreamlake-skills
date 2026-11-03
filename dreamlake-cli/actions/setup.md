@@ -14,6 +14,25 @@ switching and custom deployment setup. Do not assume the active environment is
 production. See [installation](../reference/cli-installation.md) and
 [environments](../reference/cli-environments.md).
 
+When the user wants subsequent CLI work in a named namespace, check the installed
+command before changing the selection:
+
+```bash
+dreamlake --version
+dreamlake su --help
+dreamlake su <namespace>
+```
+
+Use the user's actual namespace name and follow
+[namespace selection](../reference/cli-environments.md#select-the-default-cli-namespace).
+Confirm the result with a read-only operation from the intended task before
+continuing. Preserve explicit namespace arguments the user supplied. For an
+SDK-only request, use that SDK's documented namespace argument instead of
+changing CLI configuration. Keep this task scoped to the CLI namespace selection;
+handle resource moves, identity changes or GUI session changes only when requested.
+If the installed command is missing, use the documented upgrade path; do not
+substitute credential changes or direct configuration edits.
+
 For scripts, use `dreamlake init --agent codex` or
 `dreamlake skill install --agent claude --global`. Skills are bundled with the
 CLI; updates remind you when installed copies differ. Review local edits before
