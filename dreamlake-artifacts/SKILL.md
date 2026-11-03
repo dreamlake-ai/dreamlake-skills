@@ -8,7 +8,7 @@ description: Create or repair content for DreamLake's isolated offline artifact 
 For existing single-file artifacts, read [author](actions/author.md) before
 pushing content you wrote; it covers the offline sandbox and its constraints.
 For a built Vike/Vite directory, first read
-[static-site publishing (unreleased)](actions/publish.md#static-builds-unreleased)
+[static-site publishing](actions/publish.md#static-builds)
 before deciding whether to inline its assets.
 
 The CLI steps need the `dreamlake-cli` skill (installed with this one): the
@@ -21,7 +21,7 @@ Several commands below carry minimum CLI versions; check `dreamlake --version`.
 | --- | --- |
 | write or fix the file (choose a kind, make it self-contained, style it) | [author](actions/author.md) |
 | shareable query/fragment state, slides, deep links, back/forward inside the artifact | [routing](actions/routing.md) |
-| push a file, HTML page directory or built static site (unreleased); manage versions and metadata | [publish](actions/publish.md) |
+| push a file, HTML page directory or built static site; manage versions and metadata | [publish](actions/publish.md) |
 | see what is published in a namespace | [list](actions/list.md) |
 | make it public or private, mint/inspect/revoke a share link, understand Project-derived access | [share](actions/share.md) |
 | delete, restore, or permanently purge | [restore](actions/restore.md) |

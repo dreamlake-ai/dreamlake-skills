@@ -1,6 +1,25 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.100.0 1d4eb3e; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.101.0 ee22d17; do not edit -->
 
 # Release notes
+
+## 0.101.0 — Static artifact builds with on-demand files
+
+- `dreamlake artifact push ./dist/client --site` keeps a built client site's
+  HTML, CSS, JavaScript chunks, media, WASM and data as separate versioned files.
+  The browser loads requested assets on demand; unchanged file hashes are reused
+  on later uploads. `--spa` explicitly enables extensionless document fallback.
+- Site uploads have no fixed aggregate size cap. Files are hashed with bounded
+  buffers and streamed from disk. HTML pages remain limited to 32 MiB, manifests
+  to 2 MiB and builds to 4096 files; the current single-PUT transport accepts up
+  to 5 GiB per individual file. Existing upload formats retain their limits.
+- Source checks and signed SHA-256 checksums bind uploaded files to the immutable
+  manifest. Failed file uploads do not publish the manifest or artifact version.
+- Static sites are available on DreamLake hosting. Self-hosted installations
+  need compatible server, viewer and frame deployments with isolated content
+  hosting. The CLI checks hosting capability before uploading. See
+  [Static artifact sites](cli-artifacts.md#static-sites-with-on-demand-files).
+- Native SSH validation now checks pause/resume independently of OS socket
+  read sizes while retaining bounded rejection of already-decoded bursts.
 
 ## 0.100.0 — `ssh` and `exec` pick a host from a keyword
 

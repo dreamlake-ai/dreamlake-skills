@@ -22,9 +22,9 @@ with `?share=` appended when `--share` was used) — hand it to the user.
 3. A push writes to the user's own namespace by default; `--namespace <slug>`
    targets another namespace the user is a member of.
 4. For a single-file artifact, complete the [author](author.md) checklist.
-   For a static build, use the unreleased workflow below.
+   For a static build, use the workflow below.
 
-## Static builds (unreleased)
+## Static builds
 
 ```bash
 # Only with a compatible CLI and configured static-site hosting:
@@ -40,11 +40,10 @@ and an interaction that loads optional code/data. Reuse the same artifact ID
 for the next version. If hosting is unavailable, report that prerequisite;
 do not silently replace the requested build with an embedded HTML bundle.
 
-This is unreleased guidance, not a change to existing upload defaults. Consult the
-[draft CLI guide](https://github.com/dreamlake-ai/dreamlake-cli/blob/feat/artifact-file-loading/docs/pages/artifacts/+Page.mdx#static-sites-with-on-demand-files-unreleased)
-for options and compatibility, and the
-[draft hosting guide](https://github.com/dreamlake-ai/dreamlake-workspace/blob/feat/artifact-file-loading/docs/pages/artifacts/+Page.mdx#static-build-directories-unreleased)
-for deployment requirements. Published references will catch up after release.
+Consult the [CLI guide](../reference/cli-artifacts.md#static-sites-with-on-demand-files)
+for versions, options and compatibility, and the
+[hosting guide](../reference/docs-artifacts.md#static-build-directories)
+for deployment requirements. Existing upload defaults are unchanged.
 
 ## Self-contained HTML pages
 
