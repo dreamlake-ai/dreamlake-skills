@@ -32,16 +32,40 @@ requests or resource mutations.
 
 ## Claude readback
 
-The same read-only three-case prompt was attempted with Claude Code, restricted
-to Read tools and plan permission mode. The process produced no output before
-its 90-second deadline and exited 124. These three acceptance cases remain
-unverified; the Codex results do not stand in for them.
+The initial attempt timed out after 90 seconds. A retry first verified that
+Claude Code 2.1.317 reported an authenticated session, without publishing
+credential details. The same three-case prompt then completed successfully
+within a 180-second deadline (exit 0), in the installed temporary project with
+plan permission mode, restricted Read/Glob/Grep tools and no MCP servers.
+No permission bypass was used.
+
+1. **Create an agent using an instruction note and skills folder:** opened
+   `actions/author.md`, checked the local references and identified the missing
+   offered creation tool and missing note-reference schema. It required stable
+   IDs, duplicate inspection, project verification and readback, and did not
+   claim creation, attachment, filing or execution.
+2. **TypeScript SDK only:** opened both actions and the installed runnable API
+   reference. It reported that the installed references do not document an
+   agent SDK method, distinguished the documented HTTP route from an SDK
+   method, and identified the remote TypeScript reference as the next check.
+   No SDK method was invented or integration executed.
+3. **Raw-byte video upload via an unavailable model tool:** opened
+   `actions/resource-api.md`, refused to invent an upload tool and identified
+   documented CLI file-path workflows as conditional alternatives. It required
+   installed-capability verification and a receipt before claiming upload.
+
+Both runs report only what their installed references and offered tools prove.
+The Claude readback surfaced older published CLI facts about SDK availability
+and project filing. These references must be refreshed after the new product
+documentation deploys; acceptance does not establish that the new APIs are live.
 
 ## Release prerequisites
 
 1. Deploy and verify the agent/resource tools and the public
-   `https://docs.dreamlake.ai/agents/resource-tools` page and its `.md` twin.
-2. Add that URL to the skill's docs list and regenerate references through the
-   repository fetcher, then run checks and the outstanding Claude acceptance.
+   `https://docs.dreamlake.ai/agents/authoring` and
+   `https://docs.dreamlake.ai/agents/resource-tools` pages and their `.md` twins.
+2. Add those URLs to the skill's docs list and regenerate references through the
+   repository fetcher, then run checks and repeat acceptance against the updated
+   installed reference closure.
 3. Merge, publish the normal skills tag, perform a fresh installed readback, and
    update the CLI skills lock separately. None of those release steps has run.
