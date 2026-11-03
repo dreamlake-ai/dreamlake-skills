@@ -1,6 +1,12 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.102.0 320c576; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.102.1 a8631f5; do not edit -->
 
 # Release notes
+
+## 0.102.1 — Faster repeat incremental artifact uploads
+
+Repeated incremental uploads validate and reuse known chunk boundaries for unchanged inputs of at least 64 MiB, avoiding the rolling chunk scan. Bounded artifact-scoped S3 listing checks replace individual chunk requests where supported, with parallel HEAD checks as a fallback.
+
+Each push still creates a version and restores missing stored chunks before publication. Changed inputs retain content-defined chunking; small inputs avoid the additional manifest read. The incremental format and its 512 MiB limit are unchanged. See [Incremental uploads](cli-artifacts.md#incremental-uploads).
 
 ## 0.102.0 — private Host moves and persistent CLI namespace selection
 

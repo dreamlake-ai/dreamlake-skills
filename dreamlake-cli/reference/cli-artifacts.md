@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.102.0 320c576; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.102.1 a8631f5; do not edit -->
 
 # Artifacts
 
@@ -169,6 +169,16 @@ are gzip-compressed and sent directly to S3; every version stores a complete
 manifest and can be opened without replaying earlier versions. Repeated pushes
 still append a version, even when all chunks are reused. The CLI reports new
 compressed bytes and reused source bytes.
+
+CLI 0.102.1 and newer accelerate repeat pushes without changing this versioning
+behavior. For unchanged inputs of at least 64 MiB, the CLI reads the latest small manifest from
+the current artifact's storage, verifies its chunk boundaries against the local
+file, and skips the rolling chunk scan. Changed inputs still use content-defined
+chunking. S3 chunk existence checks use bounded, artifact-scoped listing requests
+instead of one request per chunk; small requests, backends without listing
+support, and unresolved keys after the listing budget use parallel HEAD checks.
+Missing chunks are uploaded again before publication. An old manifest alone is
+never treated as proof that a chunk still exists.
 
 This works inside a single HTML file, including embedded images. A ZIP containing
 only changed files would still resend that whole HTML file. Chunk boundaries
