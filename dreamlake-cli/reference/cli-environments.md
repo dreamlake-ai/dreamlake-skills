@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.101.0 ee22d17; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.102.0 320c576; do not edit -->
 
 # Environments
 
@@ -46,6 +46,42 @@ hit, not just the last one you selected — if a `DREAMLAKE_*` env var is
 overriding the connection, or the files were edited by hand, the star
 disappears and a note explains why.
 
+## Select the default CLI namespace
+
+**CLI 0.102.0+:** `su` selects the default
+resource namespace for subsequent CLI invocations under the current saved login:
+
+```bash cli-help="su"
+dreamlake su fortyfive
+dreamlake hosts list
+dreamlake hosts list --namespace geyang
+dreamlake su geyang
+```
+
+Use the actual namespace name; `personal` is not a special alias. Selection
+requires your personal namespace or an organization you belong to, checked with
+the current authenticated account. It changes local CLI scope and does not
+change login identity, grant permissions, move resources, or switch the GUI.
+An explicit `--namespace` or namespace-qualified target wins for that invocation
+and leaves the stored default unchanged. Otherwise commands using the shared
+namespace resolver use the selected scope, then the signed-in personal
+namespace when no selection exists. Existing commands that require an explicit
+namespace still require it.
+
+The selection is stored separately from cached personal identity in
+`~/.dreamlake/config.json`, bound to the remote and a credential fingerprint.
+A different remote/token cannot inherit it. `login`, `auth env use`, and logout
+clear the selection; select it again for the intended environment. Access is
+still enforced by every resource route, so revoked membership causes an access
+error rather than a silent switch to another namespace.
+
+The public TypeScript API requires explicit namespaces (for example,
+`client.hosts('fortyfive')`) and never reads CLI configuration. The Python host
+API likewise takes an explicit namespace. Python's implicit personal-namespace
+resolver remains tied to the authenticated identity; this CLI setting does not
+change that SDK default. Built-in agent `/su <namespace>` is a separate,
+conversation-scoped selection.
+
 ## Custom / self-hosted environments
 
 Define a custom environment once with its URLs, then switch by name forever:
@@ -78,7 +114,7 @@ The effective connection lives in two files shared with the Python SDK
 | File | Contents |
 | --- | --- |
 | `~/.dreamlake/tokens.json` | the active token (`dreamlake-token` slot) |
-| `~/.dreamlake/config.json` | `remote_url`, cached `namespace`, `device_secret` |
+| `~/.dreamlake/config.json` | `remote_url`, cached personal `namespace`, optional CLI `default_namespace`, `device_secret` |
 
 `login` and `auth env use` always rewrite the token and server **together**, so
 the pair can never point at different environments.
