@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.100.0 1d4eb3e; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.101.0 ee22d17; do not edit -->
 
 # Artifacts
 
@@ -45,9 +45,9 @@ dreamlake artifact push ./chart.jsx --kind react --id sales-chart
 dreamlake artifact push ./chart.jsx --id sales-chart   # v2 of the same artifact
 ```
 
-## Static sites with on-demand files (unreleased)
+## Static sites with on-demand files
 
-Use `--site` with a **built client directory** to preserve its HTML, CSS,
+In CLI 0.101.0 or newer, use `--site` with a **built client directory** to preserve its HTML, CSS,
 JavaScript chunks, images, WASM, data and media as separate files. The viewer
 loads the requested page; the browser and your application decide which other
 resources to request. Vite/Vike bundling and dynamic imports are preserved.
@@ -60,8 +60,9 @@ dreamlake artifact push ./dist/client --site --id simulation
 dreamlake artifact push ./dist --site --spa --id dashboard
 ```
 
-This mode requires the new server, viewer and frame, plus configured isolated
-content hosting. The CLI checks server availability before uploading. It does
+This mode is available on DreamLake hosting. Self-hosted installations require
+a compatible server, viewer and frame with isolated content hosting configured.
+The CLI checks server availability before uploading. It does
 not run a build or an SSR server. For Vike, use prerendering; root-relative asset
 URLs, prerendered routes, client routing and lazy imports work on the site's own
 origin. `--spa` falls back to the entry HTML only for document requests to
@@ -152,7 +153,7 @@ compatibility alias; use that spelling with CLI 0.39.1.
 dreamlake artifact push ./dashboard.html --id q1-dashboard
 # Edit the file, then repeat the same command to upload only new chunks.
 
-# Static build with on-demand assets (unreleased; requires configured site hosting):
+# Static build with on-demand assets (CLI 0.101.0+; requires site hosting):
 dreamlake artifact push ./dist/client --site --id simulation
 
 # Compatibility with older self-hosted viewers:
