@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.110 aae4ca5d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.110 30598db3; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -9,7 +9,7 @@
   Markdown doc, an SVG, a Mermaid diagram, or a code snippet — that you push
   from the terminal and view as a live page in the dashboard.
 
-## Static build directories (unreleased)
+## Static build directories
 
 `dreamlake artifact push ./dist/client --site --id my-site` preserves a static
 Vike/Vite build's HTML, scripts, styles and assets as separate files. The browser
@@ -51,13 +51,16 @@ partitioned session cookie. This is static hosting, with no application backend.
 
 The CLI refuses `--site` before uploading when the server does not advertise
 hosting support. There is no fixed aggregate byte limit for static sites. Limits
-remain 4,096 files, a 2 MiB manifest and 32 MiB per HTML document;
+remain 4,096 files, a 2 MiB manifest and 32 MiB per HTML document.
+The CLI uses a single S3 PUT per file, with a 5 GiB per-file transfer limit;
 hidden files are omitted and symlinks, unsafe paths and case collisions rejected.
 File sizes and their sum must be exactly representable as nonnegative safe integers.
 Large media is streamed and supports byte-range requests; only requested HTML and
 the manifest are buffered under their size limits.
-No database migration is required. DNS/TLS, deployment and production verification
-are pending; local tests are not evidence that hosting is enabled in production.
+No database migration is required. Self-hosted deployments must provision wildcard
+DNS/TLS and deploy matching components before enabling hosting. Verify the
+capability endpoint and a complete browser session on the target; local tests
+alone do not establish live support.
 
 For a cross-repository browser regression, build the UI fixture with
 `node scripts/build-artifact-site-fixture.mjs` and its frame with
