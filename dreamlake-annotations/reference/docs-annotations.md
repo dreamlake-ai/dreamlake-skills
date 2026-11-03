@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.110 999238cf; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.112 3d52a6b8; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,

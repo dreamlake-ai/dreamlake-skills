@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.102.1 a8631f5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.103.0 7d26e7f; do not edit -->
 
 # Execute a bound UDF on a queue
 
@@ -111,7 +111,7 @@ dreamlake runnable execution-receipt exec/acme/recipes.process@EXECUTION_DIGEST 
 
 ## Run through DreamLake on an owned host (`--target`)
 
-With `--target namespace/group/host`, the submitting CLI and the UDF need no
+With `--target namespace/group/host[/user]`, the submitting CLI and the UDF need no
 control-plane token. The DreamLake server uses the host enrollment's
 connection on your behalf, and the worker daemon keeps its normal enrollment
 credentials; you must own the host, and its worker must be pinned
