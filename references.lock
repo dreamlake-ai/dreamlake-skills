@@ -24,6 +24,22 @@
         "sha256": "688ceffd8e64b02db2e46daf9da53d0d40ab8060ef6cd4ed8a2eb106bf9fc863"
       }
     ],
+    "dreamlake-agents": [
+      {
+        "url": "https://cli.dreamlake.ai/agents",
+        "file": "reference/cli-agents.md",
+        "version": "0.103.0 7d26e7f",
+        "source_sha256": "c484d2e66cdc9c607db0c32ef99bd7630844a2193f540a9449067705eeec1a3b",
+        "sha256": "7a2720d585b64f137bdd5a431065a3f99be496842062567573ed05fc3222b886"
+      },
+      {
+        "url": "https://cli.dreamlake.ai/runnable-api",
+        "file": "reference/cli-runnable-api.md",
+        "version": "0.103.0 7d26e7f",
+        "source_sha256": "26bee762e62b5274d5d0571f07d565ac8c06b1fb6b96e1e27f40576d0b18a62d",
+        "sha256": "236d8dd5a1c55ded07f87e3378f4a2f35a4e8008e3d449ac990f0ee3c0d3ca8a"
+      }
+    ],
     "dreamlake-annotations": [
       {
         "url": "https://docs.dreamlake.ai/annotations",

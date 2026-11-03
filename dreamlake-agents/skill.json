@@ -1,0 +1,10 @@
+{
+  "name": "dreamlake-agents",
+  "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
+  "requires": ["dreamlake-cli"],
+  "docs": [
+    "https://cli.dreamlake.ai/agents",
+    "https://cli.dreamlake.ai/runnable-api"
+  ],
+  "tools": null
+}
