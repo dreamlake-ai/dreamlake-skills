@@ -106,28 +106,9 @@ preserve Note identity, collaborative revisions and existing sharing.
 
 ## Move an existing registration
 
-For a requested Project/workspace consolidation, preserve the existing UUID,
-state endpoint, state bytes and history. Use CLI 0.67.0 or later
-and the matching backend with its receipt migration and admission flag enabled.
-Source and destination require namespace OWNER and Project ADMIN authority.
-
-Preview the explicit destination with `dreamlake infra move STACK_ID --namespace
-OWNER --project PROJECT --dry-run --out review.json`. Inspect blockers and saved
-source/destination IDs, original name, state version/digest and idempotency key.
-For an explicitly approved collision rename, add `--destination-name NAME` to
-preview; never invent an automatic rename. To change only the tree path, preview
-the stack's own namespace/project with `--destination-path NEW/PATH`; the UUID and
-state stay unchanged. The review pins the current path, so re-preview if it is
-reported stale. A stack with a path cannot yet move to another Project; report
-the `STACK_MOVE_PATH_CROSS_PROJECT_UNSUPPORTED` blocker instead of working around it. A runbook (for cross-Project moves) or active lock may block
-admission. The saved review file must be new and is private.
-
-Execute only the saved intent with `dreamlake infra move STACK_ID --request-file
-review.json --confirm`. The server rechecks authority and state/location; the
-contract is admission-linearized across stores. Do not refresh the preview or
-change destinations during confirmation. The CLI never retries a move write.
-After an ambiguous outcome inspect the same UUID and reconcile, then replay the
-same saved request/key if appropriate. Do not create a replacement stack.
+Use [Move an Infrastructure registration](infrastructure-move.md) for a reviewed
+rename, path change, or cross-Project consolidation. Keep the existing stack UUID
+and Terraform backend; the move action includes uncertain-outcome recovery.
 
 ## Provision Kubernetes capacity and launch containers
 

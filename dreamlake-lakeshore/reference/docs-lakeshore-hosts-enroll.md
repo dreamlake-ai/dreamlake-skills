@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.110 999238cf; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.112 3d52a6b8; do not edit -->
 
 # Enroll a host
 
@@ -305,7 +305,7 @@ host = client.hosts.status("fortyfive/bos14/bos14-ctrl")
 group = client.hosts.status("fortyfive/bos14/*")
 ```
 
-Names are `<namespace>/<group>/<host-name>`. `-p fortyfive/bos14 -n bos14-ctrl` and `-n fortyfive/bos14/bos14-ctrl` identify the same host; conflicting prefixes fail. Keep the machine name (`bos14-ctrl`), and use `bos14-node-000` for another host. Wildcards inspect existing hosts only. A namespace prefix grants no authorization.
+Preferred names are `<namespace>/<group>/<host-name>/<unix-user>`, for example `fortyfive/bos14/bos14-ctrl/geyang`. The final component must match the enrolled Unix account. Legacy `<namespace>/<group>/<host-name>` names remain valid. `-p fortyfive/bos14 -n bos14-ctrl` and `-n fortyfive/bos14/bos14-ctrl` identify the same host; conflicting prefixes fail. Keep the machine name (`bos14-ctrl`), and use `bos14-node-000` for another host. Wildcards inspect existing hosts only. A namespace prefix grants no authorization.
 
 The API checks namespace access before target identity creation. Nymph's private key stays on the target; a short-lived grant binds its public key to host, Unix user, and enrollment. The initial implementation reserves the name to its owner and rejects another identity. Adding a second Unix user to the same host requires a future explicit linking workflow; names alone cannot authorize it.
 
@@ -384,3 +384,11 @@ The September 12 bos14 demonstration had a signed Slurm heartbeat directly to `d
 - **[Resource setup](https://docs.dreamlake.ai/lakeshore/providers/resource-setup)** — EC2/EKS Terraform examples; existing hosts need no provisioning.
 - **[Python follow-up plan](https://docs.dreamlake.ai/dev/plans/hosts-python-api)** — Remaining parity and acceptance work.
 - **[Provider plan](https://docs.dreamlake.ai/dev/plans/providers)** — Separate Slurm/Kubernetes registration, provisioning, and workload acceptance.
+
+## Rename an enrolled host
+
+Rename the catalog address in place with `dreamlake hosts rename HOST_ID --name NEW_NAME --expected-name CURRENT_NAME`.
+The same namespace, owner, Host ID, enrollment, machine keys and saved sessions are preserved.
+After an uncertain response, retry those exact inputs. Read status back under the new name,
+then verify SSH. See the [CLI rename reference](https://cli.dreamlake.ai/host-enrollment#rename-a-host-without-re-enrolling)
+for the HTTP, TypeScript and Python APIs.

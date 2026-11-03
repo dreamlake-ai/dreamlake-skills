@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/infrastructure.md at 0.102.1 a8631f5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/infrastructure.md at 0.103.0 7d26e7f; do not edit -->
 
 # Infrastructure stacks
 
@@ -266,14 +266,28 @@ name collision; there is no automatic rename. The request pins the old name and
 optional new name, and confirmation does not accept name overrides. It does
 not register a second backend, run Terraform or move provider resources.
 
-`--destination-path PATH` on preview changes the stack's place in its own
-Project tree (path-only move). The review pins the current path; if the path
-changes before confirmation the move refuses as stale and needs a new preview.
-The tree node keeps its identity and bindr tags, and the UUID, backend URL,
-state, versions, lock history and runbook binding stay unchanged. Moving a stack
-that already has a path to another Project is blocked
-(`STACK_MOVE_PATH_CROSS_PROJECT_UNSUPPORTED`) until cross-store reconciliation is
-available. Tree folder moves, renames and deletes refuse to move or drop a stack.
+Cross-project path moves require CLI 0.102.3 or later and the matching backend.
+
+`--destination-path PATH` on preview chooses the stack's path in the destination
+Project, including a path-only move inside its current Project. Cross-project
+moves preserve the current relative path when this option is omitted: the server
+materializes `destinationPath` and `expectedSourcePath` in the saved review.
+The review pins the current path; if it changes before confirmation, the move
+refuses as stale and needs a new preview. A destination Note, folder or stack at
+the requested path blocks the move instead of overwriting or renaming anything.
+
+The tree node keeps its identity and metadata tags. Cross-project moves with
+Bindr memberships require separate review and are blocked with
+`STACK_MOVE_BINDR_REVIEW_REQUIRED`; runbook-bound stacks also remain blocked.
+The stack UUID, HTTP backend
+URL, Terraform state, versions and lock history stay unchanged. Execution
+reconciles the destination tree placement before reporting success; an uncertain
+response requires inspecting the same stack and original operation. A reviewed
+move relocates access scope to the destination Project, unlike a separately
+accepted access-preserving transfer. Tree folder moves, renames and deletes still
+refuse to move or drop a stack. Older backends can return
+`STACK_MOVE_PATH_CROSS_PROJECT_UNSUPPORTED`; update the backend instead of
+creating a replacement stack or stripping its path.
 
 ```bash cli-help="infra move"
 # Save one reviewed move; no location changes occur during preview.
@@ -286,6 +300,12 @@ dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
 dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
   --namespace fortyfive --project dreamlake-infra \
   --destination-path platform/aws/analytics --dry-run --out stack-path.json
+# Archive a registration in another Project, preserving its current relative path.
+dreamlake infra move 28609d8d-4dce-42a3-afd2-faa13a45b958 \
+  --namespace fortyfive --project infrastructure-archive \
+  --dry-run --out stack-archive.json
+dreamlake infra move 28609d8d-4dce-42a3-afd2-faa13a45b958 \
+  --request-file stack-archive.json --confirm --json
 ```
 
 Preview and execution require namespace OWNER and Project ADMIN authority
@@ -302,6 +322,11 @@ the destination. Admission is linearized at the final authority check; this is
 not a distributed transaction with the permissions database.
 
 ## Source candidate: access-preserving transfer
+
+This is a separate protocol from the reviewed `infra move` above. A missing
+transfer route (HTTP 404) means this capability is unavailable; it does not imply
+that reviewed cross-project moves are unsupported, and no client automatically
+substitutes a move because that would change access semantics.
 
 These commands require the new server Stack transfer protocol, which is default
 off pending its explicit PostgreSQL migration, compatible reader fleet and live
