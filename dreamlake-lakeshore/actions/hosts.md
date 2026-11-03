@@ -33,6 +33,7 @@ and preserve local customizations when reviewing conflicts.
 | Find active hosts across groups | `dreamlake hosts list`; select the authorized namespace (CLI 0.73.0+: verified online only) |
 | Include offline or unknown hosts | CLI 0.73.0+ `dreamlake hosts list --all`; CLI 0.72.0 lists all states without this flag |
 | Save or reopen an exact agent terminal session | [Terminal sessions](../reference/cli-sessions.md): `dreamlake sessions targets`, then `create` / `resume` / `open`; Codex requires CLI 0.74.1+ and matching terminal API/gateway; Claude requires CLI 0.77.0+ and provider-aware services |
+| Find host IP addresses, OS, CPU inventory or daemon version | Check `hosts list --help` for `--wide`, then inspect `hosts status HOST`; follow the [inventory reference](../reference/cli-host-enrollment.md#list-and-inspect-hosts) and verify installed support |
 | Inspect one host and its enrollments | `dreamlake hosts status` with its returned host ID or full name |
 | Resolve enrollment identities and observed presence | `dreamlake hosts enrollments HOST`; retain its exact enrollment ID |
 | Read CPU, RAM, and disk observations | `dreamlake hosts metrics HOST --enrollment ID` |
@@ -127,6 +128,20 @@ package, and never runs automatically during list/search/refresh. Continue a
 target with its discovery cursor; registry list uses a separate cursor. Report
 missing indexes/Python or unavailable hosts rather than claiming complete fleet
 coverage. See the owning Sessions reference for scope and deployment gates.
+
+For address inspection, start with the host listing and then select the exact
+host/enrollment in status. Read the network observation time and freshness before
+using an address, and keep each interface associated with its enrollment. Consult
+the [inventory reference](../reference/cli-host-enrollment.md#list-and-inspect-hosts)
+for supported fields and release prerequisites. If the installed client or daemon
+lacks this inventory, report that gap; for an explicitly requested Linux host
+inspection, use `dreamlake hosts exec HOST -- ip -4 addr show`. Do not guess an
+IP from a hostname, treat an interface address as a public NAT endpoint, or
+upgrade/restart the fleet as an implicit inspection step. For broader diagnostics,
+check installed help for `--probe` and use the intended namespace/group only;
+consult the reference for its remote execution, external lookup, and failure
+semantics before using it. Use `--fields` and `--format` only when advertised by
+the installed client; keep freshness and enrollment identity in automated output.
 
 Use inventory results to resolve identity. Host IDs, enrollment IDs, cloud
 instance IDs, and local Nymph supervisor IDs are different identifiers. Inspect
