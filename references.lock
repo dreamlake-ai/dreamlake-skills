@@ -704,6 +704,13 @@
         "version": "0.1.112 3d52a6b8",
         "source_sha256": "a74c1757216683a06a263e99a1c6735a6a1b803dc01c2bc027705fa1e719d1de",
         "sha256": "d39957d69f55d3c1d01a99146d45ad44feba7ecdaf50396d9e826ff15b4a161b"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/infrastructure-stacks",
+        "file": "reference/docs-infrastructure-stacks.md",
+        "version": "0.1.112 3d52a6b8",
+        "source_sha256": "47822bce6d6f87b26f9bcc2339f14871e4b96b77aa2520f8ed5266dd234da623",
+        "sha256": "c8e1cd37251f539d01b227ccff525c4457f91630ce1f5a7e0d09d78fe84932e1"
       }
     ],
     "dreamlake-libraries": [

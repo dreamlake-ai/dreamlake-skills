@@ -17,7 +17,8 @@
     "https://cli.dreamlake.ai/infrastructure",
     "https://cli.dreamlake.ai/connect-aws",
     "https://cli.dreamlake.ai/skills",
-    "https://docs.dreamlake.ai/lakeshore/hosts/enroll"
+    "https://docs.dreamlake.ai/lakeshore/hosts/enroll",
+    "https://docs.dreamlake.ai/infrastructure-stacks"
   ],
   "tools": null
 }
