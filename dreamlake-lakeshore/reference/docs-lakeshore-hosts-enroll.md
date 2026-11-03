@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.110 30598db3; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.110 797c0918; do not edit -->
 
 # Enroll a host
 
@@ -319,14 +319,14 @@ Host bos14-ctrl
   User geyang
   Port 2222
   ProxyJump ge@bastion.example.com
-  IdentityFile ~/.ssh/bos14_ed25519
+  IdentityFile ~/.ssh/id_ed25519
 ```
 
 ```shell
 dreamlake hosts enroll -p fortyfive/bos14 -n bos14-ctrl \
   --ssh '-J ge@bastion.example.com
     -p 2222
-    -i /Users/ge/.ssh/bos14_ed25519
+    -i /path/to/id_ed25519
     geyang@bos14-ctrl.internal'
 ```
 
@@ -343,7 +343,7 @@ Save this as `bos14-host.json`. Identity-file paths refer to local bootstrap cre
     "host": "bos14-ctrl.internal",
     "user": "geyang",
     "port": 2222,
-    "identityFile": "/Users/ge/.ssh/bos14_ed25519",
+    "identityFile": "/path/to/id_ed25519",
     "jumpHost": "ge@bastion.example.com",
     "options": { "ServerAliveInterval": "30" }
   }
