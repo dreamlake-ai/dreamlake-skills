@@ -64,4 +64,4 @@ Product facts live on the documentation sites, not in this skill: cli.dreamlake.
 docs.dreamlake.ai (product). Every page is fetchable as Markdown at
 `<page-url>.md`, and each site's full corpus at `<site>/llms-full.txt`.
 `reference/` holds the pages listed in `skill.json` `docs[]`, fetched by CI as
-`reference/cli-<slug>.md`; do not edit them.
+`reference/<site>-<slug>.md`; do not edit them.

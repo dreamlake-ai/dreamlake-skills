@@ -1,45 +1,86 @@
-# Host move skill acceptance
+# Host move skill release acceptance
 
-Acceptance for the branch copy of `dreamlake-lakeshore` and its complete `requires` closure (`dreamlake-cli`), copied into isolated `.agents/skills` and `.claude/skills` directories. No production hosts, credentials, or access settings were changed.
+The branch copy of `dreamlake-lakeshore` and its complete `requires` closure (`dreamlake-cli`) were copied into isolated `.agents/skills` and `.claude/skills` directories. SKILL.md was read back in full. No production resources, credentials, or access settings were changed by these acceptance executions.
 
-The installed SKILL.md was read back in full. The representative test explicitly supplies an installed CLI without host-move support; it verifies capability handling rather than claiming a product release. Product/docs deployment, live-reference sync, dated release assets, and fresh installation are separate release checks.
+The current procedure distinguishes the missing native CLI command from the documented published Python API. Its generated product reference was fetched from the owning live enrollment guide at docs version `0.1.110`, source `30598db3`. The native CLI command is not claimed released.
 
 ## Validation
 
-- `python3 scripts/check.py --offline`: passed; one optional scene tool dependency skip warning.
+- `python3 scripts/check.py --offline`: passed; one optional scene-tool dependency skip warning.
+- `python3 scripts/sync_references.py --offline-verify`: passed.
+- `python3 scripts/catalog.py --check`: passed.
 - `python3 -m unittest discover -s scripts -p "test_*.py"`: 55 passed.
-- Latest `main` artifact routing changes were merged into the branch without replacing their content.
+- Concurrent main reference updates were reconciled by regenerating from the live docs, not by editing or choosing a generated conflict side.
 
-## Codex: three independent requests
+## Six behavior checks
 
-The read-only Codex execution opened the branch-installed SKILL.md and `actions/host-move.md`. Its complete result follows.
+| Agent | Request | Result |
+| --- | --- | --- |
+| Codex | Move a private laptop when the installed native CLI lacks the operation | Passed: use the documented published Python fallback; verify deployment/identity and preserve preview guards. |
+| Codex | Python SDK-only preview/apply with safe retry | Passed: documented methods, no shell substitution, exact durable request replay and current-state readback. |
+| Codex | Public/member-wide sharing and bypassing migration blockers | Passed: unsupported widening and bypass are refused; private access and blockers remain enforced. |
+| Claude Code | Move a private laptop when the installed native CLI lacks the operation | Passed: missing CLI support does not block the available documented Python API. |
+| Claude Code | Python SDK-only preview/apply with safe retry | Passed: requested SDK language retained, methods taken from the fetched guide, full request guards preserved. |
+| Claude Code | Public/member-wide sharing and bypassing migration blockers | Passed: unsupported widening and bypass are refused; private access and blockers remain enforced. |
 
-Read the actual branch-installed SKILL.md and host-move action, plus the setup prerequisite and host reference.
+The two capability/fallback cases per agent were rerun after the procedure update. The unchanged unsupported-sharing/blocker-boundary cases reuse the earlier successful branch-installed executions. Existing agent authentication was used without changes. The successful Claude runs used restricted local Read access; Codex ran read-only.
 
-1. **Move alice → acme, keep private**  
-   Loaded `actions/host-move.md`. Given the stated absence of `hosts move` in installed help, I would report a capability gap and stop before selecting a host. This is an unreleased companion workflow requiring matching CLI and server support. Raw ownership updates and re-enrollment are explicitly excluded as substitutes.
+## Current Codex capability and SDK results
 
-2. **Python SDK preview/apply with safe retry**  
-   Loaded the same action’s SDK integration branch. I would use the matching SDK’s documented host-move preview/apply API, without shell commands. Preserve the complete reviewed preview and request identity; inspect name, personal owner, private access, and blockers before apply. For an ambiguous result, replay the original request through the supported recovery path—never silently refresh the preview or generate a replacement request. Then read current destination inventory and exact host/enrollment status.  
-   **Limitation:** the files read provide no concrete Python host-move signatures or SDK version floor. I would need matching API documentation before writing runnable integration code. SDK installation alone does not prove server rollout; implementation, release, and live verification remain separate.
+Both requests pass under the updated procedure.
 
-3. **Make public to acme and bypass blockers**  
-   Loaded `actions/host-move.md` to assess scope. This action supports personally owned hosts moving while remaining private. Public/member-wide sharing and blocker bypass are unsupported. It explicitly prohibits widening permissions, detaching dependencies, deleting sessions, or rotating keys to force a move through. I would report those limits and leave the move unapplied.
+1. **Move the laptop:** use the documented Python fallback. The missing native `hosts move` command is a CLI capability gap; it does not block the available Python API and matching server. Resolve the exact laptop Host ID and enrollment in `alice`, preview its move to `acme`, then apply the reviewed preview within the authorized scope. Confirm retained personal ownership, private visibility, destination name, session-sharing removals, run policies and all blockers. Read back destination inventory and exact enrollment status afterward.
 
-Only local files were read. No DreamLake commands, external services, edits, resource moves, or agents were used.
+2. **Python-only integration:** use the documented methods directly, without subprocesses:
+   ```python
+   from dreamlake import DreamLakeClient
 
-## Claude Code: three independent executions
+   client = DreamLakeClient()
+   preview = client.hosts.move_preview("alice", host_id, "acme")
+   ```
+   Return the complete preview for review. After review, require `preview["executable"]` and construct:
+   ```python
+   request = dict(
+       destination_namespace="acme",
+       request_id=request_id,
+       expected_revision=preview["revision"],
+       preview_hash=preview["previewHash"],
+   )
+   receipt = client.hosts.move("alice", host_id, **request)
+   ```
+   Before submission, durably save the reviewed preview, source namespace, Host ID and exact request. After a timeout or ambiguous result, replay that same `move` call unchanged. Never replace the request ID, refresh guards silently, or remove blocking dependencies. A historical replay receipt requires a fresh current-state readback.
 
-Existing authentication was used without changes. A first broad startup attempt was interrupted without an acceptance result; bounded restricted-mode executions with local Read access then completed all three cases. Each successful execution read the actual branch-installed SKILL.md and host-move action in three turns. No resource commands or external services were used in the successful executions.
+For both, `DreamLakeClient()` uses the documented shared `~/.dreamlake` authentication configuration; documented connection overrides are `DREAMLAKE_REMOTE` and `DREAMLAKE_API_KEY`. Confirm the effective deployment and personal identity, authority in both namespaces, and exact host ownership without exposing credentials. The SDK-only integration consumes configured authentication; it need not invoke CLI login.
 
-### Representative task: installed command missing
+Native CLI release, published SDK capability, deployed API support and live verification are separate claims. Terminal and metrics functionality also require separate verification.
 
-The matching action is **move a host** (`actions/host-move.md`), selected from the SKILL.md action table for "move a personally owned host between namespaces, keeping it private." Because the installed CLI help shows no `hosts move` command, the action's unreleased-companion rule applies: the next step is to report that capability gap to the user, stating that the installed `dreamlake` executable does not yet support host moves, and stop there. Do not substitute a raw ownership update or re-enrollment of the laptop, and do not widen permissions or re-enroll it under acme to simulate the move. Once a CLI build with `dreamlake hosts move` is installed, the flow resumes by confirming the exact laptop host and its alice-to-acme placement, requesting the move preview, and applying that reviewed preview while keeping it private.
+Only local references were read; no DreamLake commands, external requests or mutations were performed.
 
-### Python SDK-only integration
+## Current Claude capability and SDK results
 
-The action is **move a host** (actions/host-move.md), reached from the SKILL.md action table. For a Python SDK integration that previews and applies a host move with safe retry, the response is: use the Python SDK's documented host-move preview/apply API rather than shell commands, following the same guards as the CLI flow. Resolve the exact personal host, its source namespace and destination first, and keep placement separate from agent scope. Request the supported move preview, review the resulting name, personal owner, private access and all blockers, and retain the complete preview for the guarded apply. Apply that reviewed preview within the requested scope while retaining its request identity. For safe retry, reuse the original request ID and revision on conflicts or ambiguous results and reconcile through the supported replay path. Never mint a new request ID, generate a replacement request, or silently fetch a newer preview, and never detach dependencies, delete sessions, rotate keys or widen permissions to force a blocked move through. Afterwards, read back the destination inventory and exact host/enrollment status. The files do not define the Python SDK's method names or signatures, so the integration must be written against the SDK's own documentation, and the response should state implementation, release and live verification as separate claims, since an installed SDK is not proof of a server rollout.
+Both requests route to the **host-move** action; the skill's own sources resolve them as follows.
 
-### Unsupported public sharing and blocker bypass
+**Request 1: move laptop alice to acme, keep private, native CLI lacks `hosts move`**
 
-The request maps to the **move a host** action (`actions/host-move.md`), which covers moving a personally owned host between namespaces while keeping it private. The response would be: first confirm the installed CLI actually has `dreamlake hosts move` and report a capability gap if not, then resolve the exact laptop host and its source (alice) and destination (acme) namespaces rather than assuming, request the supported move preview, and apply only that reviewed preview with its original request identity. Two parts of the request must be declined as written: the action explicitly says not to widen permissions, so making the laptop public to all acme members is out of scope for a host move and the host stays private; and it forbids detaching dependencies, deleting sessions, rotating keys, or otherwise forcing a blocked move through, so any blockers in the preview must be reported back to the user rather than bypassed. After a clean apply, the destination inventory and exact host status would be read back to confirm placement, without treating a completed metadata move as proof of a working terminal.
+- **Action:** proceed via the documented Python SDK fallback. The action file says an absent CLI command is a client capability gap, not proof the server or SDK lacks the operation, and when no SDK language is specified the published Python API may complete the task with the same guards (`actions/host-move.md:10-20`).
+- **Authentication:** instantiate the Python client with its documented default credentials, as the guide's example does, after confirming the intended deployment and signed-in namespace. Keep credentials out of output. Authority is required in both alice and acme plus ownership of the exact host.
+- **Next step:** resolve the single laptop host ID and source namespace from inventory, not every "my computers" row. Confirm the user wants placement moved, not just an agent namespace switch. Call `move_preview('alice', host_id, 'acme')`, review name, owner, private visibility, sessions and runs policies, access changes and blockers, and stop if not executable. Apply with the same preview's revision and hash and an explicit request ID. Then read acme inventory and exact host status. Privacy is preserved by the server: the host keeps its owner and stays private (`reference/docs-lakeshore-hosts-enroll.md:113-118`).
+- **Separation:** state that the native CLI command is unavailable in the installed build, that the Python API and Compute dialog are independent of CLI packaging, and that the server's preview response is the live availability check (`reference:107-111`). Never substitute a raw ownership update or re-enrollment.
+
+**Request 2: Python SDK-only preview/apply integration with safe retry**
+
+- **Action:** write it against only the two documented Python methods, `client.hosts.move_preview` and `client.hosts.move`, with the keyword arguments shown in the guide. No shell commands, no TypeScript, no invented methods.
+- **Authentication:** same documented client construction. The guide does not specify token environment variables for Python, so the integration should not hardcode one. Document that as a verification item against the Python host API reference.
+- **Guards to preserve:** check the preview's executable flag and surface blockers rather than detaching dependencies. Bind apply to the preview's revision and hash and a caller-supplied request ID. Persist the full request tuple before submitting if the caller must survive a restart.
+- **Safe retry:** on timeout or ambiguous response, replay the exact same tuple. Never mint a new request ID, never silently fetch a newer preview. Treat a conflict as a stop, treat a replayed receipt as historical, and read current host status afterward. Authorization is rechecked on every retry.
+- **Separation:** code existence is not rollout. The integration should report implementation, client release and live server verification as three separate statements, and should not claim native CLI support.
+
+**One gap to flag.** The guide's Python example is illustrative and the full method contract lives in the linked Python host API docs, which are not in the local reference set. Exact exception types, return shapes and the auth configuration must be verified there before claiming the integration is complete.
+
+## Unchanged unsupported boundary results
+
+Codex: public/member-wide sharing and blocker bypass are unsupported. The action prohibits widening permissions, detaching dependencies, deleting sessions or rotating keys to force a move through; leave the move unapplied.
+
+Claude Code: making the laptop public to organization members is outside this private move, and blockers must be reported rather than bypassed. The action prohibits detaching dependencies, deleting sessions, rotating keys or otherwise forcing a blocked move through.
+
+Product deployment, live docs, the dated skill tag/assets, and a fresh released installation are separately verified release stages. A merged PR or an SDK installation alone does not prove the server or native CLI rollout.
