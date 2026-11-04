@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.104.0 b385675; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.104.3 567a6ea; do not edit -->
 
 # Host enrollment
 
@@ -62,12 +62,80 @@ dreamlake hosts list
 dreamlake hosts list --namespace geyang --group workstations
 dreamlake hosts list --json
 dreamlake hosts list --all
+dreamlake hosts list --wide
+dreamlake hosts --fields
+dreamlake hosts --format '{name} {user} {ips} {network_freshness}'
+dreamlake hosts --probe --format '{name} {ip} {public_ip} {macs} {uptime}'
 ```
 
-Text lists show host ID, full name, catalog state, and verified connection state.
+The expanded inventory (CLI 0.104.3+) shows host ID, full name, catalog state,
+verified connection state, hostname, Unix user, and IP addresses by default.
+Use `dreamlake hosts --wide` (or `hosts list --wide`) to add enrollment ID,
+OS, architecture, CPU core count, Nymph version, and last-seen timestamp.
+Each enrollment has its own row so observations from different daemons or Unix
+users stay separate. The host total still counts distinct hosts. An active host
+may have additional offline enrollments shown alongside its online enrollment.
+
+Network and system inventory require the matching backend. Network addresses
+also require Nymph 0.1.36+ reporting `capabilities.network`; Nymph 0.1.35 and
+earlier do not report them. Older backends or daemons display `unknown` for
+missing fields. No extra flag reveals information an older server does not send.
+Default listings only read inventory; they never SSH to machines or probe public-IP services.
+
+IP addresses are IPv4 and IPv6 interface observations from the daemon's network
+namespace, including LAN, VPN, and container interfaces. Down, loopback,
+link-local, unspecified, and multicast addresses are excluded. They are not a
+promise of reachability or a NAT public-IP lookup. A successful empty observation
+shows `none`; unavailable or invalid observations show `unknown`. Samples older
+than 90 seconds, or from an offline enrollment, are marked `(stale)`.
+
+`hosts status HOST` includes interface names, address families, network sample
+time and freshness, CPU model, and machine ID for each enrollment. OS, CPU, and
+version information is reported inventory, not live utilization; use
+[`hosts metrics`](#inspect-resource-samples) for timestamped resource usage.
+
+`--format '<template>'` prints only one formatted line per enrollment, without
+headers or footers. Use `--fields` to list the complete placeholder catalog
+offline, or `--fields --json` for its machine-readable form. Unknown fields and
+unbalanced braces fail before contacting the service. `--format` cannot be
+combined with `--wide` or `--json`; `--fields` cannot be combined with `--wide`,
+`--format`, or `--probe`. Templates are literal text, never shell commands.
+
+Common fields are `{name}`, `{id}`, `{enrollment}`, `{user}`, `{hostname}`,
+`{ip}` (first IPv4, then IPv6), `{ips}`, `{ip_source}` (`inventory` or `ssh`),
+`{interfaces}`, `{network_observed_at}`, `{network_freshness}`, `{platform}`,
+`{arch}`, `{cpu_model}`, `{cpu_cores}`, `{nymph_version}`, and `{seen_ago}`.
+Custom address fields retain plain IPs; include `{network_freshness}` to show
+whether they are stale. IPs are never inferred from hostnames.
+
+For older daemons or additional network diagnostics, explicitly request `--probe`.
+It opens pinned DreamLake SSH sessions for verified online enrollments, at most
+two concurrently, and runs a read-only Python 3 script. The script uses Linux
+`ip` or macOS `ifconfig` for non-loopback interface IPs and MAC addresses, reads
+system uptime, and calls `curl https://ifconfig.me/ip` for public egress IP.
+No packages are installed. Unlike the default listing, this contacts each
+selected online host and an external public-IP service. Public egress IP may be
+shared by machines behind NAT. Use `--group` to limit the inspected hosts.
+
+Probed tables add public IP, MAC, uptime, and connection-duration columns.
+`{public_ip}`, `{mac}`, `{macs}`, `{uptime}`, and `{uptime_seconds}` are probe
+fields. `{online_for}` is connection duration, and stays unknown unless the
+backend supplies `connectedAt`; it is never inferred from uptime or heartbeat
+age. `{observed_at}`, `{probe_status}`, and `{probe_error}` describe the probe.
+Results are attached to the exact enrollment's `probe` object in JSON and are
+not persisted. Offline and unverified enrollments are skipped. Failed or partial
+probes remain in the output and cause a nonzero exit without discarding successes.
+The command timeout is 30 seconds after relay setup; delegation can take longer.
+A failed interface probe falls back to available reported inventory, retaining
+its original timestamp and freshness.
+
 An older backend without catalog metadata shows catalog state as unknown. JSON returns
 `namespace`, optional `group`, `hosts` (the original host/enrollment records), and
-`total` (the number of distinct hosts shown after filtering). A failed page fails
+`total` (the number of distinct hosts shown after filtering). With the matching
+backend, enrollment records add `network` (`observedAt`, `addresses` with
+`interface`, `address`, and `family`) and `system` (`os`, `arch`, `cpuModel`,
+`cpuCores`, `nymphVersion`). Missing observations are nullable. `--wide` affects
+text formatting only; JSON always retains all available fields. A failed page fails
 the command; it does not emit a successful partial listing. Pagination reads a live inventory,
 not an atomic snapshot; hosts added or removed during the read can change results.
 

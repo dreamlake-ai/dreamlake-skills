@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.114 594d5f21; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.116 71afb10b; do not edit -->
 
 # Enroll a host
 
@@ -65,6 +65,32 @@ infrastructure recipes and Vault recovery.
 For separately supported machine start, stop, restart and termination, see
 [Host machine power](https://docs.dreamlake.ai/lakeshore/hosts/power). Enrollment alone does not grant a
 provider power binding.
+
+## Host network and system inventory
+
+The owner-scoped host list and detail APIs include nullable `network` and
+`system` observations on each enrollment, after verifying the exact host,
+machine, Unix user, enrollment, and active daemon key. Missing or unverified
+inventory remains null. These fields do not change host ownership or grant
+execution access.
+
+`network` contains `observedAt` (ISO timestamp) and `addresses`, an array of
+`{interface, address, family}` entries. `family` is `IPv4` or `IPv6`. The source is
+Nymph's `capabilities.network` snapshot, capped at 128 entries; malformed
+addresses and invalid or future timestamps are rejected. Old samples remain
+historical observations. `system` includes nullable `os`, `arch`, `cpuModel`,
+`cpuCores`, and `nymphVersion` from the daemon's reported version inventory.
+Arbitrary capability data and credentials are not returned.
+
+CLI 0.104.3+ shows addresses, hostname, and user in its default host list,
+adds system columns with `--wide`, and shows per-interface detail and sample
+freshness in `hosts status`. See the [CLI inventory contract](https://cli.dreamlake.ai/host-enrollment#list-and-inspect-hosts)
+for rendering and compatibility. Nymph 0.1.35 and earlier do not report network
+inventory; upgrading the CLI alone cannot populate those missing observations.
+Default listing performs no SSH, DNS resolution, or external public-IP lookup.
+The CLI's explicit `--probe` option performs SSH diagnostics when requested.
+Interface addresses may be private, VPN, container, or public addresses and do
+not establish reachability or reveal a NAT public IP.
 
 ## Archive and restore host entries
 
