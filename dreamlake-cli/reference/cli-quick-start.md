@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/quick-start.md at 0.104.3 567a6ea; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/quick-start.md at 0.104.3 3402808; do not edit -->
 
 # Quick start
 
