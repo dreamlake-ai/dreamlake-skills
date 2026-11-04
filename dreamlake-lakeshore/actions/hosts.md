@@ -25,6 +25,13 @@ that the executable or server supports it. Updating the CLI does
 not update installed skills; follow [skill installation](../reference/cli-skills.md)
 and preserve local customizations when reviewing conflicts.
 
+For SDK-only requests, use only documented Python methods and return shapes.
+A documented backend enrollment field does not establish the SDK response
+container or minimum client version. If the installed references do not define
+those, state the gap and stop before writing extraction code, including examples
+with caveats. Do not substitute CLI commands, direct HTTP, or assumed dictionary
+keys for the requested SDK-only procedure.
+
 ## Choose the operation
 
 | Task | Route |
