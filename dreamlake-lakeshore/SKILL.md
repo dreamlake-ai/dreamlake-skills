@@ -26,7 +26,7 @@ evidence standard are in [machines](actions/machines.md).
 | Request | Action |
 | --- | --- |
 | Connect Lakeshore: Add Host, Runtime workers, queue mounts, shared connection upkeep | [lakeshore](actions/lakeshore.md) |
-| Hosts, enrollments, metrics, SSH/exec, power, catalog visibility, agent terminal sessions | [hosts](actions/hosts.md) |
+| Hosts, IP addresses, system inventory, enrollments, metrics, SSH/exec, power, catalog visibility, agent terminal sessions | [hosts](actions/hosts.md) |
 | SSH usage/limits, Nymph capacity configuration and command permission boundaries | [SSH capacity and permissions](actions/ssh-capacity.md) |
 | Move a personally owned host between namespaces, keeping it private (CLI or documented SDK fallback) | [move a host](actions/host-move.md) |
 | Read Slurm scheduler jobs; register and report externally launched work | [jobs](actions/jobs.md) |
