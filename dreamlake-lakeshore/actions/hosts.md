@@ -187,3 +187,7 @@ uncertain response. See the [rename reference](../reference/cli-host-enrollment.
 for syntax and client support. Preserve enrollment and machine keys instead of
 registering another daemon to change its display address. Read back the new name
 and verify SSH separately; an online heartbeat does not establish a working shell.
+
+## SSH capacity and permission questions
+
+For current usage, limit errors, capacity configuration or Nymph's command-versus-policy boundaries, use [SSH capacity and permissions](ssh-capacity.md). Resolve exact host and enrollment first; a capacity change is not an execution grant.

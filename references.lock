@@ -701,16 +701,30 @@
       {
         "url": "https://docs.dreamlake.ai/lakeshore/hosts/enroll",
         "file": "reference/docs-lakeshore-hosts-enroll.md",
-        "version": "0.1.112 3d52a6b8",
-        "source_sha256": "a74c1757216683a06a263e99a1c6735a6a1b803dc01c2bc027705fa1e719d1de",
-        "sha256": "d39957d69f55d3c1d01a99146d45ad44feba7ecdaf50396d9e826ff15b4a161b"
+        "version": "0.1.113 a89f9340",
+        "source_sha256": "c0dcd678236f51b3265bdf1bf425af4987da69562c51a98a90384eee18b193a8",
+        "sha256": "5f383a71864aa908eea8e257432ad281d0b73627be9da25a1c90759dd8bb15b5"
       },
       {
         "url": "https://docs.dreamlake.ai/infrastructure-stacks",
         "file": "reference/docs-infrastructure-stacks.md",
-        "version": "0.1.112 3d52a6b8",
-        "source_sha256": "47822bce6d6f87b26f9bcc2339f14871e4b96b77aa2520f8ed5266dd234da623",
-        "sha256": "c8e1cd37251f539d01b227ccff525c4457f91630ce1f5a7e0d09d78fe84932e1"
+        "version": "0.1.113 a89f9340",
+        "source_sha256": "e7bbbccc244702543a67f30d35d9a7a3ee3ef12a916e5e25e2deb3392b088eff",
+        "sha256": "31a72c725ef6666e81264c9b19b29d2beee3d63c2ecc82b1f2b6eab7e21d46ed"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal",
+        "file": "reference/docs-lakeshore-hosts-browser-terminal.md",
+        "version": "0.1.113 a89f9340",
+        "source_sha256": "a56e65d1a04b690d5e9bbbcc2073d1bd13449823474a01659133d55eb2d60bb3",
+        "sha256": "03ae3220e9c929efc4bbcfde210297a7e9465fcec1d135d0ef751f3dd1f61ca9"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions",
+        "file": "reference/docs-lakeshore-hosts-nymph-permissions.md",
+        "version": "0.1.113 a89f9340",
+        "source_sha256": "932c3a636324ff4d6bf5c391efac19f8e72bdba5f7cc1164d7e83c3ba6f66018",
+        "sha256": "50463e0672b9a1e4fc20b3ff61fb7270cd651348d17c3d88db5b806c382ee174"
       }
     ],
     "dreamlake-libraries": [
