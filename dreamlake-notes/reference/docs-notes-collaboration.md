@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/collaboration.md at 0.1.114 594d5f21; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/collaboration.md at 0.1.116 71afb10b; do not edit -->
 
 # Collaboration and review
 

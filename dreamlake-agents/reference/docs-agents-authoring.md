@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/authoring.md at 0.1.114 594d5f21; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/authoring.md at 0.1.116 71afb10b; do not edit -->
 
 # Authoring agents
 
@@ -8,11 +8,23 @@ installed client version; see the linked client documentation below.
 
 An agent is a runnable with `kind: "agent"`. Creating one saves a definition;
 it does not create a session or execute its instructions. Open **Agents** to use
-the same list and right-hand panel layout as Notes. **Description** contains the
-name, description and instructions. **Spec** contains the runtime configuration
-and instruction sources as JSON, preserving nested values. Save changes with
-the panel's Save button. A referenced main note uses the normal note editor and
-its own synchronization.
+the same list and editor layout as Notes. The main instruction note uses the
+full Notes editor, including automatic synchronization, source/preview mode,
+version history, comments, attachments and template Variables. **Spec** is a
+view in the editor's right sidebar; it contains the agent name, description,
+runtime configuration and instruction sources as JSON, preserving nested values.
+Use the sidebar menu to switch between Spec, History, Variables and the other
+note views. The spec draft stays intact while switching views. Save spec changes
+with its **Save** button; instruction text synchronizes independently.
+
+Agents created in the UI start with a main instruction note. When creating an
+agent inside a project, its main note is filed there too.
+For an existing inline agent, save any draft and choose **Enable note editor**
+to preserve its Markdown in a main note and start using note history. Conversion
+checks for concurrent agent changes before linking the note. If an operation
+cannot be confirmed, the source and any created note are kept for recovery.
+Changing an existing instruction-note reference waits for pending note edits to
+finish syncing. On narrow screens, use **Open note sidebar** to show Spec.
 
 Use a main instruction note plus optional skill notes or project folders when
 instructions should be reusable. The runnable stores references, not copies of

@@ -1,6 +1,12 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.104.0 b385675; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.104.3 567a6ea; do not edit -->
 
 # Release notes
+
+## 0.104.3 — Host IP addresses and machine inventory
+
+`dreamlake hosts` shows reported interface IPs, hostname and Unix user by default, with one row per enrollment. `--wide` adds enrollment ID, OS, architecture, CPU count, Nymph version and last-seen time; `hosts status HOST` includes interface details and observation freshness. `--fields` and `--format` support custom rows.
+
+Automatic IP inventory requires the matching API and Nymph 0.1.36+. Older daemons show unknown addresses; explicit `--probe` performs SSH diagnostics for interface IPs, MACs, public egress IP and uptime. Default listing makes no SSH or external-IP requests. Addresses do not prove reachability. See [Host inventory](https://cli.dreamlake.ai/host-enrollment#list-and-inspect-hosts).
 
 ## 0.102.3 — Reviewed cross-project Infrastructure paths
 
