@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/agents.md at 0.103.0 7d26e7f; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/agents.md at 0.104.0 b385675; do not edit -->
 
 # Agents
 
@@ -15,14 +15,65 @@ An agent is a `Runnable` of kind `agent`, so everything on
 the 409 semantics. This group exists because authoring a prompt through
 `declare` and a JSON file is miserable.
 
-> **Warning:** There is no agent API in the SDK and no agent route on the control plane.
-> DreamLake stores declarations. `dreamlake agents create` writes a row; some
-> other system reads it and does the running.
+Creating an agent stores its definition; it does not create or run a session.
+Use `--runtime builtin-v1` for the built-in DreamLake assistant. The default
+continues to declare an external Claude agent.
 
-## Browse, inspect, and save agents
+## Built-in agents and project filing
 
-The agent management commands below are implemented in source; they require a
-CLI build containing this change.
+Available in CLI 0.104.0 and later with the agent resource API. An agent is a
+first-class runnable. Its
+instructions can be inline Markdown, or one main Note plus optional skill Notes
+and folders.
+Projects are filed atomically with creation; a failed filing creates no orphan.
+
+```bash cli-help="agents create"
+dreamlake agents create reviewer --runtime builtin-v1 \
+  --prompt 'Read the evidence and summarize it with citations.' \
+  --tools dreamlake_notes_read --project dreamlake --namespace fortyfive
+
+# Existing Note/folder IDs; references remain live and are authorized per caller.
+dreamlake agents create researcher --instruction-note "$MAIN_NOTE_ID" \
+  --skill-note "$SKILL_NOTE_ID" --skill-folder "$SKILLS_FOLDER_ID" \
+  --project dreamlake --namespace fortyfive
+```
+
+Do not combine `--instruction-note` with inline/file/stdin instructions. Built-in
+agents accept DreamLake tool names and typed `--arg` declarations. For example,
+`--prompt 'Review {{topic}}' --arg 'topic:string!'` declares a required string.
+Built-in definitions allow up to 20 unique arguments and 80 tools; enum arguments
+allow up to 30 string values. Inline files contain plain Markdown; Claude
+frontmatter is not parsed in built-in mode. External
+Claude permissions, models and machine options do not apply to this runtime.
+Open the returned agent link to edit its Description and Spec in the right panel.
+
+```ts
+import { createClient } from '@dreamlake/dreamlake-cli/api'
+
+// Use the client construction documented in the TypeScript API guide.
+const client = createClient({ remote: 'https://api.dreamlake.ai', token: process.env.DREAMLAKE_API_KEY! })
+const agents = client.runnables('fortyfive')
+const agent = await agents.create({
+  name: 'Researcher', module: 'agents', qualname: 'researcher', kind: 'agent',
+  content: { instructionNoteId: process.env.MAIN_NOTE_ID!, skills: [
+    { kind: 'note', id: process.env.SKILL_NOTE_ID! },
+  ] },
+  projects: ['dreamlake'],
+  metadata: { agent: { runtime: 'builtin-v1', tools: ['dreamlake_notes_read'] } },
+})
+await agents.update(agent.id, { description: 'Summarize evidence', expectedUpdatedAt: agent.updatedAt })
+await agents.archive(agent.id)
+await agents.restore(agent.id)
+```
+
+Archive hides a runnable from ordinary lists; pass `includeArchived: true` to
+`list` to find it. Restore is explicit. Delete removes the definition from live
+lists and unfiles its project mounts. Conditional edits return a conflict if
+`expectedUpdatedAt` is stale.
+
+## Browse, inspect, and save external Claude agents
+
+The agent management commands below are available in CLI 0.104.0 and later.
 
 ```bash cli-help="agents list"
 dreamlake agents list --namespace my-workspace
@@ -90,9 +141,10 @@ arguments:
 Creation and Save resolve each project with your existing namespace identity.
 Project affiliation is stored as project slug references in `metadata.agent.projects`.
 It is used for organization and list filtering; it does not change registry
-ownership, project access, or create a node in the project's file tree. The
-current project-tree contract does not support agent resources. If a project is
-renamed, update the stored reference in the agent editor. Remove an affiliation
+ownership, project access, or create a node in the project's file tree. This
+paragraph describes external Claude affiliation; built-in agents created with
+`--runtime builtin-v1 --project` use actual project filings instead. If an
+affiliated project is renamed, update the stored reference in the agent editor. Remove an affiliation
 by removing its slug, or set `projects: []` to remove all.
 
 ## Three ways to write the prompt

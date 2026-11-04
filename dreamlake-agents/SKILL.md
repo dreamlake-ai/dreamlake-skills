@@ -20,7 +20,7 @@ A missing capability must be reported; never invent a route, tool or flag.
 
 ## Canonical source
 
-Product facts are in [the built-in harness reference](https://docs.dreamlake.ai/agents/resource-tools),
+Product facts are in [agent authoring](reference/docs-agents-authoring.md), [the resource tools reference](reference/docs-agents-resource-tools.md),
 [agent commands](reference/cli-agents.md) and
 [the runnable API](reference/cli-runnable-api.md). These pages are fetched from
 docs.dreamlake.ai and cli.dreamlake.ai; never hand-edit `reference/`.

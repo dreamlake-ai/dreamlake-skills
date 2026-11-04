@@ -1,6 +1,8 @@
 # Author an agent definition
 
-Inspect the installed surface before creating anything:
+Inspect the surface you will use before creating anything. In the built-in
+agent, inspect the offered tools and the creation schema; shell access and a
+CLI installation are not prerequisites. When using the CLI, run:
 
 ```bash
 dreamlake agents --help
@@ -12,8 +14,10 @@ dreamlake agents list --plain
    avoid creating a duplicate when the user meant to edit one.
 2. Use the deployed built-in agent creation tool if it is offered, or the
    installed CLI command documented in [agent commands](../reference/cli-agents.md).
-   For an SDK-only request, use [the runnable API](../reference/cli-runnable-api.md)
-   rather than inventing a client method.
+   For an SDK-only request, use the TypeScript example in
+   [agent commands](../reference/cli-agents.md), [agent authoring](../reference/docs-agents-authoring.md)
+   and [the runnable API](../reference/cli-runnable-api.md) rather than inventing
+   a client method.
 3. Keep the main instructions separate from optional skills. Resolve requested
    notes and folders to stable IDs using available read tools; do not guess IDs
    or copy permission grants from a prompt. Check the live creation schema for
@@ -30,4 +34,4 @@ creation or note-reference capability, report that limitation and retain the
 user's draft without claiming it was saved.
 
 The permission and execution model is in
-[the built-in harness reference](https://docs.dreamlake.ai/agents/resource-tools).
+[the resource tools reference](../reference/docs-agents-resource-tools.md).
