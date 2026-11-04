@@ -1,7 +1,15 @@
 {
   "schema": 1,
-  "version": "v2026.11.02-10-g8428ded",
+  "version": "v2026.11.04-4-g0e276e7",
   "skills": {
+    "dreamlake-agents": {
+      "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 4
+    },
     "dreamlake-annotations": {
       "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
       "requires": [],
@@ -42,7 +50,7 @@
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 9
+      "files": 11
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",

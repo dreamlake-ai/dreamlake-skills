@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.102.1 a8631f5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.104.0 b385675; do not edit -->
 
 # Host enrollment
 
@@ -460,10 +460,11 @@ dreamlake hosts enroll -n fortyfive/bos14/bos14-ctrl \
     -p 2222 geyang@bos14-ctrl.internal' --dry-run --json
 ```
 
-Names have exactly three components: namespace/group/host. A matching explicit
+Names accept `namespace/group/host/user` (preferred) and legacy `namespace/group/host`. A matching explicit
 prefix and embedded prefix are accepted; conflicting prefixes and wildcards are
-rejected. Each component is 1–64 letters, digits, underscores or hyphens and starts
-with a letter or digit. A namespace in a name does not grant access to it.
+rejected. The first three components are 1–64 letters, digits, underscores or hyphens and start
+with a letter or digit. The optional final user is a Unix account name and must match
+the account reported by the enrolled daemon; it permits dots and a trailing `$`. A namespace in a name does not grant access to it.
 The control-plane namespace comes from the selected connection and can differ
 from the DreamLake namespace.
 
@@ -716,7 +717,7 @@ CLI prints those choices with copyable commands and exits without connecting.
 prompts. Cancelling the chooser opens no session. Session lifetime is 120–1800 seconds (`--duration`, default 1800).
 
 With CLI 0.100.0+, when the selector names no host (a keyword such as
-`dreamlake ssh gpu`, a misspelled or missing `namespace/group/host`, or an
+`dreamlake ssh gpu`, a misspelled or missing `namespace/group/host[/user]`, or an
 unknown ID) and the command runs in a terminal, a host picker opens in place
 of a bare error:
 
@@ -730,7 +731,7 @@ further, `↑`/`↓` move the selection, and Tab completes what you typed toward
 the selected host one `/` segment at a time (`gpu14` → `lakeco/gpu14/` →
 `lakeco/gpu14/gpu14-ctrl`). Enter connects to the selected host and prints the
 full command it ran, so the next call can skip the picker. Esc or Ctrl-C
-cancels with the original error and exit code. A `namespace/group/host`
+cancels with the original error and exit code. A `namespace/group/host[/user]`
 selector that matches nothing as a whole falls back to its last segment, and
 the namespace is taken from the selector when it has one. Twenty rows are shown
 at a time, offline hosts included; `NO_COLOR` drops the highlight and the
@@ -787,7 +788,7 @@ dreamlake hosts rollback geyang/dev/worker
 dreamlake hosts rollback geyang/dev/worker --upgrade-id 20261029-001 --json
 ```
 
-Select hosts by host ID, `namespace/group/host` or a quoted `namespace/group/*`,
+Select hosts by host ID, `namespace/group/host[/user]` or a quoted `namespace/group/*`,
 or every host in one namespace with `--all`. A host selected more than once is
 processed once. Hosts without a verified online enrollment are reported as
 `skipped` and not contacted. `--nymph-version` must be an exact release
@@ -961,3 +962,27 @@ const receipt = await hosts.move(hostId, request)
 
 Switching the built-in agent with `/su NAMESPACE` is a separate session-scope
 operation. It changes neither host ownership nor the application's workspace.
+
+## Rename a host without re-enrolling
+
+Use the exact Host ID and current name from inventory. Rename preserves the Host ID,
+enrollment, machine keys, saved sessions and running work; it does not restart Nymph.
+A username suffix must match the enrolled Unix account. Namespace changes use `hosts move`.
+
+```bash cli-help="hosts rename"
+dreamlake hosts rename HOST_ID --name fortyfive/bos14/bos14-ctrl/geyang --expected-name fortyfive/bos14/bos14-ctrl-geyang
+```
+
+After an uncertain response, reuse the same Host ID, `--name` and `--expected-name`.
+A different current name or a destination collision returns a conflict.
+
+TypeScript: `client.hosts('fortyfive').rename(hostId, { name, expectedName })`.
+Python: `client.hosts.rename('fortyfive', host_id, name=name, expected_name=expected_name)`.
+HTTP: `POST /namespaces/:slug/hosts/:id/rename` with `{ "name": "...", "expectedName": "..." }`.
+Read the new name back and verify SSH independently.
+
+## SSH usage and capacity
+
+**CLI 0.103.1 and matching deployed services required.** Host details display used/limit counts for SSH sessions, forwarding tunnels and the shared control-plane namespace total. SSH/exec limit errors retain `session_limit` and describe those counts when supplied by the server; older servers show a generic message. Counts are shared worker/namespace capacity, not your personal quota.
+
+See [SSH capacity and usage](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#ssh-capacity-and-usage) for the configuration reference, counting rules, limits, examples, recovery and rollout. See [Nymph permissions and commands](https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions) before changing local policy or proposing live configuration. There is no new `dreamlake ssh --limit` flag or remote config setter in this change.

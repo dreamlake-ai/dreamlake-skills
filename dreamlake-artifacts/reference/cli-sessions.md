@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.102.1 a8631f5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.104.0 b385675; do not edit -->
 
 # Terminal sessions
 
@@ -204,23 +204,27 @@ dreamlake sessions resources SESSION_ID --namespace geyang --page-size 25 --json
 These commands only change or read affiliations. They never open, start or stop
 terminals and never modify note or artifact content.
 
-Successful note creation/body/section writes and artifact pushes automatically
-link a known session context. Set `DREAMLAKE_TERMINAL_SESSION_ID` and
-`DREAMLAKE_SESSION_NAMESPACE` to select an exact saved session. Otherwise the CLI
-uses `CODEX_THREAD_ID`, an explicitly supplied `CLAUDE_SESSION_ID` or Claude
-Code's own `CLAUDE_CODE_SESSION_ID`, only when one exact owned registered
-session matches. Arbitrary `DREAMLAKE_AGENT_ID` presence
-labels, similar titles and directories are not native session identities.
+Note creation and confirmed body/section changes are attributed by the Note server,
+using the same optional identity as [Note presence](https://cli.dreamlake.ai/notes/collaboration).
+`DREAMLAKE_TERMINAL_SESSION_ID` selects an exact owned saved session; native
+`CODEX_THREAD_ID`, `CLAUDE_SESSION_ID` or `CLAUDE_CODE_SESSION_ID` supplies a typed
+session identity. Explicit `DREAMLAKE_SESSION_ID` plus
+`DREAMLAKE_SESSION_PROVIDER=codex|claude` is also supported. Ambiguous native
+identities are not guessed. New attribution-only records start private, with no
+launch target or transcript upload. Existing session visibility is preserved.
 
-Automatic affiliation makes at most one bounded catalog lookup and one
-idempotent metadata write, with a three-second combined deadline and no retry.
-Repeated successful links are deduplicated briefly within the CLI process.
-Ordinary reads and failed content writes add no affiliation requests. Missing or
-ambiguous registration produces a warning without changing the content command's
-successful result; retry only the link with `sessions link`, not the upload/edit.
-Set `DREAMLAKE_SESSION_AFFILIATION=0` to disable automatic affiliation. Historical
-resources require exact evidence or an explicit link; they are not assigned by
-guessing authorship.
+Use `dreamlake notes contributors NOTE --json` to distinguish server-observed
+`created`/`edited` evidence from a manually linked session (`contribution: null`).
+No-op and failed edits, reads and presence announcements do not become contributions.
+The new CLI does not issue a second Note link request after content writes.
+
+Artifact pushes retain the client-side registration/link path: at most one lookup
+and one idempotent metadata write, a three-second combined deadline and no retry.
+Missing or ambiguous registration warns without changing the successful content
+result. Retry only metadata operations, never the content write.
+`DREAMLAKE_SESSION_AFFILIATION=0` disables automatic attribution and affiliation.
+Historical resources require exact evidence or an explicit link; they are not
+assigned by guessing authorship.
 
 ## Select the host
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.110 999238cf; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.114 594d5f21; do not edit -->
 
 # Agent presence and activity
 
@@ -449,3 +449,53 @@ When finished, stop `read --linger` with Ctrl-C; it sends leave automatically.
 One-shot operations expire naturally. Keep the same session ID between commands,
 and remove the task identity from the runner's environment when the task ends.
 Lease expiry handles abrupt exits without requiring remembered cleanup.
+
+## Persistent contributing sessions
+
+Agent presence and durable contribution attribution share the request's optional
+session identity. A presence lease expires; a contribution remains attached to
+the Note and the saved session. The server records `created` after successful Note
+creation and `edited` after a native body/section write is acknowledged. A read,
+visit, self-reported editing state, failed write, or no-op is not a contribution.
+Replayed command receipts do not repeat attribution.
+
+Use an authenticated request with either:
+
+- `X-DreamLake-Terminal-Session-Id`: the exact saved session ID owned by the caller.
+- `X-DreamLake-Session-Provider: codex|claude` and `X-DreamLake-Session-Id`: the actual
+  native session UUID. A unique owned match is reused; a new identity gets a private
+  metadata-only archive, without a launch directory, target or conversation upload.
+
+`X-DreamLake-Agent-Id` and `X-DreamLake-Agent-Name` remain the presence identity and
+label. Without an agent ID, valid session context supplies a stable presence ID.
+Built-in agents use their existing saved conversation ID. Arbitrary presence
+labels and mentions never establish a conversation identity. Set
+`X-DreamLake-Session-Affiliation: 0` to suppress durable attribution.
+
+`GET /namespaces/:slug/notes/:noteId/contributors` lists the same authorized,
+paginated sessions as the resource-session catalog. It accepts `pageSize` (1–50),
+`cursor` and `q`. Responses contain `sessions`, `hasMore` and `nextCursor`. Each
+session carries `contribution: {kind, firstAt, lastAt}` for server-observed writes,
+or `null` for explicit/legacy links. These are not edit counts or a full audit log.
+The reader must independently be allowed to read the Note and each session.
+
+```bash
+# CLI with the matching release; this is read-only and does not join presence.
+dreamlake notes contributors "$NOTE_ID" --namespace "$NAMESPACE" --json
+```
+
+The built-in agent exposes the same read as a real tool:
+
+```javascript
+dreamlake_notes_contributors({ note: noteId, namespace: namespaceSlug })
+```
+
+Normal Note edit tools already carry the conversation identity; no follow-up
+"mark contributed" call is needed. Direct browser RTC edits without a session
+identity are not attributed to a terminal session. Historical links remain links;
+no authorship is inferred from access, similar names or Note mentions.
+
+Optional attribution has a bounded wait and bounded outstanding work. If it is
+unavailable, content saves still succeed; a late record may appear on refresh.
+Never replay an accepted content write to repair metadata. Presence expiration,
+missing metadata and contribution-list errors do not prevent normal Note editing.
