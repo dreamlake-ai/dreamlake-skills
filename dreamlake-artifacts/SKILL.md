@@ -22,6 +22,7 @@ Several commands below carry minimum CLI versions; check `dreamlake --version`.
 | write or fix the file (choose a kind, make it self-contained, style it) | [author](actions/author.md) |
 | shareable query/fragment state, slides, deep links, back/forward inside the artifact | [routing](actions/routing.md) |
 | push a file, HTML page directory or built static site; manage versions and metadata | [publish](actions/publish.md) |
+| diagnose slow or stuck loading; compare first render across real artifacts | [performance](actions/performance.md) |
 | see what is published in a namespace | [list](actions/list.md) |
 | make it public or private, mint/inspect/revoke a share link, understand Project-derived access | [share](actions/share.md) |
 | delete, restore, or permanently purge | [restore](actions/restore.md) |

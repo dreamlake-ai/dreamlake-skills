@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.04-4-g0e276e7",
+  "version": "v2026.11.04.2",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -28,7 +28,7 @@
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 14
+      "files": 15
     },
     "dreamlake-cli": {
       "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows; routes compute and domain work elsewhere.",

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.104.3 567a6ea; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.104.3 3402808; do not edit -->
 
 # Artifacts
 
@@ -100,6 +100,48 @@ legacy uploads; a site is already a complete version manifest regardless of that
 flag. Older viewers show an update-required message for a site. Existing embedded
 artifacts are not automatically extracted or converted.
 
+## Fast first render
+
+For a built application, media-heavy deck or simulation, prefer `--site` and
+keep large assets as files. Upload chunk reuse reduces repeated **publishing**
+work; it does not turn a monolithic HTML document into on-demand resources.
+Existing embedded artifacts need a new version built with separate files to
+benefit from site loading.
+
+- Keep the entry HTML small. Preserve the bundler's JavaScript chunks and dynamic
+  imports; load optional routes, datasets, WASM and simulations when needed.
+- Render the page shell and useful first content before optional work. Do not
+  await every asset, slide, video or simulation before mounting the UI.
+- Keep videos, large images and fonts out of base64 strings in HTML or startup
+  JavaScript. Use ordinary file URLs; load active media when needed and use
+  posters for inactive previews. Keeping separate files is insufficient if the
+  application eagerly fetches every file at startup.
+- Prefer the source build when converting an existing artifact. Preserve its
+  identity, access settings, navigation and asset paths. Check dynamically
+  constructed URLs as well as literal imports, and retain the previous version
+  for comparison. There is no automatic extraction step in `artifact push`.
+- Keep small, self-contained reports as single files when that format suits the
+  task. Progressive HTML can display verified chunks as they arrive, but an
+  empty application root followed by large inline scripts still cannot show its
+  UI until the mounting code executes. Page/site descriptor envelopes and
+  non-HTML renderers have their own complete-input requirements.
+
+To evaluate loading, open the published viewer in a fresh browser context with
+the intended access. Record the artifact version, URL state, browser, cache,
+network and CPU conditions. Measure **first useful content**, **the requested
+interaction or media becoming ready**, and **download completion** separately.
+Use the same milestones and conditions for before/after comparisons, report
+repeated trials separately from one-off observations, and do not attribute
+packaging gains to transport concurrency alone.
+
+Inspect the network waterfall: dependency discovery can temporarily leave one
+request active even when chunk downloads run in parallel. Cache hits can remove
+requests altogether. Record overlapping requests, transferred bytes, failures,
+and the initiator chain instead of treating a particular request count as a
+performance target. Check a nested route, reload, back/forward and an optional
+asset interaction after publishing. Keep private URLs, capability tokens and
+request credentials out of shared traces.
+
 ## Multiple HTML pages
 
 Directory uploads are available in the multi-page implementation and require a
@@ -184,7 +226,10 @@ This works inside a single HTML file, including embedded images. A ZIP containin
 only changed files would still resend that whole HTML file. Chunk boundaries
 average roughly 256 KiB, with a 1 MiB maximum. Small files may see little benefit.
 Incremental files are limited to 512 MiB. The viewer verifies the size and SHA-256
-of every chunk and of the reconstructed file before rendering.
+of every chunk before using it and checks the reconstructed file at completion.
+The hosted viewer can render ordinary chunked HTML progressively; it need not
+wait for every chunk. This does not make scripts execute before their complete
+source arrives or let an app skip resources it requires before mounting.
 
 A failed chunk upload does not publish a version. Retrying reuses completed
 chunks. A concurrent version commit can fail; rerun the push to determine the

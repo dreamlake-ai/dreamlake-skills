@@ -109,23 +109,23 @@
       {
         "url": "https://cli.dreamlake.ai/artifacts",
         "file": "reference/cli-artifacts.md",
-        "version": "0.104.3 567a6ea",
-        "source_sha256": "b6ff43b4a8e7e95882f786be04cbf31fc49710674b0382006c08755e450aadcd",
-        "sha256": "840885528b53c3dff331a717348f1d9a2604a9bdd6ffa7586f7d906f935e1c57"
+        "version": "0.104.3 3402808",
+        "source_sha256": "f6b1f1ee2876a0fa7c644854a82f06d4b233208a19e5b070fc682d13b18f58eb",
+        "sha256": "ce89d30d2c0d3fb2bf29829484d34569d20c112c7f06a3b786f5e3e78088e4ea"
       },
       {
         "url": "https://cli.dreamlake.ai/projects",
         "file": "reference/cli-projects.md",
-        "version": "0.104.3 567a6ea",
-        "source_sha256": "336cdf4891d8dc8587468690bc78745493a7235c0186d07330289a07f1c6271d",
-        "sha256": "1bbf0495b1f4ca6789c0a0ffae12292ffe82f8f1eee2c0cfe7ef8242dc826dc6"
+        "version": "0.104.3 3402808",
+        "source_sha256": "5b38dfbee04f5a1ae2ae3f525d5746dcd0efb4556348a5aa4cf9d9bc80135270",
+        "sha256": "16e20b134922c8f7c6b5a195f6b171e08002cbd4eb2c92f5ffadc93b2142d27c"
       },
       {
         "url": "https://cli.dreamlake.ai/sessions",
         "file": "reference/cli-sessions.md",
-        "version": "0.104.3 567a6ea",
-        "source_sha256": "02adbf8c3e654fff6cda90ea68db70c4ad294e17529b4995b1ceee33cfbd0f12",
-        "sha256": "8ba60c2753682ac798ebbdc9a4dd4c67695997210f3c723902955d9331f1f0a8"
+        "version": "0.104.3 3402808",
+        "source_sha256": "f634b0cf23f28569603eca123f7196f689ce72e732bb132cd8420561b1215b0b",
+        "sha256": "6927f3c94f5c49e8c315021545e452015f25b58935470969332edb56f07bed0f"
       }
     ],
     "dreamlake-cli": [

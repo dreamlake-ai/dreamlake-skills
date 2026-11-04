@@ -2,8 +2,9 @@
 
 For a built Vike/Vite site, first follow
 [static builds](publish.md#static-builds); do not flatten
-its chunks into HTML when using that workflow. The guidance below applies to
-existing single-file artifacts.
+its chunks into HTML when using that workflow. For a slow media-heavy artifact,
+read [performance](performance.md) before adding more inline assets. The guidance
+below applies to existing single-file artifacts.
 
 Pick the kind, make the file self-contained for the sandbox, style it deliberately,
 run the checklist, then hand it to [publish](publish.md). Start from the matching
