@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.113 a89f9340; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.114 594d5f21; do not edit -->
 
 # Read, edit and search from the CLI
 

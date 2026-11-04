@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/providers/kubernetes.md at 0.103.0 7d26e7f; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/providers/kubernetes.md at 0.104.0 b385675; do not edit -->
 
 # Kubernetes launch setup
 

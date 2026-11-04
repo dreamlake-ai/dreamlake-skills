@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.103.0 7d26e7f; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.104.0 b385675; do not edit -->
 
 # Host enrollment
 
@@ -980,3 +980,9 @@ TypeScript: `client.hosts('fortyfive').rename(hostId, { name, expectedName })`.
 Python: `client.hosts.rename('fortyfive', host_id, name=name, expected_name=expected_name)`.
 HTTP: `POST /namespaces/:slug/hosts/:id/rename` with `{ "name": "...", "expectedName": "..." }`.
 Read the new name back and verify SSH independently.
+
+## SSH usage and capacity
+
+**CLI 0.103.1 and matching deployed services required.** Host details display used/limit counts for SSH sessions, forwarding tunnels and the shared control-plane namespace total. SSH/exec limit errors retain `session_limit` and describe those counts when supplied by the server; older servers show a generic message. Counts are shared worker/namespace capacity, not your personal quota.
+
+See [SSH capacity and usage](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#ssh-capacity-and-usage) for the configuration reference, counting rules, limits, examples, recovery and rollout. See [Nymph permissions and commands](https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions) before changing local policy or proposing live configuration. There is no new `dreamlake ssh --limit` flag or remote config setter in this change.

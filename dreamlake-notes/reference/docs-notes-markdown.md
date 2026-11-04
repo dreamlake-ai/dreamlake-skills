@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.113 a89f9340; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.114 594d5f21; do not edit -->
 
 # Markdown authoring
 
@@ -20,6 +20,26 @@ steps, and color sparingly to emphasize a status or phrase.
 Read the [project brief](https://example.com/brief).
 Use `status` for inline code.
 ```
+
+## Template variables
+
+Write named placeholders directly in the note:
+
+```markdown
+Write for {{audience}} about {{topic}}.
+Use {{project.name}} as the heading.
+```
+
+The editor highlights these placeholders and preserves their Markdown source.
+Open the right sidebar, then choose **Variables** from **Sidebar options** to
+see each variable once, in order of first appearance. The list follows edits
+and the note revision being displayed. It is read-only: the panel does not
+assign values or substitute text.
+
+Names start with a letter or underscore and may contain letters, digits,
+underscores, periods and hyphens. Spaces around the name inside the braces are
+allowed. Code, escaped placeholders, links and images remain literal and do not
+add entries to the Variables panel.
 
 ## Footnotes and reference entries
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.113 a89f9340; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.114 594d5f21; do not edit -->
 
 # Browse, create and organize
 
@@ -85,17 +85,28 @@ namespace is prefixed with that namespace, and same-named projects show their
 slug. `GET /namespaces/:slug/notes` and `GET /me/notes/shared` return these as
 `projects: [{ id, slug, name, namespaceSlug }]` on each row.
 
-Adding a project or bindr from a note changes membership while keeping the
-current note, URL, search and panes open. Choose a destination project inside
-the association picker. Bindrs belong to that project; identical bindr names in
-different projects are separate destinations. A bindr association uses the
-existing mounted note node, not a new copy or arbitrary filesystem placement.
+Adding a project or bindr keeps the current note, URL, search and panes open.
+The single project/Bindr list panel supplies the scope for **+ bindr**, even
+when the open note belongs to another project in the same namespace. Without a
+project list, the note's selected existing project supplies that scope.
 
-Pending operations disable duplicate submissions. A failed bindr addition may
-leave a successfully added project association; retry the bindr addition after
-reviewing the inline status. Removing an association uses the same context
-preservation behavior and retains the last-project guard. Use the separate
-**Open project** or **Open bindr** links when you want to navigate.
+A bindr can reference the note's existing node in another project without
+mounting, moving or copying the note into its own project. Its name is qualified
+by its owning project in the picker. The original project, folder and bindrs stay
+visible on one header line; current-scope bindrs follow them. Before the first
+current-scope tag is added, only the usual add control appears. Afterward, bindrs
+outside that scope gain a trailing turn arrow. **+N** opens excess tags in a
+separate menu while the header remains one line.
+
+The caller needs access to the source node and Note, plus write permission on
+the destination project. A reference does not grant access to the Note. Lists,
+search and counts filter unreadable references before pagination. Cross-namespace
+references and references to other projects' plain files/folders are unsupported.
+
+Pending operations disable duplicate submissions; errors remain inline. Adding a
+bindr never implicitly adds a project association. Adding a project remains a
+separate explicit action. Removing a bindr removes only its tag; removing a
+project retains the last-project guard. **Open project** and **Open bindr** navigate.
 
 ### Matching passages
 
