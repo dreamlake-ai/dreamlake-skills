@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.112 3d52a6b8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.113 a89f9340; do not edit -->
 
 # Enroll a host
 
@@ -392,3 +392,9 @@ The same namespace, owner, Host ID, enrollment, machine keys and saved sessions 
 After an uncertain response, retry those exact inputs. Read status back under the new name,
 then verify SSH. See the [CLI rename reference](https://cli.dreamlake.ai/host-enrollment#rename-a-host-without-re-enrolling)
 for the HTTP, TypeScript and Python APIs.
+
+## SSH capacity and local permission boundaries
+
+For usage counts, namespace-versus-worker limits, complete SSH configuration options, validation and mixed-version rollout, see [SSH capacity and usage](docs-lakeshore-hosts-browser-terminal.md#ssh-capacity-and-usage). Verify the guide’s component version requirements and deployed versions before use.
+
+The [Nymph permissions and commands record](docs-lakeshore-hosts-nymph-permissions.md) distinguishes local policy, authenticated commands, read-only inspection, startup-only configuration, existing lifecycle exceptions and the requirements for a future dynamic-configuration feature. Capacity is not authority: increasing a quota must not enable SSH, upload data or bypass local execution denial.
