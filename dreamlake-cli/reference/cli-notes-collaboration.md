@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.102.1 a8631f5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.103.0 7d26e7f; do not edit -->
 
 # Live collaboration
 
@@ -296,3 +296,32 @@ selection. Re-run selection to draw attention to the passage again.
 `notes select "#contact" --note "$NOTE_ID"` retains its CSS lookup behavior:
 it reports element text and ranges without publishing a seek. Do not combine CSS
 with `--text`, `--section`, `--occurrence` or `--hash`. `notes find` remains a lookup.
+
+## Durable contributing sessions
+
+Live presence expires; a confirmed contribution remains. With the matching server,
+Notes use the presence identity to record successful creation and content edits in
+**Contributing sessions**, above related resources. Reads, visits, claimed editing
+presence, failed writes and no-op writes do not establish authorship. A manually
+linked session is labeled **Linked session**, not **Edited this note**.
+
+Codex and Claude native session environment variables are detected automatically.
+For other transports, supply an exact saved `DREAMLAKE_TERMINAL_SESSION_ID`, or the
+actual native session UUID and its provider. A display name or random task label
+alone does not identify a conversation. Missing or malformed optional metadata
+never prevents a Note save. A new attribution-only session is private and has no
+terminal launch target; existing session visibility stays unchanged.
+
+```bash cli-help="notes contributors"
+dreamlake notes contributors release-plan --namespace geyang --json
+# If hasMore is true, continue with the returned nextCursor:
+dreamlake notes contributors release-plan --namespace geyang --cursor LINK_CURSOR --json
+```
+
+One page returns `sessions`, `hasMore` and `nextCursor`. Each visible session has
+`contribution: {kind, firstAt, lastAt}`, or `null` for an explicit/legacy link.
+Both Note and session access are checked independently. No transcript is fetched.
+`DREAMLAKE_SESSION_AFFILIATION=0` opts out while explicit agent presence can remain.
+A metadata outage may delay or omit attribution; keep the accepted write receipt
+and never repeat content to repair metadata. Older links are not retroactively
+promoted to observed edits.

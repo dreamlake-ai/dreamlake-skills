@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.03.3-2-g979009c",
+  "version": "v2026.11.03.3-4-g68454bf",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -50,7 +50,7 @@
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 9
+      "files": 10
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
