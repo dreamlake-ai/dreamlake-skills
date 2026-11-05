@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.116 71afb10b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.118 967fe678; do not edit -->
 
 # Files and attachments
 
@@ -406,6 +406,16 @@ individual download and inclusion in the all-assets ZIP. External video URLs
 remain playable in the body but are not collected as uploaded attachments;
 directives inside code are not collected. This discovery does not create a
 `notes files` entry or change the uploaded media URL's access.
+
+SVG figures are accepted by byte detection, including a UTF-8 BOM, XML
+declaration, comments and an SVG doctype before the root element. The SVG root
+must appear within the first 4096 bytes. Uploads preserve the original bytes and
+return `image/svg+xml`; they do not sanitize or validate the SVG document.
+The returned URL renders in Markdown images and HTML `img` elements. SVG media
+reads are streamed with a sandbox policy that disables scripts and external
+resources, including when the URL is opened directly. Embedded data images and
+inline styles are allowed; self-contained SVG figures are recommended. SVG attachments remain readable as XML source for their sandboxed
+file preview.
 
 CLI 0.37.0 and later return that URL directly using your saved login:
 

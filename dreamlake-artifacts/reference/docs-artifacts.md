@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.116 71afb10b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.118 967fe678; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -168,6 +168,18 @@ Artifacts are **private** by default. Two ways to open them up:
 
 You can also toggle visibility and copy links from the artifact's page — the
 Share button does the same thing.
+
+In the artifact's **⋯ → Share** menu, turn on **Most recent version only**
+to let recipients see only the latest registered version. The same link follows
+future updates automatically. Namespace members retain access to history;
+other readers, including public visitors and saved share recipients, cannot
+retrieve earlier versions through the API or old static-site sessions. Turn it
+off to share history again. Existing shares keep their current behavior until
+you enable it. Content a recipient already downloaded cannot be recalled.
+
+The metadata endpoint accepts `shareLatestOnly: true` (or `false`) alongside
+`visibility` and `share`. Only namespace members may change this setting;
+omitting it on a subsequent push preserves the saved choice.
 
 ## Make the link card yours
 

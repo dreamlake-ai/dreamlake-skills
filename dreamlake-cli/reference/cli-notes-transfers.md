@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/transfers.md at 0.104.3 3402808; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/transfers.md at 0.104.5 16fa641; do not edit -->
 
 # Ownership transfers
 
@@ -36,3 +36,22 @@ submission. `--accept-if-owner` remains a compatibility alias. Personal namespac
 require their own actor; active organization members can request or accept for
 their organization, according to the current server capabilities. A bounded
 `--wait` ending does not cancel the transfer.
+
+## Diagnosing a refused transfer
+
+`notes move` and `notes transfer` currently use different server workflows.
+`NOTE_TRANSFER_UNAVAILABLE` from a cross-workspace move does not establish that
+metadata ownership transfers are disabled. Preview `notes transfer` separately.
+A `NOTE_METADATA_PRINCIPAL_UNSUPPORTED` refusal means the server cannot prove
+preservation of an existing project grant, including team or service-account
+grants. A built-in agent's WRITE grant is one such grant. Do not remove access
+or copy/delete the Note to work around this boundary.
+
+Starting with CLI 0.104.5, metadata-transfer commands with `--json` emit
+`{ok:false,error:{code,message,status,requestId,retryable,submissionAttempted,nextAction}}`
+on caught failures; fields absent from the server response are omitted. A
+recognized transfer-grant reason is included as `reason`. Exit status remains 1
+for command/HTTP failure and 3 for a non-executable preview.
+`submissionAttempted:true` means a mutation was dispatched; it does not say
+whether the server committed it. Preserve the review file and inspect the
+operation before resubmitting. No mutation is automatically retried.

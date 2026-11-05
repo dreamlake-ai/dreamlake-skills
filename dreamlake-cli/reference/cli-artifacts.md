@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.104.3 3402808; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.104.5 16fa641; do not edit -->
 
 # Artifacts
 
@@ -76,6 +76,34 @@ remain pinned to the selected version; permissions and sharing apply to the
 whole artifact. Text/WASM responses use HTTP compression, media supports byte
 ranges, and browser caches are private. No archive download or history replay
 is required before rendering.
+
+For a site that reads public datasets from another host, commit an `artifact.config.json`
+in your project working directory:
+
+```json
+{
+  "schema": "dreamlake-artifact-config/1",
+  "network": {
+    "publicDataOrigins": ["https://data.example.com"]
+  }
+}
+```
+
+`artifact push --site` reads this file when present. Use `--site-config ./path/to/config.json`
+to select another file. The declaration accepts at most 16 exact HTTPS hostname origins;
+paths, credentials, wildcards, IP addresses, and localhost are rejected. Origins are
+normalized, sorted, and deduplicated before hashing the manifest.
+
+A declaration produces the version 2 site format. Before uploading anything, the CLI
+checks that the server supports both that format and public data authorization. An
+older server is rejected instead of silently removing the declaration. After uploading
+the immutable files and manifest, the CLI requests an authorization bound to that
+manifest, then publishes the version. This requires the server's Owner or Project ADMIN
+authority; denial leaves the uploaded immutable objects unpublished as an artifact version.
+No per-artifact server environment changes are needed. The declaration permits public
+data connections; it does not grant access to private storage, supply credentials, or
+allow remote scripts. The data host must support browser CORS. Sites without declared
+origins retain the version 1 format.
 
 There is no fixed aggregate upload-size limit for `--site`. Limits are 4096 files,
 32 MiB per HTML page, 32 directory levels and a 2 MiB manifest. Each individual

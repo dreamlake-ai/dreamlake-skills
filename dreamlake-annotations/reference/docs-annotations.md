@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.116 71afb10b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.118 967fe678; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -11,6 +11,26 @@
   annotation stores its output. One episode is one raw video plus any number of annotation layers:
   anything you can pin to that video's clock. Layers are independent and open-ended — send what you
   have, add the rest later.
+
+## Titles and share links
+
+Open an annotation and click its title to edit it. Press Enter or leave the
+field to save. Titles can contain spaces and are limited to 200 characters;
+the annotation name, URL, SDK address, and stored data stay the same.
+Namespace members can also edit the title from the annotation list's Edit menu.
+
+The Share control uses the same menu as Notes. Choose **can view** or **can edit**,
+then copy the link. Recipients must sign in to DreamLake. A view link allows
+opening the annotation and playing its videos. An edit link also allows saving
+title changes and using the existing annotation labeling preview. Timeline,
+caption, and review edits in that preview are still in memory and are not saved.
+
+Only namespace members can manage annotation links, change visibility, or delete
+the annotation. Changing a link from edit to view affects existing holders;
+**no access** revokes the link. Re-enabling sharing creates a new token. Revoking
+a link blocks new reads and video signatures; already issued video URLs remain
+usable until their short expiry. Sharing an annotation does not grant access to
+its namespace or other resources.
 
 ## Public catalog reads
 

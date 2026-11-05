@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/analytics.md at 0.104.3 3402808; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/analytics.md at 0.104.5 16fa641; do not edit -->
 
 # Product analytics
 
@@ -64,3 +64,21 @@ product signals, not audit records. On Windows, files are flushed but directory
 fsync is unavailable through Node, so power-loss durability of renames depends
 on the filesystem. Clients require connectivity only to DreamLake; a local queue
 does not guarantee regional reachability.
+
+## HTTP failure context (CLI 0.104.5+)
+
+Failed commands using the shared CLI HTTP transports can include
+`last_http_status` and `last_http_error_code`. Only integer statuses 400–599
+and bounded machine codes are collected. These are the last observed HTTP
+failure, which may have been handled internally; they are not proof of the
+command's final cause. Successful commands omit these fields. Direct fetch
+paths and other commands with semantic failures inside HTTP 200 still need
+separate instrumentation.
+No error message, response body, request ID or resource identifier is uploaded.
+Deploy the compatible server collector before releasing this CLI change.
+
+Note move and metadata-transfer commands also record `operation_error_code`
+and `operation_outcome` (`failed`, `blocked`, `partial`, or `uncertain`) when
+classified by that command. A blocked HTTP 200 preview therefore records its
+blocker without inventing an HTTP error status. These optional fields are
+validated again by the collector and omitted for successful exits.

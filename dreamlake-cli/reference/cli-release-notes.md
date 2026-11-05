@@ -1,6 +1,14 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.104.3 3402808; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.104.5 16fa641; do not edit -->
 
 # Release notes
+
+## 0.104.5 — Actionable Note transfer failures and diagnostics
+
+Metadata-transfer commands preserve API error codes, HTTP status, request IDs and supported grant reasons in JSON failures. Note move and transfer diagnostics record blocked previews even when HTTP returns 200, while uncertain writes retain their dispatch state and are never automatically retried. Existing telemetry opt-out and privacy controls remain in place. Requires the matching API collector for the new optional diagnostics; this release does not broaden cross-workspace Note transfer admission.
+
+## 0.104.4 — Declared public data origins for artifact sites
+
+Static sites can declare exact public HTTPS data origins in `artifact.config.json` or an explicit `--site-config` file. The CLI checks server support before uploading and obtains an authorized, manifest-bound grant before publishing the site version. Sites without declarations retain the existing v1 format. This requires matching server and frame support.
 
 ## 0.104.3 — Host IP addresses and machine inventory
 
