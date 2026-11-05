@@ -35,7 +35,7 @@ Memo items are managed with `dreamlake-tasks`.
 - Identity: set both `DREAMLAKE_AGENT_ID` and `DREAMLAKE_AGENT_NAME` once and
   inject the same literal values into every shell call; concurrent tasks need
   distinct IDs. Respect an explicit request for unattributed work.
-- Revision: take the editing baseline from a plain `notes read` (opaque revision
+- Revision: take the editing baseline from a plain `memos read` (opaque revision
   and content hash, never `--json`), patch against that exact revision, and read
   the acknowledged revision back. On 412 or 409 stop, keep baseline and draft,
   and reconcile; never `--force`, never swap in a fresh baseline to make an old
@@ -53,7 +53,7 @@ Memo items are managed with `dreamlake-tasks`.
 
 Product facts live on the documentation sites: docs.dreamlake.ai (the Memos
 product guide and its activity, embeds, linked-items, markdown and panels pages),
-cli.dreamlake.ai (the `notes` command pages) and viz.dreamlake.ai. Every page is
+cli.dreamlake.ai (the Memo command pages) and viz.dreamlake.ai. Every page is
 fetchable as Markdown at `<page-url>.md`, and each site's full corpus is at
 `<site>/llms-full.txt`. `reference/` holds the pages listed in `skill.json`
 `docs[]`, fetched by CI as `reference/docs-<slug>.md` and
