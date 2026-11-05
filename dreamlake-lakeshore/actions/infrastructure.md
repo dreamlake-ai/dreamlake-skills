@@ -24,7 +24,7 @@ although this inspection workflow reads metadata only.
    This validates metadata access and prints configuration plus credential
    variable names; it does not print a token, execute Terraform, edit files or
    migrate state. Obtain credentials privately through the authorized environment.
-   Do not place credentials, state or plans in a Note, artifact or source control.
+   Do not place credentials, state or plans in a Memo, artifact or source control.
 4. Review the existing Terraform root/backend before using any printed setup.
    Preserve the existing stack, state, locking and history. Creating a second
    stack is not migration. Any Terraform apply, resource provisioning or live
@@ -85,7 +85,7 @@ returned immutable stack UUID. Existing state is not copied or migrated.
 Each stack also gets one path in the Project resource tree; pass `--path
 infra/k3s/prod` or accept the documented default
 ([register an empty backend](../reference/cli-infrastructure.md#register-an-empty-backend)). A path occupied by a
-Note, folder or stack returns 409; choose another path rather than overwriting.
+Memo, folder or stack returns 409; choose another path rather than overwriting.
 
 Creation sends one request without automatic retries or a request-ID idempotency
 contract. If the result is unknown, the receipt is invalid, or a conflict is
@@ -99,10 +99,10 @@ inaccessible stack require access review, not an alternate endpoint or copied
 credential. Use the [Infrastructure reference](../reference/cli-infrastructure.md)
 for complete options, pagination limits and release status.
 
-Stack-to-Note attachment remains proposed. Creating or filing a Note does not
-attach it or grant independent Note access. Reuse the `dreamlake-notes` skill
+Stack-to-Note attachment remains proposed. Creating or filing a Memo does not
+attach it or grant independent Memo access. Reuse the `dreamlake-notes` skill
 for canonical source reads, original-revision patches and acknowledged readback;
-preserve Note identity, collaborative revisions and existing sharing.
+preserve Memo identity, collaborative revisions and existing sharing.
 
 ## Move an existing registration
 

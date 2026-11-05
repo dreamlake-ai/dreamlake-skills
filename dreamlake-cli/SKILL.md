@@ -1,6 +1,6 @@
 ---
 name: dreamlake-cli
-description: Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows. Routes compute (hosts, machines, Lakeshore, Stacks, AWS) to dreamlake-lakeshore and artifact, note, task, scene, dataset, workflow-authoring and annotation work to their own skills.
+description: Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows. Routes compute (hosts, machines, Lakeshore, Stacks, AWS) to dreamlake-lakeshore and artifact, memo, task, scene, dataset, workflow-authoring and annotation work to their own skills.
 ---
 
 # DreamLake CLI
@@ -19,7 +19,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Grant or revoke Project access; attach or detach a resource | [project-access](actions/project-access.md) |
 | Move a whole Project and its owned resources to another namespace | [projects](actions/projects.md) |
 | Transfer one Artifact, Env/Scene, Annotation, Pipeline or Source | [ownership](actions/ownership.md) |
-| Link a Note or Artifact write to the agent's session; upload a conversation | [session-links](actions/session-links.md) |
+| Link a Memo or Artifact write to the agent's session; upload a conversation | [session-links](actions/session-links.md) |
 | Import or restore cloud configuration; Terraform state snapshots in Vault | [cloud-vault](actions/cloud-vault.md) |
 | Store a third-party API key in `pass` and Vault; load it into the variable a tool reads | [api-keys](actions/api-keys.md) |
 | Register UDF or agent definitions from `.dreamrc` | [runnable-register](actions/runnable-register.md) |
@@ -33,8 +33,8 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | --- | --- |
 | Lakeshore, hosts, terminal sessions, Slurm and external jobs, machines, Infrastructure Stacks, AWS | `dreamlake-lakeshore` |
 | Publish, version, share, restore artifacts | `dreamlake-artifacts` |
-| Read, edit, version, attach, inline images, references, transfer a Note | `dreamlake-notes` |
-| Task folders, subtasks, progress, events, linked Notes | `dreamlake-tasks` |
+| Read, edit, version, attach, inline images, references, transfer a Memo | `dreamlake-notes` |
+| Task folders, subtasks, progress, events, linked Memos | `dreamlake-tasks` |
 | Scenes, MJCF/URDF packaging, asset libraries | `dreamlake-scenes` |
 | Robot datasets, Source connection and path checks, `.dreamrc` | `dreamlake-datasets` |
 | Author, validate and publish WorkflowSpecs | `dreamlake-workflows` |

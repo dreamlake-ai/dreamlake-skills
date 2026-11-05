@@ -98,5 +98,5 @@ if revocation delivery is pending, report it and retry rather than claim success
 
 This guide does not add SDK support, native filesystem capabilities, or an
 arbitrary secret-export command. Use the corresponding task guides for uploads,
-Notes, artifacts and workflows; their authorization and revision rules remain
+Memos, artifacts and workflows; their authorization and revision rules remain
 unchanged.

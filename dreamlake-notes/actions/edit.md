@@ -1,4 +1,4 @@
-# Edit a note
+# Edit a memo
 
 First complete [task identity setup](identity.md); reuse it in every shell call.
 
@@ -8,8 +8,8 @@ revision and content hash. Do not use `--json` for this editing baseline:
 
 ```bash
 NOTE_ID=release-plan
-dreamlake notes read --help
-dreamlake notes read "$NOTE_ID" > baseline.txt
+dreamlake memos read --help
+dreamlake memos read "$NOTE_ID" > baseline.txt
 BASE=$(sed -n '3s/^revision: //p' baseline.txt)
 ```
 
@@ -18,8 +18,8 @@ snapshot, edit the canonical source using the absolute code-point offsets shown
 in its hints, and submit a v2 patch against that original revision:
 
 ```bash
-dreamlake notes read "$NOTE_ID" --at "$BASE" --view markdown --tag s1.ul2.li3
-dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" --exact --file edit.dff
+dreamlake memos read "$NOTE_ID" --at "$BASE" --view markdown --tag s1.ul2.li3
+dreamlake memos patch "$NOTE_ID" --base-revision "$BASE" --exact --file edit.dff
 ```
 
 Use the item's address and line hints to identify the selected text. Ranges
@@ -59,12 +59,12 @@ revision when known; distinguish inspected source from tested or deployed code.
 Label claims as proposed, source-only, verified production, or unknown according
 to the evidence. A merged PR or published package alone does not verify production
 behavior. Mark missing version or deployment evidence unknown; never guess.
-Software versions are separate from the Note's opaque editing revision. Omit
+Software versions are separate from the Memo's opaque editing revision. Omit
 irrelevant components and repeated per-line labels.
 
 ## Literal agent markup
 
-For Markdown notes on the literal-markdown contract, HTML-like wrappers provide
+For Markdown memos on the literal-markdown contract, HTML-like wrappers provide
 IDs and ranges; their contents are **verbatim Markdown**, including list markers,
 checkboxes and comment directives. Use one `data-char` range for that source;
 do not invent inner/outer ranges. Keep `<`, `&`, backslashes and Unicode literal.

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.04.2",
+  "version": "v2026.11.04.2-4-g3ae667e",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -23,7 +23,7 @@
       "files": 5
     },
     "dreamlake-artifacts": {
-      "description": "Author content that renders inside DreamLake's isolated offline artifact frame, then publish, version, list, share, revoke, remove and restore artifacts with the CLI, and reference them from Notes.",
+      "description": "Author content that renders inside DreamLake's isolated offline artifact frame, then publish, version, list, share, revoke, remove and restore artifacts with the CLI, and reference them from Memos.",
       "requires": [
         "dreamlake-cli"
       ],
@@ -61,7 +61,7 @@
       "files": 8
     },
     "dreamlake-notes": {
-      "description": "Work with DreamLake collaborative Notes through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create notes, set summaries, file into Projects, link list items to Notes or artifacts, transfer a standalone Note.",
+      "description": "Work with DreamLake collaborative Memos through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create memos, set summaries, file into Projects, link list items to Memos or artifacts, transfer a standalone Memo.",
       "requires": [
         "dreamlake-cli"
       ],
@@ -84,7 +84,7 @@
       "files": 17
     },
     "dreamlake-tasks": {
-      "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Notes for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",
+      "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Memos for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",
       "requires": [
         "dreamlake-cli"
       ],

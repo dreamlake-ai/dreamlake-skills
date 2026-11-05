@@ -28,7 +28,7 @@ Each accepted re-push of the same name creates a **new version**; it never
 overwrites history. Invalid local pushes do not create versions. The version
 picker on the page can pin an older successful version.
 
-## Notes
+## Memos
 
 - Where the workflow name comes from and how `--name` interacts with the
   spec's `name` field: [Pushing a spec](../reference/cli-workflows.md#pushing-a-spec).

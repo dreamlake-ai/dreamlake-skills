@@ -57,7 +57,7 @@ actual managed runs; do not pass external job IDs to them. Do not automatically
 capture or index program, tool, or terminal output.
 
 This route does not replace uploads (the `data` action of `dreamlake-cli`),
-revision-aware Notes (skill `dreamlake-notes`), artifact publication (skill
+revision-aware Memos (skill `dreamlake-notes`), artifact publication (skill
 `dreamlake-artifacts`) or workflow push (the `workflows` action of `dreamlake-cli`).
 Use an SDK for requested SDK integration or a documented CLI gap, after checking
 that the SDK and server actually support the operation; an SDK is not evidence

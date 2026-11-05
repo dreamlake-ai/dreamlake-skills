@@ -9,5 +9,11 @@
     "https://docs.dreamlake.ai/dev/notes/project-resource-sharing",
     "https://docs.dreamlake.ai/api/project-queries"
   ],
-  "tools": { "python": ">=3.10", "packages": ["dreamlake", "dreamdb"] }
+  "tools": {
+    "python": ">=3.10",
+    "packages": [
+      "dreamlake",
+      "dreamdb"
+    ]
+  }
 }

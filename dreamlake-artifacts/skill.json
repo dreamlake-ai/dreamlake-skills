@@ -1,7 +1,9 @@
 {
   "name": "dreamlake-artifacts",
-  "description": "Author content that renders inside DreamLake's isolated offline artifact frame, then publish, version, list, share, revoke, remove and restore artifacts with the CLI, and reference them from Notes.",
-  "requires": ["dreamlake-cli"],
+  "description": "Author content that renders inside DreamLake's isolated offline artifact frame, then publish, version, list, share, revoke, remove and restore artifacts with the CLI, and reference them from Memos.",
+  "requires": [
+    "dreamlake-cli"
+  ],
   "docs": [
     "https://docs.dreamlake.ai/artifacts",
     "https://docs.dreamlake.ai/workspaces",

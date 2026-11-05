@@ -1,13 +1,13 @@
-# Reference Notes and artifacts from list items
+# Reference Memos and artifacts from list items
 
-Use this to extract a list or checklist item into a linked Note, to edit an
-existing note reference, or to write `:note[...]`, `:artifact[...]`,
+Use this to extract a list or checklist item into a linked Memo, to edit an
+existing memo reference, or to write `:note[...]`, `:artifact[...]`,
 experiment, project and folder references, and placeholder directives. It does not create a Task or mark work complete; Tasks
-that link Note items are `dreamlake-tasks`.
+that link Memo items are `dreamlake-tasks`.
 
 ## Representation
 
-The Note picker, extraction and copy button prefer `:note[<full-note-id>]`.
+The Memo picker, extraction and copy button prefer `:note[<full-note-id>]`.
 Saved `#note:<full-note-id>` and `:note{id="<full-note-id>"}` remain supported.
 Preserve existing forms exactly; do not bulk-migrate. Keep the full returned ID,
 never a short hash, cached title, Markdown link or HTML.
@@ -20,7 +20,7 @@ never a short hash, cached title, Markdown link or HTML.
 Text before and after the token belongs to the parent. The rendered badge
 resolves the title with the viewer's existing access. A reference grants no
 access and does not publish the child. See
-[linked note items](../reference/docs-notes-linked-items.md).
+[linked memo items](../reference/docs-notes-linked-items.md).
 
 ## Artifact references (development preview)
 
@@ -30,7 +30,7 @@ API also accept saved `#artifact:geyang/pitch-deck` and
 braces hold optional named attributes (the remark-directive Markdown extension,
 not core CommonMark); DreamLake defines the resource semantics. Bare brace IDs
 are invalid. Artifact IDs are namespace-scoped, so both owner namespace and ID
-are required. Do not substitute a Note ID, short display hash, cached title or
+are required. Do not substitute a Memo ID, short display hash, cached title or
 share token. These tags grant no access and do not publish content; unavailable
 artifacts stay unresolved. Keep source unchanged in reads and patches. API HTML
 maps the entire reference atomically without fetching private metadata.
@@ -60,14 +60,14 @@ for a DreamLake project or folder.
 Syntax and badge behavior:
 [experiments, projects and folders](../reference/docs-notes-linked-items.md#experiments-projects-and-folders).
 
-## Create a note from a `:note[` reference (UI)
+## Create a memo from a `:note[` reference (UI)
 
-In the editor, typing `:note[` plus a title offers **Create note “title”**
-below the matching notes. Prefer an existing match over creating a duplicate.
-Creation is not idempotent: if it fails or its result is unclear, check Notes
-for the title before trying again. Through the CLI, create the note first
+In the editor, typing `:note[` plus a title offers **Create memo “title”**
+below the matching memos. Prefer an existing match over creating a duplicate.
+Creation is not idempotent: if it fails or its result is unclear, check Memos
+for the title before trying again. Through the CLI, create the memo first
 (`notes create`), then write `:note[<full-note-id>]` with the returned ID. See
-[create a note from a reference](../reference/docs-notes-linked-items.md#create-a-note-from-a-reference).
+[create a memo from a reference](../reference/docs-notes-linked-items.md#create-a-note-from-a-reference).
 
 ## Fragment syntax
 
@@ -85,30 +85,30 @@ attribute forms remain supported. `:chatgpt-content-reference[0]` and imported
 ChatGPT citations remain unresolved; never invent resources.
 
 For missing prose, legacy forms include `[ xxxxx ]` or a descriptive label such
-as `[ owner name ]`. Notes display blue boxes as `[ owner name ]`, with
+as `[ owner name ]`. Memos display blue boxes as `[ owner name ]`, with
 **placeholder** on hover, while preserving the Markdown. Whitespace is required
 immediately inside both brackets: `[text]`, `[ text]` and `[text ]` are not
 placeholders. Keep actual Markdown links/references and `#note:<full-note-id>`
 as references; never replace them with placeholder text. Code and task markers
 stay literal. Examples: [placeholders](../reference/docs-notes-writing.md#placeholders).
 
-## UI workflow: turn a list item into a note
+## UI workflow: turn a list item into a memo
 
-1. On a supported Notes editor, click **Turn list item into a note** at the
+1. On a supported Memos editor, click **Turn list item into a memo** at the
    right edge of an ordered, bullet or checkbox item.
 2. The first line supplies the title; the item's text and nested content become
-   the new private note body. The parent keeps its list marker or checkbox and
+   the new private memo body. The parent keeps its list marker or checkbox and
    replaces only that item's content with the raw reference.
 3. The badge shows a short ID and title, truncating long titles. Click it to
    open a tab in the existing right panel, creating the panel only when absent.
    References opened from a side Note add tabs in that same side panel.
-   Already-open Notes are focused; existing tabs and their drafts stay mounted.
+   Already-open Memos are focused; existing tabs and their drafts stay mounted.
    Edit surrounding parent prose outside the badge normally.
 4. Verify the child content and parent reference. Closing the panel does not
-   delete the note.
+   delete the memo.
 
 If creation fails or the source changes concurrently, preserve the source.
-Inspect the created note or the Notes list before retrying an uncertain create;
+Inspect the created memo or the Memos list before retrying an uncertain create;
 creation is not idempotent. Undoing the parent edit does not delete the child.
 Do not claim UI availability from this skill alone: the editor implementation is
 a development preview until its release is verified.
@@ -116,7 +116,7 @@ a development preview until its release is verified.
 ## Sync recovery
 
 Parent and child editors hold separate drafts. If either is out of sync,
-download that note's local draft before selecting **Out of sync ▾ → Use server
+download that memo's local draft before selecting **Out of sync ▾ → Use server
 version**. This discards the local draft and fetches server content; it does not
 overwrite the server. Do not retry extraction or write stale parent text to
 bypass a hold. CLI reads cannot retrieve another browser tab's unsent draft.
@@ -124,11 +124,11 @@ Follow [reconnect and recovery](../reference/docs-notes-collaboration.md#reconne
 
 ## CLI workflow
 
-Check installed `dreamlake notes --help` and the current server and editor
+Check installed `dreamlake memos --help` and the current server and editor
 version first. Read the parent with `--json` and retain its ETag, create the
 child with `notes create --file`, read the child back, then replace the exact
 source item with `notes write --if-match` (the legacy conditional contract; the
 revision-guarded patch in [edit](edit.md) is preferred when the installed CLI
 supports it). Re-read and reconcile conflicts; never force an overwrite.
 Preserve checkbox state, list indentation, nested content and all adjacent
-prose. Report the new note ID and what moved.
+prose. Report the new memo ID and what moved.

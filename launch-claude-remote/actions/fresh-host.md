@@ -49,9 +49,9 @@ Follow that supported login flow; do not patch private `.claude.json` account
 or organization fields to bypass the failure.
 
 Check development services independently. DreamLake's `auth.yml` is a saved
-multi-environment cache: copying it alone left Notes unauthenticated. Activate
+multi-environment cache: copying it alone left Memos unauthenticated. Activate
 the intended saved login with `dreamlake auth env use <saved-name>`, then verify
-an authorized Note or Vault read. Its published npm package is
+an authorized Memo or Vault read. Its published npm package is
 `@dreamlake/dreamlake-cli`; `@dreamlake/cli` returned 404 during this run.
 Restored npm credentials still yielded `npm whoami` HTTP 401, and a passing
 `ngrok config check` was followed by `ERR_NGROK_108` on `ngrok start --none`

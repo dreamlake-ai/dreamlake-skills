@@ -1,26 +1,26 @@
-# Manage note attachments
+# Manage memo attachments
 
 To insert an image into Markdown or HTML, use [inline image upload](media.md).
-These file commands store attachments alongside a note and do not insert them
+These file commands store attachments alongside a memo and do not insert them
 into its body.
 
-Files inherit the note's permissions. Set `NOTE_ID` to an accessible note; add
+Files inherit the memo's permissions. Set `NOTE_ID` to an accessible memo; add
 `--namespace <slug>` when required.
 
 ```bash
 NOTE_ID=release-plan
 # Pick the requested operation; each command is independent.
-dreamlake notes files upload ./report.html --note "$NOTE_ID"
-dreamlake notes files list --note "$NOTE_ID"
-dreamlake notes files download report.html --note "$NOTE_ID" -o ./report.html
-dreamlake notes files preview report.html --note "$NOTE_ID" --open
+dreamlake memos files upload ./report.html --note "$NOTE_ID"
+dreamlake memos files list --note "$NOTE_ID"
+dreamlake memos files download report.html --note "$NOTE_ID" -o ./report.html
+dreamlake memos files preview report.html --note "$NOTE_ID" --open
 ```
 
 Uploads and downloads preserve bytes. `cat` is for text and refuses binary
 content. `rm` moves a file to trash; restore with its file ID. Public preview
 links are minted with `--share` and withdrawn with `--revoke` (lifetime and
 scope: [preview and share](../reference/cli-notes-attachments.md#preview-and-share)).
-Minting requires the note's sharing permission; withdrawing requires edit permission.
+Minting requires the memo's sharing permission; withdrawing requires edit permission.
 Repeated minting keeps the existing link. Do not mint public links merely to work
 around a denied signed-in read. The transactional sharing implementation is
 included in the verified API release. Isolated tests cover lost authority,
@@ -31,7 +31,7 @@ immutable-upload implementation is enabled, and atomic copy and the default
 named-version catalog writer are included in the verified API release. Durable
 purge and transfer adapters remain disabled. Strict runtime and read-only metadata
 verification do not establish production attachment-write or user acceptance.
-See [attachments](../reference/cli-notes-attachments.md) and [the full Notes guide](../reference/docs-notes.md).
+See [attachments](../reference/cli-notes-attachments.md) and [the full Memos guide](../reference/docs-notes.md).
 
 ## Move or trash with a content precondition
 
@@ -48,7 +48,7 @@ not delete stored bytes.
 An ETag guards content only; inspect current path and permissions after a conflict.
 Do not substitute permanent purge or a copy/delete sequence for a denied move.
 
-## Copy within the same Note
+## Copy within the same Memo
 
 Use the existing `files cp <file> <to>` command; add `--overwrite` only when the
 user intends to replace the destination. The copy gets a new file ID and its own
@@ -71,14 +71,14 @@ other OS targets were byte-verified, not runtime-tested. That version adds `--id
 and `files cp`, and `files status`, `files reconcile` and `files cancel`.
 Check the installed version before using them. Supply a retained printable ASCII
 key (1–256 bytes, no surrounding spaces) for one exact text/copy request, and
-keep the original account, Note, namespace and `operationId` from JSON or stderr.
+keep the original account, Memo, namespace and `operationId` from JSON or stderr.
 
 ```bash
 # Inspect the original operation; do not resend uncertain bytes.
-dreamlake notes files status "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+dreamlake memos files status "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
 # Choose only the intended next action, under the original account.
-dreamlake notes files reconcile "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
-dreamlake notes files cancel "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+dreamlake memos files reconcile "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+dreamlake memos files cancel "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
 ```
 
 Reconcile may publish the original database result but never uploads bytes again.
@@ -108,5 +108,5 @@ before resubmitting. Only when durable purge is enabled does a failed deletion
 retain durable cleanup intent that the same authorized purge can resume. A started
 durable purge is irreversible; a legacy `storage_unavailable` response alone does
 not establish that such intent exists.
-See the canonical Notes guide for release and acceptance boundaries; these changes
+See the canonical Memos guide for release and acceptance boundaries; these changes
 do not enable cross-workspace transfers or grant access through filing.

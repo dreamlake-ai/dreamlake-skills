@@ -86,7 +86,7 @@ For persistent Codex terminals (CLI 0.74.1+), select a target and its exact enro
 interpret a saved descriptor or successful list as a running process. Preserve
 the configured account/environment; custom gateways require explicit trusted
 `--gateway` and `--origin`. See the reference for deployment prerequisites. This
-does not replace managed runs, uploads, artifacts, or Notes; it provides terminal
+does not replace managed runs, uploads, artifacts, or Memos; it provides terminal
 access only and does not synchronize Codex conversations across hosts.
 
 CLI 0.75.0+ with the matching managed-session gateway adds `sessions status ID` for a
@@ -198,7 +198,7 @@ change the action or generate a new request ID to bypass a conflict. A replayed
 receipt can predate a later opposite action; read lifecycle for current state.
 See the [catalog reference](../reference/cli-host-enrollment.md#archive-and-restore-catalog-records).
 
-Uploading a session's conversation history (CLI 0.79.0+) and linking Note or
+Uploading a session's conversation history (CLI 0.79.0+) and linking Memo or
 Artifact writes to a session are the `session-links` action of `dreamlake-cli`.
 
 ## Change an existing host address

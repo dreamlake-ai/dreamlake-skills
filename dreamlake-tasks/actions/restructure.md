@@ -14,7 +14,7 @@ Reorder supplies the full existing child-ID array in the desired order; it does
 not add or remove membership. Moves reject cycles and collisions and are bounded
 to 1,000 descendants; soft-deleted paths stay reserved for restoration. On
 conflict read the current parent rather than overwriting concurrent edits.
-Cross-references belong in Notes, not in structure. See
+Cross-references belong in Memos, not in structure. See
 [rename, move and reorder](../reference/cli-tasks.md#rename-move-and-reorder).
 
 `tasks move` never crosses a namespace. Changing which namespace owns the

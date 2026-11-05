@@ -22,6 +22,6 @@ unsupported here; a UDF that needs its snapshot and a locked runtime is
 [bound-execution](bound-execution.md). Request acceptance is not completion. Unknown/crashed
 worker claims remain unresolved under the existing execution policy.
 
-Upload, Notes, artifact and workflow tasks keep their existing guides. Use SDKs
+Upload, Memos, artifact and workflow tasks keep their existing guides. Use SDKs
 when explicitly requested or when a documented CLI capability gap requires them;
 do not route those tasks into this narrow execution adapter.

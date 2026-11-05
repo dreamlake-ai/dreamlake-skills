@@ -64,7 +64,7 @@ Generating a code on the host and redeeming it in the desktop are separate steps
   inspect this installed version's help/schema. Do not alter authentication,
   restart working sessions, or substitute an unrelated standalone app-server.
 
-Read [the protocol and troubleshooting notes](actions/launching-chats.md)
+Read [the protocol and troubleshooting memos](actions/launching-chats.md)
 when diagnosing a failure or adapting to a different Codex version.
 
 ## Canonical source

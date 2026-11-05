@@ -85,7 +85,7 @@ support.
 - Contract: [Project attachment access](../reference/docs-artifacts.md#project-attachment-access),
   [CLI project attachment commands](../reference/cli-projects.md#project-attachment-access-cli-0620)
   and the
-  [owning access notes](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
+  [owning access memos](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
 
 An owned artifact moves with its whole Project; see the `projects` action of
 `dreamlake-cli`.

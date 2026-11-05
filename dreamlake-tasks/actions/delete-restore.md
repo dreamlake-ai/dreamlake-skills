@@ -1,7 +1,7 @@
 # Soft-delete, restore and deprecate
 
-Deletion hides the record, preserves ID, events and Note links, and never
-deletes Note content. Deletion with live children fails; restore requires a live
+Deletion hides the record, preserves ID, events and Memo links, and never
+deletes Memo content. Deletion with live children fails; restore requires a live
 parent. Deprecation is a visible status distinct from soft deletion. There is no
 hard delete.
 
@@ -13,6 +13,6 @@ dreamlake tasks status set vault/entries/write-recovery --status deprecated --at
 ```
 
 These are independent examples, not one mandatory sequence. Soft-deleted paths
-remain reserved for restoration; do not cascade-delete subtasks or linked Notes
+remain reserved for restoration; do not cascade-delete subtasks or linked Memos
 implicitly. See
 [soft-delete, restore and deprecate](../reference/cli-tasks.md#soft-delete-restore-and-deprecate).
