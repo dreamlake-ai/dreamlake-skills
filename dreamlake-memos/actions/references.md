@@ -1,25 +1,20 @@
 # Reference Memos and artifacts from list items
 
 Use this to extract a list or checklist item into a linked Memo, to edit an
-existing memo reference, or to write `:note[...]`, `:artifact[...]`,
+existing memo reference, or to write ordinary Memo links, `:artifact[...]`,
 experiment, project and folder references, and placeholder directives. It does not create a Task or mark work complete; Tasks
 that link Memo items are `dreamlake-tasks`.
 
 ## Representation
 
-The Memo picker, extraction and copy button prefer `:note[<full-note-id>]`.
-Saved `#note:<full-note-id>` and `:note{id="<full-note-id>"}` remain supported.
-Preserve existing forms exactly; do not bulk-migrate. Keep the full returned ID,
-never a short hash, cached title, Markdown link or HTML.
+For new Memo references, use an ordinary Markdown link with the namespace and
+full ID returned by the API. Do not add new `:note[...]` directives, including
+when copying an example or creating a child Memo. Do not introduce `:memo`.
+Preserve existing `:note[...]`, `#note:<id>` and brace-form references exactly
+when reading or making unrelated edits; never bulk-migrate saved content.
 
-```markdown
-1. :note[6aa9951250d9de84058e8ebb]
-   - [ ] Discuss :note[6aa989ea6aff1e1960afc51f] before the demo.
-```
-
-Text before and after the token belongs to the parent. The rendered badge
-resolves the title with the viewer's existing access. A reference grants no
-access and does not publish the child. See
+Create or locate the Memo, use its returned URL, and verify that the link opens
+the intended resource. Links do not grant access or change sharing. See
 [linked memo items](../reference/docs-notes-linked-items.md).
 
 ## Artifact references (development preview)
@@ -60,19 +55,18 @@ for a DreamLake project or folder.
 Syntax and badge behavior:
 [experiments, projects and folders](../reference/docs-notes-linked-items.md#experiments-projects-and-folders).
 
-## Create a memo from a `:note[` reference (UI)
+## Create a Memo and link it
 
-In the editor, typing `:note[` plus a title offers **Create memo “title”**
-below the matching memos. Prefer an existing match over creating a duplicate.
-Creation is not idempotent: if it fails or its result is unclear, check Memos
-for the title before trying again. Through the CLI, create the memo first
-(`notes create`), then write `:note[<full-note-id>]` with the returned ID. See
-[create a memo from a reference](../reference/docs-notes-linked-items.md#create-a-note-from-a-reference).
+Prefer an existing match over creating a duplicate. Create the Memo first with
+`dreamlake memos create`, retain its returned identity and URL, then insert an
+ordinary Markdown link into the parent. If creation fails or its result is
+unclear, inspect the Memos list before retrying; creation is not idempotent.
+Do not use the retired `:note[` authoring flow.
 
 ## Fragment syntax
 
-`:note[id#overview]` and `:artifact[namespace/id#slide-3]` retain a target
-within the resource. `:note[id]{fragment="overview"}` is also accepted; do not
+Existing `:note[id#overview]` and `:artifact[namespace/id#slide-3]` retain a target
+within the resource. Preserve saved `:note[id]{fragment="overview"}`; do not
 specify it twice. Preserve exact source and percent encoding. This release
 accepts syntax only; click-target navigation and scrolling are deferred to the
 common tab/view work. Never infer slide numbering or invent targets.
@@ -98,12 +92,9 @@ stay literal. Examples: [placeholders](../reference/docs-notes-writing.md#placeh
    right edge of an ordered, bullet or checkbox item.
 2. The first line supplies the title; the item's text and nested content become
    the new private memo body. The parent keeps its list marker or checkbox and
-   replaces only that item's content with the raw reference.
-3. The badge shows a short ID and title, truncating long titles. Click it to
-   open a tab in the existing right panel, creating the panel only when absent.
-   References opened from a side Note add tabs in that same side panel.
-   Already-open Memos are focused; existing tabs and their drafts stay mounted.
-   Edit surrounding parent prose outside the badge normally.
+   replaces only that item's content with a link.
+3. Open the resulting link and confirm its destination. Keep surrounding parent
+   prose, list markers and checkbox state unchanged.
 4. Verify the child content and parent reference. Closing the panel does not
    delete the memo.
 
@@ -125,10 +116,11 @@ Follow [reconnect and recovery](../reference/docs-notes-collaboration.md#reconne
 ## CLI workflow
 
 Check installed `dreamlake memos --help` and the current server and editor
-version first. Read the parent with `--json` and retain its ETag, create the
-child with `notes create --file`, read the child back, then replace the exact
-source item with `notes write --if-match` (the legacy conditional contract; the
-revision-guarded patch in [edit](edit.md) is preferred when the installed CLI
-supports it). Re-read and reconcile conflicts; never force an overwrite.
-Preserve checkbox state, list indentation, nested content and all adjacent
-prose. Report the new memo ID and what moved.
+version first. Follow [read](read.md) for an original plain-source baseline and
+retain its opaque revision. Locate or create the child, read it back, then use
+the revision-guarded exact patch in [edit](edit.md) to replace only the source
+item with an ordinary Markdown link to the returned child URL.
+Re-read the returned revision to verify. On a conflict or uncertain outcome,
+retain the original baseline and proposed patch; reconcile before another write.
+Preserve checkbox state, list indentation, nested content and adjacent prose.
+Report the new Memo ID and what moved. Never force an overwrite or invent a URL.

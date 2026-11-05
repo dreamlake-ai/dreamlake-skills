@@ -12,9 +12,9 @@ Use the source workspace owner's login and preview the requested scope:
 ```bash
 # An organization destination currently returns blockers and exit status 3.
 dreamlake memos move NOTE_ID --to-namespace ORG --project PROJECT --dry-run
-# Add a project association within the Note's CURRENT workspace; inspect executable first.
+# Add a project association within the Memo's CURRENT workspace; inspect executable first.
 dreamlake memos move NOTE_ID --to-namespace CURRENT_WORKSPACE --project PROJECT --dry-run
-# Relocate a filed Note to an existing folder of one project (CLI 0.87.0+).
+# Relocate a filed Memo to an existing folder of one project (CLI 0.87.0+).
 dreamlake memos move NOTE_ID --namespace NS --project PROJECT --folder PATH --dry-run
 ```
 
@@ -49,7 +49,7 @@ not a raw API call. See
 
 ## Create filed and inspect filing (CLI 0.45.1+)
 
-`notes create --project SLUG` (repeatable) files a new Memo; `memos projects
+`memos create --project SLUG` (repeatable) files a new Memo; `memos projects
 NOTE_ID --namespace NS` shows its current filing. CLI 0.44.3 and earlier lack
 both. Never emulate an existing-note move through copy/delete, namespace updates
 or an older generic mount API; missing server or adapter readiness is

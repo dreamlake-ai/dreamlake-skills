@@ -1,5 +1,5 @@
 ---
-name: dreamlake-notes
+name: dreamlake-memos
 description: Work with DreamLake collaborative Memos through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files, get inline image URLs, create memos, set summaries, file into Projects, turn list items into linked Memos or artifact references, and transfer a standalone Memo. Use the Python SDK only for explicit SDK integration or a documented CLI gap.
 ---
 
@@ -22,7 +22,7 @@ memo. One action per task:
 | Create a memo or a namespace profile introduction | [create](actions/create.md) |
 | Read or set the catalog summary | [summary](actions/summary.md) |
 | File into a Project, change its folder, inspect filing | [move](actions/move.md) |
-| `:note[...]`, `:artifact[...]`, `:dashboard`/`:experiment`/`:project`/`:folder` references, extraction, side panel, placeholders | [references](actions/references.md) |
+| Ordinary Memo links, existing `:note[...]`, `:artifact[...]`, `:dashboard`/`:experiment`/`:project`/`:folder` references, extraction, side panel, placeholders | [references](actions/references.md) |
 | Transfer a standalone Memo to another namespace | [transfer](actions/transfer.md) |
 
 Moving a whole Project with its Memos is the `projects` action of `dreamlake-cli`;

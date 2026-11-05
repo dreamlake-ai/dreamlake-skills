@@ -44,5 +44,5 @@ as out of scope.
 | `sharing-and-access.md` § Whole-Project transfer boundary (`PROJECT_STREAM_EXTERNAL_ARTIFACT_UNSUPPORTED`, streaming admission, legacy replay, never copy/delete) | `dreamlake-cli/actions/projects.md` (other agent); here one sentence in `actions/publish.md`, `share.md`, `restore.md` and `SKILL.md` | Per task instruction |
 | `references/remove-and-restore.md` (soft delete, three restore paths, #1343 project placements, `--permanent` v0.4.14+ safety rule) | `actions/restore.md` | |
 | `references/notes-references.md` § Reference in Notes | `actions/notes-references.md` § Rules | |
-| `notes-references.md` § Fragment reference syntax | `actions/notes-references.md` § Fragment references | `docs.dreamlake.ai/notes` anchor kept as absolute URL (page owned by `dreamlake-notes`) |
+| `notes-references.md` § Fragment reference syntax | `actions/notes-references.md` § Fragment references | `docs.dreamlake.ai/notes` anchor kept as absolute URL (page owned by `dreamlake-memos`) |
 | `dreamlake-artifacts/reference/` (generated) | none existed in this skill at `6a2a02dc` | CI will fetch `reference/` from `docs[]` |

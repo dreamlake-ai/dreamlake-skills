@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.04.2-4-g3ae667e",
+  "version": "v2026.11.05-2-g7afaa3a",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -60,7 +60,7 @@
       "tools": null,
       "files": 8
     },
-    "dreamlake-notes": {
+    "dreamlake-memos": {
       "description": "Work with DreamLake collaborative Memos through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create memos, set summaries, file into Projects, link list items to Memos or artifacts, transfer a standalone Memo.",
       "requires": [
         "dreamlake-cli"
@@ -146,7 +146,8 @@
     "dreamlake-artifact-authoring": "dreamlake-artifacts",
     "dreamlake-dataset-viz": "dreamlake-datasets",
     "dreamlake-envs": "dreamlake-scenes",
-    "dreamlake-note-references": "dreamlake-notes",
+    "dreamlake-note-references": "dreamlake-memos",
+    "dreamlake-notes": "dreamlake-memos",
     "dreamlake-scene-generation": "dreamlake-scenes",
     "dreamlake-source": "dreamlake-datasets",
     "remote-source-check": "dreamlake-datasets",

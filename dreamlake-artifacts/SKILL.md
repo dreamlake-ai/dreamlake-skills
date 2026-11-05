@@ -33,7 +33,7 @@ with the same `--id` adds a version; a new id creates a separate artifact.
 
 ## Boundaries
 
-- Editing the Memo itself belongs to `dreamlake-notes`; this skill only covers
+- Editing the Memo itself belongs to `dreamlake-memos`; this skill only covers
   the artifact reference syntax.
 - AI-generated hosted pages (`host.dreamlake.ai`) are a different product and
   not covered here.

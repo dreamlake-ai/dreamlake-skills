@@ -89,6 +89,6 @@ Use locked/versioned encrypted S3 as authoritative state. Vault may hold
 nonsecret references and explicitly selected encrypted-at-rest snapshots;
 revision/idempotency is not Terraform backend locking. No automatic scan, state
 upload, raw log indexing, migration or cleanup. For user-requested Memos updates,
-use the `dreamlake-notes` skill with fresh normal read output/revision; write authored
+use the `dreamlake-memos` skill with fresh normal read output/revision; write authored
 progress only, never state, secrets or raw terminal output. Uploads, artifacts,
 workflows and explicit SDK integration retain their own task boundaries.

@@ -100,7 +100,7 @@ credential. Use the [Infrastructure reference](../reference/cli-infrastructure.m
 for complete options, pagination limits and release status.
 
 Stack-to-Note attachment remains proposed. Creating or filing a Memo does not
-attach it or grant independent Memo access. Reuse the `dreamlake-notes` skill
+attach it or grant independent Memo access. Reuse the `dreamlake-memos` skill
 for canonical source reads, original-revision patches and acknowledged readback;
 preserve Memo identity, collaborative revisions and existing sharing.
 

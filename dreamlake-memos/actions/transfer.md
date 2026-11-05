@@ -1,6 +1,6 @@
 # Transfer a standalone Memo to another namespace
 
-`notes transfer` is a recipient-accepted, metadata-only ownership transfer of
+`memos transfer` is a recipient-accepted, metadata-only ownership transfer of
 one Memo. It requires a server that advertises a metadata-only Memo transfer
 plan; updating the CLI alone does not enable it, so check `dreamlake memos
 transfer --help` and the server's capabilities first. Same-workspace Project

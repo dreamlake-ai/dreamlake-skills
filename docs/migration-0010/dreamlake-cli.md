@@ -20,7 +20,7 @@ package; the integrator must confirm the destination carries it.
   `hosts.md` and `jobs.md`. `dreamlake-cli` keeps 10 actions (~35 KB); see
   [dreamlake-lakeshore.md](dreamlake-lakeshore.md) for the moved rows.
 - `actions/media.md` was dropped as a byte-identical duplicate of
-  `dreamlake-notes/actions/media.md`; SKILL.md routes inline images to `dreamlake-notes`.
+  `dreamlake-memos/actions/media.md`; SKILL.md routes inline images to `dreamlake-memos`.
 - `actions/artifacts.md` was deleted (brief allowed pointer-or-delete); its
   CLI-transport rules are HANDOFF rows below because `dreamlake-artifacts` is
   owned by another package.
@@ -65,23 +65,23 @@ package; the integrator must confirm the destination carries it.
 
 | Source paragraph | Destination |
 | --- | --- |
-| P1 identity setup (`DREAMLAKE_AGENT_ID/NAME`, roster, no replay, unattributed request) | `dreamlake-notes/actions/identity.md` (already covered; "do not replay saved edits to test attribution" added) |
-| P2 `notes list/toc/read --legacy --section` | `dreamlake-notes/actions/read.md` (covered) |
-| P3 baseline/revision/patch/readback/conflict, `--legacy` ETag contract | `dreamlake-notes/actions/edit.md` + `SKILL.md` "Rules" (covered) |
-| P4 version-line rule for implementation/availability claims | `dreamlake-notes/actions/edit.md` §Versions and availability (covered, same text) |
-| P5 image URLs → media; `notes files upload` | `dreamlake-notes/actions/media.md`, `attachments.md` (covered) |
-| P6 literal Markdown agent markup; unified-diff patches | `dreamlake-notes/actions/edit.md` §Literal agent markup (covered) |
-| P7 `note tag/hist/read --version` 0.44.1+, `--hash`, `409 note_changed` | `dreamlake-notes/actions/versions.md` §top (hash and 409 rule added) |
-| P8 "CLI 0.44.2 removes the old `notes version` command group" | `dreamlake-notes/actions/versions.md` §top (added) |
-| P9 retained snapshot recovery (raw SHA-256 vs `sha256:`, tag saves current only, older server 409 ≠ empty history, unknown create → paginate hist, tags not idempotency keys, verify `sourceObservedAt`) | `dreamlake-notes/actions/versions.md` §Recover a retained snapshot and §Reconcile an uncertain save (all rules added) |
-| P10 `notes move` 0.45.1 (absent 0.45.0), dry-run, exit 3, executable same-workspace, org notes readable by members, no copy/delete | `dreamlake-notes/actions/move.md` (covered; "absent in 0.45.0" added) |
-| P11 `notes move --folder` 0.87.0, folder must exist, `update bindr --add-note` | `dreamlake-notes/actions/move.md` §Folders and bindr tags (new) |
-| P12 `notes create --project`, `notes projects ID --namespace`, 0.44.3 lacks, no emulation via mount API | `dreamlake-notes/actions/create.md` (flag) + `move.md` §Create filed and inspect filing (new) |
+| P1 identity setup (`DREAMLAKE_AGENT_ID/NAME`, roster, no replay, unattributed request) | `dreamlake-memos/actions/identity.md` (already covered; "do not replay saved edits to test attribution" added) |
+| P2 `memos list/toc/read --legacy --section` | `dreamlake-memos/actions/read.md` (covered) |
+| P3 baseline/revision/patch/readback/conflict, `--legacy` ETag contract | `dreamlake-memos/actions/edit.md` + `SKILL.md` "Rules" (covered) |
+| P4 version-line rule for implementation/availability claims | `dreamlake-memos/actions/edit.md` §Versions and availability (covered, same text) |
+| P5 image URLs → media; `memos files upload` | `dreamlake-memos/actions/media.md`, `attachments.md` (covered) |
+| P6 literal Markdown agent markup; unified-diff patches | `dreamlake-memos/actions/edit.md` §Literal agent markup (covered) |
+| P7 `note tag/hist/read --version` 0.44.1+, `--hash`, `409 note_changed` | `dreamlake-memos/actions/versions.md` §top (hash and 409 rule added) |
+| P8 "CLI 0.44.2 removes the old `notes version` command group" | `dreamlake-memos/actions/versions.md` §top (added) |
+| P9 retained snapshot recovery (raw SHA-256 vs `sha256:`, tag saves current only, older server 409 ≠ empty history, unknown create → paginate hist, tags not idempotency keys, verify `sourceObservedAt`) | `dreamlake-memos/actions/versions.md` §Recover a retained snapshot and §Reconcile an uncertain save (all rules added) |
+| P10 `notes move` 0.45.1 (absent 0.45.0), dry-run, exit 3, executable same-workspace, org notes readable by members, no copy/delete | `dreamlake-memos/actions/move.md` (covered; "absent in 0.45.0" added) |
+| P11 `notes move --folder` 0.87.0, folder must exist, `update bindr --add-note` | `dreamlake-memos/actions/move.md` §Folders and bindr tags (new) |
+| P12 `memos create --project`, `notes projects ID --namespace`, 0.44.3 lacks, no emulation via mount API | `dreamlake-memos/actions/create.md` (flag) + `move.md` §Create filed and inspect filing (new) |
 | P13-14 whole-Project streaming (two paragraphs) | `actions/projects.md` (same facts as data.md rows) |
-| P15 attachment journal recovery 0.48.2 (`--idempotency-key`, `files status/reconcile/cancel`) | `dreamlake-notes/actions/attachments.md` (covered) |
+| P15 attachment journal recovery 0.48.2 (`--idempotency-key`, `files status/reconcile/cancel`) | `dreamlake-memos/actions/attachments.md` (covered) |
 | P16 session affiliation env vars, auto-link, `sessions link --note` | `actions/session-links.md` |
 | P17 conversation upload 0.79.0+ | `actions/session-links.md` §Upload a conversation export |
-| "## Standalone recipient-accepted Note transfer" | `dreamlake-notes/actions/transfer.md` (new) |
+| "## Standalone recipient-accepted Note transfer" | `dreamlake-memos/actions/transfer.md` (new) |
 | "## Other singleton metadata transfers" (`ownership transfer TYPE ID`, pipelineTransfer, CLI 0.83, never read graph, unsupported types) | `actions/ownership.md` (new) |
 | P20 0.82.0 session register, `DREAMLAKE_SESSION_VISIBILITY`, never replay write, review secrets | `actions/session-links.md` §Register a missing native session |
 
@@ -97,14 +97,14 @@ package; the integrator must confirm the destination carries it.
 
 | Source section | Destination |
 | --- | --- |
-| Whole file | dropped: byte-identical to `dreamlake-notes/actions/media.md` (kept there); `SKILL.md` routes by name |
+| Whole file | dropped: byte-identical to `dreamlake-memos/actions/media.md` (kept there); `SKILL.md` routes by name |
 
 ## Sources: `actions/cloud-vault.md`, `connect-aws.md`, `registered-udf.md`, `machines.md`, `infrastructure.md`
 
 | Source section | Destination |
 | --- | --- |
 | `cloud-vault.md`, `registered-udf.md` (whole files) | same path, text unchanged; `../reference/X.md` → `../reference/cli-X.md` |
-| `connect-aws.md`, `machines.md`, `infrastructure.md` (whole files) | `dreamlake-lakeshore/actions/<same name>.md` (integration split), text unchanged except `[setup](setup.md)` → "the `setup` action of `dreamlake-cli`"; `[Notes](notes.md)` / `[Notes guide](notes.md)` → "the `dreamlake-notes` skill" (connect-aws, infrastructure) |
+| `connect-aws.md`, `machines.md`, `infrastructure.md` (whole files) | `dreamlake-lakeshore/actions/<same name>.md` (integration split), text unchanged except `[setup](setup.md)` → "the `setup` action of `dreamlake-cli`"; `[Notes](notes.md)` / `[Notes guide](notes.md)` → "the `dreamlake-memos` skill" (connect-aws, infrastructure) |
 
 ## Source: `actions/lakeshore.md`
 
@@ -144,5 +144,5 @@ package; the integrator must confirm the destination carries it.
 | `skills/dreamlake-tasks/references/operations.md` §Project ownership moves | `actions/projects.md` §Tasks + `dreamlake-tasks/actions/restructure.md` |
 | https://cli.dreamlake.ai/projects (streaming default, procedure, authority, `transfer-preview`, `PROJECT_STREAM_REQUIRED`, grants/attach semantics, deletion note) | `actions/projects.md`, `actions/project-access.md`; full page in `reference/cli-projects.md` |
 | https://cli.dreamlake.ai/ownership (what moves per CLI version, blocking types, access revocation defaults, `ARTIFACT_TRANSFER_SHARING_ENABLED`, `resourceCounts`/`detachedOtherFilings`, `error.details.blockers`, error codes, cancellation, snapshots 0.67.0+, streaming 0.70+, v1/v2 negotiation, individual-resource protocol, restore limits) | `actions/projects.md` (whole-Project parts), `actions/ownership.md` (singleton parts); full page in `reference/cli-ownership.md` |
-| `dreamlake-notes/actions/move.md` §Whole Project and owned resources (old) | `actions/projects.md`; Notes action keeps a one-line pointer |
-| `dreamlake-notes/SKILL.md` "mixed Artifact/Env plans need CLI 0.64.0+" | `actions/projects.md` §What moves and what blocks |
+| `dreamlake-memos/actions/move.md` §Whole Project and owned resources (old) | `actions/projects.md`; Notes action keeps a one-line pointer |
+| `dreamlake-memos/SKILL.md` "mixed Artifact/Env plans need CLI 0.64.0+" | `actions/projects.md` §What moves and what blocks |

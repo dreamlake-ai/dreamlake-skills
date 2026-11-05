@@ -7,7 +7,7 @@ Prefer the Memos rich-component form:
 ```
 
 Use the owner namespace and the stable artifact id returned by the CLI
-([list](list.md)). Editing the Memo itself belongs to the `dreamlake-notes`
+([list](list.md)). Editing the Memo itself belongs to the `dreamlake-memos`
 skill; this page covers only the reference syntax.
 
 ## Rules
@@ -45,7 +45,7 @@ infer slide numbering.
 Clicking sends the fragment to the panel through `dreamlake.route.hash`
 ([routing](routing.md)); another reference to the same artifact reuses its
 panel and updates its local route without reloading the iframe or changing
-the Note/project URL. This requires the companion UI deployment — a skill
+the Memo/project URL. This requires the companion UI deployment — a skill
 update does not deploy panel behaviour. Never put a share token inside
 rich-reference attributes.
 

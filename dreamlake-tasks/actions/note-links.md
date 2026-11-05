@@ -2,7 +2,7 @@
 
 Links reference existing Memos or sections; linking creates or edits no Memo
 content. Use IDs returned by the Memos APIs (`dreamlake memos list`; skill
-`dreamlake-notes`) and resolve section anchors against the actual document.
+`dreamlake-memos`) and resolve section anchors against the actual document.
 
 ```bash
 dreamlake tasks notes add vault/entries/write-recovery --role agent_prompt --note-id NOTE_ID_PROMPT --section recovery-agent

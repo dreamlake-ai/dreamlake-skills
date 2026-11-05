@@ -52,7 +52,7 @@ For saved checkpoints or a missing earlier draft, use [versions and recovery](ve
 Recovery requires a complete source read; scoped or annotated reads cannot supply its hash.
 
 Summary metadata is read and updated with [`memos summary`](summary.md),
-independently of body patches. `notes read --json` includes a nullable summary
+independently of body patches. `memos read --json` includes a nullable summary
 alongside the body snapshot; plain reads print the summary separately when one
 is set.
 

@@ -1,7 +1,7 @@
 # Upload an inline image
 
 Use this action when the user wants an image URL for Markdown or HTML. For an
-attachment kept under a memo's permissions, use `notes files upload` instead.
+attachment kept under a memo's permissions, use `memos files upload` instead.
 An attachment path or preview page URL cannot be used as an image `src`.
 
 After signing in with `dreamlake login`, check

@@ -8,9 +8,9 @@ For current-draft checkpoints, lists and saved text use the installed CLI
 (0.44.1+; CLI 0.44.2 removed the old `notes version` command group):
 
 ```bash
-dreamlake note tag NOTE_ID LABEL --hash "$HASH"    # hash retained from a reviewed full read
-dreamlake note hist NOTE_ID
-dreamlake note read NOTE_ID --version VERSION_ID   # immutable version ID, not the tag
+dreamlake memo tag NOTE_ID LABEL --hash "$HASH"    # hash retained from a reviewed full read
+dreamlake memo hist NOTE_ID
+dreamlake memo read NOTE_ID --version VERSION_ID   # immutable version ID, not the tag
 ```
 
 Check each command's `--help`, preserve `--namespace`, and read by version ID.

@@ -1,5 +1,5 @@
 {
-  "name": "dreamlake-notes",
+  "name": "dreamlake-memos",
   "description": "Work with DreamLake collaborative Memos through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create memos, set summaries, file into Projects, link list items to Memos or artifacts, transfer a standalone Memo.",
   "requires": [
     "dreamlake-cli"

@@ -3,7 +3,7 @@
 `project move` transfers a Project and its supported owned resources in one
 atomic ownership request. There is no standalone move for an Artifact,
 Scene/Env, Workflow, Source, Task or Infrastructure Stack through this command:
-a standalone Memo uses `notes transfer` (skill `dreamlake-notes`), one
+a standalone Memo uses `memos transfer` (skill `dreamlake-memos`), one
 Artifact/Env/Annotation/Pipeline/Source uses [ownership](ownership.md), and a
 Stack uses `infra move` or `infra transfer` (the `infrastructure` action of
 `dreamlake-lakeshore`).

@@ -11,7 +11,7 @@ here is read by the tooling. The authoritative layout and rules are in
 |---|---|---|
 | `dreamlake-cli` | [dreamlake-cli.md](dreamlake-cli.md) | — |
 | `dreamlake-lakeshore` | [dreamlake-lakeshore.md](dreamlake-lakeshore.md) | `dreamlake-cli` |
-| `dreamlake-notes` | [dreamlake-notes.md](dreamlake-notes.md) | `dreamlake-cli` |
+| `dreamlake-memos` | [dreamlake-memos.md](dreamlake-memos.md) | `dreamlake-cli` |
 | `dreamlake-tasks` | [dreamlake-tasks.md](dreamlake-tasks.md) | `dreamlake-cli` |
 | `dreamlake-artifacts` | [dreamlake-artifacts.md](dreamlake-artifacts.md) | `dreamlake-cli` |
 | `dreamlake-scenes` | [dreamlake-scenes.md](dreamlake-scenes.md) | `dreamlake-cli` |
@@ -60,7 +60,7 @@ prints the new name when an old one is installed.
 | `remote-source-check` | `dreamlake-datasets` |
 | `workflow-generator` | `dreamlake-workflows` |
 | `workflow-publish` | `dreamlake-workflows` |
-| `dreamlake-note-references` | `dreamlake-notes` |
+| `dreamlake-note-references` | `dreamlake-memos` |
 
 `dreamlake-tasks`, `dreamlake-libraries`, `sim-to-mcap`,
 `video-labeling-workflow`, `dreamlake-annotations`, `launch-claude-remote` and

@@ -773,7 +773,7 @@
         "sha256": "a23fc204705eb2e078b207fe2d54c5ffcfe431f0bb11ca19a5f8db92be0d1084"
       }
     ],
-    "dreamlake-notes": [
+    "dreamlake-memos": [
       {
         "url": "https://docs.dreamlake.ai/notes",
         "file": "reference/docs-notes.md",
