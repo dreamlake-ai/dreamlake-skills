@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.123 c2b1f71b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.124 b7138276; do not edit -->
 
 # Memos
 
@@ -106,7 +106,7 @@ SDK; install the standalone CLI using the CLI tab before running
 
 ```bash
 dreamlake init                          # once: pick your agent and scope
-dreamlake skill install dreamlake-notes
+dreamlake skill install dreamlake-memos
 ```
 
 `dreamlake skill update` then updates it. `dreamlake init` chooses between
@@ -114,7 +114,7 @@ your user directory and one project, and the `dreamlake-cli` skill that the
 Memos skill requires is installed with it. Without the CLI, download
 `skills.tar.gz` from the latest
 [dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
-and copy `dreamlake-notes/` and `dreamlake-cli/` into your agent's skills
+and copy `dreamlake-memos/` and `dreamlake-cli/` into your agent's skills
 directory.
 
 The skill's reference pages are fetched from this guide's published

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sim-rollouts.md at 0.1.123 c2b1f71b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sim-rollouts.md at 0.1.124 b7138276; do not edit -->
 
 {/* Figures come from the site-wide mdxComponents map (SimRolloutFigures) — no
     import needed. The page is figure-led: each section opens with a diagram,

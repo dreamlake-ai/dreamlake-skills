@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/skills.md at 0.105.0 3dc31d9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/skills.md at 0.105.0 3123cec; do not edit -->
 
 # Agent skills
 
@@ -23,7 +23,7 @@ network, and lists the other skills in the catalog.
 # Guided agent setup: choose agent and scope, install dreamlake-cli offline
 dreamlake init
 # Install more skills from the public release
-dreamlake skill install dreamlake-notes
+dreamlake skill install dreamlake-memos
 # Keep installed skills current
 dreamlake skill update
 ```
@@ -55,10 +55,10 @@ current project and print a one-line hint to run `dreamlake init`.
 
 ```bash file="terminal" cli-help="skill"
 dreamlake skill list
-dreamlake skill read dreamlake-notes
-dreamlake skill install dreamlake-notes
+dreamlake skill read dreamlake-memos
+dreamlake skill install dreamlake-memos
 dreamlake skill update
-dreamlake skill remove dreamlake-notes
+dreamlake skill remove dreamlake-memos
 ```
 
 ```bash file="terminal" cli-help="skill list"
@@ -74,9 +74,9 @@ dreamlake skill list --agent codex --json
 
 ```bash file="terminal" cli-help="skill read"
 # SKILL.md, from the server's registry when logged in, else the embedded bundle
-dreamlake skill read dreamlake-notes
+dreamlake skill read dreamlake-memos
 # One file inside the skill
-dreamlake skill read dreamlake-notes --file actions/read.md
+dreamlake skill read dreamlake-memos --file actions/read.md
 # Choose the source; --json carries the same fields as the agent's dreamlake_skills_read
 dreamlake skill read dreamlake-cli --local --json
 dreamlake skill read dreamlake-scenes --remote
@@ -86,11 +86,11 @@ dreamlake skill read dreamlake-scenes --remote
 # The embedded dreamlake-cli skill; offline when it matches the release
 dreamlake skill install dreamlake-cli
 # A catalog skill plus whatever it requires, from the latest release
-dreamlake skill install dreamlake-notes --agent codex
+dreamlake skill install dreamlake-memos --agent codex
 # One copy for Claude Code and one for Codex
-dreamlake skill install dreamlake-notes --agent all --global
+dreamlake skill install dreamlake-memos --agent all --global
 # Replace files you edited with the release copies
-dreamlake skill install dreamlake-notes --force
+dreamlake skill install dreamlake-memos --force
 ```
 
 ```bash file="terminal" cli-help="skill update"
@@ -98,14 +98,14 @@ dreamlake skill install dreamlake-notes --force
 dreamlake skill update
 dreamlake skill update dreamlake-cli --global
 # Overwrite edited files; retired files you edited are still kept
-dreamlake skill update dreamlake-notes --force
+dreamlake skill update dreamlake-memos --force
 # Go back to an older release, or replace a copy whose version cannot be ordered
-dreamlake skill update dreamlake-notes --allow-downgrade
+dreamlake skill update dreamlake-memos --allow-downgrade
 ```
 
 ```bash file="terminal" cli-help="skill remove"
-dreamlake skill remove dreamlake-notes
-dreamlake skill remove dreamlake-notes --agent codex --global --json
+dreamlake skill remove dreamlake-memos
+dreamlake skill remove dreamlake-memos --agent codex --global --json
 ```
 
 | Command | Reads | Writes | Network |
@@ -155,7 +155,7 @@ The body is the whole of stdout, so `skill read` pipes; the header goes to
 stderr:
 
 ```text file="stderr"
-skill read  dreamlake-notes/actions/read.md
+skill read  dreamlake-memos/actions/read.md
   source:     remote v2026.10.29.1 (7d13e08e9260)
 ```
 
@@ -166,6 +166,9 @@ before anything is read, and a file that is not UTF-8 text with
 `skill_file_binary` — the same checks, with the same codes, as the server's.
 
 ### One contract, three surfaces
+
+The output examples below illustrate the response shape; release versions,
+commits, hashes and file counts depend on the installed or serving catalog.
 
 `dreamlake skill read --json`, the TypeScript `dl.skills.read({ skill, path })`
 ([TypeScript API](https://cli.dreamlake.ai/dev/typescript-api#skills)) and the built-in agent's
@@ -179,16 +182,16 @@ file and the whole index, so the paging fields never appear, `filesTruncated`
 is always `false` and `filesTotal` equals `files.length`. The CLI adds
 `source`, `status` and `nextAction`:
 
-```json file="dreamlake skill read dreamlake-notes --file actions/read.md --json"
+```json file="dreamlake skill read dreamlake-memos --file actions/read.md --json"
 {
   "status": "ok",
   "source": "remote",
   "tag": "v2026.10.29.1",
   "commit": "7d13e08e92608d5904a106f30d4f423d3f8fb387",
-  "skill": "dreamlake-notes",
+  "skill": "dreamlake-memos",
   "path": "actions/read.md",
   "sha256": "c764d972177ef61daec3ad849b360854dfc46782bb5ecd49794eecf783825504",
-  "content": "# Read a note\n…",
+  "content": "# Read a memo\n…",
   "files": ["SKILL.md", "actions/read.md", "reference/cli-notes.md", "skill.json"],
   "filesTotal": 4,
   "filesTruncated": false,
@@ -255,13 +258,13 @@ command names that agent alone.
 Every result names where each skill came from and which release it is:
 
 ```text file="output"
-skill install  dreamlake-notes
+skill install  dreamlake-memos
   agent:      claude (saved)
   scope:      project
   catalog:    v2026.11.02 (release)
-✓ dreamlake-notes  catalog v2026.11.02   installed 14 file(s)
-    target: /work/.claude/skills/dreamlake-notes
-⚠ dreamlake-cli    embedded v2026.11.02  already installed — unchanged  (required by dreamlake-notes)
+✓ dreamlake-memos  catalog v2026.11.02   installed 14 file(s)
+    target: /work/.claude/skills/dreamlake-memos
+⚠ dreamlake-cli    embedded v2026.11.02  already installed — unchanged  (required by dreamlake-memos)
     target: /work/.claude/skills/dreamlake-cli
 ```
 
@@ -293,7 +296,7 @@ curl -L -o skills.tar.gz \
 curl -L -o catalog.json \
   https://github.com/dreamlake-ai/dreamlake-skills/releases/latest/download/catalog.json
 # Unpack the skill and everything its catalog entry `requires`:
-tar -xzf skills.tar.gz -C .claude/skills dreamlake-notes dreamlake-cli
+tar -xzf skills.tar.gz -C .claude/skills dreamlake-memos dreamlake-cli
 ```
 
 A hand-unpacked directory has no manifest. `skill list` reports it as
@@ -349,7 +352,7 @@ Every install or update writes `<skill>/.dreamlake-skill.json`:
 
 ```json file=".dreamlake-skill.json"
 {
-  "name": "dreamlake-notes",
+  "name": "dreamlake-memos",
   "version": "v2026.11.02",
   "source": "catalog",
   "agent": "claude",
@@ -529,7 +532,7 @@ embedded one. See [Reading a skill](#reading-a-skill).
     }
   ],
   "preferences": { "agent": "codex", "scope": "project", "path": "/home/you/.local/state/dreamlake/skill-preferences.json" },
-  "available": [{ "name": "dreamlake-notes", "description": "Read, edit and share DreamLake Notes." }],
+  "available": [{ "name": "dreamlake-memos", "description": "Read, edit and share DreamLake Memos." }],
   "nextAction": null
 }
 ```
@@ -538,7 +541,7 @@ embedded one. See [Reading a skill](#reading-a-skill).
 other skills in the embedded catalog snapshot). Its `catalog.origin` is never
 `release`: `init` does not use the network.
 
-```json file="dreamlake skill install dreamlake-notes --json"
+```json file="dreamlake skill install dreamlake-memos --json"
 {
   "status": "installed",
   "agent": "claude",
@@ -547,13 +550,13 @@ other skills in the embedded catalog snapshot). Its `catalog.origin` is never
   "skills": [
     {
       "status": "installed",
-      "skill": "dreamlake-notes",
+      "skill": "dreamlake-memos",
       "version": "v2026.11.02",
       "source": "catalog",
       "scope": "project",
-      "target": "/work/.claude/skills/dreamlake-notes",
-      "files": ["/work/.claude/skills/dreamlake-notes/SKILL.md", "…"],
-      "manifest": "/work/.claude/skills/dreamlake-notes/.dreamlake-skill.json",
+      "target": "/work/.claude/skills/dreamlake-memos",
+      "files": ["/work/.claude/skills/dreamlake-memos/SKILL.md", "…"],
+      "manifest": "/work/.claude/skills/dreamlake-memos/.dreamlake-skill.json",
       "nextAction": null
     },
     {
@@ -564,7 +567,7 @@ other skills in the embedded catalog snapshot). Its `catalog.origin` is never
       "scope": "project",
       "target": "/work/.claude/skills/dreamlake-cli",
       "files": [],
-      "requiredBy": "dreamlake-notes",
+      "requiredBy": "dreamlake-memos",
       "nextAction": null
     }
   ],
@@ -582,27 +585,27 @@ adopted — then also `unmanaged: true`) carries `message`. `update` adds
 `embedded` (the release was not consulted or unreachable — then
 `catalog.unreachable` says why) or `none`.
 
-```json file="offline: dreamlake skill install dreamlake-notes --json"
+```json file="offline: dreamlake skill install dreamlake-memos --json"
 {
   "status": "error",
   "agent": "claude",
   "scope": "project",
   "catalog": { "version": "v2026.10.27", "origin": "embedded", "unreachable": "cannot reach https://github.com/dreamlake-ai/dreamlake-skills/releases/latest/download/catalog.json: fetch failed" },
-  "error": "cannot reach the skills release (…) — dreamlake-notes must come from the release. Download skills.tar.gz by hand and unpack the needed directories into your skills directory.",
+  "error": "cannot reach the skills release (…) — dreamlake-memos must come from the release. Download skills.tar.gz by hand and unpack the needed directories into your skills directory.",
   "kind": "catalog-unreachable",
   "nextAction": { "kind": "download", "url": "https://github.com/dreamlake-ai/dreamlake-skills/releases/latest/download/skills.tar.gz" }
 }
 ```
 
-```json file="dreamlake skill remove dreamlake-notes --json"
+```json file="dreamlake skill remove dreamlake-memos --json"
 {
   "status": "removed",
   "agent": "claude",
   "scope": "project",
-  "skill": "dreamlake-notes",
-  "target": "/work/.claude/skills/dreamlake-notes",
+  "skill": "dreamlake-memos",
+  "target": "/work/.claude/skills/dreamlake-memos",
   "version": "v2026.11.02",
-  "deleted": ["/work/.claude/skills/dreamlake-notes/actions/read.md", "…"],
+  "deleted": ["/work/.claude/skills/dreamlake-memos/actions/read.md", "…"],
   "kept": ["NOTES.md", "SKILL.md"],
   "nextAction": null
 }
