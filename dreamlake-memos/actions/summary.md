@@ -4,12 +4,12 @@ Use this for short catalog metadata separate from the collaborative body.
 Before your first live memo read or edit, set and reuse the [task identity](identity.md).
 
 ```bash
-NOTE_ID=release-plan
-dreamlake memos summary "$NOTE_ID"                 # read
-dreamlake memos summary "$NOTE_ID" --text "Decision and open questions"
-dreamlake memos summary "$NOTE_ID" --file summary.txt
-cat summary.txt | dreamlake memos summary "$NOTE_ID" --file -
-dreamlake memos summary "$NOTE_ID" --clear
+MEMO_ID=release-plan
+dreamlake memos summary "$MEMO_ID"                 # read
+dreamlake memos summary "$MEMO_ID" --text "Decision and open questions"
+dreamlake memos summary "$MEMO_ID" --file summary.txt
+cat summary.txt | dreamlake memos summary "$MEMO_ID" --file -
+dreamlake memos summary "$MEMO_ID" --clear
 ```
 
 Summaries are optional and limited to 4,000 characters. A summary change does

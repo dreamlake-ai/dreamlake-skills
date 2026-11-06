@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/rows.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/rows.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Images, rows and video
 
@@ -28,7 +28,7 @@ size its cell before the image loads.
 :::
 ```
 
-In a note narrower than 480px, the cells stack. This is a 320px note at half
+In a memo narrower than 480px, the cells stack. This is a 320px memo at half
 size:
 
 ```markdown
@@ -40,9 +40,9 @@ size:
 ```
 
 Click a row image to open it in the image viewer. The rail lists the row's
-images with the rest of the note's.
+images with the rest of the memo's.
 
-![The image viewer open on a row image: the image large in the center, a rail of the note's images on the right.](https://docs.dreamlake.ai/images/notes/rows/lightbox.png)
+![The image viewer open on a row image: the image large in the center, a rail of the memo's images on the right.](https://docs.dreamlake.ai/images/notes/rows/lightbox.png)
 
 - Any other block in a row (a paragraph, a list, a `:video[…]`) is one cell.
   To put several blocks in one cell, wrap them in `:::col` … `:::` and give
@@ -51,7 +51,7 @@ images with the rest of the note's.
   Alt+click an image, or move the caret onto the row.
 - Rows work only at the top level. Inside a list, quote or code, the fences
   stay text. An unclosed or malformed row shows as its source. Other Markdown
-  viewers show the fences as text. The Markdown export and the Notes API keep
+  viewers show the fences as text. The Markdown export and the Memos API keep
   the source exactly.
 
 The retired `<Columns>` / `<ColumnBreak>` layout still renders, as a row of

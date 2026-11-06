@@ -1,14 +1,14 @@
-<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Panels and agent control
 
 DreamLake views use the native UIKit panel surface: drag, dock, resize, tab and
-close work the same for note editors, note lists, artifact views and explicitly
+close work the same for memo editors, memo lists, artifact views and explicitly
 opened web previews.
 
-Note and artifact tabs share a 240px preferred width and
+Memo and artifact tabs share a 240px preferred width and
 130px minimum width in compact layouts. Titles use an ellipsis when needed;
-the reference control stays after the title, before the close button. Notes
+the reference control stays after the title, before the close button. Memos
 retain their short hash labels and artifacts use a copy icon.
 
 The [UIKit layout controller](https://uikit.dreamlake.ai/components/layout-controller)
@@ -26,16 +26,16 @@ and note/list scroll positions. Folder and project location stay in the ordinary
 route. Changes settle for 250 ms, then the latest snapshot is encoded during idle
 time; scrolling does not compress or rerender on every event.
 
-![Two note panels restored from one address](https://docs.dreamlake.ai/figures/url-layout-restored.png)
+![Two memo panels restored from one address](https://docs.dreamlake.ai/figures/url-layout-restored.png)
 
-Two exact note references, restored at 35/65 width. The route supplies the primary
-note ID; auxiliary references retain full IDs. Repeated strings compress through
+Two exact memo references, restored at 35/65 width. The route supplies the primary
+memo ID; auxiliary references retain full IDs. Repeated strings compress through
 references to earlier sequence segments. Artifact query strings and fragments
 travel with their references. Internal iframe state requires the artifact to
 represent it in that address; the host does not introspect iframe memory.
 
-Sharing a view grants no additional access. Unavailable auxiliary notes leave
-empty panes or are omitted from a populated tab group, while the primary note
+Sharing a view grants no additional access. Unavailable auxiliary memos leave
+empty panes or are omitted from a populated tab group, while the primary memo
 keeps its normal access flow. No catalogue lookup or fuzzy ID resolution is
 needed. The codec caps the escaped layout value at 32,000 characters and the
 decoded form at 64,000; these are application limits, not a universal browser URL
@@ -44,12 +44,12 @@ retained. Existing version 5, DEFLATE and prototype layout links remain readable
 
 ## Artifact references
 
-Clicking an artifact tag in a note opens its artifact beside the source note.
+Clicking an artifact tag in a memo opens its artifact beside the source memo.
 The default request first activates an existing instance of that artifact. A
 fragment such as a slide or section navigates that same mounted view.
 
 For a different artifact, the request chooses the latest preview destination
-associated with that source note tab. It replaces an eligible unpinned preview.
+associated with that source memo tab. It replaces an eligible unpinned preview.
 Pin the current tab to retain it; the next artifact then opens as another tab.
 Dragging a preview out preserves its named association and role, so subsequent
 requests can target the original destination, the last one, or a spatial match.
@@ -59,19 +59,19 @@ Pinned tabs can still be moved or explicitly closed. Notes that are still syncin
 retain their disposal guard. A failed replacement or stale layout leaves the
 existing view intact. Ordinary web links keep browser navigation.
 
-## Note and web-preview references
+## Memo and web-preview references
 
-Note tags and `:preview[https://example.com/#section]` open new targets as tabs
+Memo tags and `:preview[https://example.com/#section]` open new targets as tabs
 in the existing panel on the right, creating a right-hand panel only when one
 is absent. Clicking an already-open target activates it. Different preview URL
 fragments are separate tab targets. Opening either kind of reference from a
 side Note adds a tab in that same side panel. Existing tabs stay mounted and
 retain editor and preview state; these reference clicks do not replace content.
 
-## Sessions beside a note
+## Sessions beside a memo
 
-Notes and all artifact kinds can have multiple saved sessions linked to them.
-The session library offers **All sessions** and **Linked to note** (or
+Memos and all artifact kinds can have multiple saved sessions linked to them.
+The session library offers **All sessions** and **Linked to memo** (or
 **Linked to artifact**). Use the row's **Link** or **Unlink** action to change
 affiliations. On an artifact page, **Sessions** in the header opens the same
 session panel beside the artifact. Opening or viewing a resource does not create
@@ -83,14 +83,14 @@ the panel to the right. An uploaded conversation is not required. This action
 keeps terminal intent even when the saved session has no verified host binding:
 the terminal panel explains the missing connection, and **Check connection again**
 reloads that exact descriptor. It never selects a host from the title or directory,
-requests a transcript upload, or changes the Note. Standalone conversation history
+requests a transcript upload, or changes the Memo. Standalone conversation history
 remains a separate reading action.
 
 Affiliations grant no additional access. Listing a link requires current read
 access to both the resource and the session; changing it requires resource write
 access and session read access. Moving a resource rechecks its current owner and
 permissions. Deletion or revoked access hides the corresponding links. A private
-session never becomes team-visible merely because its note or artifact is public.
+session never becomes team-visible merely because its memo or artifact is public.
 
 CLI 0.78.0 can link successful note/artifact writes to an explicitly selected
 saved session, or an unambiguous owned session matching the current native
@@ -104,8 +104,8 @@ so automatic affiliation is not guaranteed for every native session.
 
 The session-library button at the left of the chat panel's tab row opens the
 sessions available to your account. Select a session to open a terminal in that
-same panel, beside the note you are editing. Selecting an already-open session
-activates its tab. The note and inactive chats and terminals keep their mounted
+same panel, beside the memo you are editing. Selecting an already-open session
+activates its tab. The memo and inactive chats and terminals keep their mounted
 state while you switch tabs. A tmux terminal keeps running when its viewer closes.
 On a machine without tmux, an owner can use **direct** mode; closing or losing that
 connection may stop its foreground process. Direct terminals show this limitation,
@@ -115,7 +115,7 @@ and client; screen and other persistent adapters are not implemented yet.
 
 Use **Up/Down** while a list row has focus to move through visible entries;
 **Enter** activates the focused entry. Arrow navigation does not open terminals
-or replace the note. This behavior is shared by actionable note, project, Bindr,
+or replace the memo. This behavior is shared by actionable memo, project, Bindr,
 session, Compute and other item lists. Inputs and editors keep their normal
 caret controls, and inactive panes never reclaim keyboard focus on refresh.
 
@@ -124,7 +124,7 @@ layout never starts a command. The address contains the saved session ID, not
 terminal output or connection credentials.
 
 The library includes your private sessions and sessions shared with a team you
-belong to. Sharing a note or its layout does not share a terminal. Session access
+belong to. Sharing a memo or its layout does not share a terminal. Session access
 is checked separately each time it is opened or reconnected. See
 [Browser terminal](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal) for sharing, machine
 requirements, discovery and managed-session behavior.
@@ -145,13 +145,13 @@ artifact's asynchronous authorized loader succeeded.
 | --- | --- | --- |
 | session-library | namespace | namespace |
 | terminal-session | namespace/session ID | namespace, sessionId |
-| note | note ID | namespace, noteId; optional fragment |
+| memo | memo ID | namespace, noteId; optional fragment |
 | artifact | namespace/artifactId | namespace, artifactId; optional fragment |
-| resource | namespace/notes | namespace, resource: notes |
+| resource | namespace/notes | namespace, resource: memos |
 | web-preview | normalized URL, or blank for an empty preview | url |
 
 The application validates descriptors and their resource identity before changing
-the layout. Inspection exposes descriptors, pins and layout metadata—not note
+the layout. Inspection exposes descriptors, pins and layout metadata—not memo
 bodies, credentials, share tokens, editor state or iframe authorization context.
 Applications can supply additional content metadata to the generic UIKit layer;
 DreamLake's current descriptor table above defines what this adapter exposes.
@@ -162,7 +162,7 @@ DreamLake's current descriptor table above defines what this adapter exposes.
 - UIKit's controller handles named families, original/first/last, spatial and
   content queries, placement scope, reuse, pinning and guarded mutations.
 - DreamLake handles target validation, content loading and the default artifact
-  click policy. Notes content remains governed by the normal revision and
+  click policy. Memos content remains governed by the normal revision and
   authorization contracts; layout control cannot grant access to a resource.
 
 The generic request reference lives in UIKit; CLI connection and command recipes

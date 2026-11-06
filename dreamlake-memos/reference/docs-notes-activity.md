@@ -1,56 +1,56 @@
-<!-- generated from https://docs.dreamlake.ai/notes/activity.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/activity.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Session and resource activity
 
-This feature is in development. Deployment of the API and Notes panel is required;
+This feature is in development. Deployment of the API and Memos panel is required;
 these endpoints are not a claim about the currently installed CLI or live service.
 
-Session and resource activity connects work across Notes, infrastructure stacks,
-repositories and agent conversations. A note can be linked to several sessions,
+Session and resource activity connects work across Memos, infrastructure stacks,
+repositories and agent conversations. A memo can be linked to several sessions,
 and each session can work on several resources. Explicit relationships are shown
-separately from observed access. Opening a note does not automatically declare it
+separately from observed access. Opening a memo does not automatically declare it
 the session's documentation.
 
 ## Sidebar panel
 
-In the Note sidebar button group, keep Comments and Table of contents directly
+In the Memo sidebar button group, keep Comments and Table of contents directly
 available. Open the **…** popover for Attachments, Version history, and
 **Session / resource activity**. Activity occupies the same sidebar column.
 
 The panel separates two questions:
 
-- **Related resources:** which resources are connected to this note? Explicit
-  links and Note references in the currently open text appear together, with one
+- **Related resources:** which resources are connected to this memo? Explicit
+  links and Memo references in the currently open text appear together, with one
   row per resource and labels explaining the connection. Repeated mentions do
   not duplicate rows. References use the existing `#note:ID`, `:note[ID]` and
   `:note{id="ID"}` syntax; code examples, escaped references, link labels and
-  self-references are excluded. Titles are resolved through the existing Note
+  self-references are excluded. Titles are resolved through the existing Memo
   access checks. Missing or inaccessible targets are omitted.
 - **Recent access:** who read or edited this resource, in which session, and
   when? Events appear newest first, grouped by day. Opening a resource does not
   create a relationship. A session can therefore appear in access history
-  without being explicitly linked to the note.
+  without being explicitly linked to the memo.
 
 A mention is derived from the current text and disappears when that reference is
-removed. Explicit links persist until unlinked; unlinking does not edit the note.
-Incoming mentions from other notes and references inside conversation transcripts
+removed. Explicit links persist until unlinked; unlinking does not edit the memo.
+Incoming mentions from other memos and references inside conversation transcripts
 are not indexed yet. The panel does not claim to enumerate those sources or infer
 resource identity from ordinary prose. The relationship API still returns stored
-explicit links; the Notes UI adds current-text mentions at display time.
+explicit links; the Memos UI adds current-text mentions at display time.
 
-Select a session to inspect its resource activity, then return to the note's
+Select a session to inspect its resource activity, then return to the memo's
 activity.
-On an editable note, **Link this browser session** creates an explicit
+On an editable memo, **Link this browser session** creates an explicit
 `documents_in` association. A session link does not grant additional access.
 The panel loads on demand and can be refreshed independently. Links, mentions
 and access history settle separately: an unavailable feed does not hide available
-relationships or disable the note, and a failed link request does not hide access
+relationships or disable the memo, and a failed link request does not hide access
 history. Failed sections can be retried; missing metadata never blocks content.
 Session details are cleared when the authenticated identity changes.
 
 ## Optional context
 
-Notes continue to read and save when activity is unavailable or session metadata
+Memos continue to read and save when activity is unavailable or session metadata
 is missing or invalid. Activity never grants access, changes content, or retries
 a saved edit. An unavailable activity panel does not disable the editor.
 
@@ -84,8 +84,8 @@ Use its returned `session.id` as a resource reference. Supported kinds are `note
 |---|---|---|---|
 | `defined_by` | InfraStack | Repo | `directory`, `ref`, `description` |
 | `works_on` | Session | InfraStack or Repo | `description` |
-| `documents_in` | Session | Note | `description` |
-| `documented_by` | InfraStack | Note | `description` |
+| `documents_in` | Session | Memo | `description` |
+| `documented_by` | InfraStack | Memo | `description` |
 | `related_to` | Any supported resource | Another supported resource | `description` |
 
 `GET /resources/:kind/:id/relationships` returns authorized links in both
@@ -102,8 +102,8 @@ are omitted. Session details are private to their authenticated owner.
 activity on that session's resources, filtered by the viewer's current access.
 `GET /resource-sessions` lists up to 100 of the caller's recent sessions.
 
-Successful authenticated Note metadata/body/content, InfraStack metadata/state and
-Repo ID reads/edits generate metadata after the response. Opening an existing Note
+Successful authenticated Memo metadata/body/content, InfraStack metadata/state and
+Repo ID reads/edits generate metadata after the response. Opening an existing Memo
 editor records a view, not an edit. Repeated reads and views are coalesced
 per minute. Failed or anonymous requests and presence/feed polling do not appear.
 Direct RTC edits are not yet observed by this API mechanism; this feed is not a

@@ -1,17 +1,17 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Browse, create and organize
 
 ## Browsing in the app
 
 `/<namespace>/profile?tab=notes` and `/<namespace>/notes` reuse the same
-Notes catalog. Your own namespace and organizations you belong to show
+Memos catalog. Your own namespace and organizations you belong to show
 resources and actions allowed by your permissions. Signed-out visitors and
 signed-in visitors to other namespaces see public resources only, without
 creation or modification controls. Profile uses an avatar rail; the application
 uses resource navigation for the namespace in the URL.
 
-Your own Notes catalog retains Shared with me and recent organization notes. Private Note share links require sign-in under the server's per-person grant rules.
+Your own Memos catalog retains Shared with me and recent organization memos. Private Memo share links require sign-in under the server's per-person grant rules.
 
 The application sidebar shows the resource owner's avatar and links, including
 for anonymous public readers. Your signed-in identity and personal/organization
@@ -21,85 +21,85 @@ The detail header returns anonymous readers to `/<namespace>/profile?tab=notes`
 and signed-in readers to `/<namespace>/notes`. Details opened inside a project
 retain their return-to-project action. There is no extra sign-in navigation bar.
 
-### Archive notes and folders
+### Archive memos and folders
 
 The web controls and initial archive endpoints are deployed. See the
 [archive API contract](https://docs.dreamlake.ai/api/archival) for HTTP, client and tool interfaces.
-Notes and folders have a separate nullable `archivedAt` field. Archiving does not
+Memos and folders have a separate nullable `archivedAt` field. Archiving does not
 delete content, revoke access, remove project filings, or remove bindr membership.
 Tags remain independent labels.
 
-The note toolbar and note rows in catalogs, projects and bindrs offer **Archive**
+The memo toolbar and memo rows in catalogs, projects and bindrs offer **Archive**
 and **Unarchive**. Folder rows offer the same controls. **Show archived** includes
-archived items in the current list. Note body previews span the row width below
+archived items in the current list. Memo body previews span the row width below
 the title; the bindr timestamp sits with the metadata.
 
 - `PATCH /namespaces/:slug/notes/:noteId` accepts `{"archived":true}` or
-  `{"archived":false}`, subject to the Note's rename permission.
+  `{"archived":false}`, subject to the Memo's rename permission.
 - `PATCH /nodes/:id` accepts the same body for folders, using the existing
   project write permission. Send archive changes separately from edits.
-- Note catalogs, project resource/bindr listings, and node children/search
+- Memo catalogs, project resource/bindr listings, and node children/search
   exclude archived items by default. Pass `includeArchived=true` to include them.
   Filtering occurs before page counts and pagination.
 - An archived folder hides its subtree in those project listings without
-  changing every child's own archive flag. A note filed elsewhere keeps its
+  changing every child's own archive flag. A memo filed elsewhere keeps its
   independent state.
-- A successful content, metadata or attachment edit restores an archived Note.
+- A successful content, metadata or attachment edit restores an archived Memo.
   Editing a file or folder, or adding a child, restores its archived folder
-  path. Note edits restore the paths of its valid live project filings.
+  path. Memo edits restore the paths of its valid live project filings.
   Independently archived siblings and deleted items remain untouched.
-- Opening a Note or synchronizing unchanged content does not restore it.
+- Opening a Memo or synchronizing unchanged content does not restore it.
   Content restoration occurs when the changed body is durably saved; a failed
   save leaves archive state intact.
 
 ### Project and bindr associations
 
-In **New note**, choose **private** or **public** below the name; a note is
+In **New memo**, choose **private** or **public** below the name; a memo is
 private unless you choose public, and the projects it is filed into never change
-that choice. Anyone can read a public note, including signed-out visitors.
-Projects are optional: a note can be filed under none, one or several. Below
+that choice. Anyone can read a public memo, including signed-out visitors.
+Projects are optional: a memo can be filed under none, one or several. Below
 the visibility choice, the dialog lists the projects where you can create
 content, each with a checkbox, its name and its slug; check as many as you need.
 The list header shows how many are selected and offers **Clear selection**. In
 the search field, the arrow keys move through the list, Enter checks or
-unchecks a project, and Escape clears the search. From the notes list nothing
-is preselected; from a project's **+ new note**, that project is preselected
-and can be unchecked, in which case the note opens on its own page. If you
-cannot create content in any project, the dialog says so and creates the note
+unchecks a project, and Escape clears the search. From the memos list nothing
+is preselected; from a project's **+ new memo**, that project is preselected
+and can be unchecked, in which case the memo opens on its own page. If you
+cannot create content in any project, the dialog says so and creates the memo
 without one.
 
 Search matches names and slugs across every project you can read, not only the
 loaded pages, and lists those you can write to. The list loads more projects as
 you scroll. Selected projects come first, then suggestions that combine recent
-projects with successful note creations in this browser: frequency decays with
+projects with successful memo creations in this browser: frequency decays with
 a 14-day half-life and recent use adds a boost. Checking a project does not
 move it; after a search is cleared, selections return to the top. History is
 scoped to the signed-in user and workspace, bounded to 128 projects and pruned
 after 180 days; cancelled or failed drafts do not train it.
 
-The notes list and grid show the projects each note is filed in, as links to
+The memos list and grid show the projects each memo is filed in, as links to
 those projects: two per list row and one per grid card, with a **+N** button that
-expands the rest in place. Only projects you can read are listed, so a note with
+expands the rest in place. Only projects you can read are listed, so a memo with
 no line may still be filed in projects you cannot see. A project from another
 namespace is prefixed with that namespace, and same-named projects show their
 slug. `GET /namespaces/:slug/notes` and `GET /me/notes/shared` return these as
 `projects: [{ id, slug, name, namespaceSlug }]` on each row.
 
-Adding a project or bindr keeps the current note, URL, search and panes open.
+Adding a project or bindr keeps the current memo, URL, search and panes open.
 The single project/Bindr list panel supplies the scope for **+ bindr**, even
-when the open note belongs to another project in the same namespace. Without a
-project list, the note's selected existing project supplies that scope.
+when the open memo belongs to another project in the same namespace. Without a
+project list, the memo's selected existing project supplies that scope.
 
-A bindr can reference the note's existing node in another project without
-mounting, moving or copying the note into its own project. Its name is qualified
+A bindr can reference the memo's existing node in another project without
+mounting, moving or copying the memo into its own project. Its name is qualified
 by its owning project in the picker. The original project, folder and bindrs stay
 visible on one header line; current-scope bindrs follow them. Before the first
 current-scope tag is added, only the usual add control appears. Afterward, bindrs
 outside that scope gain a trailing turn arrow. **+N** opens excess tags in a
 separate menu while the header remains one line.
 
-The caller needs access to the source node and Note, plus write permission on
-the destination project. A reference does not grant access to the Note. Lists,
+The caller needs access to the source node and Memo, plus write permission on
+the destination project. A reference does not grant access to the Memo. Lists,
 search and counts filter unreadable references before pagination. Cross-namespace
 references and references to other projects' plain files/folders are unsupported.
 
@@ -110,17 +110,17 @@ project retains the last-project guard. **Open project** and **Open bindr** navi
 
 ### Matching passages
 
-Searching the Notes catalog shows up to two distinct matching passages beneath
+Searching the Memos catalog shows up to two distinct matching passages beneath
 each result title, with matching words highlighted. Hover or focus a passage to
 open a line-based popover, or use **Preview matches** from the keyboard. The
 popover shows multiple matching paragraphs with their line breaks and all query
 highlights. Repeated excerpts appear once with an occurrence count; expand them
 to choose the exact section and occurrence. Selecting a
-passage opens the note in the existing pane and selects the matching occurrence
+passage opens the memo in the existing pane and selects the matching occurrence
 when its current source still agrees with the result. Identical wording at
 different source positions remains distinct. A changed source reports **Match
 changed** and asks you to choose a current occurrence instead of using stale
-offsets. Title-only matches open the note normally.
+offsets. Title-only matches open the memo normally.
 
 The current catalog query and list scroll survive opening a passage. Source-only
 matches that cannot be mapped safely to rendered Markdown remain visible in the
@@ -133,7 +133,7 @@ offer **Preview** and **Details**; folders offer their available **Files**,
 **README**, **Visualize** and **Episodes** views. Each tab identifies its resource
 and subview. In the project view, selecting another resource reuses the existing
 resource tab slots instead of accumulating README/Files pairs for visited folders.
-Open note tabs remain in place. Drag a tab to an edge to compare views side by side, or into a panel's
+Open memo tabs remain in place. Drag a tab to an edge to compare views side by side, or into a panel's
 center to group it. Closing a subview leaves its siblings open; **Views** reopens
 closed views. Tab switches retain mounted view state. Existing source-browser
 URL-owned view controls keep their navigation behavior. ML-Dash run inspectors
@@ -142,28 +142,28 @@ their existing separate log panel.
 
 ## Create and list
 
-The implementation of Shared with me resolves each Note's live owner and uses
+The implementation of Shared with me resolves each Memo's live owner and uses
 its current namespace slug in the returned route. Cached namespace fields on an
 accepted-share record are historical provenance, not authorization or routing
 facts. The read does not repair or mutate those records. Current namespace
-members receive the Note through their normal catalog; other active recipients
-retain their accepted access while sharing remains enabled. A public Note stays
+members receive the Memo through their normal catalog; other active recipients
+retain their accepted access while sharing remains enabled. A public Memo stays
 readable after its share link is disabled, without retaining share-based editing
-permission. Deleted Notes, deleted owner namespaces and revoked acceptances are
+permission. Deleted Memos, deleted owner namespaces and revoked acceptances are
 omitted. This reader change does not enable ownership transfer.
 
 **CLI**
 
 ```bash
-dreamlake notes create "Design Doc"
-dreamlake notes create "Design Doc" --file draft.md
-dreamlake notes create "Design Doc" --text "# Design Doc"
-dreamlake notes create "Design Doc" --public        # default is private
+dreamlake memos create "Design Doc"
+dreamlake memos create "Design Doc" --file draft.md
+dreamlake memos create "Design Doc" --text "# Design Doc"
+dreamlake memos create "Design Doc" --public        # default is private
 
-dreamlake notes list
-dreamlake notes list --limit 20
-dreamlake notes list --shared                       # what others sent you
-dreamlake notes list --json
+dreamlake memos list
+dreamlake memos list --limit 20
+dreamlake memos list --shared                       # what others sent you
+dreamlake memos list --json
 ```
 
 **Python**
@@ -171,7 +171,7 @@ dreamlake notes list --json
 ```python
 import dreamlake as dl
 
-note = dl.create_note(
+note = dl.create_memo(
     "<namespace>", "Design Doc", text="# Design Doc\n",
 )
 note.id, note.namespace, note.etag
@@ -184,9 +184,9 @@ dl.shared_with_me()
 Titles may repeat — the slug takes a suffix — so keep `note.id` rather than
 the name you passed.
 
-### Duplicate a note
+### Duplicate a memo
 
-The note's **Duplicate** action creates an independent private note from the
+The memo's **Duplicate** action creates an independent private memo from the
 current visible editor text, including local edits not yet synchronized. It
 copies the attachment snapshot captured when the request is admitted, preserving
 exact bytes, logical paths and content types. The source's body, RTC room,
@@ -211,25 +211,25 @@ attachment bytes through the browser or reset an existing room.
 
 Concurrent attachment mutation between admission and publication is rejected.
 Later source edits do not change the captured copy. A failed operation after
-creation returns `duplicate_incomplete` and `createdNoteId`; the partial note
+creation returns `duplicate_incomplete` and `createdNoteId`; the partial memo
 and original room binding are retained for inspection. A timeout without a
-receipt is also uncertain: inspect the created notes before trying again.
+receipt is also uncertain: inspect the created memos before trying again.
 Neither server nor browser automatically replays an uncertain creation or deletes
 its possible result. This endpoint does not add a CLI command or SDK method.
 
-## Note summaries
+## Memo summaries
 
-> **Note:** A compatible Notes server exposes summary metadata. Published CLI 0.94.0 has
+> **Note:** A compatible Memos server exposes summary metadata. Published CLI 0.94.0 has
 > neither `notes summary` nor `notes create --summary`; Python 0.32.1 has no
 > summary helpers. TypeScript `notes.create` accepts an optional `summary`.
 > Check client and server capabilities separately.
 
-A note may have a short, optional summary for catalogs and quick context. The
+A memo may have a short, optional summary for catalogs and quick context. The
 summary is metadata separate from the collaborative body. Body edits and
 revision checks leave it unchanged. Summaries can contain up to 4,000
-characters; older notes without one return `null`.
+characters; older memos without one return `null`.
 
-The owner of the namespace or the Note's creator who is still a current member
+The owner of the namespace or the Memo's creator who is still a current member
 of that namespace can set or clear a summary, the same as for a title or
 visibility change. Other users with body-edit access cannot change it. For the REST API, `POST /namespaces/:slug/notes` accepts an
 optional `summary`; `PATCH /namespaces/:slug/notes/:noteId` accepts a string to
@@ -248,55 +248,56 @@ GraphQL's authorized `Query.note(namespaceSlug:, id:)` returns the nullable
 associations. It is a metadata-only read; body content is not returned. Use the
 REST metadata PATCH to update the summary.
 
-## Link to a note in the browser
+## Link to a memo in the browser
 
-Use the note's full `id` in browser links:
+Use the memo's full `id` in browser links:
 
 ```text
 https://dreamlake.ai/<namespaceSlug>/notes?note=<noteId>
 ```
 
-Read `namespaceSlug` and `id` from `dreamlake notes create --json` or
-`dreamlake notes list --json`. Do not substitute the title or human-readable
+Read `namespaceSlug` and `id` from `dreamlake memos create --json` or
+`dreamlake memos list --json`. Do not substitute the title or human-readable
 slug in this URL: the browser detail route expects the ID, even though the
 CLI accepts slugs and titles. Use the returned owner namespace rather than
-assuming your personal namespace. The ID is sometimes called the note hash;
+assuming your personal namespace. The ID is sometimes called the memo hash;
 it is the `note` query parameter, not a `#` URL fragment.
 
 In the development preview, the path controls the list pane independently of the
 active note:
 
-- `/<namespace>/notes` lists notes.
+- `/<namespace>/notes` lists memos.
 - `/<namespace>/projects` lists projects; `/projects/<project>` opens a project.
 - `/<namespace>/bindrs` lists Bindrs; `/bindrs/<bindrId>` opens a Bindr.
 
-Append `?note=<full-note-id>` to any of these paths to open a note. Switching
-list context keeps that note open. The note header's contextual list button
-hides or restores the list pane. Older note and project links redirect to these
+Append `?note=<full-note-id>` to any of these paths to open a memo. Switching
+list context keeps that memo open. The memo header's contextual list button
+hides or restores the list pane. Older memo and project links redirect to these
 routes. List search includes ordering; default status/category chips are omitted
 from the compact panes. Project and Bindr member ordering is applied before
 pagination so it covers the entire result set.
 
-Inside another DreamLake note, prefer `:note[<full-note-id>]` (development preview) for a native note
-reference. A browser link does not change visibility or grant access to a
-private note.
+Inside another DreamLake Memo, insert an ordinary Markdown link using the
+returned or copied full URL. Do not add new `:note` directives; existing saved
+directives remain readable, and no `:memo` directive is defined. A browser link does not change visibility or grant access to a
+private memo.
 
 ## Profile introduction
 
-A namespace's public note whose slug equals the namespace slug is shown at the
+A namespace's public memo whose slug equals the namespace slug is shown at the
 top of its profile Overview, for personal and organization namespaces. To add
-one, create a note titled with the namespace slug and make it public; to remove
-it, make it private or delete it. Notes are private by default and are never
+one, create a memo titled with the namespace slug and make it public; to remove
+it, make it private or delete it. Memos are private by default and are never
 published automatically.
 
-A note's slug is derived from its title when the note is created and does not
+A memo's slug is derived from its title when the memo is created and does not
 change when the title changes, so retitling the introduction keeps it in place.
-If another note already holds the slug, a new note receives a numbered suffix
-and does not match; make the existing note public instead. Renaming the
+If another memo already holds the slug, a new memo receives a numbered suffix
+and does not match; make the existing memo public instead. Renaming the
 namespace changes which slug matches.
 
-The Overview shows the note's body in a card, without its title or a link to the
-note. Unlike other note views, which show HTML in a note as text, it renders the
+The Overview shows the memo's body in a card, without its title or a link to the
+memo. Unlike other memo views, which show HTML in a memo as text, it renders the
 HTML subset a GitHub profile README uses: layout tables, images, links,
 `<details>`/`<summary>` and text formatting such as `<b>`, `<br>` and `<sub>`,
 with Markdown inside them. Only `align`, `alt`, `colspan`, `height`, `href`,
@@ -304,28 +305,28 @@ with Markdown inside them. Only `align`, `alt`, `colspan`, `height`, `href`,
 attributes are kept. Images load only from absolute `http(s)` URLs; links may
 be `http(s)`, `mailto` or relative, and open in a new tab. Everything else is
 dropped, including scripts, event attributes, `style`, `class`, `id`, `data-*`,
-SVG, MathML, forms and embedded frames. Attach note files with Markdown image
+SVG, MathML, forms and embedded frames. Attach memo files with Markdown image
 syntax; an HTML `<img>` does not resolve `files/` paths.
 
-`GET /namespaces/:slug/introduction` returns the note's metadata and a
+`GET /namespaces/:slug/introduction` returns the memo's metadata and a
 short-lived presigned body URL, or `note: null` and `content: null` when the
 namespace has no live public match. It ignores credentials: members and share
 link holders receive the same public-only answer as anonymous readers, so a
-private note with the matching slug is never returned. Unknown or deleted
+private memo with the matching slug is never returned. Unknown or deleted
 namespaces, and namespaces whose owning user or organization is deleted, return
 404. Like other read-only content reads, the body is the last persisted
 snapshot and can trail an open editing session by a few seconds.
 
 ## Contributing session registration
 
-Switching Notes preserves open session tabs and their panel placement. Opening
-another Note's contributing session selects that session in the conversation
+Switching Memos preserves open session tabs and their panel placement. Opening
+another Memo's contributing session selects that session in the conversation
 panel and leaves the previous session open in the background. A session already
 open is focused instead of duplicated. Drag tabs between panels to arrange the
 workspace. A standalone Sessions list panel can be closed; closing a panel or
 tab does not terminate its session.
 
-Viewing a Note, selecting a session tab, switching Notes, and moving panels do
+Viewing a Memo, selecting a session tab, switching Memos, and moving panels do
 not create contributing-session links. Automatic affiliation follows an
 acknowledged content write; explicit Link/Unlink actions remain available.
 Temporary presence is separate from a persistent session association.
@@ -339,11 +340,11 @@ New sessions default to PUBLIC, including automatic registration and imports.
 Existing private/team records keep their sharing. Set
 `DREAMLAKE_SESSION_VISIBILITY=private` for a private new automatic registration,
 or `DREAMLAKE_SESSION_AFFILIATION=0` to disable affiliation. This policy applies
-to sessions only; it does not change the Note's visibility.
+to sessions only; it does not change the Memo's visibility.
 
-A metadata warning never invalidates an acknowledged Note save. Retry only
+A metadata warning never invalidates an acknowledged Memo save. Retry only
 session registration, linkage or explicit conversation upload; do not repeat the
-Note write. Use `dreamlake sessions register --provider codex --session
+Memo write. Use `dreamlake sessions register --provider codex --session
 <native-uuid> --cwd /original/directory --json`, then `sessions link <saved-id>
 --namespace <personal-namespace> --resource-namespace <note-namespace> --note
 <note-id>`. A target-discovery 403 is separate from metadata registration and

@@ -1,8 +1,8 @@
-<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Markdown authoring
 
-Write Markdown directly in a Note. Live preview renders formatting while retaining
+Write Markdown directly in a Memo. Live preview renders formatting while retaining
 the source for editing and collaboration. Use headings for structure, lists for
 steps, and color sparingly to emphasize a status or phrase.
 
@@ -33,7 +33,7 @@ Use {{project.name}} as the heading.
 The editor highlights these placeholders and preserves their Markdown source.
 Open the right sidebar, then choose **Variables** from **Sidebar options** to
 see each variable once, in order of first appearance. The list follows edits
-and the note revision being displayed. It is read-only: the panel does not
+and the memo revision being displayed. It is read-only: the panel does not
 assign values or substitute text.
 
 Names start with a letter or underscore and may contain letters, digits,
@@ -64,7 +64,7 @@ Uncited definitions receive numbers after cited definitions and remain visible
 in both the editor and read-only view, including any suggested edits inside them.
 An entry without a citation has no return link. A cited entry links back from its
 editor label; the reader shows separate return links. Inline citations navigate
-to their matching definition within the current note preview.
+to their matching definition within the current memo preview.
 
 A defined `[^name]` takes priority over placeholder syntax. A citation without a
 matching definition remains literal, as do escaped references and references
@@ -101,13 +101,13 @@ children beneath their parent:
 2. Next step
 ```
 
-Rendered Notes preserve each numeric marker as written, including its number
+Rendered Memos preserve each numeric marker as written, including its number
 and `.` or `)` delimiter. Nesting does not change the marker style. Each nested
 list is indented, with wrapped lines aligned beneath the item text. The editor
 retains the source markers too.
 
 Inside an ordered list, a child may start at `2.`, `10)`, or another number;
-the editor and rendered Notes preserve the same nesting and marker. For example:
+the editor and rendered Memos preserve the same nesting and marker. For example:
 
 ```markdown
 1. Parent
@@ -128,7 +128,7 @@ in live preview without changing the saved source.
 
 Typed `a.`, `a)`, `(a)`, `i.`, `ii.`, `一、`, and `（一）` are plain text,
 not Markdown list markers. Chinese text is supported inside ordinary numeric
-or bullet lists. A numeric `1)` marker displays as `1)` in rendered Notes.
+or bullet lists. A numeric `1)` marker displays as `1)` in rendered Memos.
 
 ## Color a phrase
 
@@ -150,13 +150,13 @@ both light and dark themes. A fixed color stays the same when the theme changes.
 
 ### Preview in light and dark themes
 
-The same note renders an inline phrase and a colored table status in both themes:
+The same memo renders an inline phrase and a colored table status in both themes:
 
 ![Light theme: red Important text above a table with a green Ready status.](https://docs.dreamlake.ai/images/notes/inline-color-light.png)
 
 ![Dark theme: the same red phrase and green table status on a dark background.](https://docs.dreamlake.ai/images/notes/inline-color-dark.png)
 
-Captured from the deployed app using a sample read-only note. Fixed colors do not
+Captured from the deployed app using a sample read-only memo. Fixed colors do not
 adapt to the theme; choose a color with enough contrast in the theme you use.
 The sample uses `:color[Important]{color="#ef4444"}` and
 `:color[Ready]{color="green"}`.
@@ -226,19 +226,22 @@ Captured from the app's actual editor and Markdown renderer using
 | Schedule | :highlight[Needs review]{color="yellow"} |
 ```
 
-Color and highlights render in Notes live preview, table cells and the app’s read-only Markdown
+Color and highlights render in Memos live preview, table cells and the app’s read-only Markdown
 views. Saved text, revision handling and collaborative edits retain the exact source.
 CLI/API HTML snapshots and external Markdown readers may show the directive literally;
 they do not automatically gain the app’s color renderer.
 
 ## Link resources
 
-Use resource directives to reference another Note or artifact:
+Use an ordinary Markdown link to another Memo. Artifacts use resource directives:
 
 ```markdown
-:note[note-id]
+[Memo](https://dreamlake.ai/geyang/notes?note=6ab5aaeed3b4339ea2f4c162)
 :artifact[namespace/artifact-id]
 ```
 
-See [Notes](docs-notes.md) for resource attributes and API editing, and
-[Linked note items](docs-notes-linked-items.md) for extracting a list item into a Note.
+Existing saved `:note` forms remain readable. Do not author new `:note` or
+`:memo` directives.
+
+See [Memos](docs-notes.md) for resource attributes and API editing, and
+[Linked memo items](docs-notes-linked-items.md) for extracting a list item into a Memo.

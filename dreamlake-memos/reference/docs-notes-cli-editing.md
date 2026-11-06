@@ -1,15 +1,15 @@
-<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Read, edit and search from the CLI
 
-## Name a note
+## Name a memo
 
 **CLI**
 
 ```bash
-dreamlake notes read --legacy design-doc                     # slug
-dreamlake notes read --legacy 6aa948b3fea6e541282b747e       # id
-dreamlake notes read --legacy "Design Doc"                   # exact title
+dreamlake memos read --legacy design-doc                     # slug
+dreamlake memos read --legacy 6aa948b3fea6e541282b747e       # id
+dreamlake memos read --legacy "Design Doc"                   # exact title
 
 # Every example below uses $NOTE_ID. Set it once — any of the three forms:
 NOTE_ID=design-doc
@@ -18,30 +18,53 @@ NOTE_ID=design-doc
 **Python**
 
 ```python
-dl.note("<namespace>/design-doc")
-dl.note("6aa948b3fea6e541282b747e")                  # id alone, no namespace
+dl.memo("<namespace>/design-doc")
+dl.memo("6aa948b3fea6e541282b747e")                  # id alone, no namespace
 ```
 
-A note you may not read answers exactly as one that does not exist.
+A memo you may not read answers exactly as one that does not exist.
 
-## Read Notes directly
+## Read Memos directly
 
 **For normal reads, run the bare command and inspect its output directly:**
 
 ```bash
 # Set NOTE_ID to the note ID, slug, or exact title you want to read.
-dreamlake notes read "$NOTE_ID"
+dreamlake memos read "$NOTE_ID"
 ```
 
-Do not add `--json` or `--view` for ordinary human or agent reads. The default
-output includes canonical source, a revision, and a content hash. Retain the
-revision and hash with the source when preparing safe edits; agent convenience
-is not a reason to switch to JSON.
+The default is an annotated reading view. Use the smallest relevant read for
+inspection; do not write generated address hints back into the Memo. For an
+editing baseline, retain the complete structured snapshot and its opaque revision:
 
-Use JSON only for an explicitly requested structured integration. The scripted
-concurrency examples below demonstrate that compatibility path; they are not
-the default reading procedure. Read normal collaboration and selection receipts
-directly too.
+```bash
+dreamlake memos read "$NOTE_ID" --json > baseline.json
+BASE=$(jq -er .revision baseline.json)
+jq -jr .content baseline.json > baseline.md
+```
+
+Keep both files unchanged while preparing a patch. `--view source` exports exact
+source bytes without metadata; it alone does not retain the revision required
+for a guarded edit. See the current [CLI read contract](https://cli.dreamlake.ai/notes/reading).
+
+### Python SDK read
+
+Python SDK **0.41.0** exposes the canonical `memo` handle. With the SDK installed
+and the intended account logged in, retain one complete snapshot:
+
+```python
+import dreamlake as dl
+
+memo = dl.memo("<full-memo-id>")
+snapshot = memo.read_snapshot()
+print(snapshot.content)
+# Retain snapshot.revision and snapshot.hash with this original source.
+```
+
+Use the actual full ID returned by DreamLake. The older `note` and `create_note`
+entry points remain compatibility aliases in this release; new examples use
+`memo` and `create_memo`. SDK configuration and login are documented in the
+[Python SDK guide](https://py.dreamlake.ai/memos).
 
 {/* <!-- skill-entrypoint:end --> */}
 
@@ -50,7 +73,7 @@ directly too.
 ### Prefer the smallest relevant read
 
 For a targeted question or edit, read the relevant section or passage instead
-of the entire note. Use `toc` or `find` to locate it when needed, then request
+of the entire memo. Use `toc` or `find` to locate it when needed, then request
 that section or line range. Read the whole document when reviewing the whole
 document, establishing a required v2 baseline, or recovering a missing or expired
 baseline — not on every small edit or verification.
@@ -81,19 +104,19 @@ The existing examples below use the explicit `--legacy` CLI contract (source
 **CLI**
 
 ```bash
-dreamlake notes read --legacy "$NOTE_ID"                                    # whole body
-dreamlake notes read --legacy "$NOTE_ID" --section install                  # one section
-dreamlake notes read --legacy "$NOTE_ID" --start-line 40 --end-line 80
-dreamlake notes read --legacy "$NOTE_ID" --start-line 40 --end-line 80 --numbered
-dreamlake notes read --legacy --note "$NOTE_ID" --json                      # body + revision
-dreamlake notes toc --note "$NOTE_ID"                              # the outline
-dreamlake notes toc --note "$NOTE_ID" --json
+dreamlake memos read --legacy "$NOTE_ID"                                    # whole body
+dreamlake memos read --legacy "$NOTE_ID" --section install                  # one section
+dreamlake memos read --legacy "$NOTE_ID" --start-line 40 --end-line 80
+dreamlake memos read --legacy "$NOTE_ID" --start-line 40 --end-line 80 --numbered
+dreamlake memos read --legacy --note "$NOTE_ID" --json                      # body + revision
+dreamlake memos toc --note "$NOTE_ID"                              # the outline
+dreamlake memos toc --note "$NOTE_ID" --json
 ```
 
 **Python**
 
 ```python
-note = dl.note("<namespace>/design-doc")
+note = dl.memo("<namespace>/design-doc")
 note.text                        # whole body
 note.read_section("install")     # one section
 part = note.read_lines(1, 40)
@@ -108,9 +131,9 @@ A **section** is a heading plus everything under it. Anchors are title slugs
 `preamble`.
 
 `toc` gives each heading an anchor, a **line range** and a **character range** —
-enough to edit a part without reading the whole note.
+enough to edit a part without reading the whole memo.
 
-A ranged read reports the **whole** note's revision. Writing a range back as
+A ranged read reports the **whole** memo's revision. Writing a range back as
 the body deletes everything outside it — use `replace` instead.
 
 ## Edit by what it says
@@ -119,11 +142,11 @@ Line numbers move when anyone edits above them; text does not. A query matching
 **twice is refused**, not applied to the first match.
 
 The examples below are independent recipes, not a script to run in sequence.
-Before each revision-checked edit, read the note and capture its revision
+Before each revision-checked edit, read the memo and capture its revision
 (the CLI recipe uses `jq`):
 
 ```bash
-REV=$(dreamlake notes read --legacy "$NOTE_ID" --json | jq -er .etag)
+REV=$(dreamlake memos read --legacy "$NOTE_ID" --json | jq -er .etag)
 ```
 
 Inspect the returned body before choosing the edit. After a successful write,
@@ -133,18 +156,18 @@ conflict with `--force`.
 **CLI**
 
 ```bash
-dreamlake notes find "Draft" --note "$NOTE_ID"
-dreamlake notes find --regex '\bTODO\b.*' --flags im --note "$NOTE_ID"
+dreamlake memos find "Draft" --note "$NOTE_ID"
+dreamlake memos find --regex '\bTODO\b.*' --flags im --note "$NOTE_ID"
 
-dreamlake notes replace "Draft" --text "Published" --all --note "$NOTE_ID" --if-match "$REV"
-dreamlake notes insert --text "New line" --line 10 --note "$NOTE_ID" --if-match "$REV"
-dreamlake notes delete "obsolete paragraph" --note "$NOTE_ID"
+dreamlake memos replace "Draft" --text "Published" --all --note "$NOTE_ID" --if-match "$REV"
+dreamlake memos insert --text "New line" --line 10 --note "$NOTE_ID" --if-match "$REV"
+dreamlake memos delete "obsolete paragraph" --note "$NOTE_ID"
 ```
 
 **Python**
 
 ```python
-doc = dl.note("<uuid>").read()      # local snapshot
+doc = dl.memo("<uuid>").read()      # local snapshot
 doc.find("Draft")
 doc.find(regex=r"\bTODO\b.*", flags="im")
 
@@ -164,7 +187,7 @@ Exactly one match is expected. `--all` / `all=True` takes every match;
 `--count N` / `count=N` requires exactly N. A failed edit changes nothing.
 
 Python edits are local until `save()`, which writes one patch against the
-revision `read()` returned. If the note moved, the save is refused.
+revision `read()` returned. If the memo moved, the save is refused.
 `doc.revert()` throws the local edits away.
 
 ### Patterns
@@ -176,8 +199,8 @@ expansion is automatic; there is no flag for it.
 **CLI**
 
 ```bash
-dreamlake notes replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE_ID"
-dreamlake notes replace --regex '(?<key>timeout|retries)=(?<value>\d+)' \
+dreamlake memos replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE_ID"
+dreamlake memos replace --regex '(?<key>timeout|retries)=(?<value>\d+)' \
   --text '$<key>: $<value>' --all --note "$NOTE_ID" --if-match "$REV" --dry-run
 ```
 
@@ -199,10 +222,10 @@ come from a read or from `toc`.
 **CLI**
 
 ```bash
-dreamlake notes replace --text "Updated line" --line 10 --note "$NOTE_ID" --if-match "$REV"
-dreamlake notes replace --text "New block" --line 10:15 --note "$NOTE_ID"
-dreamlake notes replace --text "replacement" --ind 120:145 --note "$NOTE_ID"
-dreamlake notes insert --text "inserted text" --ind 120 --note "$NOTE_ID"
+dreamlake memos replace --text "Updated line" --line 10 --note "$NOTE_ID" --if-match "$REV"
+dreamlake memos replace --text "New block" --line 10:15 --note "$NOTE_ID"
+dreamlake memos replace --text "replacement" --ind 120:145 --note "$NOTE_ID"
+dreamlake memos insert --text "inserted text" --ind 120 --note "$NOTE_ID"
 ```
 
 **Python**
@@ -222,7 +245,7 @@ A line edit keeps the line ending; a character edit adds nothing.
 
 ### HTML
 
-Markdown may contain HTML, and a note's body can be an HTML document outright.
+Markdown may contain HTML, and a memo's body can be an HTML document outright.
 When it does, address an **element** rather than raw text — the same sentence
 often appears in several places, and a plain query would refuse the edit as
 ambiguous.
@@ -230,9 +253,9 @@ ambiguous.
 **CLI**
 
 ```bash
-dreamlake notes select "#contact" --note "$NOTE_ID"          # where it is, and its text
-dreamlake notes replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE_ID"
-dreamlake notes insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE_ID"
+dreamlake memos select "#contact" --note "$NOTE_ID"          # where it is, and its text
+dreamlake memos replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE_ID"
+dreamlake memos insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE_ID"
 ```
 
 **Python**
@@ -259,34 +282,34 @@ replacement remains a separate compatibility operation.
 **Release status — October 12, 2026:** CLI 0.61.0 is publicly published: all nine
 npm records, downloaded Linux integrity/version, fresh npm installation and native
 skill packaging are verified. The public binary passed concurrent-gap preservation,
-strict input and exact-write checks; disposable Notes were removed.
+strict input and exact-write checks; disposable Memos were removed.
 Python SDK 0.28.0 is publicly published: wheel/sdist bytes
 match the retained release workflow, and a fresh public installation passed
-actual API verified-read/diff/Doc-cache acceptance on a disposable Note, then
+actual API verified-read/diff/Doc-cache acceptance on a disposable Memo, then
 removed it. Live docs and public skill propagation are separate release checks.
 
 **CLI**
 
 ```bash
 # CLI 0.61.0: retain the original source used to prepare whole.md.
-dreamlake notes read "$NOTE_ID" --json > whole-baseline.json
+dreamlake memos read "$NOTE_ID" --json > whole-baseline.json
 WHOLE_BASE=$(jq -er '.revision' whole-baseline.json)
 jq -jr .content whole-baseline.json > whole.md
 # Edit whole.md while keeping whole-baseline.json unchanged.
-dreamlake notes write "$NOTE_ID" --file whole.md --base-revision "$WHOLE_BASE" --json > whole-ack.json
+dreamlake memos write "$NOTE_ID" --file whole.md --base-revision "$WHOLE_BASE" --json > whole-ack.json
 WHOLE_ACK=$(jq -er '.revision' whole-ack.json)
-dreamlake notes read "$NOTE_ID" --at "$WHOLE_ACK"
+dreamlake memos read "$NOTE_ID" --at "$WHOLE_ACK"
 # Section write remains on its explicit compatibility API.
-dreamlake notes write "$NOTE_ID" --section install --file install.md
+dreamlake memos write "$NOTE_ID" --section install --file install.md
 # Append uses original-revision patches in CLI 0.59.0 and later. Requires jq.
-dreamlake notes read "$NOTE_ID" --json > append-baseline.json
+dreamlake memos read "$NOTE_ID" --json > append-baseline.json
 BASE=$(jq -er '.revision' append-baseline.json)
-dreamlake notes append "$NOTE_ID" --text "one more line" --base-revision "$BASE" --json > append-ack.json
+dreamlake memos append "$NOTE_ID" --text "one more line" --base-revision "$BASE" --json > append-ack.json
 ACK=$(jq -er '.revision' append-ack.json)
-dreamlake notes read "$NOTE_ID" --at "$ACK"
+dreamlake memos read "$NOTE_ID" --at "$ACK"
 # For a file, use --file more.md with the same saved original baseline.
-dreamlake notes add-section "$NOTE_ID" --file trouble.md --after install
-dreamlake notes rm-section "$NOTE_ID" troubleshooting
+dreamlake memos add-section "$NOTE_ID" --file trouble.md --after install
+dreamlake memos rm-section "$NOTE_ID" troubleshooting
 ```
 
 **Python**
@@ -306,7 +329,7 @@ note.delete_section("troubleshooting")
 note.refresh()                   # re-read after someone else wrote
 ```
 
-Anyone with the note open **sees an accepted change appear**. Modern append
+Anyone with the memo open **sees an accepted change appear**. Modern append
 merges against the original collaborative identities, preserving unrelated
 concurrent edits. Add CLI `--exact` or Python `exact=True` to require that the
 original revision is still current. A stale exact request requires review;
@@ -314,7 +337,7 @@ never replace its baseline with a fresh revision merely to make it pass.
 
 Since server `06fbbe65` (production, 2026-10-27), merge mode refuses, with
 HTTP 412 `stale` and no write, any patch that overlaps a change made after its
-baseline, including text appended at the same end of the note. Python reports
+baseline, including text appended at the same end of the memo. Python reports
 this as `NoteChanged`. Disjoint edits still merge. The
 CLI's bundled `notes-editing` reference ("Overlapping concurrent changes")
 gives the exact rule and recovery.
@@ -343,7 +366,7 @@ concurrent source.
 Python SDK 0.27.0 also defaults whole-body `note.read()` drafts, `note.write()`
 and `doc.save()` to original-revision edits. Unchanged source spans preserve
 their collaborative identities, including within one paragraph. A draft keeps
-its own original snapshot even if other operations use the same Note object.
+its own original snapshot even if other operations use the same Memo object.
 After saving, it adopts the acknowledged merged source for the next edit.
 If that readback fails after an acknowledged write, preserve the receipt and
 draft and reconcile before another save; do not replay the write.
@@ -368,24 +391,24 @@ The CLI returns the same ref in `read --json` and accepts it via `--since`:
 ```bash
 # Requires jq. Keep the snapshot and ref for a later shell session.
 NOTE_ID=design-doc
-dreamlake notes read --legacy "$NOTE_ID" --json > note-snapshot.json
+dreamlake memos read --legacy "$NOTE_ID" --json > note-snapshot.json
 REV=$(jq -er .etag note-snapshot.json)
-dreamlake notes diff --legacy "$NOTE_ID" --since "$REV"
-dreamlake notes diff --legacy "$NOTE_ID" --since "$REV" --json
+dreamlake memos diff --legacy "$NOTE_ID" --since "$REV"
+dreamlake memos diff --legacy "$NOTE_ID" --since "$REV" --json
 # Apply a diff prepared against that saved body:
-dreamlake notes patch --legacy "$NOTE_ID" --file change.patch --if-match "$REV" --json
+dreamlake memos patch --legacy "$NOTE_ID" --file change.patch --if-match "$REV" --json
 ```
 
 `notes diff` requires `--since`; it does not keep a hidden local baseline.
 Plain output is the diff on stdout and current ETag on stderr. `--json` also
 returns `from` and `to`. The CLI help includes this workflow:
-`dreamlake notes diff --legacy --help`, `notes read --help`, and `notes patch --help`.
+`dreamlake memos diff --legacy --help`, `notes read --help`, and `notes patch --help`.
 
-Reads return `doc.etag`, a quoted SHA-256 hash of the complete note text. Keep
+Reads return `doc.etag`, a quoted SHA-256 hash of the complete memo text. Keep
 that ref to see changes since your own read or successful edit across sessions:
 
 ```python
-note = dl.note("<note-id>")
+note = dl.memo("<note-id>")
 doc = note.read(legacy=True)
 ref = doc.etag
 
@@ -402,7 +425,7 @@ return an error, including older refs whose snapshots were never retained.
 
 The HTTP endpoint is `GET /namespaces/:slug/notes/:noteId/diff?since=<etag>`.
 It returns `diff`, `from`, `to`, and `etag` (the current ref). Snapshots are
-scoped to the note and require current read access. Optional `context` accepts
+scoped to the memo and require current read access. Optional `context` accepts
 0–100 lines, default 3. Partial reads return a ref for the complete body.
 
 For local draft changes, use `doc.diff()` for all unsaved changes,
@@ -412,9 +435,9 @@ For local draft changes, use `doc.diff()` for all unsaved changes,
 ### Verified full reads and remote diffs (SDK 0.28.0+)
 
 Default `note.refresh()`, cache-miss `note.text` / `note.get_text()`, and
-`note.read()` use verified complete v2 source. Returned Note identity, content
+`note.read()` use verified complete v2 source. Returned Memo identity, content
 hash and RTC revision must agree; malformed responses or redirects reject without
-adopting source. Refresh updates the Note cache, never an existing Doc's saved
+adopting source. Refresh updates the Memo cache, never an existing Doc's saved
 original snapshot. `read_snapshot()` remains an independent verified read;
 `at` selects retained source, while `if_match` checks the current RTC revision.
 They cannot combine. An ETag is not an RTC revision and must not be supplied here.
@@ -452,8 +475,8 @@ native identities and preserves compatible concurrent edits.
 **CLI**
 
 ```bash
-diff -u before.md after.md | dreamlake notes patch --legacy "$NOTE_ID" --file -
-dreamlake notes patch --legacy "$NOTE_ID" --file change.patch --dry-run
+diff -u before.md after.md | dreamlake memos patch --legacy "$NOTE_ID" --file -
+dreamlake memos patch --legacy "$NOTE_ID" --file change.patch --dry-run
 ```
 
 **Python**
@@ -468,9 +491,9 @@ note.patch(unified_diff, if_match=doc.etag, legacy=True)
 **CLI**
 
 ```bash
-dreamlake notes grep "TODO" -C 2
-dreamlake notes grep --regex '\bFIXME\b' --case-sensitive --glob 'spec-*'
-dreamlake notes grep "Draft" --json        # revision + character range per hit
+dreamlake memos grep "TODO" -C 2
+dreamlake memos grep --regex '\bFIXME\b' --case-sensitive --glob 'spec-*'
+dreamlake memos grep "Draft" --json        # revision + character range per hit
 ```
 
 **Python**
@@ -480,7 +503,7 @@ for hit in dl.grep_notes("TODO", namespace="<namespace>", context=1):
     print(f"{hit.note_slug}:{hit.line}:{hit.column}  {hit.text}")
 ```
 
-Output is `slug:line:column`, like `rg` — which note, and where inside it.
+Output is `slug:line:column`, like `rg` — which memo, and where inside it.
 Literal and case-insensitive by default, so `v1.2` does not match `v1x2`.
 
 Each hit carries its revision and `ind`, the character range — enough to edit
@@ -503,12 +526,12 @@ Older server responses fail explicitly.
 export DREAMLAKE_AGENT_ID="review-session-42"
 export DREAMLAKE_AGENT_NAME="Codex"
 NOTE_ID="your-note-id"
-dreamlake notes select --text "The next step is tested in simulation." --note "$NOTE_ID"
-dreamlake notes select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
-dreamlake notes select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
+dreamlake memos select --text "The next step is tested in simulation." --note "$NOTE_ID"
+dreamlake memos select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+dreamlake memos select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
 ```
 
-Use a stable task identity and your normal authenticated Notes access. The command
+Use a stable task identity and your normal authenticated Memos access. The command
 matches exact canonical source text, including whitespace and markup. It refuses
 missing or ambiguous matches. `-o` aliases `--occurrence`: `1` selects the first
 match, `-1` the last, and `-2` the second-last within the chosen scope. Zero and
@@ -549,7 +572,7 @@ inserts generated address/character/line comments. List-item targets use
 hierarchical `li` IDs, such as `s1.ul2.li3`, including nested items. Containers
 use `ul` or `ol`; every numeric suffix shares paragraph reading order. This
 reading view is not
-canonical source and must not be written back as a complete note.
+canonical source and must not be written back as a complete memo.
 
 ## Proving a patch was not submitted
 
@@ -580,14 +603,14 @@ between is **refused** rather than overwritten:
 **CLI**
 
 ```bash
-REV=$(dreamlake notes read --legacy "$NOTE_ID" --json | jq -r .etag)
-dreamlake notes write "$NOTE_ID" --file new.md --if-match "$REV"
+REV=$(dreamlake memos read --legacy "$NOTE_ID" --json | jq -r .etag)
+dreamlake memos write "$NOTE_ID" --file new.md --if-match "$REV"
 ```
 
 **Python**
 
 ```python
-doc = dl.note("<uuid>").read()
+doc = dl.memo("<uuid>").read()
 doc.replace("Published", query="Draft", all=True)
 doc.save()                       # refused if the note moved since read()
 ```
@@ -619,6 +642,6 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
 
 ## Next steps
 
-    Every `dreamlake notes` command and flag.
+    Every `dreamlake memos` command and flag.
 
     The endpoints underneath, if you need them directly.

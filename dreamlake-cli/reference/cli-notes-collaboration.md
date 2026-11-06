@@ -1,11 +1,11 @@
-<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.105.0 3dc31d9; do not edit -->
 
 # Live collaboration
 
-The [Note presence and attachment API map](https://cli.dreamlake.ai/dev/note-collaboration-api) lists
+The [Memo presence and attachment API map](https://cli.dreamlake.ai/dev/note-collaboration-api) lists
 matching TypeScript operations, JSON receipts, and recovery behavior.
 
-Use `read --linger` when you want to stay with someone in a note. It registers
+Use `read --linger` when you want to stay with someone in a memo. It registers
 your presence, prints the initial source and participants, and streams updates
 until you stop it. **Use the default text output for people and coding agents:**
 it shows readable diffs, participants, and quoted selections. Add `--json` only
@@ -13,9 +13,9 @@ when a program explicitly needs to parse structured events. An agent using the
 CLI interactively is not, by itself, a reason to request JSON.
 
 It requires CLI **0.29.0+** and compatible presence and activity
-endpoints, in addition to the Notes read endpoint.
+endpoints, in addition to the Memos read endpoint.
 
-**CLI 0.31.0+:** event-driven selections require the Notes `/events` SSE
+**CLI 0.31.0+:** event-driven selections require the Memos `/events` SSE
 endpoint. Deploy the matching server first. CLI 0.29.x–0.30.x polls and does
 not expose human highlights; there is no polling fallback in 0.31.0+.
 
@@ -28,9 +28,9 @@ highlights. The display name provides a readable label; it is not the identity.
 
 Exports in one shell tool call do not persist into separate calls. Save the
 initial values in task context and inject the same literal values into every
-later Notes command environment. Never generate a new UUID per command.
+later Memos command environment. Never generate a new UUID per command.
 
-After the first intended live read, use `dreamlake notes presence "$NOTE_ID"`
+After the first intended live read, use `dreamlake memos presence "$NOTE_ID"`
 (CLI 0.31.0+) to match the task ID and name in the roster. This command only
 observes presence; it does not join. If absent, check the environment of the
 actual read/edit process before diagnosing a UI regression. Do not repeat a
@@ -47,7 +47,7 @@ SESSION_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')
 export DREAMLAKE_AGENT_ID="codex:$SESSION_ID"
 export DREAMLAKE_AGENT_NAME="Codex"
 NOTE_ID=release-plan
-dreamlake notes read "$NOTE_ID" --linger
+dreamlake memos read "$NOTE_ID" --linger
 ```
 
 Separate tool shells must receive the same saved environment values; an export
@@ -72,7 +72,7 @@ mean the owner is currently present. Recent presence is not proof of attention.
 ## How updates arrive
 
 ```bash
-dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
+dreamlake memos read "$NOTE_ID" --linger --debounce 1s --throttle 2s
 ```
 
 The first snapshot is immediate. Then:
@@ -116,7 +116,7 @@ this is an observation stream, not an audit log.
 CLI 0.31.2+ keeps notifications short. These are representative lines from
 separate update batches; each batch has one timestamp above it.
 
-```text cli-help-output="notes read"
+```text cli-help-output="memos read"
 + @alice joined
 + Reviewer (agent) joined
 * Reviewer (agent) read the note
@@ -140,7 +140,7 @@ Use this only when a program needs NDJSON. Ordinary collaboration, including
 coding-agent sessions, should use the text commands above.
 
 ```bash
-dreamlake notes read "$NOTE_ID" --linger --json
+dreamlake memos read "$NOTE_ID" --linger --json
 ```
 
 Stdout is newline-delimited JSON, with one object per line. Stderr carries
@@ -170,7 +170,7 @@ Selections in the initial participant list use `selectionHash`; subsequent
 entries carry their own `hash`. Content delivery can still be debouncing, so
 this hash may differ from your last emitted content hash. Apply offsets only
 to the matching source. A highlight is ephemeral editor selection, not saved
-highlight formatting in the Note.
+highlight formatting in the Memo.
 
 The stream rechecks access and token expiry every 15 seconds. Revocation, room
 reset, RTC failure, or a slow consumer closes it. Disconnects are explicit errors;
@@ -190,10 +190,10 @@ no daemon. Pending notifications are discarded on stop; document edits remain.
 Abrupt termination falls back to lease expiry, normally 60 seconds. Use one
 keeper per note/task identity because multiple keepers share the same lease.
 
-```bash cli-help="notes visit"
+```bash cli-help="memos visit"
 # Reuse the task's DREAMLAKE_AGENT_ID and DREAMLAKE_AGENT_NAME.
 NOTE_ID=release-plan
-dreamlake notes visit "$NOTE_ID"
+dreamlake memos visit "$NOTE_ID"
 ```
 
 `read --linger` manages the session lifecycle: start it to join, let it maintain
@@ -202,10 +202,10 @@ clear, or leave sequence is needed. One-shot reads and `visit` expire naturally.
 In CLI 0.31.0+, `presence` only reads who is there; it does not join or refresh
 your session and does not require an agent ID.
 
-```bash cli-help="notes presence"
+```bash cli-help="memos presence"
 # Read the participant roster without joining. Text is the default.
 NOTE_ID=release-plan
-dreamlake notes presence "$NOTE_ID"
+dreamlake memos presence "$NOTE_ID"
 ```
 
 Add `--json` only for a program consuming the roster. The old action arguments
@@ -215,7 +215,7 @@ Add `--json` only for a program consuming the roster. The old action arguments
 ## If joining fails
 
 A successful read does not prove presence support. Check `dreamlake --version`,
-`notes read --help`, the selected server, note access, and your stable identity.
+`notes read --help`, the selected server, memo access, and your stable identity.
 `--remote <url>` selects a specific API; a local binary still uses your configured
 remote unless told otherwise. Connection errors and unsupported endpoints end
 linger with a nonzero status and a best-effort leave, never a fabricated empty
@@ -235,20 +235,20 @@ selection also requires the server's section `hash` and code-point `range`
 fields; older server responses fail explicitly.
 
 Set one stable identity for the task, authenticate normally, and use a dedicated
-test note when trying examples. Replace the note ID and exact source passage:
+test memo when trying examples. Replace the memo ID and exact source passage:
 
-```bash cli-help="notes select"
+```bash cli-help="memos select"
 export DREAMLAKE_AGENT_ID="review-session-42"
 export DREAMLAKE_AGENT_NAME="Codex"
 NOTE_ID="your-note-id"
-dreamlake notes select --text "The next step is tested in simulation." --note "$NOTE_ID"
+dreamlake memos select --text "The next step is tested in simulation." --note "$NOTE_ID"
 # Select the last occurrence of a repeated passage.
-dreamlake notes select --text "simulation" --note "$NOTE_ID" -o -1
+dreamlake memos select --text "simulation" --note "$NOTE_ID" -o -1
 ```
 
 The command matches literal canonical source (including Markdown or HTML markup),
 then publishes an agent selection through the existing RTC presence channel.
-It does not change note content or the human's cursor. The human sees a collaborator
+It does not change memo content or the human's cursor. The human sees a collaborator
 selection and can use the agent's location control to navigate to it. The receipt
 confirms server acceptance; it does not prove a particular browser rendered it.
 
@@ -259,20 +259,20 @@ values count from the end (`-1` is last, `-2` is second-last). Zero is invalid:
 
 ```bash
 # Use the heading anchor from notes sections; this fetches only that section.
-dreamlake notes select --text "simulation" --section next-steps --note "$NOTE_ID"
-dreamlake notes select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
-dreamlake notes select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
+dreamlake memos select --text "simulation" --section next-steps --note "$NOTE_ID"
+dreamlake memos select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+dreamlake memos select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
 ```
 
 Section resolution uses one section read with a global code-point range and the
-whole-source hash; it never downloads the rest of the note. Older servers lacking
+whole-source hash; it never downloads the rest of the memo. Older servers lacking
 that metadata fail explicitly. Existing section `start`/`end` fields remain UTF-16;
 only the new `range` is in code points. A whole-note selection uses one v2 body read
 internally but does not print the body. Matching reads do not publish broad read
 highlights. Exact matching preserves whitespace and Unicode normalization.
 
 The server rechecks the source hash before accepting the range. `stale_range`
-means the note changed: re-read the relevant section and retry against its current
+means the memo changed: re-read the relevant section and retry against its current
 text. No automatic retry guesses a new location. Optionally pass `--hash "$HASH"`
 using a retained `sha256:…` source hash to require that exact source. This is an
 observation precondition, not a content write or a saved revision.
@@ -300,27 +300,27 @@ with `--text`, `--section`, `--occurrence` or `--hash`. `notes find` remains a l
 ## Durable contributing sessions
 
 Live presence expires; a confirmed contribution remains. With the matching server,
-Notes use the presence identity to record successful creation and content edits in
+Memos use the presence identity to record successful creation and content edits in
 **Contributing sessions**, above related resources. Reads, visits, claimed editing
 presence, failed writes and no-op writes do not establish authorship. A manually
-linked session is labeled **Linked session**, not **Edited this note**.
+linked session is labeled **Linked session**, not **Edited this memo**.
 
 Codex and Claude native session environment variables are detected automatically.
 For other transports, supply an exact saved `DREAMLAKE_TERMINAL_SESSION_ID`, or the
 actual native session UUID and its provider. A display name or random task label
 alone does not identify a conversation. Missing or malformed optional metadata
-never prevents a Note save. A new attribution-only session is private and has no
+never prevents a Memo save. A new attribution-only session is private and has no
 terminal launch target; existing session visibility stays unchanged.
 
-```bash cli-help="notes contributors"
-dreamlake notes contributors release-plan --namespace geyang --json
+```bash cli-help="memos contributors"
+dreamlake memos contributors release-plan --namespace geyang --json
 # If hasMore is true, continue with the returned nextCursor:
-dreamlake notes contributors release-plan --namespace geyang --cursor LINK_CURSOR --json
+dreamlake memos contributors release-plan --namespace geyang --cursor LINK_CURSOR --json
 ```
 
 One page returns `sessions`, `hasMore` and `nextCursor`. Each visible session has
 `contribution: {kind, firstAt, lastAt}`, or `null` for an explicit/legacy link.
-Both Note and session access are checked independently. No transcript is fetched.
+Both Memo and session access are checked independently. No transcript is fetched.
 `DREAMLAKE_SESSION_AFFILIATION=0` opts out while explicit agent presence can remain.
 A metadata outage may delay or omit attribution; keep the accepted write receipt
 and never repeat content to repair metadata. Older links are not retroactively

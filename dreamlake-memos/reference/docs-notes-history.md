@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.123 c2b1f71b; do not edit -->
 
 # History and saved versions
 
@@ -36,10 +36,10 @@ local draft. Download a held draft through the sync dropdown instead.
 The version tag in the toolbar opens a compact revision graph. The right sidebar
 uses one toolbar toggle for **Comments**, **Table of contents**, and **History**.
 Choose **History** (the GitGraph icon) to see the graph there. Contents is the
-default; the note remembers your chosen sidebar. **Working Draft** sits directly above its base version, with an edit
+default; the memo remembers your chosen sidebar. **Working Draft** sits directly above its base version, with an edit
 count and a GitCommitVertical save icon on that row. A small solid dot marks the draft endpoint; saved-version waypoints are hollow. Choose the icon, enter an optional title/tag
-and summary, then save. Notes continues to autosave while you work; metadata
-does not appear in the note body. New milestones receive stable numbers such
+and summary, then save. Memos continues to autosave while you work; metadata
+does not appear in the memo body. New milestones receive stable numbers such
 as `v3`, independent of their titles. Numbers can have gaps after failed saves.
 
 Saved versions show their parent connections, including forks from a shared
@@ -48,7 +48,7 @@ to record a different ancestry. This records the relationship without replacing
 or merging the live draft. The working draft follows the newest saved version
 when history refreshes, including versions saved by another collaborator, so it
 stays at the top and its edit count uses the latest checkpoint. This changes
-only the history display and default save parent, not the note text or saved ancestry.
+only the history display and default save parent, not the memo text or saved ancestry.
 Older versions without recorded
 parents remain unconnected.
 
@@ -87,13 +87,13 @@ plus the available collaboration checkpoint and journal. It remains readable
 after live history is compacted or a room is recreated. Compacted edits that were
 already missing at save time cannot be recovered; partial counts say **retained
 edits**. In a saved-version preview, **Compare / link** opens side-by-side
-comparison and **Copy version link**. Saving never replaces the current note.
+comparison and **Copy version link**. Saving never replaces the current memo.
 Tags may repeat; the version ID is unique and immutable. Summaries are written
 by the person saving the version; automatic AI drafting is not included.
 
 Saved history requires edit access, including accepted write-share access.
-A public note or read-only share does not expose earlier text that may have
-been removed. Version links do not grant access. If the note changes or is still
+A public memo or read-only share does not expose earlier text that may have
+been removed. Version links do not grant access. If the memo changes or is still
 syncing while you save, review the current text and retry; no version is created
 from a mismatched browser/server state.
 
@@ -113,7 +113,7 @@ existing version links retain their current workflow.
 The serving implementation routes new saves
 through the publication catalog by default, without changing the save endpoint,
 request fields, CLI commands or existing version IDs and history. It rechecks
-current edit authority and the Note's ownership binding before publication.
+current edit authority and the Memo's ownership binding before publication.
 Runtime verification is not a live-save receipt and does not activate durable attachment purge
 or ownership transfer.
 
@@ -129,8 +129,8 @@ On the verified catalog-writer release, API clients may supply a unique
 `Idempotency-Key` (16–128 letters, digits, underscores or hyphens) on
 `POST /namespaces/:slug/notes/:noteId/versions`. Keep that key with the original
 hash, tag, summary, parent and optional retained revision. Retry against the same
-server and Note while signed in as the same account; keys are scoped to that
-Note and actor. Another editor must inspect history and must not reuse your key
+server and Memo while signed in as the same account; keys are scoped to that
+Memo and actor. Another editor must inspect history and must not reuse your key
 expecting deduplication. An identical retry
 reconciles the original save rather than saving the current draft again; changed
 input with the same key is rejected. Only currently authorized editors can
@@ -139,7 +139,7 @@ aborted, inspect history and deliberately start a new save with a new key. The
 server never substitutes newer text for an unavailable original snapshot.
 
 `503 version_save_unconfirmed` also covers transport or database failures while
-reconciling a keyed save. On the verified catalog-writer release, retry only the identical original request with the same key, server, Note and
+reconciling a keyed save. On the verified catalog-writer release, retry only the identical original request with the same key, server, Memo and
 account; do not generate a new key or resend the body edit to clear the error.
 A published or fully staged matching operation returns its original version.
 `409 RECOVERY_IN_PROGRESS` means another executor is still active;
@@ -174,13 +174,13 @@ that specific gap, rather than inventing a `tag --revision` option.
 ### Recover a retained snapshot
 
 Use this workflow when an earlier full draft still has a retained revision but
-was never saved as a named version. It creates a version **on the same Note**;
+was never saved as a named version. It creates a version **on the same Memo**;
 it does not restore the old text into the live draft. An empty version list does
-not prove old content is gone. Identify the exact note ID and namespace, locate
+not prove old content is gone. Identify the exact memo ID and namespace, locate
 a known retained revision from earlier read receipts or recovery evidence, and
 review its full source before saving. Do not guess revisions from content hashes.
 Without a retained baseline, this endpoint cannot recover compacted edits,
-deleted Notes, a different Note's history, or text available only in a screenshot.
+deleted Memos, a different Memo's history, or text available only in a screenshot.
 Preserve any independent backup and report that limitation.
 
 First establish a stable agent identity as described in [agent presence](docs-notes-agent-presence.md),
@@ -192,7 +192,7 @@ Even HTTP 201 and matching text are insufficient: the saved revision and
 
 Use the same authenticated remote and token for both CLI and REST. In the
 following example, provision `DREAMLAKE_API_KEY` through your normal secret
-mechanism; do not paste it into notes, shell history, or receipts. Explicitly set
+mechanism; do not paste it into memos, shell history, or receipts. Explicitly set
 `DREAMLAKE_REMOTE` to the intended HTTPS API, `NOTE_NAMESPACE`, the stable
 `NOTE_ID`, and `OLD_REVISION`. Preserve `DREAMLAKE_AGENT_ID` and
 `DREAMLAKE_AGENT_NAME` from identity setup. Review the pinned source first:
@@ -330,7 +330,7 @@ A timeout, lost connection, unreadable response, generic 5xx, or failure
 after submission may leave a saved version behind. Do not blindly repeat the
 POST, including after a failed verification read.
 
-Inspect saved metadata on the **same remote, namespace and Note**, starting
+Inspect saved metadata on the **same remote, namespace and Memo**, starting
 with the first page and continuing through `nextCursor` using `--before`:
 
 ```bash
@@ -376,11 +376,11 @@ These authenticated endpoints are scoped to `/namespaces/:slug/notes/:noteId`:
 
 **Historical recovery:** `POST /versions` also accepts an optional
 `revision` copied from a retained full source read. With it, the server saves
-that note's immutable retained baseline instead of reading the live draft.
+that memo's immutable retained baseline instead of reading the live draft.
 `hash` must match the retained source; a mismatch returns `409 note_changed`,
 and an unavailable revision returns `404 revision_not_found`. This does not
 replace the live body, change its collaboration session, or restore deleted
-notes. Editor access is still required. A recovered version's `createdAt`
+memos. Editor access is still required. A recovered version's `createdAt`
 records when it was saved; `sourceObservedAt` records the baseline observation.
 Omit `revision` to retain the existing current-draft consistency check. Do not
 retry a failed stale-current save as a historical save without reviewing the
@@ -393,7 +393,7 @@ intended retained content. The CLI does not yet expose this extension.
   Tags are at most 80 characters and summaries at most 2,000 characters.
   A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
   `createdBy`, `author`, `number`, and `parentId`. The optional nullable
-  `parentId` must identify a version in this note; a missing/foreign parent
+  `parentId` must identify a version in this memo; a missing/foreign parent
   returns `404 parent_not_found`. Omitting it records no parent. RTC-backed
   versions also include `revision`, `clock`, `editCount`, and `historyComplete`.
   The count measures retained content-edit messages, not keystrokes.

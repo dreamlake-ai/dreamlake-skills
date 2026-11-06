@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Agent presence and activity
 
@@ -11,7 +11,7 @@ not the server. Names and IDs are self-reported, grant no permissions, and are n
 verified audit identity. Two clients under the same authenticated owner can reuse
 an ID; random UUIDs prevent accidental collisions, not deliberate impersonation.
 
-Presence means **active in this note recently**, for both humans and agents. It is
+Presence means **active in this memo recently**, for both humans and agents. It is
 not proof that an agent is continuously watching, reading, or typing. Reuse the
 existing RTC awareness channel and header badge; do not add a status row below
 the bindr row.
@@ -25,14 +25,14 @@ Keep three identities separate:
 | Human owner | Derived from authentication, not an agent-supplied owner field; attribution does not imply the owner is present. |
 
 The runner creates the task/session ID once, retains it across tool invocations,
-and passes it to every Notes command. Do not generate an ID on every command or
+and passes it to every Memos command. Do not generate an ID on every command or
 use a shared display name as the session key. Resume the same ID for the same
 task; use a new ID for a new or concurrent task. Socket reconnections have their
 own transport IDs and must not create a new logical participant.
 
 The current `DREAMLAKE_AGENT_ID` / `X-DreamLake-Agent-Id` field carries this
 **task/session ID**, despite its name. It does not yet represent a separate,
-persistent agent-account ID. The roster key is scoped by note, authenticated
+persistent agent-account ID. The roster key is scoped by memo, authenticated
 owner, and session ID; the display name is never the key.
 
 | Event | Intended behavior |
@@ -40,11 +40,11 @@ owner, and session ID; the display name is never the key.
 | First attributed read/edit | Implicitly join and start the recent-presence timeout. |
 | Later read/edit with the same session ID | Refresh the existing badge, without adding another participant. |
 | Inactivity | Remove the badge after expiry; no cleanup command is required. |
-| Explicit leave/unjoin | Remove that session from that note immediately; do not erase its identity. |
+| Explicit leave/unjoin | Remove that session from that memo immediately; do not erase its identity. |
 | Interaction after leave or expiry | Implicitly rejoin using the same session ID. |
 | Optional explicit join or maintained session | Support clients that need sustained presence; ordinary CLI use does not require it. |
 
-Human clients can send leave on navigation away or note closure. Abrupt tab close,
+Human clients can send leave on navigation away or memo closure. Abrupt tab close,
 crash, or network loss may prevent delivery, so expiry is still required. Agents
 have the same optional leave and expiry fallback. A session ID is identity, not a
 live lease: storing the ID does not keep a badge alive. Neither a TUI nor a
@@ -90,25 +90,25 @@ The CLI uses the active login's API; running a locally installed binary does not
 select a local server. Use `--remote <url>` to test a specific API or `--debug`
 for the local development server.
 
-To check a matching API, use an accessible test note and the stable task identity
+To check a matching API, use an accessible test memo and the stable task identity
 below. Run a read, inspect `notes presence`, then start `read --linger` and stop
 it with Ctrl-C to verify automatic session cleanup. Verify patch support
-separately on a disposable note with a merge patch, an exact readback, and a stale
+separately on a disposable memo with a merge patch, an exact readback, and a stale
 exact request that must fail without changing the source. Do not use an existing
 user document as a write-test fixture.
 
 ## Read and linger in the foreground
 
-CLI 0.29.0+ adds `notes read --linger` and `notes visit`. They use the deployed Notes v2, presence-roster and
+CLI 0.29.0+ adds `notes read --linger` and `notes visit`. They use the deployed Memos v2, presence-roster and
 agent-activity endpoints. Python has no corresponding convenience method yet.
 
 Set `DREAMLAKE_AGENT_ID` once to a unique, stable task-session identity (and
 optionally `DREAMLAKE_AGENT_NAME`) as described below. `NOTE_ID` must identify a
-note you can access as a member or explicitly shared reader.
+memo you can access as a member or explicitly shared reader.
 
 ```bash
 # NOTE_ID and the stable task identity must already be set.
-dreamlake notes read "$NOTE_ID" --linger
+dreamlake memos read "$NOTE_ID" --linger
 ```
 
 **Use the default text output for people and coding agents.** It shows readable
@@ -142,9 +142,9 @@ values are rejected before presence registration. For example:
 
 ```bash
 # One second of edit quiet; no more than one output batch every two seconds.
-dreamlake notes read "$NOTE_ID" --linger --debounce 1s --throttle 2s
+dreamlake memos read "$NOTE_ID" --linger --debounce 1s --throttle 2s
 # Slower text output for a coding agent or a quieter session.
-dreamlake notes read "$NOTE_ID" --linger --debounce 2s --throttle 5s
+dreamlake memos read "$NOTE_ID" --linger --debounce 2s --throttle 5s
 ```
 
 **CLI 0.42.0+:** `--intent "…"` publishes a self-reported purpose with the
@@ -155,7 +155,7 @@ heartbeats preserve it, and leave or lease expiry removes it. The flag requires
 trims the text and rejects empty values and more than 280 Unicode code points.
 
 ```bash
-dreamlake notes read "$NOTE_ID" --linger \
+dreamlake memos read "$NOTE_ID" --linger \
   --intent "I'm reviewing this sequence to make the pacing clearer."
 ```
 
@@ -192,7 +192,7 @@ syncing states, repeated selected text and empty batches stay silent in text.
 IDs, connection details, offsets and source hashes remain
 in `--json`; use it to distinguish identical names or tabs and apply exact source
 positions. Initial content and diffs still include revision metadata for safe edits.
-These examples also appear in `dreamlake notes read --help`.
+These examples also appear in `dreamlake memos read --help`.
 
 Human selections in JSON resolve native CRDT anchors against the observed source. Each
 selection carries `anchor`, `head`, `start`, `end`, `unit: "unicode-code-point"`,
@@ -219,7 +219,7 @@ This is a best-effort stream of observations, not an audit log: brief visits or
 activity coalesced between output batches can be missed, and edits that cancel out within a burst
 produce no net content diff. Human edits appear in content diffs; the activity feed
 currently attributes agent reads and edits only. Reading updates does not prove
-human attention, and it does not reserve or lock the note.
+human attention, and it does not reserve or lock the memo.
 
 ##### Optional: JSON for programmatic consumers
 
@@ -227,13 +227,13 @@ Use `--json` only when a program needs NDJSON; ordinary collaboration, including
 coding-agent sessions, should use the text commands above.
 
 ```bash
-dreamlake notes read "$NOTE_ID" --linger --json
+dreamlake memos read "$NOTE_ID" --linger --json
 ```
 
 With `--json`, stdout is NDJSON: one `type: "snapshot"` object containing
 `observedAt`, `note`, `content`, `hash`, `revision`, `selectionHash`, and `participants`, followed
 by `type: "update"` objects containing `observedAt`, `joined`, `left`, and
-`activities`, and `selections`. Changed content adds `content: {note, base, hash, revision, format,
+`activities`, and `selections`. Changed content adds `content: {memo, base, hash, revision, format,
 patch}`. Observation times are Unix milliseconds; source and activity are fetched
 separately from the event stream and are not an atomic cross-stream snapshot. Progress and errors go
 to stderr. No update object is emitted for an unchanged batch.
@@ -247,10 +247,10 @@ best-effort leave; they are never treated as an empty room. For edits, preserve
 the original source and revision used to prepare your draft: a later streamed
 revision is not a replacement baseline for an older draft.
 
-```bash cli-help="notes visit"
+```bash cli-help="memos visit"
 # Optional one-shot registration: does not fetch the note body or keep a daemon.
 # NOTE_ID and the stable task identity must already be set.
-dreamlake notes visit "$NOTE_ID"
+dreamlake memos visit "$NOTE_ID"
 ```
 
 `visit` uses the existing join lease (60 seconds unless renewed by an attributed
@@ -268,8 +268,8 @@ helper that outlives the task.
 In CLI 0.31.0+, `presence` reads the current roster without joining or refreshing
 your session. It does not require an agent ID. Text is the default:
 
-```bash cli-help="notes presence"
-dreamlake notes presence "$NOTE_ID"
+```bash cli-help="memos presence"
+dreamlake memos presence "$NOTE_ID"
 ```
 
 Add `--json` only for a program consuming the roster. There are no direct
@@ -308,7 +308,7 @@ permission grant; the roster's authorized readers can see it.
 roster, including humans and agents. Use bearer authentication as a namespace
 member or explicitly shared reader. Public visibility alone is insufficient.
 Agent identity headers are not required, and the observer does not publish
-presence, renew an agent lease, or edit the note.
+presence, renew an agent lease, or edit the memo.
 
 Successful reads default to `text/plain; charset=utf-8` (also available with
 `?format=text`):
@@ -335,7 +335,7 @@ remain separate entries. To identify other agents, compare `user.id` against
 excluded. Human identities without a kind field are normalized to `human`.
 These are client-declared display identities, not verified authorization claims.
 
-An inactive note returns an empty roster. An active room whose connection fails
+An inactive memo returns an empty roster. An active room whose connection fails
 or times out returns 503 `presence_unavailable`, not an empty roster. Responses
 are not cached. This requires a server with the GET endpoint and an RTC server
 supporting awareness rosters; a 404 can also mean the caller lacks access.
@@ -353,7 +353,7 @@ range (409), expired heartbeat (410), and unavailable relay (503).
 
 Identity values accept 1–128 ASCII letters, digits, dots, colons, underscores and
 hyphens; names accept at most 64 printable ASCII characters. CLI 0.27.0+ and
-Python SDK 0.21.0+ attach identity headers to Notes body/section/diff operations
+Python SDK 0.21.0+ attach identity headers to Memos body/section/diff operations
 when the environment variables below are set. `visit` and `read --linger` require
 CLI 0.29.0+ and an active collaborative room; read-only `presence` requires
 CLI 0.31.0+. The old manual action commands were removed in 0.31.0.
@@ -393,7 +393,7 @@ and photos are display metadata, not an authorization source.
 
 ## Agentic usage pattern: one identity, normal commands
 
-For agent-driven Notes work, set both identity variables before the first live
+For agent-driven Memos work, set both identity variables before the first live
 read or edit, unless the user explicitly requests unattributed work. This is a
 workflow prerequisite for attribution, not a requirement for saving content.
 Without `DREAMLAKE_AGENT_ID`, an edit can save successfully while producing no
@@ -415,7 +415,7 @@ registers or refreshes presence; a preceding `visit` is never required. Reading
 without agent identity does not invent or register an agent session. Retain the generated ID in the task context and inject that same literal value into each later shell; rerunning the UUID fallback in a new shell would create a different session.
 
 After the first intended live read, verify attribution with
-`dreamlake notes presence "$NOTE_ID"` (CLI 0.31.0+). This only inspects the roster;
+`dreamlake memos presence "$NOTE_ID"` (CLI 0.31.0+). This only inspects the roster;
 it does not register an agent. Check the task ID and display name, not merely
 another session named Codex. If absent, check the environment passed to the
 actual read/edit process before diagnosing a UI regression. Do not repeat a
@@ -435,8 +435,8 @@ The last two commands require CLI 0.29.0+. A normal
 read does not mean the agent remains actively reading between commands.
 
 ```bash
-dreamlake notes read "$NOTE_ID" --json > baseline.json
-dreamlake notes find lighthouse --note "$NOTE_ID" --json
+dreamlake memos read "$NOTE_ID" --json > baseline.json
+dreamlake memos find lighthouse --note "$NOTE_ID" --json
 # Draft a reviewed patch against baseline.json, using the patch workflow below.
 # Retain its revision, apply the patch, and read back the acknowledged revision.
 ```
@@ -454,7 +454,7 @@ Lease expiry handles abrupt exits without requiring remembered cleanup.
 
 Agent presence and durable contribution attribution share the request's optional
 session identity. A presence lease expires; a contribution remains attached to
-the Note and the saved session. The server records `created` after successful Note
+the Memo and the saved session. The server records `created` after successful Memo
 creation and `edited` after a native body/section write is acknowledged. A read,
 visit, self-reported editing state, failed write, or no-op is not a contribution.
 Replayed command receipts do not repeat attribution.
@@ -477,11 +477,11 @@ paginated sessions as the resource-session catalog. It accepts `pageSize` (1–5
 `cursor` and `q`. Responses contain `sessions`, `hasMore` and `nextCursor`. Each
 session carries `contribution: {kind, firstAt, lastAt}` for server-observed writes,
 or `null` for explicit/legacy links. These are not edit counts or a full audit log.
-The reader must independently be allowed to read the Note and each session.
+The reader must independently be allowed to read the Memo and each session.
 
 ```bash
 # CLI with the matching release; this is read-only and does not join presence.
-dreamlake notes contributors "$NOTE_ID" --namespace "$NAMESPACE" --json
+dreamlake memos contributors "$NOTE_ID" --namespace "$NAMESPACE" --json
 ```
 
 The built-in agent exposes the same read as a real tool:
@@ -490,12 +490,12 @@ The built-in agent exposes the same read as a real tool:
 dreamlake_notes_contributors({ note: noteId, namespace: namespaceSlug })
 ```
 
-Normal Note edit tools already carry the conversation identity; no follow-up
+Normal Memo edit tools already carry the conversation identity; no follow-up
 "mark contributed" call is needed. Direct browser RTC edits without a session
 identity are not attributed to a terminal session. Historical links remain links;
-no authorship is inferred from access, similar names or Note mentions.
+no authorship is inferred from access, similar names or Memo mentions.
 
 Optional attribution has a bounded wait and bounded outstanding work. If it is
 unavailable, content saves still succeed; a late record may appear on refresh.
 Never replay an accepted content write to repair metadata. Presence expiration,
-missing metadata and contribution-list errors do not prevent normal Note editing.
+missing metadata and contribution-list errors do not prevent normal Memo editing.

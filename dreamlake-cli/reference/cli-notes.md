@@ -1,13 +1,15 @@
-<!-- generated from https://cli.dreamlake.ai/notes.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes.md at 0.105.0 3dc31d9; do not edit -->
 
-# Notes
+# Memos
 
-Notes are shared Markdown documents you can read and edit in DreamLake or from
+Use `dreamlake memos` (or `dreamlake memo`). The previous `notes` and `note` commands remain aliases. Existing `/notes` URLs, `--note` flags, SDK methods, and JSON fields keep their compatibility names.
+
+Memos are shared Markdown documents you can read and edit in DreamLake or from
 your terminal. Choose a guide for the task at hand.
 
 ## Basics
 
-- [Create and find notes](cli-notes-getting-started.md) — login, search, create, and first read.
+- [Create and find memos](cli-notes-getting-started.md) — login, search, create, and first read.
 - [Reading and changes](cli-notes-reading.md) — sections, passage search, and change history.
 - [Editing with patches](cli-notes-editing.md) — targeted edits that preserve concurrent work.
 - [Live collaboration](cli-notes-collaboration.md) — task identity, presence, and following edits.
@@ -26,13 +28,13 @@ your terminal. Choose a guide for the task at hand.
 
 - [Sharing and visibility](cli-notes-sharing.md) — links, access roles, and public/private visibility.
 - [Project filing](cli-notes-projects.md) — create and inspect project affiliations.
-- [Ownership transfers](cli-notes-transfers.md) — preview and transfer a standalone Note.
-- [Archive notes and folders](https://cli.dreamlake.ai/notes/archival) — hide inactive work and restore it on edit.
-- [Delete a note](cli-notes-deletion.md) — remove a whole Note.
+- [Ownership transfers](cli-notes-transfers.md) — preview and transfer a standalone Memo.
+- [Archive memos and folders](https://cli.dreamlake.ai/notes/archival) — hide inactive work and restore it on edit.
+- [Delete a memo](cli-notes-deletion.md) — remove a whole Memo.
 
 ## Cross-interface API design
 
-The [Notes API design](https://docs.dreamlake.ai/notes/api/) is the detailed
+The [Memos API design](https://docs.dreamlake.ai/notes/api/) is the detailed
 implementation target shared by the CLI, TypeScript, Python and model-facing
 tools. Its method-family pages cover [reading](https://docs.dreamlake.ai/notes/api/reading/),
 [editing](https://docs.dreamlake.ai/notes/api/editing/),
@@ -55,7 +57,7 @@ some defaults and argument shapes; do not substitute them into existing scripts:
 | Read default | Canonical source with metadata | Source-mapped default; explicit exact-source export |
 | Mapped inspection | `read --view markdown` or `--view html` | Shared mapped read contract with explicit scope and ranges |
 | Line selection | Existing separate start/end flags and compatibility constraints | One `--lines START:END` pair |
-| Namespace | `--namespace` in current Notes examples | Consistent `--namespace` / `--ns` source-context aliases |
+| Namespace | `--namespace` in current Memos examples | Consistent `--namespace` / `--ns` source-context aliases |
 | Create | Positional name required | Name and initial text optional |
 | Watch | `read --linger` with current debounce/throttle behavior | Bounded `watch`, normalized events and durable net content catch-up |
 | Append | Existing separator-LF behavior | Verbatim supplied text with no automatic separator |

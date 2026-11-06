@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/dev/notes/npm-publication.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/dev/notes/npm-publication.md at 0.105.0 3dc31d9; do not edit -->
 
 # npm publication gate
 
@@ -67,4 +67,4 @@ npm view @dreamlake/dreamlake-cli-linux-arm64@0.22.0 version dist.integrity --re
 python3 scripts/release_guard/publish.py reconcile --target npm --root /absolute/frozen-candidate-checkout
 ```
 
-A 404 or elapsed waiting window does not prove rejection. Manual-review or blocked states may require maintainer follow-up. The documented [staged queue/history](https://github.blog/changelog/2026-09-03-multiple-trusted-publishing-configurations-for-npm/) is not evidence that this direct publish was staged. This note adds an operator procedure; it performs no publication and changes no channel.
+A 404 or elapsed waiting window does not prove rejection. Manual-review or blocked states may require maintainer follow-up. The documented [staged queue/history](https://github.blog/changelog/2026-09-03-multiple-trusted-publishing-configurations-for-npm/) is not evidence that this direct publish was staged. This memo adds an operator procedure; it performs no publication and changes no channel.

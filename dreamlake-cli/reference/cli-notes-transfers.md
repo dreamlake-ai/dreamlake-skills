@@ -1,27 +1,27 @@
-<!-- generated from https://cli.dreamlake.ai/notes/transfers.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/transfers.md at 0.105.0 3dc31d9; do not edit -->
 
 # Ownership transfers
 
-## Transfer a standalone Note
+## Transfer a standalone Memo
 
 `notes transfer` uses a recipient-accepted metadata transfer. It requires a
-matching server that advertises a metadata-only Note transfer plan; updating the
-CLI alone does not enable it. The command keeps the Note ID, content and RTC
+matching server that advertises a metadata-only Memo transfer plan; updating the
+CLI alone does not enable it. The command keeps the Memo ID, content and RTC
 history in place: a 700 MB history is not downloaded or copied for the transfer.
 Preview the access inventory and blockers before submitting.
 
-```bash cli-help="notes transfer"
-dreamlake notes transfer NOTE_ID --namespace alice --to acme \
+```bash cli-help="memos transfer"
+dreamlake memos transfer NOTE_ID --namespace alice --to acme \
   --dry-run --out note-transfer.json
 # Submit the exact reviewed file; the authorized destination member accepts separately.
-dreamlake notes transfer NOTE_ID --namespace alice --to acme \
+dreamlake memos transfer NOTE_ID --namespace alice --to acme \
   --confirm --request-file note-transfer.json
 # If you also have destination acceptance authority:
-dreamlake notes transfer NOTE_ID --namespace alice --to acme \
+dreamlake memos transfer NOTE_ID --namespace alice --to acme \
   --confirm --request-file note-transfer.json --accept-if-authorized --wait
 ```
 
-Only eligible private Notes and provable preserved access are admitted in this
+Only eligible private Memos and provable preserved access are admitted in this
 stage. Existing access and external Project filings are required to be preserved;
 unsupported audiences or placements return blockers, without a legacy fallback.
 This does not add support for every other resource type. For whole Projects use
@@ -45,7 +45,7 @@ metadata ownership transfers are disabled. Preview `notes transfer` separately.
 A `NOTE_METADATA_PRINCIPAL_UNSUPPORTED` refusal means the server cannot prove
 preservation of an existing project grant, including team or service-account
 grants. A built-in agent's WRITE grant is one such grant. Do not remove access
-or copy/delete the Note to work around this boundary.
+or copy/delete the Memo to work around this boundary.
 
 Starting with CLI 0.104.5, metadata-transfer commands with `--json` emit
 `{ok:false,error:{code,message,status,requestId,retryable,submissionAttempted,nextAction}}`

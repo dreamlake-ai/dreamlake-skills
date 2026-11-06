@@ -9,11 +9,11 @@ action of `dreamlake-cli`; other resource types are not enabled by this command
 and need their own admitted adapter (the `ownership` action of `dreamlake-cli`).
 
 ```bash
-dreamlake memos transfer NOTE_ID --namespace alice --to acme --dry-run --out note-transfer.json
+dreamlake memos transfer MEMO_ID --namespace alice --to acme --dry-run --out note-transfer.json
 # Review access and blockers, then submit that exact file; the destination accepts separately.
-dreamlake memos transfer NOTE_ID --namespace alice --to acme --confirm --request-file note-transfer.json
+dreamlake memos transfer MEMO_ID --namespace alice --to acme --confirm --request-file note-transfer.json
 # Only with verified destination acceptance authority:
-dreamlake memos transfer NOTE_ID --namespace alice --to acme --confirm --request-file note-transfer.json --accept-if-authorized --wait
+dreamlake memos transfer MEMO_ID --namespace alice --to acme --confirm --request-file note-transfer.json --accept-if-authorized --wait
 ```
 
 - The Memo ID, content and RTC history stay in place; nothing is loaded,

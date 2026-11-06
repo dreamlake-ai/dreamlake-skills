@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/columns.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/columns.md at 0.105.0 3dc31d9; do not edit -->
 
 # Columns and rows
 
@@ -17,7 +17,7 @@ Use these exact, case-sensitive markers on separate, unindented lines:
 
 Each block has exactly two nonempty columns and one `<ColumnBreak>`. Column
 bodies support Markdown. Pairs stack vertically on narrow screens. These are
-specific Notes layout markers; they do not enable arbitrary HTML or CSS.
+specific Memos layout markers; they do not enable arbitrary HTML or CSS.
 Nested column blocks, extra breaks, and markers inside lists, quotes, or code
 fences do not create layouts. Malformed blocks remain literal source.
 

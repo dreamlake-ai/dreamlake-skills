@@ -1,10 +1,10 @@
-<!-- generated from https://docs.dreamlake.ai/notes/html-reads.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/html-reads.md at 0.1.123 c2b1f71b; do not edit -->
 
 # HTML reads
 
 ## HTML snapshot preview
 
-With the compatible v2 server and CLI, `dreamlake notes read "$NOTE_ID" --view html`
+With the compatible v2 server and CLI, `dreamlake memos read "$NOTE_ID" --view html`
 returns a complete inert HTML document. Root `data-note`, `data-hash`,
 `data-revision`, `data-source-type`, `data-offset-unit` and `data-source`
 attributes contain the exact canonical source and its baseline. Element
@@ -21,7 +21,7 @@ network-loaded media are excluded from this static preview.
 
 ## Literal Markdown for agents
 
-With CLI 0.34.4 and a compatible server, `--view html` on a Markdown note is
+With CLI 0.34.4 and a compatible server, `--view html` on a Markdown memo is
 an **agent format**: HTML-like tags supply structure and addresses; their
 contents are the exact original Markdown. There is one `data-char` source
 range, including the construct's syntax. There is no inner/outer split.
@@ -49,7 +49,7 @@ root `data-addresses` index rather than finding tags inside arbitrary Markdown.
 CLI `--view markdown` handles this and prints literal source with address hints.
 Keep the original revision with the source and verify the acknowledged edit.
 Older servers may return rendered HTML; do not assume literal bodies without the
-format marker. Canonical HTML notes retain their existing HTML source mapping.
+format marker. Canonical HTML memos retain their existing HTML source mapping.
 
 ## Focused and historical reads
 
@@ -59,10 +59,10 @@ exclusive, and cannot combine with `--since` or `--linger`:
 
 ```bash
 # NOTE_ID identifies an accessible note; copy REVISION from its read receipt.
-dreamlake notes read "$NOTE_ID"
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --toc
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1.1
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
+dreamlake memos read "$NOTE_ID"
+dreamlake memos read "$NOTE_ID" --at "$REVISION" --toc
+dreamlake memos read "$NOTE_ID" --at "$REVISION" --section s1.1
+dreamlake memos read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
@@ -96,13 +96,13 @@ contains only the selected `data-source`, with its global `data-source-start` an
 `data-revision` still identify the complete document. Subtract `data-source-start`
 when slicing local source; keep absolute offsets in the patch. TOCs carry exact
 heading source on each heading and empty root source. Never upload a slice or
-rendered HTML as the complete note.
+rendered HTML as the complete memo.
 
 ```bash
 # edit.dff is prepared from the exact source at REVISION.
-dreamlake notes patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
+dreamlake memos patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
 # NEXT_REVISION comes from that write receipt.
-dreamlake notes read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
+dreamlake memos read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
 ```
 
 Exact mode refuses concurrent edits with 412; native merge mode remains available
@@ -155,7 +155,7 @@ source. The root `data-source` remains exact. When Markdown normalizes a region
 so an exact token range cannot be proven, its enclosing block remains atomic;
 the renderer never guesses an editable token range.
 
-Static previews show assets, Notes and bindrs as unresolved labels. They perform
+Static previews show assets, Memos and bindrs as unresolved labels. They perform
 no metadata lookup and include no download URL or authorization capability.
 Labels come only from source the reader can already read. The interactive
 application separately resolves resources through authorized APIs. Imported
@@ -170,7 +170,7 @@ components were delivered separately in
 
 ## Heading numbering in HTML reads
 
-Markdown Notes can place the following options in an initial YAML front-matter
+Markdown Memos can place the following options in an initial YAML front-matter
 block. The same policy is used by the editor/outline and the server HTML preview:
 
 ```markdown

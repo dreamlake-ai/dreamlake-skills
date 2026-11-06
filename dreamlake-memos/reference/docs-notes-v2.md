@@ -1,12 +1,12 @@
-<!-- generated from https://docs.dreamlake.ai/notes/v2.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/v2.md at 0.1.123 c2b1f71b; do not edit -->
 
-# Notes v2: merge and exact patches
+# Memos v2: merge and exact patches
 
-Released September 24, 2026 with CLI 0.26.2, Python SDK 0.20.0 and the Notes API
+Released September 24, 2026 with CLI 0.26.2, Python SDK 0.20.0 and the Memos API
 backed by RTC server 0.5.1. The API retains native baselines and the authority
 supplies unlocked baseline observations. Upgrade older clients before using
 these examples. Deployment evidence and manual acceptance are tracked in
-[the Notes master plan](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+[the Memos master plan](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
 
 A v2 source read returns `note`, `hash`, `revision` and `content`. `hash` is
 `sha256:` plus the exact UTF-8 source digest. `revision` is an opaque RTC write
@@ -17,22 +17,22 @@ to make an old patch pass.
 ```bash
 set -euo pipefail
 NOTE_ID=design-doc
-dreamlake notes read "$NOTE_ID" --json > baseline.json
+dreamlake memos read "$NOTE_ID" --json > baseline.json
 BASE_HASH=$(jq -er '.hash' baseline.json)
 BASE=$(jq -er '.revision' baseline.json)
 jq -jr '.content' baseline.json > base.md
 
-dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format inline-dff
-dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" --format diff
+dreamlake memos read "$NOTE_ID" --since "$BASE_HASH" --format inline-dff
+dreamlake memos read "$NOTE_ID" --since "$BASE_HASH" --format diff
 
 # Example requires saved source exactly Hello world. without a final newline.
-dreamlake notes patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
+dreamlake memos patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
 
 REVISION=$(jq -er '.revision' committed.json)
-dreamlake notes read "$NOTE_ID" --if-match "$REVISION" --json > verified.json
+dreamlake memos read "$NOTE_ID" --if-match "$REVISION" --json > verified.json
 ```
 
 Use a quoted heredoc delimiter absent from the patch body. Multiline stdin is
@@ -101,7 +101,7 @@ has already changed the acknowledged revision.
 
 ## Keep incremental reads compact
 
-For an agent following a note, reuse the saved full `read --json` baseline;
+For an agent following a memo, reuse the saved full `read --json` baseline;
 obtain one only if none is available. Then use `read --since "$BASE_HASH"` for
 subsequent checks instead of repeatedly downloading the full document. For
 one-off passage inspection, use the scoped reads above without fetching a full
@@ -121,17 +121,17 @@ replace an existing draft's original revision just to make it pass. Unknown or
 expired bases remain errors. Use `--json` and extract `.patch` when a consumer
 needs patch text alone; normal text output includes metadata.
 
-### Verify edits without rereading the whole note
+### Verify edits without rereading the whole memo
 
 After a successful v2 patch, verify the acknowledged revision with a delta from
 your saved baseline. This uses the existing `baseline.json` from the pre-edit
-read and `receipt.json` from the successful patch; `NOTE_ID` is the same note
-used for both operations, as set in [Name a note](docs-notes-cli-editing.md#name-a-note).
+read and `receipt.json` from the successful patch; `NOTE_ID` is the same memo
+used for both operations, as set in [Name a memo](docs-notes-cli-editing.md#name-a-note).
 
 ```bash
 BASE_HASH=$(jq -er .hash baseline.json)
 ACK_REVISION=$(jq -er .revision receipt.json)
-dreamlake notes read "$NOTE_ID" --since "$BASE_HASH" \
+dreamlake memos read "$NOTE_ID" --since "$BASE_HASH" \
   --if-match "$ACK_REVISION" --json > verified-delta.json
 ```
 
@@ -150,7 +150,7 @@ through. If the cached source or retained base is unavailable, take a new full
 snapshot explicitly; do not claim exact verification of an expired revision.
 
 The full-read examples below remain useful as standalone demonstrations and
-recovery checks. They are not a requirement to reread the entire note after
+recovery checks. They are not a requirement to reread the entire memo after
 every targeted edit.
 
 ## Reproduce a concurrent merge and an exact conflict
@@ -164,9 +164,9 @@ then make a separate, explicit merge request. There is no automatic downgrade.
 
 ```bash
 set -euo pipefail
-dreamlake notes create "Merge/exact example" --text 'Hello world.' --json > fixture.json
+dreamlake memos create "Merge/exact example" --text 'Hello world.' --json > fixture.json
 NOTE_ID=$(jq -er '.id' fixture.json)
-dreamlake notes read "$NOTE_ID" --json > baseline.json
+dreamlake memos read "$NOTE_ID" --json > baseline.json
 BASE=$(jq -er '.revision' baseline.json)
 jq -jr '.content' baseline.json > original.md
 cat > agent.patch <<'PATCH'
@@ -175,14 +175,14 @@ cat > agent.patch <<'PATCH'
 PATCH
 
 # Simulate a second participant inserting a prefix after the agent's read.
-dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" --json > human.json <<'PATCH'
+dreamlake memos patch "$NOTE_ID" --base-revision "$BASE" --json > human.json <<'PATCH'
 @@ chars 0:0 @@
 ~ {+Human: +}
 PATCH
 
 # Expected conflict: stdout stays empty; stderr explains the failure; exit is 3.
 set +e
-dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" --exact \
+dreamlake memos patch "$NOTE_ID" --base-revision "$BASE" --exact \
   --file agent.patch --json > exact.stdout 2> exact.stderr
 STATUS=$?
 set -e
@@ -191,10 +191,10 @@ test ! -s exact.stdout
 cat exact.stderr
 
 # A separate explicit choice to merge the ORIGINAL patch and identities.
-dreamlake notes patch "$NOTE_ID" --base-revision "$BASE" \
+dreamlake memos patch "$NOTE_ID" --base-revision "$BASE" \
   --file agent.patch --json > merged.json
 jq '{note, mode, baseRevision, hash, revision}' merged.json
-dreamlake notes read "$NOTE_ID" --json > observed.json
+dreamlake memos read "$NOTE_ID" --json > observed.json
 jq -er '.content == "Human: Hello team."' observed.json
 ```
 
@@ -207,7 +207,7 @@ from pathlib import Path
 import dreamlake as dl
 from dreamlake import NoteChanged
 
-note = dl.create_note(os.environ["NAMESPACE"], "Merge/exact example",
+note = dl.create_memo(os.environ["NAMESPACE"], "Merge/exact example",
                       text="Hello world.")
 baseline = note.read_snapshot()
 patch = "@@ chars 0:12 @@\n~ Hello [-world-]{+team+}.\n"
@@ -244,19 +244,19 @@ individual request; the following empty patch uses the default merge mode.
 **CLI**
 
 ```bash
-dreamlake notes read "$NOTE_ID" --json > exact-baseline.json
+dreamlake memos read "$NOTE_ID" --json > exact-baseline.json
 EXACT_BASE=$(jq -er '.revision' exact-baseline.json)
 cat > exact.patch <<'PATCH'
 @@ chars 18:18 @@
 ~ {+!+}
 PATCH
-dreamlake notes patch "$NOTE_ID" --base-revision "$EXACT_BASE" --exact \
+dreamlake memos patch "$NOTE_ID" --base-revision "$EXACT_BASE" --exact \
   --file exact.patch --json > exact-success.json
 jq '{note, mode, baseRevision, hash, revision}' exact-success.json
 
-dreamlake notes read "$NOTE_ID" --json > after-exact.json
+dreamlake memos read "$NOTE_ID" --json > after-exact.json
 NEXT_BASE=$(jq -er '.revision' after-exact.json)
-printf '' | dreamlake notes patch "$NOTE_ID" --base-revision "$NEXT_BASE" \
+printf '' | dreamlake memos patch "$NOTE_ID" --base-revision "$NEXT_BASE" \
   --json > merge-after-exact.json
 jq -er '.mode == "merge"' merge-after-exact.json
 ```

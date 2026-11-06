@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sources.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sources.md at 0.105.0 3dc31d9; do not edit -->
 
 # Sources
 
@@ -335,7 +335,7 @@ both `share-off` and `shares-remove` are idempotent on their own.
 
 A Source binding or reference still blocks the entire
 [`project move`](cli-projects.md#move-a-whole-project-and-its-supported-resources)
-request. The expanded workflow supports owned Notes, Artifacts and Envs, not
+request. The expanded workflow supports owned Memos, Artifacts and Envs, not
 Sources, Workflows or Annotations. `ProjectSourceBinding` stays unchanged; there
 is no Source migration or implicit Connection/credential transfer. Do not skip
 its manifest entry, silently detach it or simulate an ownership move with

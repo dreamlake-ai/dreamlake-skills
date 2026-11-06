@@ -1,25 +1,25 @@
-<!-- generated from https://docs.dreamlake.ai/notes/embeds.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/embeds.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Embeds and query arguments
 
 Artifacts and previews have three presentation states:
 
 - **Inline:** a compact reference in the text flow, with no embedded content.
-- **Embed:** a block of content inside the Note, enabled with `embed="4:3"` or another supported aspect.
+- **Embed:** a block of content inside the Memo, enabled with `embed="4:3"` or another supported aspect.
 - **Open:** the standalone artifact page or destination page, opened in the preview/browser.
 
 These states apply to every supported artifact content type; the directive argument
 is always `embed`, independent of the content language.
 
 Use `embed="4:3"` or `embed="16:9"` to render an artifact or web page inside
-the Note. The value both enables the embed and sets its aspect ratio.
+the Memo. The value both enables the embed and sets its aspect ratio.
 `embed="true"` is shorthand for `embed="16:9"`. Omit `embed` (or set it to
 `"false"`) to keep an inline reference.
 
 ## Sizing models
 
 **Responsive ratio:** fill the available document width and derive height from
-the ratio. This is the default model; it responds when the Note panel resizes.
+the ratio. This is the default model; it responds when the Memo panel resizes.
 
 ```markdown
 :artifact[geyang/dashboard]{embed="4:3"}
@@ -89,9 +89,9 @@ content-specific query arguments together in braces:
 These resource names are examples, not preinstalled artifacts. The referenced
 artifact or website must implement the requested views.
 
-Notes consumes `embed`, `width`, `height`, `zoom`, and `border`. Earlier `inline` arguments remain readable for compatibility; new embeds use `embed`. Neither key is forwarded to the renderer. Resource identity
+Memos consumes `embed`, `width`, `height`, `zoom`, and `border`. Earlier `inline` arguments remain readable for compatibility; new embeds use `embed`. Neither key is forwarded to the renderer. Resource identity
 fields (`namespace`, `id`, `fragment` for artifacts; `url` and `title` for previews)
-also belong to Notes. All other valid arguments become public query parameters;
+also belong to Memos. All other valid arguments become public query parameters;
 they are never interpreted as HTML attributes, CSS, or sandbox flags.
 
 For the first example, the artifact receives
@@ -141,7 +141,7 @@ run in a nested `about:srcdoc` frame.
 </script>
 ```
 
-Route changes stay inside the embed; they do not rewrite the Note or inherit its
+Route changes stay inside the embed; they do not rewrite the Memo or inherit its
 page query. Dispose subscriptions when a renderer unmounts. See the full
 [artifact routing contract](https://docs.dreamlake.ai/artifacts#artifact-paths-and-local-routing) for navigation,
 fragments, lifecycle, and access boundaries.
@@ -156,7 +156,7 @@ arguments are invalid. Reserved route names such as `share`, `token`, `auth`,
 suffix forms) cannot be forwarded. Encoded route state is limited to 8192
 characters. Invalid directives remain literal text.
 
-Query data is public configuration, not authorization. Notes never forwards its
+Query data is public configuration, not authorization. Memos never forwards its
 own URL parameters or credentials. References and queries do not grant access.
 
 ## Video, storyboard, and contact-sheet contracts
@@ -172,7 +172,7 @@ A video artifact can define these query arguments without changing Notes:
 | `interval` | Sample spacing in seconds, instead of a fixed frame count |
 | `start`, `end` | Sampling or playback range in seconds |
 
-This is a renderer API convention, not a built-in Notes video feature. A renderer
+This is a renderer API convention, not a built-in Memos video feature. A renderer
 should bound sampling work, show timestamps, and make a frame open playback at
 that timestamp. It should reject conflicting `frames` and `interval` options.
 A future `:contact-sheet[...]` directive could be shorthand for this renderer;

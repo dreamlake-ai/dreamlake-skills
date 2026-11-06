@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.105.0 3dc31d9; do not edit -->
 
 # Task operation examples
 
@@ -38,7 +38,7 @@ when recording a known observation or retrying an uncertain write.
 
 ## Create folder-like tasks and subtasks
 
-Parents must already exist; `add` does not implicitly create missing ancestors. These tasks need no Note content.
+Parents must already exist; `add` does not implicitly create missing ancestors. These tasks need no Memo content.
 
 ```shell
 dreamlake tasks add vault --kind workstream --title 'Vault' --blurb 'Credential management'
@@ -56,7 +56,7 @@ dreamlake tasks status vault --recursive --to-json
 dreamlake tasks show vault/entries/write-recovery --to-json
 ```
 
-The UI opens the selected task/folder in an outline and waterfall. Its detail panel shows note links and event history. A task with a start and no end has a striped open bar to the present; it does not acquire an endedAt timestamp.
+The UI opens the selected task/folder in an outline and waterfall. Its detail panel shows memo links and event history. A task with a start and no end has a striped open bar to the present; it does not acquire an endedAt timestamp.
 
 ## Rename, move and reorder
 
@@ -103,9 +103,9 @@ dreamlake tasks events list vault/entries/write-recovery --limit 50 --to-json
 
 A message event never changes completion/acceptance state. Events should carry evidence references rather than secrets or raw credential-bearing command lines.
 
-## Link note items: prompt, comments and details
+## Link memo items: prompt, comments and details
 
-These are references to existing Notes/sections. Linking does not create or edit Note content. Use IDs returned by existing Notes APIs and resolve section anchors against the actual document.
+These are references to existing Notes/sections. Linking does not create or edit Memo content. Use IDs returned by existing Memos APIs and resolve section anchors against the actual document.
 
 ```shell
 dreamlake tasks notes add vault/entries/write-recovery --role agent_prompt --note-id NOTE_ID_PROMPT --section recovery-agent
@@ -114,11 +114,11 @@ dreamlake tasks notes add vault/entries/write-recovery --role details --note-id 
 dreamlake tasks notes list vault/entries/write-recovery --to-json
 ```
 
-The detail panel groups links by role and opens the linked note item. Comments use Notes content for this first proposal, not a new Comment collection. A separate comment/post API or immutable discussion timeline is not implied. Prompt revision pinning is optional and must match Notes capabilities; record what the agent actually read when execution evidence needs it.
+The detail panel groups links by role and opens the linked memo item. Comments use Memos content for this first proposal, not a new Comment collection. A separate comment/post API or immutable discussion timeline is not implied. Prompt revision pinning is optional and must match Memos capabilities; record what the agent actually read when execution evidence needs it.
 
 ## Soft-delete, restore and deprecate
 
-Deletion hides the record, preserves ID/events/Note links, and never deletes Note content. Under the proposed first-version rule, deletion with live children fails. These are independent examples, not one mandatory sequence.
+Deletion hides the record, preserves ID/events/Note links, and never deletes Memo content. Under the proposed first-version rule, deletion with live children fails. These are independent examples, not one mandatory sequence.
 
 ```shell
 dreamlake tasks delete vault/entries/write-recovery --if-match REV_BEFORE_DELETE

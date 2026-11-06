@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/analytics.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/analytics.md at 0.105.0 3dc31d9; do not edit -->
 
 # Product analytics
 
@@ -77,7 +77,7 @@ separate instrumentation.
 No error message, response body, request ID or resource identifier is uploaded.
 Deploy the compatible server collector before releasing this CLI change.
 
-Note move and metadata-transfer commands also record `operation_error_code`
+Memo move and metadata-transfer commands also record `operation_error_code`
 and `operation_outcome` (`failed`, `blocked`, `partial`, or `uncertain`) when
 classified by that command. A blocked HTTP 200 preview therefore records its
 blocker without inventing an HTTP error status. These optional fields are

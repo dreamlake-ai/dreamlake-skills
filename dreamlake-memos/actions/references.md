@@ -116,7 +116,7 @@ Follow [reconnect and recovery](../reference/docs-notes-collaboration.md#reconne
 ## CLI workflow
 
 Check installed `dreamlake memos --help` and the current server and editor
-version first. Follow [read](read.md) for an original plain-source baseline and
+version first. Follow [read](read.md) for an original complete source snapshot and
 retain its opaque revision. Locate or create the child, read it back, then use
 the revision-guarded exact patch in [edit](edit.md) to replace only the source
 item with an ordinary Markdown link to the returned child URL.

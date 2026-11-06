@@ -1,16 +1,18 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.123 c2b1f71b; do not edit -->
 
-# Notes
+# Memos
+
+Memos were previously called Notes. Existing `/notes` URLs, API fields, saved references, and document IDs remain compatible.
 
 Read [Markdown authoring](docs-notes-markdown.md), [Embeds and query arguments](docs-notes-embeds.md),
-[Panels](docs-notes-panels.md), and [Linked note items](docs-notes-linked-items.md) for focused guides.
-The [Notes API design](https://docs.dreamlake.ai/notes/api) specifies the unreleased shared-interface
+[Panels](docs-notes-panels.md), and [Linked memo items](docs-notes-linked-items.md) for focused guides.
+The [Memos API design](https://docs.dreamlake.ai/notes/api) specifies the unreleased shared-interface
 target with tabbed CLI, TypeScript, Python and model-tool examples. Its proposed
 methods and guarantees are not a claim of installed-client or server support.
 The detailed guides and CLI/API reference are on the pages below.
 [Whole Project and owned resources transfer](docs-notes-sharing.md#whole-project-and-owned-resources-transfer)
 includes Artifact/Env with CLI 0.64.0+ or SDK 0.31.0+ and the matching backend;
-CLI 0.63.0 / SDK 0.30.0 support the Note-only manifest. Standalone Note transfer
+CLI 0.63.0 / SDK 0.30.0 support the Memo-only manifest. Standalone Memo transfer
 across namespaces remains unsupported. Dated release notes below describe their
 original verification scope.
 
@@ -22,7 +24,7 @@ named-version catalog publication by default. Durable attachment purge remains
 disabled. Strict runtime verification and read-only metadata/header checks do not
 establish production attachment-copy, saved-version-write or user acceptance.
 That October 9 verification did not enable a transfer adapter or establish
-continuous Note-read availability.
+continuous Memo-read availability.
 
 **Attachment journal release — October 10, 2026:** the known-byte text/copy
 publication journal and admitted-only cancellation are enabled in the strictly
@@ -35,26 +37,26 @@ not runtime-tested. Raw upload journaling, durable
 purge and transfer adapters were disabled in that release. Current whole-Project
 transfer support is documented separately below.
 
-  A note is a collaborative Markdown document. This is how a script — or a
+  A memo is a collaborative Markdown document. This is how a script — or a
   coding agent working through bash — edits one while people have it open.
 
 See [Panels and agent control](docs-notes-panels.md) for artifact previews, pinned tabs,
 and programmable native layouts. The session-library button in the chat tab
-row opens an available terminal beside the note, keeping the editor in place.
-Session permissions remain separate from note permissions.
+row opens an available terminal beside the memo, keeping the editor in place.
+Session permissions remain separate from memo permissions.
 
 In live preview, an opening H1 with content below it is positioned
 above the viewport once, before interaction. Scrolling back to the title keeps it
 visible; typing, blur, and idle time do not automatically hide it again. Raw
-Markdown, title-only notes, and explicit search or section navigation retain
+Markdown, title-only memos, and explicit search or section navigation retain
 their existing behavior. Formatting remains enabled while editing. Vim visual
 selections remain visible in both rich and raw views. Each connected browser session shares its cursor and selection, including other sessions of the same account. Clearing a selection updates it immediately; leaving editor focus removes its shared cursor and selection. Hidden tabs leave visible presence. Visible sessions renew presence every 30 seconds; peers expire after 90 seconds without renewal. Cursor labels size to their names, capped at 20 characters of display width with ellipsis. Remote text updates preserve the
-visible text position in the note pane; a new scroll gesture, keystroke, or
+visible text position in the memo pane; a new scroll gesture, keystroke, or
 selection takes precedence over a pending viewport correction.
 
 Use a collaborator avatar to navigate to its current cursor when the location is
-available. A cursor at the beginning of the note shows a popup saying
-**Cursor is at the start of the note** and leaves your view in place. An avatar
+available. A cursor at the beginning of the memo shows a popup saying
+**Cursor is at the start of the memo** and leaves your view in place. An avatar
 without a current cursor shows a popup saying **No location available**. Other
 available cursor locations support the existing jump action.
 
@@ -67,7 +69,7 @@ keeps its historical view open; clicking a version label alone does not pin it.
 - [Writing and formatting](docs-notes-writing.md): the editor, placeholders, color, highlights and references.
 - [Markdown authoring](docs-notes-markdown.md) and [Embeds and query arguments](docs-notes-embeds.md).
 - [Images, rows and video](docs-notes-rows.md): `:::row` blocks, the image viewer and video.
-- [Linked note items](docs-notes-linked-items.md).
+- [Linked memo items](docs-notes-linked-items.md).
 - [Browse, create and organize](docs-notes-browsing.md): the catalog, archive, projects and Bindrs, create, duplicate, summaries and links.
 - [Collaboration and review](docs-notes-collaboration.md): sync, suggested edits and comments.
 - [History and saved versions](docs-notes-history.md).
@@ -75,9 +77,9 @@ keeps its historical view open; clicking a version label alone does not pin it.
 - [Files and attachments](docs-notes-files.md).
 - [Session and resource activity](docs-notes-activity.md).
 
-The **Notes API** section covers programmatic access: the [Notes API design](https://docs.dreamlake.ai/notes/api),
+The **Memos API** section covers programmatic access: the [Memos API design](https://docs.dreamlake.ai/notes/api),
 [reading, editing and search from the CLI](docs-notes-cli-editing.md),
-[Notes v2 merge and exact patches](docs-notes-v2.md), [agent presence](docs-notes-agent-presence.md)
+[Memos v2 merge and exact patches](docs-notes-v2.md), [agent presence](docs-notes-agent-presence.md)
 and [HTML reads](docs-notes-html-reads.md).
 
 ## Install
@@ -109,7 +111,7 @@ dreamlake skill install dreamlake-notes
 
 `dreamlake skill update` then updates it. `dreamlake init` chooses between
 your user directory and one project, and the `dreamlake-cli` skill that the
-Notes skill requires is installed with it. Without the CLI, download
+Memos skill requires is installed with it. Without the CLI, download
 `skills.tar.gz` from the latest
 [dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
 and copy `dreamlake-notes/` and `dreamlake-cli/` into your agent's skills

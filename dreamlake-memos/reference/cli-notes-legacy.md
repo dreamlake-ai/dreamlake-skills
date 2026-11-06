@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/legacy.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/legacy.md at 0.105.0 3dc31d9; do not edit -->
 
 # Legacy commands
 
@@ -16,14 +16,14 @@ section API; that migration and add/remove-section migrations remain unshipped.
 
 ```bash
 NOTE_ID=release-plan
-dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
+dreamlake memos read "$NOTE_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
 jq -jr .text legacy-baseline.json > note.md
 # Edit note.md, then preview and submit against the saved ETag.
-dreamlake notes write "$NOTE_ID" --file note.md --if-match "$ETAG" --dry-run
-dreamlake notes write "$NOTE_ID" --file note.md --if-match "$ETAG" --json > legacy-receipt.json
+dreamlake memos write "$NOTE_ID" --file note.md --if-match "$ETAG" --dry-run
+dreamlake memos write "$NOTE_ID" --file note.md --if-match "$ETAG" --json > legacy-receipt.json
 ACK=$(jq -er .etag legacy-receipt.json)
-dreamlake notes read "$NOTE_ID" --legacy --if-match "$ACK" --json
+dreamlake memos read "$NOTE_ID" --legacy --if-match "$ACK" --json
 ```
 
 Legacy JSON uses `text` and `etag`, not v2 `content` and `revision`. Keep the ETag
@@ -50,7 +50,7 @@ concurrent work; it is not a conflict-recovery recipe. V2 `patch` rejects it.
 
 ```bash
 # install.md must include the section heading.
-dreamlake notes write "$NOTE_ID" --section install --file install.md --if-match "$ETAG"
+dreamlake memos write "$NOTE_ID" --section install --file install.md --if-match "$ETAG"
 ```
 
 A section includes its heading and descendants. Replacing it without its heading
@@ -58,10 +58,10 @@ removes that section boundary. Refresh your baseline for each separate edit;
 the following are independent command forms, not a sequence sharing one ETag:
 
 ```bash
-dreamlake notes append "$NOTE_ID" --text $'\n## Changelog\n- Shipped\n'
-dreamlake notes insert "$NOTE_ID" --after install --file troubleshooting.md --if-match "$ETAG"
-dreamlake notes insert "$NOTE_ID" --before install --file prerequisites.md --if-match "$ETAG"
-dreamlake notes rm-section "$NOTE_ID" troubleshooting --if-match "$ETAG"
+dreamlake memos append "$NOTE_ID" --text $'\n## Changelog\n- Shipped\n'
+dreamlake memos insert "$NOTE_ID" --after install --file troubleshooting.md --if-match "$ETAG"
+dreamlake memos insert "$NOTE_ID" --before install --file prerequisites.md --if-match "$ETAG"
+dreamlake memos rm-section "$NOTE_ID" troubleshooting --if-match "$ETAG"
 ```
 
 `--after` inserts after the section and its subsections. `rm-section` removes the
@@ -76,11 +76,11 @@ keeping this path through `--legacy`, `--force`, or `--if-match`; it is not reti
 
 ```bash
 NOTE_ID=release-plan
-dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
+dreamlake memos read "$NOTE_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
 # Insert at the beginning of that exact source, with its original guard.
-dreamlake notes insert --note "$NOTE_ID" --ind 0 --text 'Review: ' --if-match "$ETAG"
-dreamlake notes read "$NOTE_ID" --json
+dreamlake memos insert --note "$NOTE_ID" --ind 0 --text 'Review: ' --if-match "$ETAG"
+dreamlake memos read "$NOTE_ID" --json
 ```
 
 ## Edit by text, pattern, or location
@@ -91,11 +91,11 @@ delete, retaining `--legacy`, `--force`, and `--if-match` compatibility.
 Do not mix those compatibility flags with a v2 baseline or `--exact`.
 
 ```bash
-dreamlake notes find "Draft" --note "$NOTE_ID" --json
-dreamlake notes replace "Draft" --text "Published" --all --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake notes replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake notes insert --text "New line" --line 10 --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake notes delete "obsolete paragraph" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos find "Draft" --note "$NOTE_ID" --json
+dreamlake memos replace "Draft" --text "Published" --all --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos insert --text "New line" --line 10 --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos delete "obsolete paragraph" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
 ```
 
 Review the preview, then remove `--dry-run` for the intended edit. Ambiguous
@@ -107,19 +107,19 @@ For an HTML-source document, selectors target its source without reserializing
 the whole document:
 
 ```bash
-dreamlake notes select "#contact" --note "$NOTE_ID"
-dreamlake notes replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake notes insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake notes replace --html "<b>done</b>" --selector "#status" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos select "#contact" --note "$NOTE_ID"
+dreamlake memos replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos replace --html "<b>done</b>" --selector "#status" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
 ```
 
 ## Legacy diff and patch
 
 ```bash
 NOTE_ID=release-plan
-dreamlake notes read "$NOTE_ID" --legacy --json > legacy-baseline.json
+dreamlake memos read "$NOTE_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
-dreamlake notes diff "$NOTE_ID" --legacy --since "$ETAG"
+dreamlake memos diff "$NOTE_ID" --legacy --since "$ETAG"
 ```
 
 Plain legacy diff output is only the unified diff on stdout, with metadata on
@@ -130,7 +130,7 @@ are errors.
 To upload a single-file diff prepared from that exact saved body:
 
 ```bash
-dreamlake notes patch "$NOTE_ID" --legacy --file draft.diff --if-match "$ETAG" --json
+dreamlake memos patch "$NOTE_ID" --legacy --file draft.diff --if-match "$ETAG" --json
 ```
 
 Legacy reads/diffs/patches require explicit `--legacy`; `write` and the

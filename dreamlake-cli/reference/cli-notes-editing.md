@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.105.0 3dc31d9; do not edit -->
 
 # Editing with patches
 
@@ -8,24 +8,24 @@ acknowledgment. **MERGE is the default; EXACT is an option for one request.**
 
 ## Try a complete edit
 
-This creates a new private test note and uses normal text output throughout.
-It requires login and write access. The initial source is exactly `Hello world.`
+This creates a new private test Memo and uses a structured snapshot to retain
+its source and original revision. It requires login, write access, and `jq`. The initial source is exactly `Hello world.`
 without a trailing newline. Keep the baseline unchanged while preparing the patch.
 
-```bash cli-help="notes patch"
+```bash cli-help="memos patch"
 set -euo pipefail
-dreamlake notes create "Patch tutorial" --text 'Hello world.' > created.txt
+dreamlake memos create "Patch tutorial" --text 'Hello world.' > created.txt
 NOTE_ID=$(sed -n 's/^  id //p' created.txt)
-dreamlake notes read "$NOTE_ID" --view source --json > baseline.json
+dreamlake memos read "$NOTE_ID" --view source --json > baseline.json
 # A plain text read is the mapped reading view and --view source is bytes only;
 # --json is the structured snapshot with note, hash and revision.
 BASE=$(jq -er .revision baseline.json)
-dreamlake notes patch "$NOTE_ID" --file - --base-revision "$BASE" --json > receipt.json <<'PATCH'
+dreamlake memos patch "$NOTE_ID" --file - --base-revision "$BASE" --json > receipt.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
 ACK=$(jq -er .revision receipt.json)
-dreamlake notes read "$NOTE_ID" --if-match "$ACK"
+dreamlake memos read "$NOTE_ID" --if-match "$ACK"
 # Expect Hello team. Inspect the result; do not repeat a successful patch.
 ```
 
@@ -37,21 +37,21 @@ The initial source is exactly `Hello world.` without a trailing newline.
 
 ```bash notes-example="inline-roundtrip"
 set -euo pipefail
-dreamlake notes create "Patch tutorial" \
+dreamlake memos create "Patch tutorial" \
   --text 'Hello world.' --json > created.json
 NOTE_ID=$(jq -er .id created.json)
-dreamlake notes read "$NOTE_ID" --json > baseline.json
+dreamlake memos read "$NOTE_ID" --json > baseline.json
 BASE=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > base.md
 
-dreamlake notes patch "$NOTE_ID" --file - --base-revision "$BASE" \
+dreamlake memos patch "$NOTE_ID" --file - --base-revision "$BASE" \
   --json > receipt.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
 
 ACK=$(jq -er .revision receipt.json)
-dreamlake notes read "$NOTE_ID" --if-match "$ACK" \
+dreamlake memos read "$NOTE_ID" --if-match "$ACK" \
   --json > verified.json
 jq -e '.content == "Hello team."' verified.json
 ```
@@ -84,7 +84,7 @@ replacements of the same word side by side (for example
 MERGE refuses the whole patch with exit `3` (HTTP 412 `stale`,
 message `merge refused: …`) and writes nothing when a change made after your
 read overlaps any hunk. The check compares collaborative character identities,
-not text, so an identical word elsewhere in the note never matches. A hunk
+not text, so an identical word elsewhere in the memo never matches. A hunk
 overlaps when, since your read:
 
 - a character it replaces or deletes was changed, deleted or replaced, even by
@@ -98,13 +98,13 @@ overlaps when, since your read:
 Adjacent edits are treated as overlapping on purpose: replacing `shared` in
 `shared baseline` still merges with a concurrent edit to `baseline`, because the
 original space between them is unchanged, but not with text typed directly
-against `shared`. Two concurrent appends at the end of a note also conflict.
+against `shared`. Two concurrent appends at the end of a memo also conflict.
 Disjoint hunks continue to merge, and EXACT is unchanged.
 
 The server checks and commits against the same revision, so a change that lands
 in between is never written over: the server re-checks the same original intent
 at most three times, then refuses with `merge refused: the note kept changing`.
-On a refusal, keep your original baseline and draft, read the note, review the
+On a refusal, keep your original baseline and draft, read the memo, review the
 concurrent change and reconcile. Never use `--force` or substitute a newer
 baseline for the old patch.
 
@@ -114,7 +114,7 @@ against the latest source and no automatic baseline refresh.
 
 `--if-match "$BASE"` is a compatibility alias for EXACT and can supply the
 baseline by itself. If supplied with `--base-revision`, the values must agree.
-EXACT never locks the note or changes later requests. V2 patches reject `--force`.
+EXACT never locks the memo or changes later requests. V2 patches reject `--force`.
 
 ## Patch formats
 
@@ -139,7 +139,7 @@ disjoint. A zero-length range inserts at that boundary.
 Inside a record, encode newlines as `\n`, carriage returns as `\r`, tabs as `\t`,
 and backslashes as `\\`. Escape literal delimiter characters with a backslash.
 Unknown escapes, nested markers, overlaps, and malformed hunks are rejected.
-Patch framing uses LF and is not appended to the note.
+Patch framing uses LF and is not appended to the memo.
 
 ### Unified line diff
 
@@ -148,7 +148,7 @@ diff. Start with an accessible `NOTE_ID`; keep both the baseline and draft.
 
 ```bash notes-example="unified-roundtrip"
 set -euo pipefail
-dreamlake notes read "$NOTE_ID" --json > line-baseline.json
+dreamlake memos read "$NOTE_ID" --json > line-baseline.json
 BASE=$(jq -er .revision line-baseline.json)
 jq -jr .content line-baseline.json > before.md
 cp before.md after.md
@@ -161,16 +161,16 @@ if [ "$diff_status" -eq 0 ]; then
   echo "No changes; no patch sent."
   exit 0
 fi
-dreamlake notes patch "$NOTE_ID" --format diff --base-revision "$BASE" \
+dreamlake memos patch "$NOTE_ID" --format diff --base-revision "$BASE" \
   --file draft.diff --json > line-receipt.json
 ACK=$(jq -er .revision line-receipt.json)
-dreamlake notes read "$NOTE_ID" --if-match "$ACK" \
+dreamlake memos read "$NOTE_ID" --if-match "$ACK" \
   --json > line-verified.json
 ```
 
 Only a single-file unified patch is accepted. Preserve context, line counts,
 CRLF, and `\ No newline at end of file` markers. File labels do not select the
-note. If the files match, stop without sending a patch. Empty patch input is rejected.
+memo. If the files match, stop without sending a patch. Empty patch input is rejected.
 
 ## Preview and input
 
@@ -184,7 +184,7 @@ result does not depend on how the command was launched. With a terminal on
 8,000,000 UTF-8 bytes.
 Every write refuses text that adds a generated reading-view header
 (`<!-- notes-reading-view revision=…`). `notes patch` sends without reading
-the note, so for it the check is best-effort on the patch's insertion payloads
+the memo, so for it the check is best-effort on the patch's insertion payloads
 (adjacent hunks included); the server is the authoritative enforcement point.
 
 ## Handle a failure
@@ -206,7 +206,7 @@ CLI never guesses from the error sentence or downgrades APIs to recover a write.
 
 The CLI does not automatically retry an HTTP patch. Separate requests do not
 share an idempotency receipt. If an acknowledgment is lost, keep the original
-baseline and draft, inspect the note, and reconcile. Never attach a newer revision
+baseline and draft, inspect the memo, and reconcile. Never attach a newer revision
 to an old patch merely to make it pass. A later successful read does not by itself
 prove whether an earlier ambiguous request committed.
 
@@ -215,19 +215,19 @@ prove whether an earlier ambiguous request committed.
 `append`, `patch`, `write`, `replace`, `insert` and `delete` accept
 `--command-id ID`: a caller-stable identity of 8–128 characters from
 `A-Z a-z 0-9 . _ : -`, checked before any request. The server binds the id to a
-fingerprint of the original intent (note, baseline revision, mode, format and
+fingerprint of the original intent (memo, baseline revision, mode, format and
 patch). Retrying the same id with the same intent returns the stored receipt
 with `replayed: true` and commits nothing. The same id with different intent is
 refused with `409 command_intent_mismatch`; an unfinished or unresolved command
 answers `409 command_in_progress` or `409 command_outcome_unknown`. This is the
-Notes API contract's public command identity: the answer to safely replaying an
+Memos API contract's public command identity: the answer to safely replaying an
 append whose response was lost. It is opt-in in this release; the server side
 ships separately, and until it does a receipt without the echo exits `4`.
 
 ```bash
-dreamlake notes append "$NOTE_ID" --text "Hello" --base-revision "$BASE" \
+dreamlake memos append "$NOTE_ID" --text "Hello" --base-revision "$BASE" \
   --command-id "release-note-2026-10-30-0001" --json
-dreamlake notes command-status "$NOTE_ID" release-note-2026-10-30-0001 --json
+dreamlake memos command-status "$NOTE_ID" release-note-2026-10-30-0001 --json
 ```
 
 Every v2 write receipt carries `outcome` (`accepted`, or `no-write` when the
@@ -278,7 +278,7 @@ DIFF_STATUS=0
 diff -u base.md edited.md > edit.diff || DIFF_STATUS=$?
 if [ "$DIFF_STATUS" -gt 1 ]; then exit "$DIFF_STATUS"; fi
 if [ "$DIFF_STATUS" -eq 1 ]; then
-  dreamlake notes patch "$NOTE_ID" --format diff --file edit.diff --base-revision "$BASE"
+  dreamlake memos patch "$NOTE_ID" --format diff --file edit.diff --base-revision "$BASE"
 fi
 # Read the resulting receipt revision with --at to verify the exact source.
 ```
@@ -289,22 +289,22 @@ require extra escaping of its line contents. Existing merge/exact semantics appl
 
 ## Propose instead of write
 
-To let the note's owner accept or reject each change rather than applying it
+To let the memo's owner accept or reject each change rather than applying it
 directly, render the edit as suggested edits with
-[`notes suggest-diff --in-place`](cli-notes-suggest-diff.md#propose-edits-inside-an-existing-note)
+[`memos suggest-diff --in-place`](cli-notes-suggest-diff.md#propose-edits-inside-an-existing-note)
 and write that body instead.
 
 ## Append against the original snapshot (CLI 0.59.0+)
 
-Original-revision append requires CLI 0.59.0 or later and the compatible Notes
+Original-revision append requires CLI 0.59.0 or later and the compatible Memos
 v2 API. CLI 0.58.0 and earlier use the retained ETag/body replacement append.
 The new append preserves collaborative source identities instead of replacing
-the complete Note body. No legacy route is retired.
+the complete Memo body. No legacy route is retired.
 
-```bash cli-help="notes append"
-dreamlake notes append "$NOTE_ID" --file addition.md --base-revision "$BASE" --json
+```bash cli-help="memos append"
+dreamlake memos append "$NOTE_ID" --file addition.md --base-revision "$BASE" --json
 # ACK is the revision in the successful append receipt.
-dreamlake notes read "$NOTE_ID" --at "$ACK"
+dreamlake memos read "$NOTE_ID" --at "$ACK"
 ```
 
 Without `--base-revision`, append reads one complete, hash-verified source
@@ -326,10 +326,10 @@ characters and source controls are escaped before transport.
 Human `--dry-run` keeps the composed original source plus addition on stdout,
 with the PATCH/base revision/mode on stderr. This preview is based on the
 original source, not the future merged document. JSON dry-run describes the
-actual PATCH payload. Successful writes print Notes v2 `note`, `hash`, `revision`,
+actual PATCH payload. Successful writes print Memos v2 `note`, `hash`, `revision`,
 `mode`, and `baseRevision`; use that acknowledged revision for pinned readback.
 A failed or malformed acknowledgment can leave the outcome unknown. No retry
-is automatic: inspect the Note before resubmitting, keeping the original draft.
+is automatic: inspect the Memo before resubmitting, keeping the original draft.
 
 Explicit `--legacy` retains the prior ETag-guarded body replacement append.
 Existing `--force` retains its prior unguarded legacy behavior; it never selects
@@ -338,15 +338,15 @@ a forced v2 write. Neither compatibility choice can combine with
 
 ## Insert at an original-source position (CLI 0.60.0+)
 
-Original-revision insertion requires CLI 0.60.0 or later and the compatible Notes
+Original-revision insertion requires CLI 0.60.0 or later and the compatible Memos
 v2 API, reusing the CLI 0.59.0 append snapshot/PATCH helpers. CLI 0.59.0 and earlier
 use retained ETag/body replacement insertion. No legacy command or route is retired.
 
-```bash cli-help="notes insert"
-dreamlake notes insert --note "$NOTE_ID" --ind 0 --text 'Review: ' \
+```bash cli-help="memos insert"
+dreamlake memos insert --note "$NOTE_ID" --ind 0 --text 'Review: ' \
   --base-revision "$BASE" --json
 # ACK is the revision returned by the insertion receipt.
-dreamlake notes read "$NOTE_ID" --at "$ACK"
+dreamlake memos read "$NOTE_ID" --at "$ACK"
 ```
 
 Insertion reads one hash-verified original snapshot, resolves the
@@ -377,7 +377,7 @@ sends no write and reports `noChange: true` for the observed snapshot. Empty
 line-oriented insertion still follows the newline rules and can create a line.
 Success returns the acknowledged v2 revision. Pin readback with `--at`; failed,
 malformed, redirected or lost acknowledgments are never automatically replayed.
-Keep the original baseline and text and reconcile the Note before resubmitting.
+Keep the original baseline and text and reconcile the Memo before resubmitting.
 
 Explicit `--legacy`, existing `--force`, or existing `--if-match <etag>` select the
 retained replacement path. Preserve a content ETag for that path, never an RTC
@@ -387,7 +387,7 @@ use the original-revision contracts below in CLI 0.60.0 or later.
 
 ### Contract spellings (CLI 0.98.0)
 
-The note may be given positionally: `dreamlake notes insert "$NOTE_ID" --after s1.p2
+The memo may be given positionally: `dreamlake memos insert "$NOTE_ID" --after s1.p2
 --file addition.md --base-revision "$BASE" --json` inserts the file's exact UTF-8
 text, verbatim, at the end of that mapped element's full original span (`--before`
 inserts at its start; `--cursor N` at an original code-point position). Addresses
@@ -397,21 +397,21 @@ come from a mapped read of the same revision. `--text`, `--file PATH` and
 ## Replace and delete original-source spans (CLI 0.60.0+)
 
 Original-revision replacement and deletion require CLI 0.60.0 or later and the
-compatible Notes v2 API. CLI 0.59.0 and earlier use retained ETag/body replacement
+compatible Memos v2 API. CLI 0.59.0 and earlier use retained ETag/body replacement
 for these editors. The original-revision editors submit precise code-point spans
 through the v2 snapshot/PATCH API. Multiple matches become separate hunks in one PATCH
 against one original revision, leaving the source between targets untouched.
 
 ```bash
-dreamlake notes replace 'Draft' --text 'Reviewed' --all --note "$NOTE_ID" \
+dreamlake memos replace 'Draft' --text 'Reviewed' --all --note "$NOTE_ID" \
   --base-revision "$BASE" --json
 ```
 
-```bash cli-help="notes delete"
-dreamlake notes delete 'obsolete paragraph' --note "$NOTE_ID" \
+```bash cli-help="memos delete"
+dreamlake memos delete 'obsolete paragraph' --note "$NOTE_ID" \
   --base-revision "$BASE" --json
 # Pin verification to the receipt's acknowledged revision.
-dreamlake notes read "$NOTE_ID" --at "$ACK"
+dreamlake memos read "$NOTE_ID" --at "$ACK"
 ```
 
 Literal queries require one match by default; `--count N` requires exactly N
@@ -453,17 +453,17 @@ retire legacy endpoints.
 The original-revision migrations of section write, `add-section`, and
 `rm-section` remain unshipped. Their existing ETag-based interfaces remain
 available. Runbook attachment is separate proposed work and is not included
-in CLI 0.61.0; no legacy Note route or compatibility option is retired.
+in CLI 0.61.0; no legacy Memo route or compatibility option is retired.
 
 ### Contract spellings (CLI 0.98.0)
 
-`notes remove` is an alias of `notes delete` (selected source, never the Note).
-With a span selector the note may be given positionally and no query is needed:
+`notes remove` is an alias of `notes delete` (selected source, never the Memo).
+With a span selector the memo may be given positionally and no query is needed:
 
 ```bash
-dreamlake notes replace "$NOTE_ID" --lines 40:42 --file replacement.md --base-revision "$BASE" --json
-dreamlake notes replace "$NOTE_ID" --address s1.p2 --text "Hi" --base-revision "$BASE" --json
-dreamlake notes remove "$NOTE_ID" --lines 40:42 --base-revision "$BASE" --json
+dreamlake memos replace "$NOTE_ID" --lines 40:42 --file replacement.md --base-revision "$BASE" --json
+dreamlake memos replace "$NOTE_ID" --address s1.p2 --text "Hi" --base-revision "$BASE" --json
+dreamlake memos remove "$NOTE_ID" --lines 40:42 --base-revision "$BASE" --json
 ```
 
 `--lines a:b` takes exactly two integers (1-based, inclusive; the span includes
@@ -474,19 +474,19 @@ exact replacement text; empty replacement text deletes the span.
 ## Write a target body against its original source (CLI 0.61.0+)
 
 Original-revision whole-body `write` requires CLI 0.61.0 or later and the
-compatible Notes v2 API. CLI 0.60.0 and earlier keep whole-body write on the
+compatible Memos v2 API. CLI 0.60.0 and earlier keep whole-body write on the
 retained ETag interface. Modern write derives bounded, exact code-point changes between an original source snapshot and your target
 body, retaining unchanged source islands even inside one paragraph. It emits
 ordered disjoint hunks in one v2 PATCH, rather than replacing the complete body.
 
-```bash cli-help="notes write"
-dreamlake notes read "$NOTE_ID" --json > baseline.json
+```bash cli-help="memos write"
+dreamlake memos read "$NOTE_ID" --json > baseline.json
 BASE=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > draft.md
 # Edit draft.md without changing the saved original baseline.
-dreamlake notes write "$NOTE_ID" --file draft.md --base-revision "$BASE" --json
+dreamlake memos write "$NOTE_ID" --file draft.md --base-revision "$BASE" --json
 # ACK is the successful write receipt's revision.
-dreamlake notes read "$NOTE_ID" --at "$ACK"
+dreamlake memos read "$NOTE_ID" --at "$ACK"
 ```
 
 A target prepared from an older source must retain that source's original
@@ -518,7 +518,7 @@ and supported dense changes preserve unchanged identities. Exceeding a limit
 fails before submission (exit 5); it never falls back to a coarse rewrite.
 Invalid unpaired Unicode surrogates also reject. Lost/malformed acknowledgments
 are never replayed automatically; keep the original baseline and target and
-reconcile the Note before resubmitting. Verify the acknowledged revision with
+reconcile the Memo before resubmitting. Verify the acknowledged revision with
 `read --at` after a successful write.
 
 Explicit `--legacy`, existing `--force`, or existing `--if-match <etag>` retain

@@ -1,16 +1,16 @@
-<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.105.0 3dc31d9; do not edit -->
 
 # Reading and changes
 
-Set `NOTE_ID` to an ID or slug from `dreamlake notes list`. Add `--namespace`
-(or its alias `--ns`) when the note belongs to an organization: the CLI looks an
+Set `NOTE_ID` to an ID or slug from `dreamlake memos list`. Add `--namespace`
+(or its alias `--ns`) when the memo belongs to an organization: the CLI looks an
 ID or slug up in that namespace or your configured one. The shell examples use `jq`.
 
 ## Save a snapshot
 
 ```bash
 NOTE_ID=release-plan
-dreamlake notes read "$NOTE_ID" --json > baseline.json
+dreamlake memos read "$NOTE_ID" --json > baseline.json
 HASH=$(jq -er .hash baseline.json)
 REVISION=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > base.md
@@ -20,11 +20,11 @@ jq -jr .content baseline.json > base.md
 the mapped Markdown reading view, generated hints included, and is **not** a
 source export; `--json` is the structured snapshot, and `--view source` prints
 the exact source bytes only (no header, no added newline), so
-`dreamlake notes read "$NOTE_ID" --view source > note.md` is a byte-exact export.
+`dreamlake memos read "$NOTE_ID" --view source > note.md` is a byte-exact export.
 
 | Field | Use it for |
 | --- | --- |
-| `note` | The resolved note ID |
+| `note` | The resolved memo ID |
 | `content` | Complete canonical source |
 | `hash` | Content identity, `sha256:<hex>`; pass to `--since` |
 | `revision` | Opaque write baseline; pass unchanged to `--base-revision` |
@@ -42,18 +42,18 @@ See [Saved versions](cli-notes-versions.md). Without `--version`, reads remain l
 
 ## Read only what changed
 
-```bash cli-help="notes diff"
+```bash cli-help="memos diff"
 NOTE_ID=release-plan
-dreamlake notes read "$NOTE_ID" --json > baseline.json
+dreamlake memos read "$NOTE_ID" --json > baseline.json
 HASH=$(jq -er .hash baseline.json)
-dreamlake notes diff "$NOTE_ID" --since "$HASH" --format diff
+dreamlake memos diff "$NOTE_ID" --since "$HASH" --format diff
 ```
 
 `notes diff` is an alias for `notes read --since`. Both accept either format:
 
 ```bash
-dreamlake notes read "$NOTE_ID" --since "$HASH" --format inline-dff
-dreamlake notes read "$NOTE_ID" --since "$HASH" --format diff --json > changes.json
+dreamlake memos read "$NOTE_ID" --since "$HASH" --format inline-dff
+dreamlake memos read "$NOTE_ID" --since "$HASH" --format diff --json > changes.json
 jq -jr .patch changes.json > changes.diff
 ```
 
@@ -69,13 +69,13 @@ before the patch. Extract `.patch` when a consumer needs only patch text.
 
 No text changes means an empty patch, possibly with a newer revision. Apply an
 incremental patch only to source matching `base`, then verify the resulting hash.
-Inspecting changes does not edit the note or advance an existing draft's original
+Inspecting changes does not edit the memo or advance an existing draft's original
 baseline. Preserve `baseline.json` and `base.md` until that edit is resolved.
 
 Retained time references also work:
 
 ```bash
-dreamlake notes read "$NOTE_ID" --since "2 hours ago"
+dreamlake memos read "$NOTE_ID" --since "2 hours ago"
 ```
 
 The server resolves times and retention. Prefer a saved hash for “since my last
@@ -84,29 +84,29 @@ the CLI does not silently replace them with the latest revision.
 
 ## Read one section
 
-```bash cli-help="notes sections"
-dreamlake notes sections release-plan
-dreamlake notes sections release-plan --json
+```bash cli-help="memos sections"
+dreamlake memos sections release-plan
+dreamlake memos sections release-plan --json
 ```
 
 Use the returned heading anchor to read a passage. Section reads use the
 explicit compatibility interface; for a line range use `--lines` (below):
 
 ```bash
-dreamlake notes read "$NOTE_ID" --legacy --section outline --numbered
+dreamlake memos read "$NOTE_ID" --legacy --section outline --numbered
 ```
 
 Sections include their heading and all subsections, ending at the next heading
 of the same or higher level. Duplicate headings receive suffixed anchors;
 `preamble` addresses text before the first heading. Lines are 1-based and inclusive.
 A partial read is not a complete patch baseline: its validator covers the whole
-note, while its source is only a slice. Never upload that slice as the whole body.
+memo, while its source is only a slice. Never upload that slice as the whole body.
 
 ## Read a line range
 
 ```bash
-dreamlake notes read "$NOTE_ID" --lines 40:80
-dreamlake notes read "$NOTE_ID" --lines 40:80 --json
+dreamlake memos read "$NOTE_ID" --lines 40:80
+dreamlake memos read "$NOTE_ID" --lines 40:80 --json
 ```
 
 `--lines a:b` takes two integers, 1-based and inclusive, and prints the exact
@@ -115,8 +115,8 @@ text header carries `scope: lines a:b chars s:e` (Unicode code points,
 end-exclusive, in the complete source) and `complete: false`, then the slice.
 The JSON form is `note`, `hash` (of the complete source), `revision`, `lines`,
 `chars`, `scope` (`{"lines": [a, b]}`), the `content` slice, `complete: false`
-and `next` (the line after `b`, when the note has one). It has no whole-note `content`, so a focused read
-cannot be mistaken for a complete body: never upload it as the whole note. The
+and `next` (the line after `b`, when the memo has one). It has no whole-note `content`, so a focused read
+cannot be mistaken for a complete body: never upload it as the whole memo. The
 last line's newline belongs to it; a final newline does not start a line.
 Ranges past the end are refused, not clamped. `--lines a:b --view source`
 prints only the slice bytes. `--lines` combines with `--at` and `--if-match`, and not with `--legacy`, `--start-line`, `--end-line`,
@@ -127,15 +127,15 @@ lines to code points is done by the CLI and by the TypeScript API
 ## Search passages
 
 ```bash
-dreamlake notes find "Draft" --note "$NOTE_ID" --json
-dreamlake notes grep "TODO" -C 2
-dreamlake notes grep --regex '\bFIXME\b' --case-sensitive
-dreamlake notes grep "deploy" --glob 'spec-*' --limit 20
-dreamlake notes toc --note "$NOTE_ID"
+dreamlake memos find "Draft" --note "$NOTE_ID" --json
+dreamlake memos grep "TODO" -C 2
+dreamlake memos grep --regex '\bFIXME\b' --case-sensitive
+dreamlake memos grep "deploy" --glob 'spec-*' --limit 20
+dreamlake memos toc --note "$NOTE_ID"
 ```
 
-`search` finds notes; `find` searches one note; `grep` returns locations across
-notes as `slug:line:column`. `find` and `toc` read the v2 snapshot: their JSON
+`search` finds memos; `find` searches one memo; `grep` returns locations across
+memos as `slug:line:column`. `find` and `toc` read the v2 snapshot: their JSON
 carries `note`, `hash`, `revision` and code-point ranges, `--at REVISION` pins a
 retained snapshot, and a literal `find` query is case-sensitive unless
 `--no-case-sensitive`. `grep` hits still carry legacy ETags and character ranges;
@@ -146,12 +146,12 @@ capture a full current snapshot for a v2 patch.
 
 ```bash
 # REVISION came from a read or a successful patch receipt.
-dreamlake notes read "$NOTE_ID" --if-match "$REVISION" --json > verified.json
+dreamlake memos read "$NOTE_ID" --if-match "$REVISION" --json > verified.json
 ```
 
 A matching read returns that snapshot. A mismatch exits `3` with no source on
 stdout. After a successful patch, a later read conflict means someone changed
-the note again; it does not mean your acknowledged patch failed. Inspect a fresh
+the memo again; it does not mean your acknowledged patch failed. Inspect a fresh
 read and reconcile before making another edit.
 
 Next: [Editing with patches](cli-notes-editing.md) or
@@ -165,10 +165,10 @@ exclusive, and cannot combine with `--since` or `--linger`:
 
 ```bash
 # NOTE_ID identifies an accessible note; copy REVISION from its read receipt.
-dreamlake notes read "$NOTE_ID"
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --toc
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1.1
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
+dreamlake memos read "$NOTE_ID"
+dreamlake memos read "$NOTE_ID" --at "$REVISION" --toc
+dreamlake memos read "$NOTE_ID" --at "$REVISION" --section s1.1
+dreamlake memos read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
@@ -194,7 +194,7 @@ return 404; every read checks current permissions.
 
 ### Literal Markdown for agents
 
-With CLI 0.34.4 and a compatible server, `--view html` on a Markdown note is
+With CLI 0.34.4 and a compatible server, `--view html` on a Markdown memo is
 an **agent format**: HTML-like tags supply structure and addresses; their
 contents are the exact original Markdown. There is one `data-char` source
 range, including the construct's syntax. There is no inner/outer split.
@@ -222,7 +222,7 @@ root `data-addresses` index rather than finding tags inside arbitrary Markdown.
 CLI `--view markdown` handles this and prints literal source with address hints.
 Keep the original revision with the source and verify the acknowledged edit.
 Older servers may return rendered HTML; do not assume literal bodies without the
-format marker. Canonical HTML notes retain their existing HTML source mapping.
+format marker. Canonical HTML memos retain their existing HTML source mapping.
 
 `data-char="start:end"` are absolute, zero-based, end-exclusive Unicode code-point
 ranges in original source. `data-lines` is one-based and inclusive. A scoped root
@@ -231,13 +231,13 @@ contains only the selected `data-source`, with its global `data-source-start` an
 `data-revision` still identify the complete document. Subtract `data-source-start`
 when slicing local source; keep absolute offsets in the patch. TOCs carry exact
 heading source on each heading and empty root source. Never upload a slice or
-rendered HTML as the complete note.
+rendered HTML as the complete memo.
 
 ```bash
 # edit.dff is prepared from the exact source at REVISION.
-dreamlake notes patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
+dreamlake memos patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
 # NEXT_REVISION comes from that write receipt.
-dreamlake notes read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
+dreamlake memos read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
 ```
 
 Exact mode refuses concurrent edits with 412; native merge mode remains available
@@ -249,14 +249,14 @@ Pinned reads do not overwrite live presence with historical offsets.
 
 See the [addressed-read specification](https://docs.dreamlake.ai/dev/notes/addressed-reads/)
 for ID generation, ranges, examples, efficiency limits, and the executable
-acceptance harness. These addressed read options are available in CLI 0.33.0 and require the matching Notes server support. The linked page provides the detailed ID and range contract.
+acceptance harness. These addressed read options are available in CLI 0.33.0 and require the matching Memos server support. The linked page provides the detailed ID and range contract.
 
 For Markdown with address hints (CLI 0.33.0), select the annotated view:
 
 ```bash
 # REVISION is the original read revision; NOTE_ID identifies an accessible note.
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --section s1 --view markdown
-dreamlake notes read "$NOTE_ID" --at "$REVISION" --tag s1.ul2.li3 --view markdown
+dreamlake memos read "$NOTE_ID" --at "$REVISION" --section s1 --view markdown
+dreamlake memos read "$NOTE_ID" --at "$REVISION" --tag s1.ul2.li3 --view markdown
 ```
 
 Lists and items use the shared section-local order above; a list or parent item
@@ -268,12 +268,12 @@ The annotated view is the default text output of `notes read`; `--view source`
 prints the exact source bytes only, and `--json`, `--since` and `--lines` always
 return exact source. The annotated view supports snapshot
 scopes and `--at`, but cannot combine with `--since`, `--linger`, or `--json`.
-HTML-source notes require `--view html`; a defaulted text read of an
-HTML-source note prints exact source instead.
+HTML-source memos require `--view html`; a defaulted text read of an
+HTML-source memo prints exact source instead.
 
 ## Addressed reading view
 
-`dreamlake notes read NOTE_ID` (the text default; `--view markdown` says so
+`dreamlake memos read NOTE_ID` (the text default; `--view markdown` says so
 explicitly) uses the shared v2 reading view.
 It prints actual line breaks and addressed block hints, automatically draining
 pages pinned to the first revision. A failed continuation exits unsuccessfully;

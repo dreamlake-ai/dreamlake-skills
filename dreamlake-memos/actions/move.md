@@ -11,11 +11,11 @@ Use the source workspace owner's login and preview the requested scope:
 
 ```bash
 # An organization destination currently returns blockers and exit status 3.
-dreamlake memos move NOTE_ID --to-namespace ORG --project PROJECT --dry-run
+dreamlake memos move MEMO_ID --to-namespace ORG --project PROJECT --dry-run
 # Add a project association within the Memo's CURRENT workspace; inspect executable first.
-dreamlake memos move NOTE_ID --to-namespace CURRENT_WORKSPACE --project PROJECT --dry-run
+dreamlake memos move MEMO_ID --to-namespace CURRENT_WORKSPACE --project PROJECT --dry-run
 # Relocate a filed Memo to an existing folder of one project (CLI 0.87.0+).
-dreamlake memos move NOTE_ID --namespace NS --project PROJECT --folder PATH --dry-run
+dreamlake memos move MEMO_ID --namespace NS --project PROJECT --folder PATH --dry-run
 ```
 
 Only an executable same-workspace preview can be applied, when the user has
@@ -43,14 +43,14 @@ for ownership-busy and lost-authority recovery.
 
 The `--folder` target must already exist; bindr tags and access are kept.
 Preview with `--dry-run`, then repeat without it. Tag a filed Memo with a bindr
-through `dreamlake update bindr BINDR --project PROJECT@NS --add-note NOTE_ID`,
+through `dreamlake update bindr BINDR --project PROJECT@NS --add-note MEMO_ID`,
 not a raw API call. See
 [move to another folder](../reference/cli-notes-projects.md#move-a-note-to-another-folder-in-a-project).
 
 ## Create filed and inspect filing (CLI 0.45.1+)
 
 `memos create --project SLUG` (repeatable) files a new Memo; `memos projects
-NOTE_ID --namespace NS` shows its current filing. CLI 0.44.3 and earlier lack
+MEMO_ID --namespace NS` shows its current filing. CLI 0.44.3 and earlier lack
 both. Never emulate an existing-note move through copy/delete, namespace updates
 or an older generic mount API; missing server or adapter readiness is
 unsupported. See [project filing](../reference/cli-notes-projects.md#create-and-inspect-project-filing-cli-0451).

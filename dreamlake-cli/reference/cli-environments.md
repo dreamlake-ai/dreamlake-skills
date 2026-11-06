@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.105.0 3dc31d9; do not edit -->
 
 # Environments
 
@@ -44,7 +44,7 @@ effect (`[env: prod]`).
 The `*` in `auth env list` marks the environment your commands will *actually*
 hit, not just the last one you selected — if a `DREAMLAKE_*` env var is
 overriding the connection, or the files were edited by hand, the star
-disappears and a note explains why.
+disappears and a memo explains why.
 
 ## Select the default CLI namespace
 

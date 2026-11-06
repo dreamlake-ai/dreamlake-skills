@@ -1,25 +1,25 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Files and attachments
 
 ## Files
 
-Files inherit the note's permissions.
+Files inherit the memo's permissions.
 
 **CLI**
 
 ```bash
-dreamlake notes files upload ./report.html --note "$NOTE_ID"
-dreamlake notes files list --note "$NOTE_ID"
-dreamlake notes files list 'assets/*.png' --note "$NOTE_ID"
-dreamlake notes files cat config.json --note "$NOTE_ID"
-dreamlake notes files write config.json --text '{}' --note "$NOTE_ID"
-dreamlake notes files download report.html --note "$NOTE_ID" -o ./report.html
-dreamlake notes files mv old.txt new.txt --note "$NOTE_ID"
-dreamlake notes files cp a.txt b.txt --note "$NOTE_ID"
-dreamlake notes files rm old.txt --note "$NOTE_ID"       # trash
-dreamlake notes files list --trashed --note "$NOTE_ID"   # ids of trashed files
-dreamlake notes files restore <file-id> --note "$NOTE_ID"
+dreamlake memos files upload ./report.html --note "$NOTE_ID"
+dreamlake memos files list --note "$NOTE_ID"
+dreamlake memos files list 'assets/*.png' --note "$NOTE_ID"
+dreamlake memos files cat config.json --note "$NOTE_ID"
+dreamlake memos files write config.json --text '{}' --note "$NOTE_ID"
+dreamlake memos files download report.html --note "$NOTE_ID" -o ./report.html
+dreamlake memos files mv old.txt new.txt --note "$NOTE_ID"
+dreamlake memos files cp a.txt b.txt --note "$NOTE_ID"
+dreamlake memos files rm old.txt --note "$NOTE_ID"       # trash
+dreamlake memos files list --trashed --note "$NOTE_ID"   # ids of trashed files
+dreamlake memos files restore <file-id> --note "$NOTE_ID"
 ```
 
 **Python**
@@ -56,35 +56,35 @@ The existing `rm` without `--purge` remains recoverable trash. The implementatio
 refuses moves or trash after permanent purge has started; durable purge itself
 remains disabled.
 
-For an existing text attachment in a disposable Note, use its content ETag when
+For an existing text attachment in a disposable Memo, use its content ETag when
 you want a conditional move. The same option is available on `rm`:
 
 ```bash
 set -euo pipefail
 : "${NOTE_ID:?set a disposable note ID}"
 : "${NAMESPACE:?set its namespace}"
-ETAG=$(dreamlake notes files cat config.json --note "$NOTE_ID" \
+ETAG=$(dreamlake memos files cat config.json --note "$NOTE_ID" \
   --namespace "$NAMESPACE" --json | jq -er '.etag')
 : "${ETAG:?the read must return a nonempty ETag}"
-dreamlake notes files mv config.json config-renamed.json --note "$NOTE_ID" \
+dreamlake memos files mv config.json config-renamed.json --note "$NOTE_ID" \
   --namespace "$NAMESPACE" --if-match "$ETAG"
 ```
 
 A stale content ETag returns 412; a destination conflict returns 409 unless you
 explicitly choose `--overwrite`. Inspect the current file/path and permissions
 before retrying. An ETag is a content check, not a promise that the path or sharing
-metadata has remained unchanged. This workflow moves a path within one Note; it
+metadata has remained unchanged. This workflow moves a path within one Memo; it
 does not change Note/project ownership or perform a FortyFive transfer.
 
-### Copy an attachment within a Note
+### Copy an attachment within a Memo
 
 The existing `files cp <file> <to>` command copies to another path in the same
-Note; `--overwrite` explicitly replaces an occupied destination. The API remains
+Memo; `--overwrite` explicitly replaces an occupied destination. The API remains
 `POST /namespaces/:slug/notes/:noteId/files/:fileId/copy` with `path` and optional
 `overwrite`, returning the new file with HTTP 201. The copy has its own file ID
 and stored bytes; it does not inherit a public preview link.
 
-**Atomic copy publication is included in the verified API release.** It rechecks current edit authority, ownership lease, Note binding, source
+**Atomic copy publication is included in the verified API release.** It rechecks current edit authority, ownership lease, Memo binding, source
 and destination before publishing. With `--overwrite`, moving the old destination
 to trash and creating the new copy commit together; a refused publication leaves
 the destination unchanged. The source remains unchanged unless the destination
@@ -103,7 +103,7 @@ when using CLI 0.48.2 with a caller-supplied key, as described below. CLI 0.48.1
 no copy idempotency key: list the destination and inspect its ID and content before
 deciding whether another copy is needed. Never automatically resend an uncertain
 copy, especially with `--overwrite`.
-Copying an attachment does not move a Note between namespaces or enable ownership
+Copying an attachment does not move a Memo between namespaces or enable ownership
 transfer, named-version publication or durable purge.
 
 ### Recover a text or copy publication
@@ -125,14 +125,14 @@ text/copy requests and these operation routes with
 The journal covers JSON text creation/replacement at
 `POST /namespaces/:slug/notes/:noteId/files` and same-Note copy at
 `POST /namespaces/:slug/notes/:noteId/files/:fileId/copy`. It does not cover the
-raw binary/streaming upload route, inline media, Note bodies or saved versions.
+raw binary/streaming upload route, inline media, Memo bodies or saved versions.
 The existing File response and HTTP 200/201 remain unchanged. Raw-upload inventory
 is a separate disabled source candidate, not a deployed recovery capability.
 
 An optional `Idempotency-Key` identifies one request for the original account and
-Note. It is 1–256 UTF-8 bytes without control characters or lone surrogates;
+Memo. It is 1–256 UTF-8 bytes without control characters or lone surrogates;
 a simple ASCII identifier works. Preserve it with the original server, namespace,
-Note, action, destination, overwrite choice and text/content type or source file ID.
+Memo, action, destination, overwrite choice and text/content type or source file ID.
 Preserve the original `If-Match` for a conditional text replacement too. The same
 key and normalized request reconcile the original operation **before** reading
 new copy-source bytes or attempting another storage write. Changed input returns
@@ -151,7 +151,7 @@ an unkeyed retry cannot identify that original operation.
 
 #### Use the CLI with a retained key
 
-Use a disposable Note you can edit, the original signed-in account and its exact
+Use a disposable Memo you can edit, the original signed-in account and its exact
 namespace. Each write below is an independent example, not a recovery retry.
 CLI keys are printable ASCII, 1–256 bytes without surrounding spaces. Preserve
 the key and exact request; the CLI never automatically retries.
@@ -161,10 +161,10 @@ the key and exact request; the CLI never automatically retries.
 : "${NAMESPACE:?set its namespace}"
 dreamlake --version
 # Choose only the intended write or copy.
-dreamlake notes files write journal-example.txt --text 'reviewed text' \
+dreamlake memos files write journal-example.txt --text 'reviewed text' \
   --note "$NOTE_ID" --namespace "$NAMESPACE" \
   --idempotency-key example-text-001 --json
-dreamlake notes files cp journal-example.txt journal-copy.txt \
+dreamlake memos files cp journal-example.txt journal-copy.txt \
   --note "$NOTE_ID" --namespace "$NAMESPACE" \
   --idempotency-key example-copy-001 --json
 ```
@@ -174,13 +174,13 @@ including a failure receipt. Inspect before choosing any further action:
 
 ```bash
 : "${OPERATION_ID:?set the retained operation ID}"
-dreamlake notes files status "$OPERATION_ID" \
+dreamlake memos files status "$OPERATION_ID" \
   --note "$NOTE_ID" --namespace "$NAMESPACE" --json
 # Choose reconcile only to finish the original retained publication.
-dreamlake notes files reconcile "$OPERATION_ID" \
+dreamlake memos files reconcile "$OPERATION_ID" \
   --note "$NOTE_ID" --namespace "$NAMESPACE" --json
 # Choose cancel only when admitted work is no longer wanted.
-dreamlake notes files cancel "$OPERATION_ID" \
+dreamlake memos files cancel "$OPERATION_ID" \
   --note "$NOTE_ID" --namespace "$NAMESPACE" --json
 ```
 
@@ -191,10 +191,10 @@ not a new ownership permission or proof of production-write acceptance.
 
 #### Create text or copy with a retained key
 
-Prerequisites: an explicitly verified journal-enabled API, a disposable Note you
+Prerequisites: an explicitly verified journal-enabled API, a disposable Memo you
 can edit, the same signed-in account for submission and recovery, and `curl`.
 Replace every placeholder with the verified API and your explicitly intended
-disposable Note. Choose one write, keep its key and request, and do not add
+disposable Memo. Choose one write, keep its key and request, and do not add
 automatic retry options. The release checks did not execute these mutations.
 
 ```bash
@@ -214,7 +214,7 @@ curl --fail-with-body --silent --show-error \
 ```
 
 For an independently intended copy, use a different retained key and the source
-file's ID. Copy stays within the same Note. `overwrite:false` preserves an
+file's ID. Copy stays within the same Memo. `overwrite:false` preserves an
 occupied destination; set it to true only when that replacement is intended.
 
 ```bash
@@ -235,7 +235,7 @@ remove content preconditions or make changing them on a retry safe.
 
 #### Inspect, reconcile or cancel the selected operation
 
-All three routes require the **original actor and current Note `updateContent`
+All three routes require the **original actor and current Memo `updateContent`
 permission**. Knowing an operation ID, being another editor, or owning the
 namespace does not replace that original-actor check. Revoked/read-only callers
 cannot recover through another account. Responses are `no-store` and contain
@@ -298,27 +298,27 @@ late write has stopped. Started operations may remain unresolved; no automatic
 reupload, timeout cleanup or general cancellation is promised. Local transaction,
 route and storage-failure fixtures test these boundaries; they are not production
 provider-failure, writer-drain or user-acceptance evidence. These operations do
-not enable durable purge or standalone Note transfer. Whole-Project transfer
+not enable durable purge or standalone Memo transfer. Whole-Project transfer
 is a separate workflow documented below.
 
 ### Replace an attachment safely
 
-Use a disposable Note you can edit, a signed-in CLI and `jq`. Set `NOTE_ID` and
+Use a disposable Memo you can edit, a signed-in CLI and `jq`. Set `NOTE_ID` and
 `NAMESPACE` explicitly. These commands create and replace only `access-check.txt`;
-they do not change Note ownership or project filing.
+they do not change Memo ownership or project filing.
 
 ```bash
 set -euo pipefail
 : "${NOTE_ID:?Set NOTE_ID to your disposable Note ID}"
 : "${NAMESPACE:?Set NAMESPACE to that Note namespace}"
-dreamlake notes files write access-check.txt --text before \
+dreamlake memos files write access-check.txt --text before \
   --note "$NOTE_ID" --namespace "$NAMESPACE"
-ETAG=$(dreamlake notes files cat access-check.txt --json \
+ETAG=$(dreamlake memos files cat access-check.txt --json \
   --note "$NOTE_ID" --namespace "$NAMESPACE" | jq -er '.etag')
 : "${ETAG:?Expected a nonempty file ETag before replacement}"
-dreamlake notes files write access-check.txt --text after --overwrite --if-match "$ETAG" \
+dreamlake memos files write access-check.txt --text after --overwrite --if-match "$ETAG" \
   --note "$NOTE_ID" --namespace "$NAMESPACE"
-dreamlake notes files cat access-check.txt --note "$NOTE_ID" --namespace "$NAMESPACE"
+dreamlake memos files cat access-check.txt --note "$NOTE_ID" --namespace "$NAMESPACE"
 ```
 
 The readback should be `after`, and the file ID remains unchanged. Reusing the old
@@ -341,21 +341,21 @@ available. Preserve the local file and retry only after the rollout completes.
 full. It requires authorized storage recovery; repeated writes will not clear it.
 Do not purge or recreate a user's attachment automatically to evade the bound.
 An ownership conflict requires checking current access/status; it is not a reason
-to change the namespace or copy/delete the Note. After an uncertain network outcome,
+to change the namespace or copy/delete the Memo. After an uncertain network outcome,
 read the file metadata/content before deciding whether to submit another write.
 
 When durable purge is separately enabled, a failed object deletion retains its
 cleanup intent and returns `503 storage_unavailable`. An authorized retry of the
 same file purge resumes it. A started purge cannot be restored, even if cleanup
-is incomplete. These storage changes do not enable cross-workspace Note transfers.
+is incomplete. These storage changes do not enable cross-workspace Memo transfers.
 
 ### Attach an image and get its path
 
-With the CLI installed and signed in, set `NOTE_ID` to your note's full ID and
+With the CLI installed and signed in, set `NOTE_ID` to your memo's full ID and
 upload a local PNG. No JSON flag or parsing is needed for interactive use:
 
 ```bash
-dreamlake notes files upload ./diagram.png --note "$NOTE_ID" --path assets/diagram.png
+dreamlake memos files upload ./diagram.png --note "$NOTE_ID" --path assets/diagram.png
 ```
 
 The output shows `assets/diagram.png`, the size, content type and file ID.
@@ -363,7 +363,7 @@ You chose that logical path with `--path`; without it, the path defaults to
 `diagram.png`. To get just the authenticated **preview page URL** on stdout:
 
 ```bash
-dreamlake notes files preview assets/diagram.png --note "$NOTE_ID"
+dreamlake memos files preview assets/diagram.png --note "$NOTE_ID"
 ```
 
 For scripts that need to capture the returned attachment path, use the
@@ -372,7 +372,7 @@ structured response below (`jq` required):
 ```bash
 set -e
 NOTE_ID="<full-note-id>"
-dreamlake notes files upload ./diagram.png --note "$NOTE_ID" \
+dreamlake memos files upload ./diagram.png --note "$NOTE_ID" \
   --path assets/diagram.png --json > attachment.json
 IMAGE_PATH=$(jq -er '.path' attachment.json)
 printf '%s\n' "$IMAGE_PATH"  # assets/diagram.png
@@ -383,13 +383,13 @@ The Python equivalent returns a file object with the same logical path:
 ```python
 import dreamlake as dl
 
-note = dl.note("<full-note-id>")
+note = dl.memo("<full-note-id>")
 image = note.files.upload("./diagram.png", path="assets/diagram.png")
 print(image.path)  # assets/diagram.png
 ```
 
-`path` is relative to the note's attachment collection, not a browser image
-URL. Uploading an attachment does not insert it into the note body. The file
+`path` is relative to the memo's attachment collection, not a browser image
+URL. Uploading an attachment does not insert it into the memo body. The file
 preview link is a viewer page, not a URL to use in an image's `src`.
 
 ### Get an image URL for Markdown or HTML
@@ -399,7 +399,7 @@ returned `url`. This is a separate upload from the permission-inheriting
 attachment above; you can skip the attachment step if you only need an inline
 image. Media is not listed by `notes files list`.
 
-The web app's Attachments panel also collects media referenced in the note body.
+The web app's Attachments panel also collects media referenced in the memo body.
 Uploaded videos referenced by valid `:video[...]` directives, including inside
 valid column layouts, appear once per URL and support a video preview,
 individual download and inclusion in the all-assets ZIP. External video URLs
@@ -420,21 +420,21 @@ file preview.
 CLI 0.37.0 and later return that URL directly using your saved login:
 
 ```bash
-dreamlake notes media upload ./diagram.png
+dreamlake memos media upload ./diagram.png
 ```
 
 Or capture it for insertion into a document:
 
 ```bash
-IMAGE_URL=$(dreamlake notes media upload ./diagram.png)
+IMAGE_URL=$(dreamlake memos media upload ./diagram.png)
 printf '\n![Architecture diagram](%s)\n' "${IMAGE_URL:?Upload the image first}" > image.md
 printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the image first}" > image.html
 ```
 
 Choose either the direct upload or the capture command; each call uploads a
-new media object. No note ID or namespace is needed, and upload alone does not
-edit a note. Optional `--json` returns the full receipt. This command requires
-CLI 0.37.0 or later; check `dreamlake notes media upload --help` for availability.
+new media object. No memo ID or namespace is needed, and upload alone does not
+edit a memo. Optional `--json` returns the full receipt. This command requires
+CLI 0.37.0 or later; check `dreamlake memos media upload --help` for availability.
 For installed versions without it, use the HTTP example below.
 
 Set `DREAMLAKE_TOKEN` to a valid bearer token for the API environment you are
@@ -478,20 +478,20 @@ The response contains `url`, `contentType` and `sizeBytes`. The URL has the form
 than the temporary storage URL it redirects to. Do not construct it from the
 attachment path or ID.
 
-Insert the Markdown snippet into your existing note with the append helper:
+Insert the Markdown snippet into your existing memo with the append helper:
 
 ```bash
-dreamlake notes append "$NOTE_ID" --file image.md
+dreamlake memos append "$NOTE_ID" --file image.md
 ```
 
-Use `image.html` in an HTML document; for the Notes Markdown body, use
-`image.md`. Raw HTML is not enabled in the Notes Markdown renderer. Attaching
-an HTML file with `notes files upload` is also separate from editing the note
+Use `image.html` in an HTML document; for the Memos Markdown body, use
+`image.md`. Raw HTML is not enabled in the Memos Markdown renderer. Attaching
+an HTML file with `notes files upload` is also separate from editing the memo
 body. The static `notes read --view html` preview excludes network-loaded
 media, so verify the image in the interactive app.
 
-Anyone holding a media URL can load it without signing in. Making a note
-private does not revoke that URL. For an image that must inherit the note's
+Anyone holding a media URL can load it without signing in. Making a memo
+private does not revoke that URL. For an image that must inherit the memo's
 permissions, keep it as a file attachment and use the authenticated file
 preview instead of publishing an inline media URL.
 
@@ -500,9 +500,9 @@ preview instead of publishing an inline media URL.
 **CLI**
 
 ```bash
-dreamlake notes files preview report.html --note "$NOTE_ID" --open
-dreamlake notes files preview report.html --note "$NOTE_ID" --share
-dreamlake notes files preview report.html --note "$NOTE_ID" --revoke
+dreamlake memos files preview report.html --note "$NOTE_ID" --open
+dreamlake memos files preview report.html --note "$NOTE_ID" --share
+dreamlake memos files preview report.html --note "$NOTE_ID" --revoke
 ```
 
 **Python**
@@ -515,18 +515,18 @@ note.files.find("report.html").unshare()
 
 The default link needs a signed-in reader. `--share` opens without signing in
 and does not expire; `--revoke` kills every copy at once. Creating a public link
-requires the note's sharing permission; withdrawing an existing attachment link
-requires permission to edit the note. Reading a file alone does not grant either
+requires the memo's sharing permission; withdrawing an existing attachment link
+requires permission to edit the memo. Reading a file alone does not grant either
 operation. Asking for the same public link again preserves its current token.
 
 **Transactional sharing implementation included in the verified API release.**
-It checks current membership, Note permissions, ownership lease and file lifecycle
+It checks current membership, Memo permissions, ownership lease and file lifecycle
 in the same transaction as minting or withdrawing the link, refusing a transfer
 lease or started purge. These race and refusal cases passed isolated tests;
 production acceptance did not mint or revoke real public links. Existing sharing
 commands and permission requirements remain unchanged. If access changes, reload
-the Note and use an authorized account; repeated requests do not restore
-permission. Sharing an attachment does not publish the Note body or other files.
+the Memo and use an authorized account; repeated requests do not restore
+permission. Sharing an attachment does not publish the Memo body or other files.
 
 Uploaded HTML renders in a separate origin, never the dashboard's. Markdown,
 SVG, code and images render too; anything else offers a download. A file with

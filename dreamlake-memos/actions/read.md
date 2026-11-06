@@ -2,12 +2,12 @@
 
 First complete [task identity setup](identity.md); reuse it in every shell call.
 
-Set `NOTE_ID` to an ID or slug from `dreamlake memos list`. Add
+Set `MEMO_ID` to an ID or slug from `dreamlake memos list`. Add
 `--namespace <slug>` when the memo belongs to an organization. Check the
 installed CLI before choosing a read contract:
 
 ```bash
-NOTE_ID=release-plan
+MEMO_ID=release-plan
 dreamlake memos read --help
 ```
 
@@ -16,12 +16,12 @@ use addressable Markdown reads. Start with the outline, then pin any section or
 element reads to the revision printed in the first result:
 
 ```bash
-dreamlake memos read "$NOTE_ID" --view markdown --toc
+dreamlake memos read "$MEMO_ID" --view markdown --toc
 REVISION='revision from the outline result'
-dreamlake memos read "$NOTE_ID" --view markdown --at "$REVISION" --section s1.1
+dreamlake memos read "$MEMO_ID" --view markdown --at "$REVISION" --section s1.1
 # Or target one passage or list item instead of reading the whole section:
-dreamlake memos read "$NOTE_ID" --view markdown --at "$REVISION" --tag s1.1.p1
-dreamlake memos read "$NOTE_ID" --view markdown --at "$REVISION" --tag s1.ul2.li3
+dreamlake memos read "$MEMO_ID" --view markdown --at "$REVISION" --tag s1.1.p1
+dreamlake memos read "$MEMO_ID" --view markdown --at "$REVISION" --tag s1.ul2.li3
 ```
 
 Use the smallest read that answers the question. The Markdown view adds
@@ -38,12 +38,12 @@ these options, use the compatible legacy reads below and do not infer HTML
 addresses:
 
 ```bash
-dreamlake memos toc --note "$NOTE_ID"
-dreamlake memos read --legacy "$NOTE_ID" --section setup
-dreamlake memos read --legacy "$NOTE_ID" --start-line 40 --end-line 80
+dreamlake memos toc --note "$MEMO_ID"
+dreamlake memos read --legacy "$MEMO_ID" --section setup
+dreamlake memos read --legacy "$MEMO_ID" --start-line 40 --end-line 80
 ```
 
-For a whole-source delta, retain the plain-text read's `hash` and pass it to
+For a whole-source delta, retain the complete snapshot’s `hash` and pass it to
 `--since`; `hash` and opaque write `revision` are different tokens. Use
 `--json` only when a program needs parsed fields. See [reading and changes](../reference/cli-notes-reading.md)
 and [the full Memos guide](../reference/docs-notes.md).
@@ -81,3 +81,12 @@ only that source of access. Do not mint a Memo share link to simulate Project
 access; use the reader's own credentials and inspect current Memo permissions.
 Grant semantics for every resource type are the `project-access` action of
 `dreamlake-cli`.
+
+## Explicit Python SDK request
+
+For a request specifically asking for Python SDK code, use the released Memo
+examples in [the product guide](../reference/docs-notes-cli-editing.md#python-sdk-read).
+Resolve the existing Memo and set the same task identity first. Use the
+`dreamlake-cli` skill for login and environment setup. Keep source and its
+original revision together if the read will be used for an edit. Do not invent
+SDK counterparts for commands that the references do not document.

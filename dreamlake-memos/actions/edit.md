@@ -3,23 +3,28 @@
 First complete [task identity setup](identity.md); reuse it in every shell call.
 
 Prefer a targeted edit that uses source text and its retained revision. First
-check the installed client and retain a normal source read, including its opaque
-revision and content hash. Do not use `--json` for this editing baseline:
+check the installed client, then retain the complete structured snapshot and
+extract its source and original revision as documented in
+[editing with patches](../reference/cli-notes-editing.md):
 
 ```bash
-NOTE_ID=release-plan
+MEMO_ID=release-plan
 dreamlake memos read --help
-dreamlake memos read "$NOTE_ID" > baseline.txt
-BASE=$(sed -n '3s/^revision: //p' baseline.txt)
+dreamlake memos read "$MEMO_ID" --json > baseline.json
+BASE=$(jq -er .revision baseline.json)
+jq -jr .content baseline.json > baseline.md
 ```
+
+Keep both files unchanged while preparing the patch. This is a program parsing
+the snapshot; ordinary inspection can use the smallest addressed read.
 
 When the CLI supports `--view markdown` and addressed reads, inspect the retained
 snapshot, edit the canonical source using the absolute code-point offsets shown
 in its hints, and submit a v2 patch against that original revision:
 
 ```bash
-dreamlake memos read "$NOTE_ID" --at "$BASE" --view markdown --tag s1.ul2.li3
-dreamlake memos patch "$NOTE_ID" --base-revision "$BASE" --exact --file edit.dff
+dreamlake memos read "$MEMO_ID" --at "$BASE" --view markdown --tag s1.ul2.li3
+dreamlake memos patch "$MEMO_ID" --base-revision "$BASE" --exact --file edit.dff
 ```
 
 Use the item's address and line hints to identify the selected text. Ranges
@@ -27,11 +32,10 @@ refer to original source, including list markers and indentation. Apply the
 absolute code-point range in `edit.dff`; never patch generated comments or write
 the annotated Markdown back as source. For a complete DFF example and escaping rules, read
 [editing with patches](../reference/cli-notes-editing.md). Keep the source passage,
-revision and patch together. Exclude the normal read's metadata header from the
-source being edited. Pass the opaque revision unchanged: never fabricate,
+revision and patch together. Never treat mapped output or a JSON envelope as source. Pass the opaque revision unchanged: never fabricate,
 decode, or replace it with the content hash or a legacy ETag. If a target sentence may repeat, check its
 occurrence and choose the intended passage; do not edit every match unless
-asked. After success, take the resulting revision from the plain-text receipt
+asked. After success, retain the resulting revision from the receipt
 and read the changed passage with `--at "$NEXT_REVISION"` to verify it.
 
 If the patch returns 412, preserve the original baseline and proposed patch,

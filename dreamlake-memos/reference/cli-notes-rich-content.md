@@ -1,8 +1,8 @@
-<!-- generated from https://cli.dreamlake.ai/notes/rich-content.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/rich-content.md at 0.105.0 3dc31d9; do not edit -->
 
 # Rich content and HTML
 
-Notes store source text. Use the supported Markdown syntax for rich content,
+Memos store source text. Use the supported Markdown syntax for rich content,
 and patch that source through the [normal editing workflow](cli-notes-editing.md).
 Saving source and verifying its visible rendering are separate checks.
 
@@ -16,7 +16,7 @@ Saving source and verifying its visible rendering are separate checks.
 ```
 
 `:highlight[...]` adds a background tint; the default is yellow. `:color[...]`
-changes the text color. Raw `<span style="...">` is not a substitute: Notes do
+changes the text color. Raw `<span style="...">` is not a substitute: Memos do
 not enable arbitrary HTML/CSS styling.
 
 Directive content is plain text, including any Markdown markers. Escape brackets
@@ -49,9 +49,9 @@ colors and plain highlights are unchanged.
 
 Use the existing inline/sidebar comments toggle to review annotations. Sidebar
 mode shows comment cards; clicking the highlighted text or a sidebar reveal
-action exposes its Markdown source. Read-only notes expose no edit controls.
+action exposes its Markdown source. Read-only memos expose no edit controls.
 In the sidebar, **done** removes a highlight and its comment while keeping the
-passage text. It is an undoable editor change; read-only notes have no Done
+passage text. It is an undoable editor change; read-only memos have no Done
 control. Insert, delete, and replace suggestions keep their separate accept/reject
 actions. Connectors follow the annotation color, and hovering a card emphasizes
 its passage and line in either theme. These browser controls require a frontend
@@ -65,7 +65,7 @@ Both supported forms can carry a comment:
 ```
 
 Attribute-only comments require a frontend containing the scanner fix from
-`752c4df2` to appear in the comment rail. Both forms are accepted as Note source
+`752c4df2` to appear in the comment rail. Both forms are accepted as Memo source
 by CLI 0.86.1; frontend rendering and CLI storage support are separate.
 
 No dedicated highlight command is needed. `notes create --text` or `--file` stores
@@ -74,29 +74,29 @@ ID returned by create/list. This complete example annotates an existing highligh
 
 ```bash
 SNAPSHOT=$(mktemp)
-dreamlake notes read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
+dreamlake memos read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
 REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
-dreamlake notes replace ':highlight[Review needed]' \
+dreamlake memos replace ':highlight[Review needed]' \
   --text ':highlight[Review needed]{user="geyang" comment="Check the source"}' \
   --note "$NOTE_ID" --if-match "$REV"
-dreamlake notes read "$NOTE_ID" --json
+dreamlake memos read "$NOTE_ID" --json
 rm "$SNAPSHOT"
 ```
 
 The replacement helper needs the legacy ETag, not a v2 `rtc:` revision. Exactly one
-match is expected; if the note changed, read again before retrying. Do not rewrite
-the whole note to edit one annotation. These commands already support the syntax;
-CLI 0.31.3 updates the bundled guidance, not the note storage API.
+match is expected; if the memo changed, read again before retrying. Do not rewrite
+the whole memo to edit one annotation. These commands already support the syntax;
+CLI 0.31.3 updates the bundled guidance, not the memo storage API.
 
 ## References and placeholders
 
-Keep existing raw note references intact:
+Keep existing raw memo references intact:
 
 ```markdown
 #note:507f1f77bcf86cd799439011
 ```
 
-Use an actual accessible note ID, not that example ID. Do not convert references
+Use an actual accessible memo ID, not that example ID. Do not convert references
 into guessed URLs or silently replace their source syntax. The authoring guide
 is the reference for newer directives and development-preview features.
 
@@ -108,17 +108,17 @@ generated labels, and editor decorations are not replacement document source.
 
 ```bash
 NOTE_ID=release-plan
-dreamlake notes read "$NOTE_ID" --view html > preview.html
+dreamlake memos read "$NOTE_ID" --view html > preview.html
 ```
 
 The CLI writes the complete server-rendered HTML byte-for-byte, with no text
-metadata prefix, JSON wrapper, or added newline. It validates the note identity,
+metadata prefix, JSON wrapper, or added newline. It validates the memo identity,
 source hash, and revision before emitting output. To inspect the acknowledged
 result of an edit:
 
 ```bash
 ACK=$(jq -er .revision receipt.json)
-dreamlake notes read "$NOTE_ID" --view html --if-match "$ACK" > verified.html
+dreamlake memos read "$NOTE_ID" --view html --if-match "$ACK" > verified.html
 ```
 
 A revision mismatch exits `3` without output. HTML reads require the matching
@@ -129,7 +129,7 @@ server contract and CLI 0.26.2+. They cannot be combined with `--json`, `--since
 
 | Attribute | Meaning |
 | --- | --- |
-| Root `data-note`, `data-hash`, `data-revision` | Note and snapshot identity |
+| Root `data-note`, `data-hash`, `data-revision` | Memo and snapshot identity |
 | Root `data-source-type`, `data-offset-unit`, `data-source` | Canonical source and its encoding/unit contract |
 | Element `data-start`, `data-end`, `data-map` | Source range and mapping kind |
 
@@ -137,7 +137,7 @@ Decode the root source attribute exactly once. Offsets count Unicode code points
 not DOM UTF-16 units. Atomic mappings require whole-range edits; generated content
 has no editable source range. Use the mapped canonical source and original
 revision to prepare a patch. Never upload preview wrappers or metadata as the
-note body.
+memo body.
 
 For attaching an HTML file with its own preview URL, see
 [Attachments](cli-notes-attachments.md).

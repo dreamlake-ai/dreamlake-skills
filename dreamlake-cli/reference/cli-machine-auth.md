@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/machine-auth.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/machine-auth.md at 0.105.0 3dc31d9; do not edit -->
 
 # Machine authentication
 
@@ -42,7 +42,7 @@ and keys are not written by login, logout or environment switching.
 The initial signed surface supports identity and explicitly granted host/project
 metadata reads. Other commands require personal identity and fail with an
 identity-selection hint when invoked as a machine. This does not yet provide
-machine-authorized upload, Notes or all other human API capabilities.
+machine-authorized upload, Memos or all other human API capabilities.
 
 ## Protected configuration
 

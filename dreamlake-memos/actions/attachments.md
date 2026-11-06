@@ -4,16 +4,16 @@ To insert an image into Markdown or HTML, use [inline image upload](media.md).
 These file commands store attachments alongside a memo and do not insert them
 into its body.
 
-Files inherit the memo's permissions. Set `NOTE_ID` to an accessible memo; add
+Files inherit the memo's permissions. Set `MEMO_ID` to an accessible memo; add
 `--namespace <slug>` when required.
 
 ```bash
-NOTE_ID=release-plan
+MEMO_ID=release-plan
 # Pick the requested operation; each command is independent.
-dreamlake memos files upload ./report.html --note "$NOTE_ID"
-dreamlake memos files list --note "$NOTE_ID"
-dreamlake memos files download report.html --note "$NOTE_ID" -o ./report.html
-dreamlake memos files preview report.html --note "$NOTE_ID" --open
+dreamlake memos files upload ./report.html --note "$MEMO_ID"
+dreamlake memos files list --note "$MEMO_ID"
+dreamlake memos files download report.html --note "$MEMO_ID" -o ./report.html
+dreamlake memos files preview report.html --note "$MEMO_ID" --open
 ```
 
 Uploads and downloads preserve bytes. `cat` is for text and refuses binary
@@ -75,10 +75,10 @@ keep the original account, Memo, namespace and `operationId` from JSON or stderr
 
 ```bash
 # Inspect the original operation; do not resend uncertain bytes.
-dreamlake memos files status "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+dreamlake memos files status "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
 # Choose only the intended next action, under the original account.
-dreamlake memos files reconcile "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
-dreamlake memos files cancel "$OPERATION_ID" --note "$NOTE_ID" --namespace "$NAMESPACE" --json
+dreamlake memos files reconcile "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
+dreamlake memos files cancel "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
 ```
 
 Reconcile may publish the original database result but never uploads bytes again.

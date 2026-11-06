@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.105.0 3dc31d9; do not edit -->
 
 # Terminal sessions
 
@@ -82,7 +82,7 @@ If the CLI says **Content saved; optional session metadata was not fully recorde
 do not repeat the content write. Retry `sessions register`, then `sessions link`
 using the returned saved ID; retry `upload-conversation` separately if needed.
 `terminal_access_denied` from `sessions targets` is an execution/discovery authority
-failure, not evidence that the Note save failed. Metadata registration does not
+failure, not evidence that the Memo save failed. Metadata registration does not
 need target discovery. Do not change enrollment credentials to repair attribution.
 
 Conversation upload redacts recognized credential assignments, authorization
@@ -177,10 +177,10 @@ Use `sessions status` for the selected managed terminal's current lifecycle.
 Claude resumes with its existing permissions and login; the CLI adds no bypass.
 These additions require matching provider-aware API, gateway and collector releases.
 
-## Link notes and artifacts (0.78.0+)
+## Link memos and artifacts (0.78.0+)
 
 With the matching resource-session API deployed, a saved session can be linked
-to multiple notes and artifacts, including resources in another namespace.
+to multiple memos and artifacts, including resources in another namespace.
 Linking requires resource write access and session read access. Every list checks
 both permissions again; sharing a resource does not share its terminal.
 
@@ -202,10 +202,10 @@ dreamlake sessions resources SESSION_ID --namespace geyang --page-size 25 --json
 
 `resources` returns bounded pages (maximum 50); continue with its `nextCursor`.
 These commands only change or read affiliations. They never open, start or stop
-terminals and never modify note or artifact content.
+terminals and never modify memo or artifact content.
 
-Note creation and confirmed body/section changes are attributed by the Note server,
-using the same optional identity as [Note presence](cli-notes-collaboration.md).
+Memo creation and confirmed body/section changes are attributed by the Memo server,
+using the same optional identity as [Memo presence](cli-notes-collaboration.md).
 `DREAMLAKE_TERMINAL_SESSION_ID` selects an exact owned saved session; native
 `CODEX_THREAD_ID`, `CLAUDE_SESSION_ID` or `CLAUDE_CODE_SESSION_ID` supplies a typed
 session identity. Explicit `DREAMLAKE_SESSION_ID` plus
@@ -213,10 +213,10 @@ session identity. Explicit `DREAMLAKE_SESSION_ID` plus
 identities are not guessed. New attribution-only records start private, with no
 launch target or transcript upload. Existing session visibility is preserved.
 
-Use `dreamlake notes contributors NOTE --json` to distinguish server-observed
+Use `dreamlake memos contributors NOTE --json` to distinguish server-observed
 `created`/`edited` evidence from a manually linked session (`contribution: null`).
 No-op and failed edits, reads and presence announcements do not become contributions.
-The new CLI does not issue a second Note link request after content writes.
+The new CLI does not issue a second Memo link request after content writes.
 
 Artifact pushes retain the client-side registration/link path: at most one lookup
 and one idempotent metadata write, a three-second combined deadline and no retry.
@@ -496,10 +496,10 @@ scan or credential/configuration upload occurs. Review the selected file: its
 text becomes readable to people who can already read that saved session.
 
 For an opted-in workflow, set `DREAMLAKE_CONVERSATION_FILE` to that exact export
-path. Successful note and artifact writes then affiliate the session and upload
+path. Successful memo and artifact writes then affiliate the session and upload
 its conversation snapshot. `DREAMLAKE_SESSION_AFFILIATION=0` disables both automatic
 operations. Without the file setting, uploads remain metadata-only. This does not
-extend auto-affiliation to resource kinds beyond notes and artifacts.
+extend auto-affiliation to resource kinds beyond memos and artifacts.
 
 The automatic path retains its combined three-second deadline and no retry;
 archive or metadata failures warn while preserving successful content writes.
@@ -510,9 +510,9 @@ require owner access. Concurrent replacements fail with a revision conflict.
 Exports are limited to 32 MiB input and 8 MiB normalized conversation, with at most
 20,000 messages. Oversized or mismatched files are rejected without truncation.
 A new upload replaces the snapshot; there is no background transcript watcher.
-Note and artifact operations continue normally if metadata is missing or wrong.
+Memo and artifact operations continue normally if metadata is missing or wrong.
 
-The Note activity panel shows contributing sessions before related resources.
+The Memo activity panel shows contributing sessions before related resources.
 Select a Codex or Claude row to open its saved terminal in the panel to the right.
 No conversation upload is required; reading uploaded history is a separate action.
 The gateway uses the supported persistent or direct terminal runtime and rechecks
@@ -528,7 +528,7 @@ permission. Standalone Sessions conversation reading remains available.
 ## Optional resource activity context (0.79.0+)
 
 Resource activity attribution is separate from managed Terminal sessions. On a
-server supporting the resource activity API, CLI reads/edits of Notes, Repo
+server supporting the resource activity API, CLI reads/edits of Memos, Repo
 records and InfraStack state can carry a conversation identity:
 
 ```bash
@@ -539,7 +539,7 @@ export DREAMLAKE_SESSION_NAME="Launch API work"
 
 When no explicit ID is supplied, `CODEX_THREAD_ID` supplies Codex context if
 present. Missing or malformed optional context is ignored; it cannot block a
-note read or save. Legacy `DREAMLAKE_AGENT_ID` still supplies Notes presence and
+memo read or save. Legacy `DREAMLAKE_AGENT_ID` still supplies Memos presence and
 agent attribution. Session context does not change permissions or create a
 managed terminal session, and it is sent only to supported resource routes.
 This capability requires the companion resource activity backend release.
