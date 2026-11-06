@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.106.0 e107dbd; do not edit -->
 
 # Live collaboration
 
@@ -30,7 +30,7 @@ Exports in one shell tool call do not persist into separate calls. Save the
 initial values in task context and inject the same literal values into every
 later Memos command environment. Never generate a new UUID per command.
 
-After the first intended live read, use `dreamlake memos presence "$NOTE_ID"`
+After the first intended live read, use `dreamlake memos presence "$MEMO_ID"`
 (CLI 0.31.0+) to match the task ID and name in the roster. This command only
 observes presence; it does not join. If absent, check the environment of the
 actual read/edit process before diagnosing a UI regression. Do not repeat a
@@ -46,8 +46,8 @@ Generate an ID once, give it a readable name, and reuse both for that task:
 SESSION_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')
 export DREAMLAKE_AGENT_ID="codex:$SESSION_ID"
 export DREAMLAKE_AGENT_NAME="Codex"
-NOTE_ID=release-plan
-dreamlake memos read "$NOTE_ID" --linger
+MEMO_ID=release-plan
+dreamlake memos read "$MEMO_ID" --linger
 ```
 
 Separate tool shells must receive the same saved environment values; an export
@@ -56,9 +56,9 @@ The name is a label, not the identity. No separate registration call is needed.
 
 | Command | Content | Presence |
 | --- | --- | --- |
-| `notes read "$NOTE_ID"` | One snapshot | Attributed reads register/refresh recent presence |
-| `notes read "$NOTE_ID" --linger` | Snapshot, then changes | Maintained until the foreground process stops |
-| `notes visit "$NOTE_ID"` | None | Registers once and returns |
+| `memos read "$MEMO_ID"` | One snapshot | Attributed reads register/refresh recent presence |
+| `memos read "$MEMO_ID" --linger` | Snapshot, then changes | Maintained until the foreground process stops |
+| `memos visit "$MEMO_ID"` | None | Registers once and returns |
 
 Ordinary reads and edits work without an agent ID. Presence is opt-in and does
 not change permissions or patch checks. Members and explicitly shared readers
@@ -72,7 +72,7 @@ mean the owner is currently present. Recent presence is not proof of attention.
 ## How updates arrive
 
 ```bash
-dreamlake memos read "$NOTE_ID" --linger --debounce 1s --throttle 2s
+dreamlake memos read "$MEMO_ID" --linger --debounce 1s --throttle 2s
 ```
 
 The first snapshot is immediate. Then:
@@ -92,7 +92,7 @@ card to collaborators (for example
 It is sent once at join; heartbeats preserve it, and leave or lease expiry
 removes it. The server trims the text and rejects empty values and more than
 280 Unicode code points. A purpose is a self-reported claim, not observed
-activity or progress. `notes visit` accepts the same flag for one-shot presence.
+activity or progress. `memos visit` accepts the same flag for one-shot presence.
 
 Both timing flags require `--linger`. Use `ms`, `s`, or `m`, between `250ms` and
 `5m`; fractions are allowed. The server subscribes to the existing RTC room and
@@ -140,7 +140,7 @@ Use this only when a program needs NDJSON. Ordinary collaboration, including
 coding-agent sessions, should use the text commands above.
 
 ```bash
-dreamlake memos read "$NOTE_ID" --linger --json
+dreamlake memos read "$MEMO_ID" --linger --json
 ```
 
 Stdout is newline-delimited JSON, with one object per line. Stderr carries
@@ -178,7 +178,7 @@ restart linger to get a new full snapshot. Events are not retained or replayed.
 
 Linger accepts full source only. Do not combine it with `--since`, `--legacy`,
 `--at`, `--toc`, `--tag`, HTML, sections, line ranges, or numbered output.
-Use a separate `read NOTE --at REVISION --tag s1.1.p1` command to inspect a
+Use a separate `read MEMO --at REVISION --tag s1.1.p1` command to inspect a
 paragraph from a revision emitted by linger. `--if-match` checks only the
 initial read. Streamed revisions do not replace the original baseline of a
 patch you are already preparing.
@@ -192,8 +192,8 @@ keeper per note/task identity because multiple keepers share the same lease.
 
 ```bash cli-help="memos visit"
 # Reuse the task's DREAMLAKE_AGENT_ID and DREAMLAKE_AGENT_NAME.
-NOTE_ID=release-plan
-dreamlake memos visit "$NOTE_ID"
+MEMO_ID=release-plan
+dreamlake memos visit "$MEMO_ID"
 ```
 
 `read --linger` manages the session lifecycle: start it to join, let it maintain
@@ -204,8 +204,8 @@ your session and does not require an agent ID.
 
 ```bash cli-help="memos presence"
 # Read the participant roster without joining. Text is the default.
-NOTE_ID=release-plan
-dreamlake memos presence "$NOTE_ID"
+MEMO_ID=release-plan
+dreamlake memos presence "$MEMO_ID"
 ```
 
 Add `--json` only for a program consuming the roster. The old action arguments
@@ -215,7 +215,7 @@ Add `--json` only for a program consuming the roster. The old action arguments
 ## If joining fails
 
 A successful read does not prove presence support. Check `dreamlake --version`,
-`notes read --help`, the selected server, memo access, and your stable identity.
+`memos read --help`, the selected server, memo access, and your stable identity.
 `--remote <url>` selects a specific API; a local binary still uses your configured
 remote unless told otherwise. Connection errors and unsupported endpoints end
 linger with a nonzero status and a best-effort leave, never a fabricated empty
@@ -230,7 +230,7 @@ Next: [Editing with patches](cli-notes-editing.md).
 
 ## Select a passage by text
 
-**CLI 0.32.0+:** `notes select --text` publishes an agent selection. Section
+**CLI 0.32.0+:** `memos select --text` publishes an agent selection. Section
 selection also requires the server's section `hash` and code-point `range`
 fields; older server responses fail explicitly.
 
@@ -240,10 +240,10 @@ test memo when trying examples. Replace the memo ID and exact source passage:
 ```bash cli-help="memos select"
 export DREAMLAKE_AGENT_ID="review-session-42"
 export DREAMLAKE_AGENT_NAME="Codex"
-NOTE_ID="your-note-id"
-dreamlake memos select --text "The next step is tested in simulation." --note "$NOTE_ID"
+MEMO_ID="your-note-id"
+dreamlake memos select --text "The next step is tested in simulation." --note "$MEMO_ID"
 # Select the last occurrence of a repeated passage.
-dreamlake memos select --text "simulation" --note "$NOTE_ID" -o -1
+dreamlake memos select --text "simulation" --note "$MEMO_ID" -o -1
 ```
 
 The command matches literal canonical source (including Markdown or HTML markup),
@@ -259,9 +259,9 @@ values count from the end (`-1` is last, `-2` is second-last). Zero is invalid:
 
 ```bash
 # Use the heading anchor from notes sections; this fetches only that section.
-dreamlake memos select --text "simulation" --section next-steps --note "$NOTE_ID"
-dreamlake memos select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
-dreamlake memos select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
+dreamlake memos select --text "simulation" --section next-steps --note "$MEMO_ID"
+dreamlake memos select --text "simulation" --section next-steps --occurrence 2 --note "$MEMO_ID"
+dreamlake memos select --text "simulation" --section next-steps -o -1 --note "$MEMO_ID"
 ```
 
 Section resolution uses one section read with a global code-point range and the
@@ -293,9 +293,9 @@ negative occurrences fail without publishing. Selection activity currently expir
 the participant lease lasts sixty seconds. Heartbeats maintain presence, not the
 selection. Re-run selection to draw attention to the passage again.
 
-`notes select "#contact" --note "$NOTE_ID"` retains its CSS lookup behavior:
+`memos select "#contact" --note "$MEMO_ID"` retains its CSS lookup behavior:
 it reports element text and ranges without publishing a seek. Do not combine CSS
-with `--text`, `--section`, `--occurrence` or `--hash`. `notes find` remains a lookup.
+with `--text`, `--section`, `--occurrence` or `--hash`. `memos find` remains a lookup.
 
 ## Durable contributing sessions
 

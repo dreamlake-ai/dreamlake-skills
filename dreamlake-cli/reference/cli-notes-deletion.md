@@ -1,19 +1,19 @@
-<!-- generated from https://cli.dreamlake.ai/notes/deletion.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/deletion.md at 0.106.0 e107dbd; do not edit -->
 
 # Delete a memo
 
-Available in CLI 0.47.1 and later. `notes rm` deletes a whole memo;
-`notes delete` only removes text inside one.
+Available in CLI 0.47.1 and later. `memos rm` deletes a whole memo;
+`memos delete` only removes text inside one.
 
 ```bash cli-help="memos rm"
 # Read it first and confirm it is the note you mean.
-dreamlake memos read NOTE_ID
+dreamlake memos read MEMO_ID
 # Asks for confirmation, showing the title and owning namespace.
-dreamlake memos rm NOTE_ID
+dreamlake memos rm MEMO_ID
 # Scripts and agents: skip the prompt and take a JSON receipt.
-dreamlake memos rm NOTE_ID --yes --json
+dreamlake memos rm MEMO_ID --yes --json
 # Afterwards a read reports not found.
-dreamlake memos read NOTE_ID
+dreamlake memos read MEMO_ID
 ```
 
 Only the namespace owner or the memo's creator who is still a member of the
@@ -25,7 +25,7 @@ The server soft-deletes: it first tries to save the live content, then keeps the
 body, but the memo disappears from lists, search and reads. Its share link and
 every accepted share are revoked, its live collaboration room is closed, and it
 is removed from every project. Neither the CLI nor the API can restore a
-deleted memo, so treat `notes rm` as irreversible. There is no `--if-match`;
+deleted memo, so treat `memos rm` as irreversible. There is no `--if-match`;
 the server takes no precondition on this delete.
 
 Without a terminal and without `--yes`, nothing is deleted: the command prints

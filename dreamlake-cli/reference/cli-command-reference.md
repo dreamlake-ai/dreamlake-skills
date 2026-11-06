@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.106.0 e107dbd; do not edit -->
 
 # Command reference
 
@@ -270,6 +270,13 @@ Experiments enabled and both `--namespace <slug>` and `--project <slug>`.
 | `experiments runs create <key>` | Create or recover a native run by stable key |
 | `experiments runs log <id> <message>` | Append one log entry |
 | `experiments runs archive <id>` / `experiments runs restore <id>` | Hide or restore a native run without deleting data |
+| `experiments runs show <id>` / `experiments runs status <id> [status]` | Show a run, or read or set its status |
+| `experiments runs update <id>` | Change a run's `--description` or `--tags` |
+| `experiments runs params get\|set\|delete <id>` | Read, merge (`--data`) or delete run parameters |
+| `experiments runs metrics list\|rows\|append\|stats\|metadata` | List metrics, page rows, append points, show stats, edit metadata |
+| `experiments runs logs read\|append <id>` | Read filtered log pages or append entries |
+| `experiments runs files list\|get\|upload\|download\|update\|delete` | Manage run files; downloads are checksum-verified |
+| `experiments runs tracks list\|create\|append\|read` | Time-indexed tracks; `read` exports json, jsonl, parquet (Arrow IPC) or mcap |
 
 ## Skills
 

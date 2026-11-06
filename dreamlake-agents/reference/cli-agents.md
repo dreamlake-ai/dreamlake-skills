@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/agents.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/agents.md at 0.106.0 e107dbd; do not edit -->
 
 # Agents
 
@@ -32,9 +32,9 @@ dreamlake agents create reviewer --runtime builtin-v1 \
   --prompt 'Read the evidence and summarize it with citations.' \
   --tools dreamlake_notes_read --project dreamlake --namespace fortyfive
 
-# Existing Note/folder IDs; references remain live and are authorized per caller.
-dreamlake agents create researcher --instruction-note "$MAIN_NOTE_ID" \
-  --skill-note "$SKILL_NOTE_ID" --skill-folder "$SKILLS_FOLDER_ID" \
+# Existing Memo/folder IDs; references remain live and are authorized per caller.
+dreamlake agents create researcher --instruction-note "$MAIN_MEMO_ID" \
+  --skill-note "$SKILL_MEMO_ID" --skill-folder "$SKILLS_FOLDER_ID" \
   --project dreamlake --namespace fortyfive
 ```
 
@@ -55,8 +55,8 @@ const client = createClient({ remote: 'https://api.dreamlake.ai', token: process
 const agents = client.runnables('fortyfive')
 const agent = await agents.create({
   name: 'Researcher', module: 'agents', qualname: 'researcher', kind: 'agent',
-  content: { instructionNoteId: process.env.MAIN_NOTE_ID!, skills: [
-    { kind: 'note', id: process.env.SKILL_NOTE_ID! },
+  content: { instructionNoteId: process.env.MAIN_MEMO_ID!, skills: [
+    { kind: 'note', id: process.env.SKILL_MEMO_ID! },
   ] },
   projects: ['dreamlake'],
   metadata: { agent: { runtime: 'builtin-v1', tools: ['dreamlake_notes_read'] } },

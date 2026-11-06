@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/rich-content.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/rich-content.md at 0.106.0 e107dbd; do not edit -->
 
 # Rich content and HTML
 
@@ -68,18 +68,18 @@ Attribute-only comments require a frontend containing the scanner fix from
 `752c4df2` to appear in the comment rail. Both forms are accepted as Memo source
 by CLI 0.86.1; frontend rendering and CLI storage support are separate.
 
-No dedicated highlight command is needed. `notes create --text` or `--file` stores
-the syntax, and `notes replace` edits it by matching text. Set `NOTE_ID` to the
+No dedicated highlight command is needed. `memos create --text` or `--file` stores
+the syntax, and `memos replace` edits it by matching text. Set `MEMO_ID` to the
 ID returned by create/list. This complete example annotates an existing highlight:
 
 ```bash
 SNAPSHOT=$(mktemp)
-dreamlake memos read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
+dreamlake memos read --legacy --note "$MEMO_ID" --json > "$SNAPSHOT"
 REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
 dreamlake memos replace ':highlight[Review needed]' \
   --text ':highlight[Review needed]{user="geyang" comment="Check the source"}' \
-  --note "$NOTE_ID" --if-match "$REV"
-dreamlake memos read "$NOTE_ID" --json
+  --note "$MEMO_ID" --if-match "$REV"
+dreamlake memos read "$MEMO_ID" --json
 rm "$SNAPSHOT"
 ```
 
@@ -107,8 +107,8 @@ generated labels, and editor decorations are not replacement document source.
 ## Read a rendered HTML snapshot
 
 ```bash
-NOTE_ID=release-plan
-dreamlake memos read "$NOTE_ID" --view html > preview.html
+MEMO_ID=release-plan
+dreamlake memos read "$MEMO_ID" --view html > preview.html
 ```
 
 The CLI writes the complete server-rendered HTML byte-for-byte, with no text
@@ -118,7 +118,7 @@ result of an edit:
 
 ```bash
 ACK=$(jq -er .revision receipt.json)
-dreamlake memos read "$NOTE_ID" --view html --if-match "$ACK" > verified.html
+dreamlake memos read "$MEMO_ID" --view html --if-match "$ACK" > verified.html
 ```
 
 A revision mismatch exits `3` without output. HTML reads require the matching

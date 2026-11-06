@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.106.0 e107dbd; do not edit -->
 
 # Task operation examples
 
@@ -108,9 +108,9 @@ A message event never changes completion/acceptance state. Events should carry e
 These are references to existing Notes/sections. Linking does not create or edit Memo content. Use IDs returned by existing Memos APIs and resolve section anchors against the actual document.
 
 ```shell
-dreamlake tasks notes add vault/entries/write-recovery --role agent_prompt --note-id NOTE_ID_PROMPT --section recovery-agent
-dreamlake tasks notes add vault/entries/write-recovery --role comment --note-id NOTE_ID_DISCUSSION --section review-feedback
-dreamlake tasks notes add vault/entries/write-recovery --role details --note-id NOTE_ID_DESIGN
+dreamlake tasks notes add vault/entries/write-recovery --role agent_prompt --note-id MEMO_ID_PROMPT --section recovery-agent
+dreamlake tasks notes add vault/entries/write-recovery --role comment --note-id MEMO_ID_DISCUSSION --section review-feedback
+dreamlake tasks notes add vault/entries/write-recovery --role details --note-id MEMO_ID_DESIGN
 dreamlake tasks notes list vault/entries/write-recovery --to-json
 ```
 

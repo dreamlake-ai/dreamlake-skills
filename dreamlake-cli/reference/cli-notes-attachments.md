@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.106.0 e107dbd; do not edit -->
 
 # Attachments
 
@@ -6,17 +6,17 @@ The [Memo presence and attachment API map](https://cli.dreamlake.ai/dev/note-col
 matching TypeScript operations, JSON receipts, and recovery behavior.
 
 Files inherit the memo's permissions. Uploading a file to a private memo keeps
-it private. Set `NOTE_ID` to an accessible memo and add its owner's `--namespace`
+it private. Set `MEMO_ID` to an accessible memo and add its owner's `--namespace`
 when needed.
 
 ## Upload and retrieve
 
 ```bash
-NOTE_ID=release-plan
-dreamlake memos files upload ./report.html --note "$NOTE_ID"
-dreamlake memos files upload ./chart.png --path assets/chart.png --note "$NOTE_ID"
-dreamlake memos files cat config.json --note "$NOTE_ID"
-dreamlake memos files download report.html --note "$NOTE_ID" -o ./downloaded-report.html
+MEMO_ID=release-plan
+dreamlake memos files upload ./report.html --note "$MEMO_ID"
+dreamlake memos files upload ./chart.png --path assets/chart.png --note "$MEMO_ID"
+dreamlake memos files cat config.json --note "$MEMO_ID"
+dreamlake memos files download report.html --note "$MEMO_ID" -o ./downloaded-report.html
 ```
 
 Uploads and downloads preserve bytes. `cat` refuses binary content; use
@@ -55,25 +55,25 @@ printf '\n![Architecture diagram](%s)\n' "${IMAGE_URL:?Upload the image first}" 
 printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the image first}" > image.html
 ```
 
-To append the Markdown to an existing memo, set `NOTE_ID` to its ID and run
-`dreamlake memos append "$NOTE_ID" --file image.md`. Uploading media alone
+To append the Markdown to an existing memo, set `MEMO_ID` to its ID and run
+`dreamlake memos append "$MEMO_ID" --file image.md`. Uploading media alone
 does not edit a memo. Use Markdown for the Memos body; HTML markup is for an
 HTML document. Keep the returned media URL, not its temporary storage redirect.
 
 Anyone holding a media URL can load it without signing in. Making a memo
 private does not revoke that URL. To keep an image under a memo's permissions,
-use `notes files upload ./diagram.png --note "$NOTE_ID"` instead. That stores
-an attachment with a logical path, not an embeddable URL. `notes files preview`
+use `memos files upload ./diagram.png --note "$MEMO_ID"` instead. That stores
+an attachment with a logical path, not an embeddable URL. `memos files preview`
 returns a viewer page, not an image `src`. Media uploads are not included in
-`notes files list`.
+`memos files list`.
 
 ## Manage files
 
 ```bash
-dreamlake memos files mv old.txt new.txt --note "$NOTE_ID"
-dreamlake memos files cp report.html report-copy.html --note "$NOTE_ID"
-dreamlake memos files rm old.txt --note "$NOTE_ID"
-dreamlake memos files list --trashed --note "$NOTE_ID"
+dreamlake memos files mv old.txt new.txt --note "$MEMO_ID"
+dreamlake memos files cp report.html report-copy.html --note "$MEMO_ID"
+dreamlake memos files rm old.txt --note "$MEMO_ID"
+dreamlake memos files list --trashed --note "$MEMO_ID"
 ```
 
 `rm` moves a file to trash. Use `files restore --help` to restore the returned
@@ -96,11 +96,11 @@ For text writes and copies only, supply a stable printable ASCII key (1–256 by
 without surrounding spaces for one exact request. The CLI passes it unchanged and never automatically retries.
 
 ```bash cli-help="memos files write"
-dreamlake memos files write config.json --text '{"enabled":true}' --note "$NOTE_ID" --idempotency-key config-initial-1
+dreamlake memos files write config.json --text '{"enabled":true}' --note "$MEMO_ID" --idempotency-key config-initial-1
 ```
 
 ```bash cli-help="memos files cp"
-dreamlake memos files cp config.json config-copy.json --note "$NOTE_ID" --idempotency-key config-copy-1
+dreamlake memos files cp config.json config-copy.json --note "$MEMO_ID" --idempotency-key config-copy-1
 ```
 
 A response supplies an operation ID on stderr, or as an additive `operationId`
@@ -113,11 +113,11 @@ or this journal recovery contract; media upload is also outside this scope.
 
 ```bash cli-help="memos files status"
 # OPERATION_ID is the ID from the original response.
-dreamlake memos files status "$OPERATION_ID" --note "$NOTE_ID" --json
+dreamlake memos files status "$OPERATION_ID" --note "$MEMO_ID" --json
 ```
 
 ```bash cli-help="memos files reconcile"
-dreamlake memos files reconcile "$OPERATION_ID" --note "$NOTE_ID" --json
+dreamlake memos files reconcile "$OPERATION_ID" --note "$MEMO_ID" --json
 ```
 
 Status is read-only. Reconcile verifies original staged bytes and may publish the
@@ -128,7 +128,7 @@ An unconfirmed outcome stays unresolved:404 from storage, elapsed time and a
 failed request do not establish that an upload cannot arrive later.
 
 ```bash cli-help="memos files cancel"
-dreamlake memos files cancel "$OPERATION_ID" --note "$NOTE_ID" --json
+dreamlake memos files cancel "$OPERATION_ID" --note "$MEMO_ID" --json
 ```
 
 Cancel is available only while admitted, before upload authorization. It retains
@@ -140,15 +140,15 @@ These commands do not transfer a Memo, grant access or complete storage recovery
 ## Preview and share
 
 ```bash
-dreamlake memos files preview report.html --note "$NOTE_ID" --open
+dreamlake memos files preview report.html --note "$MEMO_ID" --open
 ```
 
 The default preview requires sign-in. HTML renders on a separate origin from
 the dashboard. To deliberately create or withdraw a public preview link:
 
 ```bash
-dreamlake memos files preview report.html --note "$NOTE_ID" --share
-dreamlake memos files preview report.html --note "$NOTE_ID" --revoke
+dreamlake memos files preview report.html --note "$MEMO_ID" --share
+dreamlake memos files preview report.html --note "$MEMO_ID" --revoke
 ```
 
 A shared link opens without sign-in and does not expire. Revoking it withdraws

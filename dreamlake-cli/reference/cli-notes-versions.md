@@ -1,33 +1,33 @@
-<!-- generated from https://cli.dreamlake.ai/notes/versions.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/versions.md at 0.106.0 e107dbd; do not edit -->
 
 # Saved versions
 
-`note tag` saves durable checkpoints on an existing Memo. It does not
+`memos tag` saves durable checkpoints on an existing Memo. It does not
 create another Memo or change the live body. All version operations require
 edit access, including reading history that may contain previously removed text.
 
-**Availability:** `note tag`, `note hist`, and `note read --version` require
+**Availability:** `memos tag`, `memos hist`, and `memos read --version` require
 CLI **0.44.1 or later**. `note` and `notes` are aliases. Check
-`dreamlake note hist --help` in your installed executable
+`dreamlake memos hist --help` in your installed executable
 before using them in automation. They require the server's native Memos
 `/versions` endpoints; an older server's failure is not an empty version list.
 
 ## Create a checkpoint
 
 ```bash cli-help="memos tag"
-# Save the current content on the existing Note.
-dreamlake note tag NOTE_ID end-of-day --namespace my-org --summary "Reviewed today's actions"
+# Save the current content on the existing Memo.
+dreamlake memos tag MEMO_ID end-of-day --namespace my-org --summary "Reviewed today's actions"
 # Require the hash retained from a reviewed full read (not its opaque revision).
-dreamlake note tag NOTE_ID reviewed --hash sha256:CONTENT_HASH --json
-# Connect this checkpoint to an earlier version in the same Note.
-dreamlake note tag NOTE_ID next-checkpoint --parent VERSION_ID
+dreamlake memos tag MEMO_ID reviewed --hash sha256:CONTENT_HASH --json
+# Connect this checkpoint to an earlier version in the same Memo.
+dreamlake memos tag MEMO_ID next-checkpoint --parent VERSION_ID
 # Read and validate without creating a version.
-dreamlake note tag NOTE_ID preview --dry-run --json
+dreamlake memos tag MEMO_ID preview --dry-run --json
 ```
 
 Creation performs one complete Memos v2 source read, verifies its SHA-256 hash,
 and submits that same hash to the server. Optional `--hash` accepts either the
-`sha256:`-prefixed hash from `notes read --json` or the raw 64-character digest.
+`sha256:`-prefixed hash from `memos read --json` or the raw 64-character digest.
 If the reviewed hash differs from the current read, nothing is submitted.
 If the Memo changes between the read and save, the server returns
 `409 note_changed`; the command exits **3** without retrying. Review the current
@@ -41,7 +41,7 @@ for reading and ancestry. `--parent` must identify a saved version in the same
 Memo; it records ancestry without restoring or altering the live Memo.
 
 A server or transport failure after submission may leave the outcome uncertain.
-Paginate `note hist` and read matching candidates with `note read --version`
+Paginate `memos hist` and read matching candidates with `memos read --version`
 before deciding whether another create is necessary; see the retained-snapshot
 workflow below. There is no automatic retry or
 fallback that creates a separate Memo. RTC unavailability exits **4**; other
@@ -52,9 +52,9 @@ Memos diagnostics.
 ## List saved versions
 
 ```bash cli-help="memos hist"
-dreamlake note hist NOTE_ID --namespace my-org --json
+dreamlake memos hist MEMO_ID --namespace my-org --json
 # Continue with nextCursor returned by the previous page.
-dreamlake note hist NOTE_ID --before VERSION_ID --json
+dreamlake memos hist MEMO_ID --before VERSION_ID --json
 ```
 
 One request returns up to 50 versions, newest first. JSON preserves
@@ -65,8 +65,8 @@ metadata, not bodies, and does not automatically fetch all pages.
 ## Read a saved version
 
 ```bash
-dreamlake note read NOTE_ID --version VERSION_ID
-dreamlake note read NOTE_ID --version VERSION_ID --namespace my-org --json
+dreamlake memos read MEMO_ID --version VERSION_ID
+dreamlake memos read MEMO_ID --version VERSION_ID --namespace my-org --json
 ```
 
 Read by the returned version ID (`v_<timestamp>_<uuid>`), not by tag. Plain
@@ -91,7 +91,7 @@ not the live read's `content` and write-baseline envelope.
 
 Use the [authoritative retained-snapshot recovery workflow](https://docs.dreamlake.ai/notes/history/#recover-a-retained-snapshot)
 when an older full source is retained but missing from saved versions.
-`note tag` checkpoints the **current** live source; it cannot import an older
+`memos tag` checkpoints the **current** live source; it cannot import an older
 snapshot. The CLI has no historical-revision save option or checkpoint/journal
 read command. Use the documented Memos REST endpoints only for those missing
 capabilities; keep supported `tag`, `hist`, and `read --version` operations in
@@ -113,8 +113,8 @@ historical-revision saves. An unsupported route, validation failure, or
 justify substituting the current hash or overwriting the live body.
 
 If a create times out or its result is otherwise unknown, do not blindly retry.
-Inspect every relevant `note hist` page using `nextCursor` with `--before`, then
-read each plausible candidate by ID with `note read --version`. Compare its
+Inspect every relevant `memos hist` page using `nextCursor` with `--before`, then
+read each plausible candidate by ID with `memos read --version`. Compare its
 exact retained text and hash, plus the operation's tag, summary, parent and
 provenance where applicable. Labels and hashes are not idempotency keys. Reuse
 a verified matching receipt; if the outcome remains ambiguous, preserve the
@@ -130,6 +130,6 @@ recovery verification.
 
 ## Removed commands
 
-CLI 0.44.2 removes the old `notes version` command group. Use `note tag`,
-`note hist`, and `note read --version` instead. The `notes` spelling of the
+CLI 0.44.2 removes the old `notes version` command group. Use `memos tag`,
+`memos hist`, and `memos read --version` instead. The `notes` spelling of the
 Memo command group remains supported.

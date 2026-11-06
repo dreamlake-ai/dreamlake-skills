@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.106.0 e107dbd; do not edit -->
 
 # Terminal sessions
 
@@ -186,7 +186,7 @@ both permissions again; sharing a resource does not share its terminal.
 
 ```bash cli-help="sessions link"
 dreamlake sessions link SESSION_ID --namespace geyang \
-  --resource-namespace fortyfive --note NOTE_ID --json
+  --resource-namespace fortyfive --note MEMO_ID --json
 dreamlake sessions link SESSION_ID --namespace geyang \
   --resource-namespace fortyfive --artifact loss-plot --json
 ```

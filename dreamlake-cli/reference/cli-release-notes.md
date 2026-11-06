@@ -1,6 +1,16 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.106.0 e107dbd; do not edit -->
 
 # Release notes
+
+## 0.106.0 — Memo help and native experiment commands
+
+Memo examples, identifier placeholders, generated command help, and move results consistently use Memo terminology. Existing aliases and HTTP contracts remain compatible during the phased rollout.
+
+This release also includes the merged native experiments command stack: run data, files, tracks, folders, protection, batch operations, and bindrs. Native writes check server capabilities; protocol 6 operations require matching server support. Verified downloads use a temporary file before installation, and logout follows the shared login contract.
+
+## 0.105.1 — Published Memo skill
+
+The bundled agent skill now pins published `v2026.11.06.1`. Installation guidance and generated CLI help use `dreamlake-memos`; new references use ordinary links, while saved `:note` directives remain readable. The refreshed skill includes the current Memo SDK and structured snapshot guidance.
 
 ## 0.105.0 — Canonical Memo TypeScript API
 

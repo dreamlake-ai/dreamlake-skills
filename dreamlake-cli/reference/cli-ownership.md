@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/ownership.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/ownership.md at 0.106.0 e107dbd; do not edit -->
 
 # Ownership transfers
 
@@ -212,7 +212,7 @@ below selects reviewed Memos explicitly and never fills the complete plan itself
 ```bash cli-help="project transfer-preview"
 dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive
 # Explicitly include only reviewed Notes already filed in this project.
-dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive --include-note NOTE_ID --json
+dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive --include-note MEMO_ID --json
 ```
 
 Requires current source namespace transfer authority and access to destination capability
@@ -292,7 +292,7 @@ preview hash, private preserve-policy and idempotency key. Streaming requests om
 the client resource manifest: the compatible server owns resource-ID cursors,
 dynamic membership capture and final watermark. It must preserve IDs and existing
 content/storage rather than copy blobs. Stream v1 keeps the root Project name unchanged. Explicit repeatable
-`--rename-note NOTE_ID=DESTINATION_SLUG` mappings are bounded to 1,000 unique
+`--rename-note MEMO_ID=DESTINATION_SLUG` mappings are bounded to 1,000 unique
 Memo IDs and bound into the saved review/hash. The server must reject IDs outside
 the authoritative Project closure and block newly discovered collisions rather
 than rename implicitly. Saved-request overrides are rejected; requests are never automatically retried or accepted.

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/legacy.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/legacy.md at 0.106.0 e107dbd; do not edit -->
 
 # Legacy commands
 
@@ -15,15 +15,15 @@ Whole-body write uses this ETag interface in CLI 0.60.0 and earlier. The
 section API; that migration and add/remove-section migrations remain unshipped.
 
 ```bash
-NOTE_ID=release-plan
-dreamlake memos read "$NOTE_ID" --legacy --json > legacy-baseline.json
+MEMO_ID=release-plan
+dreamlake memos read "$MEMO_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
-jq -jr .text legacy-baseline.json > note.md
-# Edit note.md, then preview and submit against the saved ETag.
-dreamlake memos write "$NOTE_ID" --file note.md --if-match "$ETAG" --dry-run
-dreamlake memos write "$NOTE_ID" --file note.md --if-match "$ETAG" --json > legacy-receipt.json
+jq -jr .text legacy-baseline.json > memo.md
+# Edit memo.md, then preview and submit against the saved ETag.
+dreamlake memos write "$MEMO_ID" --file memo.md --if-match "$ETAG" --dry-run
+dreamlake memos write "$MEMO_ID" --file memo.md --if-match "$ETAG" --json > legacy-receipt.json
 ACK=$(jq -er .etag legacy-receipt.json)
-dreamlake memos read "$NOTE_ID" --legacy --if-match "$ACK" --json
+dreamlake memos read "$MEMO_ID" --legacy --if-match "$ACK" --json
 ```
 
 Legacy JSON uses `text` and `etag`, not v2 `content` and `revision`. Keep the ETag
@@ -35,7 +35,7 @@ the ETag from the read that produced your draft.
 `insert`, `replace`, and `delete` accept that quoted legacy ETag, **not** a modern
 `rtc:` revision. The CLI rejects that token mismatch before sending an edit.
 An actual changed ETag still returns a conflict; keep the draft and reconcile it.
-For concurrent merging, use `notes patch --base-revision "$BASE_REVISION"`;
+For concurrent merging, use `memos patch --base-revision "$BASE_REVISION"`;
 its default is merge, while `--exact` is opt-in. Legacy insert also uses RTC
 internally; successful insertion does not establish that a modern merge patch
 was saved correctly. Always verify the acknowledged snapshot and intended text.
@@ -50,7 +50,7 @@ concurrent work; it is not a conflict-recovery recipe. V2 `patch` rejects it.
 
 ```bash
 # install.md must include the section heading.
-dreamlake memos write "$NOTE_ID" --section install --file install.md --if-match "$ETAG"
+dreamlake memos write "$MEMO_ID" --section install --file install.md --if-match "$ETAG"
 ```
 
 A section includes its heading and descendants. Replacing it without its heading
@@ -58,15 +58,15 @@ removes that section boundary. Refresh your baseline for each separate edit;
 the following are independent command forms, not a sequence sharing one ETag:
 
 ```bash
-dreamlake memos append "$NOTE_ID" --text $'\n## Changelog\n- Shipped\n'
-dreamlake memos insert "$NOTE_ID" --after install --file troubleshooting.md --if-match "$ETAG"
-dreamlake memos insert "$NOTE_ID" --before install --file prerequisites.md --if-match "$ETAG"
-dreamlake memos rm-section "$NOTE_ID" troubleshooting --if-match "$ETAG"
+dreamlake memos append "$MEMO_ID" --text $'\n## Changelog\n- Shipped\n'
+dreamlake memos insert "$MEMO_ID" --after install --file troubleshooting.md --if-match "$ETAG"
+dreamlake memos insert "$MEMO_ID" --before install --file prerequisites.md --if-match "$ETAG"
+dreamlake memos rm-section "$MEMO_ID" troubleshooting --if-match "$ETAG"
 ```
 
 `--after` inserts after the section and its subsections. `rm-section` removes the
 whole subtree. The inserted heading determines its level; repeated titles get
-suffixed anchors. Inspect `notes sections` afterward.
+suffixed anchors. Inspect `memos sections` afterward.
 
 ## Insert with a retained ETag
 
@@ -75,12 +75,12 @@ CLI 0.60.0 and later use [original-revision insertion](cli-notes-editing.md) by 
 keeping this path through `--legacy`, `--force`, or `--if-match`; it is not retired.
 
 ```bash
-NOTE_ID=release-plan
-dreamlake memos read "$NOTE_ID" --legacy --json > legacy-baseline.json
+MEMO_ID=release-plan
+dreamlake memos read "$MEMO_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
 # Insert at the beginning of that exact source, with its original guard.
-dreamlake memos insert --note "$NOTE_ID" --ind 0 --text 'Review: ' --if-match "$ETAG"
-dreamlake memos read "$NOTE_ID" --json
+dreamlake memos insert --note "$MEMO_ID" --ind 0 --text 'Review: ' --if-match "$ETAG"
+dreamlake memos read "$MEMO_ID" --json
 ```
 
 ## Edit by text, pattern, or location
@@ -91,11 +91,11 @@ delete, retaining `--legacy`, `--force`, and `--if-match` compatibility.
 Do not mix those compatibility flags with a v2 baseline or `--exact`.
 
 ```bash
-dreamlake memos find "Draft" --note "$NOTE_ID" --json
-dreamlake memos replace "Draft" --text "Published" --all --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake memos replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake memos insert --text "New line" --line 10 --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake memos delete "obsolete paragraph" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos find "Draft" --note "$MEMO_ID" --json
+dreamlake memos replace "Draft" --text "Published" --all --note "$MEMO_ID" --if-match "$ETAG" --dry-run
+dreamlake memos replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$MEMO_ID" --if-match "$ETAG" --dry-run
+dreamlake memos insert --text "New line" --line 10 --note "$MEMO_ID" --if-match "$ETAG" --dry-run
+dreamlake memos delete "obsolete paragraph" --note "$MEMO_ID" --if-match "$ETAG" --dry-run
 ```
 
 Review the preview, then remove `--dry-run` for the intended edit. Ambiguous
@@ -107,19 +107,19 @@ For an HTML-source document, selectors target its source without reserializing
 the whole document:
 
 ```bash
-dreamlake memos select "#contact" --note "$NOTE_ID"
-dreamlake memos replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake memos insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE_ID" --if-match "$ETAG" --dry-run
-dreamlake memos replace --html "<b>done</b>" --selector "#status" --note "$NOTE_ID" --if-match "$ETAG" --dry-run
+dreamlake memos select "#contact" --note "$MEMO_ID"
+dreamlake memos replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$MEMO_ID" --if-match "$ETAG" --dry-run
+dreamlake memos insert --text "<li>New</li>" --selector "#list" --position append --note "$MEMO_ID" --if-match "$ETAG" --dry-run
+dreamlake memos replace --html "<b>done</b>" --selector "#status" --note "$MEMO_ID" --if-match "$ETAG" --dry-run
 ```
 
 ## Legacy diff and patch
 
 ```bash
-NOTE_ID=release-plan
-dreamlake memos read "$NOTE_ID" --legacy --json > legacy-baseline.json
+MEMO_ID=release-plan
+dreamlake memos read "$MEMO_ID" --legacy --json > legacy-baseline.json
 ETAG=$(jq -er .etag legacy-baseline.json)
-dreamlake memos diff "$NOTE_ID" --legacy --since "$ETAG"
+dreamlake memos diff "$MEMO_ID" --legacy --since "$ETAG"
 ```
 
 Plain legacy diff output is only the unified diff on stdout, with metadata on
@@ -130,7 +130,7 @@ are errors.
 To upload a single-file diff prepared from that exact saved body:
 
 ```bash
-dreamlake memos patch "$NOTE_ID" --legacy --file draft.diff --if-match "$ETAG" --json
+dreamlake memos patch "$MEMO_ID" --legacy --file draft.diff --if-match "$ETAG" --json
 ```
 
 Legacy reads/diffs/patches require explicit `--legacy`; `write` and the
@@ -153,14 +153,14 @@ For new agent workflows, prefer [Editing with patches](cli-notes-editing.md).
 
 ## Presence command migration
 
-CLI 0.28.x–0.30.x exposed `notes presence <note> <action>` and `join --watch`.
-CLI 0.31.0 removes those manual session controls. Use `notes read <note> --linger`
-for maintained participation, Ctrl-C to leave, or `notes visit <note>` for a
+CLI 0.28.x–0.30.x exposed `memos presence <note> <action>` and `join --watch`.
+CLI 0.31.0 removes those manual session controls. Use `memos read <note> --linger`
+for maintained participation, Ctrl-C to leave, or `memos visit <note>` for a
 brief visit. Attributed reads and edits register or refresh presence automatically.
 
-`notes presence <note>` now reads the participant roster without joining. It
+`memos presence <note>` now reads the participant roster without joining. It
 prints text by default; `--json` is an explicit programmatic option. There are
-no direct `notes join`, `notes heartbeat`, or `notes leave` commands. The HTTP
+no direct `memos join`, `memos heartbeat`, or `memos leave` commands. The HTTP
 presence lease protocol remains available to SDK integrations and is used
 internally by linger; it is not a sequence CLI users need to manage.
 

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.106.0 e107dbd; do not edit -->
 
 # Environments
 
@@ -152,8 +152,35 @@ trimmed); it beats every derivation above.
 > the API host instead — set `DREAMLAKE_WEB_URL=https://staging.dreamlake.ai`
 > there; the override works in every released CLI.
 
-`dreamlake logout` removes the active environment's token and activates
-the next saved one (or clears the connection if none is left).
+## Shared login contract (v1)
+
+Every DreamLake client that reuses this login (the DreamLake CLI, `ml-dash`
+with `--backend native` or its managed mode, and the Python SDK as a reader)
+follows the same rules on `~/.dreamlake`. Clients other than the SDK may
+override the directory for tests only.
+
+| File | Role |
+| --- | --- |
+| `auth.yml` | saved environments: `{ current, envs: { <name>: { server, auth?, namespace, token } } }` (YAML, `chmod 600`) |
+| `tokens.json` + `config.json` | the *projection*: the one connection every reader uses (`dreamlake-token`; `remote_url`, `namespace`) |
+
+- **Login** saves the environment under its name in `auth.yml`, makes it
+  `current`, and projects it, writing the token and server together.
+- **Logout of an environment** (default: `current`) removes it from
+  `auth.yml`. If the projection still holds that environment's server and
+  token, the client projects the new `current` environment, or clears the
+  projection when none is left. Clearing deletes the token slot,
+  `remote_url`, `namespace` and `default_namespace`, and keeps other keys such
+  as `device_secret`. Other saved environments are unchanged.
+- **Orphan projection**: a logout with no saved environment clears a
+  projection that another client wrote without saving it, so a logout always
+  stays logged out.
+- Nothing is revoked on the server; a token copied elsewhere stays valid
+  until it expires.
+
+```bash cli-help="logout"
+dreamlake logout --env staging
+```
 
 > **Note:** State previously lived at `~/.config/dreamlake`. The first run of a newer
 > CLI moves it into `~/.dreamlake` automatically — logins survive, nothing

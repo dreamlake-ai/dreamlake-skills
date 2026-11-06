@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/suggest-diff.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/suggest-diff.md at 0.106.0 e107dbd; do not edit -->
 
 # Suggested-edit redlines
 
@@ -9,7 +9,7 @@ Memos already does this with
 shows new text underlined, `:delete[…]` shows removed text struck through, and
 `:replace[…]{with="…"}` shows both. A memo writer can accept or reject each one.
 
-`notes suggest-diff` writes those tags for you. Given an earlier and a later
+`memos suggest-diff` writes those tags for you. Given an earlier and a later
 version of a Markdown document, it prints a memo body in which every change is a
 suggested edit:
 
@@ -95,13 +95,13 @@ Read the exact source and its write baseline, edit a copy, render the proposal,
 and write it back on the condition that nobody changed the memo in the meantime:
 
 ```bash
-NOTE_ID=release-plan
-dreamlake memos read "$NOTE_ID" --legacy --json > base.json
+MEMO_ID=release-plan
+dreamlake memos read "$MEMO_ID" --legacy --json > base.json
 jq -jr .text base.json > current.md
 cp current.md edited.md            # make the intended edits in edited.md
 dreamlake memos suggest-diff current.md edited.md --in-place \
   --user "$DREAMLAKE_AGENT_NAME" > proposal.md
-dreamlake memos write "$NOTE_ID" --file proposal.md --if-match "$(jq -r .etag base.json)"
+dreamlake memos write "$MEMO_ID" --file proposal.md --if-match "$(jq -r .etag base.json)"
 ```
 
 The owner then sees, for example:
@@ -133,15 +133,15 @@ changed between two of them as a readable redline, read each version's text
 and create a review memo. A saved-version read returns its body as `.text`:
 
 ```bash
-dreamlake memos hist "$NOTE_ID" --json | jq -r '.versions[] | "\(.id)  \(.tag)"'
-dreamlake memos read "$NOTE_ID" --version "$OLDER" --json | jq -jr .text > older.md
-dreamlake memos read "$NOTE_ID" --version "$NEWER" --json | jq -jr .text > newer.md
+dreamlake memos hist "$MEMO_ID" --json | jq -r '.versions[] | "\(.id)  \(.tag)"'
+dreamlake memos read "$MEMO_ID" --version "$OLDER" --json | jq -jr .text > older.md
+dreamlake memos read "$MEMO_ID" --version "$NEWER" --json | jq -jr .text > newer.md
 dreamlake memos suggest-diff older.md newer.md \
   | dreamlake memos create "Changes: release plan v1 → v2" --file -
 ```
 
 Comparing a saved version with the live memo works the same way, with
-`dreamlake memos read "$NOTE_ID" --json | jq -jr .content` as the newer side.
+`dreamlake memos read "$MEMO_ID" --json | jq -jr .content` as the newer side.
 
 ## Review what changed since you last read
 
@@ -150,15 +150,15 @@ rather than the whole memo. Keep the `revision` from your earlier read, read
 the memo as it was then with `--at`, and compare it with the live note:
 
 ```bash
-dreamlake memos read "$NOTE_ID" --json > earlier.json      # earlier, at your last read
-dreamlake memos read "$NOTE_ID" --at "$(jq -r .revision earlier.json)" --json | jq -jr .content > then.md
-dreamlake memos read "$NOTE_ID" --json | jq -jr .content > now.md
+dreamlake memos read "$MEMO_ID" --json > earlier.json      # earlier, at your last read
+dreamlake memos read "$MEMO_ID" --at "$(jq -r .revision earlier.json)" --json | jq -jr .content > then.md
+dreamlake memos read "$MEMO_ID" --json | jq -jr .content > now.md
 dreamlake memos suggest-diff then.md now.md \
   | dreamlake memos create "Changes since my last read: release plan" --file -
 ```
 
 `--at` reads only retained snapshots, so keep the revision rather than relying
-on a time long ago. `notes diff` (`read --since`) answers the same question as
+on a time long ago. `memos diff` (`read --since`) answers the same question as
 a unified diff, which suits scripts and patches. `suggest-diff` is for a person
 reading the change.
 

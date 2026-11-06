@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.106.0 e107dbd; do not edit -->
 
 # Experiments
 
@@ -47,6 +47,76 @@ dreamlake experiments runs trash list --namespace fortyfive --project research
 ```bash cli-help="experiments runs trash restore"
 dreamlake experiments runs trash restore "$RUN_ID" --namespace fortyfive --project research
 ```
+
+### Run data
+
+These commands read and write one native run's data through the native
+Experiments API of the selected project. Success prints the server's JSON.
+Paged reads return one page and `nextCursor`; pass it to `--cursor` for the
+next page. `--data` and `--metadata` read JSON from a file or `-` (stdin).
+
+```bash cli-help="experiments runs show"
+dreamlake experiments runs show "$RUN_ID" --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs status"
+dreamlake experiments runs status "$RUN_ID" COMPLETED --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs params set"
+echo '{"lr": 0.001, "batch": 64}' | dreamlake experiments runs params set "$RUN_ID" --data - --namespace fortyfive --project research
+```
+
+`params get` reads and `params delete` removes all parameters of a run.
+
+```bash cli-help="experiments runs metrics append"
+dreamlake experiments runs metrics append "$RUN_ID" train.loss --data points.json --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs metrics rows"
+dreamlake experiments runs metrics rows "$RUN_ID" train.loss --limit 1000 --namespace fortyfive --project research
+```
+
+`--description`, `--tags` and `--metadata` on `metrics append` are stored
+with the points only when that append creates the metric. `metrics list` lists a run's metrics, `metrics stats` shows one metric's point
+count and metadata, and `metrics metadata` updates its `--description`,
+`--tags` or `--metadata`.
+
+```bash cli-help="experiments runs logs read"
+dreamlake experiments runs logs read "$RUN_ID" --level warn,error --search timeout --namespace fortyfive --project research
+```
+
+`logs append --data` appends up to 1000 `{timestamp, level, message}` entries.
+
+```bash cli-help="experiments runs files upload"
+dreamlake experiments runs files upload "$RUN_ID" ./model.pt --prefix /checkpoints --tags best --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs files download"
+dreamlake experiments runs files download "$RUN_ID" "$FILE_ID" --out ./model.pt --namespace fortyfive --project research
+```
+
+A download never overwrites an existing path and is removed if its bytes do not
+match the file's checksum. `files list`, `files get`, `files update` and
+`files delete` complete the file operations.
+
+### Tracks
+
+Tracks hold time-indexed entries (`{timestamp, ...data}`) on runs stored in
+the native Dash store. `append` writes up to 10000 entries in one commit, and
+`read` prints JSON or exports to a new file.
+
+```bash cli-help="experiments runs tracks append"
+dreamlake experiments runs tracks append "$RUN_ID" robot/position --data entries.json --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments runs tracks read"
+dreamlake experiments runs tracks read "$RUN_ID" robot/position --format mcap --out position.mcap --namespace fortyfive --project research
+```
+
+`tracks list` lists a run's tracks, and `tracks create` creates a track with an
+optional `--description`, `--tags` or `--metadata`. For `--format mcap`, a topic
+ending in `/` exports every track under it.
 
 Run files use DreamLake's existing project file storage. Address the episode by
 the run key you created; file upload uses your DreamLake login.

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.105.0 3123cec; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.106.0 e107dbd; do not edit -->
 
 # Projects & data
 
@@ -52,7 +52,7 @@ is discovered by the server while people continue working; content and media
 bytes are not copied by this workflow. Resource support and access policy are
 established by the compatible server's explicit streaming capability and preview,
 not by installing a newer CLI. Unsupported resource/audience policies stop the
-whole request; there is no fixed-manifest fallback or per-Note move loop.
+whole request; there is no fixed-manifest fallback or per-Memo move loop.
 
 ```bash cli-help="project move"
 # Save a read-only streaming review with its stable request/key.
@@ -96,7 +96,7 @@ A **bindr** groups episodes (matched by a glob over their node path).
 dreamlake create bindr front-cam --project my-robots --episode "camera/front/*"
 dreamlake update bindr front-cam --project my-robots --add "2026/04/*"
 dreamlake update bindr front-cam --project my-robots --remove "run-bad"
-dreamlake update bindr front-cam --project my-robots --add-note NOTE_ID   # CLI 0.87.0+
+dreamlake update bindr front-cam --project my-robots --add-note MEMO_ID   # CLI 0.87.0+
 dreamlake list bindr --project my-robots
 dreamlake delete bindr front-cam --project my-robots
 ```
@@ -200,11 +200,11 @@ and server support before relying on attachment commands.
 Attach by database ID (Artifact uses its database ID, not its artifactId):
 
 ```bash cli-help="project attach"
-dreamlake project attach research --namespace acme --type note --resource "$NOTE_ID"
+dreamlake project attach research --namespace acme --type note --resource "$MEMO_ID"
 ```
 
 ```bash cli-help="project detach"
-dreamlake project detach research --namespace acme --type note --resource "$NOTE_ID"
+dreamlake project detach research --namespace acme --type note --resource "$MEMO_ID"
 ```
 
 Supported types are `note`, `artifact`, `annotation`, `workflow`, `env` and
