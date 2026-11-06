@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.123 c2b1f71b; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -252,7 +252,7 @@ require 0.62.0 or later; Python Project support requires SDK 0.29.0 or later. Se
 [Project resource access contract](https://docs.dreamlake.ai/dev/notes/project-resource-sharing).
 
 The released [whole-Project and owned-Notes transfer](https://docs.dreamlake.ai/dev/notes/project-note-transfer)
-supports Project, ordinary Project files/images/videos, owned Notes, and owned
+supports Project, ordinary Project files/images/videos, owned Memos, and owned
 Artifact and Env attachments (Artifact/Env members need the matching released
 clients). In the
 deployed service, a Source mount/reference blocks the entire transfer rather
@@ -271,7 +271,7 @@ released Project-derived content access remain available.
 > the Source ID, its physical storage under the existing bucket/prefix and its
 > in-Project binding IDs stay stable, and the moved Project keeps its original
 > `ProjectSourceBinding` and `BindrSourceReference` rows. Bindings, references and
-> catalog placements from **outside** the moved Project detach; the Note-only
+> catalog placements from **outside** the moved Project detach; the Memo-only
 > `preserveExternalFilings` option does not retain them, and no generic
 > Source-relationship migration is introduced. The Source becomes private at
 > the destination; preserving a direct share is conditional on the server's

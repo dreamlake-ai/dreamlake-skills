@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/dev/notes/project-resource-sharing.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/dev/notes/project-resource-sharing.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Project resource access inheritance
 
@@ -8,7 +8,7 @@ released at `0d015e6c13ece3fec811286f3926000f6fa82b30`; CLI 0.62.0 and Python
 SDK 0.29.0 are published with isolated installed-package checks. Source, server,
 Web and installed client versions must still be checked separately.
 
-Production checks confirm public Project reads, hidden private Notes, owner
+Production checks confirm public Project reads, hidden private Memos, owner
 attachment/detachment and preservation of independent access. Explicit recipient
 READ/WRITE has real-MongoDB regression coverage; its production matrix still
 requires a second controlled identity. Live storage credentials have not been
@@ -51,12 +51,12 @@ table is introduced. Unifying these existing relations with resource Nodes and
 BindrMember is a future optimization that requires its own migration, not a
 prerequisite for this access contract. Live Source references contribute USE/EDIT
 for content under this contract, never Source ADMIN or Connection credentials. Env attachments use live resource nodes,
-like Note, Artifact, Annotation and Workflow. Infrastructure state, Vault secrets
+like Memo, Artifact, Annotation and Workflow. Infrastructure state, Vault secrets
 and Host credentials are not published by a content grant.
 
 Issued read URLs and resource-scoped upload credentials retain their existing
 finite lifetime after revocation. Storage operations already in progress cannot
-be rolled back by a later database grant change. Native Note RTC room
+be rolled back by a later database grant change. Native Memo RTC room
 capabilities retain their existing revocation limitation; a database grant change
 must not be described as immediate eviction of an already connected editor.
 Ownership transfer remains a separate, execution-gated feature.

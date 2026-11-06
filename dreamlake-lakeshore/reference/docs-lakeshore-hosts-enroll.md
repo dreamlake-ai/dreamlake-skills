@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Enroll a host
 
@@ -34,6 +34,30 @@ and machine identity. See [connection authorization](https://docs.dreamlake.ai/l
 Do not use a Vault-backed queue mount ID: an online mount still returns HTTP 409
 `queue_mount_execution_unsupported`. A cross-owner connection ID can return
 `lakeshore_not_found`. See [connection selection](https://docs.dreamlake.ai/lakeshore/connect-to-dreamlake).
+
+### Pending control-plane change: SSH access for the enrolling owner
+
+The proposed owner-SSH enrollment fix is not yet released. On compatible control
+planes, a connection with `canEnrollHosts` receives an exact Worker SSH grant
+only after its bound enrollment proves possession of the machine's private key.
+The grant is committed with Worker registration and bootstrap-token consumption;
+the owner does not need a second per-machine administrator approval. This does
+not grant access to unrelated workers, enable a locally disabled SSH endpoint,
+or bypass DreamLake's Host ownership and local access checks.
+
+Reconnects preserve the same identity and do not restore revoked SSH grants.
+A fresh signed enrollment can repair a legacy missing grant; explicitly revoked
+access requires explicit reauthorization. Previously issued bootstrap tokens
+without issuer provenance retain their old behavior. Existing clients and Nymph
+can use the new flow after the control-plane release; client installation alone
+does not enable it on an older service.
+
+Until this change is deployed, an online Host or a terminal target can still lack
+the connection's SSH grant. Verify an actual owner command such as
+`dreamlake exec YOUR_NAMESPACE/dev/my-computer -- uname -a` rather than treating
+discovery as a completed SSH handshake. The companion server fix reports a
+known SSH authorization refusal as `403 ssh_access_denied` instead of a generic
+`502 controlplane_unavailable`.
 
 ## Register this computer without SSH
 
@@ -151,7 +175,7 @@ signed-in user, or navigate the rest of the application. See
 
 The move keeps the Host ID, personal owner, enrollment identities and machine
 keys. Saved terminal sessions keep their IDs, original namespace, native
-conversation identity and Note links. The operation makes those sessions private
+conversation identity and Memo links. The operation makes those sessions private
 and removes their public or team sharing; the preview reports the count and
 access changes before apply. Daemon metadata refresh updates the retained
 session record instead of creating a replacement in the new namespace. Past run records keep their IDs, original namespace, target names and stored

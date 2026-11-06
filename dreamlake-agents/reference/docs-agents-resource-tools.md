@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -9,7 +9,7 @@ is not a separately maintained copy of the HTTP API.
 The built-in agent can create **agent definitions**, which are first-class
 runnables rather than sessions. Ask, for example:
 
-> Create a Reviewer agent in my project, using this note as its instructions
+> Create a Reviewer agent in my project, using this memo as its instructions
 > and the Review skills folder as its optional skills.
 
 `dreamlake_agents_create` accepts `name`, optional `namespace`, `description`,
@@ -30,12 +30,17 @@ and its Agents editor link; creation does not launch a session.
 
 For other resource operations the model uses this sequence:
 
-1. Call `dreamlake_resource_api_discover` with `family` or `search`. Results
+1. Call `dreamlake_resource_api_discover` with `family`, `search` or `method`.
+   Search matches every whitespace-separated keyword against the family,
+   method, route and description; for example, `artifacts POST`. Results
    include operation IDs, methods, route templates, required scopes,
    availability and pagination (`offset`, `limit`, `nextOffset`). An unfiltered
    call also returns all registered resource families.
 2. Call discovery again with one `operation` ID to obtain its exact path
-   parameters, query, body and declared header schemas.
+   parameters, query, body and declared header schemas, plus `referencedSchemas`
+   for any schema references. `executionTool` names the correct gateway, or is
+   null for an excluded operation. `granted` describes turn scopes only; it
+   does not promise resource access or override an unavailable operation.
 3. For project tree operations, use the discovered `dreamlake_resource_project_api_read`, `dreamlake_resource_project_api_write` or `dreamlake_resource_project_api_control` tool and supply `projectId`. The server resolves the actual target and parent through the caller API, rejects a different project, checks the grant before dispatch and again before releasing read results. Project-root and access-management mutations additionally require an ADMIN grant. Project control requires both `resources:control` and `projects:write` scopes. For other operations, call `dreamlake_resource_api_read`, `dreamlake_resource_api_write` or
    `dreamlake_resource_api_control` with that ID, `parameters`, optional
    `query`, `body` and conditional/idempotency `headers`.
@@ -65,12 +70,14 @@ feature-disabled routes are absent rather than promised.
 | Artifact, workflow, pipeline, environment, annotation, library and dataset metadata/lifecycle | Discovered canonical operations |
 | Sources, connections, repositories and deletion-operation status | Discovered canonical JSON operations |
 | Hosts, machines, jobs, runs, clusters, providers and infrastructure | Discovered read/control operations; the existing user-configured launch-server boundary remains authoritative |
-| Note metadata, creation, archive/delete and sharing | Discovered canonical operations or the existing Note adapters |
-| Note body/sections/diff, duplicate and attached-file operations | Dedicated `dreamlake_notes_*` adapters preserve revisions, read coverage and recovery; discovery returns the adapter guidance |
+| Memo metadata, creation, archive/delete and sharing | Discovered canonical operations or the existing Memo adapters |
+| Memo ownership transfer | Dedicated preview, execute, recipient acceptance and status tools; legacy move remains separate |
+| Memo body/sections/diff, duplicate and attached-file operations | Dedicated `dreamlake_notes_*` adapters preserve revisions, read coverage and recovery; discovery returns the adapter guidance |
 | Project files/folders/tree nodes | `dreamlake_resource_project_api_read` / `dreamlake_resource_project_api_write` / `dreamlake_resource_project_api_control` support JSON tree operations with an explicit project grant and caller ACL; binary content uses the existing transport |
 | Sessions and commands | Existing `dreamlake_session_*` / `dreamlake_sessions_*` adapters preserve durable command identity and bounded transcript reads |
 | Memory | Dedicated memory adapters retain per-operation explicit-intent gates |
-| Skills, activity, search, social, task, billing and namespace metadata | Discovered canonical operations where the registered route has a JSON contract |
+| Task creation, updates, moves, deletion/restoration, progress events and Note links | Project-granted resource gateway with canonical body schemas and revision checks; task progress events are bounded JSON |
+| Skills, activity, search, social, billing and namespace metadata | Discovered canonical operations where the registered route has a JSON contract |
 | Binary upload/download, streaming watch/events, interactive terminals, wildcard proxy routes | Discoverable with CLI/SDK workflow guidance; no raw binary or live-stream transport in model tools |
 | Authentication, credentials, OAuth callbacks, Vault, service-account identity, daemon/internal APIs and recursive agent turns | Not executable through the resource gateway |
 
@@ -87,3 +94,148 @@ The API is invoked in process with the signed-in caller's bearer. Each tool
 call retains its normal receipt, lease fence and timeout. Mutation receipts
 store an input digest rather than the full body. No generic resource operation
 can increase the selected agent's tool allowlist.
+
+## Note ownership transfers
+
+These adapters require a server version that includes them and an enabled
+Note metadata-transfer backend. Check `GET /agent/tools` for registration;
+the preview also checks the server's current transfer capabilities. A tool
+appearing in source code does not establish deployment readiness.
+
+Use this workflow when a Note changes owning namespace. Filing a Note in
+another project or adding a Bindr is a different operation. The legacy
+`dreamlake_notes_move` can still return `NOTE_TRANSFER_UNAVAILABLE`; repeating
+that call does not activate the transfer backend.
+
+| Tool | Inputs | Result and authority |
+| --- | --- | --- |
+| `dreamlake_notes_transfer_preview` | `note`, `source`, `destination` | Read capability. Fetches the canonical plan and preview; returns `ready`, `plan`, `preview` and the exact `review`. Creates no transfer. |
+| `dreamlake_notes_transfer_execute` | `review`, `confirm: true` | Note write capability and source authority. Submits the reviewed request once. A pending operation still needs recipient acceptance. |
+| `dreamlake_notes_transfer_accept` | `review`, `operationId`, `confirm: true` | Note write capability and current destination acceptance authority. Accepts a matching pending operation; returns an already completed operation without another write. |
+| `dreamlake_notes_transfer_status` | `note`, `namespace`, `operationId` | Read capability in the source or destination namespace. Reads one operation without polling or changing it. |
+
+For example, preview with:
+
+```json
+{
+  "note": "<note-id-from-a-successful-read>",
+  "source": "my-workspace",
+  "destination": "team-workspace"
+}
+```
+
+Copy the returned `review` unchanged into execute. It includes the source and
+destination slugs, resource ID, expected owner/version, destination namespace
+ID, singleton manifest, preview hash and stable idempotency key. Do not build
+this object from guessed IDs or generate a replacement key after a failure.
+
+The supported policy is explicit: private visibility, preserved existing
+access and preserved external filings, with no hand-selected retained grants.
+Inspect the preview's blockers and filing counts. `ready` requires an executable
+plan, no blockers and no detached filings. Other access-policy choices require
+the ownership interface; the agent does not discard grants to make a move work.
+
+Execute and acceptance are separate actions under the user's intent. `confirm`
+is a tool argument acknowledging the reviewed request, not an authorization
+grant. Only `moved: true` with a completed operation and `ownerCommitted: true`
+establishes completion. Pending, rejected, expired, cancelled or recovery states
+must be reported as such.
+
+If submission or acceptance loses its response, preserve the review and read
+status with the known operation ID. If the ID is unknown, inspect outgoing
+ownership transfers through discovery to locate the request before considering
+an identical idempotent resend. Never automatically retry a POST, copy Note
+content as a fallback, or obtain a fresh plan/key to conceal uncertainty.
+Status remains available when the metadata adapter is disabled; execution and
+acceptance refuse that disabled capability.
+
+## Folders and tasks
+
+Folder creation already uses the project gateway. Discover `family: "nodes"`
+with `method: "POST"`, inspect the selected `/nodes` schema, then call
+`dreamlake_resource_project_api_write` with the granted `projectId` and:
+
+```json
+{
+  "operation": "<discovered-POST-nodes-operation>",
+  "projectId": "<granted-project-id>",
+  "body": {
+    "namespace": "my-workspace",
+    "project": "research",
+    "kind": "folder",
+    "name": "/Research/Reviews"
+  }
+}
+```
+
+Omit `parentId` for the project root. If supplied, it must identify an existing
+folder or episode in the same granted project. The project node ID is not a
+folder parent. Both caller permission and the service-account project grant
+are required; destination and grant checks also protect rename/delete operations.
+
+Find Task operations with `search: "tasks"`, because their routes are nested
+under the `projects` family. Creation, update, move, delete, restore, progress
+events and Note links expose their canonical JSON body schemas. Use the
+operation's project gateway and exact schema, including required revisions.
+Read the current Task before an update; a stale revision requires a new read.
+Task events are paginated JSON records. Note SSE events and other live streams
+remain excluded from the generic gateway.
+
+## Other recent resource capabilities
+
+These features already use canonical registered operations; they do not need
+duplicate dedicated tools. Inspect the schema in the running deployment first.
+
+| Request | Discover and use |
+| --- | --- |
+| Share only an artifact's most recent version | Find the artifact catalog POST operation and set `shareLatestOnly: true`. Add `share: true` only when the user also requested issuing a share link. This does not upload a new artifact version. |
+| Rename an annotation | Find the annotation PATCH operation and set `title`; unchanged visibility should be omitted. Annotation share operations remain separate. |
+| Add a resource to a Bindr in another project | Discover Bindr membership operations and use the exact resource and Bindr identifiers. An association does not transfer resource ownership or imply formal project filing. Canonical namespace and access checks still apply. |
+| Create an agent with an instruction Note and skill folders | Use `dreamlake_agents_create` as documented above. A definition is not a running session. |
+
+## Host inventory and partial search
+
+`dreamlake_hosts_list` accepts `prefix`, `search`, `page`, `pageSize`,
+`offsetWithinPage` (default 0) and `archived`. `prefix` filters the canonical catalog. `search` performs a literal,
+case-insensitive match within **one returned page**, over names, IDs, verified
+hostnames and observed IP addresses. Continue with `page: nextPage` and
+`offsetWithinPage: nextOffset`, preserving all other inputs, even after zero
+matches. A byte-limited result can continue within the same catalog page;
+`nextOffset` returns to 0 for the next page. Both fields are null when exhausted.
+`total` is the catalog count, not the number of search matches.
+
+Both list and `dreamlake_host_get` return allowlisted catalog and enrollment
+metadata, including verified hostname, network observations and system details.
+Each host returns at most 20 enrollments, bounded further to 24 KiB, with at
+most eight addresses per enrollment. `enrollmentsTruncated` and
+`network.addressesTruncated` identify omissions; `inventoryOmitted` summarizes
+them for the scanned rows. `searchIncomplete` signals a continuation or omitted inventory.
+This is a bounded lookup, not an exhaustive network search.
+
+Unknown/unverified inventory remains null. Network observations carry
+`observedAt` and freshness (`fresh` for at most 60 seconds, otherwise `stale`).
+IPs are validated observed addresses, not inferred from hostname spelling.
+Online or fresh inventory does not prove SSH or workload readiness.
+
+## Recovering from tool errors
+
+Canonical schema failures now return a bounded `validation` object to the
+model: operation ID, input part, schema path, keyword and, where applicable,
+the missing schema property or numeric limit. Values, unknown property names,
+raw API errors and document bodies are omitted. These details are not added
+to browser tool-event telemetry.
+
+| Error | Meaning and next step |
+| --- | --- |
+| `agent_resource_body_invalid`, `agent_resource_query_invalid` | No API request dispatched. Rediscover the exact operation, resolve `referencedSchemas` and correct the indicated constraint. Do not repeat identical arguments. |
+| `agent_resource_tool_mismatch` | The operation uses another gateway, such as write instead of read or a project-granted gateway. Inspect `executionTool`; use it only if offered this turn. |
+| `agent_resource_schema_missing` | A supplied body/query has no declared canonical schema. Use the documented dedicated adapter or report the specific capability gap. |
+| `agent_resource_operation_unavailable` | Follow `dedicatedTools` and `guidance`; do not bypass an excluded transport or authorization boundary. |
+| `agent_tool_scope_not_granted` | The current turn lacks the capability. This does not establish whether the underlying API exists. |
+| `NOTE_TRANSFER_UNAVAILABLE` | Use the reviewed transfer workflow when available; do not repeatedly call legacy move or remove access grants. |
+| `note_transfer_outcome_unknown` | The transfer may have changed state. Preserve the original review/key and inspect status before any further mutation. |
+
+When reporting an error, retain its exact code, tool, time and available
+receipt/request IDs. A 404 alone does not distinguish an incorrect identifier,
+wrong namespace, unavailable route or denied visibility. Inspect authorized
+resource discovery before attributing it to a missing tool.

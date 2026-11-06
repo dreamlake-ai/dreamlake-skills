@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows/cjs-vs-python.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows/cjs-vs-python.md at 0.1.123 c2b1f71b; do not edit -->
 
 # CJS Workflows vs Python Pipelines
 

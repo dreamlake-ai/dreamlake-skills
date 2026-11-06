@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Profiles and workspaces
 
@@ -16,7 +16,7 @@ administration remain subject to the existing resource and role permissions;
 being able to browse a catalog does not grant permission to modify every item.
 
 Signed-out visitors and signed-in visitors browsing someone else's namespace see
-public catalogs only. Projects, Notes, Annotations, Scenes and Artifacts support
+public catalogs only. Projects, Memos, Annotations, Scenes and Artifacts support
 public browsing in either layout. Private catalogs such as Sources, Connections
 and Vault are not advertised to visitors. A directly shared resource can still be
 opened according to its existing server permissions; a share does not turn its
@@ -32,12 +32,12 @@ Overview keeps recent projects and annotations and its list/grid preference.
 It does not fetch every resource catalog merely to display counts.
 
 The profile Overview opens with the namespace's introduction when it has one:
-the live public note whose slug equals the namespace slug, for personal and
-organization namespaces alike. There is no setting; publishing that note is the
+the live public memo whose slug equals the namespace slug, for personal and
+organization namespaces alike. There is no setting; publishing that memo is the
 whole mechanism. Everyone, including members, sees the same public
 introduction, read-only and above recent projects. A private, deleted, empty or
-differently slugged note shows nothing, and the area is simply absent when
-there is no introduction. See [Notes](https://docs.dreamlake.ai/notes/browsing#profile-introduction). The global
+differently slugged memo shows nothing, and the area is simply absent when
+there is no introduction. See [Memos](https://docs.dreamlake.ai/notes/browsing#profile-introduction). The global
 **Cmd+Shift+D** (or **Ctrl+Shift+D**) developer switch controls discovery of
 experimental features, not access rights. Turning it on never grants access to
 private resources.
@@ -154,16 +154,16 @@ signed-in user's own data rather than the namespace in the old address.
 
 ## Resource lists and shared links
 
-Public resource lists and public Projects, Annotations, Scenes, Artifacts and Notes
+Public resource lists and public Projects, Annotations, Scenes, Artifacts and Memos
 details can be opened without signing in. Private-only pages require the
 appropriate identity and permissions. The sidebar remains available while moving
 between application lists and details, with the current owner's permitted links.
 Loading or an error in the resource does not replace the navigation.
 
 Project files inherit their containing project's visibility; separately filed
-Notes, Artifacts and Annotations retain their own permissions. A public project
+Memos, Artifacts and Annotations retain their own permissions. A public project
 does not publish private resources filed inside it or their private counts.
-An Env or Artifact share token can authorize an anonymous read. A private Note
+An Env or Artifact share token can authorize an anonymous read. A private Memo
 share link requires sign-in because it creates a grant for that person. Invalid
 or revoked links retain the server's not-found or access-denied behavior.
 
@@ -173,12 +173,12 @@ The detail header returns signed-out readers to
 project first. Browser Back continues to follow actual history. There is no
 extra sign-in strip above the detail.
 
-The namespace list APIs for Notes, Projects and Annotations accept requests
+The namespace list APIs for Memos, Projects and Annotations accept requests
 without an Authorization header. Anonymous users and nonmembers receive only
 live public rows; authenticated namespace members retain their existing access.
 Pagination totals use the same visibility filter. Supplied invalid or expired
 credentials return 401. Anonymous project summaries omit internal bindr/dataset
-counts. Anonymous Notes searches do not activate or flush collaborative rooms.
+counts. Anonymous Memos searches do not activate or flush collaborative rooms.
 Creating, modifying, sharing and deleting remain authenticated operations.
 
 ## Project workspace search (development preview)
@@ -197,10 +197,10 @@ and complete pagination. A failed workspace is shown as an error with retry;
 successful workspaces remain available. Public visitor lists keep their existing
 namespace-only behavior. Creation requires one concrete workspace.
 
-The [Move note dialog](https://docs.dreamlake.ai/notes/sharing#moving-between-workspaces-development-preview)
+The [Move memo dialog](https://docs.dreamlake.ai/notes/sharing#moving-between-workspaces-development-preview)
 uses this control for destination selection. It offers concrete workspaces and
 writable projects, and requires an access preview before the move is confirmed.
-Changing search scope alone never transfers a note or changes permissions.
+Changing search scope alone never transfers a memo or changes permissions.
 
 ## Project access management (development preview)
 
@@ -213,7 +213,7 @@ removed; user rows report their current effective project role.
 Workspace owners retain Admin access. Organization members retain baseline Read
 access to organization projects, and public projects remain readable publicly.
 The highest direct, team, or workspace role applies. Removing one grant does not
-remove access obtained elsewhere. Private notes keep their own permissions;
+remove access obtained elsewhere. Private memos keep their own permissions;
 granting project access does not publish them. This feature does not introduce
 projects restricted to selected teams.
 
@@ -221,7 +221,7 @@ projects restricted to selected teams.
 
 Project administrators can delete a project from its row or from the file
 browser. Deleting removes the project, its Bindrs and everyone's access to it.
-Notes and other resources filed in it are kept, as are their places in other
+Memos and other resources filed in it are kept, as are their places in other
 projects; the project's files stay stored but can no longer be opened. The
 project's address (its URL slug) becomes free, so a new project can use it; an
 old link that names only the address then opens the new project, never the
@@ -239,12 +239,12 @@ where the old one was.
 
 ## Organization updates
 
-Your own Scenes and Notes catalogs include a separate **Recent in your
+Your own Scenes and Memos catalogs include a separate **Recent in your
 organizations** section. Each organization shows up to six recent resources and
 a **View all** link. Personal results and Shared with me remain separate.
 Visitors and organization catalogs do not show this personal aggregation.
 
 Organizations load in batches of six, with at most three simultaneous catalog
 requests. A failed organization can be retried without reloading your personal
-resources. Notes requests are bounded by the existing API; Scenes currently reads
+resources. Memos requests are bounded by the existing API; Scenes currently reads
 the organization's full catalog and displays the six most recent entries.

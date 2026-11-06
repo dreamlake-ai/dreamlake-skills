@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/workflows.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/workflows.md at 0.105.0 3dc31d9; do not edit -->
 
 # Workflows
 
@@ -89,7 +89,7 @@ status, the phase and agent skeleton, and the run totals always survive.
 
 Project sharing and attachment support do not make a Workflow transferable.
 Workflow references still block the entire [`project move`](https://cli.dreamlake.ai/projects#move-a-whole-project-and-its-supported-resources)
-request. That workflow includes owned Notes, Artifacts and Envs with the matching
+request. That workflow includes owned Memos, Artifacts and Envs with the matching
 client/backend; Source, Workflow, Annotation and structural content remain
 unsupported. Do not omit a Workflow from a mixed manifest, silently detach it,
 or copy/delete it to report a partial transfer as complete. No standalone

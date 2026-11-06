@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scene-generation/quickstart.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scene-generation/quickstart.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Scene Generation Quickstart
 
@@ -149,7 +149,7 @@ treat everything else as disposable scratch:
   what edits are made to; the pushed scene embeds a pinned copy.
 - **Per-model provenance** — for every third-party model: the exact source
   URL, version or commit, and its license (Menagerie models each carry their
-  own `LICENSE` file — record each one, not one blanket note).
+  own `LICENSE` file — record each one, not one blanket memo).
 - **Component scenes** — base room and props published as their own pinned
   versions, when the composed route was used.
 - **Initial state** — prop poses live in the stack (`Attach` `pos`/`quat`);

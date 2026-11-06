@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.123 c2b1f71b; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -79,7 +79,7 @@ padding from its authored container and use `display: block` on the image.
 Fit preserves the image's aspect ratio, so a differently shaped viewport can
 still leave unused space; zero padding does not crop or stretch the image.
 
-## Reference an artifact from a Note (development preview)
+## Reference an artifact from a Memo (development preview)
 
 ```markdown
 :artifact[geyang/pitch-deck]
@@ -89,7 +89,7 @@ Click the copy icon in the artifact header to copy
 the complete `:artifact[namespace/id]` reference, including the owner namespace
 and full ID. The button displays an icon instead of a shortened ID, including
 in the compact layout. A check mark confirms a successful copy.
-Note and artifact tabs share a 240px preferred width and a
+Memo and artifact tabs share a 240px preferred width and a
 130px minimum width in compact layouts. Long titles use an ellipsis while the
 reference and close controls retain their space. The compact artifact toolbar
 shows the version value; a shared artifact's owner link is in **Artifact actions**.
@@ -100,10 +100,10 @@ Brackets hold primary content; optional named attributes belong in braces, follo
 the [remark-directive extension](https://github.com/remarkjs/remark-directive), not core CommonMark.
 DreamLake defines the resource semantics. Saved `:artifact{namespace="geyang" id="pitch-deck"}`
 and `#artifact:geyang/pitch-deck` also work in the local development
-UI. The tag resolves the title and opens the artifact panel to the right of the Note without changing
+UI. The tag resolves the title and opens the artifact panel to the right of the Memo without changing
 permissions or visibility. Static API HTML preserves the reference as an unresolved,
 atomic source span; it does not embed artifact content or share-token URLs.
-Production deployment is not yet verified. See [Notes reference syntax](https://docs.dreamlake.ai/notes/writing#artifact-references-development-preview).
+Production deployment is not yet verified. See [Memos reference syntax](https://docs.dreamlake.ai/notes/writing#artifact-references-development-preview).
 
 ### Slide and section reference syntax
 
@@ -158,16 +158,18 @@ and the viewer has a version picker.
 
 ## Share it
 
-Artifacts are **private** by default. Two ways to open them up:
+Artifacts are **private** by default. Choose who can view them:
 
 | | Command | Who can view |
 |---|---------|--------------|
 | 🔒 private | *(default)* | Only you and namespace members |
 | 🔗 share link | `push --share` | Signed-in recipients with a valid share token |
+| 🔗 unlisted | `--visibility unlisted` (CLI 0.104.8+), or the artifact menu | Anyone with the URL, no login; hidden from public profiles |
 | 🌐 public | `push --visibility public` | Anyone, no login |
 
-You can also toggle visibility and copy links from the artifact's page — the
-Share button does the same thing.
+Choose **Private**, **Unlisted**, or **Public** in the artifact’s **⋯ → Share → Visibility** menu. Unlisted artifacts stay in the owner’s artifact list but are excluded from public profile lists and public feeds. Their direct URLs work without a share token or sign-in. Unlisted is not private: anyone who receives the URL can open it.
+
+The artifact metadata endpoint accepts `visibility: "unlisted"`; omitting visibility on later pushes preserves the choice. Copy share link uses the plain URL for both public and unlisted artifacts.
 
 In the artifact's **⋯ → Share** menu, turn on **Most recent version only**
 to let recipients see only the latest registered version. The same link follows
@@ -203,6 +205,7 @@ What a card shows follows the sharing table above:
 
 | | Card |
 |---|------|
+| 🔗 unlisted | `--visibility unlisted` (CLI 0.104.8+), or the artifact menu | Anyone with the URL, no login; hidden from public profiles |
 | 🌐 public | The real title, description and cover. |
 | 🔗 share link | The same real card — **anyone holding the link sees it, a chat tool's preview bot included**. The content itself still needs a signed-in viewer. |
 | 🔒 private, no token | A generic DreamLake card, identical to a link that points nowhere. Nothing about the artifact leaks. |
@@ -363,7 +366,7 @@ and project fields are never blanket-forwarded. A parameter is ordinary data,
 not permission to query private resources or escape the sandbox. The existing
 query/download bridge and its authorization/confirmation rules still apply.
 
-For a deep link from a Note, use an ordinary Markdown link with this URL, or
+For a deep link from a Memo, use an ordinary Markdown link with this URL, or
 `:artifact[namespace/id#slide-3]` to open its hash route in a right-hand panel.
 Do not put a share token inside rich-reference attributes.
 
@@ -381,10 +384,10 @@ but older frame deployments may lack the clean-path fallback and route API.
 Do not deploy the host before the new frame is verified. Source validation
 does not mean this feature is deployed. No server API or CLI change is required.
 
-## Artifact panels in Notes (development preview)
+## Artifact panels in Memos (development preview)
 
-Use `:artifact[namespace/id]` to open the shared artifact viewer beside a Note,
-including Notes within a project. Append the artifact's own hash route to select
+Use `:artifact[namespace/id]` to open the shared artifact viewer beside a Memo,
+including Memos within a project. Append the artifact's own hash route to select
 a slide: `:artifact[geyang/landing-pages#slide-3]`. Clicking a second reference to
 the same artifact selects its existing panel and applies the new fragment. The
 artifact receives it through `dreamlake.route.hash`; its own code defines what
@@ -392,7 +395,7 @@ that fragment means. The surrounding Note/project URL stays unchanged.
 
 This is the same viewer used by standalone artifact pages and project items,
 including version selection, preview zoom, and permission-checked management
-controls. Closing the panel leaves the Note open. Tags grant no access, and
+controls. Closing the panel leaves the Memo open. Tags grant no access, and
 never contain a share capability. Full artifact links remain available with
 Control/Command-click. These panel changes require the companion UI release;
 publishing these docs or uploading an artifact alone does not deploy them.
@@ -451,7 +454,68 @@ exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
 
 The [whole-Project and owned-Notes transfer](https://docs.dreamlake.ai/dev/notes/project-note-transfer)
-supports Project, ordinary Project files/images/videos and owned Notes.
+supports Project, ordinary Project files/images/videos and owned Memos.
 A mount/reference of this resource blocks
 the entire transfer rather than silently excluding it. Its existing independent
 sharing and released Project-derived content access remain available.
+
+## Rename an artifact URL
+
+Native slug rename changes the canonical URL without creating another artifact.
+The catalog `resourceId` and `artifactId` are immutable; `artifactId` remains the
+DreamDB scalar for every version. Detail responses include `slug` and
+`slugRevision`. Existing IDs and previous slugs remain valid aliases, including
+version and share links. Every alias resolves the same catalog and its current
+access policy. Rename does not change the title, visibility, grants, share token,
+latest-only sharing, Session links, project filings, or stored content.
+
+Members can use **Rename URL** in the artifact menu or the CLI `artifact rename`.
+The API is `PATCH /namespaces/:namespace/artifacts/:id-or-slug/slug`:
+
+```json
+{
+  "slug": "session-work-map",
+  "expectedResourceId": "0123456789abcdef01234567",
+  "expectedSlug": "session-work-map-20261014",
+  "expectedRevision": 0
+}
+```
+
+Read all expected values from the latest detail response. The transaction checks
+current membership, resource identity, the slug revision and ownership/storage
+fences. A collision or stale revision returns 409 without a partial rename.
+Re-read before retrying. Slugs use 1–128 ASCII letters, digits, dots, underscores
+or hyphens, starting with a letter or digit. Reserved aliases cannot be reused by
+another resource, even after deletion or purge.
+
+Uploads must use the broker's opaque `backendUrl` and immutable `artifactId`.
+Clients addressing a slug request upload credentials with `resolveSlug: true`
+and use the returned `artifactId` for DreamDB reads/writes and registration.
+Older clients must upload using the immutable ID; slug-based credential requests
+without this capability fail with 409 before issuing credentials. Rename never
+rewrites existing records or copies version history. After an ownership transfer,
+source aliases still check the destination's current ACL; the destination uses
+the immutable ID until explicitly assigned a slug in that namespace. Source
+aliases do not authorize writes across namespaces.
+
+## Unlisted through APIs and tools
+
+The catalog endpoint `POST /namespaces/:slug/artifacts/:artifactId` and version
+Apply endpoint accept `visibility: "unlisted"`. Omitting visibility preserves
+its current value. To change only visibility, send `{ "visibility": "unlisted" }`
+to the catalog endpoint after checking that the existing artifact is manageable.
+The catalog endpoint is an upsert; client visibility commands check existence first.
+
+CLI 0.104.8+ supports `dreamlake artifact visibility report unlisted` and
+`dreamlake artifact push ./report.html --id report --visibility unlisted`.
+The [TypeScript API](https://cli.dreamlake.ai/artifacts) supports Unlisted in
+publish, register, and `artifacts(namespace).share(id).visibility("unlisted")`.
+Python 0.41.1+ exposes
+`DreamLakeClient().artifacts.set_visibility("my-team", "report", "unlisted")`,
+with `get(namespace, artifact)` for readback and `list(namespace)` for the catalog.
+
+Built-in agents discover the canonical artifact operation using
+`dreamlake_resource_api_discover` and execute metadata updates using
+`dreamlake_resource_api_write` with write permission enabled. The route schema
+includes all three values. [Local MCP](https://docs.dreamlake.ai/lakeshore/agents/mcp) provides
+`artifact_get` and `artifact_visibility_set` directly.

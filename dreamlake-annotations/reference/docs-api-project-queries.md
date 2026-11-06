@@ -1,10 +1,10 @@
-<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.123 c2b1f71b; do not edit -->
 
-# Project and Note queries
+# Project and Memo queries
 
 This reference describes the implementation branch. It does not establish that
 these fields are deployed to staging or production. Verify the target server's
-schema before switching a client. Existing mutation routes remain REST; Note
+schema before switching a client. Existing mutation routes remain REST; Memo
 content, CRDT synchronization, and revision-protected editing are unchanged.
 
 ## Separate associations from choices
@@ -12,7 +12,7 @@ content, CRDT synchronization, and revision-protected editing are unchanged.
 | Question | GraphQL | REST |
 |---|---|---|
 | Which projects can this viewer access? | `projectCatalog` | `GET /namespaces/:namespace/projects?search=design&page=1&pageSize=50` |
-| Where is this Note actually associated? | `note.nodes` | `GET /namespaces/:namespace/resources/note/:noteId/projects?view=nodes` |
+| Where is this Memo actually associated? | `note.nodes` | `GET /namespaces/:namespace/resources/note/:noteId/projects?view=nodes` |
 | Which Bindrs can the picker offer in this project? | `bindrs` | `GET /namespaces/:namespace/projects/:projectSlug/bindrs?view=choices&search=design&first=20` |
 
 The GraphQL resolvers and these REST views use the same underlying visibility,
@@ -28,26 +28,26 @@ compatibility response that mixes candidate projects with `bound` and `canBind`.
 New clients should use the views above instead. The existing Bindr response
 without `view=choices` also keeps its prior tree-list contract.
 
-## Note authority on filing reads (implementation)
+## Memo authority on filing reads (implementation)
 
-Project access does not grant access to a filed Note. REST project-resource,
-Bindr-member and folder-child listings omit unreadable Notes before name search,
+Project access does not grant access to a filed Memo. REST project-resource,
+Bindr-member and folder-child listings omit unreadable Memos before name search,
 sorting, page offsets and totals. Bindr-tree member counts include only visible
-live members. Legacy Note reverse project and Bindr lookups return 404 when
-the Note is unreadable; project-role flags do not bypass this prerequisite.
+live members. Legacy Memo reverse project and Bindr lookups return 404 when
+the Memo is unreadable; project-role flags do not bypass this prerequisite.
 The same independent check protects GraphQL
-Note metadata, children and Note associations. Cached filing names and Note IDs
-are not returned when Note access is denied. Folders and other resource types
+Memo metadata, children and Memo associations. Cached filing names and Memo IDs
+are not returned when Memo access is denied. Folders and other resource types
 retain their existing rules.
 
-Each filing read resolves current project access, live Note ownership and Note
+Each filing read resolves current project access, live Memo ownership and Memo
 access in one database read snapshot. Accepted shares qualify by the active
-recipient and Note ID while the live share link remains enabled; cached grant
-namespace and stored role do not replace current policy. The live Note share
+recipient and Memo ID while the live share link remains enabled; cached grant
+namespace and stored role do not replace current policy. The live Memo share
 role controls independent link editing. Explicit user/team Project grants also
 authorize live same-namespace attachments: READ permits reading, while WRITE
 and ADMIN permit supported content editing. Public Project visibility alone
-does not open a private Note. Arbitrary legacy foreign-namespace mounts remain unsupported even
+does not open a private Memo. Arbitrary legacy foreign-namespace mounts remain unsupported even
 when both resources are readable; this change does not enable transfer bindings,
 writers or cutover.
 
@@ -81,10 +81,10 @@ reads are not an active-only content catalog. The legacy REST `contents` and
 `descendants` inventory endpoints also retain archived entries when the archive
 filter is omitted; pass `includeArchived=false` explicitly for active browsing.
 
-See [Note and folder archival](https://docs.dreamlake.ai/api/archival) for REST filters, saved-edit
+See [Memo and folder archival](https://docs.dreamlake.ai/api/archival) for REST filters, saved-edit
 restoration, permissions and current client operations.
 
-## Query a Note's locations
+## Query a Memo's locations
 
 ```graphql
 query NoteLocations($namespace: String!, $noteId: ID!) {
@@ -110,7 +110,7 @@ query NoteLocations($namespace: String!, $noteId: ID!) {
 }
 ```
 
-Variables below use illustrative values. Replace them with a namespace and Note
+Variables below use illustrative values. Replace them with a namespace and Memo
 ID that the caller can read:
 
 ```json
@@ -122,7 +122,7 @@ ID that the caller can read:
 
 `nodes` contains actual resource Nodes in visible projects, never candidate
 projects. An empty list means no visible associations, not proof that no hidden
-association exists. An unreadable or missing Note returns `note: null`.
+association exists. An unreadable or missing Memo returns `note: null`.
 
 `Node.path` is the existing comma-delimited **ancestor path**, not the full file
 path or a parent ID. For example, a Node named `API design` with
@@ -272,15 +272,15 @@ filings, grant IDs and `expectedVersion`:
 | Field | Meaning |
 |---|---|
 | `preservation.projectGrants` | Existing grant `id`, `projectId`, `granteeId`, `teamId`, `role`, `kind` (`direct-user`, `team`, or `invalid`) and `recipientState`. Team eligibility is not established. |
-| `preservation.noteShares` | Accepted record `id`, `noteId`, `userId`, cached `namespaceId`, `ownerMatches`, `storedRole`, `sharingEnabled`, live `linkRole` and `recipientState`. Includes all live source-owned Notes filed in this project, even if not selected for transfer. |
+| `preservation.noteShares` | Accepted record `id`, `noteId`, `userId`, cached `namespaceId`, `ownerMatches`, `storedRole`, `sharingEnabled`, live `linkRole` and `recipientState`. Includes all live source-owned Memos filed in this project, even if not selected for transfer. |
 | `recipientState` | `active`, `unavailable`, or `unresolved`; legacy identities that cannot be checked remain explicit. These states do not establish effective destination access. |
 
 `linkRole` is `read` or `write` while sharing is enabled, otherwise `null`.
 It can differ from the accepted record's `storedRole`; namespace membership may
-confer stronger access. No bearer token, private Note body or storage key is
-returned. Foreign-owned and deleted Notes do not expose their acceptance records.
+confer stronger access. No bearer token, private Memo body or storage key is
+returned. Foreign-owned and deleted Memos do not expose their acceptance records.
 The source version binds the inventory and sharing policy. Incomplete parent
-inventory or an aggregate above 10,000 Note identities, grants and accepted
+inventory or an aggregate above 10,000 Memo identities, grants and accepted
 records returns `422 MANIFEST_TOO_LARGE`, never a truncated preservation list.
 
 Project transfer previews also include this inventory and `destinationAuthority`
@@ -295,19 +295,19 @@ execution requires the complete owned-Note manifest, an enabled Project adapter
 and explicit destination-owner acceptance under the selected retention policy.
 Reading the manifest or preview changes no grant, filing or ownership.
 
-## External Note filing evidence
+## External Memo filing evidence
 
 The same owner-only manifest and project preview add `externalFilings` for all
-live source-owned Notes filed in the root project, including unselected Notes.
+live source-owned Memos filed in the root project, including unselected Memos.
 Each record retains `filingId`, `projectId`, `noteId` and
 `currentNoteNamespaceId`. A preview adds `proposedNoteNamespaceId` only when that
-Note is explicitly selected. This does not select or move the external project.
+Memo is explicitly selected. This does not select or move the external project.
 
 `currentActorProjectRead` and `currentActorNoteRead` are independent observations
-in the same transaction. Source ownership establishes the caller's current Note
+in the same transaction. Source ownership establishes the caller's current Memo
 authority; every external project's current `project:read` policy is checked
 separately. Project roles and Bindr tags never grant authority over a foreign
-Note. The future required policy is `project-and-note`; every record retains
+Memo. The future required policy is `project-and-note`; every record retains
 `disposition: "requires-reviewed-cross-owner-support"`. Current access is not
 proof of access after the proposed owner changes, nor a new reader capability.
 
@@ -319,7 +319,7 @@ Bindr membership provenance and grant data enter deterministic source hashes,
 not the response. Current actor/project decisions enter preview dependencies.
 
 The complete external inventory has a separate 10,000-record aggregate limit
-across Note identities, filings, project parents, Bindr memberships, Bindrs and
+across Memo identities, filings, project parents, Bindr memberships, Bindrs and
 project grants. Overflow returns `422 MANIFEST_TOO_LARGE`. Missing, deleted or
 mismatched project/Bindr parents and unresolved namespace identity return
 `422 EXTERNAL_FILING_RECONCILIATION_REQUIRED`; no partial evidence is returned.
@@ -350,15 +350,15 @@ are resolved from live catalog identities, including historical mounts without
 ## Completed-transfer filings and historical read aliases
 
 The [whole-Project transfer](https://docs.dreamlake.ai/dev/notes/project-note-transfer) removes
-other-Project Note mounts by default, ending their inherited access without
-deleting the moved Notes or their data. Explicit opt-in preserves
-approved existing foreign-namespace Note mounts only through private completed
+other-Project Memo mounts by default, ending their inherited access without
+deleting the moved Memos or their data. Explicit opt-in preserves
+approved existing foreign-namespace Memo mounts only through private completed
 journal evidence and current ownership history. The destination approves their
-existing live Project audience; implicit public READ never exposes private Notes.
+existing live Project audience; implicit public READ never exposes private Memos.
 A later aborted transfer requires exact source-restoration proof. Arbitrary new
 foreign mounts or expanded cross-namespace Project grants remain unsupported.
 
-Resource references use the Note's canonical current namespace. Filing Project
+Resource references use the Memo's canonical current namespace. Filing Project
 navigation retains its own namespace. Old namespace Note/NoteFile URLs may resolve
 only as verified read aliases and reauthorize in the current namespace; all writes
 remain canonical. Historical content/publication addresses are not rewritten.
@@ -368,15 +368,15 @@ independently. See the transfer contract for the bounded live verification scope
 REST filing Node/Project responses carry their actual `namespaceSlug`;
 GraphQL `Project.namespace { slug }` identifies the filing Project's namespace.
 Server-derived, top-level `resourceNamespaceId`/`resourceNamespaceSlug` identify
-the canonical Note namespace independently, joined from current live Note and
+the canonical Memo namespace independently, joined from current live Memo and
 Namespace records. Editable Node metadata cannot supply those fields; unresolved
 owners return null rather than a guessed namespace.
-Do not derive a Project backlink from the Note's namespace or Project name alone:
+Do not derive a Project backlink from the Memo's namespace or Project name alone:
 retained Projects in different namespaces may have the same name.
 
 Project URLs can retain their original filing context with a
-`noteNamespace` selector for the current Note owner. A new Note created/extracted
-inside that foreign-Project Note pane uses the Note-owner namespace and omits an
+`noteNamespace` selector for the current Memo owner. A new Memo created/extracted
+inside that foreign-Project Memo pane uses the Note-owner namespace and omits an
 automatic foreign Project mount; Project-column creation uses the actual Project
 namespace. These routes retain their independent creation checks.
 
@@ -385,7 +385,7 @@ namespace. These routes retain their independent creation checks.
 `GET /namespaces/:slug/ownership/resources/project/:id/transfer-plan` requires
 current source-namespace owner authority. A compatible backend includes direct
 ordinary files, images, videos and supported byte-backed leaves alongside the
-Project and its owned Notes. The optional `fileCounts` object reports `file`,
+Project and its owned Memos. The optional `fileCounts` object reports `file`,
 `image` and `video` counts; other supported byte-backed leaves count as files.
 Clients must still inspect the complete server plan and execution readiness.
 

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/infrastructure.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/infrastructure.md at 0.105.0 3dc31d9; do not edit -->
 
 # Infrastructure stacks
 
@@ -52,8 +52,8 @@ Use your existing Terraform root with `terraform { backend "http" {} }` configur
 Preserve existing stacks, state, locks and history. Review any existing backend
 and private state backup before an explicitly authorized migration. Creating a
 second stack is not migration. Runbook attachment
-CLI commands remain proposed; use existing Notes commands for collaborative
-revision-aware reading and editing. Project filing alone does not grant Note
+CLI commands remain proposed; use existing Memos commands for collaborative
+revision-aware reading and editing. Project filing alone does not grant Memo
 access or attach a runbook to a stack.
 
 ## Manual and automated Terraform
@@ -194,7 +194,7 @@ Validate adoption with two independent checkouts on a disposable environment:
 verify shared-state readback, exclusive locking, a fresh plan after release and
 rejection of stale/conflicting state. Test interrupted-run recovery without
 unlocking an active process. Keep credentials, raw state and saved plans out of
-Notes and public CI output. See HashiCorp's [HTTP backend](https://developer.hashicorp.com/terraform/language/backend/http)
+Memos and public CI output. See HashiCorp's [HTTP backend](https://developer.hashicorp.com/terraform/language/backend/http)
 and [automation guide](https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform)
 for client configuration and plan artifact handling.
 
@@ -239,10 +239,10 @@ empty string for the repository root, and rejects traversal, backslashes, leadin
 slashes and control characters. The encoded metadata body cannot exceed 8192 bytes.
 
 Requires CLI 0.80.0 or later and the matching API. Every stack has one path in
-its Project's resource tree, next to Notes and folders: `--path infra/k3s/prod` (default `infra/NAME/ENVIRONMENT`). Paths are
+its Project's resource tree, next to Memos and folders: `--path infra/k3s/prod` (default `infra/NAME/ENVIRONMENT`). Paths are
 canonical `/`-separated segments using the same characters as names, at most 16
 segments and 255 characters. A path is unique in the Project regardless of
-environment; a Note, folder or other stack already there refuses creation with
+environment; a Memo, folder or other stack already there refuses creation with
 HTTP 409. The path is a logical address only: not the Terraform directory and not
 part of any cloud resource name. `infra status` and `infra list` print `Path:`
 (`unassigned` for a stack registered before paths and not yet backfilled).
@@ -273,7 +273,7 @@ Project, including a path-only move inside its current Project. Cross-project
 moves preserve the current relative path when this option is omitted: the server
 materializes `destinationPath` and `expectedSourcePath` in the saved review.
 The review pins the current path; if it changes before confirmation, the move
-refuses as stale and needs a new preview. A destination Note, folder or stack at
+refuses as stale and needs a new preview. A destination Memo, folder or stack at
 the requested path blocks the move instead of overwriting or renaming anything.
 
 The tree node keeps its identity and metadata tags. Cross-project moves with

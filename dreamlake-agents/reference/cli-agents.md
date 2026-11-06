@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/agents.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/agents.md at 0.105.0 3dc31d9; do not edit -->
 
 # Agents
 
@@ -23,7 +23,7 @@ continues to declare an external Claude agent.
 
 Available in CLI 0.104.0 and later with the agent resource API. An agent is a
 first-class runnable. Its
-instructions can be inline Markdown, or one main Note plus optional skill Notes
+instructions can be inline Markdown, or one main Memo plus optional skill Memos
 and folders.
 Projects are filed atomically with creation; a failed filing creates no orphan.
 

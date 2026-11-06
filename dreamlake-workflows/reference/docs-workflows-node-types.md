@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows/node-types.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows/node-types.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Workflow Node Types
 
@@ -19,7 +19,7 @@ spine. Stages are **hubs, not barriers**: work converges into a stage node
 and fans out to its members, but data edges may cross stage boundaries
 freely. Stage order (the array order in the spec) is the spine.
 
-| Field | Type | Notes |
+| Field | Type | Memos |
 | --- | --- | --- |
 | `id` | string | `^[a-z0-9][a-z0-9_-]{0,63}$`, unique |
 | `title` | string | display name |
@@ -32,7 +32,7 @@ A **compute** node runs a user-defined function on Lakeshore. The
 class** (`SSH` · `SLURM` · `EC2` · `GCE` · `Kube`) or a named server-stored
 provider, plus per-machine RunConfig fields.
 
-| Field | Type | Notes |
+| Field | Type | Memos |
 | --- | --- | --- |
 | `compute.udf` | string | UDF reference, e.g. `pipelines.bimanual_filter` |
 | `compute.params` | object? | static UDF arguments — small inline values are node **parameters**, never port data (the KFP/Snakemake split) |
@@ -48,7 +48,7 @@ inline credentials.
 A **uda** node runs a remote agent. Field names follow agent-framework
 conventions (OpenAI Agents SDK, Claude Agent SDK, A2A):
 
-| Field | Type | Notes |
+| Field | Type | Memos |
 | --- | --- | --- |
 | `uda.instructions` | string | the system prompt (fixed persona/behavior — distinct from any per-run input) |
 | `uda.description` | string? | *when to delegate* to this agent (routing metadata) |

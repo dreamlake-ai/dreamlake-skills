@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/connect-aws.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/connect-aws.md at 0.105.0 3dc31d9; do not edit -->
 
 # Connect AWS to DreamLake
 
@@ -159,7 +159,7 @@ validates and plans. It can contact AWS and acquire a state lock. It does not
 apply. Review the detailed plan locally in the protected Terraform directory;
 the lifecycle JSON reports change counts, and raw provider diagnostics are
 suppressed because they can contain secrets. Never paste raw state or plan
-output into Notes, a Bindr, or a chat.
+output into Memos, a Bindr, or a chat.
 
 For a from-zero account, the scaffold includes `terraform/modules/state-backend`
 for separately authorized backend creation. The main plan needs that backend
@@ -306,7 +306,7 @@ An authorized container-profile smoke test uses its separate control-plane
 connection, namespace and scoped client token. DreamLake personal login and a
 registered AWS provider do not supply those SDK credentials. Select them through
 the approved private environment/secret-reference mechanism; do not put values
-in inputs.json, images, Notes or command arguments. With the recipe's required
+in inputs.json, images, Memos or command arguments. With the recipe's required
 `LAKESHORE_URL`, `LAKESHORE_CLIENT_TOKEN` and `LAKESHORE_NAMESPACE` environment
 selected, run:
 

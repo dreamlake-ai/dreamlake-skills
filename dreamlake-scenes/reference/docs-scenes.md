@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.123 c2b1f71b; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -372,7 +372,7 @@ separate from Project inheritance.
 New [whole-Project transfers](https://docs.dreamlake.ai/dev/notes/project-note-transfer) require the
 advertised streaming protocol and preserve the eligible existing access and
 Project placements. The current streaming inventory admits ordinary Project
-files/images/videos, owned Notes and eligible Artifacts, but **not Scene/Env
+files/images/videos, owned Memos and eligible Artifacts, but **not Scene/Env
 resource references**. A Scene/Env mount blocks the entire request with
 `PROJECT_STREAM_RESOURCE_UNSUPPORTED`; it is never silently excluded. Check the
 server's preview blockers rather than inferring support from the installed client.

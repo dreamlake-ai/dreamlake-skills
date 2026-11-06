@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Browser terminal
 
@@ -103,8 +103,8 @@ Known states heartbeat every 30 seconds; API observations expire after 45
 seconds. `unknown` is an honest absence of current evidence, not a stopped claim.
 
 Use **Sessions** in the main left sidebar for your saved sessions, including
-while browsing an organization. In Notes, the session-library tab at the left of
-the chat tab row opens a picker without moving the note editor. Its available
+while browsing an organization. In Memos, the session-library tab at the left of
+the chat tab row opens a picker without moving the memo editor. Its available
 list includes your sessions and sessions shared with a team you belong to. The dedicated `/:namespace/sessions`
 page saves a machine, its enrolled Unix user, an absolute working directory and
 an agent conversation UUID. Click a saved session to open it immediately in the
@@ -198,8 +198,8 @@ on the account. Both the owner and teammate must remain active members of the
 selected team.
 
 Team access is interactive: teammates can see terminal output and type through
-the owner's running session. Share only sessions intended for that team. Note
-sharing does not grant session access, and session sharing does not grant note
+the owner's running session. Share only sessions intended for that team. Memo
+sharing does not grant session access, and session sharing does not grant memo
 access. Only the owner can change sharing or use the managed start/stop controls.
 A teammate attaches to an existing runtime; if it is absent, the owner must open
 it first. Closing any terminal tab disconnects only that viewer.
@@ -453,7 +453,7 @@ observed, and saving/opening a bookmark does not automatically inspect a host.
 
 ## Resource affiliations
 
-Saved sessions can be linked to notes and every artifact kind. The relation is
+Saved sessions can be linked to memos and every artifact kind. The relation is
 many-to-many metadata; it neither starts a terminal nor grants access. Current
 resource and session permissions are checked on every request. Resource moves
 keep the internal identity and require the new current namespace; reusable artifact
@@ -467,7 +467,7 @@ remain usable after listing-only Claude duplicate reconciliation.
 - `GET /namespaces/SESSION_NS/terminal-sessions/SAVED_ID/resources` lists readable
   resources with `type`, `id`, `namespaceSlug`, `title`, and `canManageLinks`.
 
-`TYPE` is `note` or `artifact`; `ID` is a note ID or an artifact's logical name.
+`TYPE` is `note` or `artifact`; `ID` is a memo ID or an artifact's logical name.
 Writes return `{ "linked": true, "sessionId": "SAVED_ID" }` (false for unlink)
 and are idempotent. Both list directions return `hasMore` and `nextCursor`, accept
 `pageSize` from 1 to 50 (default 25), and perform bounded indexed reads. The linked
@@ -504,20 +504,20 @@ explicitly imported/uploaded into the conversation API to be readable here.
 
 ## Optional conversation archives
 
-The Note activity sidebar lists contributing saved sessions before collapsed related
+The Memo activity sidebar lists contributing saved sessions before collapsed related
 resources. Affiliations can come from successful CLI content writes or explicit
-links; a link is not an independently verified authorship claim. Reading a note
-or mentioning another note does not invent a contributing session. Older notes
+links; a link is not an independently verified authorship claim. Reading a memo
+or mentioning another memo does not invent a contributing session. Older memos
 can have no recorded session history.
 
 CLI 0.79.0+ `sessions upload-conversation` accepts an explicitly selected native
-Codex/Claude export; `DREAMLAKE_CONVERSATION_FILE` opts successful Note and artifact
+Codex/Claude export; `DREAMLAKE_CONVERSATION_FILE` opts successful Memo and artifact
 writes into snapshots. Without that setting, uploads carry session metadata only.
 See [CLI session archives](https://cli.dreamlake.ai/sessions/#optional-conversation-upload-0790).
 
 An explicit conversation upload stores readable text separately from the saved
 terminal descriptor. The archive uses the session's existing reader permissions;
-sharing a note never grants access to the archive or terminal. Only the session
+sharing a memo never grants access to the archive or terminal. Only the session
 owner can replace or delete an archive. Uploads never start a process. Archived
 history remains readable when the host is offline or enrollment is revoked,
 provided the saved session and account permissions remain valid.
@@ -540,7 +540,7 @@ without truncation. Catalog responses never include these bytes. The archive is
 a snapshot, not live transcript synchronization or a portable provider resume
 file. It does not restore missing native state on another host.
 
-Clicking a saved Codex or Claude row in a Note's **Contributing sessions** opens
+Clicking a saved Codex or Claude row in a Memo's **Contributing sessions** opens
 its terminal in the panel to the right. It does not open the archive first or
 require an upload. Current host, enrollment and session execution authorization
 still apply, using the supported persistent or direct terminal runtime. A
@@ -553,7 +553,7 @@ session does not grant terminal execution.
 
 Explicit conversation history remains readable as inert text, independently of
 the terminal and host liveness. Missing archives do not disable terminal opening
-or basic note editing. Session permissions remain separate from note permissions.
+or basic memo editing. Session permissions remain separate from memo permissions.
 
 ## SSH capacity and usage
 

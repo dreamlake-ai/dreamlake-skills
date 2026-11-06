@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scene-generation.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scene-generation.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Scene Generation
 
@@ -95,7 +95,7 @@ reconstruct later:
 - the **exact source URL** and the **version or commit** you took it from;
 - its **license, per model** — Menagerie is not one license: each model
   directory carries its own `LICENSE` file (BSD, Apache, others). Copy the
-  license alongside the model and note it in the scene's provenance record.
+  license alongside the model and memo it in the scene's provenance record.
 
 ### The acceptance checklist — any source
 

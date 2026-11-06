@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.105.0 3dc31d9; do not edit -->
 
 # Artifacts
 
@@ -271,10 +271,14 @@ Artifacts are private by default — only namespace members can read them.
 
 ```bash file="terminal"
 dreamlake artifact push ./report.md --visibility public
+dreamlake artifact push ./report.md --visibility unlisted
 dreamlake artifact push ./report.md --share
 ```
 
-`--visibility public` makes the artifact readable without logging in.
+`--visibility public` makes the artifact readable without logging in and lists it
+on your public profile. `--visibility unlisted` keeps the direct link readable
+without login but hides the artifact from public profiles and feeds. Namespace
+members still see it in their own catalog. Unlisted links do not require a share token.
 `--share` issues a token instead, so the artifact stays private but is
 readable through the printed `?share=` link. Both settings persist on the
 artifact; a later push without the flag does not reset them.
@@ -388,6 +392,7 @@ expose the token to this caller, not that sharing is disabled.
 ARTIFACT="q1-dashboard" # Your existing artifact id.
 dreamlake artifact visibility "$ARTIFACT" public
 dreamlake artifact visibility "$ARTIFACT" private
+dreamlake artifact visibility "$ARTIFACT" unlisted
 ```
 
 Visibility and sharing are independent. Making a resource private does not
@@ -430,3 +435,41 @@ new namespace/name. An upload crossing the server upgrade can receive
 credentials, reupload to the returned target, then register. Retrying that same
 registration alone cannot select a safe target. Existing issued credentials and
 signed URLs retain their original finite TTL; transfer does not revoke them.
+
+## Rename the URL slug
+
+```bash cli-help="artifact rename"
+dreamlake artifact rename session-work-map-20261014 session-work-map --namespace my-team
+```
+
+`artifact rename <artifact-id-or-slug> <new-slug>` reads the current catalog and
+submits an identity- and revision-guarded rename. It requires namespace membership
+and a server with native slug support. `--json` prints the resulting immutable
+`resourceId`, `artifactId`, canonical `slug` and `slugRevision`. The command does
+not upload content or create a new resource. All versions, title, private/public
+visibility, existing grants, Session links, project filings and sharing policy
+stay unchanged. Previous URLs remain aliases with current access checks.
+
+On 409, resolve the collision or refresh the current slug before retrying. On an
+older server, the command stops without changing anything. `artifact push --id`
+accepts a slug and uses the upload broker's immutable ID for version sequencing
+and storage. Older CLI versions must keep using the original immutable ID.
+
+The TypeScript SDK exposes `client.artifacts(namespace).rename(id, input)` with
+`slug`, `expectedResourceId`, `expectedSlug` and `expectedRevision`. Read the
+expected values using `.get(id)` first. SDK publishing continues to require the
+immutable artifact ID; `.rename()` never invokes storage publishing.
+
+### TypeScript API
+
+The TypeScript API accepts `public`, `private`, or `unlisted` in
+`artifacts(namespace).publish(id, input, store)`, `register(id, input)`, and
+`share(id).visibility(value)`. To change only an existing artifact’s visibility:
+
+```ts
+await api.artifacts("my-team").share("report").visibility("unlisted");
+```
+
+The sharing method checks management permission before updating metadata. It
+does not upload content or change the existing share token. A later publication
+that omits visibility preserves the saved setting.

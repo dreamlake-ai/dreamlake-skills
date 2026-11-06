@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/infrastructure-stacks.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/infrastructure-stacks.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Infrastructure stacks
 
@@ -85,8 +85,8 @@ which resources Terraform owns and which another deployment process owns, such
 as a CI-managed container image, so the two do not undo each other's changes.
 
 A state version proves persistence, not application health. Keep raw state, saved
-plans and credentials out of Notes, Git and public job logs. Filing a runbook Note
-does not formally bind it to a stack or grant Note access; the attachment API below
+plans and credentials out of Memos, Git and public job logs. Filing a runbook Memo
+does not formally bind it to a stack or grant Memo access; the attachment API below
 remains a source candidate until activated.
 
 ### Recovery and collaboration checks
@@ -161,12 +161,12 @@ stack identity for authorized reconciliation. Do not blindly retry creation.
 Individual stack relocation still requires its exact saved review and checks the
 current Project owner; a review for a previous owner is stale.
 
-Runbook bindings keep the original Note ID and provenance. A compatible reader
-independently checks current Note READ and follows only accepted, completed owner
+Runbook bindings keep the original Memo ID and provenance. A compatible reader
+independently checks current Memo READ and follows only accepted, completed owner
 hops certified by permanent ownership evidence. Failed transfer lease attempts
 can advance a fence epoch without changing ownership; that alone does not break a
 runbook reference. Missing or corrupted evidence and active ownership changes
-refuse the read. Following a reference never grants Note access or rewrites the
+refuse the read. Following a reference never grants Memo access or rewrites the
 binding, state, lock or history.
 
 Project ownership changes atomically in Mongo; this does not claim a transaction
@@ -220,11 +220,11 @@ Requires CLI 0.80.0 or later for `--path` and `--destination-path`. Stacks not
 yet backfilled return `path: null`.
 
 Each stack has one path in its Project's shared resource tree, the same tree
-that holds Notes and folders. Create accepts an optional `path` (default
+that holds Memos and folders. Create accepts an optional `path` (default
 `infra/<name>/<environment>`); responses add `path`, which is `null` for a stack
 not yet backfilled. Segments use the name characters, at most 16 segments and
 255 characters. The tree owns uniqueness: a path is unique per Project
-independent of environment, and an existing Note, folder or stack at that place
+independent of environment, and an existing Memo, folder or stack at that place
 refuses with `409 stack_path_conflict`. `name` and `environment` remain metadata.
 
 The path is reserved in the same fenced Mongo admission that authorizes the
@@ -245,7 +245,7 @@ restored; if anything changed it since, nothing is overwritten and
 path fields never write the tree. Cross-Project moves use the same reviewed
 operation and preserve the existing path unless an explicit destination path is
 requested. The saved review includes both paths. The destination tree is checked
-for collisions before admission; a Note, folder or another stack is never replaced.
+for collisions before admission; a Memo, folder or another stack is never replaced.
 Only the Project recorded by PostgreSQL may expose the stack node. An incomplete
 cross-store operation therefore cannot make a stack visible in the wrong Project.
 
@@ -264,7 +264,7 @@ suffixing or overwriting them.
 ## Move a registration
 
 The path-preserving CLI examples require CLI 0.102.3 or later and the compatible
-path-aware backend. Use the same pattern as reviewed Notes and Artifacts moves: identify the existing
+path-aware backend. Use the same pattern as reviewed Memos and Artifacts moves: identify the existing
 resource, preview an explicit destination, retain the exact review, execute it,
 and verify the same ID. Infrastructure uses its own authorization and persistence
 contract. This operation changes registry placement and access; it does not run
@@ -434,27 +434,27 @@ separate from the database administrator identity.
 
 ## Runbook reference API — source candidate, not activated
 
-The additive Runbook API stores a reference to an existing Note. It does not copy
-Note content, revise the Note, change sharing, or grant Note access through project
+The additive Runbook API stores a reference to an existing Memo. It does not copy
+Memo content, revise the Memo, change sharing, or grant Memo access through project
 filing. Activation requires the explicit PostgreSQL Runbook migration and the
-shared current-ownership/Note-read admission capability. Without both capabilities,
+shared current-ownership/Memo-read admission capability. Without both capabilities,
 Runbook requests fail closed; existing state, locks and history remain available.
 
 `GET /infrastructure/stacks/:id/runbook` requires stack READ and independent READ
-of the stored Note under its recorded ownership epoch. An unattached stack returns
+of the stored Memo under its recorded ownership epoch. An unattached stack returns
 `{runbook: null, bindingVersion: 0}`. Generic stack lists/details omit the reference.
 
 `PUT /infrastructure/stacks/:id/runbook` takes
-`{noteId, expectedBindingVersion}` and requires stack ADMIN and independent Note
-READ, under each resource's current owner. The Note can belong to a different
+`{noteId, expectedBindingVersion}` and requires stack ADMIN and independent Memo
+READ, under each resource's current owner. The Memo can belong to a different
 namespace; attachment preserves its ownership and independent sharing. Start with
 version `0`; use the last returned
 binding version for replacement. Competing replacements return
 `runbook_binding_conflict`. An identical retry is accepted only for the original
-actor, expected counter, Note and ownership epoch, after fresh admission.
+actor, expected counter, Memo and ownership epoch, after fresh admission.
 
 Binding versions are independent of Terraform state versions and locks. Admission
-also fences deletion and ownership transfer. A moved-away-and-back Note does not
+also fences deletion and ownership transfer. A moved-away-and-back Memo does not
 restore an old attachment. The PostgreSQL commit and Mongo authorization decision
 are separate operations, with no cross-database atomicity guarantee. Before
 returning a link, the API checks both permissions and the retained epoch again.

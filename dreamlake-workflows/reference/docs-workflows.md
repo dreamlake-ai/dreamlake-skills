@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.123 c2b1f71b; do not edit -->
 
 {/* FigWf* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -132,7 +132,7 @@ require 0.62.0 or later; Python Project support requires SDK 0.29.0 or later. Se
 [Project resource access contract](https://docs.dreamlake.ai/dev/notes/project-resource-sharing).
 
 The [whole-Project and owned-Notes transfer](https://docs.dreamlake.ai/dev/notes/project-note-transfer)
-supports Project, ordinary Project files/images/videos and owned Notes.
+supports Project, ordinary Project files/images/videos and owned Memos.
 A mount/reference of this resource blocks
 the entire transfer rather than silently excluding it. Its existing independent
 sharing and released Project-derived content access remain available.

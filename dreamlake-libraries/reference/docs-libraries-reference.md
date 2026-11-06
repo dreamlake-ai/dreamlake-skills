@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.123 c2b1f71b; do not edit -->
 
 # Libraries Reference
 
@@ -314,7 +314,7 @@ explicitly (`siglip2` · `clip` · a raw `open_clip` name).
 | Task | Command | Machine output |
 |---|---|---|
 | Survey | `dreamlake library list --all` | `--json` — the HTTP body, verbatim |
-| Search | `dreamlake library search "mug" --library acme/gso [--license …] [--offset …]` | `--json` — the raw search response; scope notes go to stderr |
+| Search | `dreamlake library search "mug" --library acme/gso [--license …] [--offset …]` | `--json` — the raw search response; scope memos go to stderr |
 | Summarize / inspect | `dreamlake library info acme/gso [--asset <id>]` | `--json` — client-computed library summary, or one asset's card incl. its closure digest |
 | Verify freshness | `dreamlake library stat acme/gso [--asset <id>] -o <dir>` | `--json`; exit 0 = up-to-date, 1 = stale/absent |
 | Pull | `dreamlake library pull acme/gso [--asset <id>] -o <dir>` — incremental: byte-identical local files are skipped | `--json` |

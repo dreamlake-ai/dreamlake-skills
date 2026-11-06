@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.118 967fe678; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.123 c2b1f71b; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -19,7 +19,7 @@ field to save. Titles can contain spaces and are limited to 200 characters;
 the annotation name, URL, SDK address, and stored data stay the same.
 Namespace members can also edit the title from the annotation list's Edit menu.
 
-The Share control uses the same menu as Notes. Choose **can view** or **can edit**,
+The Share control uses the same menu as Memos. Choose **can view** or **can edit**,
 then copy the link. Recipients must sign in to DreamLake. A view link allows
 opening the annotation and playing its videos. An edit link also allows saving
 title changes and using the existing annotation labeling preview. Timeline,
@@ -201,7 +201,7 @@ require 0.62.0 or later; Python Project support requires SDK 0.29.0 or later. Se
 [Project resource access contract](docs-dev-notes-project-resource-sharing.md).
 
 The released [whole-Project and owned-Notes transfer](https://docs.dreamlake.ai/dev/notes/project-note-transfer)
-supports Project, ordinary Project files/images/videos, owned Notes, and owned
+supports Project, ordinary Project files/images/videos, owned Memos, and owned
 Artifact and Env attachments (Artifact/Env members need the matching released
 clients). In the
 deployed service, an Annotation attachment blocks the entire transfer rather
@@ -217,7 +217,7 @@ released Project-derived content access remain available.
 > revision payloads retain their existing storage — nothing is copied, moved
 > or re-uploaded — and schemas, versions and raw tracks stay stable, while
 > ownership metadata changes. Catalog placements outside the moved Project
-> detach; the Note-only `preserveExternalFilings` option does not retain them.
+> detach; the Memo-only `preserveExternalFilings` option does not retain them.
 > The Annotation becomes private at the destination; preserving a direct share
 > is conditional on the server's eligibility policies and blockers, and signed
 > URLs already issued keep their existing bounded expiry — there is no

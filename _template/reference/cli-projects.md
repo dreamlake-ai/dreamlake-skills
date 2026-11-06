@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.105.0 3dc31d9; do not edit -->
 
 # Projects & data
 
@@ -32,7 +32,7 @@ Projects are **private by default**; `--public` / `--visibility public`
 shares them. `update project` also changes `--name`, `--description`, `--tags`.
 
 > **Warning:** `delete project` is a soft delete with no restore. Everything filed in the
-> project (Notes, artifacts, workflows, annotations, envs, Sources) is unfiled
+> project (Memos, artifacts, workflows, annotations, envs, Sources) is unfiled
 > and kept; its files and episodes stay stored but can no longer be opened; every
 > user, team and service-account grant on it is removed; and its slug becomes
 > free, so a new project can take it with a new ID. It is refused while a job
@@ -47,7 +47,7 @@ shares them. `update project` also changes `--name`, `--description`, `--tags`.
 ## Move a whole Project and its supported resources
 
 New Project moves use streaming metadata transfer. They retain stable resource
-IDs, Note RTC bindings, content/history and eligible existing access. Membership
+IDs, Memo RTC bindings, content/history and eligible existing access. Membership
 is discovered by the server while people continue working; content and media
 bytes are not copied by this workflow. Resource support and access policy are
 established by the compatible server's explicit streaming capability and preview,
@@ -67,7 +67,7 @@ Eligible access and external filings are preserved by default. Explicit flags
 remain accepted, but saved policies and keys cannot be overridden on replay.
 Review server blockers instead of changing access, dropping resources or silently
 using the older restrictive RTC checkpoint/room-rotation implementation. The
-streaming root Project name stays unchanged; explicit supported Note renames
+streaming root Project name stays unchanged; explicit supported Memo renames
 must be reviewed and hash-bound before submission. An authorized source namespace member requests and an authorized destination
 namespace member accepts. Personal namespaces require their own actor; active
 organization members can act for their organization. Project ADMIN alone does
@@ -149,7 +149,7 @@ CLI additions require 0.45.1 or later; verify installed help after updating. Gra
 POST/DELETE. The server rechecks current ADMIN authority, active membership and
 team scope; no command changes membership.
 
-Deleting a project removes its filing relationships. Independently owned Notes
+Deleting a project removes its filing relationships. Independently owned Memos
 and Sources retain their namespace ownership; their lifecycle is separate from
 the project's data subtree. No recoverable project deletion snapshot is promised
 by this CLI. Source deletion is terminal; source disable/enable is reversible.
@@ -159,7 +159,7 @@ by this CLI. Source deletion is terminal; source disable/enable is reversible.
 The product equivalent is **Projects → Project access** at
 `https://dreamlake.ai/acme/projects`. Sign in as a project administrator.
 Use an existing active organization member or an active team in that organization.
-Team access does not make organization Notes private from other members.
+Team access does not make organization Memos private from other members.
 
 ```bash cli-help="project grant"
 dreamlake project grant research --namespace acme --user teammate --role WRITE
