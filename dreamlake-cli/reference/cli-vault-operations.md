@@ -1,10 +1,10 @@
-<!-- generated from https://cli.dreamlake.ai/vault-operations.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-operations.md at 0.105.0 3dc31d9; do not edit -->
 
 # Vault operations
 
 **CLI 0.16.0 and Python 0.13.0 are published.** These
 operations require the matching Vault backend. Check the
-[Vault runtime note](https://docs.dreamlake.ai/dev/notes/vault-runtime/) for hosted
+[Vault runtime memo](https://docs.dreamlake.ai/dev/notes/vault-runtime/) for hosted
 availability; a local build or package release is not deployment evidence.
 
 ## HOTP: take ownership explicitly

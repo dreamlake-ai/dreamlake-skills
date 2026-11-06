@@ -2,7 +2,7 @@
 
 Use this when an HTML or React artifact needs shareable query/fragment state —
 slides, tabs, filters, a selected item — that survives copy-link, back/forward
-and a Note deep link. The complete contract (URL shapes, handshake, history
+and a Memo deep link. The complete contract (URL shapes, handshake, history
 semantics, limits) is in
 [Artifact paths and local routing](../reference/docs-artifacts.md#artifact-paths-and-local-routing);
 this page is the authoring discipline. Start from
@@ -64,7 +64,7 @@ Inside HTML and React artifacts, `window.dreamlake.route` exposes `search`
 - The existing query/download bridge and its authorization/confirmation rules
   still apply.
 
-## Deep links from a Note
+## Deep links from a Memo
 
 Use an ordinary Markdown link with the viewer URL, or
 `:artifact[namespace/id#slide-3]` to open the hash route in the right-hand

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-terraform-state.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-terraform-state.md at 0.105.0 3dc31d9; do not edit -->
 
 # Terraform state and Vault
 
@@ -13,7 +13,7 @@ file selection is refused until an equivalent ACL check is supported. Selected
 reference and state files must be owned, owner-only regular files without links.
 
 Terraform state and saved plans can contain secrets even when values are marked
-`sensitive`. JSON output may reveal them. Keep state out of Git, Notes, terminal
+`sensitive`. JSON output may reveal them. Keep state out of Git, Memos, terminal
 logs and automatic indexing. See HashiCorp's [sensitive data guidance]
 (https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 

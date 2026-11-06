@@ -1,6 +1,6 @@
-# Link Note and Artifact writes to an agent session
+# Link Memo and Artifact writes to an agent session
 
-CLI 0.78.0+ with the matching API affiliates a successful Note write or Artifact
+CLI 0.78.0+ with the matching API affiliates a successful Memo write or Artifact
 push with one exact owned registered session, resolved from `CODEX_THREAD_ID`,
 an explicit `CLAUDE_SESSION_ID`, or the pair `DREAMLAKE_TERMINAL_SESSION_ID` and
 `DREAMLAKE_SESSION_NAMESPACE`. The link is attempted after the catalog
@@ -19,7 +19,7 @@ dreamlake sessions resources SESSION_ID --namespace SESSION_NAMESPACE --json   #
 Do not repush an artifact or replay a successful edit to produce a link, and do
 not infer historical authorship or contributors from titles. Read-only work adds
 no affiliation; resource sharing and linking never grant terminal access. See
-[link notes and artifacts](../reference/cli-sessions.md#link-notes-and-artifacts-0780).
+[link memos and artifacts](../reference/cli-sessions.md#link-notes-and-artifacts-0780).
 
 ## Register a missing native session (CLI 0.82.0+)
 
@@ -47,7 +47,7 @@ readable history under the saved session's permissions, not a portable native
 resume state: the original host keeps its native conversation state and an
 archive cannot migrate it. Uploads never open a terminal. Review custom secrets
 before selecting an export; client and server redact recognised credentials but
-not exhaustively, and unrelated conversations must never be collected. A Note's
+not exhaustively, and unrelated conversations must never be collected. A Memo's
 contributing-session row opens the saved terminal in the panel to the right
 without requiring an archive; when the descriptor has no verified host binding
 the panel explains it and **Check connection again** reloads the descriptor

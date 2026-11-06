@@ -1,10 +1,18 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.105.0 3dc31d9; do not edit -->
 
 # Release notes
 
-## 0.104.5 — Actionable Note transfer failures and diagnostics
+## 0.105.0 — Canonical Memo TypeScript API
 
-Metadata-transfer commands preserve API error codes, HTTP status, request IDs and supported grant reasons in JSON failures. Note move and transfer diagnostics record blocked previews even when HTTP returns 200, while uncertain writes retain their dispatch state and are never automatically retried. Existing telemetry opt-out and privacy controls remain in place. Requires the matching API collector for the new optional diagnostics; this release does not broaden cross-workspace Note transfer admission.
+Use `client.memos`, `memosApi`, `Memo*` types, and the Memo editing helpers. SDK modules and CLI implementations now use Memo names; old public exports remain aliases during the phased rollout. Existing HTTP routes, response fields, and editing semantics stay compatible.
+
+## 0.104.6 — Memo branding
+
+Use `dreamlake memos` or `dreamlake memo` for the shared space with your agents. Help, messages and documentation now call these resources Memos. Existing `notes` and `note` command aliases, SDK APIs and data remain compatible during the phased rollout.
+
+## 0.104.5 — Actionable Memo transfer failures and diagnostics
+
+Metadata-transfer commands preserve API error codes, HTTP status, request IDs and supported grant reasons in JSON failures. Memo move and transfer diagnostics record blocked previews even when HTTP returns 200, while uncertain writes retain their dispatch state and are never automatically retried. Existing telemetry opt-out and privacy controls remain in place. Requires the matching API collector for the new optional diagnostics; this release does not broaden cross-workspace Memo transfer admission.
 
 ## 0.104.4 — Declared public data origins for artifact sites
 
@@ -24,13 +32,13 @@ Automatic IP inventory requires the matching API and Nymph 0.1.36+. Older daemon
 
 Requires the matching cross-project Infrastructure move API. Bindr membership and runbook blockers remain enforced. The separate recipient-accepted `infra transfer` lifecycle is capability-gated and has no fallback to relocation. Bundled skills remain pinned to published v2026.11.03.2.
 
-## 0.102.2 — Note contributing sessions
+## 0.102.2 — Memo contributing sessions
 
 - `notes contributors` lists persistent sessions and their observed creation/edit evidence, separately from manually linked sessions.
-- Note presence and editing share optional native or saved-session context. The server records confirmed contributions; the CLI no longer follows each Note write with a separate affiliation request.
+- Memo presence and editing share optional native or saved-session context. The server records confirmed contributions; the CLI no longer follows each Memo write with a separate affiliation request.
 - The SDK exposes `notes.namespace(namespace).contributors(noteId)`. Missing or malformed optional metadata does not prevent content saves; no-op and failed writes do not establish authorship.
 
-Requires the matching Note contributor API. Artifact affiliation and explicit conversation uploads retain their existing behavior. The bundled skills remain pinned to published v2026.11.03.2.
+Requires the matching Memo contributor API. Artifact affiliation and explicit conversation uploads retain their existing behavior. The bundled skills remain pinned to published v2026.11.03.2.
 
 ## 0.102.1 — Faster repeat incremental artifact uploads
 
@@ -138,23 +146,23 @@ separately; against an older server they answer 404.
   `PERMISSION_LEVELS`, `isPermissionRaise`, `LIVE_STATES`, `WatchEvent`,
   `SessionTree`, `restart` in `COMMAND_KINDS`.
 
-## 0.98.0 — Notes API contract: callable facade, mapped default, verbatim append
+## 0.98.0 — Memos API contract: callable facade, mapped default, verbatim append
 
 - `@dreamlake/dreamlake-cli/api`: `dl.notes(noteId)` opens a local handle (IDs
-  are primary; the owning namespace is read from the note's metadata on first
+  are primary; the owning namespace is read from the memo's metadata on first
   use) with `read({ view, at, lines, section, address })`, verbatim `append`,
   `replace`/`insert`/`remove` with exactly one selector, `write`, `patch`,
   `outline`, `find`, `diff`, `presence`, `visit`, `versions`, `files.move` and
   `move`; `dl.notes.list` and `dl.notes.create` are the collection operations
   and `dl.notes.namespace(ns)` scopes a dynamic namespace. Every operation
   takes one named object; `at` is a snapshot or a revision, never a hash.
-- `dreamlake notes read` prints the mapped Markdown view by default, in a
+- `dreamlake memos read` prints the mapped Markdown view by default, in a
   terminal or a pipe; `--view source` prints the exact source bytes only (no
   header, no added newline); `--json` is one snapshot object. `--lines a:b`
   reads a focused slice with its code-point address and `scope`.
 - `notes append` is verbatim: exactly the given text, no separator added.
 - `--ns` aliases `--namespace`. `replace`, `remove` (alias of `delete`) and
-  `insert` take the note ID positionally with `--lines a:b`, `--address ID`,
+  `insert` take the memo ID positionally with `--lines a:b`, `--address ID`,
   `--before/--after ID`, `--cursor N` and `--file`; `create` without a title
   makes `Untitled`; `move --to-project/--to-folder`; `find`/`toc --at` report
   `note`, `hash` and `revision`; `list --offset`.
@@ -265,7 +273,7 @@ replacement. [Guide](cli-vault-operations.md#entry-expiry).
 - `infra transfer plan/create/status/accept` uses Infrastructure's dedicated review and immutable receipt protocol; namespace transfer authority does not grant stack state or provider permissions.
 - Library push/add/rm use immutable upload generations only when the server advertises protocol v2. Private local recovery journals retain file fingerprints and multipart progress; bounded session status/presence reconciles uncertain responses. Once v2 is selected, errors never fall back to the legacy writer.
 
-These are client capabilities, not a declaration that every server adapter is enabled. Each requires its matching server reader/storage floor and admission capability. Source transfer remains unsupported; Project streaming v2 covers Note, Artifact, Env/Scene and Annotation, while Pipeline and Infrastructure use their separate transfer profiles. No provider launch or IAM authority is added.
+These are client capabilities, not a declaration that every server adapter is enabled. Each requires its matching server reader/storage floor and admission capability. Source transfer remains unsupported; Project streaming v2 covers Memo, Artifact, Env/Scene and Annotation, while Pipeline and Infrastructure use their separate transfer profiles. No provider launch or IAM authority is added.
 
 ## 0.83.0 — Recipient-accepted metadata transfers
 
@@ -286,19 +294,19 @@ matching API release; deployment and public package propagation are separate che
 ## 0.80.0 — Stack paths in the project resource tree
 
 `infra create --path` places a new stack in its Project's resource tree, next to
-Notes and folders (default `infra/NAME/ENVIRONMENT`). `infra status` and `infra list`
+Memos and folders (default `infra/NAME/ENVIRONMENT`). `infra status` and `infra list`
 print `Path:`. `infra move --destination-path` changes only a stack's path inside
 its own Project; the review pins the current path, and UUID, backend URL and state
 are unchanged. Stacks that have a path cannot yet move to another Project. Requires
 the matching stack-path API; older servers keep working and show `Path: unassigned`.
 
-## 0.78.0 — Note and artifact session affiliations
+## 0.78.0 — Memo and artifact session affiliations
 
 `sessions link`, `unlink`, and paginated `resources` connect exact saved sessions
-to Notes and artifacts across namespaces. Links preserve both resources' current
+to Memos and artifacts across namespaces. Links preserve both resources' current
 permissions; they do not share terminals or launch processes.
 
-Acknowledged note content writes and artifact pushes can automatically record an
+Acknowledged memo content writes and artifact pushes can automatically record an
 exact saved-session or native-session context. Reads and failed writes add no
 affiliation traffic. The bounded lookup refuses ambiguous or missing registration;
 a link failure warns without turning a successful content write into a failure.
@@ -388,7 +396,7 @@ matching backend catalog API. See [Host enrollment](https://cli.dreamlake.ai/hos
 
 CLI 0.64.0 accepts complete typed Project/Note/Artifact/Env plans with
 the matching backend. Saved reviews retain every typed resource, access choice
-and external-filing effect; a mixed plan is never reduced to its Note subset.
+and external-filing effect; a mixed plan is never reduced to its Memo subset.
 Artifact/Env outside placements always detach, their old namespace-based links
 cannot be retained, and all included resources become private. Storage stays in
 place and previously issued capabilities retain their TTL. Source, Workflow,
@@ -405,16 +413,16 @@ the exact preview hash and stable idempotency key; replay preserves that review
 even after the source Project moves. Cross-user requests require acceptance by
 the destination namespace owner.
 
-Resources become private, old access is revoked and external Note filings detach
+Resources become private, old access is revoked and external Memo filings detach
 by default. Access retention and `--preserve-external-filings` are explicit
 opt-ins. Unsupported or partial plans fail closed. Requires the enabled companion
-backend; standalone cross-namespace Note and Source moves remain unsupported.
-The bundled Projects, Ownership, Data and Notes guides describe this workflow.
+backend; standalone cross-namespace Memo and Source moves remain unsupported.
+The bundled Projects, Ownership, Data and Memos guides describe this workflow.
 See [Projects](cli-projects.md#move-a-whole-project-and-its-supported-resources).
 
 ## 0.62.0 — Project resource attachments
 
-`project attach` and `project detach` organize Notes, Artifacts, Annotations,
+`project attach` and `project detach` organize Memos, Artifacts, Annotations,
 Workflows, Scenes (`env`) and Sources by database ID. Explicit Project grants
 cover current and future attachments; public Project visibility alone does not
 expose private resources. Source retains its existing whole-Source association.
@@ -511,14 +519,14 @@ Use `dreamlake note tag NOTE LABEL`, `dreamlake note hist NOTE`, and
 remain compatible. Saved reads refuse conflicting live-read options before
 network access. See [Saved versions](cli-notes-versions.md).
 
-## 0.44.0 — Saved Note versions
+## 0.44.0 — Saved Memo versions
 
-Save immutable checkpoints on the existing Note with `notes version create`,
+Save immutable checkpoints on the existing Memo with `notes version create`,
 list them with `notes version list`, and read retained text with
 `notes version read`. Creation verifies one coherent full read and submits its
 content hash; `--hash` pins a reviewed read, and `409 note_changed` stops
 without retrying. Optional tags, summaries, parent ancestry, namespace, JSON,
-dry-run and pagination are supported. These commands neither copy the Note
+dry-run and pagination are supported. These commands neither copy the Memo
 nor modify its live body. See [Saved versions](cli-notes-versions.md).
 
 ## 0.42.0 — State your purpose while lingering
@@ -600,7 +608,7 @@ there. See [Environments](cli-environments.md).
 
 ## 0.37.0 — Inline image upload
 
-- Add `notes media upload <file>`: upload an image or video and print its embeddable URL directly. Saved login credentials are reused; `--json` is optional. Media URLs allow access to anyone holding them; private note attachments remain separate.
+- Add `notes media upload <file>`: upload an image or video and print its embeddable URL directly. Saved login credentials are reused; `--json` is optional. Media URLs allow access to anyone holding them; private memo attachments remain separate.
 
 ## 0.36.0 — Agent skill setup and update reminders
 
@@ -637,12 +645,12 @@ literal source edits and unified diffs without manual inline-DFF escaping.
 
 ## 0.34.3 — 2026-09-28
 
-- Fix native Notes patches read from redirected stdin silently submitting empty input; reject empty patches before sending.
+- Fix native Memos patches read from redirected stdin silently submitting empty input; reject empty patches before sending.
 - Preserve server patch error details and explain that legacy conditional edits require the quoted ETag rather than an RTC revision.
 
 ## 0.34.2 — Hierarchical list addresses
 
-Notes references now describe standard `ul`/`ol` list prefixes and one `li`
+Memos references now describe standard `ul`/`ol` list prefixes and one `li`
 item type. Addresses include their parent list/item paths while retaining the
 shared section counter. Checkbox state remains an attribute. Existing 0.34.1
 read commands already accept these server-issued IDs.
@@ -653,9 +661,9 @@ Annotated Markdown includes list containers alongside paragraphs and items.
 The server assigns `p`, `l`, `li` and `cli` IDs from one section counter; use
 returned IDs and retain the snapshot revision for focused reads and edits.
 
-## 0.33.0 — Addressed Notes reads
+## 0.33.0 — Addressed Memos reads
 
-`dreamlake notes read` can pin a retained snapshot with `--at`, inspect its
+`dreamlake memos read` can pin a retained snapshot with `--at`, inspect its
 outline with `--toc`, and retrieve a section or exact tagged element with
 `--section` and `--tag`. HTML reads expose revision-local section, paragraph,
 and list-item IDs with source character and line ranges. `--view markdown`
@@ -664,21 +672,21 @@ continues to default to line diffs, and linger retains its source/SSE contract.
 
 ## 0.32.4 — Share-link management
 
-Notes and artifacts now expose `share get/create/revoke` and `visibility` commands
-for existing resources. Notes also support accepted-access listing/removal and
+Memos and artifacts now expose `share get/create/revoke` and `visibility` commands
+for existing resources. Memos also support accepted-access listing/removal and
 optional revocation of accepted grants. Link inspection never enables sharing.
 
-## 0.32.3 — Task-based Notes examples
+## 0.32.3 — Task-based Memos examples
 
-Notes help now demonstrates finding and reading a note, previewing a precise
+Memos help now demonstrates finding and reading a memo, previewing a precise
 wording change, verifying it, and collaborating with distinct agent identities.
 Normal reads use no JSON or view flags. Patch help retains revisions from normal
 text output, and the local-editor recipe avoids zsh’s read-only `status` variable.
 
-## 0.32.2 — Notes quick-start help
+## 0.32.2 — Memos quick-start help
 
-`dreamlake notes --help` now includes practical examples for finding, reading,
-following, and creating notes, inspecting sections and attachments, and finding
+`dreamlake memos --help` now includes practical examples for finding, reading,
+following, and creating memos, inspecting sections and attachments, and finding
 revision-safe edit recipes. The same examples ship in the bundled CLI skill.
 
 ## 0.32.1 — Highlight handles and hover guidance
@@ -708,7 +716,7 @@ matching-text example. No CLI command or storage behavior changes.
 
 - Show people as `@username` and agents by their configured name, without surrounding quotes. Keep quotes around selected text.
 
-## 0.31.1 — Simpler Notes notifications
+## 0.31.1 — Simpler Memos notifications
 
 - Show names, actions and quoted selections in default linger output. Keep IDs,
   connection details, offsets and source hashes in JSON.
@@ -717,11 +725,11 @@ matching-text example. No CLI command or storage behavior changes.
   state change; throttling is unchanged.
 - Add notification examples to the collaboration guide and `notes read --help`.
 
-## 0.31.0 — Live Notes selections
+## 0.31.0 — Live Memos selections
 
 - Complete the simplified session interface: `presence <note>` reads the roster; `visit` registers once; `read --linger` maintains the session. Remove the old `presence <note> <action>` and `--watch` controls.
 
-- `notes read --linger` observes server events instead of polling the note and roster. Requires the matching Notes events endpoint.
+- `notes read --linger` observes server events instead of polling the memo and roster. Requires the matching Memos events endpoint.
 - Reports human selections and clears with source hashes and Unicode code-point offsets; unchanged selections and lease heartbeats stay silent.
 - Coalesces the latest selection per participant, limits output with `--throttle` (default 2s), and debounces content diffs separately.
 - Agent activity highlights expire after 8s and disconnected agent presence after 60s. Human selections clear on deselection, editor blur, or departure.
@@ -735,14 +743,14 @@ matching-text example. No CLI command or storage behavior changes.
 
 ## 0.26.2 — per-request EXACT patches
 
-Notes command handlers now allow stdout to drain before process exit, preserving
+Memos command handlers now allow stdout to drain before process exit, preserving
 large piped JSON/source responses. Regression tests cover delayed pipe readers
 with more than 128 KiB of Unicode content.
 
-Notes v2 patches default to ordinary native CRDT synchronization against the
+Memos v2 patches default to ordinary native CRDT synchronization against the
 original snapshot identified by `--base-revision`. `--exact` explicitly selects EXACT mode for that request; `--if-match` is a compatibility alias. The CLI never fetches a newer baseline
 to hide a conflict, and rejected requests leave local drafts and baselines intact.
-The matching Notes v2 API retains original RTC identities. This release also
+The matching Memos v2 API retains original RTC identities. This release also
 includes complete mapped HTML reads with canonical-source/hash/revision checks.
 Use `--legacy` explicitly with older servers. Package and deployed acceptance
 receipts are tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
@@ -759,11 +767,11 @@ site was promoted.
 headers or newline. Embedded canonical source, identity, SHA-256 and revision
 are validated before stdout; `--if-match` is guarded on both request and
 readback. HTML rejects incompatible history, JSON, legacy and slicing options.
-These changes ship in 0.26.2 with the matching Notes HTML server contract. Tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
+These changes ship in 0.26.2 with the matching Memos HTML server contract. Tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/issues/706).
 
 ## 0.26.0 — superseded, publication cancelled
 
-Historical candidate: Notes commands changed to the v2 server contract. This
+Historical candidate: Memos commands changed to the v2 server contract. This
 candidate was superseded by 0.26.2 and must not be republished. The current
 MERGE/EXACT contract above replaces its required-guard interface.
 
@@ -800,9 +808,9 @@ pushes anyway with the provenance marked non-resolvable.
 
 Deep reference: [Env layers](https://docs.dreamlake.ai/scenes/layers).
 
-## 0.24.7 — Notes revision diffs
+## 0.24.7 — Memos revision diffs
 
-`dreamlake notes diff <note> --since <etag>` compares the current body with a
+`dreamlake memos diff <note> --since <etag>` compares the current body with a
 retained read/edit reference. `--json` includes both refs; plain output stays
 pipeable. Requires the revision-diff server endpoint. Read, diff, and patch
 help examples now document preserving and reusing the ETag. These examples
@@ -814,12 +822,12 @@ ships it. Published on the native channel (`latest` and `stable` both resolve
 to 0.24.7 on dl.dreamlake.ai); as of 2026-09-23 the npm registry's newest
 version is still 0.24.6, so npm users first get `notes diff` with 0.25.0.
 
-## 0.24.6 — Note file uploads no longer crash the native binary
+## 0.24.6 — Memo file uploads no longer crash the native binary
 
-`dreamlake notes files upload` sent the `Bun.file()` object itself as the PUT
+`dreamlake memos files upload` sent the `Bun.file()` object itself as the PUT
 body. On Bun 1.3.14 on Linux, in a compiled standalone binary, that crashed the
 runtime with a SIGSEGV once the response had arrived, when a GET on the same
-host had run first — the shape this command takes, because it resolves the note
+host had run first — the shape this command takes, because it resolves the memo
 before uploading. The body is now `Bun.file(path).stream()`: the same file, read
 lazily rather than loaded into memory. The observed run was against a loopback
 server on this machine, not a remote deployment: the upload exited 0 and stored
@@ -858,12 +866,12 @@ older DreamDB stay readable, but this release performs no automatic migration
 and rewrites no existing store, so appending to an unmigrated dataset with the
 new SDK is not supported. No command, flag or output shape changes.
 
-## 0.24.4 — Notes sync and recovery guidance
+## 0.24.4 — Memos sync and recovery guidance
 
 The bundled CLI skill now explains browser sync states, local-draft recovery,
 and view-only history. CLI commands still read the server and keep their
 existing revision checks; they cannot clear a browser-held draft. This release
-updates guidance and packaging, with no new Notes command or protocol.
+updates guidance and packaging, with no new Memos command or protocol.
 Publication and fresh-install receipts are recorded in the GitHub release.
 
 ## 0.24.3 — native skills and docs-generated command help
@@ -872,7 +880,7 @@ Native binaries now embed all 37 generated CLI skill files. `skill list` and
 `skill install` work without a checkout or environment override. Installed edits
 remain protected; updates require explicit installation and reviewed `--force`.
 Ten command help pages now include 26 command examples generated from reviewed docs,
-including revision-checked Notes writes and patches. CI and release builds test
+including revision-checked Memos writes and patches. CI and release builds test
 a copied native binary, byte readback, reinstall, conflict refusal and peer preservation.
 See the [release acceptance checklist](cli-skills.md#release-acceptance-checklist).
 Publication and fresh-install receipts are recorded in the GitHub release.
@@ -892,7 +900,7 @@ No activation, migration or move is performed. [Guide](https://cli.dreamlake.ai/
 
 Adds candidate owner-only interactive metadata browsing and one-page JSON output,
 with Python API parity. Actual local HTTP/Mongo and PTY acceptance passed; no
-release or deployment claim. This requires the authenticated `GET /v1/vault/tree` route from backend PR576. That source is merged but not deployed at preparation time; older servers return 404 rather than a fabricated tree. [Development note](https://cli.dreamlake.ai/dev/notes/vault-policy-tree).
+release or deployment claim. This requires the authenticated `GET /v1/vault/tree` route from backend PR576. That source is merged but not deployed at preparation time; older servers return 404 rather than a fabricated tree. [Development memo](https://cli.dreamlake.ai/dev/notes/vault-policy-tree).
 
 ## 0.21.2 — 2026-09-15
 
@@ -906,7 +914,7 @@ Combines the queue-mount commands from 0.21.0 with the Vault uncertain-write tra
 
 All eight native downloads match the manifest. npm accepted all nine uploads, and the wrapper matches the reviewed bytes. A fresh macOS registry installation passed the binary checksum, version, 34 SSH/import HTTP/PTY checks and detached HTTP queue mount/list checks. All eight npm platform binaries match the native manifest. Native and npm `latest` read back as 0.21.1. [Release and manifest](https://github.com/dreamlake-ai/dreamlake-cli/releases/tag/v0.21.1).
 
-The public native macOS binary also passed queue, job and worker reads through the existing development mount, without mutations. Staging API acceptance is recorded in [#274](https://github.com/dreamlake-ai/dreamlake-workspace/issues/274#issuecomment-5677911911); production CLI/UI and Ge testing remain separate. [Delivery note](cli-dev-notes-queue-mount-release.md).
+The public native macOS binary also passed queue, job and worker reads through the existing development mount, without mutations. Staging API acceptance is recorded in [#274](https://github.com/dreamlake-ai/dreamlake-workspace/issues/274#issuecomment-5677911911); production CLI/UI and Ge testing remain separate. [Delivery memo](cli-dev-notes-queue-mount-release.md).
 
 ## Unreleased
 
@@ -936,7 +944,7 @@ Introduced `dreamlake queues mount`, `mounts`, `inspect`, `list`, `jobs`, `worke
 
 - Keep enrolled user-systemd hosts available while idle by explicitly setting `keep_alive_s = -1`. Existing hosts require re-enrollment with this fix. Paired CLI/Python bootstrap tests parse the generated TOML and verify re-enrollment repairs the old configuration. Published in [v0.20.1](https://github.com/dreamlake-ai/dreamlake-cli/releases/tag/v0.20.1); hosted acceptance is tracked separately.
 
-CLI source suite: 1,019 passed; typecheck and 33-page docs build passed. All eight platform binaries built. A fresh copied macOS ARM64 binary passed real HTTP enrollment with the unchanged portable bootstrap over a synthetic SSH wrapper; parsed configuration has keep_alive_s=-1. This published patch was based on the previous tag plus the reviewed host fix; unrelated Notes changes on main were excluded.
+CLI source suite: 1,019 passed; typecheck and 33-page docs build passed. All eight platform binaries built. A fresh copied macOS ARM64 binary passed real HTTP enrollment with the unchanged portable bootstrap over a synthetic SSH wrapper; parsed configuration has keep_alive_s=-1. This published patch was based on the previous tag plus the reviewed host fix; unrelated Memos changes on main were excluded.
 
 ## 0.20.0 — 2026-09-15
 

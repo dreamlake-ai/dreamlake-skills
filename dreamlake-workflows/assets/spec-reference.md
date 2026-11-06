@@ -48,7 +48,7 @@ An `artifact` output into a typed input is a warning (unproven cast).
 
 Ports user-declared (the UDF's typed interface); `collect` allowed.
 
-| Field | Notes |
+| Field | Memos |
 |---|---|
 | `compute.udf` | `^[a-z0-9_]+(\.[a-z0-9_]+)+$` |
 | `compute.params` | static UDF args, ≤64 keys, values string/number/boolean/JSON |
@@ -61,7 +61,7 @@ Ports user-declared (the UDF's typed interface); `collect` allowed.
 Ports user-declared. Output validated against out-port type; `output_schema`
 additionally validates the structured result.
 
-| Field | Notes |
+| Field | Memos |
 |---|---|
 | `uda.instructions` | 1–8000; SYSTEM prompt — behavior, not per-run task data |
 | `uda.description` | ≤500; when-to-delegate routing metadata |

@@ -5,7 +5,7 @@ GitHub token) is kept in both stores: `pass` is the local GPG-encrypted copy on
 the machine where the key was issued; Vault is the account-scoped copy other
 machines, hosts and agents retrieve. The user types the key once, into `pass`.
 Every other copy is piped from there. The value never goes in a command
-argument, shell history, command output, a Note or the transcript. Do not ask
+argument, shell history, command output, a Memo or the transcript. Do not ask
 the user to paste it into the conversation.
 
 Name the Vault entry `<owner>/cli/<service>/api-key` and set `--env` to the

@@ -1,6 +1,6 @@
 ---
 name: dreamlake-lakeshore
-description: Operate DreamLake compute through the CLI — connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and externally launched jobs, provision machines through a user-configured launch server, discover and collaborate on Infrastructure Stacks (manual or automated Terraform setup), connect AWS. Use for any host, machine, queue, Stack or AWS-connection task. Not for uploads, Notes, artifacts, scenes or datasets.
+description: Operate DreamLake compute through the CLI — connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and externally launched jobs, provision machines through a user-configured launch server, discover and collaborate on Infrastructure Stacks (manual or automated Terraform setup), connect AWS. Use for any host, machine, queue, Stack or AWS-connection task. Not for uploads, Memos, artifacts, scenes or datasets.
 ---
 
 # DreamLake Lakeshore and compute

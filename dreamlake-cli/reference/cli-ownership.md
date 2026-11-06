@@ -1,17 +1,17 @@
-<!-- generated from https://cli.dreamlake.ai/ownership.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/ownership.md at 0.105.0 3dc31d9; do not edit -->
 
 # Ownership transfers
 
 Ownership requests use a shared transfer inbox. A resource remains owned by its
 namespace; project filing and creator attribution do not move ownership.
-For a whole Project, its ordinary files/images/videos and all owned Notes,
+For a whole Project, its ordinary files/images/videos and all owned Memos,
 Artifacts and Envs, use [`project move`](cli-projects.md#move-a-whole-project-and-its-supported-resources).
 Artifact/Env plans require CLI 0.64.0+ and the matching backend; CLI
-0.63.0 supports the Note-only resource manifest and direct files.
+0.63.0 supports the Memo-only resource manifest and direct files.
 That workflow loads the complete server plan and uses one atomic ownership
 request. It requires an enabled whole-Project server adapter; check plan
 `executable`, preview blockers and current capabilities. A client installation
-alone does not prove backend writer, storage or RTC readiness. Standalone Notes use [`notes transfer`](cli-notes-transfers.md#transfer-a-standalone-note),
+alone does not prove backend writer, storage or RTC readiness. Standalone Memos use [`memos transfer`](cli-notes-transfers.md#transfer-a-standalone-note),
 with a separately admitted metadata-only server plan. This expansion does not
 enable arbitrary resource types. Sources, Workflows, Annotations
 and structural/episode content still block a whole-Project move.
@@ -19,7 +19,7 @@ and structural/episode content still block a whole-Project move.
 ## Transfer an individual resource
 
 `ownership transfer TYPE ID` uses the same metadata-only review/apply protocol as
-[`notes transfer`](cli-notes-transfers.md#transfer-a-standalone-note). Recognized types are
+[`memos transfer`](cli-notes-transfers.md#transfer-a-standalone-note). Recognized types are
 `note`, `artifact`, `env`, `annotation`, `pipeline`, and (in this source candidate) `source`; `scene` is an alias for canonical
 `env`. Each type requires its own versioned server capability with
 `metadataOnly: true` and an enabled transfer plan. Recognizing a type in the CLI
@@ -159,10 +159,10 @@ bounded structure/filing inventories, resource version, grant/editor IDs and
 active operation blockers. No secrets, provider paths or storage bindings appear.
 For a whole-Project move, `project move` uses the dedicated complete transfer
 plan and current version. With the compatible backend it includes direct ordinary
-files/images/videos and all live source-owned Notes, Artifacts and Envs, with
+files/images/videos and all live source-owned Memos, Artifacts and Envs, with
 the matching CLI 0.64.0+ client. Resources become private and old access is
-revoked by default. Eligible direct access and external Note filings need
-separate reviewed opt-ins; retaining a Note filing can preserve its other
+revoked by default. Eligible direct access and external Memo filings need
+separate reviewed opt-ins; retaining a Memo filing can preserve its other
 Project's audience even when direct access is revoked. Artifact share tokens and
 token-dependent visits can additionally be retained with the compatible
 catalog/token/proxy API and executors from
@@ -172,7 +172,7 @@ URLs are read-only aliases authorized against the current owner. Older/disabled
 APIs still block that retention, and Env links remain unsupported; installing a
 newer client does not enable the server capability. Artifact/Env outside Project
 placements and Bindr memberships always detach. Inspect `resourceCounts`, typed `resourceNames` and
-`summary.detachedOtherFilings`, not only the Note subset. Unsupported attachments
+`summary.detachedOtherFilings`, not only the Memo subset. Unsupported attachments
 block the whole request instead of being silently excluded. Inspect owner-only
 `error.details.blockers` for affected items and reasons in the Web transfer dialog
 or an authorized raw API response; CLI 0.63.0 prints only the error message for a
@@ -207,7 +207,7 @@ Do not interpret the proposed 30-day project recovery window as shipped behavior
 Available starting with CLI 0.45.2: resolve the Project
 and receiving namespace by name, then inspect the actual server preview.
 For whole-Project execution, use `project move` in CLI 0.63.0; the older helper
-below selects reviewed Notes explicitly and never fills the complete plan itself.
+below selects reviewed Memos explicitly and never fills the complete plan itself.
 
 ```bash cli-help="project transfer-preview"
 dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive
@@ -221,7 +221,7 @@ invalid responses, and 0 only for a ready preview. No transfer operation is
 created and no filing detachment is approved. Pipes and `--json` return the
 server preview, selected manifest and request. The server rejects an incomplete
 whole-Project manifest; do not treat this helper as a partial-transfer escape.
-Filing is separate from ownership. Explicit Project permissions can grant Note
+Filing is separate from ownership. Explicit Project permissions can grant Memo
 content access; ownership transfer separately requires the namespace action capability.
 The helper never selects all Project resources implicitly and does not enable
 an unready server adapter.
@@ -293,11 +293,11 @@ the client resource manifest: the compatible server owns resource-ID cursors,
 dynamic membership capture and final watermark. It must preserve IDs and existing
 content/storage rather than copy blobs. Stream v1 keeps the root Project name unchanged. Explicit repeatable
 `--rename-note NOTE_ID=DESTINATION_SLUG` mappings are bounded to 1,000 unique
-Note IDs and bound into the saved review/hash. The server must reject IDs outside
+Memo IDs and bound into the saved review/hash. The server must reject IDs outside
 the authoritative Project closure and block newly discovered collisions rather
 than rename implicitly. Saved-request overrides are rejected; requests are never automatically retried or accepted.
 A stale or blocked preview requires review, not a reconstructed request/key.
-The preview must explicitly count both Note and other external detachments;
+The preview must explicitly count both Memo and other external detachments;
 `--preserve-external-filings` refuses confirmation if either count is nonzero or
 unknown. Even an immediately completed create/replay requires operation-bound
 completed progress with a final watermark and zero pending work before the CLI
@@ -336,5 +336,5 @@ CLI verifies the returned version and final progress watermark.
 
 This source companion does not mean v2 is enabled in production or that every
 resource type is portable. The server's independently accepted profile and
-preview blockers remain authoritative. No Note history, object payload, client
+preview blockers remain authoritative. No Memo history, object payload, client
 manifest or RTC content is copied by the transfer command.

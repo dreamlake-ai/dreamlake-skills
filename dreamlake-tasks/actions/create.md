@@ -1,7 +1,7 @@
 # Create folder-like tasks and subtasks
 
 Parents must already exist; `add` does not create missing ancestors, so create
-them first. These tasks need no Note content.
+them first. These tasks need no Memo content.
 
 ```bash
 dreamlake tasks add vault --kind workstream --title 'Vault' --blurb 'Credential management'

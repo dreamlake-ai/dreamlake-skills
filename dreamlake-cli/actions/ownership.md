@@ -1,8 +1,8 @@
 # Transfer one resource's ownership
 
 Use `ownership transfer` for a single Artifact, Env (`scene` is an alias),
-Annotation, Pipeline or, in the source candidate, Source. A standalone Note uses
-the same protocol through `notes transfer` (skill `dreamlake-notes`); a whole
+Annotation, Pipeline or, in the source candidate, Source. A standalone Memo uses
+the same protocol through `memos transfer` (skill `dreamlake-memos`); a whole
 Project uses [projects](projects.md). Each type needs its own versioned server
 capability with `metadataOnly: true` and an enabled transfer plan; the CLI
 recognising a type is not evidence that its adapter shipped or is active.

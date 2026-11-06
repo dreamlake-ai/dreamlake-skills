@@ -29,7 +29,7 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 - [ ] No hand edits under any `reference/`; `references.lock` and `catalog.json` regenerated if `docs[]` or `skill.json` changed
 - [ ] Flag semantics link into `../reference/<page>.md#<heading>`; links are file-relative and stay inside the skill; other skills are named
 - [ ] `requires` closure and `renamed.json` correct
-- [ ] Files moved or retired: note under `docs/migration-<topic>/`
+- [ ] Files moved or retired: memo under `docs/migration-<topic>/`
 - [ ] Size caps respected or the skill was split (CONTRIBUTING.md > Maintain an existing skill > Size caps)
 - [ ] Acceptance results pasted for both agents
 - [ ] Nothing private or operational: this repository and its releases are public

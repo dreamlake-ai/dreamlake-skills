@@ -3,7 +3,7 @@
 `project move` transfers a Project and its supported owned resources in one
 atomic ownership request. There is no standalone move for an Artifact,
 Scene/Env, Workflow, Source, Task or Infrastructure Stack through this command:
-a standalone Note uses `notes transfer` (skill `dreamlake-notes`), one
+a standalone Memo uses `memos transfer` (skill `dreamlake-memos`), one
 Artifact/Env/Annotation/Pipeline/Source uses [ownership](ownership.md), and a
 Stack uses `infra move` or `infra transfer` (the `infrastructure` action of
 `dreamlake-lakeshore`).
@@ -26,9 +26,9 @@ help and server capabilities independently.
 ## What moves and what blocks
 
 - Moves: the Project's direct ordinary files, images and videos and its live
-  source-owned Notes and Artifacts (CLI 0.63.0 supports a Note-only manifest;
+  source-owned Memos and Artifacts (CLI 0.63.0 supports a Memo-only manifest;
   Artifact/Env plans need CLI 0.64.0+ and the matching backend). Stable IDs,
-  Note RTC bindings, content, history, versions and physical storage stay in
+  Memo RTC bindings, content, history, versions and physical storage stay in
   place; no content or media bytes are copied and storage paths never change.
 - Blocks the whole request, never silently excluded, detached or partially
   moved: a Source mount/reference, a Workflow mount/reference, an Annotation,
@@ -74,7 +74,7 @@ request. The root Project name stays unchanged; repeatable
 [ownership](../reference/cli-ownership.md#streaming-project-transfer--cli-070)) are hash-bound,
 IDs outside the Project closure are rejected and collisions block instead of
 renaming implicitly. `--preserve-access` and `--preserve-external-filings` are the
-defaults; the latter refuses confirmation while any Note or other external
+defaults; the latter refuses confirmation while any Memo or other external
 detachment count is nonzero or unknown. Completion means operation-bound
 progress with a final watermark and zero pending work, even for an immediately
 completed create or replay. Stream v2 is selected only when the server advertises
@@ -90,15 +90,15 @@ It creates no operation and approves no detachment.
 ## Access after the move
 
 Resources become private and old access is revoked by default; eligible direct
-access and external Note filings are kept only through the reviewed preserve
-policy (keeping a Note filing can preserve its other Project's audience even when
+access and external Memo filings are kept only through the reviewed preserve
+policy (keeping a Memo filing can preserve its other Project's audience even when
 direct access is revoked). Artifact share tokens and token-dependent visits can
 be retained only with the compatible catalog/token/proxy API, drained old readers
 and `ARTIFACT_TRANSFER_SHARING_ENABLED=true` (default off); old-namespace URLs
 become read-only aliases authorized against the current owner; Env links are never
 retained. Under the legacy fixed-manifest plan, Artifact/Env placements outside the
 Project and Bindr memberships always detach. Inspect `resourceCounts`, typed
-`resourceNames` and `summary.detachedOtherFilings`, not only the Note subset.
+`resourceNames` and `summary.detachedOtherFilings`, not only the Memo subset.
 Owner-only `error.details.blockers` lists affected items in the Web dialog or raw
 API; CLI 0.63.0 prints only the message. Recipient inbox and status return the
 root resource, policy, counts, preview hash and state, not the full manifest,
@@ -111,7 +111,7 @@ access rows, bodies or secrets. Project-derived access rules are in
   inspect the known operation with `ownership status OP --namespace SOURCE` or
   `ownership progress OP` before any other action. Never create a replacement
   key, rebuild the preview, retry the write automatically or emulate the move
-  per Note.
+  per Memo.
 - `ownership resume OP --namespace SOURCE --confirm` continues only an existing
   source-owned streaming operation and requires
   `projectTransferStream.resumeEnabled: true`; pending requests still need
@@ -139,6 +139,6 @@ Tasks have no cross-namespace move; `tasks move` changes only a path inside the
 Project, and the deployed service blocks a Project that has Tasks or TaskEvents.
 An unreleased expansion (`project-resources-v4`) would carry Tasks, TaskEvents and
 Project-owned Dataset/Bindr container rows as dependent rows outside the manifest,
-preserving IDs, folder structure, paths, Note links, event IDs and history and
+preserving IDs, folder structure, paths, Memo links, event IDs and history and
 fencing writers through the ownership lease. Treat it as design until the
 installed CLI and target server prove it; the contract is in `dreamlake-tasks`.

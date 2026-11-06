@@ -22,7 +22,7 @@ body pose should use chart views instead (`dreamlake-datasets`).
   `pip install foxglove-sdk trimesh`; `tools/test_render_mcap.py` covers the
   sim-agnostic helpers.
 - `assets/dreamrc/` — the two validated `.dreamrc` variants (embedded mesh,
-  external URDF) with placement and validation notes.
+  external URDF) with placement and validation memos.
 
 ## Rules that hold across actions
 

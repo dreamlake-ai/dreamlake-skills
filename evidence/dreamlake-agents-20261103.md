@@ -25,7 +25,7 @@ within bounded deadlines. No permission bypass or resource mutation was used.
 
 ### Codex results
 
-1. **Instruction note plus skills folder:** opened `actions/author.md`, found
+1. **Instruction memo plus skills folder:** opened `actions/author.md`, found
    the documented creation tool but correctly distinguished it from the absent
    offered tool. Required namespace/project discovery, stable IDs, duplicate
    inspection, schema validation, and definition/reference/filing readback.
@@ -42,7 +42,7 @@ within bounded deadlines. No permission bypass or resource mutation was used.
 
 ### Claude results
 
-1. **Instruction note plus skills folder:** opened `actions/author.md`, began
+1. **Instruction memo plus skills folder:** opened `actions/author.md`, began
    with offered-tool and live-schema checks, required duplicate inspection,
    stable source IDs and readback, and distinguished creation from running.
    A CLI fallback was conditional on CLI availability and documented version.
@@ -89,7 +89,7 @@ are prerequisites; the skill has not been tagged or installed from a release.
 A read-only run opened the installed skill and both actions. It made no network
 requests or resource mutations.
 
-1. **Create an agent using an instruction note and skills folder:** routed to
+1. **Create an agent using an instruction memo and skills folder:** routed to
    `actions/author.md`, required namespace/project discovery, stable note/folder
    IDs, duplicate inspection and readback. It correctly reported that the
    acceptance environment had no offered creation tool and did not claim save,
@@ -110,7 +110,7 @@ within a 180-second deadline (exit 0), in the installed temporary project with
 plan permission mode, restricted Read/Glob/Grep tools and no MCP servers.
 No permission bypass was used.
 
-1. **Create an agent using an instruction note and skills folder:** opened
+1. **Create an agent using an instruction memo and skills folder:** opened
    `actions/author.md`, checked the local references and identified the missing
    offered creation tool and missing note-reference schema. It required stable
    IDs, duplicate inspection, project verification and readback, and did not

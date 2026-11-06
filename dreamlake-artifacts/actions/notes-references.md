@@ -1,20 +1,20 @@
-# Reference an artifact from a Note (development preview)
+# Reference an artifact from a Memo (development preview)
 
-Prefer the Notes rich-component form:
+Prefer the Memos rich-component form:
 
 ```markdown
 :artifact[geyang/pitch-deck]
 ```
 
 Use the owner namespace and the stable artifact id returned by the CLI
-([list](list.md)). Editing the Note itself belongs to the `dreamlake-notes`
+([list](list.md)). Editing the Memo itself belongs to the `dreamlake-memos`
 skill; this page covers only the reference syntax.
 
 ## Rules
 
 - Click the copy icon after the artifact header title to copy the full
   bracket reference, including the namespace and complete id. Artifact
-  headers use this icon in both wide and compact layouts; Note headers keep
+  headers use this icon in both wide and compact layouts; Memo headers keep
   their short hash badges. Copying does not create a share link or change
   access.
 - Brackets hold primary content; optional named attributes belong in braces.
@@ -26,7 +26,7 @@ skill; this page covers only the reference syntax.
   UI/API. **Do not bulk-rewrite saved references.** Bare
   `:artifact{namespace/id}` is invalid.
 - The tag resolves its title through authorized metadata and opens the
-  reusable artifact panel to the right of the Note, including in project
+  reusable artifact panel to the right of the Memo, including in project
   views. It does not upload content, grant access or change sharing.
   Preserve the complete source token. Static API HTML keeps it unresolved
   and maps the whole token atomically; it never embeds a share-token URL or
@@ -45,12 +45,12 @@ infer slide numbering.
 Clicking sends the fragment to the panel through `dreamlake.route.hash`
 ([routing](routing.md)); another reference to the same artifact reuses its
 panel and updates its local route without reloading the iframe or changing
-the Note/project URL. This requires the companion UI deployment — a skill
+the Memo/project URL. This requires the companion UI deployment — a skill
 update does not deploy panel behaviour. Never put a share token inside
 rich-reference attributes.
 
 Owning pages:
-[Reference an artifact from a Note](../reference/docs-artifacts.md#reference-an-artifact-from-a-note-development-preview),
-[Artifact panels in Notes](../reference/docs-artifacts.md#artifact-panels-in-notes-development-preview)
+[Reference an artifact from a Memo](../reference/docs-artifacts.md#reference-an-artifact-from-a-note-development-preview),
+[Artifact panels in Memos](../reference/docs-artifacts.md#artifact-panels-in-notes-development-preview)
 and the
-[Notes grammar](https://docs.dreamlake.ai/notes/writing/#artifact-references-development-preview).
+[Memos grammar](https://docs.dreamlake.ai/notes/writing/#artifact-references-development-preview).

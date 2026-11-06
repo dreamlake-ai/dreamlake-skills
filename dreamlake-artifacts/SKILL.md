@@ -1,6 +1,6 @@
 ---
 name: dreamlake-artifacts
-description: Create or repair content for DreamLake's isolated offline artifact frame (HTML, React, Markdown, SVG, Mermaid, code), then publish it with the CLI, add versions, list artifacts, make them public or shared, revoke links, delete and restore them, and reference them from Notes. Use for any request to write, fix, publish or manage a DreamLake artifact. Not for AI-generated hosted pages, Notes editing, scenes, or dataset uploads.
+description: Create or repair content for DreamLake's isolated offline artifact frame (HTML, React, Markdown, SVG, Mermaid, code), then publish it with the CLI, add versions, list artifacts, make them public or shared, revoke links, delete and restore them, and reference them from Memos. Use for any request to write, fix, publish or manage a DreamLake artifact. Not for AI-generated hosted pages, Memos editing, scenes, or dataset uploads.
 ---
 
 # DreamLake Artifacts
@@ -26,14 +26,14 @@ Several commands below carry minimum CLI versions; check `dreamlake --version`.
 | see what is published in a namespace | [list](actions/list.md) |
 | make it public or private, mint/inspect/revoke a share link, understand Project-derived access | [share](actions/share.md) |
 | delete, restore, or permanently purge | [restore](actions/restore.md) |
-| mention an artifact inside a Note (`:artifact[ns/id]`) | [notes-references](actions/notes-references.md) |
+| mention an artifact inside a Memo (`:artifact[ns/id]`) | [notes-references](actions/notes-references.md) |
 
 Order for a new artifact: author → publish → (optionally) share. Re-publishing
 with the same `--id` adds a version; a new id creates a separate artifact.
 
 ## Boundaries
 
-- Editing the Note itself belongs to `dreamlake-notes`; this skill only covers
+- Editing the Memo itself belongs to `dreamlake-memos`; this skill only covers
   the artifact reference syntax.
 - AI-generated hosted pages (`host.dreamlake.ai`) are a different product and
   not covered here.

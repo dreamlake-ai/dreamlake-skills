@@ -1,0 +1,43 @@
+{
+  "name": "dreamlake-memos",
+  "description": "Work with DreamLake collaborative Memos through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create memos, set summaries, file into Projects, link list items to Memos or artifacts, transfer a standalone Memo.",
+  "requires": [
+    "dreamlake-cli"
+  ],
+  "docs": [
+    "https://docs.dreamlake.ai/notes",
+    "https://docs.dreamlake.ai/notes/writing",
+    "https://docs.dreamlake.ai/notes/rows",
+    "https://docs.dreamlake.ai/notes/browsing",
+    "https://docs.dreamlake.ai/notes/collaboration",
+    "https://docs.dreamlake.ai/notes/history",
+    "https://docs.dreamlake.ai/notes/sharing",
+    "https://docs.dreamlake.ai/notes/files",
+    "https://docs.dreamlake.ai/notes/cli-editing",
+    "https://docs.dreamlake.ai/notes/v2",
+    "https://docs.dreamlake.ai/notes/agent-presence",
+    "https://docs.dreamlake.ai/notes/html-reads",
+    "https://docs.dreamlake.ai/notes/activity",
+    "https://docs.dreamlake.ai/notes/embeds",
+    "https://docs.dreamlake.ai/notes/linked-items",
+    "https://docs.dreamlake.ai/notes/markdown",
+    "https://docs.dreamlake.ai/notes/panels",
+    "https://cli.dreamlake.ai/notes",
+    "https://cli.dreamlake.ai/notes/getting-started",
+    "https://cli.dreamlake.ai/notes/reading",
+    "https://cli.dreamlake.ai/notes/editing",
+    "https://cli.dreamlake.ai/notes/collaboration",
+    "https://cli.dreamlake.ai/notes/versions",
+    "https://cli.dreamlake.ai/notes/legacy",
+    "https://cli.dreamlake.ai/notes/rich-content",
+    "https://cli.dreamlake.ai/notes/videos",
+    "https://cli.dreamlake.ai/notes/attachments",
+    "https://cli.dreamlake.ai/notes/columns",
+    "https://cli.dreamlake.ai/notes/deletion",
+    "https://cli.dreamlake.ai/notes/projects",
+    "https://cli.dreamlake.ai/notes/sharing",
+    "https://cli.dreamlake.ai/notes/suggest-diff",
+    "https://cli.dreamlake.ai/notes/transfers"
+  ],
+  "tools": null
+}

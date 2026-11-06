@@ -31,7 +31,7 @@ current `canBind` result, not a role guessed from membership.
 ## What Project grants give and withhold
 
 - Explicit Project user/team READ grants read all current and future attached
-  Notes, Artifacts, Scenes/Envs, Workflow specs and Sources; WRITE/ADMIN add
+  Memos, Artifacts, Scenes/Envs, Workflow specs and Sources; WRITE/ADMIN add
   supported content updates. For a Source, READ gives USE and WRITE/ADMIN give
   content EDIT, never Source ADMIN, Connection/Vault credentials or sharing
   management. Explicit grants cover future attachments without copied links.
@@ -52,7 +52,7 @@ current `canBind` result, not a role guessed from membership.
 - Read with the reader's own credentials at the canonical address; do not mint a
   share link to simulate Project access.
 
-Deleting a Project removes its filing relationships; independently owned Notes
+Deleting a Project removes its filing relationships; independently owned Memos
 and Sources keep their namespace ownership. See
 [inspect access](../reference/cli-projects.md#inspect-access-cli-0451) and the
 owning contract at https://docs.dreamlake.ai/dev/notes/project-resource-sharing/.

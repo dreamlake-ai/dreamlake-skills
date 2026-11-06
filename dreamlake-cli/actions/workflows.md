@@ -15,7 +15,7 @@ successful push as a workflow run. See [workflows](../reference/cli-workflows.md
 for spec shape, namespace and run-trace commands.
 
 A Workflow mount or reference blocks a whole-Project ownership transfer, even
-with a client and backend that support owned Notes, Artifacts and Envs. Do not
+with a client and backend that support owned Memos, Artifacts and Envs. Do not
 silently detach the Workflow, omit it from the manifest or copy and delete it to
 claim a complete move; see [projects](projects.md). There is no standalone
 Workflow transfer.

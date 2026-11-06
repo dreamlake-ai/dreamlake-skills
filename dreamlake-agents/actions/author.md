@@ -19,7 +19,7 @@ dreamlake agents list --plain
    and [the runnable API](../reference/cli-runnable-api.md) rather than inventing
    a client method.
 3. Keep the main instructions separate from optional skills. Resolve requested
-   notes and folders to stable IDs using available read tools; do not guess IDs
+   memos and folders to stable IDs using available read tools; do not guess IDs
    or copy permission grants from a prompt. Check the live creation schema for
    the supported instruction forms and project filing.
 4. Read back the definition, instruction references and project filing. Give

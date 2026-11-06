@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-api-keys.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-api-keys.md at 0.105.0 3dc31d9; do not edit -->
 
 # Third-party API keys in pass and Vault
 
@@ -7,14 +7,14 @@ a GitHub token) lives in two places. The local `pass` store is the GPG-encrypted
 copy on the machine where the key was issued. Vault is the account-scoped copy
 that other machines, hosts and agents retrieve. Both hold the same bytes. The
 key is typed once, into `pass`; every other copy is piped from there. It never
-appears in a command argument, in shell history, in command output, in a Note
+appears in a command argument, in shell history, in command output, in a Memo
 or in an agent transcript.
 
 ## Naming
 
 | Store | Name | Example |
 | --- | --- | --- |
-| `pass` | `<service>`; the first line is the secret, later lines are notes | `runway` |
+| `pass` | `<service>`; the first line is the secret, later lines are memos | `runway` |
 | Vault entry | `<owner>/cli/<service>/api-key` | `alice/cli/runway/api-key` |
 | Vault `--env` | the variable the service's own tooling reads | `RUNWAYML_API_SECRET` |
 

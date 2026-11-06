@@ -43,7 +43,7 @@ SDK 0.29.0 or later. Check installed versions separately from server support.
 - Contract: [Project attachment access](../reference/docs-scenes.md#project-attachment-access),
   [CLI project attachment commands](../reference/cli-projects.md#project-attachment-access-cli-0620)
   and the
-  [owning access notes](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
+  [owning access memos](https://docs.dreamlake.ai/dev/notes/project-resource-sharing/).
 
 Independent scene sharing (`--visibility`, `--share`) is set at push time —
 [push](push.md) and [Visibility](../reference/cli-scenes.md#visibility).

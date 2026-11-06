@@ -69,7 +69,7 @@ This launcher expects an authenticated host and an existing working directory.
   reported limitation, not a reason to change organization controls or silently
   launch with different permissions.
 
-Read [compatibility and lifecycle notes](actions/remote-sessions.md) for
+Read [compatibility and lifecycle memos](actions/remote-sessions.md) for
 startup failures, session cleanup, and the authoritative upstream references.
 
 ## Canonical source

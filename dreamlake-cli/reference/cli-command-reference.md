@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.104.5 16fa641; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.105.0 3dc31d9; do not edit -->
 
 # Command reference
 
@@ -18,7 +18,7 @@ dreamlake hosts -h
 dreamlake hosts list -h
 ```
 
-The same convention applies to agents, Notes, tasks, sessions, jobs, pipelines,
+The same convention applies to agents, Memos, tasks, sessions, jobs, pipelines,
 workflows, runnables, run configurations, sources, connections, organizations,
 teams, artifacts, scenes,
 libraries, provider/storage/queue definitions, provider registrations,

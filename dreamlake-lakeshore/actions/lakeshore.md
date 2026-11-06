@@ -90,6 +90,6 @@ hidden prompt or stdin. Never use the server admin token. Read back and run
 
 When improving onboarding documentation, fix the authoritative docs page first,
 then this skill's action, and verify the installed copy. Keep private team configuration in its existing
-revisioned Note and preserve linked example directives. Record actual tested
+revisioned Memo and preserve linked example directives. Record actual tested
 versions, failures and remaining release dependencies. Source changes, publishing,
 installed readback, connection readiness and execution readiness are distinct.
