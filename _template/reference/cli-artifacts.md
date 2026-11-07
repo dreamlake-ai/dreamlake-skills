@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.106.0 e107dbd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.109.0 9f5a92b; do not edit -->
 
 # Artifacts
 
@@ -104,6 +104,49 @@ No per-artifact server environment changes are needed. The declaration permits p
 data connections; it does not grant access to private storage, supply credentials, or
 allow remote scripts. The data host must support browser CORS. Sites without declared
 origins retain the version 1 format.
+
+DreamLake CLI 0.107.0 and newer support delegated private managed Source data.
+The deployed hosting service and trusted viewer support this flow. Check
+`dreamlake --version` before using it; an older installed binary is not upgraded
+by a server release. The same configuration can include one `privateData` binding:
+
+```json
+{
+  "schema": "dreamlake-artifact-config/1",
+  "privateData": {
+    "alias": "data",
+    "sourceId": "111111111111111111111111",
+    "namespaceId": "222222222222222222222222",
+    "prefix": "releases/reviewed-release"
+  }
+}
+```
+
+`namespaceId` identifies the Source namespace. The alias uses lowercase letters,
+digits and hyphens, starts with a letter and has at most 48 characters. The prefix
+is an exact relative managed path; URLs, traversal and encoded separators are
+rejected. No storage origin or credential belongs in this configuration. Public
+origins and a private binding may coexist.
+
+Before uploading files, the CLI requires the server's
+`features.privateSourceCapabilities` capability. After uploading the immutable
+site manifest, it obtains the private binding approval **before** writing the
+version or registering the Artifact. Approval requires Artifact Owner/Project ADMIN
+and Source administrator access. Failure leaves the current published version
+unchanged. A binding cannot be changed for the same site manifest; rebuild the
+site's pinned data configuration for a new release. Reapproving an unchanged scope
+is idempotent, including approval by another authorized administrator.
+
+The updated trusted viewer uses the authenticated batch capability API on behalf
+of Artifact readers. It returns exact-object GET/HEAD URLs with an effective expiry
+of up to fifteen minutes, shortened when signing credentials expire sooner. The
+browser reads storage directly, without server payload proxying or Source USE for
+every viewer. Signed URLs are temporary bearer capabilities and must not be saved
+in the site bundle or logs. Both resource administrators can withdraw future URL
+issuance; existing URLs remain valid until expiry. This configuration requires the
+matching server capability and trusted viewer; ordinary sites retain their existing
+behavior. See the [Artifact engineering reference](https://docs.dreamlake.ai/artifacts#private-managed-source-objects)
+for the additive HTTP APIs, session versus URL expiry, and a minimal browser client.
 
 There is no fixed aggregate upload-size limit for `--site`. Limits are 4096 files,
 32 MiB per HTML page, 32 directory levels and a 2 MiB manifest. Each individual

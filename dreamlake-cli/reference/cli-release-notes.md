@@ -1,6 +1,14 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.106.0 e107dbd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.109.0 9f5a92b; do not edit -->
 
 # Release notes
+
+## 0.109.0 — Editable public article URLs
+
+`dreamlake memos permalink <memo-id> --json` gets or allocates a public URL.
+Add `--slug my-article` to edit it while preserving previous slugs. TypeScript
+handles expose `memo.permalink({ slug: "my-article" })`; both surfaces return the
+canonical URL and alias history. Namespace collisions are refused without retries.
+See [Sharing and visibility](cli-notes-sharing.md).
 
 ## 0.106.0 — Memo help and native experiment commands
 

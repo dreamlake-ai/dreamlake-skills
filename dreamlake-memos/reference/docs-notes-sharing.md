@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.124 b7138276; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.127 785fe1c2; do not edit -->
 
 # Sharing, access and transfer
 
@@ -43,10 +43,39 @@ phase is fenced, but its preceding RTC/storage effects are not durably excluded
 by that transaction. Activation, body sync, files/uploads, saved versions, media
 and issued capabilities still require separate transfer-readiness evidence.
 
+## Private, Unlisted and Public
+
+| Visibility | Direct link | Public profile and discovery |
+| --- | --- | --- |
+| Private | Existing members and explicitly authorized readers | Hidden |
+| Unlisted | Anyone with the link, without signing in | Hidden |
+| Public | Anyone, without signing in | Listed |
+
+Unlisted keeps the same Memo ID and URL. Owners and existing collaborators
+retain their access. Changing visibility preserves content, history, attachments,
+share tokens and accepted grants. It does not grant anonymous editing.
+The profile introduction must remain Public to appear on a public profile.
+
+Create with `POST /namespaces/:slug/notes` and `visibility: "unlisted"`, or update
+an existing Memo with `PATCH /namespaces/:slug/notes/:noteId` and only
+`{"visibility":"unlisted"}`. Both accept `private`, `unlisted` and `public`.
+Only callers with `permissions.setVisibility` may change visibility.
+
+```bash
+dreamlake memos create "Link-only review" --visibility unlisted
+dreamlake memos visibility MEMO_ID unlisted
+dreamlake memos share get MEMO_ID
+```
+
+The built-in `dreamlake_notes_create` tool accepts `visibility`; the metadata
+update tool `dreamlake_note_update` accepts the same three values. The legacy
+`public` create flag remains supported; conflicting explicit values are refused.
+
 ## Public catalog reads
 
 `GET /namespaces/:slug/notes` accepts requests without an Authorization header.
-Anonymous callers and authenticated nonmembers receive only live public memos;
+Anonymous callers receive only live public memos. Authenticated nonmembers may
+also see memos explicitly shared with them;
 namespace members retain their existing catalog access. Pagination totals use
 the same visibility filter as the rows. A supplied invalid or expired token
 returns 401 rather than silently falling back to anonymous access. Anonymous
@@ -79,12 +108,13 @@ dreamlake memos share get "$NOTE"
 ```
 
 `get` never enables sharing. It reports the resource URL, visibility, and
-existing share URL. A resource URL alone does not grant access. `--json` provides
+existing share URL. For Private memos, a resource URL alone does not grant access. `--json` provides
 structured link metadata; `shareStatus: unavailable` means the server did not
 expose the token to this caller, not that sharing is disabled.
 
 ```bash
 NOTE="release-plan" # Your existing note id or slug.
+dreamlake memos visibility "$NOTE" unlisted
 dreamlake memos visibility "$NOTE" public
 dreamlake memos visibility "$NOTE" private
 ```

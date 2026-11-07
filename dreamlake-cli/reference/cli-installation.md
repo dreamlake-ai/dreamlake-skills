@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/installation.md at 0.106.0 e107dbd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/installation.md at 0.109.0 9f5a92b; do not edit -->
 
 # Installation
 
@@ -48,9 +48,96 @@ Everything lands under `$HOME` — no `sudo`, nothing system-wide:
 the per-environment cache `auth.yml`, all chmod 600 and shared with the
 Python SDK — but those are written by `dreamlake login`, not the installer.)
 
-The installer appends one line to your login shell's rc file if
-`~/.local/bin` isn't on `PATH` already, and checks every download against
-the SHA-256 in the release manifest before writing anything executable.
+Every download is checked against the SHA-256 in the release manifest before
+writing anything executable. `XDG_DATA_HOME` and `XDG_STATE_HOME`, when absolute,
+move the version store and update state respectively; the launcher stays at
+`~/.local/bin/dreamlake`.
+
+## Shell PATH setup
+
+> **Note:** The expanded shell setup and opt-out controls below require CLI 0.107.2
+> or later. CLI 0.107.1 and earlier configure only one startup file and do not support
+> `--no-modify-path` or `DREAMLAKE_INSTALL_NO_MODIFY_PATH`.
+
+The installer configures the shell named by `$SHELL`, even when the bootstrap
+runs through `curl ... | bash`. It prints each file it updates or finds already
+configured, and a command to apply PATH in your current shell. No prompt or
+terminal is required. Only explicit `dreamlake install` configures PATH;
+`self-update`, including background updates, leaves shell files alone.
+
+| Shell | Startup files configured | Applies to |
+| --- | --- | --- |
+| Bash | `~/.bashrc` plus the first existing `~/.bash_profile`, `~/.bash_login`, or `~/.profile`; creates `~/.profile` if none exists | Interactive shells and login shells |
+| Zsh | `$ZDOTDIR/.zprofile` and `$ZDOTDIR/.zshrc`, using `$HOME` when `ZDOTDIR` is unset | Login shells and interactive shells |
+| Fish | `$XDG_CONFIG_HOME/fish/conf.d/dreamlake-path.fish`, using `~/.config` when XDG is unset or relative | Shells that load Fish configuration |
+| sh / dash | `~/.profile` | Login shells only |
+| Other or unset `$SHELL` | No automatic edits | Manual setup required |
+
+Export an absolute `ZDOTDIR` before installing if you use a custom location;
+the installer does not execute `.zshenv` to discover it. Relative `ZDOTDIR` is
+reported for manual setup. Fish's `config.fish` and universal variables are
+left unchanged. On Windows the native installer updates the current user's
+registry PATH; open a new terminal afterward.
+
+Each shell block checks PATH before adding `~/.local/bin`, so repeated installs
+and sourcing do not add duplicate entries. Setup still runs when the installer
+already inherited that directory in PATH: that does not prove future shells are
+configured. Existing user content and file permissions are preserved. The
+installer upgrades its exact old unguarded export; customized DreamLake blocks,
+symlinked startup files, special files, and files it cannot safely read or write
+are left unchanged with manual guidance. An unavailable shell configuration does
+not undo a successful binary installation.
+
+To leave shell files and user PATH unchanged, use either control below. These
+work without prompting in both terminals and unattended provisioning; they do
+not remove configuration from an earlier install.
+
+```bash file="terminal"
+curl -fsSL https://dl.dreamlake.ai/install.sh | bash -s -- --no-modify-path
+curl -fsSL https://dl.dreamlake.ai/install.sh | DREAMLAKE_INSTALL_NO_MODIFY_PATH=1 bash
+```
+
+An installed or downloaded binary accepts the same flag:
+
+```bash cli-help="install" file="terminal"
+# Reinstall and configure the shell selected by SHELL.
+dreamlake install
+# Install a channel without editing shell startup files or user PATH.
+dreamlake install stable --no-modify-path
+```
+
+The installer cannot change its parent shell's environment. Open a new terminal
+that reads the configured files, or apply PATH in the current shell:
+
+```bash file="Bash / Zsh / sh / dash"
+case ":$PATH:" in
+    *":$HOME/.local/bin:"*) ;;
+    *) export PATH="$HOME/.local/bin${PATH:+:$PATH}" ;;
+esac
+```
+
+```fish file="Fish"
+contains -- "$HOME/.local/bin" $PATH; or set -gx PATH "$HOME/.local/bin" $PATH
+```
+
+### SSH commands and other noninteractive shells
+
+Startup-file edits do not guarantee PATH in a noninteractive SSH command,
+service, cron job, or shell started with startup files disabled. Bash and Zsh
+load different files for login and interactive modes; `sh -lc` uses sh's login
+configuration, not Zsh's `.zprofile` or `.zshrc`. Later user configuration can
+also replace PATH. Use the full binary path or set PATH explicitly in that
+command's environment:
+
+```bash file="remote POSIX shell"
+"$HOME/.local/bin/dreamlake" --version
+PATH="$HOME/.local/bin:$PATH" dreamlake --version
+```
+
+For example, a macOS account using Zsh may run `dreamlake` successfully in a new
+terminal while `sh -lc 'dreamlake --version'` still cannot find it. Use
+`sh -lc '"$HOME/.local/bin/dreamlake" --version'` for that environment. No global
+shell configuration or SSH daemon settings are changed.
 
 > **Note:** macOS 13+ (Apple Silicon and Intel), Linux x86-64 / arm64 on both glibc and
 > musl, and Windows 10+ x86-64 / arm64. 32-bit Windows is not supported.
@@ -110,9 +197,10 @@ dreamlake doctor
 Prints the running executable, the version the launcher points at, your
 channel, and the last auto-update result. No network calls.
 
-If `dreamlake` is not found right after installing, your current shell
-started before the `PATH` line was added — open a new terminal, or run
-`export PATH="$HOME/.local/bin:$PATH"`.
+If `dreamlake` is not found, run `"$HOME/.local/bin/dreamlake" doctor` to
+inspect the installed launcher and the current process's PATH. Follow the
+[shell PATH setup](#shell-path-setup) instructions above; a startup file may
+have been skipped or may not apply to the shell you are running.
 
 ## From source
 
@@ -135,8 +223,11 @@ rm -rf ~/.local/share/dreamlake ~/.local/state/dreamlake ~/.dreamlake
 (`~/.dreamlake` holds saved logins, settings, and resumable-upload state —
 note the Python SDK reads its credentials from there too.) On a machine
 that ran a ≤ 0.4.x CLI, add `rm -rf ~/.config/dreamlake` for its old
-location, and delete the `# added by the dreamlake installer` block from
-your shell rc.
+location. For every version, remove the `# added by the dreamlake installer`
+blocks from the startup files listed above, or remove Fish's
+`conf.d/dreamlake-path.fish` if it contains only the installer block. Keep any
+user additions and other tools' PATH setup. On Windows remove the installer
+entry from your user PATH if no other program uses it.
 
 ## Next
 

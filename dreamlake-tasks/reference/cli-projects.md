@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.106.0 e107dbd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.109.0 9f5a92b; do not edit -->
 
 # Projects & data
 
@@ -90,7 +90,15 @@ execution. Individual resource and same-workspace filing commands are unchanged.
 
 ## Bindrs
 
-A **bindr** groups episodes (matched by a glob over their node path).
+A **bindr** tags nodes in a project's file tree. Episode selectors match a glob
+over their name or node path. Update and delete accept a Bindr name or stable ID;
+ambiguous names are refused before writing. Listing the project reveals the IDs.
+
+Creating with `--episode` asks for confirmation (`--yes` skips it). Episode tags
+are applied one at a time after creation. If a tag request fails, the command
+returns an error with the created Bindr ID and the number of confirmed requests;
+the Bindr and earlier tags remain. Inspect it before retrying. Update also reports
+partial progress when a later membership request fails.
 
 ```bash file="terminal"
 dreamlake create bindr front-cam --project my-robots --episode "camera/front/*"
@@ -99,6 +107,11 @@ dreamlake update bindr front-cam --project my-robots --remove "run-bad"
 dreamlake update bindr front-cam --project my-robots --add-note MEMO_ID   # CLI 0.87.0+
 dreamlake list bindr --project my-robots
 dreamlake delete bindr front-cam --project my-robots
+```
+
+```bash cli-help="create bindr"
+# Seed a Bindr with matching episodes without an interactive prompt.
+dreamlake create bindr front-cam --project my-robots --episode "camera/front/*" --yes
 ```
 
 ## Datasets

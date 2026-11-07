@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.124 b7138276; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.127 785fe1c2; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -68,6 +68,183 @@ For a cross-repository browser regression, build the UI fixture with
 run `ARTIFACT_UI_ROOT=/absolute/ui ARTIFACT_CLI_ROOT=/absolute/cli pnpm exec tsx scripts/artifact-site-browser.ts`.
 It uses a local HTTPS server, the actual CLI collector and gateway, and a real
 Vike static build to test deferred loads, routing, isolation and legacy switching.
+
+### Private managed Source objects
+
+The deployed `privateSourceCapabilities` hosting capability lets a signed-in
+Artifact reader obtain short-lived URLs for exact objects under an approved
+managed Source prefix. The browser reads storage directly; the API never proxies
+payload bytes. Public data-origin approval alone does not grant this access.
+
+These are additive APIs. `GET /artifacts/site-capabilities` reports
+`features.privateSourceCapabilities: true` when the hosting service supports this
+flow. The existing **POST** `/namespaces/:slug/artifacts/site-session` request
+still takes `{artifactId, manifest}`; its response adds `privateData` without
+changing `origin`, `bootstrap`, `entry` or `ttlSeconds`. Unbound sites return an
+empty array. A public-origin grant alone cannot unlock a private Source.
+
+Approval uses `POST /namespaces/:slug/artifacts/:artifactId/site-private-data-grants`
+with `{manifest, alias, sourceId, namespaceId, prefix}`. Here `namespaceId` is the
+Source namespace. The approver must administer both resources: Artifact Owner or
+Project ADMIN and Source administrator. Approval binds the immutable site manifest,
+Artifact catalog identity and ownership epoch, Source identity and ownership epoch,
+managed storage binding and a fixed HTTPS storage origin. It preserves existing
+public-origin approvals. Reapproval of the same scope is idempotent; changing the
+scope requires a different site manifest. No user-supplied origin can widen it. An initial upload reservation can be
+approved before its first version is registered; a deleted published Artifact
+cannot. The shared-bucket S3 adapter's normal `logical` state is valid, as is
+`ready`; failed or destroying bindings are refused.
+
+The site session advertises `privateData: [{alias, origin}]`. The trusted parent
+viewer authenticates `POST /namespaces/:slug/artifacts/:artifactId/site-private-data-capabilities`
+with `{manifest, alias, paths}` (1–128 distinct relative paths, at most 64 KiB total
+UTF-8 path bytes). Aliases start with a lowercase letter and contain lowercase
+letters, digits or hyphens, up to 48 characters. Paths are relative to the approved
+prefix, follow Source canonical path limits, and cannot contain traversal,
+encoded separators, URL syntax or empty path segments.
+The response contains `{manifest, alias, origin, objects, expiresAt}`; every object
+has `{path, url, headUrl, expiresAt}`. GET and HEAD URLs name only that exact managed
+object, with no external Source-layer fallback. Range reads use the GET URL.
+
+The current authenticated actor needs Artifact READ; the administrator-approved
+binding delegates only its prefix, so viewers do not need Source USE. Anonymous,
+share-link-only and worker sessions are refused. The server rechecks current
+Artifact access, grant state, Source lifecycle, ownership epochs and storage binding
+before returning URLs. Source transfer, deletion or disablement fails closed.
+The default URL lifetime is fifteen minutes, shortened to the signing credential's
+remaining lifetime with a safety margin. Consumers must use `expiresAt`, not assume
+fifteen minutes. This storage capability expiry is separate from the **five-minute
+Artifact HTML session** (`ttlSeconds: 300` and the host-only HttpOnly, Secure,
+SameSite=None, Partitioned cookie). The trusted viewer manages the HTML session;
+a longer-lived signed object URL does not extend Artifact access or that cookie.
+URLs are bearer capabilities: keep them in memory, omit cookies
+when fetching storage, and do not put them into logs or durable artifacts.
+
+Either resource administrator can withdraw future issuance with
+`DELETE /namespaces/:slug/artifacts/:artifactId/site-private-data-grants` and
+`{manifest}`. Previously issued URLs remain valid until their effective expiry;
+already downloaded bytes cannot be recalled. Source USE changes for a viewer do
+not revoke delegated Artifact access: revoke Artifact access or withdraw the grant.
+
+The injected `window.dreamlake.requestPrivateData({alias, paths})` bridge talks only
+to the trusted viewer origin, with a per-document request nonce, bounded pending
+requests, thirty-second timeout and navigation cleanup. The viewer supplies the
+active Artifact identity and manifest; site code receives no account token.
+Storage CORS must allow the isolated site origin for GET/HEAD/Range and expose the
+headers the application needs. For the default hosted content domain, append
+`https://*.artifact-content.dreamlake.ai` to the existing managed bucket CORS
+rule's allowed origins; preserve the upload rules and other existing origins.
+Expose `Content-Range`, `Content-Length`, `ETag` and `Accept-Ranges`. CORS does not
+make the bucket public: keep Block Public Access enabled and require signed URLs.
+No Source bucket CORS provisioning/IaC is currently owned by this repository.
+CSP admits only the binding's fixed storage origin.
+
+Use a release-specific Source prefix and verify application object/manifest hashes.
+This pins the binding, not the bytes against an authorized Source writer; it is not
+object-lock. The deployed backend and trusted viewer/frame support this flow. Existing
+ordinary/public Artifacts and unbound site sessions retain their behavior; no
+broad account cookie, account bearer token or server byte-proxy is added to site
+code. Data indexing and search can remain entirely in the browser.
+
+#### Publish the binding
+
+Use DreamLake CLI **0.107.0 or newer** for the released `privateData` configuration.
+Check `dreamlake --version`; an older installed binary is not upgraded merely
+because the service or docs changed. The [CLI Artifact reference](https://cli.dreamlake.ai/artifacts)
+owns the command and configuration details. For example, an `artifact.config.json`
+can contain the following generic binding (replace both IDs and the prefix):
+
+```json
+{
+  "schema": "dreamlake-artifact-config/1",
+  "privateData": {
+    "alias": "data",
+    "sourceId": "111111111111111111111111",
+    "namespaceId": "222222222222222222222222",
+    "prefix": "releases/reviewed-release"
+  }
+}
+```
+
+Publish the static build with `dreamlake artifact push ./dist/client --site
+--site-config ./artifact.config.json`. The CLI checks the server capability before
+uploading, then approves the binding after the immutable manifest is stored and
+before registering the version. Neither a token nor a storage URL belongs in the
+site configuration. A new data binding requires a new immutable site manifest,
+usually by updating the site's pinned data-release configuration.
+
+#### Fetch one object from site code
+
+The injected bridge is available inside the hosted static Artifact. The following
+TypeScript module caches capabilities in memory, refreshes them before expiry,
+and retries a storage 401/403 **once** with a newly requested capability. It never
+passes account credentials to the iframe or storage. Handle a second failure as
+an access or availability error, rather than retrying indefinitely.
+
+```ts
+type Capability = {
+  path: string; url: string; headUrl: string; expiresAt: string;
+};
+type PrivateBatch = {
+  manifest: string; alias: string; origin: string;
+  objects: Capability[]; expiresAt: string;
+};
+declare global {
+  interface Window {
+    dreamlake: {
+      requestPrivateData(input: {alias: string; paths: string[]}): Promise<PrivateBatch>;
+    };
+  }
+}
+const cache = new Map<string, Capability>();
+async function capability(path: string, refresh = false): Promise<Capability> {
+  const cached = cache.get(path);
+  if (!refresh && cached && Date.parse(cached.expiresAt) > Date.now() + 120_000) {
+    return cached;
+  }
+  const batch = await window.dreamlake.requestPrivateData({alias: 'data', paths: [path]});
+  const item = batch.objects.find(object => object.path === path);
+  if (!item || batch.alias !== 'data' || !Number.isFinite(Date.parse(item.expiresAt)) ||
+      Date.parse(item.expiresAt) <= Date.now()) {
+    throw new Error('Private data capability is unavailable');
+  }
+  for (const value of [item.url, item.headUrl]) {
+    const url = new URL(value);
+    if (url.protocol !== 'https:' || url.origin !== batch.origin || url.username || url.password || url.hash) {
+      throw new Error('Private data origin mismatch');
+    }
+  }
+  if (cache.size >= 256) cache.delete(cache.keys().next().value!);
+  cache.set(path, item);
+  return item;
+}
+export async function fetchPrivateObject(
+  path: string, options: {method?: 'GET' | 'HEAD'; range?: string} = {},
+): Promise<Response> {
+  const method = options.method ?? 'GET';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const item = await capability(path, attempt === 1);
+    const response = await fetch(method === 'HEAD' ? item.headUrl : item.url, {
+      method, credentials: 'omit', redirect: 'error',
+      headers: options.range ? {Range: options.range} : undefined,
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (attempt === 0 && [401, 403].includes(response.status)) {
+      await response.body?.cancel();
+      continue;
+    }
+    if (!response.ok) throw new Error(`Storage HTTP ${response.status}`);
+    return response;
+  }
+  throw new Error('Private data request failed');
+}
+```
+
+Pass paths relative to the approved prefix, for example
+`await fetchPrivateObject('search-manifest.json')`. For a partial binary read use
+`{range: 'bytes=0-4095'}` and validate the expected 206 response, Content-Range and
+application checksum. The bridge only obtains capabilities; it does not download,
+transform or cache object bytes for your application.
 
 ## Preview spacing
 

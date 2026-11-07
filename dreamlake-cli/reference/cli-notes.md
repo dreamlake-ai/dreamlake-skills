@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes.md at 0.106.0 e107dbd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes.md at 0.109.0 9f5a92b; do not edit -->
 
 # Memos
 
@@ -26,7 +26,7 @@ your terminal. Choose a guide for the task at hand.
 
 ## Management
 
-- [Sharing and visibility](cli-notes-sharing.md) — links, access roles, and public/private visibility.
+- [Sharing and visibility](cli-notes-sharing.md) — links, access roles, and private/unlisted/public visibility.
 - [Project filing](cli-notes-projects.md) — create and inspect project affiliations.
 - [Ownership transfers](cli-notes-transfers.md) — preview and transfer a standalone Memo.
 - [Archive memos and folders](https://cli.dreamlake.ai/notes/archival) — hide inactive work and restore it on edit.

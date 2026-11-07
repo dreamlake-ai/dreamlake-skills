@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.106.0 e107dbd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.109.0 9f5a92b; do not edit -->
 
 # Command reference
 
@@ -97,9 +97,9 @@ See [Selected SSH import](cli-ssh-sync.md) for file restrictions, revisions and 
 | `create project <name> [--public] [--visibility <v>]` | Create a project (private by default) |
 | `update project <slug> [--name] [--description] [--visibility] [--tags]` | Update a project |
 | `delete project <slug> [--yes]` | Soft-delete a project: resources kept, files inaccessible, slug freed; no restore |
-| `create bindr <name> --project <t> [--episode <glob>]` | Create a bindr (episode members) |
-| `update bindr <name> --project <t> [--add <glob>] [--remove <glob>]` | Add/remove episodes |
-| `delete bindr <name> --project <t>` | Delete a bindr |
+| `create bindr <name> --project <t> [--episode <glob>] [--yes]` | Create a bindr (episode members) |
+| `update bindr <name-or-id> --project <t> [--add <glob>] [--remove <glob>]` | Add/remove episodes |
+| `delete bindr <name-or-id> --project <t>` | Delete a bindr |
 | `create dataset <name> --project <t>` | Create a dataset (bindr members) |
 | `update dataset <name> --project <t> [--add <glob>] [--remove <glob>]` | Add/remove bindrs |
 | `delete dataset <name> --project <t>` | Delete a dataset |
@@ -369,7 +369,7 @@ See [Installation](cli-installation.md).
 
 | Command | What it does |
 | --- | --- |
-| `install [target]` | Install or re-install the native binary under `~/.local` |
+| `install [target] [--no-modify-path]` | Install or re-install under `~/.local`; configure the selected shell unless opted out |
 | `self-update [target]` | Update to the newest release on your channel |
 | `doctor` | Print install and auto-update diagnostics |
 | `-v, --version` | Print the version and exit — **root only**; passing it to a subcommand exits 0 without running it |

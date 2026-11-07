@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/sharing.md at 0.106.0 e107dbd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/sharing.md at 0.109.0 9f5a92b; do not edit -->
 
 # Sharing and visibility
 
@@ -26,15 +26,28 @@ dreamlake memos share get "$MEMO"
 ```
 
 `get` never enables sharing. It reports the resource URL, visibility, and
-existing share URL. A resource URL alone does not grant access. `--json` provides
+existing share URL. For Private memos, a resource URL alone does not grant access. `--json` provides
 structured link metadata; `shareStatus: unavailable` means the server did not
 expose the token to this caller, not that sharing is disabled.
 
 ```bash cli-help="memos visibility"
 MEMO="release-plan" # Your existing memo id or slug.
+dreamlake memos visibility "$MEMO" unlisted
 dreamlake memos visibility "$MEMO" public
 dreamlake memos visibility "$MEMO" private
 ```
+
+`unlisted` permits anonymous reading through the direct URL but hides the Memo
+from public profiles, catalogs and discovery. Owners and existing collaborators
+can still find it. `public` is discoverable; `private` requires existing access.
+Create an Unlisted memo with `dreamlake memos create "Review" --visibility unlisted`.
+The legacy `--public` flag still creates publicly listed memos and cannot be
+combined with a conflicting `--visibility`.
+
+The TypeScript API supports
+`api.memos(namespace).create({name: "Review", visibility: "unlisted"})` and
+`api.memos(namespace).share(memoId).visibility("unlisted")`;
+the legacy `api.notes` alias has the same support.
 
 Visibility and sharing are independent. Making a resource private does not
 revoke links or accepted access. Revoking a link does not make a public resource
@@ -74,3 +87,36 @@ Use `share get` to inspect the current link role.
 
 Removing an acceptance record does not invalidate a circulating link; that link can admit
 the user again. Membership and public access are unaffected.
+
+## Public article URLs
+
+Public and unlisted memos have a separate public URL slug. This is independent of
+the internal memo slug and display name. Get or allocate it from the saved H1:
+
+```bash cli-help="memos permalink"
+dreamlake memos permalink <memo-id> --namespace <namespace> --json
+dreamlake memos permalink <memo-id> --namespace <namespace> --slug my-article --json
+```
+
+The response contains `noteId`, `namespaceSlug`, `slug`, `href`, and `aliases`
+(previous slugs). `href` is relative to the web app. An explicit slug edits the
+URL and preserves every old slug as an alias. Renaming the title doesn't change
+it. Slugs are unique within a namespace, including historical aliases. Automatic
+allocation suffixes collisions; an explicitly requested reserved slug returns
+409, so choose another. Duplicates and copies allocate fresh URLs and do not
+inherit alias history. Making the memo private revokes anonymous access through
+both current and historical URLs.
+
+```typescript
+const memo = dl.memos("<namespace>/<memo-id>");
+const current = await memo.permalink();
+const changed = await memo.permalink({ slug: "my-article" });
+console.log(changed.href, changed.aliases);
+// Namespace API: dl.memos.namespace("<namespace>").permalink(id, { slug: "my-article" })
+```
+
+Management uses `POST /namespaces/:namespace/notes/:id/permalink` with `{}` or
+`{"slug":"my-article"}`. It requires metadata management permission and public
+or unlisted visibility. Public lookup uses
+`GET /namespaces/:namespace/notes/by-slug/:slug`; old aliases resolve directly to
+the current URL without exposing the private management history.

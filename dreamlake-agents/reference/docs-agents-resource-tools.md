@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.124 b7138276; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.127 785fe1c2; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -27,6 +27,39 @@ and its Agents editor link; creation does not launch a session.
   "tools": ["dreamlake_notes_read", "dreamlake_resource_api_discover", "dreamlake_resource_api_read"]
 }
 ```
+
+## Sending and steering
+
+The built-in composer moves submitted text into the conversation immediately,
+before server acknowledgement. A rejected send restores the original input if
+it has not been edited; otherwise the unsent message stays visible alongside
+the newer draft. Consecutive assistant segments share one text block and one
+copy button below it. Message boundaries do not create line breaks; explicit
+newlines in the answer do.
+
+While a turn is running, Enter sends a steering message. It keeps the same
+conversation, active turn, namespace and capability grants. Messages entered
+before the first acknowledgement wait for that turn's identity. The server
+stores steering durably and consumes it at model/tool boundaries, before
+proposed tools are dispatched or the final answer completes. An already
+executing tool finishes before the next model request receives the steering.
+A closed turn rejects late steering so the composer can recover the input.
+
+`POST /agent/sessions/:id/steer` accepts `turnId`, `messageId` and `message`
+(up to 8,000 characters). The authenticated conversation owner and active lease
+are checked transactionally. `messageId` deduplicates retries within the turn;
+there are at most 32 steering messages per turn. The chat SSE stream emits
+`{type:"steering", messageIds:[...]}` when the messages enter model context.
+Admission and the final queue check share a transaction, including across
+server replicas. Capability and namespace changes require a new turn.
+
+Memo tool writes commit after their complete arguments arrive; the built-in
+agent does not stream partially generated text into the Memo. Read activity
+publishes source-hash-bound ranges. `dreamlake_notes_visit` can publish intent
+and an address/cursor together, pinned to the read's `baseRevision`; stale
+locations are refused. See [agent presence](https://docs.dreamlake.ai/notes/agent-presence).
+The chat shows a thinking indicator and tool receipts, not provider reasoning
+text.
 
 For other resource operations the model uses this sequence:
 

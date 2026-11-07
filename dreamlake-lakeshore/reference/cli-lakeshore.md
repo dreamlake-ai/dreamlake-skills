@@ -1,6 +1,8 @@
-<!-- generated from https://cli.dreamlake.ai/lakeshore.md at 0.106.0 e107dbd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/lakeshore.md at 0.109.0 9f5a92b; do not edit -->
 
 # Lakeshore resources
+
+For connecting a service from the CLI or web, see [Lakeshore connections](https://cli.dreamlake.ai/lakeshore-connections) (CLI 0.107.0+).
 
 To connect an existing queue server and inspect its live collections, see
 [Mount a queue server](cli-queues.md) (unreleased).
