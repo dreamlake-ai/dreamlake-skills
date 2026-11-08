@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.127 785fe1c2; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.130 e630d3c8; do not edit -->
 
 # Browse, create and organize
 
@@ -13,13 +13,15 @@ uses resource navigation for the namespace in the URL.
 
 Your own Memos catalog retains Shared with me and recent organization memos. Private Memo share links require sign-in under the server's per-person grant rules.
 
-The application sidebar shows the resource owner's avatar and links, including
-for anonymous public readers. Your signed-in identity and personal/organization
-switcher are separate from that owner. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+Signed-out public and unlisted Memo links open an article reader without the
+application sidebar. Its heading comes from the article content, with author
+and listening controls below it. The full-width, translucent navigation offers
+sign-in and the author’s Memo catalog; it hides while scrolling down and returns
+when scrolling up. Author and publishing-namespace links appear in the reader.
+The guest agent entry offers sign-in to start a conversation.
 
-The detail header returns anonymous readers to `/<namespace>/profile?tab=notes`
-and signed-in readers to `/<namespace>/notes`. Details opened inside a project
-retain their return-to-project action. There is no extra sign-in navigation bar.
+Signed-in Memo details retain resource navigation. Details opened inside a
+project retain their return-to-project action. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
 
 ### Archive memos and folders
 
@@ -355,3 +357,45 @@ CLI and API, and historical archive reads are sanitized. Review custom secrets
 before selecting an export: pattern redaction is not exhaustive. Public readers
 can read public session metadata and saved conversations but cannot execute in
 the terminal or read private resources merely because they are linked.
+
+## Shared article author attribution
+
+The optional-auth `GET /notes/:noteId/content` response includes `note.createdBy`
+for a Memo the caller may read. Resolve this creator user ID against the public
+`GET /auth/namespaces` directory's `userId` to link the author's personal profile;
+the publishing `note.namespaceSlug` may belong to an organization. Private or
+unavailable Memos retain their existing access checks and do not return author
+metadata to an unauthorized reader.
+
+## Shared article narration
+
+`POST /notes/:noteId/narration` returns a complete `audio/mpeg` recording for a
+live public or unlisted Memo without requiring sign-in. Private, deleted and
+missing Memos return 404, including when audio was previously cached. Access is
+checked again before the recording is returned.
+
+The server reads the saved article and sends its complete prose to ElevenLabs
+using Eleven v3 (`eleven_v3`) and **Chris — Charming, Down-to-Earth**
+(`iP95p4xoKVk53GoZ742B`), with natural stability (`0.5`). Browser-supplied
+text and voice settings are ignored. Markdown and inline HTML become plain text;
+code, media and citation markers are excluded. Narration is never silently
+truncated. Up to 5,000 characters use one provider request; longer prose is
+split within that limit, preferring paragraph, sentence or word boundaries, and
+generated sequentially with the same voice. The server joins those MP3 sections into one
+complete recording without re-encoding. Pause, resume and replay reuse the recording. The browser prepares the full recording before playback starts.
+
+The server caches audio by Memo, text sections, voice, model, voice settings and
+output format; earlier Flash recordings are not reused. Responses
+use `Cache-Control: private, no-store`; `X-Speech-Cache` identifies a cache hit or
+miss. Simultaneous requests for the same recording share generation within a
+server process. New generation is bounded to two concurrent requests and 60,000
+characters per client IP per hour in each process; a busy request returns 429.
+Cached recordings do not consume that generation budget.
+
+Empty prose or prose exceeding 40,000 characters returns 422. Source inputs are
+also bounded to 1 MB of recorded size and 250,000 source characters; output is
+bounded to 16 MB across all sections and the joined recording, with a shared
+180-second generation deadline. Missing provider API-key configuration returns 503, and provider or
+audio preparation failures return 502. The ElevenLabs API key remains on the
+server. This endpoint does not grant access to the separate signed-in Notes
+speech API or activate a live editing session.

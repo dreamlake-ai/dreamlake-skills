@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.127 785fe1c2; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.130 e630d3c8; do not edit -->
 
 # Sharing, access and transfer
 
@@ -70,6 +70,45 @@ dreamlake memos share get MEMO_ID
 The built-in `dreamlake_notes_create` tool accepts `visibility`; the metadata
 update tool `dreamlake_note_update` accepts the same three values. The legacy
 `public` create flag remains supported; conflicting explicit values are refused.
+
+## Readable article URLs
+
+Public and Unlisted memos can have a readable URL such as
+`https://dreamlake.ai/alice/public/a-readable-title`. In the Share menu, **Copy link**
+prepares this URL from the first H1 in the saved article, falling back to the memo
+name. Inline formatting is reduced to text and an H1's `<small>` subtitle is
+excluded. Subsequent title changes leave the URL unchanged.
+
+Use **Edit article URL** in the Share menu to choose another slug. Previous slugs
+are kept in **Previous URLs** and resolve directly to the current URL for the same
+memo. Legacy `/namespace/notes/<slug>` links redirect to `/namespace/public/<slug>`.
+The editor uses `/namespace/memos/<id>`; existing ID links keep working too. Every current and previous slug is
+reserved within its namespace, including after deletion, so an old article link
+cannot silently start pointing at another memo. Public URLs do not override
+visibility: making a memo Private makes its public slug and previous URLs
+unavailable to anonymous readers.
+
+Duplicates and copies start without a public slug or URL history. On first share,
+the destination allocates its own slug; a collision gets `-2`, `-3`, and so on
+(with a random suffix after repeated collisions). The same slug may be used in
+different namespaces. A manually entered slug that is already reserved for a
+different memo is rejected; the existing URL remains intact. This does not enable
+cross-workspace transfer, which retains its separate readiness requirements.
+
+The authenticated endpoint
+`POST /namespaces/:namespace/notes/:noteId/permalink` accepts `{}` to allocate or
+retrieve the current URL, or `{"slug":"new-title"}` to change it. It requires the
+memo's metadata-management permission and Public or Unlisted visibility. Slugs
+contain lowercase letters, numbers and hyphens, up to 64 characters; a bare
+24-character hexadecimal ID is reserved for legacy links. Responses include
+`noteId`, `namespaceSlug`, `slug`, `href` and the manager's `aliases` list. An
+explicit collision returns `409 permalink_conflict` without changing the memo.
+
+`GET /namespaces/:namespace/notes/by-slug/:articleSlug` resolves a current or old
+slug without authentication, returning the current `href` and immutable `noteId`.
+It returns 404 for private or deleted memos and deleted namespaces or owners.
+This public lookup does not disclose the list of previous slugs. These public
+slugs are separate from the internal catalog slug used by existing CLI lookups.
 
 ## Public catalog reads
 
@@ -395,3 +434,9 @@ owner acceptance, complete scope, blocked dependencies, storage/RTC activation a
 operator recovery and the exact production verification scope. Both backend
 fixtures used one actor owning both namespaces; independent-recipient and all
 NoteFile/provider-isolation matrices were not exercised in production.
+
+The built-in agent exposes the same operation as `dreamlake_note_permalink` with
+`noteId`, optional `namespace`, and optional `slug`. It requires `notes:write` and
+the caller's metadata management permission. Its result includes `href`, current
+`slug`, and `aliases`. A reserved slug is a permanent conflict; the tool never
+retries or changes visibility to make the operation succeed.

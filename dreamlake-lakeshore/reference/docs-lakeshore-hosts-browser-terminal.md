@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.127 785fe1c2; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.130 e630d3c8; do not edit -->
 
 # Browser terminal
 
@@ -379,6 +379,20 @@ activity first and leaves missing activity at the bottom. `q` searches saved
 metadata; repeated `machineId` values restrict machines. Clients that also
 match their displayed machine names can pass repeated `matchMachineId` values
 alongside `q`. Change the search or sort by starting a new cursor sequence.
+
+`GET /namespaces/:namespace/sessions/attention` returns the personal namespace
+owner's sidebar summary: `needsInput`, `error`, and the newest 20 `sessions`
+with `id`, `name`, `provider`, `attention`, and `since`. Counts include all
+matching sessions, not just those 20 previews. Authentication is required;
+other users and organization namespaces are denied. The legacy
+`/namespaces/:namespace/terminal-sessions/attention` path is an alias.
+
+Attention comes from the last reported `runState`: `waiting` means
+`needs_input`, and `error` means `error`. It survives the 45-second live-state
+freshness window until a new state is reported; archived and superseded sessions
+are excluded. Descriptors expose the same `attention` and durable `lastRunState`
+alongside the existing fresh-only `runState`. Reading the summary opens no
+machine or terminal connection.
 
 ### Observed repository and activity metadata
 
