@@ -1173,8 +1173,8 @@
         "url": "https://viz.dreamlake.ai/dataset-viz/views",
         "file": "reference/viz-dataset-viz-views.md",
         "version": "unknown",
-        "source_sha256": "73e5cc367dce2198123f998f7cbac3e6f7d9817ebc92c9fc3c2c2d455f0d6654",
-        "sha256": "d56bf043cd0d00619545584381e0c1c6f6c04e3be1c09ed921386515ef163a4f"
+        "source_sha256": "47b278b0966e45da5929bee476c982a4789b39696bcd166d426f01b0da045d62",
+        "sha256": "ea571c9a5042cf7f6aab2f68061237d4c8e35c8af1066d2baf9a13628e8c8ff2"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/robots",
