@@ -24,7 +24,7 @@ Several commands below carry minimum CLI versions; check `dreamlake --version`.
 | push a file, HTML page directory or built static site; manage versions and metadata | [publish](actions/publish.md) |
 | diagnose slow or stuck loading; compare first render across real artifacts | [performance](actions/performance.md) |
 | see what is published in a namespace | [list](actions/list.md) |
-| make it public or private, mint/inspect/revoke a share link, understand Project-derived access | [share](actions/share.md) |
+| share only the latest version with customers, change visibility or links, understand Project-derived access | [share](actions/share.md) |
 | delete, restore, or permanently purge | [restore](actions/restore.md) |
 | mention an artifact inside a Memo (`:artifact[ns/id]`) | [notes-references](actions/notes-references.md) |
 

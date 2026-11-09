@@ -14,6 +14,29 @@ access, and run `get` before and after a change to verify it. Flags,
 `--json` fields and the exact recipe:
 [Manage existing share links](../reference/cli-artifacts.md#manage-existing-share-links).
 
+## External customers: latest version only
+
+```bash
+dreamlake artifact share get <id> --json
+dreamlake artifact share latest-only <id> on
+dreamlake artifact share get <id> --json
+```
+
+For a request to share only the most recent version, check the installed CLI's
+`artifact share latest-only --help`, read the
+[version policy and SDK options](../reference/cli-artifacts.md#share-only-the-most-recent-version),
+and inspect access before changing it. For a new link, use
+`dreamlake artifact share create <id> --latest-only`, then read back the policy
+and link. Only run `latest-only <id> off` when the user wants recipient history
+restored. Do not change visibility or revoke links as a substitute.
+
+Verify with a recipient identity as well as the namespace member: open the
+shared artifact and check the available version. After the next authorized
+update, check the same link again. Keep test credentials and private links out of
+shared logs. If the user requested SDK integration, use the documented
+[TypeScript or Python setter](../reference/docs-artifacts.md#share-it) and read
+back metadata with that SDK.
+
 ## Visibility and sharing are independent
 
 Artifacts are **private by default** — only members of the owning namespace
