@@ -5,6 +5,10 @@ existing memo reference, or to write ordinary Memo links, `:artifact[...]`,
 experiment, project and folder references, and placeholder directives. It does not create a Task or mark work complete; Tasks
 that link Memo items are `dreamlake-tasks`.
 
+Preserve resource directives when editing; do not flatten an artifact,
+experiment, project or folder reference into a URL or plain ID. For a Memo,
+follow the current representation below and retain saved native forms exactly.
+
 ## Representation
 
 For new Memo references, use an ordinary Markdown link with the namespace and

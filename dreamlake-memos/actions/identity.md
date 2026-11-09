@@ -34,6 +34,14 @@ For a question about human presence, a selected passage or recent changes, use
 [inspect current collaboration](observe.md) rather than treating task attribution
 as evidence of what the user is doing.
 
+For purposeful reads or edits, inspect `dl memos visit --help` and publish a
+concrete one-sentence intent with the same task identity before reading/editing.
+Use the supported lingering-read intent when following a collaboration session.
+A readable agent name, session link or version summary does not publish presence
+intent. Reuse an existing relevant purpose; update it when the task changes,
+without adding approval questions. If the installed client lacks the feature,
+report that gap instead of inventing a read/write flag.
+
 ## Contributing sessions
 
 Presence IDs identify an editing task; they do not identify a resumable Codex

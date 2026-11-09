@@ -2,6 +2,34 @@
 
 First complete [task identity setup](identity.md); reuse it in every shell call.
 
+For a prompt edit or meaningful document revision, inspect installed
+`dl memos revise --help` first. Review a complete source snapshot, prepare the
+proposed text, then use the guarded revision path when available:
+
+```bash
+dl memos read "$MEMO_ID" --json > baseline.json
+# Review the source; prepare proposed.md without changing baseline.json.
+dl memos revise "$MEMO_ID" --baseline baseline.json --file proposed.md \
+  --intent "Clarify the evaluation criteria." --label evaluation-criteria \
+  --receipt revision-receipt.json
+```
+
+Preserve human-authored wording and propose pending native redlines. Use direct
+replacement only when the current instruction authorizes it; a review request
+is not permission to rewrite. Honor existing authorization without asking
+repeatedly. Retain native resource directives and use the
+[reference action](references.md) for the correct representation.
+
+The command's safeguards and receipt recovery are documented in
+[reviewed revisions](../reference/cli-notes-editing.md).
+If unavailable, use the steps below plus [versions](versions.md): save and verify
+a reviewed baseline before editing, generate native suggestions with installed
+`memos suggest-diff --help`, then save and verify the result with meaningful
+labels/summaries and immutable IDs. Publish concrete edit intent using installed
+`memos visit --help` (or the supported lingering read) before editing. Identity,
+presence intent, version summary and session linkage serve different purposes.
+Never invent an edit flag or repeat an accepted body edit to recover metadata.
+
 Prefer a targeted edit that uses source text and its retained revision. First
 check the installed client, then retain the complete structured snapshot and
 extract its source and original revision as documented in

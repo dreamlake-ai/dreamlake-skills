@@ -36,6 +36,10 @@ Memo items are managed with `dreamlake-tasks`.
 - Identity: set both `DREAMLAKE_AGENT_ID` and `DREAMLAKE_AGENT_NAME` once and
   inject the same literal values into every shell call; concurrent tasks need
   distinct IDs. Respect an explicit request for unattributed work.
+- Authoring: for prompt edits and meaningful revisions, follow [edit](actions/edit.md):
+  reviewed before/after checkpoints, concrete edit intent, preserved native
+  references, and pending redlines for human prose unless direct editing is
+  authorized. Inspect installed help; never replay accepted writes for metadata.
 - Revision: retain complete source, opaque revision and content hash using the
   [edit action](actions/edit.md), patch against that exact revision, and read
   the acknowledged revision back. On 412 or 409 stop, keep baseline and draft,
