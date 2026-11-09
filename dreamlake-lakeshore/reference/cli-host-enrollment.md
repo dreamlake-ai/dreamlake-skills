@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.110.1 25b3739; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.111.0 ac296b9; do not edit -->
 
 # Host enrollment
 

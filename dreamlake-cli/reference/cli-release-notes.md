@@ -1,6 +1,15 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.110.1 25b3739; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.111.0 ac296b9; do not edit -->
 
 # Release notes
+
+## 0.111.0 — Observe human Memo selections
+
+`memos presence --selections` requests a source-bound selection snapshot without
+joining. The TypeScript namespace and handle APIs accept `{selections: true}`.
+Availability states distinguish inactive rooms, unsupported older servers and
+failed observations from an available empty roster. Selection offsets use
+Unicode code points at the returned source hash; recent edits still use revision
+diffs rather than inferred human authorship. See [collaboration](cli-notes-collaboration.md#observe-a-human-selection).
 
 ## 0.110.1 — Latest-only artifact sharing
 

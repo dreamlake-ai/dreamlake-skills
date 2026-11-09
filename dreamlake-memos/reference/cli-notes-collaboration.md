@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.110.1 25b3739; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.111.0 ac296b9; do not edit -->
 
 # Live collaboration
 
@@ -216,7 +216,7 @@ Add `--json` only for a program consuming the roster. The old action arguments
 
 ## Observe a human selection
 
-With the matching client and server, request a source-bound snapshot:
+CLI 0.111.0+ with the matching server can request a source-bound snapshot:
 
 ```bash
 dreamlake memos presence "$MEMO_ID" --selections

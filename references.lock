@@ -12,16 +12,16 @@
       {
         "url": "https://cli.dreamlake.ai/artifacts",
         "file": "reference/cli-artifacts.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a0b5b983a447bf609376e968ab7a6b2d7e9bd74f81b225f4faa689c6d84c3ad8",
-        "sha256": "4dc266c4982a3a8cc3da4adbf229bfd74715f031eb1d605026fd151e558f1be9"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "5ae11174d5cb4c8680bf600eb6f10e8988fbf0f5066a9480cb54ecb8459fda6c",
+        "sha256": "854e5bcc73e6460289ddedfb1f0729098072b35fbd72b37c848827fe42207b91"
       },
       {
         "url": "https://cli.dreamlake.ai/projects",
         "file": "reference/cli-projects.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "d6a7509e91dc340679f2d526d51446f3dedcbae15c30742542a5a04cae3bf9e1",
-        "sha256": "ce609c74b0acc4da6a6b00c57e81fc53b4ff8aedc62ad7aaae253a26cb877a33"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "01f4c43123946ceed12555b8d323fa80f86fb28f6a4802e31862f2ca83cc32e4",
+        "sha256": "64263ec6adf6942f768be63ada374e8e4c44a86d63be5342140b5db77d4b08ad"
       }
     ],
     "dreamlake-agents": [
@@ -42,16 +42,16 @@
       {
         "url": "https://cli.dreamlake.ai/agents",
         "file": "reference/cli-agents.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "e83243cfc251224d73fd3c3d054e21fe3ff637c4de6fafba174844bb52fce5f9",
-        "sha256": "2623d8caefd8c094461c7fccdf6c2d6fa6aef2d3bb653997895d6778d85b14a2"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "d025b0c0dbd12c6732b7d6eb0b5745082a69c7ad048608f0a9f18a68d2577033",
+        "sha256": "d95fd80df1dbc1ac0f8149f2d6f4137e547c280d14448287310efa2d56459870"
       },
       {
         "url": "https://cli.dreamlake.ai/runnable-api",
         "file": "reference/cli-runnable-api.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "8cf18b5e4b181243b2f241b80eea741941461f14dde2a575be039f5461b1aa76",
-        "sha256": "d83a52440d51602cb5074f65e9865076e0821b76196ad745bfac44a88ae19190"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "fb7116f369536f0059cf838369ee7e1ea08cc7a13900e02fc8acd8f9f8bbc712",
+        "sha256": "ae70d86c0f31387e95b3488071b44e90b140a2c221da8a42c67b2e76e841dea5"
       }
     ],
     "dreamlake-annotations": [
@@ -109,452 +109,452 @@
       {
         "url": "https://cli.dreamlake.ai/artifacts",
         "file": "reference/cli-artifacts.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a0b5b983a447bf609376e968ab7a6b2d7e9bd74f81b225f4faa689c6d84c3ad8",
-        "sha256": "4dc266c4982a3a8cc3da4adbf229bfd74715f031eb1d605026fd151e558f1be9"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "5ae11174d5cb4c8680bf600eb6f10e8988fbf0f5066a9480cb54ecb8459fda6c",
+        "sha256": "854e5bcc73e6460289ddedfb1f0729098072b35fbd72b37c848827fe42207b91"
       },
       {
         "url": "https://cli.dreamlake.ai/projects",
         "file": "reference/cli-projects.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "d6a7509e91dc340679f2d526d51446f3dedcbae15c30742542a5a04cae3bf9e1",
-        "sha256": "ce609c74b0acc4da6a6b00c57e81fc53b4ff8aedc62ad7aaae253a26cb877a33"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "01f4c43123946ceed12555b8d323fa80f86fb28f6a4802e31862f2ca83cc32e4",
+        "sha256": "64263ec6adf6942f768be63ada374e8e4c44a86d63be5342140b5db77d4b08ad"
       },
       {
         "url": "https://cli.dreamlake.ai/sessions",
         "file": "reference/cli-sessions.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "9a3f0f8d3831795f290c4a4a6b17f4da453ce3dbc96248f736c1f105b31e40d0",
-        "sha256": "8ff8786fddd97bd0ced9fdf14878368b27e97c3f5d64445a66582cd94985437f"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "3d712e2020deadf619b9e1fb3bc577efb68d5cf71a697bc5f76a2a151c1f3c5e",
+        "sha256": "f1630cb1e6dbdba617e893610fcc3614fdca460b8a0535f786dac868a7f604fd"
       }
     ],
     "dreamlake-cli": [
       {
         "url": "https://cli.dreamlake.ai/",
         "file": "reference/cli-index.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "14b25070832908d0f50785b415dc0c1fdb75c54158cc9aa418c448ce2c0fb077",
-        "sha256": "c656528e2a2d0eefad83c23b48221a55f5bc8949300bb1c419ba962a7c9240cf"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "af31d08073a6ba4c0c648f32b39323ff928b011495ccccb4093adc444d020142",
+        "sha256": "70677fbc9ba457f4cb4d6608ee9cc3dabe69402dd117d19214f94a8e91347ee2"
       },
       {
         "url": "https://cli.dreamlake.ai/agents",
         "file": "reference/cli-agents.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "e83243cfc251224d73fd3c3d054e21fe3ff637c4de6fafba174844bb52fce5f9",
-        "sha256": "8ae98bf27ab61a8683cf2785ae87a7fb30fd7af44d0376302a835661c5e58cde"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "d025b0c0dbd12c6732b7d6eb0b5745082a69c7ad048608f0a9f18a68d2577033",
+        "sha256": "f1a8fa144791f56f39f8db541194cd69a95ba2db3f3401ab6864f664c20e7ee5"
       },
       {
         "url": "https://cli.dreamlake.ai/analytics",
         "file": "reference/cli-analytics.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "46d27f772bdaf590b0dfe8888c3bcd872582767013f510ee778b887c975eddbb",
-        "sha256": "a9b413346e10a0fd048a57413a2cab73cb5ac92769126625ac428f824de0fca1"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "c2c873f054199a723e2e0959fea969db6949840d6b8abd3971756ea398f64d54",
+        "sha256": "c2fe686224a4518860260aa471ea865d1b639868cba0441868fad53c201401cf"
       },
       {
         "url": "https://cli.dreamlake.ai/artifacts",
         "file": "reference/cli-artifacts.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a0b5b983a447bf609376e968ab7a6b2d7e9bd74f81b225f4faa689c6d84c3ad8",
-        "sha256": "4dc266c4982a3a8cc3da4adbf229bfd74715f031eb1d605026fd151e558f1be9"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "5ae11174d5cb4c8680bf600eb6f10e8988fbf0f5066a9480cb54ecb8459fda6c",
+        "sha256": "854e5bcc73e6460289ddedfb1f0729098072b35fbd72b37c848827fe42207b91"
       },
       {
         "url": "https://cli.dreamlake.ai/bound-execution",
         "file": "reference/cli-bound-execution.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "1af0e6c249e0d1cd229c141a9f4cd32cb04d677807d5ca2cddc8e7b68dd4c76e",
-        "sha256": "38aa2279bddb1b3520d63cb5e3008861adc0c020024069bb7852e9be646753dd"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "fdfce70694085f3e0aa6e1f306be044279b4e42535b86b1b34587c39bcdc0eb1",
+        "sha256": "4fb3f0ad93a3d47cd726cc88b0011052be11e41426d65cec9b486ec255029e74"
       },
       {
         "url": "https://cli.dreamlake.ai/collections",
         "file": "reference/cli-collections.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "89b3ebb4b22b7f1f777ccb066b9f8b3da49fa3084531fa94202bef998c3d4594",
-        "sha256": "2de32f9c0ca675414699e7735b0b640df7f75f72c782c2664989c68d5fdd8185"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "2ab5937bef861f2e2b6ba080869726378740b8064099236861c5362de330a0a6",
+        "sha256": "08c7ad9fc354afe9c62f4661cf27a84e90738eeec70fdc3f50989ac0d9218afd"
       },
       {
         "url": "https://cli.dreamlake.ai/command-reference",
         "file": "reference/cli-command-reference.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "bf5cc639632d651dfae0050c47d0c6017e06637249b886fa95f7e81270bad193",
-        "sha256": "8ebeb135ef62cdded1b23b1e2e1cef9c0b96356bec6463cf5d6014a4c07d7111"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "d036df6ae3621839f2a1e82b03a6c34648f27bfc3c8f9ef1211a05699fb3140b",
+        "sha256": "2eae303f36347d9d38ebf5c74b7c7eebaa7409207268dab0004237860fba734e"
       },
       {
         "url": "https://cli.dreamlake.ai/dev/notes/npm-publication",
         "file": "reference/cli-dev-notes-npm-publication.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "e9b9ff26cf3f0337bd128c0a676043c07999c6964ace4e5e0e608e5cd7ec91d4",
-        "sha256": "bffac151209e98f33ef64465fe4710ce88de6e0a383d094afac566b60094e42d"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "9b899f81a5d272717f77197ff96c45762b63fa2b15a4e29570e9fc6f09004654",
+        "sha256": "bec450eae61cccc4ef36a3df61c1da61074d51def1dd1ea05d92f02b1befe134"
       },
       {
         "url": "https://cli.dreamlake.ai/dev/notes/queue-mount-release",
         "file": "reference/cli-dev-notes-queue-mount-release.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "d134ed0831c377243de20b112942e4aa2d1891d2cfc1fa1f09b06b1aa0de9563",
-        "sha256": "58212516c2f44472a1cd00bff88a7298ef6a06867e7b67ff480f8b21407617f4"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "d5e824731bb00ff0623deadcc14ffbff9a03b3035b7817e9be9b7a9b215a2211",
+        "sha256": "59c4af886130f72039088b72838e38c7cda5e51e80bb240f7d71532ad628d724"
       },
       {
         "url": "https://cli.dreamlake.ai/dev/notes/task-session-scope",
         "file": "reference/cli-dev-notes-task-session-scope.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "5ee3b70f8b0be17e361fcc69dc0282765f8c693fc8228e5b04ea93ff20249736",
-        "sha256": "43a8e2c1f48da2d0a4f96a98cb415a3582e8e0280600488f60039c41184f1e82"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "53096af784bfaf5406157e036e29c4a96570c63f3b6e42cca01b31d95c7b5c04",
+        "sha256": "bbb82813b5fe96a7b3a14f5ce9fa038b4163e2ae4f05617512023eefb3fed492"
       },
       {
         "url": "https://cli.dreamlake.ai/downloading",
         "file": "reference/cli-downloading.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "6bfd888be5eb1b3ae9c34e107da6e7300202d59535aa4d1150d8a7921c013f2b",
-        "sha256": "7af84979d0941d68b481a3ad8751c6d2d6d40a0fe615caa402ccafd06c683667"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "1fb3626f880f16190bf2c4f938d1211922fec4f0166b4a229d067d73d3d3cab5",
+        "sha256": "73027c3ae7ec08478c2c19da7161d6fd0c48bf4b2dbd7c8db7de5f07cc1d62ff"
       },
       {
         "url": "https://cli.dreamlake.ai/dreamrc",
         "file": "reference/cli-dreamrc.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "4f0594167399dfea86c8fd6d139cd494bff84c7220c28fe3233dc76dc8680633",
-        "sha256": "45e1b10d16b642bb57772db280f2b5781b4553a3445058a94be0f8fc4df83584"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "1c50786221e5c1516742fb5cca3ad07bc20a1678257eadf347722e3b3d9f1d29",
+        "sha256": "553ecd4ed72bbff71b9e1f24dbe382996dc7707dcd3063b872b751a22fb4210c"
       },
       {
         "url": "https://cli.dreamlake.ai/dreamrc/visualization",
         "file": "reference/cli-dreamrc-visualization.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b0fffe2178afb3abbb6430d730631f3004cb8e2be82b3946d7e20e266556004f",
-        "sha256": "1289650a4ae07512060fc905fd28bcd9a63403bb4ab96424f2130bfa8423cc7d"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "1ea47e48a12da704502fb020f62490beff88864bd5e0a4052dbbf3e6282b526c",
+        "sha256": "8fa5828696ca11d8d7fbbf14cfdd1f470e0ee5a2b804e3e3e7e4ae99892186ce"
       },
       {
         "url": "https://cli.dreamlake.ai/environments",
         "file": "reference/cli-environments.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "26603a8991eb0adad0e72887aa0312d6e89afeaa98eb2036eee1085346871ab1",
-        "sha256": "3e23c4f04bfee90bbf528b09217cd6ead0b4f6cd159e908e6f162b6f194f04b5"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "dc10b299fc02fe7ca9bc80813bee087ad59eef8dc916608b24569030680947b3",
+        "sha256": "92f13ff5594a82d3db70c383588c5785e2dc2c2cb5bd6cb5fa216e47223b01fb"
       },
       {
         "url": "https://cli.dreamlake.ai/experiments",
         "file": "reference/cli-experiments.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b77a8a642418107b32165a32cddf533ca559bd1290ed78b9be3820babdda8298",
-        "sha256": "613da777e0a5bda22fada0433341bea8ecc63e4a174a10025b07b95d1fba0e10"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "43b1223b57c931420776a9f5cf48d1d5d233f83dfb8e7a31100fa90c2950e055",
+        "sha256": "3e3aecad762edcab12988c3cb9622d2102de6433f8e79c3be52079495fd30643"
       },
       {
         "url": "https://cli.dreamlake.ai/installation",
         "file": "reference/cli-installation.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "3551774ee3c003e42705f15be40b90606aead008c47a1628cdc11365cc064ae5",
-        "sha256": "13c235fd7ed38320258d46bc0f1f90f108406b999f08a7bb5e3ce6dc2a264648"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "0acae1e2d4ff211d04c8dd73d1157674a151e9e8b1df30b6940d99dee45be120",
+        "sha256": "5e83cce58124ff2cbdfcfa71768dd4958966adad4023ba12acd942a0860f973e"
       },
       {
         "url": "https://cli.dreamlake.ai/layout",
         "file": "reference/cli-layout.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "e56d37884a28bc22b82542d00147057f71946a6ed0709c89a2cd8c136297de41",
-        "sha256": "d7e68d7cc812b9886c8f485ad79ce9b6b55c4c58ef2bf7eccb4f45d10259911d"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "6542f5fa0154054e866fad96becaeaccd6d4020cf10bbd850bbb3d49ec919d4f",
+        "sha256": "7842437c3e11c0ba42fb2d9d542d1ed71089f48bb37ae14808e5a0b3faf76f01"
       },
       {
         "url": "https://cli.dreamlake.ai/machine-auth",
         "file": "reference/cli-machine-auth.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "5092cd7eb480610aa0c06914518c86733ccd731e6c5ffa90842bff035d6ea15c",
-        "sha256": "0e6f1d35a258df0d14e093888de82319d02162b24219ddfa179f29319f0ab7a0"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "8ea6634c42a966433fd25da19d5815fbb6635ebcf7166aa40fadb6c591d0affe",
+        "sha256": "63162842562bc52caff5ef7ae91d2b68df76683aa54ffa6d5e93eff3e8a67863"
       },
       {
         "url": "https://cli.dreamlake.ai/notes",
         "file": "reference/cli-notes.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "64013d80bd0b879d3a17972192987cc195b1b9e23a2b4c8bba3e5a38b87b4483",
-        "sha256": "a9bb61136b598c234acb1dea87fdb78183f86e28db8174cdf2c2ab83ff83e4af"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "be87dd3350924b3723120bb694a1b153ae2a8395ab60393b2022c6aea5c444ac",
+        "sha256": "6ede1d0336907e566d9f24c23cdd4c9b18d5dec235776c77f785085fc52af09b"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/attachments",
         "file": "reference/cli-notes-attachments.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b4d08038a9e15d1ba508d0c683a292d5eddb12da66002ec370bc54be86cd0a19",
-        "sha256": "f34764c154857167f9c0a017cc8e7cb975b06ae1fbba8d22b07349a0004abab2"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "3ca79cdc1f674ac7e3843079c3ad444ff280078ae06bfdc19da9f140381588d3",
+        "sha256": "1181d2602914fc226d565525c4723bdd1da461366a92d63685c852f09e650cf0"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/collaboration",
         "file": "reference/cli-notes-collaboration.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "7841cdaf41180c916c607b452c5a1cc2d80c934af44b11774b8de83fecf96cc0",
-        "sha256": "66541aea3365b0b5ae37b2b89e2cf1b288e90450d2c79f2f3398f6eee2535a94"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "812f53ccf97c1c03b3558af93e4276505872a1f63073f3c52177b2b36d312151",
+        "sha256": "91ee1f5e30b5ec4e1e91a23d479f95c74c6678ef49c7df2f1702062280526d0d"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/columns",
         "file": "reference/cli-notes-columns.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a8a118eb52d1ce97b0eedb0ccb9f26e656ef3cecf07bbf709458afe61b9ca750",
-        "sha256": "1a01c4931742fc6b8f22749021914c4fc3073d3b5fd7b81b8572882f5733f2a9"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "776e404a6a1e025b4d2bef1c0d7dc47d7580234f3a508eca5169fe1c8fd19832",
+        "sha256": "5e2d3794bed151c7df3426628e516f70a7fc960d1ecedffe0da4b4d8cba95e19"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/deletion",
         "file": "reference/cli-notes-deletion.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "6b077ee602428d2a2e6da6277d572543b6a829e15f7fe1965831ee9ef2ae2327",
-        "sha256": "a587e792eb259d780f90f24515a86a7b5a5aa97f383900451dc404efc2127319"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "0cc7ed4693f058955f5d2b9d3023d7207b0af61b0896e334ce4fe031164e3ac6",
+        "sha256": "85463b3134c018e0ded0f4e22c970916f3b674ed861e3ed9ccce46d8b1157c3b"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/editing",
         "file": "reference/cli-notes-editing.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "9674e1824ad2c99f9a6c3eece518686e92da26e7278e7340d4dd1e102219d583",
-        "sha256": "26f5299836e0e6d3f32e276d28b585e974767b89f2e65c28f1a8a72eb414e868"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "9a3a2366d72a0f096793a2d65ea822873dc06d5be518b7328e21ef5d654d0c3e",
+        "sha256": "67659d7048d4ac6e812b3cb378b5be36010d3a53b40041bc0736973f0dc6fafe"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/getting-started",
         "file": "reference/cli-notes-getting-started.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b832c442f8a0c61c8b62c744014b867ae3d94a28d8e101f94b4193db6b7acdf9",
-        "sha256": "882cfe1ead850e75460e7dd18e6452ec640083a2121bc1cbb0815f977c71a70b"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "fc4a82bb310bdb5caba4a6dad5bfed729a7b079d27f31b611bcb166c5d31c926",
+        "sha256": "1bfbfea240ab4fca07f0feb273c4935f6df6bd3bfd49d810ef98f9c03afc33e0"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/legacy",
         "file": "reference/cli-notes-legacy.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "0bec85e7abb04a72197076d6db9848a34e4d7fae961411ede4b00bd2ef5f194e",
-        "sha256": "4700e1d7e5bb68dec6c8b8541ade1ba9de29deb205195a5c98114527ff02bc96"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "57101e346fad27cb46eaf9ef3063f6c9ddc2313e1d69314cec74dfbc0d3ab1d9",
+        "sha256": "721d8048bff7eac42d8729ff0c1272483863a45645166795135c0ba4d0ac5df5"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/projects",
         "file": "reference/cli-notes-projects.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b103702f0e556791a82f3826730f8cce634901d6043d5530df0f4a5a1a128171",
-        "sha256": "355f6e633f4909a218106f2abb29a9eec7a83b677460986a14f0ae9a3f71f71d"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "13a02edbb9064101ce770389ed99ebd8d34d633d833be8778d7ead7a67488324",
+        "sha256": "78bcebbaab59141971c0f88fe9061f127e83f121acfd7d4a4984665d1d8cbfc2"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/reading",
         "file": "reference/cli-notes-reading.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "1530099415716ba7a72ee88ae961d3a5f5b9e458ad621aaffba663dc37c4870f",
-        "sha256": "421009b5e9d314124980bf1c6b85a21c1493307ada4e43bfa2aa5914ffac7a15"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "4d8ce865a38af77225041e93215be1bc16d839807310aaf4655d3ba260231358",
+        "sha256": "682741008281a511ca9509d75ee89a07468829d759d4b7e8293dd952ccf41162"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/rich-content",
         "file": "reference/cli-notes-rich-content.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "806eb215bd54df582f52c7220f3018e2ea84886ef148216025011fb1bd983fbd",
-        "sha256": "72f5a2ee45926c66491cafbaa65a648e0ef91886f387921e9239b2258b4d8ea2"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "c35cf87661ee8981cdf4c8b680194e8b5fd02a01d28c8e4453830bd07d3dbe66",
+        "sha256": "fb7cfbfdcdc53a62f737053fe3a5b590ce1421013137d6844b9168e491c3f822"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/sharing",
         "file": "reference/cli-notes-sharing.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "8914123a67d744ed626266ffa185acaa86bd89238470da4db2d9910d15ba314f",
-        "sha256": "bae01ec25b2bf8ce5c4e6b3b49d952fbfb724d0e0ff4cd0a04f34ff3ff281734"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "dfed102aa657b15bf7af310577bf59b448530f9325b1d7336b08965d859aabe3",
+        "sha256": "1a126d86655999763f5aa00cdd7bf0a38e04a4026bcaae95d9d087db43dff8ef"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/suggest-diff",
         "file": "reference/cli-notes-suggest-diff.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b8b72bf24bbc89c1228b44f3b2835793f8c929723cab32203d3b44c74e98f487",
-        "sha256": "9696bf7a6af771598eceac3ae4216e1b793c654bfd803ba538cb74b3701d2f74"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "a15d51ca158527c581a374c4e028116bdddc1bea8bc045973ab9eae63f863f22",
+        "sha256": "8621c2308dced6f27ff0030044d3dc492678ee0c552564bd58a7a84f56cea034"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/transfers",
         "file": "reference/cli-notes-transfers.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "050292ef9a6dd435b4f29cb9070919f77ead6a6e28d1ddb44992d9247687e790",
-        "sha256": "b538a0d1441e58dc0798622a87b82cad216090ade271f2e3cb343a829dbd209a"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "fe07cb21c7ecc423bea42c9f6a9f0cb6cbfe8427e9deb700b9f1f535d878840d",
+        "sha256": "4179f2815b21172e4c9682f3bb29af79c06bc5991c674215b21a4b31663d69a4"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/versions",
         "file": "reference/cli-notes-versions.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a9d6b20362870710439ca72259c34ac33bd4e8eda2f0140101fb9d192a9d1c7e",
-        "sha256": "76d894bd3086316ae7fa8f296ad6e033792ba107e5035c12fa02e10b46b5ddff"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "047f19b76f16f832a0ee6a0a46555ec88bba4428f51d46e2c3a2a515892c9dc7",
+        "sha256": "e0e76dcd642a60bfaebca9d46a9352453b63f0afab3ff28bd1946afb54bdc7db"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/videos",
         "file": "reference/cli-notes-videos.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "66dfb2267dea88eee62d0ab7e8ff04269b69d3eb1774f3b12718bcde326da11b",
-        "sha256": "75014fd482c4abce3a78e82fa625821c5b1e4b0e02ba4d210dc8ef6b117b8dda"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "ae1250454378e1bdb693d5a9f359f7130f4a3780fee6e7ba42ba0a8a24a8981c",
+        "sha256": "5195fc56769daa0a163672624d9acb69099185cf65a05b5782518f7f2584e9a9"
       },
       {
         "url": "https://cli.dreamlake.ai/organizations",
         "file": "reference/cli-organizations.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "14267d11e07f1b3104b930bc78c380ebc96dc20222cf096c6c0138cbe6ee1ddf",
-        "sha256": "90e542eac0d7cd12a14f5aff2d58da2fb4f23546734c300a13a4a4befe3858d5"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "f2f753b336ee12f29f0b2745fbd66c1bd799d5106ecd5c77e7459664ed2caf48",
+        "sha256": "7a41816ee8594599f5b32fa437be463f4a1647584834f550262ba3d549573ad9"
       },
       {
         "url": "https://cli.dreamlake.ai/ownership",
         "file": "reference/cli-ownership.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "1c3ad19c368cf2bddf788262ca1b0a013da466948fec79947e1a76e0adc4d9a5",
-        "sha256": "61e11caec9c5591633bc6b05b78861f3915e1dfbe2ef45291e50daad15254b7b"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "f6757222642eca9011fd089b95f7cfc1f39148901d63fb72862594faf190037f",
+        "sha256": "621b85f2e963e04b55ae29eea7ed4b1225fc3c4dc714e48a55ac345409000b77"
       },
       {
         "url": "https://cli.dreamlake.ai/pipelines",
         "file": "reference/cli-pipelines.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "5d7c4b214732930d838c92cf07459372a07a6091b4dc4c28085a819aecb699da",
-        "sha256": "e7a9384f2866c96e623dfd947a47f001a5fd598dac3128c83095084aa7a2a261"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "ad176f1a1d5732b26c0feb701a566605cc9b9b793cb53a74af9824dde8109e91",
+        "sha256": "cfc6a6274e0d97481d0f1d23b0b6dbedef69b75b83bec5c2c973f73dd92528e5"
       },
       {
         "url": "https://cli.dreamlake.ai/projects",
         "file": "reference/cli-projects.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "d6a7509e91dc340679f2d526d51446f3dedcbae15c30742542a5a04cae3bf9e1",
-        "sha256": "ce609c74b0acc4da6a6b00c57e81fc53b4ff8aedc62ad7aaae253a26cb877a33"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "01f4c43123946ceed12555b8d323fa80f86fb28f6a4802e31862f2ca83cc32e4",
+        "sha256": "64263ec6adf6942f768be63ada374e8e4c44a86d63be5342140b5db77d4b08ad"
       },
       {
         "url": "https://cli.dreamlake.ai/provider-lifecycle",
         "file": "reference/cli-provider-lifecycle.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "299c874542f36e78e7c23f4d49613b76ea0f7a3fb4cbe25bad4f9697fc140468",
-        "sha256": "e60713272409e47e860628717ba79e3af7b0ab32dfe092eab8be7d2345d1c17d"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "2c01b73fe79a7b3d22b1efcc432859fa1e31256356d3c16fce802d8ef9ff50b5",
+        "sha256": "e37d0397e4f8d6d235163931c6091a2b485dacf04d6dbe195f770481edf3b924"
       },
       {
         "url": "https://cli.dreamlake.ai/quick-start",
         "file": "reference/cli-quick-start.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "8c8477bbe2ba73a2f03e7d993fd85f89ffdee62403eb07e71b9016c0b92e7484",
-        "sha256": "b0ff7fc7ed0ed7d7087316d1475d17399cc4db727dc78414e8cd80ec80d04e77"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "72d5779410da3b7be1a8df0ac9d50ef17a1bd3355a41140621863c6c02b6dcee",
+        "sha256": "396c12e7bfde00123de8df65f56c8de48dacffe82ac4467afcff1b50a0c22b4e"
       },
       {
         "url": "https://cli.dreamlake.ai/registered-udf",
         "file": "reference/cli-registered-udf.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b921d94be7b750cde1af3af4f087d3009f2b3f957ec3743e1b28ab37b4e45fea",
-        "sha256": "8d53b4d8c6921c393a143307c1720907e8be58f3d812e2a0227eb720c3c430e1"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "ebfced79dec5103425077c233b9d020a346015748a51b047a5e6a410df4a0444",
+        "sha256": "34da393d1d01933896c32dc505c7b9f45787e443a6620abc8cf6059a0dbac1d4"
       },
       {
         "url": "https://cli.dreamlake.ai/release-notes",
         "file": "reference/cli-release-notes.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "562a1f5f85edbab1e6900504d33e24ba741e7b7957a90196ec296ef943df5216",
-        "sha256": "6f81287e8bfca5014a9e21a843d09f81e3204c36c39ed32282c1a83039a2f63c"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "66fe5820122c17a303e98ce761ae92704ef49edcaec6b85059c1bdee802e89ac",
+        "sha256": "47a179cf795477907107666392c7edc5c48eed76436458954770b4e59127bf9e"
       },
       {
         "url": "https://cli.dreamlake.ai/runnable-api",
         "file": "reference/cli-runnable-api.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "8cf18b5e4b181243b2f241b80eea741941461f14dde2a575be039f5461b1aa76",
-        "sha256": "e6c13ecbb605bc0950f7ccb05eb3906f178e5a0126a69bb56a33811b1bc7a6e3"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "fb7116f369536f0059cf838369ee7e1ea08cc7a13900e02fc8acd8f9f8bbc712",
+        "sha256": "8a9daafdea957e996d6e5036b945d5945bfc75d5ad2c04813bd3d5f6a1a554a9"
       },
       {
         "url": "https://cli.dreamlake.ai/runnable-upload",
         "file": "reference/cli-runnable-upload.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "8ad0408ea49c492ae679c80ab7dc95d8bf5cd6cbc3c6990035838ff4869b9e3e",
-        "sha256": "4297334517cfc465b0a54381cf58778011041122ed2af8247a22e8a9cb8e546d"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "ae2f68561a68addd32d6644c4cbe892e80c9acc1fdca79778646d1858ccde634",
+        "sha256": "0b08af90b9358a0a7880dc0346ddddd6578092cd1f953e9f452bc6710f43db86"
       },
       {
         "url": "https://cli.dreamlake.ai/scenes",
         "file": "reference/cli-scenes.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "5090a705982e7db27b0f5b8180f502c3621d29ac1e256efd387a010127ac0b97",
-        "sha256": "addedc7d651e975a1a91e1b029b9e6c57724ec50326e30f024f803b4704e1a48"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "1f089e12ad7820fc5b96645686580f2be57b5a7b02c7de677f206deb6cdca6a1",
+        "sha256": "61ffb43acbf0896ee29de3fdb9fa6dbb8ae2240e61ccb341f32863b99125ec5f"
       },
       {
         "url": "https://cli.dreamlake.ai/sessions",
         "file": "reference/cli-sessions.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "9a3f0f8d3831795f290c4a4a6b17f4da453ce3dbc96248f736c1f105b31e40d0",
-        "sha256": "a23327e6391f27e14033a67b2cbee8beda9b2ac3633cac3d010bf89fde01596c"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "3d712e2020deadf619b9e1fb3bc577efb68d5cf71a697bc5f76a2a151c1f3c5e",
+        "sha256": "16e923dbb0b00473596071752e72d47b3979dad74ecadfdc4b6aadfc6df2a4c2"
       },
       {
         "url": "https://cli.dreamlake.ai/skills",
         "file": "reference/cli-skills.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "23d727f23dae4d54f0e34c73892916406f5191cff5f1f958768d75a86af6a050",
-        "sha256": "5ca1afd9c43fa5b3a61427a8af82e6d0f219046b35a810de32bf67b4c5d6baa9"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "c46c4a5b7edad120b5c46e9c3ff327fad45b43bf24bdd13069784271d029e814",
+        "sha256": "3926806197271f7009b161ff0a0b80900622415905460cf3c38eb63a7aebfb90"
       },
       {
         "url": "https://cli.dreamlake.ai/snapshot-launch",
         "file": "reference/cli-snapshot-launch.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "bc1061e92994c7b018728ed0a16da2b0347173783e8f621588980bfb8aa10378",
-        "sha256": "463ca4936c5012516a3cf05469f3c95da2320711c2ceeec0775dfdd7b2a5c0c4"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "e3f9027a9a6b4bea619efd45c069e32fda069395c2445c742b11a487ea523195",
+        "sha256": "09a950749bbb175feb041def9f8c58544a45d8f3fb453e3052fbd9face543716"
       },
       {
         "url": "https://cli.dreamlake.ai/sources",
         "file": "reference/cli-sources.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "86947d27ebcd8d701fda826c42c1f5797772f680f16a25b42ba4608ef77c2873",
-        "sha256": "f303b7e19d5fc6cad95c7b39e3067f91006a0e0ad49eaa6f7bb734b0fecdf4d4"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "d7ab67de01415d6820af5083411d88170cfd8a882c03f2cd6c3650080cbc68c2",
+        "sha256": "6b33cd1dff2e4bbbca161828696fdf69eb4c31c2507abaf3a112522e9b7ecd8e"
       },
       {
         "url": "https://cli.dreamlake.ai/ssh-sync",
         "file": "reference/cli-ssh-sync.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "2fd75511a6cf8530d0a16a2f42a9c80ba358cc9a559b06539fc28b173b484965",
-        "sha256": "94614f29cf5ae793c65950cb3b191192ad6d78276c7edf1c41b7f1a0dbae12be"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "a2554d72215cfc46de65a4170e768f870f18ce71bce510448a2eebfcb0bf06ae",
+        "sha256": "f9680013cfcb0d07a37853ecc80f047136849f5a093ec88dea8dc0357f9b681a"
       },
       {
         "url": "https://cli.dreamlake.ai/tasks",
         "file": "reference/cli-tasks.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "789319bf40dd6af0ae262189794df377ae444a3865324fc9e2409e04b0999d8b",
-        "sha256": "f4567073cae9d695af493adc2a2e67c507d7dc7447f2fb16a07146388e5013dd"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "5c35d073f678464006fa627c1b3148a7b5d5e0a9c93789568cf86d2c29c05c45",
+        "sha256": "1d70d34370e9eaa92b37da3d3c6dd15ee2bba01e9a75f9a30ccebeda21474e71"
       },
       {
         "url": "https://cli.dreamlake.ai/teams",
         "file": "reference/cli-teams.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a2cee2f1eff911ae143e214d56cd7d05937aaa194b649729e88baca709cadbd1",
-        "sha256": "c6a2bb27b261ba387c648c60afe6a557763ac6a0a94117aaf7ebb2520bb6d5aa"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "843aae9072f1a7e4f309302cd67c1038b7ccec0e1b6b25e7c8b519e4b90ec2a2",
+        "sha256": "63465dd250383a9d6eb97ced49867871ed52b79fc04067f10779a39be755568b"
       },
       {
         "url": "https://cli.dreamlake.ai/uploading",
         "file": "reference/cli-uploading.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "df3744c83a7677c91e2a346e7838837872bb7b6c40fc7ae08b9e57730d70f4e6",
-        "sha256": "fc3ebaa9f573993ea41fcf7e30d4baf8bcbd73667a078522ef83d947908255c0"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "33bf100cf001f4220c6c1d36ec65ae430b7bf27e39b1ca0e4e2dceeb62d6ae26",
+        "sha256": "c96830a53d0a2e0a4cd1317f66242c28743324b2c2a40bccaf4d251f2fa55f9e"
       },
       {
         "url": "https://cli.dreamlake.ai/vault-api-keys",
         "file": "reference/cli-vault-api-keys.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "d93100deb8a945a1bd8015ec2f7025aea98047be964752fc88c9d587e2d98c0b",
-        "sha256": "35408aeeba67b808d791738545df46036e86f992a5ccb3c99495ddf0f3ebde71"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "b97ecc6e8bf47b596c2924fd28f1423339aeeb79a721e23a1ab2296d571fbcf5",
+        "sha256": "88a4e542c7e0fbb8fb0c2df948fa0a43cfdb7718aba0bc803a8d65d650305b7b"
       },
       {
         "url": "https://cli.dreamlake.ai/vault-cloud",
         "file": "reference/cli-vault-cloud.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "d262bc48c179847b295e9f8414c37f5cbb13fc30704ab902a97a3dfcd2602dc7",
-        "sha256": "ce14d80b39ca3f826ada8443427958acf03fedcab94071701e8b8991dec63561"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "e03463899729bb654dc4715381397e1416eb43d76a1e19b8be88bb032897c6e9",
+        "sha256": "2730153b077f3f1499a1aeaec8c7646a49fa707420b24718f3ea538208696ed1"
       },
       {
         "url": "https://cli.dreamlake.ai/vault-kms",
         "file": "reference/cli-vault-kms.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "90e7a7b152eeecd6204a7650e675e46da72fd7b3f1f540686ef9c908db9678d6",
-        "sha256": "05092a569c1094d2472ccdc93fa30cd98c42ac3b30818e8882f570d288e3a28e"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "b72241ac42b4a0824e16bee444df5f4bc25a7890d7fd2a113f0fd4e650dd18b0",
+        "sha256": "5241d4d3b78f84f529b4b16cb67ee12da6f93e883e9f985ce9c6fc757187571f"
       },
       {
         "url": "https://cli.dreamlake.ai/vault-operations",
         "file": "reference/cli-vault-operations.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "9260dd182dd69d752d160bbba6e80175e28a59094727983bab100b90d05421f0",
-        "sha256": "3ec907dd4850ffd337befefeaacf77f8a6918c8bbbc3fbd5b4462d732cab131e"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "38a6ad7527fde18f8e1a3feadbf783eae82cb0f0e1ec09fbd98f15c1296ab113",
+        "sha256": "7a1849d6d31032764f524b09cdb5cee85b65b9c0617cca8bff28a62b7d0db08d"
       },
       {
         "url": "https://cli.dreamlake.ai/vault-passwords",
         "file": "reference/cli-vault-passwords.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "2d7039954d5362c8d8a5956d040b1f669ada6a8a18d8dfa29bbf3281a9c1c05f",
-        "sha256": "7a4cfe928d196c14d0a6fad75ef55feb5b19c2d509f667dfc3490bd518f5a88b"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "d4bf17b4769c69e2c233b4adc429a394824cd7f6a4963373fa4a8f3c6e432715",
+        "sha256": "31c2303fe3850692d18b729dde75e56f31be197a9026b66e281fa28efb09e33d"
       },
       {
         "url": "https://cli.dreamlake.ai/vault-terraform-state",
         "file": "reference/cli-vault-terraform-state.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "3720ed6c6d3778a10e1e438ab661b80878159bbcd72a22195abf5408c5635637",
-        "sha256": "26937cc5e75bfb58c7dbaea737b2e1d8549d790caf54798060e3ceca7de6f408"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "73920a88c3b7a190ec438133a0cff3eb1b8ba4a24f6709c10b007bc5fe1102bc",
+        "sha256": "0bf35048522c1b1289eb8d28a8df24be3955cf241770bdc941801ea0eccb860a"
       },
       {
         "url": "https://cli.dreamlake.ai/vault-write-recovery",
         "file": "reference/cli-vault-write-recovery.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "112c68e5b3529bd522d726248b6ef44d99278db0a960bbe7716dbaae5282842e",
-        "sha256": "af5827b41e2260336afda6ef8628a8b31d4c1adb8e7ced713fb93bec148328ba"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "b269151a5f9b0c61de1d0a0b14be6c823b871a522accf8d76a8f67bce6a4ce61",
+        "sha256": "048e2b1307e91631ab027d819d89a003c191ee33c0c2fb2d08b176c91464b3b4"
       },
       {
         "url": "https://cli.dreamlake.ai/workflows",
         "file": "reference/cli-workflows.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a4b2cac125a0edeb3c04f4c7568320f343ea552c459d6eadf03ac8bf3285fce0",
-        "sha256": "b68300c9a36e47f69e3cc2e32a82dd99b82d78cada04d9cbab7b9490cece863e"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "81c08412f5b0154dc156f38c2040518221535b34214f9ebd884c747acfd1e63b",
+        "sha256": "f09a02d1e20ac296d394d7713a10e6994064575c831c9bf98ea75ec50c8e2d89"
       }
     ],
     "dreamlake-datasets": [
@@ -568,9 +568,9 @@
       {
         "url": "https://cli.dreamlake.ai/sources",
         "file": "reference/cli-sources.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "86947d27ebcd8d701fda826c42c1f5797772f680f16a25b42ba4608ef77c2873",
-        "sha256": "19cc6a1620475b522d227f6d1efc712676da0f381370ee12aec2d7e90445a4c4"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "d7ab67de01415d6820af5083411d88170cfd8a882c03f2cd6c3650080cbc68c2",
+        "sha256": "2a06318436222c56980316c8fff2e86d0f871c441bd12287397964b80ba9d663"
       },
       {
         "url": "https://viz.dreamlake.ai/",
@@ -647,86 +647,86 @@
       {
         "url": "https://cli.dreamlake.ai/lakeshore",
         "file": "reference/cli-lakeshore.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "72b9b6231c0b87b95477e51db27db44c4f21a0f4062996ab122080b771c113ba",
-        "sha256": "313c99ace172cb599caa16e1c33337ecd23b5c0a356780464b7c4eab094bc2c4"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "a52dd4a83efd4f5bf3543d1b25ffde27d40a788fcdcc3d8921091f3a803e6b6c",
+        "sha256": "3fa897beb9544af6f573827f89869b2baada596827682b5a4c00067e2ab8147c"
       },
       {
         "url": "https://cli.dreamlake.ai/host-enrollment",
         "file": "reference/cli-host-enrollment.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "5b22ab02ae70c8f5c1ea21f1642cdbc0ce04eea29d0477608c18c218a2b6e7aa",
-        "sha256": "c827d0ddd83b667d8f08fe8b2529a87208c615f456d969f94436e1286f79e985"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "ae9296b7b89dd1cf11f6507528463b733aca65fdac222035b08f96a8bb322947",
+        "sha256": "02e6c636ecae5963007d36115928ada9f51ef18843f9ce482942f24a79df2458"
       },
       {
         "url": "https://cli.dreamlake.ai/sessions",
         "file": "reference/cli-sessions.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "9a3f0f8d3831795f290c4a4a6b17f4da453ce3dbc96248f736c1f105b31e40d0",
-        "sha256": "8ff8786fddd97bd0ced9fdf14878368b27e97c3f5d64445a66582cd94985437f"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "3d712e2020deadf619b9e1fb3bc577efb68d5cf71a697bc5f76a2a151c1f3c5e",
+        "sha256": "f1630cb1e6dbdba617e893610fcc3614fdca460b8a0535f786dac868a7f604fd"
       },
       {
         "url": "https://cli.dreamlake.ai/runs",
         "file": "reference/cli-runs.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "f02417a82a5a87dda01a5c8d8a6a56f1b533d29c411861bf73e5bac2705837c1",
-        "sha256": "5d5a5b1bf2002f182397c7a78ee162629e4ab59dfbc6a718707f6b81790a11ae"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "607a2c9089f2c2ade38ed7d1766bbcefc9fe738c054c59ed92d11b430ec2a5e8",
+        "sha256": "c89e05b888a688857eca25c43ff2cf5f7de3f963e6145d47b540f1b6b9676d12"
       },
       {
         "url": "https://cli.dreamlake.ai/jobs",
         "file": "reference/cli-jobs.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "ca4089e66b26116f0d3b011063d1615ae2308f94a13a866ef193f30ebbd9660e",
-        "sha256": "68b87bd161f3cf44ba9ad48b6ff70723808261fe96b7b737121aba82d7a0b306"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "b7b8fe891b36939513b971a8e161e277b30b9ff8fe8d95a3bd3aa52e9144835f",
+        "sha256": "44180c4d26d57d5aee98a9c11dc73c2bdf9787f6df27cd845941c0fec397184e"
       },
       {
         "url": "https://cli.dreamlake.ai/queues",
         "file": "reference/cli-queues.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "e1dafeb5f25fd3a7e920629aba0b2db65e381e6416f4daa4ccdf582ce1e65aa6",
-        "sha256": "8f9e503b9898137f07c244cb58cac733d0451b17f57d2c7fe3c7dc6df3cc560d"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "761352e33deae6b77fce05dc8402a1d16c1eb1682a8ec39671f17b9a4f5dfa30",
+        "sha256": "8a4d671025a6d9da72c75bc6a8e1ee27ad5dde45b6238e9f589b7a57abfb3187"
       },
       {
         "url": "https://cli.dreamlake.ai/providers",
         "file": "reference/cli-providers.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a7b5119bbf222eed7d96390d977f6d1cec3a1b0313f50363667f1d7962855c2c",
-        "sha256": "d358da1b8901240454e66425c21722febc08f961c6d140e5c7eb7e51b79d1792"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "c8d0113c22496734cd1bafdb121d3bc29dc15b23da3b462a5ebddec9693e1f09",
+        "sha256": "7c8d82e2bb57ff23298857ad842d6ccd6b8da28b4610ee2f4f70a90369bee30e"
       },
       {
         "url": "https://cli.dreamlake.ai/providers/kubernetes",
         "file": "reference/cli-providers-kubernetes.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "0f855b189e50a966d3db942c69a0cee9968744c5db312639f4adf156ef1f671d",
-        "sha256": "d4c597ebc7dba0b5543562fab15f1992b1d39c6d1935657dea1a5f479f7f9320"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "c558c4b9c09ca1446ae9a6a300bc64f1f8a9dd0ecf496bbb13d570a473597bdc",
+        "sha256": "ad1a0b17d9674726da5277e4eb7488ea6ec63ddc4c892500a7a4aa9cf67e9165"
       },
       {
         "url": "https://cli.dreamlake.ai/service-accounts",
         "file": "reference/cli-service-accounts.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "74a0297dfec2e8c375c93e263df11b13efb959f393a918a04263ab81784f81a2",
-        "sha256": "66f08aca3f97400b963eba879348cb3f320a9d5d3e84c950a4f230523058c6d1"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "fc39a02322f6d3d95965ab981bdd4c2227f0d8d93ddaae6e9d2c4f8d78cbcf4b",
+        "sha256": "9383683d1625f23ba38d433e65004c7dd6beb79ddf2880bdeb5649b564dd999c"
       },
       {
         "url": "https://cli.dreamlake.ai/infrastructure",
         "file": "reference/cli-infrastructure.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "bc2bce82ee5d5c887db8ee45357217651b2b3f7bba4afc5e9614c83a0e0f03fc",
-        "sha256": "c3c38b9de575633364ad107d3aa26562c117781e8bd8483c1c1310e3f702d282"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "f475cf8598d2dfd034dcd498537d105fd2b16ba3ffc51dc044fb3e5f556bd46e",
+        "sha256": "834997256446be4f94e58d9a0d75dc5f76f037353d88c54278d84ba85cdf763d"
       },
       {
         "url": "https://cli.dreamlake.ai/connect-aws",
         "file": "reference/cli-connect-aws.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "398be2ad4e2fb1e5ccfe3382a525962631d47f16eb18b6bf8b3d7937318bea14",
-        "sha256": "eda21e7bf9dcd27f3cdabb11ef16c42936d7153a5beaf61eff7caecbbbfb87ef"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "36bb03491d7dd1fc9de66eda7fce889a22cc497c84968a81d1bcf7ebd695ec77",
+        "sha256": "6ae0e9edad7c70ec0b3a818c747219d53a30a18b91e42872b407c2b96c5afbb0"
       },
       {
         "url": "https://cli.dreamlake.ai/skills",
         "file": "reference/cli-skills.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "23d727f23dae4d54f0e34c73892916406f5191cff5f1f958768d75a86af6a050",
-        "sha256": "5ca1afd9c43fa5b3a61427a8af82e6d0f219046b35a810de32bf67b4c5d6baa9"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "c46c4a5b7edad120b5c46e9c3ff327fad45b43bf24bdd13069784271d029e814",
+        "sha256": "3926806197271f7009b161ff0a0b80900622415905460cf3c38eb63a7aebfb90"
       },
       {
         "url": "https://docs.dreamlake.ai/lakeshore/hosts/enroll",
@@ -896,114 +896,114 @@
       {
         "url": "https://cli.dreamlake.ai/notes",
         "file": "reference/cli-notes.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "64013d80bd0b879d3a17972192987cc195b1b9e23a2b4c8bba3e5a38b87b4483",
-        "sha256": "a9bb61136b598c234acb1dea87fdb78183f86e28db8174cdf2c2ab83ff83e4af"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "be87dd3350924b3723120bb694a1b153ae2a8395ab60393b2022c6aea5c444ac",
+        "sha256": "6ede1d0336907e566d9f24c23cdd4c9b18d5dec235776c77f785085fc52af09b"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/getting-started",
         "file": "reference/cli-notes-getting-started.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b832c442f8a0c61c8b62c744014b867ae3d94a28d8e101f94b4193db6b7acdf9",
-        "sha256": "882cfe1ead850e75460e7dd18e6452ec640083a2121bc1cbb0815f977c71a70b"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "fc4a82bb310bdb5caba4a6dad5bfed729a7b079d27f31b611bcb166c5d31c926",
+        "sha256": "1bfbfea240ab4fca07f0feb273c4935f6df6bd3bfd49d810ef98f9c03afc33e0"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/reading",
         "file": "reference/cli-notes-reading.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "1530099415716ba7a72ee88ae961d3a5f5b9e458ad621aaffba663dc37c4870f",
-        "sha256": "421009b5e9d314124980bf1c6b85a21c1493307ada4e43bfa2aa5914ffac7a15"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "4d8ce865a38af77225041e93215be1bc16d839807310aaf4655d3ba260231358",
+        "sha256": "682741008281a511ca9509d75ee89a07468829d759d4b7e8293dd952ccf41162"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/editing",
         "file": "reference/cli-notes-editing.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "9674e1824ad2c99f9a6c3eece518686e92da26e7278e7340d4dd1e102219d583",
-        "sha256": "26f5299836e0e6d3f32e276d28b585e974767b89f2e65c28f1a8a72eb414e868"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "9a3a2366d72a0f096793a2d65ea822873dc06d5be518b7328e21ef5d654d0c3e",
+        "sha256": "67659d7048d4ac6e812b3cb378b5be36010d3a53b40041bc0736973f0dc6fafe"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/collaboration",
         "file": "reference/cli-notes-collaboration.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "7841cdaf41180c916c607b452c5a1cc2d80c934af44b11774b8de83fecf96cc0",
-        "sha256": "66541aea3365b0b5ae37b2b89e2cf1b288e90450d2c79f2f3398f6eee2535a94"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "812f53ccf97c1c03b3558af93e4276505872a1f63073f3c52177b2b36d312151",
+        "sha256": "91ee1f5e30b5ec4e1e91a23d479f95c74c6678ef49c7df2f1702062280526d0d"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/versions",
         "file": "reference/cli-notes-versions.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a9d6b20362870710439ca72259c34ac33bd4e8eda2f0140101fb9d192a9d1c7e",
-        "sha256": "76d894bd3086316ae7fa8f296ad6e033792ba107e5035c12fa02e10b46b5ddff"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "047f19b76f16f832a0ee6a0a46555ec88bba4428f51d46e2c3a2a515892c9dc7",
+        "sha256": "e0e76dcd642a60bfaebca9d46a9352453b63f0afab3ff28bd1946afb54bdc7db"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/legacy",
         "file": "reference/cli-notes-legacy.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "0bec85e7abb04a72197076d6db9848a34e4d7fae961411ede4b00bd2ef5f194e",
-        "sha256": "4700e1d7e5bb68dec6c8b8541ade1ba9de29deb205195a5c98114527ff02bc96"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "57101e346fad27cb46eaf9ef3063f6c9ddc2313e1d69314cec74dfbc0d3ab1d9",
+        "sha256": "721d8048bff7eac42d8729ff0c1272483863a45645166795135c0ba4d0ac5df5"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/rich-content",
         "file": "reference/cli-notes-rich-content.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "806eb215bd54df582f52c7220f3018e2ea84886ef148216025011fb1bd983fbd",
-        "sha256": "72f5a2ee45926c66491cafbaa65a648e0ef91886f387921e9239b2258b4d8ea2"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "c35cf87661ee8981cdf4c8b680194e8b5fd02a01d28c8e4453830bd07d3dbe66",
+        "sha256": "fb7cfbfdcdc53a62f737053fe3a5b590ce1421013137d6844b9168e491c3f822"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/videos",
         "file": "reference/cli-notes-videos.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "66dfb2267dea88eee62d0ab7e8ff04269b69d3eb1774f3b12718bcde326da11b",
-        "sha256": "75014fd482c4abce3a78e82fa625821c5b1e4b0e02ba4d210dc8ef6b117b8dda"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "ae1250454378e1bdb693d5a9f359f7130f4a3780fee6e7ba42ba0a8a24a8981c",
+        "sha256": "5195fc56769daa0a163672624d9acb69099185cf65a05b5782518f7f2584e9a9"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/attachments",
         "file": "reference/cli-notes-attachments.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b4d08038a9e15d1ba508d0c683a292d5eddb12da66002ec370bc54be86cd0a19",
-        "sha256": "f34764c154857167f9c0a017cc8e7cb975b06ae1fbba8d22b07349a0004abab2"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "3ca79cdc1f674ac7e3843079c3ad444ff280078ae06bfdc19da9f140381588d3",
+        "sha256": "1181d2602914fc226d565525c4723bdd1da461366a92d63685c852f09e650cf0"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/columns",
         "file": "reference/cli-notes-columns.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a8a118eb52d1ce97b0eedb0ccb9f26e656ef3cecf07bbf709458afe61b9ca750",
-        "sha256": "1a01c4931742fc6b8f22749021914c4fc3073d3b5fd7b81b8572882f5733f2a9"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "776e404a6a1e025b4d2bef1c0d7dc47d7580234f3a508eca5169fe1c8fd19832",
+        "sha256": "5e2d3794bed151c7df3426628e516f70a7fc960d1ecedffe0da4b4d8cba95e19"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/deletion",
         "file": "reference/cli-notes-deletion.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "6b077ee602428d2a2e6da6277d572543b6a829e15f7fe1965831ee9ef2ae2327",
-        "sha256": "a587e792eb259d780f90f24515a86a7b5a5aa97f383900451dc404efc2127319"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "0cc7ed4693f058955f5d2b9d3023d7207b0af61b0896e334ce4fe031164e3ac6",
+        "sha256": "85463b3134c018e0ded0f4e22c970916f3b674ed861e3ed9ccce46d8b1157c3b"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/projects",
         "file": "reference/cli-notes-projects.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b103702f0e556791a82f3826730f8cce634901d6043d5530df0f4a5a1a128171",
-        "sha256": "dd7b685a8b22530bcf4af13422f73acdd0326fd4f9cd7f0f71e0a27e27c96ff1"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "13a02edbb9064101ce770389ed99ebd8d34d633d833be8778d7ead7a67488324",
+        "sha256": "122256483efcd0f2f8d8d931af1d284eceb2f551940a423aec88d2af36a8d42b"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/sharing",
         "file": "reference/cli-notes-sharing.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "8914123a67d744ed626266ffa185acaa86bd89238470da4db2d9910d15ba314f",
-        "sha256": "bae01ec25b2bf8ce5c4e6b3b49d952fbfb724d0e0ff4cd0a04f34ff3ff281734"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "dfed102aa657b15bf7af310577bf59b448530f9325b1d7336b08965d859aabe3",
+        "sha256": "1a126d86655999763f5aa00cdd7bf0a38e04a4026bcaae95d9d087db43dff8ef"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/suggest-diff",
         "file": "reference/cli-notes-suggest-diff.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "b8b72bf24bbc89c1228b44f3b2835793f8c929723cab32203d3b44c74e98f487",
-        "sha256": "9696bf7a6af771598eceac3ae4216e1b793c654bfd803ba538cb74b3701d2f74"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "a15d51ca158527c581a374c4e028116bdddc1bea8bc045973ab9eae63f863f22",
+        "sha256": "8621c2308dced6f27ff0030044d3dc492678ee0c552564bd58a7a84f56cea034"
       },
       {
         "url": "https://cli.dreamlake.ai/notes/transfers",
         "file": "reference/cli-notes-transfers.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "050292ef9a6dd435b4f29cb9070919f77ead6a6e28d1ddb44992d9247687e790",
-        "sha256": "8eb163faa6c2c37b7b57b3800f43221048bb1c1d16ec76bd234376d7e29b0439"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "fe07cb21c7ecc423bea42c9f6a9f0cb6cbfe8427e9deb700b9f1f535d878840d",
+        "sha256": "b4b128ce1f99c5cf74cb723da6ddb74d10f6e3711e1df922dc31d833421288c1"
       }
     ],
     "dreamlake-scenes": [
@@ -1038,39 +1038,39 @@
       {
         "url": "https://cli.dreamlake.ai/scenes",
         "file": "reference/cli-scenes.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "5090a705982e7db27b0f5b8180f502c3621d29ac1e256efd387a010127ac0b97",
-        "sha256": "7ca4778805120c6675104c64f678de0c073d9efd66e8b1b22c4cb03bfa4f4213"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "1f089e12ad7820fc5b96645686580f2be57b5a7b02c7de677f206deb6cdca6a1",
+        "sha256": "16a8eb77c9b156a6e399686a31b56ddc47338ff2a05f7d5c762828610867fc18"
       },
       {
         "url": "https://cli.dreamlake.ai/projects",
         "file": "reference/cli-projects.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "d6a7509e91dc340679f2d526d51446f3dedcbae15c30742542a5a04cae3bf9e1",
-        "sha256": "ce609c74b0acc4da6a6b00c57e81fc53b4ff8aedc62ad7aaae253a26cb877a33"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "01f4c43123946ceed12555b8d323fa80f86fb28f6a4802e31862f2ca83cc32e4",
+        "sha256": "64263ec6adf6942f768be63ada374e8e4c44a86d63be5342140b5db77d4b08ad"
       }
     ],
     "dreamlake-tasks": [
       {
         "url": "https://cli.dreamlake.ai/tasks",
         "file": "reference/cli-tasks.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "789319bf40dd6af0ae262189794df377ae444a3865324fc9e2409e04b0999d8b",
-        "sha256": "f4567073cae9d695af493adc2a2e67c507d7dc7447f2fb16a07146388e5013dd"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "5c35d073f678464006fa627c1b3148a7b5d5e0a9c93789568cf86d2c29c05c45",
+        "sha256": "1d70d34370e9eaa92b37da3d3c6dd15ee2bba01e9a75f9a30ccebeda21474e71"
       },
       {
         "url": "https://cli.dreamlake.ai/projects",
         "file": "reference/cli-projects.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "d6a7509e91dc340679f2d526d51446f3dedcbae15c30742542a5a04cae3bf9e1",
-        "sha256": "ce609c74b0acc4da6a6b00c57e81fc53b4ff8aedc62ad7aaae253a26cb877a33"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "01f4c43123946ceed12555b8d323fa80f86fb28f6a4802e31862f2ca83cc32e4",
+        "sha256": "64263ec6adf6942f768be63ada374e8e4c44a86d63be5342140b5db77d4b08ad"
       },
       {
         "url": "https://cli.dreamlake.ai/dev/notes/task-session-scope",
         "file": "reference/cli-dev-notes-task-session-scope.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "5ee3b70f8b0be17e361fcc69dc0282765f8c693fc8228e5b04ea93ff20249736",
-        "sha256": "43a8e2c1f48da2d0a4f96a98cb415a3582e8e0280600488f60039c41184f1e82"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "53096af784bfaf5406157e036e29c4a96570c63f3b6e42cca01b31d95c7b5c04",
+        "sha256": "bbb82813b5fe96a7b3a14f5ce9fa038b4163e2ae4f05617512023eefb3fed492"
       }
     ],
     "dreamlake-workflows": [
@@ -1112,9 +1112,9 @@
       {
         "url": "https://cli.dreamlake.ai/workflows",
         "file": "reference/cli-workflows.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a4b2cac125a0edeb3c04f4c7568320f343ea552c459d6eadf03ac8bf3285fce0",
-        "sha256": "1ebe97f2c33c46f3ad310b932029b0d6488f7e8c5081b5fadd77a718b17a4de0"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "81c08412f5b0154dc156f38c2040518221535b34214f9ebd884c747acfd1e63b",
+        "sha256": "9fe1de8e8d1b32df60ecfae9b9f8693e0796e10a59101351b48bf3c8d0189bef"
       }
     ],
     "launch-claude-remote": [],
@@ -1174,9 +1174,9 @@
       {
         "url": "https://cli.dreamlake.ai/workflows",
         "file": "reference/cli-workflows.md",
-        "version": "0.110.1 25b3739",
-        "source_sha256": "a4b2cac125a0edeb3c04f4c7568320f343ea552c459d6eadf03ac8bf3285fce0",
-        "sha256": "1ebe97f2c33c46f3ad310b932029b0d6488f7e8c5081b5fadd77a718b17a4de0"
+        "version": "0.111.0 ac296b9",
+        "source_sha256": "81c08412f5b0154dc156f38c2040518221535b34214f9ebd884c747acfd1e63b",
+        "sha256": "9fe1de8e8d1b32df60ecfae9b9f8693e0796e10a59101351b48bf3c8d0189bef"
       }
     ]
   }
