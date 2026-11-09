@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/installation.md at 0.109.0 9f5a92b; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/installation.md at 0.110.1 25b3739; do not edit -->
 
 # Installation
 
@@ -23,7 +23,62 @@ Open a new terminal and confirm:
 
 ```bash file="terminal"
 dreamlake --version
+dl --version
 ```
+
+## The `dl` command
+
+Starting with CLI 0.110.0, both native installers and the npm package provide
+`dl` alongside `dreamlake`. They run the same CLI with the same arguments,
+exit status, credentials, settings, and help. For example, `dl login` and
+`dl memos list` are equivalent to their `dreamlake` forms. Help continues to
+use the canonical `dreamlake` name.
+
+This is an executable on PATH, so Bash, Zsh, Fish, sh/dash, PowerShell, CMD,
+and scripts can use it without loading a shell alias. Both names need the
+same bin directory on PATH. On POSIX, `~/.local/bin/dl` links to `dreamlake`,
+so it follows upgrades, pins, and downgrades automatically. On Windows,
+`~/.local/bin/dl.exe` is a managed copy refreshed with the main executable.
+
+For an existing native installation, re-run the bootstrap installer above to
+add `dl`. An update driven by a pre-0.110.0 binary does not create the new
+command; after updating, run `dreamlake install --no-modify-path` to add it
+without changing shell configuration. This follows your saved channel; if you
+want to retain an exact pin, pass that version to `install` explicitly.
+Subsequent installs and updates maintain both commands.
+
+The native installer leaves an unrelated `dl` file, directory, symlink, or
+executable on PATH unchanged and reports the conflict. Remove or rename that
+command yourself, then re-run the installer to add DreamLake's `dl`. A shell
+alias or function can also take precedence; the child installer cannot inspect
+these. Use your shell's command lookup (`type -a dl` in Bash/Zsh,
+`type dl` in Fish, `Get-Command dl -All` in PowerShell, or `where dl` in CMD)
+and check `dl --version`. A conflict with `dl` does not prevent installation
+of `dreamlake`.
+
+Shells can complete the command name from PATH. DreamLake currently ships no
+argument-completion scripts for either name. Any user-maintained `dreamlake`
+completion needs an additional binding for `dl`.
+
+## npm
+
+```bash file="terminal"
+npm install -g @dreamlake/dreamlake-cli
+dl --version
+```
+
+npm creates both commands using its usual bin links (command shims on Windows),
+including local installs through `node_modules/.bin` and `npm exec --package
+@dreamlake/dreamlake-cli -- dl --help`. The global npm bin directory must be on
+PATH. Updates use `npm install -g @dreamlake/dreamlake-cli@latest`; removal uses
+`npm uninstall -g @dreamlake/dreamlake-cli`, which removes both owned entries.
+Automatic native updates remain disabled for the npm installation; use npm
+to update it.
+
+npm owns conflict handling: an unrelated file at the same bin path normally
+causes `EEXIST`; resolve that conflict instead of using `--force`. Commands
+elsewhere on PATH and shell aliases/functions still follow shell precedence.
+No npm install scripts or shell startup edits are needed for `dl`.
 
 ## Product analytics
 
@@ -40,7 +95,8 @@ Everything lands under `$HOME` — no `sudo`, nothing system-wide:
 | Path | Contents |
 |---|---|
 | `~/.local/share/dreamlake/versions/<version>` | the binary for each installed version |
-| `~/.local/bin/dreamlake` | symlink to the active version (a copy on Windows, which has no unprivileged symlinks) |
+| `~/.local/bin/dreamlake` | symlink to the active version (`dreamlake.exe`, a copy, on Windows) |
+| `~/.local/bin/dl` | symlink to `dreamlake` (`dl.exe`, a managed copy, on Windows); omitted if a foreign command conflicts |
 | `~/.dreamlake/settings.yml` | release channel, and a version pin if set |
 | `~/.local/state/dreamlake/update.json` | when the last update check ran |
 
@@ -51,7 +107,7 @@ Python SDK — but those are written by `dreamlake login`, not the installer.)
 Every download is checked against the SHA-256 in the release manifest before
 writing anything executable. `XDG_DATA_HOME` and `XDG_STATE_HOME`, when absolute,
 move the version store and update state respectively; the launcher stays at
-`~/.local/bin/dreamlake`.
+`~/.local/bin/dreamlake` and `~/.local/bin/dl`.
 
 ## Shell PATH setup
 
@@ -211,14 +267,27 @@ git clone https://github.com/dreamlake-ai/dreamlake-cli.git
 cd dreamlake-cli
 pnpm install
 pnpm cli --help          # runs src/ through tsx, no build step
+pnpm link --global      # optional: expose both dreamlake and dl for development
 ```
 
 ## Uninstall
 
+Remove `dl` only if it belongs to DreamLake; preserve any conflicting command
+that the installer left untouched. On macOS/Linux/WSL:
+
 ```bash file="terminal"
+if [ -L "$HOME/.local/bin/dl" ] && [ "$(readlink "$HOME/.local/bin/dl")" = dreamlake ]; then
+    rm "$HOME/.local/bin/dl"
+fi
 rm -f  ~/.local/bin/dreamlake
 rm -rf ~/.local/share/dreamlake ~/.local/state/dreamlake ~/.dreamlake
 ```
+
+On Windows, close running CLI processes, then remove `dreamlake.exe` and the
+DreamLake-owned `dl.exe` from `$HOME\.local\bin`, plus the DreamLake data/state
+directories listed above. Do not remove a foreign `dl.exe` that the installer
+reported as a conflict. For npm installs use the npm uninstall command above;
+for a source link use `pnpm remove --global @dreamlake/dreamlake-cli`.
 
 (`~/.dreamlake` holds saved logins, settings, and resumable-upload state —
 note the Python SDK reads its credentials from there too.) On a machine

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.130 e630d3c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.131 a3a2de18; do not edit -->
 
 # Profiles and workspaces
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.130 e630d3c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.131 a3a2de18; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -355,6 +355,27 @@ other readers, including public visitors and saved share recipients, cannot
 retrieve earlier versions through the API or old static-site sessions. Turn it
 off to share history again. Existing shares keep their current behavior until
 you enable it. Content a recipient already downloaded cannot be recalled.
+
+CLI 0.110.1+ can change the same policy without uploading a new version:
+
+```bash
+dreamlake artifact share latest-only report on
+dreamlake artifact share get report --json
+dreamlake artifact share latest-only report off
+```
+
+Use `artifact share create report --latest-only` to enable it while creating a
+share link, or `artifact push ./report.html --id report --share --latest-only`
+when publishing. `--no-latest-only` disables it; omitting both flags preserves it.
+See [CLI sharing controls](https://cli.dreamlake.ai/artifacts#share-only-the-most-recent-version).
+
+The TypeScript SDK (CLI package 0.110.1+) exposes
+`api.artifacts("my-team").share("report").latestOnly(true)`;
+`publish` and `register` accept `shareLatestOnly?: boolean`.
+Python 0.42.1+ exposes
+`client.artifacts.set_share_latest_only("my-team", "report", True)`.
+Pass `false` / `False` to allow recipient history again. These setters check
+management permission, resolve renamed slugs and update only the sharing policy.
 
 The metadata endpoint accepts `shareLatestOnly: true` (or `false`) alongside
 `visibility` and `share`. Only namespace members may change this setting;
