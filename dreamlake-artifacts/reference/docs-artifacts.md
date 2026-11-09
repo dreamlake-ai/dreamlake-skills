@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.131 a3a2de18; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.132 e997a2d0; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -376,6 +376,26 @@ Python 0.42.1+ exposes
 `client.artifacts.set_share_latest_only("my-team", "report", True)`.
 Pass `false` / `False` to allow recipient history again. These setters check
 management permission, resolve renamed slugs and update only the sharing policy.
+
+Both SDK catalog `get` methods return `shareLatestOnly` as a boolean. For example,
+with an authenticated TypeScript `api` client:
+
+```ts
+await api.artifacts("my-team").share("report").latestOnly(true);
+const saved = await api.artifacts("my-team").get("report");
+if (saved.shareLatestOnly !== true) throw new Error("Policy not confirmed");
+```
+
+Python uses the normal client import and the same metadata field:
+
+```python
+from dreamlake import DreamLakeClient
+
+client = DreamLakeClient()
+client.artifacts.set_share_latest_only("my-team", "report", True)
+saved = client.artifacts.get("my-team", "report")
+assert saved["shareLatestOnly"] is True
+```
 
 The metadata endpoint accepts `shareLatestOnly: true` (or `false`) alongside
 `visibility` and `share`. Only namespace members may change this setting;
