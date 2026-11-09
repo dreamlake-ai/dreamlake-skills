@@ -52,6 +52,11 @@ backend; the rule and its evidence standard are the `machines` action of
 - Prefer `dl` for commands. If it is missing or belongs to another program,
   use `dreamlake` and follow [setup](actions/setup.md); never overwrite a conflicting command.
 - Run `dl <command> --help` for syntax; actions do not restate flags.
+- Memo authoring uses the `dreamlake-memos` edit action: preserve native resource
+  references and human wording, publish concrete intent, and verify meaningful
+  before/after version checkpoints. Default to pending redlines unless the current
+  instruction authorizes direct edits. Inspect installed help; recover metadata
+  without replaying successful content writes.
 - Plain text is for people and agents; add `--json` only when a program parses the output.
 - Check the installed `dl --version` against each action's version floor. A
   merged change, updated docs or an installed skill does not prove that the
