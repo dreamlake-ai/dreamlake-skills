@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.130 e630d3c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.132 e997a2d0; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -57,7 +57,14 @@ Memo tool writes commit after their complete arguments arrive; the built-in
 agent does not stream partially generated text into the Memo. Read activity
 publishes source-hash-bound ranges. `dreamlake_notes_visit` can publish intent
 and an address/cursor together, pinned to the read's `baseRevision`; stale
-locations are refused. See [agent presence](https://docs.dreamlake.ai/notes/agent-presence).
+locations are refused. `dreamlake_notes_presence` also reads source-bound human
+selections and reports roster, selection and activity availability separately.
+Empty activity arrays are not historical inactivity: the markers expire in
+seconds. Use `dreamlake_notes_diff` from a retained revision for recent source
+changes, without inferring human authorship. Selected editor text carried into
+the composer is retained as bounded, untrusted `page.quote` context; its UTF-16
+offsets must not be reused as API code-point ranges. See
+[agent presence](https://docs.dreamlake.ai/notes/agent-presence).
 The chat shows a thinking indicator and tool receipts, not provider reasoning
 text.
 
