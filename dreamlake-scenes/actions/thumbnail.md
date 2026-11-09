@@ -57,7 +57,7 @@ as `qpos0`/a keyframe, not rely on the sim running
 - The camera button in the web viewer toolbar saves the member's current
   view as the cover (the angle is remembered and re-used for later
   versions).
-- `dreamlake scene push <dir> --thumbnail cover.png` uploads a ready-made
+- `dl scene push <dir> --thumbnail cover.png` uploads a ready-made
   cover (format and size limit: [Thumbnails](../reference/docs-scenes.md#thumbnails)); it works on a no-change push as a thumbnail-only update.
 
 Both are marked *manual* and won't be auto-overwritten for that version.

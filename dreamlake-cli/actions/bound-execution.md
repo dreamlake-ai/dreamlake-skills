@@ -3,8 +3,8 @@
 Requires CLI 0.94.0 or later on the submitting machine, and
 `dreamlake-lakeshore` 0.5.1 or newer on both the submitting machine and the
 worker. The worker also needs its Nymph daemon and the locked runtime prepared
-in advance, as the docs describe. Check `dreamlake --version` and
-`dreamlake runnable bind --help` first. See
+in advance, as the docs describe. Check `dl --version` and
+`dl runnable bind --help` first. See
 [the complete contract](../reference/cli-bound-execution.md).
 
 1. Register the UDF version and keep its immutable full SHA-256 reference

@@ -51,7 +51,7 @@ running, and do not create a replacement chat merely to deliver that task.
 A fresh-host run on 2026-10-12 exposed checks that can pass before the service
 is usable. DreamLake's `auth.yml` is a saved multi-environment login cache;
 copying it alone left Memos unauthenticated. Run the supported
-`dreamlake auth env use <saved-name>` to activate the intended saved login in
+`dl auth env use <saved-name>` to activate the intended saved login in
 the CLI's config/token files, then verify an authorized Memo or Vault read.
 Use the published `@dreamlake/dreamlake-cli` npm package; `@dreamlake/cli`
 returned 404 during this run.

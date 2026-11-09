@@ -50,7 +50,7 @@ no description of what the workflow does internally:
 
 > 需要四个输入：
 >
-> 1. **数据源名称** —— 已连接的 source（`dreamlake source list` 可看）
+> 1. **数据源名称** —— 已连接的 source（`dl source list` 可看）
 > 2. **视频路径** —— source 里那个视频的路径
 > 3. **参考标注路径** —— source 里的基准标注（JSON），用于评分
 > 4. **任务描述** —— 一句话说明视频里在做什么，如 `mount a wall shelf`
@@ -62,7 +62,7 @@ English equivalent, same length:
 
 > I need four things:
 >
-> 1. **Source name** — a connected source (`dreamlake source list` shows them)
+> 1. **Source name** — a connected source (`dl source list` shows them)
 > 2. **Video path** — where the video sits inside that source
 > 3. **Reference annotation path** — the baseline annotations (JSON) to score against
 > 4. **Task description** — one line on what happens in the video, e.g. `mount a wall shelf`
@@ -77,8 +77,8 @@ personal namespace when it was meant for the team is only discovered later, by
 someone who cannot find it:
 
 ```bash
-dreamlake profile     # the default namespace
-dreamlake org list    # orgs the user belongs to; an org slug IS a namespace
+dl profile     # the default namespace
+dl org list    # orgs the user belongs to; an org slug IS a namespace
 ```
 
 If `dreamlake` is not on PATH, ask where it is rather than guessing — this skill

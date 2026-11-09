@@ -4,12 +4,17 @@ Install the standalone CLI, then authenticate and select the deployment:
 
 ```bash
 curl -fsSL https://dl.dreamlake.ai/install.sh | bash
-dreamlake init  # choose Codex or Claude Code and project/global scope
-dreamlake login
-dreamlake auth env list
+dl init  # choose Codex or Claude Code and project/global scope
+dl login
+dl auth env list
 ```
 
-Built-in deployments keep separate tokens. Check `dreamlake auth env --help` for
+Use `dl` for new commands. If the command is missing or conflicts with another
+program, follow the [installation guide](../reference/cli-installation.md#the-dl-command)
+and use the supported `dreamlake` command until resolved. Keep existing package,
+configuration, service, and process-management identifiers unchanged.
+
+Built-in deployments keep separate tokens. Check `dl auth env --help` for
 switching and custom deployment setup. Do not assume the active environment is
 production. See [installation](../reference/cli-installation.md) and
 [environments](../reference/cli-environments.md).
@@ -18,9 +23,9 @@ When the user wants subsequent CLI work in a named namespace, check the installe
 command before changing the selection:
 
 ```bash
-dreamlake --version
-dreamlake su --help
-dreamlake su <namespace>
+dl --version
+dl su --help
+dl su <namespace>
 ```
 
 Use the user's actual namespace name and follow
@@ -33,25 +38,25 @@ handle resource moves, identity changes or GUI session changes only when request
 If the installed command is missing, use the documented upgrade path; do not
 substitute credential changes or direct configuration edits.
 
-For scripts, use `dreamlake init --agent codex` or
-`dreamlake skill install --agent claude --global`. Skills are bundled with the
+For scripts, use `dl init --agent codex` or
+`dl skill install --agent claude --global`. Skills are bundled with the
 CLI; updates remind you when installed copies differ. Review local edits before
 using `--force`. See [agent skills](../reference/cli-skills.md).
 
-On a managed machine, start with `dreamlake auth identity` and
-`dreamlake machine self`. Machine mode supports granted host/project metadata
-reads; other APIs require personal identity. `dreamlake login` uses the existing
+On a managed machine, start with `dl auth identity` and
+`dl machine self`. Machine mode supports granted host/project metadata
+reads; other APIs require personal identity. `dl login` uses the existing
 device flow without altering machine credentials. Explicitly select personal
-access with `dreamlake --identity user profile`. Do not copy user tokens into
+access with `dl --identity user profile`. Do not copy user tokens into
 machine configuration. See [machine authentication](../reference/cli-machine-auth.md).
 
 CLI 0.56.0 and later support quiet product-analytics opt-out with
-`dreamlake telemetry disable --quiet` or `DREAMLAKE_TELEMETRY=0`. See
+`dl telemetry disable --quiet` or `DREAMLAKE_TELEMETRY=0`. See
 [product analytics](../reference/cli-analytics.md) for scope and limitations.
 
 For CLI 0.86.0+ with Nymph 0.1.32+, interactive device login can offer optional
 background-service setup, default No. See the Nymph section in
-[environments](../reference/cli-environments.md). `dreamlake nymph` separates service
+[environments](../reference/cli-environments.md). `dl nymph` separates service
 configuration, local access policy and runtime observation. Fresh managed setup
 denies upload and command execution independently. Configuration edits do not
 change access. Grant one permission at a time; only explicit `--yes` bypasses

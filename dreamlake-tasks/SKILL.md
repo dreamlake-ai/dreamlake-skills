@@ -13,7 +13,7 @@ and timing; Memos provide optional content. It captures the design delivered on
 
 ## Before every operation
 
-- Verify installed `dreamlake tasks --help` and the current server contract. Do
+- Verify installed `dl tasks --help` and the current server contract. Do
   not run a proposed command against production, substitute an unrelated command
   or claim an example was executed; if a capability is absent, continue design
   work and report the gap. Existing authorization still controls every mutation.

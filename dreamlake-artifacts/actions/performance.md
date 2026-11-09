@@ -2,7 +2,7 @@
 
 ```bash
 # Build/prerender first, then preserve the static build's file boundaries.
-dreamlake artifact push ./dist/client --site --id <existing-artifact-id>
+dl artifact push ./dist/client --site --id <existing-artifact-id>
 ```
 
 Use [publish](publish.md#static-builds) for prerequisites and publication.

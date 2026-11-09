@@ -10,7 +10,7 @@ A generated spec is the deliverable when the user asked to design or generate
 it. If the user also explicitly asks to publish, continue with
 [publish](publish.md). Do not push as an assumed part of generation. The
 standalone CLI is supported; the Python package provides the SDK, not the
-CLI. Check `dreamlake workflow --help` for current syntax.
+CLI. Check `dl workflow --help` for current syntax.
 
 When handing over an unpublished file, summarize stages, node-family choices
 and reasons, human gates, and assumptions about available UDFs or queues. Mark

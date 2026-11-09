@@ -24,7 +24,7 @@ create, split, rename or retire a skill, the size caps (defined once under
 "Maintain an existing skill"), the acceptance a PR needs and the release flow.
 Do not maintain a second policy here or in any skill.
 
-Releases are date tags cut by the nightly workflow; the `dreamlake` CLI
+Releases are date tags cut by the nightly workflow; the `dl` CLI
 installs from the release assets `skills.tar.gz` and `catalog.json`. A merged
 PR is not a release, and a release is not an installation: when reporting,
 state the merge, the tag and a fresh install read-back separately.

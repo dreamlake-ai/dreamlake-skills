@@ -1,7 +1,7 @@
 # Publish or update a library
 
 ```bash
-dreamlake library push ./my-lib --namespace <ns> --library <name> \
+dl library push ./my-lib --namespace <ns> --library <name> \
   [--visibility public] [--thumbnails] [--embed] [--model siglip2] \
   [--dry-run] [--verify] [--force] [--json]
 ```
@@ -9,7 +9,7 @@ dreamlake library push ./my-lib --namespace <ns> --library <name> \
 Push is zero-config: the CLI discovers assets by convention
 ([`assets/library-conventions.md`](../assets/library-conventions.md)),
 hashes files with a local cache and generates the wire manifest itself —
-users never see or write sha256s. Flags: `dreamlake library push --help` and
+users never see or write sha256s. Flags: `dl library push --help` and
 [Push it](../reference/docs-libraries.md#push-it).
 
 ## What a push does
@@ -46,7 +46,7 @@ users never see or write sha256s. Flags: `dreamlake library push --help` and
   default, the Python extras each flag needs and cache behaviour:
   [Push it](../reference/docs-libraries.md#push-it).
 - **Confirm the library is searchable** with
-  `dreamlake library info <ns>/<name>` — `semantic` must be `true`.
+  `dl library info <ns>/<name>` — `semantic` must be `true`.
 
 ## Importers for known repos
 
@@ -65,7 +65,7 @@ the original in `upstream.id`. See
 
 ## Verify
 
-After the push: `dreamlake library info <ns>/<name>` (counts, size,
+After the push: `dl library info <ns>/<name>` (counts, size,
 `semantic`), then a [search](search.md) for a known asset and, if the
 library will be consumed elsewhere, a pull of one asset into a fresh
 directory.

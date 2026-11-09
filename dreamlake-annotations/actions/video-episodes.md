@@ -5,7 +5,7 @@
 ```bash
 pip install dreamlake dreamdb     # SDK + storage engine
 # ffmpeg must be on PATH (brew install ffmpeg / apt install ffmpeg) — video paths only
-dreamlake login                    # once; CI uses DREAMLAKE_API_KEY
+dl login                    # once; CI uses DREAMLAKE_API_KEY
 ```
 
 Names: `"my-set"` = the login's own namespace; `"acme/my-set"` = the acme

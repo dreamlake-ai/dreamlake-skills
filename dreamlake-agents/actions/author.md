@@ -5,9 +5,9 @@ agent, inspect the offered tools and the creation schema; shell access and a
 CLI installation are not prerequisites. When using the CLI, run:
 
 ```bash
-dreamlake agents --help
-dreamlake agents create --help
-dreamlake agents list --plain
+dl agents --help
+dl agents create --help
+dl agents list --plain
 ```
 
 1. Resolve the intended namespace and project. Inspect existing definitions to

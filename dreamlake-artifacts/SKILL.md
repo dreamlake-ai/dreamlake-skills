@@ -12,8 +12,8 @@ For a built Vike/Vite directory, first read
 before deciding whether to inline its assets.
 
 The CLI steps need the `dreamlake-cli` skill (installed with this one): the
-standalone CLI, not the Python package, and `dreamlake login` before any write.
-Several commands below carry minimum CLI versions; check `dreamlake --version`.
+standalone CLI, not the Python package, and `dl login` before any write.
+Several commands below carry minimum CLI versions; check `dl --version`.
 
 ## Route the request
 

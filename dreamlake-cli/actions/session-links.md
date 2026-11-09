@@ -11,9 +11,9 @@ labels (`DREAMLAKE_AGENT_ID`) are not proof of a native session.
 Retry only the link, never the content write:
 
 ```bash
-dreamlake sessions link SESSION_ID --namespace SESSION_NAMESPACE --resource-namespace NOTE_NAMESPACE --note NOTE_ID --json
-dreamlake sessions link SESSION_ID --namespace SESSION_NAMESPACE --resource-namespace ARTIFACT_NAMESPACE --artifact ARTIFACT_ID --json
-dreamlake sessions resources SESSION_ID --namespace SESSION_NAMESPACE --json   # readable linked notes and artifacts
+dl sessions link SESSION_ID --namespace SESSION_NAMESPACE --resource-namespace NOTE_NAMESPACE --note NOTE_ID --json
+dl sessions link SESSION_ID --namespace SESSION_NAMESPACE --resource-namespace ARTIFACT_NAMESPACE --artifact ARTIFACT_ID --json
+dl sessions resources SESSION_ID --namespace SESSION_NAMESPACE --json   # readable linked notes and artifacts
 ```
 
 Do not repush an artifact or replay a successful edit to produce a link, and do
@@ -28,7 +28,7 @@ after a successful content write; no host discovery, enrollment repair or
 terminal start is needed. New sessions default public: set
 `DREAMLAKE_SESSION_VISIBILITY=private` before the write for a private new record;
 existing privacy is preserved. If that metadata step fails, never replay the
-write: run `dreamlake sessions register --provider codex --session <native-uuid>
+write: run `dl sessions register --provider codex --session <native-uuid>
 --cwd /original/directory`, then link the returned saved ID as above. See
 [registration and visibility](../reference/cli-sessions.md#registration-and-visibility-0820).
 
@@ -38,7 +38,7 @@ With explicit user opt-in, set `DREAMLAKE_CONVERSATION_FILE` to the exact native
 Codex or Claude export before the write, or upload afterwards:
 
 ```bash
-dreamlake sessions upload-conversation SESSION_ID --namespace SESSION_NAMESPACE --file EXPORT --json
+dl sessions upload-conversation SESSION_ID --namespace SESSION_NAMESPACE --file EXPORT --json
 ```
 
 No file setting means metadata only. A missing, mismatched or unavailable

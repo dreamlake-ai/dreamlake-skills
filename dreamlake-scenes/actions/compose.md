@@ -4,13 +4,13 @@
 pip install "dreamlake[compose]==0.23.1" "mujoco==3.14.0"   # once, on the composing machine
 python -c "import dreamlake, mujoco; print(dreamlake.__version__, mujoco.__version__)"
 # expect: 0.23.1 3.14.0
-dreamlake scene compose ./dreamlake.layers.json -o ./composed
+dl scene compose ./dreamlake.layers.json -o ./composed
 ```
 
 The complete grammar (every field, the six annotated stack shapes, v2
 migration, the engine boundary) is the
 [Scene Layers Reference](../reference/docs-scenes-layers.md); this page is the
-authoring discipline. Flags: `dreamlake scene compose --help` and
+authoring discipline. Flags: `dl scene compose --help` and
 [Compose a layered scene](../reference/cli-scenes.md#compose-a-layered-scene).
 
 ## Two equally valid routes
@@ -76,7 +76,7 @@ weld).
 ## Components become layers
 
 Push the base scene and each reusable prop as its own scene
-(`dreamlake scene push ./room`, `… ./mug`) so the stack can pin versions.
+(`dl scene push ./room`, `… ./mug`) so the stack can pin versions.
 Then author the stack:
 
 ```json

@@ -58,7 +58,7 @@ Syntax and badge behavior:
 ## Create a Memo and link it
 
 Prefer an existing match over creating a duplicate. Create the Memo first with
-`dreamlake memos create`, retain its returned identity and URL, then insert an
+`dl memos create`, retain its returned identity and URL, then insert an
 ordinary Markdown link into the parent. If creation fails or its result is
 unclear, inspect the Memos list before retrying; creation is not idempotent.
 Do not use the retired `:note[` authoring flow.
@@ -115,7 +115,7 @@ Follow [reconnect and recovery](../reference/docs-notes-collaboration.md#reconne
 
 ## CLI workflow
 
-Check installed `dreamlake memos --help` and the current server and editor
+Check installed `dl memos --help` and the current server and editor
 version first. Follow [read](read.md) for an original complete source snapshot and
 retain its opaque revision. Locate or create the child, read it back, then use
 the revision-guarded exact patch in [edit](edit.md) to replace only the source

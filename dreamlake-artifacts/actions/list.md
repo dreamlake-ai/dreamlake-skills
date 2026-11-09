@@ -1,14 +1,14 @@
 # List artifacts
 
 ```bash
-dreamlake artifact list [--namespace <slug>]
+dl artifact list [--namespace <slug>]
 ```
 
 Lists the artifacts in a namespace with their latest version and kind.
 Authenticated members see all of a namespace's artifacts; without auth only
 `public` ones are listed. Options:
 [Listing, deleting, restoring](../reference/cli-artifacts.md#listing-deleting-restoring)
-or `dreamlake artifact list --help`.
+or `dl artifact list --help`.
 
 ## Verify the result
 

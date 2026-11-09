@@ -1,17 +1,17 @@
 # Push a scene
 
 ```bash
-dreamlake scene push /tmp/scenes/my-scene                 # entry auto-detected; prints an open link
-dreamlake scene push <dir> --namespace <org>              # into an org instead of your personal namespace
-dreamlake scene push <dir> --name <scene-name> --title "…" --description "…"
-dreamlake scene create <dir>                              # push that FAILS if the name already exists
+dl scene push /tmp/scenes/my-scene                 # entry auto-detected; prints an open link
+dl scene push <dir> --namespace <org>              # into an org instead of your personal namespace
+dl scene push <dir> --name <scene-name> --title "…" --description "…"
+dl scene create <dir>                              # push that FAILS if the name already exists
 # ✓ pushed <ns>/<scene-name> vN …   ← record N
 ```
 
 Only push after the staged directory passed [package](package.md) and
 [validate](validate.md) checks **and the user asked to publish**. Flags
 (`--entry`, `--type`, `--visibility`, `--share`, `--thumbnail`, …):
-`dreamlake scene push --help` and [Push a version](../reference/cli-scenes.md#push-a-version).
+`dl scene push --help` and [Push a version](../reference/cli-scenes.md#push-a-version).
 Which `--type` values have a viewer and what `--visibility` and `--share`
 change: [Push a version](../reference/cli-scenes.md#push-a-version) and
 [Visibility](../reference/cli-scenes.md#visibility); `--thumbnail` is covered
@@ -28,7 +28,7 @@ also sets `type: urdf`. Two candidates at the root → the push asks for
 
 Re-pushes upload only changed file blobs (content-addressed). On a
 network/backend error or timeout, **check before retrying**: compare
-`dreamlake scene list` with your last receipt to see what actually landed.
+`dl scene list` with your last receipt to see what actually landed.
 Retrying an _unchanged_ directory is normally safe — the CLI's no-change
 guards compare entry + file hashes with the latest version and reuse,
 re-register, or adopt an identical version instead of minting a new one.
@@ -66,8 +66,8 @@ detail header take anonymous and signed-in readers:
 
 ## Traps
 
-- **`dreamlake env` used to mean login environments.** That command is now
-  `dreamlake auth env …`; if `scene push` is missing, upgrade to CLI 0.45.0
+- **`dl env` used to mean login environments.** That command is now
+  `dl auth env …`; if `scene push` is missing, upgrade to CLI 0.45.0
   or later.
 - **Unattended runs**: set `DREAMLAKE_API_KEY` (whose identity the push is
   attributed to) and `DREAMLAKE_REMOTE` (which deployment), or the CLI uses

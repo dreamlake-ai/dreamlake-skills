@@ -1,13 +1,13 @@
 # Pull an exact version back and verify it
 
 ```bash
-dreamlake scene list --namespace <org>                 # name · version · type · files · entry
-dreamlake scene pull <scene-name>@<N> --namespace <org> -o /tmp/check
+dl scene list --namespace <org>                 # name · version · type · files · entry
+dl scene pull <scene-name>@<N> --namespace <org> -o /tmp/check
 diff -rq /tmp/scenes/my-scene /tmp/check               # byte-identical
 ```
 
 Flags (`-o`, `--force` to write into a non-empty directory, `@N`):
-`dreamlake scene pull --help` and
+`dl scene pull --help` and
 [List, pull, delete](../reference/cli-scenes.md#list-pull-delete).
 
 ## Rules

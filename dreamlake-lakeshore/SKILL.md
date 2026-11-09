@@ -5,7 +5,7 @@ description: Operate DreamLake compute through the CLI — connect Lakeshore (Ad
 
 # DreamLake Lakeshore and compute
 
-The compute loop of the `dreamlake` CLI: connecting machines to DreamLake,
+The compute loop of the `dl` CLI: connecting machines to DreamLake,
 inspecting what is enrolled and running, provisioning more, and the
 infrastructure and cloud connections behind it. The CLI itself, login and
 environment selection are the `setup` action of `dreamlake-cli` (installed
@@ -36,7 +36,7 @@ evidence standard are in [machines](actions/machines.md).
 | "Connect AWS to DreamLake" with the curated starter | [connect-aws](actions/connect-aws.md) |
 
 Each action is one task: commands first, exceptions after. Flag detail is in
-`reference/` or `dreamlake <command> --help`.
+`reference/` or `dl <command> --help`.
 
 ## Boundaries
 
@@ -50,7 +50,7 @@ Each action is one task: commands first, exceptions after. Flag detail is in
 
 ## Conventions
 
-- Check the installed `dreamlake --version` and `--help` against each action's
+- Check the installed `dl --version` and `--help` against each action's
   version floor. A merged change, updated docs or an installed skill does not
   prove the executable or the server supports a command.
 - Host IDs, enrollment IDs, cloud instance IDs and Nymph supervisor IDs are

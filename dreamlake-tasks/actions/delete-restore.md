@@ -6,10 +6,10 @@ parent. Deprecation is a visible status distinct from soft deletion. There is no
 hard delete.
 
 ```bash
-dreamlake tasks delete vault/entries/write-recovery --if-match REV_BEFORE_DELETE
-dreamlake tasks list vault --include-deleted --to-json
-dreamlake tasks restore TASK_ID_RECOVERY --if-match REV_BEFORE_RESTORE
-dreamlake tasks status set vault/entries/write-recovery --status deprecated --at '2026-09-13T21:00:00Z' --event-id recovery-deprecated-001 --if-match REV_BEFORE_DEPRECATE
+dl tasks delete vault/entries/write-recovery --if-match REV_BEFORE_DELETE
+dl tasks list vault --include-deleted --to-json
+dl tasks restore TASK_ID_RECOVERY --if-match REV_BEFORE_RESTORE
+dl tasks status set vault/entries/write-recovery --status deprecated --at '2026-09-13T21:00:00Z' --event-id recovery-deprecated-001 --if-match REV_BEFORE_DEPRECATE
 ```
 
 These are independent examples, not one mandatory sequence. Soft-deleted paths

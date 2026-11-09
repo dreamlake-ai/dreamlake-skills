@@ -1,13 +1,13 @@
 # Remove and restore
 
 ```bash
-dreamlake artifact delete <id> [--namespace <slug>] [-y]     # soft delete → Trash
-dreamlake artifact restore <id> [--namespace <slug>]         # undo a soft delete
-dreamlake artifact delete <id> --permanent [-y]              # purge — IRREVERSIBLE
+dl artifact delete <id> [--namespace <slug>] [-y]     # soft delete → Trash
+dl artifact restore <id> [--namespace <slug>]         # undo a soft delete
+dl artifact delete <id> --permanent [-y]              # purge — IRREVERSIBLE
 ```
 
 Options: [Listing, deleting, restoring](../reference/cli-artifacts.md#listing-deleting-restoring)
-or `dreamlake artifact delete --help`.
+or `dl artifact delete --help`.
 
 ## Soft delete
 
@@ -16,7 +16,7 @@ owner's gallery): its content stops resolving for non-members and any live
 `?share=` link is invalidated. It prompts for confirmation unless `-y`/`--yes`
 and is member-only. A soft delete keeps external mount grants.
 
-**Restorable three ways**: `dreamlake artifact restore <id>`, the Restore
+**Restorable three ways**: `dl artifact restore <id>`, the Restore
 button in the Trash, or re-pushing the same `--id`.
 
 ## Project placements

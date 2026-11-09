@@ -9,8 +9,8 @@ extract its source and original revision as documented in
 
 ```bash
 MEMO_ID=release-plan
-dreamlake memos read --help
-dreamlake memos read "$MEMO_ID" --json > baseline.json
+dl memos read --help
+dl memos read "$MEMO_ID" --json > baseline.json
 BASE=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > baseline.md
 ```
@@ -23,8 +23,8 @@ snapshot, edit the canonical source using the absolute code-point offsets shown
 in its hints, and submit a v2 patch against that original revision:
 
 ```bash
-dreamlake memos read "$MEMO_ID" --at "$BASE" --view markdown --tag s1.ul2.li3
-dreamlake memos patch "$MEMO_ID" --base-revision "$BASE" --exact --file edit.dff
+dl memos read "$MEMO_ID" --at "$BASE" --view markdown --tag s1.ul2.li3
+dl memos patch "$MEMO_ID" --base-revision "$BASE" --exact --file edit.dff
 ```
 
 Use the item's address and line hints to identify the selected text. Ranges

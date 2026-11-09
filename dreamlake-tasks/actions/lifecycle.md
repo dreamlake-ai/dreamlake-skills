@@ -4,11 +4,11 @@ These commands log the corresponding typed events. Times describe actual task
 work, never PR creation or merge; keep unknown times null.
 
 ```bash
-dreamlake tasks start vault/entries/write-recovery --at '2026-09-13T20:00:00Z' --event-id recovery-start-001 --if-match REV_BEFORE_START
-dreamlake tasks progress vault/entries/write-recovery --mode discrete --completed 3 --total 5 --unit checks --at '2026-09-13T20:15:00Z' --event-id recovery-progress-003 --if-match REV_BEFORE_PROGRESS
-dreamlake tasks progress vault/entries/write-recovery --mode discrete --completed 5 --total 5 --unit checks --at '2026-09-13T20:25:00Z' --event-id recovery-progress-005 --if-match REV_BEFORE_FINISH_PROGRESS
-dreamlake tasks end vault/entries/write-recovery --at '2026-09-13T20:26:00Z' --event-id recovery-end-001 --if-match REV_BEFORE_END
-dreamlake tasks status set vault/entries/write-recovery --status done --at '2026-09-13T20:27:00Z' --event-id recovery-done-001 --if-match REV_BEFORE_DONE
+dl tasks start vault/entries/write-recovery --at '2026-09-13T20:00:00Z' --event-id recovery-start-001 --if-match REV_BEFORE_START
+dl tasks progress vault/entries/write-recovery --mode discrete --completed 3 --total 5 --unit checks --at '2026-09-13T20:15:00Z' --event-id recovery-progress-003 --if-match REV_BEFORE_PROGRESS
+dl tasks progress vault/entries/write-recovery --mode discrete --completed 5 --total 5 --unit checks --at '2026-09-13T20:25:00Z' --event-id recovery-progress-005 --if-match REV_BEFORE_FINISH_PROGRESS
+dl tasks end vault/entries/write-recovery --at '2026-09-13T20:26:00Z' --event-id recovery-end-001 --if-match REV_BEFORE_END
+dl tasks status set vault/entries/write-recovery --status done --at '2026-09-13T20:27:00Z' --event-id recovery-done-001 --if-match REV_BEFORE_DONE
 ```
 
 - `end` alone does not imply done; `done` does not imply acceptance. If the work
@@ -27,7 +27,7 @@ dreamlake tasks status set vault/entries/write-recovery --status done --at '2026
 Continuous progress on an existing continuous-mode task:
 
 ```bash
-dreamlake tasks progress vault/ingest --mode continuous --completed 0.375 --total 1 --unit fraction --at '2026-09-13T20:15:00Z' --event-id ingest-progress-003 --if-match INGEST_REVISION
+dl tasks progress vault/ingest --mode continuous --completed 0.375 --total 1 --unit fraction --at '2026-09-13T20:15:00Z' --event-id ingest-progress-003 --if-match INGEST_REVISION
 ```
 
 See [start, progress, end and done](../reference/cli-tasks.md#start-discrete-progress-end-and-done)

@@ -33,19 +33,19 @@ drifts from what is actually released.
 
 Earlier skills were merged into these; [`renamed.json`](renamed.json) maps
 each retired name (`dreamlake-source`, `workflow-publish`, ...) to its
-successor, and `dreamlake skill install <old name>` prints the new one. Where
+successor, and `dl skill install <old name>` prints the new one. Where
 each section of the old skills went is recorded in
 [`docs/migration-0010/`](docs/migration-0010/README.md).
 
 ## Install
 
-With the [`dreamlake` CLI](https://cli.dreamlake.ai):
+With the [`dl` CLI](https://cli.dreamlake.ai):
 
 ```bash
-dreamlake init                                 # choose agent and scope; installs dreamlake-cli
-dreamlake skill list                           # the catalog, with installed versions
-dreamlake skill install dreamlake-artifacts    # brings dreamlake-cli along (requires)
-dreamlake skill update                         # refresh what is installed
+dl init                                 # choose agent and scope; installs dreamlake-cli
+dl skill list                           # the catalog, with installed versions
+dl skill install dreamlake-artifacts    # brings dreamlake-cli along (requires)
+dl skill update                         # refresh what is installed
 ```
 
 By hand: every release carries `skills.tar.gz`, whose top-level entries are
@@ -70,7 +70,7 @@ not contain.
 
 ## Unattended agents
 
-Skills drive DreamLake through the `dreamlake` CLI alone. Where an agent runs
+Skills drive DreamLake through the `dl` CLI alone. Where an agent runs
 without a person at the keyboard, set two variables explicitly:
 
 | Variable | Why |
@@ -94,6 +94,6 @@ scripts/           sync_references.py, check.py, catalog.py, package.py and thei
 
 Edit a skill, run `python3 scripts/check.py`, open a PR; after the merge the
 nightly workflow refreshes every `reference/`, tags `vYYYY.MM.DD` when `main`
-has moved, and publishes the release that `dreamlake skill update` installs.
+has moved, and publishes the release that `dl skill update` installs.
 Everything else, from fixing a step to creating or splitting a skill and the
 acceptance a PR needs, is in [CONTRIBUTING.md](CONTRIBUTING.md).

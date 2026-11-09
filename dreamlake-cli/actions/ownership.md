@@ -10,10 +10,10 @@ Pipeline needs the `pipelineTransfer` version-1 capability (CLI 0.83 lacks this
 consumer); Source needs `sourceTransfer` version 1.
 
 ```bash
-dreamlake ownership capabilities --namespace alice
-dreamlake ownership transfer artifact ARTIFACT_ID --namespace alice --to acme --dry-run --out review.json
-dreamlake ownership transfer artifact ARTIFACT_ID --namespace alice --to acme --confirm --request-file review.json
-dreamlake ownership status OPERATION_ID --namespace acme
+dl ownership capabilities --namespace alice
+dl ownership transfer artifact ARTIFACT_ID --namespace alice --to acme --dry-run --out review.json
+dl ownership transfer artifact ARTIFACT_ID --namespace alice --to acme --confirm --request-file review.json
+dl ownership status OPERATION_ID --namespace acme
 ```
 
 Request format and the `ownership preview`, `create`, `accept`, `reject`,

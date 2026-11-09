@@ -5,21 +5,21 @@ Linking happens in the **DreamLake dashboard**, not the CLI: open the
 connect the storage — Hugging Face and Dropbox via OAuth, S3 with bucket
 credentials. Secrets are held server-side (AES-256-GCM); nothing sensitive
 lands in files or schemas. If a source already exists, discover its name with
-`dreamlake source list`. Sources retain data in place; they do not convert an
+`dl source list`. Sources retain data in place; they do not convert an
 unsupported container.
 
 Then verify from a shell that the source exposes the expected paths —
 the DreamLake CLI reads connected sources:
 
 ```bash
-dreamlake source list
+dl source list
 # After choosing the exact source name:
-dreamlake source browse --source <name> [path]
-dreamlake source download <path> --source <name> -o ./out
+dl source browse --source <name> [path]
+dl source download <path> --source <name> -o ./out
 ```
 
 For a file that needs a short-lived read capability instead of a local copy,
-`dreamlake source fetch <path> --source <name>` prints the URL when it can
+`dl source fetch <path> --source <name>` prints the URL when it can
 be represented safely; use `--json` if signed headers are required. A CLI
 browse/download is the first verification. If a workflow will consume the
 source, run [check](check.md): it separates "browses" from "fetches", which
@@ -30,11 +30,11 @@ have different fixes. Command reference:
 ## Alternative channel — the DreamLake episode tree
 
 Data that belongs in a DreamLake project/episode rather than external
-storage uploads with the CLI directly (`dreamlake login` first):
+storage uploads with the CLI directly (`dl login` first):
 
 ```bash
-dreamlake upload ./file-or-flat-dir --episode space[@namespace][:episode] --to path/within/episode
-dreamlake list  --episode space[@namespace][:episode] --prefix some/path --json
+dl upload ./file-or-flat-dir --episode space[@namespace][:episode] --to path/within/episode
+dl list  --episode space[@namespace][:episode] --prefix some/path --json
 ```
 
 `upload` takes a file or a FLAT directory — upload a nested dataset tree one

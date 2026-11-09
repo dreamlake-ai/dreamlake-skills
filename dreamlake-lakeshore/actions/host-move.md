@@ -3,9 +3,9 @@
 For a CLI request, check the installed command before selecting a host:
 
 ```shell
-dreamlake --version
-dreamlake hosts --help
-dreamlake hosts move --help
+dl --version
+dl hosts --help
+dl hosts move --help
 ```
 
 Use the supported surface for the task. An absent CLI command is a client

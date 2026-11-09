@@ -70,5 +70,5 @@ jobs:
           git push origin "refs/tags/$tag"
           python3 scripts/catalog.py --version "$tag"
           python3 scripts/package.py
-          notes="$(printf 'DreamLake skills %s\n\n```\n%s\n```\nInstall with `dreamlake skill install <name>`, or extract skills.tar.gz into .claude/skills/ or .agents/skills/.' "$tag" "$(cd dist && sha256sum skills.tar.gz catalog.json)")"
+          notes="$(printf 'DreamLake skills %s\n\n```\n%s\n```\nInstall with `dl skill install <name>`, or extract skills.tar.gz into .claude/skills/ or .agents/skills/.' "$tag" "$(cd dist && sha256sum skills.tar.gz catalog.json)")"
           gh release create "$tag" dist/skills.tar.gz dist/catalog.json --title "$tag" --notes "$notes"

@@ -13,7 +13,7 @@ integrator may want `renamed.json` to leave `sim-to-mcap` unmapped.
 | `references/write-rollout.md` §1 Emit three channels (table, install) | `actions/write-rollout.md` §1 |
 | `references/write-rollout.md` §2 Roll out and write (loop, quaternion order, `/robot` once frame_locked) | `actions/write-rollout.md` §2 |
 | `references/write-rollout.md` §3 Give it a body — embedded mesh OR a URDF (table, OBJ/GLB never STL, `live9080/dreamlake-robots` preset) | `actions/embody.md` |
-| `references/handoff-and-debug.md` §4 Hand off (upload with provider tools, `.dreamrc` with `format: mcap`, `<file>.mcap.dreamrc`) | `actions/handoff.md` §top — "there is no upload-into-source API yet" updated: `dreamlake source upload` now exists (cli docs) |
+| `references/handoff-and-debug.md` §4 Hand off (upload with provider tools, `.dreamrc` with `format: mcap`, `<file>.mcap.dreamrc`) | `actions/handoff.md` §top — "there is no upload-into-source API yet" updated: `dl source upload` now exists (cli docs) |
 | `references/handoff-and-debug.md` §Gotchas table | `actions/handoff.md` §Gotchas |
 | `references/handoff-and-debug.md` §Reference (template, examples, viz reference/spec/views, Foxglove schemas) | `actions/handoff.md` §Reference; viz URLs → `docs[]`, Foxglove URL stays absolute |
 | `reference/dreamrc-examples.md` intro + §Validate | `assets/dreamrc/README.md` |

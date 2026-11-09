@@ -37,20 +37,20 @@ keys for the requested SDK-only procedure.
 | Task | Route |
 | --- | --- |
 | Archive or restore catalog visibility | Check installed support, read `hosts lifecycle HOST_ID`, then use explicit request ID and expected revision with `hosts archive` or `hosts restore`; this never retires runtime |
-| Find active hosts across groups | `dreamlake hosts list`; select the authorized namespace (CLI 0.73.0+: verified online only) |
-| Include offline or unknown hosts | CLI 0.73.0+ `dreamlake hosts list --all`; CLI 0.72.0 lists all states without this flag |
-| Save or reopen an exact agent terminal session | [Terminal sessions](../reference/cli-sessions.md): `dreamlake sessions targets`, then `create` / `resume` / `open`; Codex requires CLI 0.74.1+ and matching terminal API/gateway; Claude requires CLI 0.77.0+ and provider-aware services |
+| Find active hosts across groups | `dl hosts list`; select the authorized namespace (CLI 0.73.0+: verified online only) |
+| Include offline or unknown hosts | CLI 0.73.0+ `dl hosts list --all`; CLI 0.72.0 lists all states without this flag |
+| Save or reopen an exact agent terminal session | [Terminal sessions](../reference/cli-sessions.md): `dl sessions targets`, then `create` / `resume` / `open`; Codex requires CLI 0.74.1+ and matching terminal API/gateway; Claude requires CLI 0.77.0+ and provider-aware services |
 | Find host IP addresses, OS, CPU inventory or daemon version | Check `hosts list --help` for `--wide`, then inspect `hosts status HOST`; follow the [inventory reference](../reference/cli-host-enrollment.md#list-and-inspect-hosts) and verify installed support |
-| Inspect one host and its enrollments | `dreamlake hosts status` with its returned host ID or full name |
-| Resolve enrollment identities and observed presence | `dreamlake hosts enrollments HOST`; retain its exact enrollment ID |
-| Read CPU, RAM, and disk observations | `dreamlake hosts metrics HOST --enrollment ID` |
-| Check observed SSH or tracked-run capability | `dreamlake hosts check HOST --enrollment ID --action ssh` or `--action tracked-run` |
-| Register an existing computer | `dreamlake hosts enroll`; follow [machine identity setup](machines.md) |
+| Inspect one host and its enrollments | `dl hosts status` with its returned host ID or full name |
+| Resolve enrollment identities and observed presence | `dl hosts enrollments HOST`; retain its exact enrollment ID |
+| Read CPU, RAM, and disk observations | `dl hosts metrics HOST --enrollment ID` |
+| Check observed SSH or tracked-run capability | `dl hosts check HOST --enrollment ID --action ssh` or `--action tracked-run` |
+| Register an existing computer | `dl hosts enroll`; follow [machine identity setup](machines.md) |
 | Provision and enroll one machine | CLI 0.72.0+ `hosts create PROVIDER --host-name NS/GROUP/HOST`; see [machine provisioning](machines.md) and the [Host power reference](../reference/cli-host-enrollment.md#provision-and-control-machine-power) |
 | Inspect or change managed EC2 machine power | CLI 0.72.0+ `hosts power`, `start`, `stop`, `restart`, `terminate`; see [Host power](../reference/cli-host-enrollment.md#provision-and-control-machine-power) |
-| Open an enrolled host shell | CLI 0.72.0+ `dreamlake ssh HOST` or `hosts ssh`; see [SSH](../reference/cli-host-enrollment.md#ssh-and-remote-commands) |
-| Execute a command on an enrolled host | CLI 0.72.0+ `dreamlake exec HOST -- COMMAND` or `hosts exec`; see [remote commands](../reference/cli-host-enrollment.md#ssh-and-remote-commands) |
-| Launch managed execution or inspect its output/control | [Managed runs](../reference/cli-runs.md): `dreamlake run` and `dreamlake runs` |
+| Open an enrolled host shell | CLI 0.72.0+ `dl ssh HOST` or `hosts ssh`; see [SSH](../reference/cli-host-enrollment.md#ssh-and-remote-commands) |
+| Execute a command on an enrolled host | CLI 0.72.0+ `dl exec HOST -- COMMAND` or `hosts exec`; see [remote commands](../reference/cli-host-enrollment.md#ssh-and-remote-commands) |
+| Launch managed execution or inspect its output/control | [Managed runs](../reference/cli-runs.md): `dl run` and `dl runs` |
 | Track work another launcher already starts | [jobs](jobs.md) |
 | Inspect Slurm scheduler jobs | [jobs](jobs.md) |
 
@@ -58,7 +58,7 @@ keys for the requested SDK-only procedure.
 
 The SSH/exec and Host create/power routes require CLI 0.72.0+ and matching
 server capabilities. Check installed
-`dreamlake --version`, `dreamlake hosts --help`, `dreamlake ssh --help`, and the
+`dl --version`, `dl hosts --help`, `dl ssh --help`, and the
 matching server before using them. An older executable is unsupported, not an
 invitation to guess flags or bypass server authorization.
 
@@ -142,7 +142,7 @@ using an address, and keep each interface associated with its enrollment. Consul
 the [inventory reference](../reference/cli-host-enrollment.md#list-and-inspect-hosts)
 for supported fields and release prerequisites. If the installed client or daemon
 lacks this inventory, report that gap; for an explicitly requested Linux host
-inspection, use `dreamlake hosts exec HOST -- ip -4 addr show`. Do not guess an
+inspection, use `dl hosts exec HOST -- ip -4 addr show`. Do not guess an
 IP from a hostname, treat an interface address as a public NAT endpoint, or
 upgrade/restart the fleet as an implicit inspection step. For broader diagnostics,
 check installed help for `--probe` and use the intended namespace/group only;

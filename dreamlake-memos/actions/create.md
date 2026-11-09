@@ -4,9 +4,9 @@ Use this when asked to make a new memo. Titles can repeat; retain the returned
 memo ID for future commands and browser links.
 
 ```bash
-dreamlake memos create "Design Doc" --text "# Design Doc\n"
-dreamlake memos create "Design Doc" --summary "Decision and open questions"
-dreamlake memos create "Design Doc" --file draft.md --project my-project   # file at creation (CLI 0.45.1+)
+dl memos create "Design Doc" --text "# Design Doc\n"
+dl memos create "Design Doc" --summary "Decision and open questions"
+dl memos create "Design Doc" --file draft.md --project my-project   # file at creation (CLI 0.45.1+)
 ```
 
 Add `--public` only when the request explicitly asks for a public memo

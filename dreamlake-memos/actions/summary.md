@@ -5,11 +5,11 @@ Before your first live memo read or edit, set and reuse the [task identity](iden
 
 ```bash
 MEMO_ID=release-plan
-dreamlake memos summary "$MEMO_ID"                 # read
-dreamlake memos summary "$MEMO_ID" --text "Decision and open questions"
-dreamlake memos summary "$MEMO_ID" --file summary.txt
-cat summary.txt | dreamlake memos summary "$MEMO_ID" --file -
-dreamlake memos summary "$MEMO_ID" --clear
+dl memos summary "$MEMO_ID"                 # read
+dl memos summary "$MEMO_ID" --text "Decision and open questions"
+dl memos summary "$MEMO_ID" --file summary.txt
+cat summary.txt | dl memos summary "$MEMO_ID" --file -
+dl memos summary "$MEMO_ID" --clear
 ```
 
 Summaries are optional and limited to 4,000 characters. A summary change does

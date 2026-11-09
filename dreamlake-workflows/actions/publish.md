@@ -1,7 +1,7 @@
 # Publish a WorkflowSpec
 
 ```bash
-dreamlake workflow push <file.workflow.json> [--namespace <slug>]
+dl workflow push <file.workflow.json> [--namespace <slug>]
 ```
 
 The CLI validates the schema and graph locally before any network or version
@@ -19,8 +19,8 @@ succeeds, the URL looks right, and it is only noticed later by a colleague who
 cannot find the workflow.
 
 ```bash
-dreamlake profile     # personal namespace
-dreamlake org list    # orgs you belong to
+dl profile     # personal namespace
+dl org list    # orgs you belong to
 ```
 
 Creating an organisation also creates a namespace of the same slug, so an org
@@ -36,7 +36,7 @@ rules before any network call. Invalid JSON or failed local validation leaves
 remote state unchanged and consumes no version.
 
 ```bash
-dreamlake workflow push <file.workflow.json> \
+dl workflow push <file.workflow.json> \
     [--namespace <slug>]
 ```
 

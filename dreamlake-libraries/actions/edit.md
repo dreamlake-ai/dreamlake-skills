@@ -1,14 +1,14 @@
 # Add or remove one asset remotely
 
 ```bash
-dreamlake library add <ns>/<name> ./my-mug --title "Blue mug" --category household
-dreamlake library add <ns>/<name> ./my-mug --replace   # update an existing id in place
-dreamlake library rm <ns>/<name> my-mug old-chair      # server reclaims their files
+dl library add <ns>/<name> ./my-mug --title "Blue mug" --category household
+dl library add <ns>/<name> ./my-mug --replace   # update an existing id in place
+dl library rm <ns>/<name> my-mug old-chair      # server reclaims their files
 ```
 
 No full local copy needed — these edit the remote library directly. Flags
 (`--id --title --description --category --tags --license --attribution`,
-`--replace`, `--json`): `dreamlake library add --help` and
+`--replace`, `--json`): `dl library add --help` and
 [Add or remove one asset](../reference/docs-libraries.md#add-or-remove-one-asset).
 
 ## Rules

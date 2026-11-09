@@ -38,7 +38,7 @@ required tools and spending/execution scope. Read known choices from reviewed
 project files and authenticated records. A hostname or label is not ownership.
 Never request secret values in chat, Terraform inputs or user data.
 
-Run `dreamlake provider create -n NAME --provider aws-jump-worker --json`.
+Run `dl provider create -n NAME --provider aws-jump-worker --json`.
 Read its AGENT.md, ADAPT.md and schemas. Fill terraform.tfvars.json and backend.json
 in the returned terraform directory (shipped defaults:
 [scaffold, fill inputs and plan](../reference/cli-connect-aws.md#scaffold-fill-inputs-and-plan)). A new worker uses `mode=create`; preserve external

@@ -10,15 +10,15 @@ Stack uses `infra move` or `infra transfer` (the `infrastructure` action of
 
 ```bash
 # 1. Save a read-only review bound to a stable request key.
-dreamlake project move research --namespace personal --to acme --dry-run --out review.json
+dl project move research --namespace personal --to acme --dry-run --out review.json
 # 2. Inspect blockers, resource counts and retained access, then submit that exact file.
-dreamlake project move research --namespace personal --to acme --confirm --request-file review.json
+dl project move research --namespace personal --to acme --confirm --request-file review.json
 # 3. The destination accepts (transfer inbox or `ownership accept`). Only with verified
 #    destination authority: add --accept-if-authorized --wait (bounded to 0-60 s).
 ```
 
 Flags and request format: [Projects](../reference/cli-projects.md#move-a-whole-project-and-its-supported-resources)
-and [Ownership transfers](../reference/cli-ownership.md). Run `dreamlake project
+and [Ownership transfers](../reference/cli-ownership.md). Run `dl project
 move --help` first: older clients need explicit `--stream` (now a compatibility
 alias), and a saved streaming review is recognised without it. Verify installed
 help and server capabilities independently.

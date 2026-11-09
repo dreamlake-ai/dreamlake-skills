@@ -7,13 +7,13 @@ Check the installed CLI version and command help against the
 [Jobs](../reference/cli-jobs.md) and
 [Slurm inventory](../reference/cli-queues.md#read-slurm-scheduler-jobs)
 references; `queues slurm` requires CLI 0.57.0+ and its matching backend API.
-Managed runs (`dreamlake run`, `dreamlake runs`) are a different thing: see
+Managed runs (`dl run`, `dl runs`) are a different thing: see
 [hosts](hosts.md) and the [Managed runs reference](../reference/cli-runs.md).
 
 ## Read Slurm scheduler jobs
 
-Discover configured clusters with `dreamlake queues slurm clusters --namespace NS`,
-then use the returned cluster ID with `dreamlake queues slurm jobs CLUSTER_ID
+Discover configured clusters with `dl queues slurm clusters --namespace NS`,
+then use the returned cluster ID with `dl queues slurm jobs CLUSTER_ID
 --namespace NS --details`. The default table includes usernames, job names,
 partitions, and observed states. No user filter is added; inspect snapshot scope,
 effective Unix user, workload visibility, and completeness before claiming which

@@ -2,13 +2,13 @@
 
 First complete [task identity setup](identity.md); reuse it in every shell call.
 
-Set `MEMO_ID` to an ID or slug from `dreamlake memos list`. Add
+Set `MEMO_ID` to an ID or slug from `dl memos list`. Add
 `--namespace <slug>` when the memo belongs to an organization. Check the
 installed CLI before choosing a read contract:
 
 ```bash
 MEMO_ID=release-plan
-dreamlake memos read --help
+dl memos read --help
 ```
 
 When help lists `--view markdown`, `--toc`, `--section`, `--tag` and `--at`,
@@ -16,12 +16,12 @@ use addressable Markdown reads. Start with the outline, then pin any section or
 element reads to the revision printed in the first result:
 
 ```bash
-dreamlake memos read "$MEMO_ID" --view markdown --toc
+dl memos read "$MEMO_ID" --view markdown --toc
 REVISION='revision from the outline result'
-dreamlake memos read "$MEMO_ID" --view markdown --at "$REVISION" --section s1.1
+dl memos read "$MEMO_ID" --view markdown --at "$REVISION" --section s1.1
 # Or target one passage or list item instead of reading the whole section:
-dreamlake memos read "$MEMO_ID" --view markdown --at "$REVISION" --tag s1.1.p1
-dreamlake memos read "$MEMO_ID" --view markdown --at "$REVISION" --tag s1.ul2.li3
+dl memos read "$MEMO_ID" --view markdown --at "$REVISION" --tag s1.1.p1
+dl memos read "$MEMO_ID" --view markdown --at "$REVISION" --tag s1.ul2.li3
 ```
 
 Use the smallest read that answers the question. The Markdown view adds
@@ -38,9 +38,9 @@ these options, use the compatible legacy reads below and do not infer HTML
 addresses:
 
 ```bash
-dreamlake memos toc --note "$MEMO_ID"
-dreamlake memos read --legacy "$MEMO_ID" --section setup
-dreamlake memos read --legacy "$MEMO_ID" --start-line 40 --end-line 80
+dl memos toc --note "$MEMO_ID"
+dl memos read --legacy "$MEMO_ID" --section setup
+dl memos read --legacy "$MEMO_ID" --start-line 40 --end-line 80
 ```
 
 For a whole-source delta, retain the complete snapshot’s `hash` and pass it to

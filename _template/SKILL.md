@@ -48,7 +48,7 @@ The pages in `reference/` are fetched by CI from the DreamLake docs sites and
 listed in `skill.json` under `docs`:
 
 - https://docs.dreamlake.ai — product concepts and behaviour
-- https://cli.dreamlake.ai — the `dreamlake` command line
+- https://cli.dreamlake.ai — the `dl` command line
 - https://viz.dreamlake.ai — dataset visualisation and `.dreamrc`
 
 Every page is fetchable as Markdown at `<page-url>.md`, and each site's whole

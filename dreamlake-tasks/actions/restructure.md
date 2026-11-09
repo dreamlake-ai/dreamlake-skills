@@ -5,9 +5,9 @@ slug explicitly, keeping the ID, and atomically updates descendant paths.
 `--if-match` supplies the current revision; read it again after each operation.
 
 ```bash
-dreamlake tasks rename vault/entries/write-recovery --title 'Recover interrupted writes' --if-match REV_BEFORE_RENAME
-dreamlake tasks move vault/entries/write-recovery vault/entries/recovery --if-match REV_BEFORE_MOVE
-dreamlake tasks reorder vault/entries --children 'TASK_ID_RECOVERY,TASK_ID_READ' --if-match PARENT_REVISION
+dl tasks rename vault/entries/write-recovery --title 'Recover interrupted writes' --if-match REV_BEFORE_RENAME
+dl tasks move vault/entries/write-recovery vault/entries/recovery --if-match REV_BEFORE_MOVE
+dl tasks reorder vault/entries --children 'TASK_ID_RECOVERY,TASK_ID_READ' --if-match PARENT_REVISION
 ```
 
 Reorder supplies the full existing child-ID array in the desired order; it does

@@ -1,6 +1,6 @@
 # File a Memo into a Project or change its folder
 
-Check `dreamlake memos move --help` first: the command requires CLI 0.45.1
+Check `dl memos move --help` first: the command requires CLI 0.45.1
 (absent in 0.45.0 and earlier) and a server that supports the endpoint.
 Standalone Memo ownership transfer across namespaces is [transfer](transfer.md),
 not this command; a whole Project with its Memos is the `projects` action of
@@ -11,11 +11,11 @@ Use the source workspace owner's login and preview the requested scope:
 
 ```bash
 # An organization destination currently returns blockers and exit status 3.
-dreamlake memos move MEMO_ID --to-namespace ORG --project PROJECT --dry-run
+dl memos move MEMO_ID --to-namespace ORG --project PROJECT --dry-run
 # Add a project association within the Memo's CURRENT workspace; inspect executable first.
-dreamlake memos move MEMO_ID --to-namespace CURRENT_WORKSPACE --project PROJECT --dry-run
+dl memos move MEMO_ID --to-namespace CURRENT_WORKSPACE --project PROJECT --dry-run
 # Relocate a filed Memo to an existing folder of one project (CLI 0.87.0+).
-dreamlake memos move MEMO_ID --namespace NS --project PROJECT --folder PATH --dry-run
+dl memos move MEMO_ID --namespace NS --project PROJECT --folder PATH --dry-run
 ```
 
 Only an executable same-workspace preview can be applied, when the user has
@@ -43,7 +43,7 @@ for ownership-busy and lost-authority recovery.
 
 The `--folder` target must already exist; bindr tags and access are kept.
 Preview with `--dry-run`, then repeat without it. Tag a filed Memo with a bindr
-through `dreamlake update bindr BINDR --project PROJECT@NS --add-note MEMO_ID`,
+through `dl update bindr BINDR --project PROJECT@NS --add-note MEMO_ID`,
 not a raw API call. See
 [move to another folder](../reference/cli-notes-projects.md#move-a-note-to-another-folder-in-a-project).
 

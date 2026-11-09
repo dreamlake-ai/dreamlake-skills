@@ -23,27 +23,27 @@ variable the service's own tooling reads. Entries saved earlier under
    exported inside the variable.
 
    ```bash
-   pass show runway | head -n 1 | tr -d '\n' | dreamlake vault add \
+   pass show runway | head -n 1 | tr -d '\n' | dl vault add \
      -p <owner>/cli/runway -n api-key --stdin --env RUNWAYML_API_SECRET
    ```
 
    To replace an existing entry, read `revision` from
-   `dreamlake vault show -n <owner>/cli/runway/api-key` and add
+   `dl vault show -n <owner>/cli/runway/api-key` and add
    `--if-match <revision>`. Keep the printed request ID; on a timeout or an
    uncertain response repeat the identical pipe with `--request-id <id>` or
    check `vault write-status`, never a fresh write. Flags:
    [vault add](../reference/cli-command-reference.md#vault-import); recovery:
    [write recovery](../reference/cli-vault-write-recovery.md).
 
-3. Confirm metadata only: `dreamlake vault show -n <owner>/cli/runway/api-key`.
+3. Confirm metadata only: `dl vault show -n <owner>/cli/runway/api-key`.
    `show` and `list` print no values.
 
 4. Load the key where a tool needs it. The saved `--env` names the export; an
    `ALIAS=path` selector adds a second name from the same entry:
 
    ```bash
-   eval "$(dreamlake vault get -n <owner>/cli/runway/api-key --to-envs)"
-   eval "$(dreamlake vault get -n <owner>/cli/runway/api-key \
+   eval "$(dl vault get -n <owner>/cli/runway/api-key --to-envs)"
+   eval "$(dl vault get -n <owner>/cli/runway/api-key \
      -n RUNWAY_SKILLS_API_SECRET=<owner>/cli/runway/api-key --to-envs)"
    ```
 
@@ -62,7 +62,7 @@ with `--env RUNWAYML_API_SECRET` and export both names with the two-selector
 
 | Symptom | Cause | Do |
 |---|---|---|
-| User asks for `dreamlake vault import --pass` | The flag is reserved; ordinary pass import is not implemented and is rejected. Only `--ssh` and `--pass-otp` import | Use the pipe in step 2, one entry per command |
+| User asks for `dl vault import --pass` | The flag is reserved; ordinary pass import is not implemented and is rejected. Only `--ssh` and `--pass-otp` import | Use the pipe in step 2, one entry per command |
 | `Noninteractive add requires --stdin or --stdin-json` | Piped input without `--stdin` | Add `--stdin` |
 | Exported variable ends in a newline or the API rejects the key | Entry stored with the trailing newline | Rotate: repeat step 2 with `head -n 1 \| tr -d '\n'` and `--if-match` |
 | Export is named `API_KEY` | Entry saved without `--env` | Re-add with `--env <VARIABLE>` and `--if-match`, or use an `ALIAS=path` selector |

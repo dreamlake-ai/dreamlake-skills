@@ -1,9 +1,9 @@
 # Inspect SSH capacity and Nymph permissions
 
 ```bash
-dreamlake --version
-dreamlake ssh --help
-dreamlake hosts --help
+dl --version
+dl ssh --help
+dl hosts --help
 # On the intended machine, using its existing config path:
 nymph access --config /absolute/path/to/udf-daemon.toml
 ```
