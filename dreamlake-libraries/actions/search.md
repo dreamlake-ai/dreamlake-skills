@@ -80,3 +80,20 @@ the global search page (select libraries → search → asset cards). A
 library card opens `/<ns>/libraries/<name>`, and an asset opens as a panel
 beside the grid at `?asset=<id>` — a shareable URL, not a separate page.
 Viewers by kind: [`assets/library-conventions.md`](../assets/library-conventions.md).
+
+## Preview a candidate in the built-in agent
+
+After selecting a search hit, use the available `dreamlake_asset_preview` tool
+with that hit's namespace, library and asset ID. Inspect the image returned to
+the model before choosing the asset; a URL printed in tool text is not evidence
+that the model saw an image. Read the deployed tool description and
+[resource tool docs](https://docs.dreamlake.ai/agents/resource-tools) for supported
+image formats and bounds. Check tool availability first: candidate source code
+or a local test does not establish deployment.
+
+Keep the asset identity with the preview observation in the task memo. A
+thumbnail supports appearance selection, not mesh completeness, scale,
+collision correctness, scene loading or physics validation. Continue the
+scene-side checks after pulling the selected files. If preview is unavailable,
+record that gap and use an actually available image-viewing tool; do not invent
+a visual observation from the title or ranking.
