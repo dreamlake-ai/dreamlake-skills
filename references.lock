@@ -126,6 +126,27 @@
         "version": "0.115.0 8cef4e5",
         "source_sha256": "ae789b4aef0dada6dd0e7ee3e8099ecbcff77ad677bbc4d699fc499d3e56612a",
         "sha256": "9d19a5237cd68909bbb9d5e7fa7309c0091483bdae968fb2d4d4737b58e1a9b2"
+      },
+      {
+        "url": "https://viz.dreamlake.ai/",
+        "file": "reference/viz-index.md",
+        "version": "unknown",
+        "source_sha256": "dfd272c29d42c677ecb762917145e91f9075cad4c29d2fc2c0a328a7dc98e3a4",
+        "sha256": "50013d5380db3797b2b1b651be4b1ea87e2f5d28b9526bce327ef0bba0e432da"
+      },
+      {
+        "url": "https://viz.dreamlake.ai/components/episode-line-chart",
+        "file": "reference/viz-components-episode-line-chart.md",
+        "version": "unknown",
+        "source_sha256": "1f37720b274376c508c5a520076a2ac9d4800d806382db383b1fdfe26f045b38",
+        "sha256": "ffe6119d376c689012a38e630d9d4f42f104fcaf56eba398da81e096745e04fb"
+      },
+      {
+        "url": "https://viz.dreamlake.ai/components/parallel-coordinates",
+        "file": "reference/viz-components-parallel-coordinates.md",
+        "version": "unknown",
+        "source_sha256": "1b35a6e57ef92449206ac3a8357c77e8c7ccda11d37a21649fe8f379696cb739",
+        "sha256": "5058e10bc07833b2518c8c36d792fa06611ac48a068ef500405ec24156574c0a"
       }
     ],
     "dreamlake-cli": [

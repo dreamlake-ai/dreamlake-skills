@@ -20,6 +20,7 @@ Several commands below carry minimum CLI versions; check `dl --version`.
 | The user wants to… | Action |
 | --- | --- |
 | write or fix the file (choose a kind, make it self-contained, style it) | [author](actions/author.md) |
+| build or repair charts in an artifact application using Viz | [charts](actions/charts.md) |
 | shareable query/fragment state, slides, deep links, back/forward inside the artifact | [routing](actions/routing.md) |
 | push a file, HTML page directory or built static site; manage versions and metadata | [publish](actions/publish.md) |
 | diagnose slow or stuck loading; compare first render across real artifacts | [performance](actions/performance.md) |

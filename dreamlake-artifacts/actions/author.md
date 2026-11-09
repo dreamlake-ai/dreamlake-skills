@@ -6,6 +6,10 @@ its chunks into HTML when using that workflow. For a slow media-heavy artifact,
 read [performance](performance.md) before adding more inline assets. The guidance
 below applies to existing single-file artifacts.
 
+For charts in a built artifact application, follow [charts](charts.md) to
+choose the shared component, read its installed-version contract, and verify
+plot controls before publishing.
+
 Pick the kind, make the file self-contained for the sandbox, style it deliberately,
 run the checklist, then hand it to [publish](publish.md). Start from the matching
 template in `assets/templates/` when one exists.

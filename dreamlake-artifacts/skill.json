@@ -9,7 +9,10 @@
     "https://docs.dreamlake.ai/workspaces",
     "https://cli.dreamlake.ai/artifacts",
     "https://cli.dreamlake.ai/projects",
-    "https://cli.dreamlake.ai/sessions"
+    "https://cli.dreamlake.ai/sessions",
+    "https://viz.dreamlake.ai/",
+    "https://viz.dreamlake.ai/components/episode-line-chart",
+    "https://viz.dreamlake.ai/components/parallel-coordinates"
   ],
   "tools": null
 }
