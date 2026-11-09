@@ -1,6 +1,6 @@
 ---
 name: dreamlake-lakeshore
-description: Operate DreamLake compute through the CLI — connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and externally launched jobs, provision machines through a user-configured launch server, discover and collaborate on Infrastructure Stacks (manual or automated Terraform setup), connect AWS. Use for any host, machine, queue, Stack or AWS-connection task. Not for uploads, Memos, artifacts, scenes or datasets.
+description: Operate DreamLake compute through the CLI — connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and externally launched jobs, provision machines through a user-configured launch server, discover and collaborate on Infrastructure Stacks (manual or automated Terraform setup), connect AWS, run GitHub Actions CI/CT jobs on DreamLake machines. Use for any host, machine, queue, Stack, AWS-connection or CI/CT runner task. Not for uploads, Memos, artifacts, scenes or datasets.
 ---
 
 # DreamLake Lakeshore and compute
@@ -30,6 +30,7 @@ evidence standard are in [machines](actions/machines.md).
 | SSH usage/limits, Nymph capacity configuration and command permission boundaries | [SSH capacity and permissions](actions/ssh-capacity.md) |
 | Move a personally owned host between namespaces, keeping it private (CLI or documented SDK fallback) | [move a host](actions/host-move.md) |
 | Read Slurm scheduler jobs; register and report externally launched work | [jobs](actions/jobs.md) |
+| CI/CT: run GitHub Actions jobs on DreamLake machines (connect GitHub, runner pools), inspect CI/CT runs and their evidence | [cict](actions/cict.md) |
 | Machine identities, service accounts, launch-server binding, provisioning and EC2 launches | [machines](actions/machines.md) |
 | Infrastructure Stacks: discover and collaborate (manual and automated Terraform setup), register an empty backend, Kubernetes capacity | [infrastructure](actions/infrastructure.md) |
 | Rename or relocate an existing Infrastructure registration (CLI, Python SDK or agent tools) | [move an Infrastructure registration](actions/infrastructure-move.md) |
