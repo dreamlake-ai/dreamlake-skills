@@ -21,6 +21,7 @@ relative to this skill's directory.
 
 | The user wants to… | Action |
 | --- | --- |
+| inspect, pause, control or render an already-open scene with the built-in agent | [browser-runtime](actions/browser-runtime.md) |
 | find or download models, check an asset is usable, record provenance and licence | [source-assets](actions/source-assets.md) |
 | measure geometry, place objects without floating or clipping, wrap an OBJ/STL, author floor/lights/cameras, render previews | [design](actions/design.md) |
 | turn a scene living in a repo into one self-contained directory and check every include/mesh resolves (MJCF or URDF) | [package](actions/package.md) |
