@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/installation.md at 0.112.0 0d1fe91; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/installation.md at 0.112.1 2a2fef0; do not edit -->
 
 # Installation
 
@@ -66,6 +66,8 @@ keep their existing DreamLake identifiers. For process management, prefer
 `kill <PID>` after identifying the intended process. Do not change `pkill`,
 `pgrep`, or `killall` patterns merely because command examples now use `dl`:
 the process name depends on the platform and how the executable was launched.
+For example, Linux can show `dl` when invoked through that alias, and Windows
+runs `dl.exe`. Match the observed process instead of assuming either name.
 
 ## npm
 

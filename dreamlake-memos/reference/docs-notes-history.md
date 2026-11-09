@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.134 4bbe54f7; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.134 2292baa2; do not edit -->
 
 # History and saved versions
 
@@ -382,6 +382,13 @@ and an unavailable revision returns `404 revision_not_found`. This does not
 replace the live body, change its collaboration session, or restore deleted
 memos. Editor access is still required. A recovered version's `createdAt`
 records when it was saved; `sourceObservedAt` records the baseline observation.
+New historical saves preserve the exact validated request `revision` in their
+receipt, list entry and immutable readback, including scoped `memo-rtc:v1:`
+references. The retained native RTC envelope, clock and journal stay unchanged.
+Older saved versions keep their original native `rtc:` provenance; they are not
+rewritten or upgraded by a read or an idempotent retry. A matching text/hash alone
+cannot establish equivalence with another revision. Wrong Memo, room scope or
+native snapshot identity is refused even when the text is identical.
 Omit `revision` to retain the existing current-draft consistency check. Do not
 retry a failed stale-current save as a historical save without reviewing the
 intended retained content. The CLI does not yet expose this extension.

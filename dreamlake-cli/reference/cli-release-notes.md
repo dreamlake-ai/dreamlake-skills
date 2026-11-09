@@ -1,13 +1,25 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.112.0 0d1fe91; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.112.1 2a2fef0; do not edit -->
 
 # Release notes
+
+## 0.112.1 — Bundled dl command guidance
+
+Bundles skills `v2026.11.09.2` with procedures that prefer `dl` and retain
+`dreamlake` for missing-command or conflict recovery. The embedded references
+come from the published CLI 0.112.0 and product-docs 0.1.134 releases. Existing
+installed skills can be refreshed with `dl skill update`; local edits remain
+protected by the installer checks.
+
+Automatic native alias setup is unchanged. Process management uses the observed
+process name, which can be `dl` when launched through the alias; prefer
+`kill <PID>`. See [installation](cli-installation.md#the-dl-command).
 
 ## 0.112.0 — Use dl everywhere
 
 `dl` is now the preferred command in help, examples, and command hints.
 `dreamlake` remains supported with the same arguments, settings and credentials.
-Package names, installed paths, environment variables, services and process
-identifiers retain their existing names.
+Package names, installed paths, environment variables and service identifiers
+retain their existing names. Process matching depends on the executable invocation.
 
 Existing native installations create a missing `dl` on the first invocation of
 this version, including installations upgraded by an older binary. This local
