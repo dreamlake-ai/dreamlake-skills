@@ -19,14 +19,17 @@ major/minor tick marks. All four charts share `time`, `onHover`, zoom and pan;
 only the hovered chart shows a readout. No new cursor callback is needed.
 Use `onHoverEnd` to clear the preview. `isScrubOwner={false}` explicitly
 suppresses a readout. The readout follows both pointer axes in a body portal,
-can extend beyond the chart, and flips at the browser edges. It passes pointer
-events through; Escape dismisses it. Keyboard zoom/pan shows the focused
+stays 12px below and to the right of the pointer and can extend beyond the chart.
+Only browser edges clamp it into view. It passes pointer events through; Escape dismisses it. Keyboard zoom/pan shows the focused
 chart's readout when `time` is set. Recorded sample values are never interpolated.
 
 Both axes have short 6px major and 3px minor ticks. Y-axis marks extend into
 the gutter without moving the plot or adding minor grid lines. Their numeric
 values follow the [nice-number selection guide](https://viz.dreamlake.ai/components/numeric-axis#nice-numbers-and-tick-selection);
-explicit `yRange` bounds and custom formatters stay authoritative.
+explicit `yRange` bounds and custom formatters stay authoritative. Compact axes
+normally target three majors; if a nonconstant range leaves fewer than two,
+they retry a target of five. For `[13, 87]`, majors are 20, 40, 60 and 80 without
+expanding the exact domain. Minor ticks remain short and unlabelled.
 
 ```tsx file="CompactSpec.tsx"
 
@@ -772,6 +775,18 @@ Use `activeSeriesId` to connect that emphasis to another view. The
 [seven-signal example](https://viz.dreamlake.ai/components/series-identification) adds keyboard and
 touch controls.
 
+## Shared pin and hover preview
+
+Clicking can pin one time across every linked plot while hover continues to
+preview other moments. Use one `useTimelinePreview(clock)` controller for the
+whole group: `preview(ownerId, time)` on hover, `endPreview(ownerId)` on leave,
+and `pin(time)` on seek. Ending the current preview returns every view to the
+pin. Do not give each chart its own pin or stop forwarding hover when pinned.
+
+The [shared timeline example](viz-components-episode-timeline.md#shared-click-to-pin-and-hover-preview)
+connects two compact charts, a timeline and a shared clock readout, with keyboard
+and touch controls and an explicit playback policy.
+
 ## Multi-chart sync
 
 Hover an available chart to read its values at the shared time. The
@@ -956,7 +971,7 @@ const bind = (id: string) => ({
 <EpisodeLineChart {...bind('temperature')} series={temperatures} duration={duration} />
 ```
 
-[Timeline](https://viz.dreamlake.ai/components/episode-timeline) and [Video](https://viz.dreamlake.ai/components/episode-video-stack)
+[Timeline](viz-components-episode-timeline.md) and [Video](https://viz.dreamlake.ai/components/episode-video-stack)
 share the hover callbacks but do not use `isScrubOwner`. Video tracks camera
 identity through `activeId`. Keep a separate playback time if leaving a hover
 should restore the committed playhead.
@@ -1004,13 +1019,15 @@ error label; a dashed, lower-opacity trace can distinguish reference data.
 
 Tooltips show time and up to five labeled signals. Identifying a series keeps
 its row inside that limit and wraps its full label. The hovered chart's
-readout follows the pointer: its corner sits 12px diagonally off the hovered
-point, so the point and the cursor stay visible. It opens to the right of the
-point in the left part of the plot and to the left in the right part, below in
-the upper part and above in the lower. It keeps its side until the point is
-well past the middle, so scrubbing across the center does not make it jump,
-and it flips or clamps to stay 8px inside the viewport. Peers show only the
-shared hairline. Hover readouts always pass pointer events through.
+readout follows both pointer coordinates with a fixed lower-right offset:
+its top-left corner is 12px to the right and 12px below the pointer. Crossing a
+chart's middle or edges does not flip it above or to the left. The body portal
+can extend outside the plot and any clipping ancestor. Only the browser viewport
+clamps it as needed to keep an 8px margin. Moving the pointer still moves the
+readout when controlled `time` is frozen; sample selection continues to use the
+chart's time semantics. Scrolling updates its position without anchoring it to
+the chart corner. Peers show only the shared hairline. Hover readouts always
+pass pointer events through.
 
 ## Disabled state
 
@@ -1019,55 +1036,55 @@ Set `disabled` for an unavailable channel. It retains its size, shows
 
 ## Props
 
-| Prop                   | Type                           | Default          | Purpose                                                                                                                                           |
-| ---------------------- | ------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `series`               | `EpisodeLineChartSeries[]`     | required         | Signals, drawn in array order.                                                                                                                    |
-| `duration`             | `number`                       | required         | Episode length in seconds; greater than zero.                                                                                                     |
-| `title` / `caption`    | `string`                       | —                | Chart title and optional caption above it.                                                                                                        |
-| `lineWidth` | `number` | `2` | Default non-scaling trace width in CSS pixels; per-series `width` takes precedence. Zero hides inherited strokes. |
-| `activeLineWidth` | `number` | base × 1.65 | Active trace width in CSS pixels, never less than its resolved base width. |
-| `rendering`            | `'auto' \| 'exact'`            | `'auto'`         | Reduce dense display geometry or retain visible vertices after measurement.                                                                       |
-| `yRange`               | `[number, number]`             | auto-fit         | Explicit y bounds. Auto-fit includes valid bands, adds 5% padding, and rounds outward.                                                            |
-| `time`                 | `number \| null`               | `null`           | Shared cursor time; null hides it.                                                                                                                |
-| `onHover`              | `(t: number) => void`          | —                | Receive the hovered time.                                                                                                                         |
-| `onHoverEnd`           | `() => void`                   | —                | Receive pointer leave.                                                                                                                            |
-| `onSeek`               | `(t: number) => void`          | —                | Receive a click's time.                                                                                                                           |
-| `size` | `"default" \| "compact"` | `"default"` | Compact sets a 150px total height and fewer y ticks. |
-| `height` | `number \| string` | parent / 150px compact | Total chart height, including title and axes. |
-| `background` | `"none" \| "subtle"` | `"none"` | Opt into a tinted chart surface. |
-| `isScrubOwner`         | `boolean`                      | `true`           | Emphasize this cursor; false suppresses its readout. Only a local pointer or keyboard interaction shows a readout.                                                         |
-| `zoom` / `panPct`      | `number`                       | `1` / `0`        | Controlled visible window.                                                                                                                        |
-| `onViewportChange`     | `(v: ViewportState) => void`   | —                | Receive requested zoom and pan.                                                                                                                   |
-| `minZoom` / `maxZoom`  | `number`                       | `1` / `Infinity` | Viewport zoom limits.                                                                                                                             |
-| `markers`              | `EpisodeLineChartMarker[]`     | `[]`             | Named event times.                                                                                                                                |
-| `ranges`               | `EpisodeLineChartRange[]`      | `[]`             | Labeled intervals.                                                                                                                                |
-| `highlightOnHover`     | `boolean`                      | `false`          | Identify the nearest visible trace.                                                                                                               |
-| `highlightThresholdPx` | `number`                       | `8`              | Maximum pointer-to-trace distance in CSS pixels.                                                                                                  |
-| `activeSeriesId`       | `string \| null`               | local hover      | Controlled series identity; null clears it.                                                                                                       |
-| `onActiveSeriesChange` | `(id: string \| null) => void` | —                | Receive requested identification changes.                                                                                                         |
-| `unit`                 | `string`                       | derived          | Y-axis unit. Derived from a readout formatter when available; `''` hides it.                                                                      |
-| `formatTick`           | `(v: number) => string`        | derived          | Tick text. Uses a readout's custom formatter with trailing unit removed, or step-aware numeric precision. An explicit formatter is used verbatim. |
-| `unitHint`             | `string`                       | —                | Explanation below the tooltip time.                                                                                                               |
-| `showMidline`          | `boolean`                      | `true`           | Draw the zero gridline, or midpoint tick if zero is absent. False leaves its label visible.                                                       |
-| `disabled`             | `boolean`                      | `false`          | Show the unavailable-channel state.                                                                                                               |
-| `className`            | `string`                       | —                | Root CSS classes.                                                                                                                                 |
+| Prop                   | Type                           | Default                | Purpose                                                                                                                                           |
+| ---------------------- | ------------------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `series`               | `EpisodeLineChartSeries[]`     | required               | Signals, drawn in array order.                                                                                                                    |
+| `duration`             | `number`                       | required               | Episode length in seconds; greater than zero.                                                                                                     |
+| `title` / `caption`    | `string`                       | —                      | Chart title and optional caption above it.                                                                                                        |
+| `lineWidth`            | `number`                       | `2`                    | Default non-scaling trace width in CSS pixels; per-series `width` takes precedence. Zero hides inherited strokes.                                 |
+| `activeLineWidth`      | `number`                       | base × 1.65            | Active trace width in CSS pixels, never less than its resolved base width.                                                                        |
+| `rendering`            | `'auto' \| 'exact'`            | `'auto'`               | Reduce dense display geometry or retain visible vertices after measurement.                                                                       |
+| `yRange`               | `[number, number]`             | auto-fit               | Explicit y bounds. Auto-fit includes valid bands, adds 5% padding, and rounds outward.                                                            |
+| `time`                 | `number \| null`               | `null`                 | Shared cursor time; null hides it.                                                                                                                |
+| `onHover`              | `(t: number) => void`          | —                      | Receive the hovered time.                                                                                                                         |
+| `onHoverEnd`           | `() => void`                   | —                      | Receive pointer leave.                                                                                                                            |
+| `onSeek`               | `(t: number) => void`          | —                      | Receive a click's time.                                                                                                                           |
+| `size`                 | `"default" \| "compact"`       | `"default"`            | Compact sets a 150px total height and fewer y ticks.                                                                                              |
+| `height`               | `number \| string`             | parent / 150px compact | Total chart height, including title and axes.                                                                                                     |
+| `background`           | `"none" \| "subtle"`           | `"none"`               | Opt into a tinted chart surface.                                                                                                                  |
+| `isScrubOwner`         | `boolean`                      | `true`                 | Emphasize this cursor; false suppresses its readout. Only a local pointer or keyboard interaction shows a readout.                                |
+| `zoom` / `panPct`      | `number`                       | `1` / `0`              | Controlled visible window.                                                                                                                        |
+| `onViewportChange`     | `(v: ViewportState) => void`   | —                      | Receive requested zoom and pan.                                                                                                                   |
+| `minZoom` / `maxZoom`  | `number`                       | `1` / `Infinity`       | Viewport zoom limits.                                                                                                                             |
+| `markers`              | `EpisodeLineChartMarker[]`     | `[]`                   | Named event times.                                                                                                                                |
+| `ranges`               | `EpisodeLineChartRange[]`      | `[]`                   | Labeled intervals.                                                                                                                                |
+| `highlightOnHover`     | `boolean`                      | `false`                | Identify the nearest visible trace.                                                                                                               |
+| `highlightThresholdPx` | `number`                       | `8`                    | Maximum pointer-to-trace distance in CSS pixels.                                                                                                  |
+| `activeSeriesId`       | `string \| null`               | local hover            | Controlled series identity; null clears it.                                                                                                       |
+| `onActiveSeriesChange` | `(id: string \| null) => void` | —                      | Receive requested identification changes.                                                                                                         |
+| `unit`                 | `string`                       | derived                | Y-axis unit. Derived from a readout formatter when available; `''` hides it.                                                                      |
+| `formatTick`           | `(v: number) => string`        | derived                | Tick text. Uses a readout's custom formatter with trailing unit removed, or step-aware numeric precision. An explicit formatter is used verbatim. |
+| `unitHint`             | `string`                       | —                      | Explanation below the tooltip time.                                                                                                               |
+| `showMidline`          | `boolean`                      | `true`                 | Draw the zero gridline, or midpoint tick if zero is absent. False leaves its label visible.                                                       |
+| `disabled`             | `boolean`                      | `false`                | Show the unavailable-channel state.                                                                                                               |
+| `className`            | `string`                       | —                      | Root CSS classes.                                                                                                                                 |
 
 ### EpisodeLineChartSeries
 
-| Field                       | Type                                                            | Default               | Purpose                                                        |
-| --------------------------- | --------------------------------------------------------------- | --------------------- | -------------------------------------------------------------- |
-| `id`                        | `string`                                                        | required              | Stable signal identifier.                                      |
-| `label`                     | `string`                                                        | —                     | Tooltip label; omit to exclude the readout.                    |
-| `data`                      | `{ x: number[]; y: number[]; low?: number[]; high?: number[] }` | required              | Aligned timestamps, values, and optional bounds.               |
-| `color`                     | `string`                                                        | required              | CSS stroke color.                                              |
-| `fillColor` / `fillOpacity` | `string` / `number`                                             | series color / `0.16` | Band styling, independent of line opacity.                     |
-| `width`                     | `number`                                                        | chart `lineWidth` (`2`) | Non-scaling CSS-pixel stroke width; zero hides the stroke.                                  |
-| `dash`                      | `string`                                                        | solid                 | SVG dash pattern, such as `'3 2.4'`.                           |
-| `opacity`                   | `number`                                                        | `1`                   | Line opacity.                                                  |
-| `linecap`                   | `'butt' \| 'round' \| 'square'`                                 | `'butt'`              | Stroke end shape.                                              |
-| `readout`                   | `boolean`                                                       | `true`                | Include a labeled series in the tooltip.                       |
-| `ghost`                     | `boolean`                                                       | `false`               | Dim its readout and add a `tgt` suffix for reference signals.  |
-| `formatValue`               | `(v: number) => string`                                         | `v => v.toFixed(2)`   | Format tooltip values, including any physical-unit conversion. |
+| Field                       | Type                                                            | Default                 | Purpose                                                        |
+| --------------------------- | --------------------------------------------------------------- | ----------------------- | -------------------------------------------------------------- |
+| `id`                        | `string`                                                        | required                | Stable signal identifier.                                      |
+| `label`                     | `string`                                                        | —                       | Tooltip label; omit to exclude the readout.                    |
+| `data`                      | `{ x: number[]; y: number[]; low?: number[]; high?: number[] }` | required                | Aligned timestamps, values, and optional bounds.               |
+| `color`                     | `string`                                                        | required                | CSS stroke color.                                              |
+| `fillColor` / `fillOpacity` | `string` / `number`                                             | series color / `0.16`   | Band styling, independent of line opacity.                     |
+| `width`                     | `number`                                                        | chart `lineWidth` (`2`) | Non-scaling CSS-pixel stroke width; zero hides the stroke.     |
+| `dash`                      | `string`                                                        | solid                   | SVG dash pattern, such as `'3 2.4'`.                           |
+| `opacity`                   | `number`                                                        | `1`                     | Line opacity.                                                  |
+| `linecap`                   | `'butt' \| 'round' \| 'square'`                                 | `'butt'`                | Stroke end shape.                                              |
+| `readout`                   | `boolean`                                                       | `true`                  | Include a labeled series in the tooltip.                       |
+| `ghost`                     | `boolean`                                                       | `false`                 | Dim its readout and add a `tgt` suffix for reference signals.  |
+| `formatValue`               | `(v: number) => string`                                         | `v => v.toFixed(2)`     | Format tooltip values, including any physical-unit conversion. |
 
 ## Readable axes and readout placement
 

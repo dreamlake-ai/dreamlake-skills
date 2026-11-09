@@ -21,11 +21,18 @@ Preserve the user's requested artifact format and publication scope.
    Set the chart size from its real parent layout; inspect compact sizing,
    surface styling, and cursor ownership in the component guide rather than
    copying a full-page example into a small embed.
-4. Build and inspect the result in both themes at the intended embedded size.
+4. For linked chart, timeline, video, or 3D inspection, read the
+   [shared pin and preview example](../reference/viz-components-episode-timeline.md#shared-click-to-pin-and-hover-preview).
+   Keep the group's cursor controller shared and distinguish transient inspection
+   from a committed return time. Preserve hover while pinned; verify ownership
+   handoffs, leave/return behavior, external navigation, and playback together.
+   Include keyboard and touch paths in the same integration checks.
+5. Build and inspect the result in both themes at the intended embedded size.
    Exercise the width control, a series override, and active selection; check
-   that emphasis stays legible, the readout remains reachable, and the axes
-   and markers retain their intended weight. Keep screenshot or browser-test
-   evidence tied to the installed version.
+   that emphasis stays legible and the axes and markers retain their intended
+   weight. Exercise the readout at chart edges and during ancestor scrolling;
+   compare its pointer placement and viewport bounds with the component contract.
+   Keep screenshot or browser-test evidence tied to the installed version.
 
 For an SDK-only or repository component request, use the component docs and
 validate locally; artifact publication is unnecessary unless requested. A

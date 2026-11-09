@@ -70,7 +70,7 @@ a time while a selected playhead stays fixed. The [synchronization
 example](viz-components-episode-line-chart.md#synced-with-episodetimeline--episodevideostack) connects charts, a
 timeline, and video using this state.
 
-Use [timelines](https://viz.dreamlake.ai/components/episode-timeline) for labeled intervals,
+Use [timelines](viz-components-episode-timeline.md) for labeled intervals,
 [video](https://viz.dreamlake.ai/components/episode-video-stack) or [image frames](https://viz.dreamlake.ai/components/episode-frame-stack)
 for cameras, and [overlays](https://viz.dreamlake.ai/components/media-overlay) for boxes and keypoints.
 [Parallel coordinates](viz-components-parallel-coordinates.md) compare records across
@@ -101,7 +101,7 @@ Dataset readers support specific layouts and encodings. Check the
 Install the public npm release into a React application:
 
 ```bash
-npm install --save-exact @dreamlake/viz@0.28.7
+npm install --save-exact @dreamlake/viz@0.28.9
 ```
 
 The package includes ESM and TypeScript declarations. React and React DOM are
