@@ -1,8 +1,8 @@
-<!-- generated from https://cli.dreamlake.ai/notes.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes.md at 0.112.0 0d1fe91; do not edit -->
 
 # Memos
 
-Use `dreamlake memos` (or `dreamlake memo`). The previous `notes` and `note` commands remain aliases. Existing `/notes` URLs, `--note` flags, SDK methods, and JSON fields keep their compatibility names.
+Use `dl memos` (or `dl memo`). The previous `notes` and `note` commands remain aliases. Existing `/notes` URLs, `--note` flags, SDK methods, and JSON fields keep their compatibility names.
 
 Memos are shared Markdown documents you can read and edit in DreamLake or from
 your terminal. Choose a guide for the task at hand.

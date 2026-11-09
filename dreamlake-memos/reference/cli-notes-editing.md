@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.112.0 0d1fe91; do not edit -->
 
 # Editing with patches
 
@@ -14,18 +14,18 @@ without a trailing newline. Keep the baseline unchanged while preparing the patc
 
 ```bash cli-help="memos patch"
 set -euo pipefail
-dreamlake memos create "Patch tutorial" --text 'Hello world.' > created.txt
+dl memos create "Patch tutorial" --text 'Hello world.' > created.txt
 MEMO_ID=$(sed -n 's/^  id //p' created.txt)
-dreamlake memos read "$MEMO_ID" --view source --json > baseline.json
+dl memos read "$MEMO_ID" --view source --json > baseline.json
 # A plain text read is the mapped reading view and --view source is bytes only;
 # --json is the structured snapshot with note, hash and revision.
 BASE=$(jq -er .revision baseline.json)
-dreamlake memos patch "$MEMO_ID" --file - --base-revision "$BASE" --json > receipt.json <<'PATCH'
+dl memos patch "$MEMO_ID" --file - --base-revision "$BASE" --json > receipt.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
 ACK=$(jq -er .revision receipt.json)
-dreamlake memos read "$MEMO_ID" --if-match "$ACK"
+dl memos read "$MEMO_ID" --if-match "$ACK"
 # Expect Hello team. Inspect the result; do not repeat a successful patch.
 ```
 
@@ -37,21 +37,21 @@ The initial source is exactly `Hello world.` without a trailing newline.
 
 ```bash notes-example="inline-roundtrip"
 set -euo pipefail
-dreamlake memos create "Patch tutorial" \
+dl memos create "Patch tutorial" \
   --text 'Hello world.' --json > created.json
 MEMO_ID=$(jq -er .id created.json)
-dreamlake memos read "$MEMO_ID" --json > baseline.json
+dl memos read "$MEMO_ID" --json > baseline.json
 BASE=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > base.md
 
-dreamlake memos patch "$MEMO_ID" --file - --base-revision "$BASE" \
+dl memos patch "$MEMO_ID" --file - --base-revision "$BASE" \
   --json > receipt.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
 
 ACK=$(jq -er .revision receipt.json)
-dreamlake memos read "$MEMO_ID" --if-match "$ACK" \
+dl memos read "$MEMO_ID" --if-match "$ACK" \
   --json > verified.json
 jq -e '.content == "Hello team."' verified.json
 ```
@@ -148,7 +148,7 @@ diff. Start with an accessible `MEMO_ID`; keep both the baseline and draft.
 
 ```bash notes-example="unified-roundtrip"
 set -euo pipefail
-dreamlake memos read "$MEMO_ID" --json > line-baseline.json
+dl memos read "$MEMO_ID" --json > line-baseline.json
 BASE=$(jq -er .revision line-baseline.json)
 jq -jr .content line-baseline.json > before.md
 cp before.md after.md
@@ -161,10 +161,10 @@ if [ "$diff_status" -eq 0 ]; then
   echo "No changes; no patch sent."
   exit 0
 fi
-dreamlake memos patch "$MEMO_ID" --format diff --base-revision "$BASE" \
+dl memos patch "$MEMO_ID" --format diff --base-revision "$BASE" \
   --file draft.diff --json > line-receipt.json
 ACK=$(jq -er .revision line-receipt.json)
-dreamlake memos read "$MEMO_ID" --if-match "$ACK" \
+dl memos read "$MEMO_ID" --if-match "$ACK" \
   --json > line-verified.json
 ```
 
@@ -225,9 +225,9 @@ append whose response was lost. It is opt-in in this release; the server side
 ships separately, and until it does a receipt without the echo exits `4`.
 
 ```bash
-dreamlake memos append "$MEMO_ID" --text "Hello" --base-revision "$BASE" \
+dl memos append "$MEMO_ID" --text "Hello" --base-revision "$BASE" \
   --command-id "release-note-2026-10-30-0001" --json
-dreamlake memos command-status "$MEMO_ID" release-note-2026-10-30-0001 --json
+dl memos command-status "$MEMO_ID" release-note-2026-10-30-0001 --json
 ```
 
 Every v2 write receipt carries `outcome` (`accepted`, or `no-write` when the
@@ -278,7 +278,7 @@ DIFF_STATUS=0
 diff -u base.md edited.md > edit.diff || DIFF_STATUS=$?
 if [ "$DIFF_STATUS" -gt 1 ]; then exit "$DIFF_STATUS"; fi
 if [ "$DIFF_STATUS" -eq 1 ]; then
-  dreamlake memos patch "$MEMO_ID" --format diff --file edit.diff --base-revision "$BASE"
+  dl memos patch "$MEMO_ID" --format diff --file edit.diff --base-revision "$BASE"
 fi
 # Read the resulting receipt revision with --at to verify the exact source.
 ```
@@ -302,9 +302,9 @@ The new append preserves collaborative source identities instead of replacing
 the complete Memo body. No legacy route is retired.
 
 ```bash cli-help="memos append"
-dreamlake memos append "$MEMO_ID" --file addition.md --base-revision "$BASE" --json
+dl memos append "$MEMO_ID" --file addition.md --base-revision "$BASE" --json
 # ACK is the revision in the successful append receipt.
-dreamlake memos read "$MEMO_ID" --at "$ACK"
+dl memos read "$MEMO_ID" --at "$ACK"
 ```
 
 Without `--base-revision`, append reads one complete, hash-verified source
@@ -343,10 +343,10 @@ v2 API, reusing the CLI 0.59.0 append snapshot/PATCH helpers. CLI 0.59.0 and ear
 use retained ETag/body replacement insertion. No legacy command or route is retired.
 
 ```bash cli-help="memos insert"
-dreamlake memos insert --note "$MEMO_ID" --ind 0 --text 'Review: ' \
+dl memos insert --note "$MEMO_ID" --ind 0 --text 'Review: ' \
   --base-revision "$BASE" --json
 # ACK is the revision returned by the insertion receipt.
-dreamlake memos read "$MEMO_ID" --at "$ACK"
+dl memos read "$MEMO_ID" --at "$ACK"
 ```
 
 Insertion reads one hash-verified original snapshot, resolves the
@@ -387,7 +387,7 @@ use the original-revision contracts below in CLI 0.60.0 or later.
 
 ### Contract spellings (CLI 0.98.0)
 
-The memo may be given positionally: `dreamlake memos insert "$MEMO_ID" --after s1.p2
+The memo may be given positionally: `dl memos insert "$MEMO_ID" --after s1.p2
 --file addition.md --base-revision "$BASE" --json` inserts the file's exact UTF-8
 text, verbatim, at the end of that mapped element's full original span (`--before`
 inserts at its start; `--cursor N` at an original code-point position). Addresses
@@ -403,15 +403,15 @@ through the v2 snapshot/PATCH API. Multiple matches become separate hunks in one
 against one original revision, leaving the source between targets untouched.
 
 ```bash
-dreamlake memos replace 'Draft' --text 'Reviewed' --all --note "$MEMO_ID" \
+dl memos replace 'Draft' --text 'Reviewed' --all --note "$MEMO_ID" \
   --base-revision "$BASE" --json
 ```
 
 ```bash cli-help="memos delete"
-dreamlake memos delete 'obsolete paragraph' --note "$MEMO_ID" \
+dl memos delete 'obsolete paragraph' --note "$MEMO_ID" \
   --base-revision "$BASE" --json
 # Pin verification to the receipt's acknowledged revision.
-dreamlake memos read "$MEMO_ID" --at "$ACK"
+dl memos read "$MEMO_ID" --at "$ACK"
 ```
 
 Literal queries require one match by default; `--count N` requires exactly N
@@ -461,9 +461,9 @@ in CLI 0.61.0; no legacy Memo route or compatibility option is retired.
 With a span selector the memo may be given positionally and no query is needed:
 
 ```bash
-dreamlake memos replace "$MEMO_ID" --lines 40:42 --file replacement.md --base-revision "$BASE" --json
-dreamlake memos replace "$MEMO_ID" --address s1.p2 --text "Hi" --base-revision "$BASE" --json
-dreamlake memos remove "$MEMO_ID" --lines 40:42 --base-revision "$BASE" --json
+dl memos replace "$MEMO_ID" --lines 40:42 --file replacement.md --base-revision "$BASE" --json
+dl memos replace "$MEMO_ID" --address s1.p2 --text "Hi" --base-revision "$BASE" --json
+dl memos remove "$MEMO_ID" --lines 40:42 --base-revision "$BASE" --json
 ```
 
 `--lines a:b` takes exactly two integers (1-based, inclusive; the span includes
@@ -480,13 +480,13 @@ body, retaining unchanged source islands even inside one paragraph. It emits
 ordered disjoint hunks in one v2 PATCH, rather than replacing the complete body.
 
 ```bash cli-help="memos write"
-dreamlake memos read "$MEMO_ID" --json > baseline.json
+dl memos read "$MEMO_ID" --json > baseline.json
 BASE=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > draft.md
 # Edit draft.md without changing the saved original baseline.
-dreamlake memos write "$MEMO_ID" --file draft.md --base-revision "$BASE" --json
+dl memos write "$MEMO_ID" --file draft.md --base-revision "$BASE" --json
 # ACK is the successful write receipt's revision.
-dreamlake memos read "$MEMO_ID" --at "$ACK"
+dl memos read "$MEMO_ID" --at "$ACK"
 ```
 
 A target prepared from an older source must retain that source's original

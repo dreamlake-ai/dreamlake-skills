@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.134 4bbe54f7; do not edit -->
 
 {/* FigWf* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -43,10 +43,10 @@ installed by the CLI.
    environment is **active on that machine**, so anyone who has ever logged into
    staging lands there silently — and the failures that follow (an empty
    `source list`, a push to the wrong place) never point back at the cause.
-   `dreamlake auth env list` shows which login environment is active.
+   `dl auth env list` shows which login environment is active.
 
    Install the standalone CLI from [the CLI guide](https://docs.dreamlake.ai/cli) and check
-   `dreamlake workflow --help`. The Python `dreamlake` package provides the
+   `dl workflow --help`. The Python `dreamlake` package provides the
    SDK; it is not the supported CLI installation path.
 
 2. **Say what you want — it asks for the data, verifies it, shows you what it found.**
@@ -109,7 +109,7 @@ is edited in place, so a run always names the version it executed.
 
     The grant registry uda nodes draw from — domains, verbs, and scopes.
 
-    `dreamlake workflow push` and `list` — flags, namespaces, versioning.
+    `dl workflow push` and `list` — flags, namespaces, versioning.
 
 ## Project attachment access
 

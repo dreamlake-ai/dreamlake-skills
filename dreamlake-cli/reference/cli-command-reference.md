@@ -1,21 +1,21 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.112.0 0d1fe91; do not edit -->
 
 # Command reference
 
-Every command. Run `dreamlake <command> --help` for the full option list.
+Every command. Run `dl <command> --help` for the full option list.
 
 ## Collection defaults and help
 
 Collection groups with a `list` command also accept listing directly on the
-parent. For example, `dreamlake hosts --all` is equivalent to
-`dreamlake hosts list --all`. Parent help combines the listing options and the
+parent. For example, `dl hosts --all` is equivalent to
+`dl hosts list --all`. Parent help combines the listing options and the
 available subcommands; explicit `list --help` remains focused on listing.
 
 ```bash cli-help="hosts"
-dreamlake hosts
-dreamlake hosts --all
-dreamlake hosts -h
-dreamlake hosts list -h
+dl hosts
+dl hosts --all
+dl hosts -h
+dl hosts list -h
 ```
 
 The same convention applies to agents, Memos, tasks, sessions, jobs, pipelines,
@@ -27,9 +27,9 @@ Vault metadata, ownership transfer requests, and their nested groups that have a
 `auth env` also lists saved login environments. Groups without a `list`
 operation retain their existing behavior.
 
-Required list scopes still apply: for example, `dreamlake providers NAMESPACE`
-and `dreamlake infra --project PROJECT` supply the same scope as their explicit
-`list` forms. Optional list arguments work too, such as `dreamlake tasks PREFIX`.
+Required list scopes still apply: for example, `dl providers NAMESPACE`
+and `dl infra --project PROJECT` supply the same scope as their explicit
+`list` forms. Optional list arguments work too, such as `dl tasks PREFIX`.
 When a value matches a subcommand name, use explicit `list` to disambiguate it.
 List options apply to the default listing; other subcommands keep their own
 options and validation. Existing scripts using explicit `list` continue to work.

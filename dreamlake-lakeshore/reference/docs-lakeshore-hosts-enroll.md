@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Enroll a host
 
@@ -54,7 +54,7 @@ does not enable it on an older service.
 
 Until this change is deployed, an online Host or a terminal target can still lack
 the connection's SSH grant. Verify an actual owner command such as
-`dreamlake exec YOUR_NAMESPACE/dev/my-computer -- uname -a` rather than treating
+`dl exec YOUR_NAMESPACE/dev/my-computer -- uname -a` rather than treating
 discovery as a completed SSH handshake. The companion server fix reports a
 known SSH authorization refusal as `403 ssh_access_denied` instead of a generic
 `502 controlplane_unavailable`.
@@ -67,9 +67,9 @@ connection or SSH credentials are needed. The identity key stays on this compute
 the backend still authorizes the namespace and verifies the exact enrollment.
 
 ```shell
-dreamlake hosts enroll -n YOUR_NAMESPACE/dev/my-computer --local \
+dl hosts enroll -n YOUR_NAMESPACE/dev/my-computer --local \
   --nymph-version v0.1.11 --request-id my-computer-first-enrollment
-dreamlake hosts status YOUR_NAMESPACE/dev/my-computer --json
+dl hosts status YOUR_NAMESPACE/dev/my-computer --json
 ```
 
 Check `nymph --version` if it is already installed: enrollment reuses a binary
@@ -125,11 +125,11 @@ job/history links remain reserved and addressable. Permanent entry deletion is
 not supported.
 
 ```shell
-dreamlake hosts list --all --namespace YOUR_NAMESPACE
-dreamlake hosts lifecycle HOST_ID --namespace YOUR_NAMESPACE --json
-dreamlake hosts archive HOST_ID --namespace YOUR_NAMESPACE --request-id archive-001 --expected-revision 0 --json
-dreamlake hosts list --all --archived only --namespace YOUR_NAMESPACE
-dreamlake hosts restore HOST_ID --namespace YOUR_NAMESPACE --request-id restore-001 --expected-revision 1 --json
+dl hosts list --all --namespace YOUR_NAMESPACE
+dl hosts lifecycle HOST_ID --namespace YOUR_NAMESPACE --json
+dl hosts archive HOST_ID --namespace YOUR_NAMESPACE --request-id archive-001 --expected-revision 0 --json
+dl hosts list --all --archived only --namespace YOUR_NAMESPACE
+dl hosts restore HOST_ID --namespace YOUR_NAMESPACE --request-id restore-001 --expected-revision 1 --json
 ```
 
 Use the exact lowercase Host ID and the revision returned by `hosts lifecycle`;
@@ -214,8 +214,8 @@ The matching CLI separates preview from apply. Use values from the actual
 preview instead of the illustrative placeholders below:
 
 ```shell
-dreamlake hosts move HOST_ID --namespace alice --to acme --dry-run --json
-dreamlake hosts move HOST_ID --namespace alice --to acme --confirm \
+dl hosts move HOST_ID --namespace alice --to acme --dry-run --json
+dl hosts move HOST_ID --namespace alice --to acme --confirm \
   --request-id laptop-move-001 --expected-revision REVISION \
   --preview-hash PREVIEW_HASH --json
 ```
@@ -304,10 +304,10 @@ and changing the identity is rejected. Keep the new ID for reconciliation:
 **CLI**
 
 ```shell
-dreamlake hosts enroll -n fortyfive/bos14/bos14-ctrl \
+dl hosts enroll -n fortyfive/bos14/bos14-ctrl \
   --ssh bos14-ctrl --request-id bos14-idle-repair-001 \
   --no-save-credentials
-dreamlake hosts status fortyfive/bos14/bos14-ctrl
+dl hosts status fortyfive/bos14/bos14-ctrl
 ```
 
 **Python**
@@ -336,10 +336,10 @@ The target needs Python 3, OpenSSL, a systemd user manager with linger enabled b
 
 ```shell
 ssh bos14-ctrl true
-dreamlake hosts enroll -p fortyfive/bos14 -n bos14-ctrl \
+dl hosts enroll -p fortyfive/bos14 -n bos14-ctrl \
   --ssh bos14-ctrl --request-id bos14-first-enrollment
-dreamlake hosts status fortyfive/bos14/bos14-ctrl
-dreamlake hosts status 'fortyfive/bos14/*'
+dl hosts status fortyfive/bos14/bos14-ctrl
+dl hosts status 'fortyfive/bos14/*'
 ```
 
 **Python**
@@ -373,7 +373,7 @@ Host bos14-ctrl
 ```
 
 ```shell
-dreamlake hosts enroll -p fortyfive/bos14 -n bos14-ctrl \
+dl hosts enroll -p fortyfive/bos14 -n bos14-ctrl \
   --ssh '-J ge@bastion.example.com
     -p 2222
     -i /path/to/id_ed25519
@@ -403,7 +403,7 @@ Save this as `bos14-host.json`. Identity-file paths refer to local bootstrap cre
 **CLI**
 
 ```shell
-dreamlake hosts enroll --config ./bos14-host.json --dry-run --json
+dl hosts enroll --config ./bos14-host.json --dry-run --json
 ```
 
 **Python**
@@ -437,7 +437,7 @@ The September 12 bos14 demonstration had a signed Slurm heartbeat directly to `d
 
 ## Rename an enrolled host
 
-Rename the catalog address in place with `dreamlake hosts rename HOST_ID --name NEW_NAME --expected-name CURRENT_NAME`.
+Rename the catalog address in place with `dl hosts rename HOST_ID --name NEW_NAME --expected-name CURRENT_NAME`.
 The same namespace, owner, Host ID, enrollment, machine keys and saved sessions are preserved.
 After an uncertain response, retry those exact inputs. Read status back under the new name,
 then verify SSH. See the [CLI rename reference](https://cli.dreamlake.ai/host-enrollment#rename-a-host-without-re-enrolling)

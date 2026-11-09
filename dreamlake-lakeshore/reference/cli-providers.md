@@ -1,8 +1,8 @@
-<!-- generated from https://cli.dreamlake.ai/providers.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/providers.md at 0.112.0 0d1fe91; do not edit -->
 
 # Provider registrations
 
-`dreamlake providers` stores provider configuration in DreamLake and associates it with your host enrollment. These commands require a server with the provider registration API from [workspace PR #321](https://github.com/dreamlake-ai/dreamlake-workspace/pull/321). Added in CLI 0.14.0; the corresponding Python API is in 0.11.0.
+`dl providers` stores provider configuration in DreamLake and associates it with your host enrollment. These commands require a server with the provider registration API from [workspace PR #321](https://github.com/dreamlake-ai/dreamlake-workspace/pull/321). Added in CLI 0.14.0; the corresponding Python API is in 0.11.0.
 
 ## Required launch boundary
 
@@ -30,13 +30,13 @@ does not establish live readiness.
 ## Bind a launch server
 
 Requires CLI 0.71.0 and a backend supporting the launch-server route.
-Enroll the user-configured server with `dreamlake hosts enroll` first and verify
+Enroll the user-configured server with `dl hosts enroll` first and verify
 its owned Host enrollment. The AWS role must be attached to that server. EC2
 instance profiles supply short-lived credentials; do not copy the operator's
 Vault AWS credentials onto the server.
 
 ```bash cli-help="providers launch-server"
-dreamlake providers launch-server team/0123456789abcdef01234567 \
+dl providers launch-server team/0123456789abcdef01234567 \
   --enrollment 1123456789abcdef01234567 \
   --role-arn arn:aws:iam::123456789012:role/user-launch \
   --region us-east-1 --revision 2 --request-id bind-launch-server-01 --json
@@ -56,7 +56,7 @@ new request; do not blindly launch again. A pending remote execution can be
 read through its saved receipt. A lost remote-dispatch acknowledgement may
 remain outcome-unknown and requires reconciliation. Errors include `recoveryOperationId`
 when a durable remote receipt exists; inspect it with
-`dreamlake providers operations show team/OPERATION_ID --json`.
+`dl providers operations show team/OPERATION_ID --json`.
 Permission errors expose only validated AWS diagnostic code, operation, region
 and request ID when available, so an agent can identify the failing permission
 without logging raw cloud errors.
@@ -103,10 +103,10 @@ Save this declaration as `provider.json`. Replace the cluster, partitions and Va
 ```
 
 ```bash
-dreamlake providers register team --file provider.json \
+dl providers register team --file provider.json \
   --request-id research-register-001 --json
-dreamlake providers list team --json
-dreamlake providers show team/research-slurm --json
+dl providers list team --json
+dl providers show team/research-slurm --json
 ```
 
 Keep the returned `resource.id`, `resource.revision`, `operationId` and your request ID. Every write requires an explicit request ID. Repeating the same request returns its original receipt. Reusing the ID with a different payload returns a conflict.
@@ -137,9 +137,9 @@ Save an association as `association.json`, using your enrollment ID and the prov
 Replace `PROVIDER_ID` below with the registration's `resource.id`.
 
 ```bash
-dreamlake providers associate team/PROVIDER_ID --file association.json \
+dl providers associate team/PROVIDER_ID --file association.json \
   --request-id research-associate-001 --json
-dreamlake providers status team/PROVIDER_ID --json
+dl providers status team/PROVIDER_ID --json
 ```
 
 The enrollment must belong to you in the same namespace. The partition and optional account must be permitted by the declaration. Status reports `not_checked` until readiness checks exist; registration does not test SSH, paths or executables, provision machines, or submit jobs. Kubernetes declarations are accepted, but Kubernetes runner associations are not yet supported.
@@ -220,9 +220,9 @@ Preflight resolves and validates; it never launches.
 ```
 
 ```bash
-dreamlake providers register team --file aws-east.json --launch provider.jsonl --request-id aws-east-01
-dreamlake providers layers create team/<provider-id> --name gpu --file gpu.jsonl --request-id gpu-01
-dreamlake providers preflight team/<provider-id> --layer gpu
+dl providers register team --file aws-east.json --launch provider.jsonl --request-id aws-east-01
+dl providers layers create team/<provider-id> --name gpu --file gpu.jsonl --request-id gpu-01
+dl providers preflight team/<provider-id> --layer gpu
 ```
 
 ```json
@@ -239,12 +239,12 @@ dreamlake providers preflight team/<provider-id> --layer gpu
 More commands:
 
 ```bash
-dreamlake providers preflight team/<provider-id> --layer gpu --layer spot --file request.jsonl
-dreamlake providers layers list team/<provider-id>          # state: valid | invalid | retired
-dreamlake providers layers update team/<provider-id> --layer <layer-id> --revision 1 --file gpu.jsonl --request-id gpu-02
-dreamlake providers layers retire team/<provider-id> --layer <layer-id> --revision 2 --request-id gpu-03
-dreamlake providers launch team/<provider-id> --file provider.jsonl --revision 1 --request-id launch-02
-dreamlake providers launch team/<provider-id> --clear --revision 2 --request-id launch-03
+dl providers preflight team/<provider-id> --layer gpu --layer spot --file request.jsonl
+dl providers layers list team/<provider-id>          # state: valid | invalid | retired
+dl providers layers update team/<provider-id> --layer <layer-id> --revision 1 --file gpu.jsonl --request-id gpu-02
+dl providers layers retire team/<provider-id> --layer <layer-id> --revision 2 --request-id gpu-03
+dl providers launch team/<provider-id> --file provider.jsonl --revision 1 --request-id launch-02
+dl providers launch team/<provider-id> --clear --revision 2 --request-id launch-03
 ```
 
 - Layers are not pinned to a provider revision. `layers list` shows when a
@@ -280,11 +280,11 @@ authorize new launches or lifecycle writes.
 ```
 
 ```bash
-dreamlake providers instances launch team/<provider-id> --layer gpu --count 4 --request-id train-01
-dreamlake providers instances list team/<provider-id>
-dreamlake providers instances stop team/<provider-id> --instance i-0123456789abcdef0 --request-id stop-01
-dreamlake providers instances start team/<provider-id> --instance i-0123456789abcdef0 --request-id start-01
-dreamlake providers instances terminate team/<provider-id> --instance i-0123456789abcdef0 --request-id term-01
+dl providers instances launch team/<provider-id> --layer gpu --count 4 --request-id train-01
+dl providers instances list team/<provider-id>
+dl providers instances stop team/<provider-id> --instance i-0123456789abcdef0 --request-id stop-01
+dl providers instances start team/<provider-id> --instance i-0123456789abcdef0 --request-id start-01
+dl providers instances terminate team/<provider-id> --instance i-0123456789abcdef0 --request-id term-01
 ```
 
 - Instances are billed from launch until terminated.
@@ -296,7 +296,7 @@ dreamlake providers instances terminate team/<provider-id> --instance i-01234567
   Nymph automatically, pass a host name; an unused service account is optional:
 
 ```bash cli-help="providers instances launch"
-dreamlake providers instances launch team/333333333333333333333333 --service-account 0123456789abcdef01234567 --host-name team/dev/worker --unix-user dreamlake-agent --request-id worker-01 --json
+dl providers instances launch team/333333333333333333333333 --service-account 0123456789abcdef01234567 --host-name team/dev/worker --unix-user dreamlake-agent --request-id worker-01 --json
 ```
 
 Automatic enrollment requires `--count 1` and a server supporting machine
@@ -348,22 +348,22 @@ by digest. The image's entrypoint is preserved unless `command` is supplied.
 ```
 
 ```bash
-dreamlake providers register team --file provider.json --launch container.jsonl --request-id kube-register-01 --json
-dreamlake providers preflight team/333333333333333333333333 --json
-dreamlake providers instances launch team/333333333333333333333333 --count 1 --request-id kube-small-01 --json
-dreamlake providers instances list team/333333333333333333333333 --json
+dl providers register team --file provider.json --launch container.jsonl --request-id kube-register-01 --json
+dl providers preflight team/333333333333333333333333 --json
+dl providers instances launch team/333333333333333333333333 --count 1 --request-id kube-small-01 --json
+dl providers instances list team/333333333333333333333333 --json
 ```
 
 ```bash cli-help="providers nodes"
-dreamlake providers nodes team/333333333333333333333333 --json
+dl providers nodes team/333333333333333333333333 --json
 ```
 
 ```bash cli-help="providers instances logs"
-dreamlake providers instances logs team/333333333333333333333333 --instance POD_NAME --tail 100 --json
+dl providers instances logs team/333333333333333333333333 --instance POD_NAME --tail 100 --json
 ```
 
 ```bash cli-help="providers instances terminate"
-dreamlake providers instances terminate team/333333333333333333333333 --instance POD_NAME --request-id kube-delete-01 --json
+dl providers instances terminate team/333333333333333333333333 --instance POD_NAME --request-id kube-delete-01 --json
 ```
 
 Pods use `restartPolicy: Never`; receipt acceptance does not mean the image
@@ -382,8 +382,8 @@ or destroy the task's InfraStack when finished.
 After a timeout or lost connection, look up the receipt using the original request ID:
 
 ```bash
-dreamlake providers operations find team --request-id research-register-001 --json
-dreamlake providers operations show team/OPERATION_ID --json
+dl providers operations find team --request-id research-register-001 --json
+dl providers operations show team/OPERATION_ID --json
 ```
 
 The client does not retry writes automatically. If no receipt is found, retry the original command with exactly the same input and request ID. A receipt is a historical snapshot; use `status` for current state. Receipts are visible to their creating user.
@@ -393,9 +393,9 @@ The client does not retry writes automatically. If no receipt is found, retry th
 Use the current revision of the resource being retired. To retire only an association, include its ID and revision:
 
 ```bash
-dreamlake providers retire team/PROVIDER_ID --association ASSOCIATION_ID \
+dl providers retire team/PROVIDER_ID --association ASSOCIATION_ID \
   --revision 1 --request-id research-association-retire-001 --json
-dreamlake providers retire team/PROVIDER_ID \
+dl providers retire team/PROVIDER_ID \
   --revision 1 --request-id research-provider-retire-001 --json
 ```
 
@@ -408,13 +408,13 @@ and a tracked Slurm worker. These client additions are not released yet. Replace
 the provider and association IDs below with your owned association.
 
 ```bash
-dreamlake providers check team/aaaaaaaaaaaaaaaaaaaaaaaa \
+dl providers check team/aaaaaaaaaaaaaaaaaaaaaaaa \
   --association bbbbbbbbbbbbbbbbbbbbbbbb --revision 1 \
   --request-id probe-001 --json
 
-dreamlake providers status team/aaaaaaaaaaaaaaaaaaaaaaaa --json
+dl providers status team/aaaaaaaaaaaaaaaaaaaaaaaa --json
 
-dreamlake run --target team/lab/host \
+dl run --target team/lab/host \
   --provider-id aaaaaaaaaaaaaaaaaaaaaaaa \
   --association-id bbbbbbbbbbbbbbbbbbbbbbbb --association-revision 1 \
   --cpus 4 --memory-mib 8192 --gpus 0 \
@@ -423,8 +423,8 @@ dreamlake run --target team/lab/host \
 ```
 
 The explicit check submits a small Slurm job (1 CPU, 512 MiB, no GPU, 120-second
-CP timeout) and returns a run receipt. Inspect it with `dreamlake runs status`
-or cancel it with `dreamlake runs cancel`, using `team/<run-id>`. Status reads do
+CP timeout) and returns a run receipt. Inspect it with `dl runs status`
+or cancel it with `dl runs cancel`, using `team/<run-id>`. Status reads do
 not submit checks. Wait for association readiness before submitting the workload;
 a pending or failed check does not authorize placement.
 
@@ -482,8 +482,8 @@ resolves overrides and reports source locations before any billed launch.
 ```
 
 ```bash
-dreamlake providers preflight team/333333333333333333333333 --file agent.layer.json --json
-dreamlake providers instances launch team/333333333333333333333333 --file agent.layer.json --host-name team/dev/agent --unix-user dreamlake-agent --request-id agent-dev-1 --json
+dl providers preflight team/333333333333333333333333 --file agent.layer.json --json
+dl providers instances launch team/333333333333333333333333 --file agent.layer.json --host-name team/dev/agent --unix-user dreamlake-agent --request-id agent-dev-1 --json
 ```
 
 The provider must already supply the user's image, machine/network/storage and

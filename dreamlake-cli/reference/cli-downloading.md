@@ -1,13 +1,13 @@
-<!-- generated from https://cli.dreamlake.ai/downloading.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/downloading.md at 0.112.0 0d1fe91; do not edit -->
 
 # Downloading
 
-`dreamlake download` pulls an asset out of an episode by its path.
+`dl download` pulls an asset out of an episode by its path.
 
 ## A single file
 
 ```bash file="terminal"
-dreamlake download --episode my-robots:run-001 --from /camera/front/clip.mp4 -o ./out.mp4
+dl download --episode my-robots:run-001 --from /camera/front/clip.mp4 -o ./out.mp4
 ```
 
 - `--from` — the path inside the episode (file or folder).
@@ -21,7 +21,7 @@ Point `--from` at a folder (or the episode root) to download everything under
 it recursively, preserving the relative tree:
 
 ```bash file="terminal"
-dreamlake download --episode my-robots:run-001 --from /camera -o ./out/
+dl download --episode my-robots:run-001 --from /camera -o ./out/
 ```
 
 This writes `./out/front/clip.mp4`, `./out/.../...`, etc.
@@ -31,8 +31,8 @@ This writes `./out/front/clip.mp4`, `./out/.../...`, etc.
 Use `list` to see what's there:
 
 ```bash file="terminal"
-dreamlake list --episode my-robots:run-001
-dreamlake list --episode my-robots:run-001 --type video
+dl list --episode my-robots:run-001
+dl list --episode my-robots:run-001 --type video
 ```
 
 `list --json` emits machine-readable output for scripting.

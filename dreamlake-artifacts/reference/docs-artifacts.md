@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.134 4bbe54f7; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -11,7 +11,7 @@
 
 ## Static build directories
 
-`dreamlake artifact push ./dist/client --site --id my-site` preserves a static
+`dl artifact push ./dist/client --site --id my-site` preserves a static
 Vike/Vite build's HTML, scripts, styles and assets as separate files. The browser
 loads requested files and lazy imports normally; DreamLake does not choose a new
 chunking strategy. Add `--spa` only for extensionless client routes that need the
@@ -149,7 +149,7 @@ code. Data indexing and search can remain entirely in the browser.
 #### Publish the binding
 
 Use DreamLake CLI **0.107.0 or newer** for the released `privateData` configuration.
-Check `dreamlake --version`; an older installed binary is not upgraded merely
+Check `dl --version`; an older installed binary is not upgraded merely
 because the service or docs changed. The [CLI Artifact reference](https://cli.dreamlake.ai/artifacts)
 owns the command and configuration details. For example, an `artifact.config.json`
 can contain the following generic binding (replace both IDs and the prefix):
@@ -166,7 +166,7 @@ can contain the following generic binding (replace both IDs and the prefix):
 }
 ```
 
-Publish the static build with `dreamlake artifact push ./dist/client --site
+Publish the static build with `dl artifact push ./dist/client --site
 --site-config ./artifact.config.json`. The CLI checks the server capability before
 uploading, then approves the binding after the immutable manifest is stored and
 before registering the version. Neither a token nor a storage URL belongs in the
@@ -314,7 +314,7 @@ cannot load; it does not render the artifact body to make a project thumbnail.
 ## Push one
 
 ```bash
-dreamlake artifact push ./report.html
+dl artifact push ./report.html
 ```
 
 That's it. The CLI prints an **open link** — click it to see your artifact
@@ -359,9 +359,9 @@ you enable it. Content a recipient already downloaded cannot be recalled.
 CLI 0.110.1+ can change the same policy without uploading a new version:
 
 ```bash
-dreamlake artifact share latest-only report on
-dreamlake artifact share get report --json
-dreamlake artifact share latest-only report off
+dl artifact share latest-only report on
+dl artifact share get report --json
+dl artifact share latest-only report off
 ```
 
 Use `artifact share create report --latest-only` to enable it while creating a
@@ -409,14 +409,14 @@ and a cover image. Set what the card says at push time, or afterwards (CLI
 0.85.0+):
 
 ```bash
-dreamlake artifact push ./report.html --id q1-dashboard \
+dl artifact push ./report.html --id q1-dashboard \
   --description "Revenue, churn and pipeline for the quarter" \
   --cover ./cover.png
 
-dreamlake artifact meta set q1-dashboard --description "Revenue, churn and pipeline"
-dreamlake artifact meta set q1-dashboard --cover ./cover.png
-dreamlake artifact meta show q1-dashboard
-dreamlake artifact meta set q1-dashboard --clear-description --clear-cover
+dl artifact meta set q1-dashboard --description "Revenue, churn and pipeline"
+dl artifact meta set q1-dashboard --cover ./cover.png
+dl artifact meta show q1-dashboard
+dl artifact meta set q1-dashboard --clear-description --clear-cover
 ```
 
 What a card shows follows the sharing table above:
@@ -453,23 +453,23 @@ it leaves every project it was filed in; a restored artifact comes back
 unfiled, so add it to a project again.
 
 ```bash
-dreamlake artifact delete report              # → Trash (restorable)
-dreamlake artifact restore report             # bring it back
-dreamlake artifact delete report --permanent  # erase forever — no undo
+dl artifact delete report              # → Trash (restorable)
+dl artifact restore report             # bring it back
+dl artifact delete report --permanent  # erase forever — no undo
 ```
 
 ## Let Claude do it
 
 Install the [artifacts skill](https://github.com/dreamlake-ai/dreamlake-skills)
-and ask Claude to *"push this dashboard as a dreamlake artifact and share it"*:
+and ask Claude to *"push this dashboard as a dl artifact and share it"*:
 
 ```bash
-dreamlake init                              # once: pick your agent and scope
-dreamlake skill install dreamlake-artifacts
+dl init                              # once: pick your agent and scope
+dl skill install dreamlake-artifacts
 ```
 
 One skill covers both halves: preparing content for the offline rendering
-frame, and publishing, versioning and sharing it. `dreamlake skill update`
+frame, and publishing, versioning and sharing it. `dl skill update`
 brings in new releases without touching files you have edited. Without the
 CLI, download `skills.tar.gz` from the latest
 [dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
@@ -625,7 +625,7 @@ without another upload. Inspect with `get` before changing access and after the
 requested change. Follow the [complete CLI sharing recipe](https://cli.dreamlake.ai/artifacts#manage-existing-share-links).
 
 Omitting `--share` on a later push preserves the existing token; it does not
-stop sharing. Use `dreamlake artifact share revoke <id>` to clear the token.
+stop sharing. Use `dl artifact share revoke <id>` to clear the token.
 Revocation blocks link-derived access while sharing is disabled; recorded
 recipients may regain access if sharing is enabled again. Public visibility
 and namespace membership are independent of the link.
@@ -677,6 +677,26 @@ A mount/reference of this resource blocks
 the entire transfer rather than silently excluding it. Its existing independent
 sharing and released Project-derived content access remain available.
 
+## Rename an artifact title
+
+Artifact managers can choose **Rename title** in the artifact menu, or **Rename**
+on its project-tree row. The display title and every live project filing update
+atomically, including filings in other namespaces. A title already used by a
+sibling in any filing causes a 409 conflict and leaves the entire edit unchanged.
+Project write access alone does not grant permission to rename the artifact.
+
+Clients use the existing metadata endpoint,
+`POST /namespaces/:namespace/artifacts/:artifactId`, with `{ "title": "New title" }`.
+Use the immutable `artifactId`, not a mutable URL slug. Title editors should also
+send `expectedResourceId` from the latest detail response: a missing or replaced
+catalog then returns 409 instead of creating an empty artifact. This optional
+guard applies to title-only edits; older metadata creation clients remain supported.
+Blank titles are rejected.
+This metadata-only edit preserves the URL, immutable identity, content, every
+version, visibility, grants, Session links and sharing settings. Existing CLI,
+TypeScript and agent callers of this endpoint receive the same filing updates;
+no content upload or replacement artifact is needed.
+
 ## Rename an artifact URL
 
 Native slug rename changes the canonical URL without creating another artifact.
@@ -724,8 +744,8 @@ its current value. To change only visibility, send `{ "visibility": "unlisted" }
 to the catalog endpoint after checking that the existing artifact is manageable.
 The catalog endpoint is an upsert; client visibility commands check existence first.
 
-CLI 0.104.8+ supports `dreamlake artifact visibility report unlisted` and
-`dreamlake artifact push ./report.html --id report --visibility unlisted`.
+CLI 0.104.8+ supports `dl artifact visibility report unlisted` and
+`dl artifact push ./report.html --id report --visibility unlisted`.
 The [TypeScript API](https://cli.dreamlake.ai/artifacts) supports Unlisted in
 publish, register, and `artifacts(namespace).share(id).visibility("unlisted")`.
 Python 0.41.1+ exposes

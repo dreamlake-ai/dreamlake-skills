@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Asset Libraries
 
@@ -177,7 +177,7 @@ now — the flags below.
 ## Push it
 
 ```bash
-dreamlake library push ./menagerie-lib --namespace my-team --library menagerie
+dl library push ./menagerie-lib --namespace my-team --library menagerie
 # ✓ my-team/menagerie revision 1 — 197 uploaded, 0 unchanged, 0 removed
 ```
 
@@ -210,7 +210,7 @@ that only adds or updates files never triggers the guard.
 Flags that add work at push time:
 
 ```bash
-dreamlake library push ./menagerie-lib --thumbnails --embed
+dl library push ./menagerie-lib --thumbnails --embed
 ```
 
 - `--thumbnails` renders 640 px WebP previews of your models (offscreen
@@ -264,8 +264,8 @@ curl "$API/namespaces/my-team/libraries/menagerie/search?q=cassie&category=biped
 curl "$API/library-search?q=gripper&libraries=my-team/menagerie,acme/gso&kind=mjcf"
 
 # from the terminal — scope defaults to every library you can see
-dreamlake library list --all
-dreamlake library search "coffee mug" --library fortyfive/scanned-objects
+dl library list --all
+dl library search "coffee mug" --library fortyfive/scanned-objects
 ```
 
 Keyword search scores `title`, `tags`, `id` and `description` with filters on
@@ -279,7 +279,7 @@ Two public libraries to try: `fortyfive/menagerie` (68 MJCF robots) and
 **Semantic search** turns on per library when you push with `--embed`:
 
 ```bash
-dreamlake library push ./menagerie-lib --thumbnails --embed
+dl library push ./menagerie-lib --thumbnails --embed
 #   vectors: .dreamlake/vectors.json + .dreamlake/vectors.f32 (open_clip/ViT-B-16-SigLIP2/webli, 768-d)
 ```
 
@@ -324,7 +324,7 @@ footer; `--license` and `--offset` complete the filter set, and `--json`
 returns the raw response:
 
 ```bash
-dreamlake library pull acme/gso --asset Cole_Hardware_Mug_Classic_Blue -o ./scene/assets
+dl library pull acme/gso --asset Cole_Hardware_Mug_Classic_Blue -o ./scene/assets
 ```
 
 ## Check before you download
@@ -332,9 +332,9 @@ dreamlake library pull acme/gso --asset Cole_Hardware_Mug_Classic_Blue -o ./scen
 Two commands answer questions a download shouldn't be the way to ask:
 
 ```bash
-dreamlake library info acme/gso                     # the library's shape
-dreamlake library info acme/gso --asset Cole_…      # one asset's decision card
-dreamlake library stat acme/gso --asset Cole_… -o ./scene/assets
+dl library info acme/gso                     # the library's shape
+dl library info acme/gso --asset Cole_…      # one asset's decision card
+dl library stat acme/gso --asset Cole_… -o ./scene/assets
 ```
 
 `info` reads the catalog row and the manifest — nothing else — and prints
@@ -354,8 +354,8 @@ pull would fetch 812 KB`, or `absent: full pull = 34 files, 4.8 MB` (both
 exit 1) — without transferring a byte. The exit code makes it scriptable:
 
 ```bash
-dreamlake library stat acme/gso --asset $ID -o ./scene/assets \
-  || dreamlake library pull acme/gso --asset $ID -o ./scene/assets
+dl library stat acme/gso --asset $ID -o ./scene/assets \
+  || dl library pull acme/gso --asset $ID -o ./scene/assets
 ```
 
 ## Preview it
@@ -420,9 +420,9 @@ before pushing it; a provenance-based exemption is not implemented.
 ## Pull it back
 
 ```bash
-dreamlake library pull my-team/menagerie -o ./menagerie-copy   # clean source tree
-dreamlake library pull my-team/menagerie --asset unitree_go2   # one asset's files
-dreamlake library pull my-team/menagerie --all -o ./mirror     # source + platform artifacts
+dl library pull my-team/menagerie -o ./menagerie-copy   # clean source tree
+dl library pull my-team/menagerie --asset unitree_go2   # one asset's files
+dl library pull my-team/menagerie --all -o ./mirror     # source + platform artifacts
 ```
 
 Pulls verify every file against its manifest sha256 and materialize original
@@ -443,10 +443,10 @@ Re-running a pull you already have costs one manifest read and zero bytes.
 You don't need the whole library on disk to change one thing in it:
 
 ```bash
-dreamlake library add fortyfive/props ./my-mug --title "Blue mug" --category household
+dl library add fortyfive/props ./my-mug --title "Blue mug" --category household
 # ✓ fortyfive/props revision 8 — asset my-mug added (34 files, 4.8 MB)
 
-dreamlake library rm fortyfive/props my-mug old-chair
+dl library rm fortyfive/props my-mug old-chair
 # ✓ fortyfive/props revision 9 — 2 assets removed, 41 files reclaimed
 ```
 
@@ -548,13 +548,13 @@ point at a directory of assets, and say *"push this as a library, then find
 me a mug"*:
 
 ```bash
-dreamlake init                              # once: pick your agent and scope
-dreamlake skill install dreamlake-libraries
+dl init                              # once: pick your agent and scope
+dl skill install dreamlake-libraries
 ```
 
 The skill does the curation that isn't a single command — `dreamlake.yml`,
 licenses, thumbnails and embeddings, search scope, adding or removing one
-asset — on top of `dreamlake library push`, `search` and `pull`. Without
+asset — on top of `dl library push`, `search` and `pull`. Without
 the CLI, download `skills.tar.gz` from the latest
 [dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
 and copy `dreamlake-libraries/` and `dreamlake-cli/` into your agent's
@@ -566,4 +566,4 @@ skills directory.
   schemas, the wire manifest, and how an agent composes them.
 - [Scenes](https://docs.dreamlake.ai/scenes) — versioned worlds; a library is where a scene's
   ingredients come from.
-- [CLI](https://docs.dreamlake.ai/cli) — install and authenticate `dreamlake`.
+- [CLI](https://docs.dreamlake.ai/cli) — install and authenticate `dl`.

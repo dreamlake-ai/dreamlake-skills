@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/videos.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/videos.md at 0.112.0 0d1fe91; do not edit -->
 
 # Videos
 
@@ -17,9 +17,9 @@ format and the host allowing access; app credentials are not added to external U
 To upload a local clip, then create a memo containing the directive:
 
 ```bash
-VIDEO_URL=$(dreamlake memos media upload ./demo.mp4)
+VIDEO_URL=$(dl memos media upload ./demo.mp4)
 printf ':video[%s]{title="Product walkthrough"}\n' "${VIDEO_URL:?Upload the video first}" > video.md
-dreamlake memos create "Product walkthrough" --file video.md
+dl memos create "Product walkthrough" --file video.md
 ```
 
 Media upload requires CLI 0.37.0+. Anyone holding the returned media URL can

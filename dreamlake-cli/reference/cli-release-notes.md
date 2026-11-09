@@ -1,6 +1,36 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.112.0 0d1fe91; do not edit -->
 
 # Release notes
+
+## 0.112.0 — Use dl everywhere
+
+`dl` is now the preferred command in help, examples, and command hints.
+`dreamlake` remains supported with the same arguments, settings and credentials.
+Package names, installed paths, environment variables, services and process
+identifiers retain their existing names.
+
+Existing native installations create a missing `dl` on the first invocation of
+this version, including installations upgraded by an older binary. This local
+setup verifies the managed installation, preserves unrelated commands, and does
+not download anything, change a version pin, or edit PATH. It works with updates
+disabled. Windows accepts both short and long paths to the same verified launcher.
+See [installation](cli-installation.md#the-dl-command) for conflicts and compatibility.
+
+## 0.111.2 — Bundled collaboration visibility guidance
+
+Bundles skills `v2026.11.09.1` with the published Memo presence, selection
+and revision-diff references. The separately installable `dreamlake-memos`
+skill routes observation requests through explicit availability checks and
+source-bound selection handling. Latest-only artifact sharing guidance remains
+included. See [collaboration](cli-notes-collaboration.md#observe-a-human-selection).
+
+## 0.111.1 — Bundled latest-only sharing guidance
+
+Bundles skills `v2026.11.09`, including latest-only artifact sharing guidance
+and the published CLI/TypeScript API references. The separately installable
+`dreamlake-artifacts` skill covers customer sharing, SDK readback and verification.
+The controls introduced in 0.110.1 and the Memo selection features in 0.111.0
+remain available. See [Artifact sharing](cli-artifacts.md#share-only-the-most-recent-version).
 
 ## 0.111.0 — Observe human Memo selections
 
@@ -35,7 +65,7 @@ conflict handling, and uninstall.
 
 ## 0.109.0 — Editable public article URLs
 
-`dreamlake memos permalink <memo-id> --json` gets or allocates a public URL.
+`dl memos permalink <memo-id> --json` gets or allocates a public URL.
 Add `--slug my-article` to edit it while preserving previous slugs. TypeScript
 handles expose `memo.permalink({ slug: "my-article" })`; both surfaces return the
 canonical URL and alias history. Namespace collisions are refused without retries.
@@ -57,7 +87,7 @@ Use `client.memos`, `memosApi`, `Memo*` types, and the Memo editing helpers. SDK
 
 ## 0.104.6 — Memo branding
 
-Use `dreamlake memos` or `dreamlake memo` for the shared space with your agents. Help, messages and documentation now call these resources Memos. Existing `notes` and `note` command aliases, SDK APIs and data remain compatible during the phased rollout.
+Use `dl memos` or `dl memo` for the shared space with your agents. Help, messages and documentation now call these resources Memos. Existing `notes` and `note` command aliases, SDK APIs and data remain compatible during the phased rollout.
 
 ## 0.104.5 — Actionable Memo transfer failures and diagnostics
 
@@ -69,7 +99,7 @@ Static sites can declare exact public HTTPS data origins in `artifact.config.jso
 
 ## 0.104.3 — Host IP addresses and machine inventory
 
-`dreamlake hosts` shows reported interface IPs, hostname and Unix user by default, with one row per enrollment. `--wide` adds enrollment ID, OS, architecture, CPU count, Nymph version and last-seen time; `hosts status HOST` includes interface details and observation freshness. `--fields` and `--format` support custom rows.
+`dl hosts` shows reported interface IPs, hostname and Unix user by default, with one row per enrollment. `--wide` adds enrollment ID, OS, architecture, CPU count, Nymph version and last-seen time; `hosts status HOST` includes interface details and observation freshness. `--fields` and `--format` support custom rows.
 
 Automatic IP inventory requires the matching API and Nymph 0.1.36+. Older daemons show unknown addresses; explicit `--probe` performs SSH diagnostics for interface IPs, MACs, public egress IP and uptime. Default listing makes no SSH or external-IP requests. Addresses do not prove reachability. See [Host inventory](https://cli.dreamlake.ai/host-enrollment#list-and-inspect-hosts).
 
@@ -99,11 +129,11 @@ Each push still creates a version and restores missing stored chunks before publ
 
 Move a personally owned Host into another namespace without changing its Host ID or re-enrolling its machine. `hosts move --dry-run` previews private owner access and dependency blockers; applying requires the reviewed revision, preview hash and stable request ID. The TypeScript API exposes `hosts(namespace).movePreview` and `move`. The matching server enforces ownership, private access and exact-input replay. Agent namespace selection is available as `/su <namespace>` in the matching built-in agent GUI.
 
-`dreamlake su <namespace>` persists the default namespace for later CLI commands while keeping your login identity unchanged; an explicit `--namespace` wins. Login and environment changes clear the selection. Native SSH now maintains bounded backpressure under large output bursts and preserves TLS identity checks and timeout cleanup.
+`dl su <namespace>` persists the default namespace for later CLI commands while keeping your login identity unchanged; an explicit `--namespace` wins. Login and environment changes clear the selection. Native SSH now maintains bounded backpressure under large output bursts and preserves TLS identity checks and timeout cleanup.
 
 ## 0.101.0 — Static artifact builds with on-demand files
 
-- `dreamlake artifact push ./dist/client --site` keeps a built client site's
+- `dl artifact push ./dist/client --site` keeps a built client site's
   HTML, CSS, JavaScript chunks, media, WASM and data as separate versioned files.
   The browser loads requested assets on demand; unchanged file hashes are reused
   on later uploads. `--spa` explicitly enables extensionless document fallback.
@@ -122,7 +152,7 @@ Move a personally owned Host into another namespace without changing its Host ID
 
 ## 0.100.0 — `ssh` and `exec` pick a host from a keyword
 
-- `dreamlake ssh <keyword>` and `dreamlake exec <keyword> -- …`: when the
+- `dl ssh <keyword>` and `dl exec <keyword> -- …`: when the
   selector names no host and the command runs in a terminal, a picker lists
   the hosts whose name or ID contains the keyword, best match first and
   highlighted, with the top row selected. Typing filters, `↑`/`↓` move, Tab
@@ -170,7 +200,7 @@ separately; against an older server they answer 404.
   native subagents; `sessions watch [--session <id>] [--json]` follows the SSE
   stream (readable lines, or NDJSON) and exits 0 on the server's 15-minute
   `end`.
-- `dreamlake claude …` / `dreamlake codex …`: start the stock CLI under
+- `dl claude …` / `dl codex …`: start the stock CLI under
   DreamLake — register first (Claude; Codex adopts its rollout afterwards),
   export the saved-session pair, map `--permission` onto `--permission-mode` /
   `--sandbox`, upload the transcript on exit, keep the provider's exit code.
@@ -184,7 +214,7 @@ separately; against an older server they answer 404.
   output tails; the runner deregisters itself on exit (`DELETE
   …/session-runners/:id`, `runners.deregister`); an owner's cancel reaches the
   provider within about 2 s on its own clock.
-- `dreamlake skill read <name> [--file <path>] [--local|--remote]` prints one
+- `dl skill read <name> [--file <path>] [--local|--remote]` prints one
   file of any catalog skill without installing it, from the server's registry
   when logged in or the embedded bundle, naming the source, tag and commit;
   `skill list` shows the same catalog. TypeScript: `dl.skills.list()`,
@@ -205,7 +235,7 @@ separately; against an older server they answer 404.
   `move`; `dl.notes.list` and `dl.notes.create` are the collection operations
   and `dl.notes.namespace(ns)` scopes a dynamic namespace. Every operation
   takes one named object; `at` is a snapshot or a revision, never a hash.
-- `dreamlake memos read` prints the mapped Markdown view by default, in a
+- `dl memos read` prints the mapped Markdown view by default, in a
   terminal or a pipe; `--view source` prints the exact source bytes only (no
   header, no added newline); `--json` is one snapshot object. `--lines a:b`
   reads a focused slice with its code-point address and `scope`.
@@ -249,7 +279,7 @@ replacement. [Guide](cli-vault-operations.md#entry-expiry).
 
 ## 0.94.0 — Bound executions on a pinned worker
 
-- `dreamlake runnable bind | execute | execution-receipt` bind a registered
+- `dl runnable bind | execute | execution-receipt` bind a registered
   UDF version to one configured snapshot and locked runtime, submit
   recoverable queue attempts and read their receipts. With
   `--target <namespace/group/host>`, DreamLake submits the attempt to that
@@ -259,19 +289,19 @@ replacement. [Guide](cli-vault-operations.md#entry-expiry).
   instead of running again. Needs `dreamlake-lakeshore` 0.5.1 or newer on
   the submitting machine and the worker. See
   [Execute a bound UDF on a queue](cli-bound-execution.md).
-- `dreamlake queues create` creates a queue, and
-  `dreamlake queues worker-pin` shows, sets or clears the queues one worker
+- `dl queues create` creates a queue, and
+  `dl queues worker-pin` shows, sets or clears the queues one worker
   claims from (`--host` is required to change it). See
   [Pin a worker to dedicated queues](https://cli.dreamlake.ai/queues#pin-a-worker-to-dedicated-queues).
 - Existing commands and their `--json` output are unchanged.
 
 ## 0.93.0 — Skills for Claude Code and Codex in one run
 
-- `dreamlake init` and every `dreamlake skill` subcommand accept
+- `dl init` and every `dl skill` subcommand accept
   `--agent all`, or a comma-separated list such as `claude,codex`. Each
   agent gets its own managed copy, in `.claude/skills/` and
   `.agents/skills/`, from one catalog and one download. The guided
-  `dreamlake init` offers "Claude Code and Codex" as a choice. See
+  `dl init` offers "Claude Code and Codex" as a choice. See
   [Where it goes](cli-skills.md#where-it-goes).
 - With one agent, every command and its `--json` output are unchanged.
   With several, results carry `agents`, and `remove` and `list` report per
@@ -280,7 +310,7 @@ replacement. [Guide](cli-vault-operations.md#entry-expiry).
 
 ## 0.92.0 — Stop a worker from claiming jobs
 
-- `dreamlake queues worker-claims <prefix> <worker-id> [--disable|--enable]`
+- `dl queues worker-claims <prefix> <worker-id> [--disable|--enable]`
   shows or sets whether one worker claims new queued jobs and tracked runs
   through a queue mount. A disabled worker keeps heartbeat, control commands,
   setup and remote exec. The command prints the value the control plane stored.
@@ -299,9 +329,9 @@ replacement. [Guide](cli-vault-operations.md#entry-expiry).
 ## 0.88.0 — Agent skills installed from dreamlake-skills v2026.10.27
 
 - Agent skills are authored in the public [dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills)
-  repository and installed from its releases: `dreamlake init` picks the agent
+  repository and installed from its releases: `dl init` picks the agent
   and scope and installs the embedded `dreamlake-cli` skill offline;
-  `dreamlake skill install|update|remove|list` work from the release's
+  `dl skill install|update|remove|list` work from the release's
   `catalog.json` and `skills.tar.gz` (checksum-verified), record every
   install in `<skill>/.dreamlake-skill.json`, and never delete or overwrite
   a file that manifest does not vouch for. See [Agent skills](cli-skills.md).
@@ -372,7 +402,7 @@ machine collector releases; existing Codex flags remain compatible.
 ## 0.76.0 — Collection defaults and combined help
 
 Collection groups with an existing `list` command now default to listing.
-For example, `dreamlake hosts --all` is equivalent to `dreamlake hosts list --all`.
+For example, `dl hosts --all` is equivalent to `dl hosts list --all`.
 Parent `-h` combines listing options and the command menu; explicit `list -h`
 remains available for focused help. This applies to nested collections too,
 while required scopes and other subcommand options remain unchanged.
@@ -415,7 +445,7 @@ resize, UTF-8 input, detach and raw-mode restoration paths.
 
 ## 0.74.0 — Persistent Codex terminal sessions
 
-`dreamlake sessions` saves and reopens the same enrolled-host terminal in the CLI
+`dl sessions` saves and reopens the same enrolled-host terminal in the CLI
 and the Sessions page. Select a target with `sessions targets`, then use
 `sessions resume UUID --target ID --cwd PATH` to save and attach, or
 `sessions open SESSION_ID` to reopen its persistent tmux session. Ctrl-] detaches
@@ -509,7 +539,7 @@ The CLI command surface and readable enrollment behavior remain unchanged.
 
 ## 0.52.1 — Readable host registration output
 
-`dreamlake hosts enroll` prints a readable registration summary by default,
+`dl hosts enroll` prints a readable registration summary by default,
 including verified online or pending state and recovery identifiers. Errors use
 text too. Add `--json` for a structured receipt without request-ID progress
 output. JSON fields, readiness checks and exit codes are unchanged. `--quiet`
@@ -549,7 +579,7 @@ dependency; an instance identity document alone never approves a new key.
 
 ## 0.45.0 — Scenes across CLI, API and docs
 
-Use `dreamlake scene push|create|list|pull|compose|delete|restore`. The legacy
+Use `dl scene push|create|list|pull|compose|delete|restore`. The legacy
 `env` command remains an alias. Requests now use `/namespaces/:slug/scenes`,
 and receipt links use `/<namespace>/scenes/<name>`. Existing storage, layer
 formats and login environments remain compatible. See [Scenes](cli-scenes.md).
@@ -562,8 +592,8 @@ The old `notes version create/list/read` paths are removed. Use
 
 ## 0.44.1 — Tag, history and saved reads
 
-Use `dreamlake note tag NOTE LABEL`, `dreamlake note hist NOTE`, and
-`dreamlake note read NOTE --version VERSION_ID` for saved checkpoints.
+Use `dl note tag NOTE LABEL`, `dl note hist NOTE`, and
+`dl note read NOTE --version VERSION_ID` for saved checkpoints.
 `note` aliases `notes`; the original `notes version create/list/read` commands
 remain compatible. Saved reads refuse conflicting live-read options before
 network access. See [Saved versions](cli-notes-versions.md).
@@ -666,7 +696,7 @@ there. See [Environments](cli-environments.md).
   local edits, stay out of automatic JSON/piped runs, and appear once per skill
   path per CLI version.
 
-- `dreamlake init` guides agent selection and project/global skill installation.
+- `dl init` guides agent selection and project/global skill installation.
 - `skill install` and `skill list` support `--agent codex` (`.agents/skills`) and
   `--agent claude` (`.claude/skills`, the compatibility default).
 - Top-level `-h`, `init -h`, and skill help include setup examples generated
@@ -712,7 +742,7 @@ returned IDs and retain the snapshot revision for focused reads and edits.
 
 ## 0.33.0 — Addressed Memos reads
 
-`dreamlake memos read` can pin a retained snapshot with `--at`, inspect its
+`dl memos read` can pin a retained snapshot with `--at`, inspect its
 outline with `--toc`, and retrieve a section or exact tagged element with
 `--section` and `--tag`. HTML reads expose revision-local section, paragraph,
 and list-item IDs with source character and line ranges. `--view markdown`
@@ -734,7 +764,7 @@ text output, and the local-editor recipe avoids zsh’s read-only `status` varia
 
 ## 0.32.2 — Memos quick-start help
 
-`dreamlake memos --help` now includes practical examples for finding, reading,
+`dl memos --help` now includes practical examples for finding, reading,
 following, and creating memos, inspecting sections and attachments, and finding
 revision-safe edit recipes. The same examples ship in the bundled CLI skill.
 
@@ -833,7 +863,7 @@ Tracked in [workspace #706](https://github.com/dreamlake-ai/dreamlake-workspace/
 
 ## 0.25.0 — Layered env stacks: `env compose`
 
-`dreamlake env compose [stack]` materializes a layered env stack —
+`dl env compose [stack]` materializes a layered env stack —
 `dreamlake.layers.json`, schema `dreamlake.env-layers/v2` — into a runnable
 env directory. The stack defaults to `./dreamlake.layers.json`; `-o/--out`
 names the output directory and `--force` writes into a non-empty one. The
@@ -859,7 +889,7 @@ Deep reference: [Env layers](https://docs.dreamlake.ai/scenes/layers).
 
 ## 0.24.7 — Memos revision diffs
 
-`dreamlake memos diff <note> --since <etag>` compares the current body with a
+`dl memos diff <note> --since <etag>` compares the current body with a
 retained read/edit reference. `--json` includes both refs; plain output stays
 pipeable. Requires the revision-diff server endpoint. Read, diff, and patch
 help examples now document preserving and reusing the ETag. These examples
@@ -873,7 +903,7 @@ version is still 0.24.6, so npm users first get `notes diff` with 0.25.0.
 
 ## 0.24.6 — Memo file uploads no longer crash the native binary
 
-`dreamlake memos files upload` sent the `Bun.file()` object itself as the PUT
+`dl memos files upload` sent the `Bun.file()` object itself as the PUT
 body. On Bun 1.3.14 on Linux, in a compiled standalone binary, that crashed the
 runtime with a SIGSEGV once the response had arrived, when a GET on the same
 host had run first — the shape this command takes, because it resolves the memo
@@ -985,7 +1015,7 @@ CLI **0.20.2** disables pooled connection reuse in the native Vault transport so
 
 ## 0.21.0 — superseded by 0.21.1
 
-Introduced `dreamlake queues mount`, `mounts`, `inspect`, `list`, `jobs`, `workers`, `token` and `unmount`, with explicit namespaces, hidden token input and Vault storage. Native artifacts and npm packages were uploaded, but this pinned source predates the Vault transport fix in 0.20.2. Native channel promotion was held. Use the combined 0.21.1 release to retain the Vault fix. Existing 0.21.0 artifacts remain unchanged.
+Introduced `dl queues mount`, `mounts`, `inspect`, `list`, `jobs`, `workers`, `token` and `unmount`, with explicit namespaces, hidden token input and Vault storage. Native artifacts and npm packages were uploaded, but this pinned source predates the Vault transport fix in 0.20.2. Native channel promotion was held. Use the combined 0.21.1 release to retain the Vault fix. Existing 0.21.0 artifacts remain unchanged.
 
 [Queue commands](https://cli.dreamlake.ai/queues) · [Validation and publication history](cli-dev-notes-queue-mount-release.md).
 
@@ -999,8 +1029,8 @@ CLI source suite: 1,019 passed; typecheck and 33-page docs build passed. All eig
 
 Adds private repository setup with explicit selected credential mappings and authenticated capability discovery, paired with Python 0.16.0. Published to native downloads and npm from reviewed source `f34ca03`. All eight native downloads and npm platform binaries match the release manifest; the public npm wrapper matches reviewed source bytes.
 
-- `dreamlake run --setup setup.json --allow-vault-delivery` submits a pinned public repository, uv-lock dependencies and explicitly selected env/file mappings to an enrolled host. The metadata file is explicitly selected and bounded; it contains no secret values. Unknown submission outcomes reuse the same request ID and payload.
-- `dreamlake runs capabilities <namespace> --json` reports authenticated server support and limits. Host readiness is verified separately at submission.
+- `dl run --setup setup.json --allow-vault-delivery` submits a pinned public repository, uv-lock dependencies and explicitly selected env/file mappings to an enrolled host. The metadata file is explicitly selected and bounded; it contains no secret values. Unknown submission outcomes reuse the same request ID and payload.
+- `dl runs capabilities <namespace> --json` reports authenticated server support and limits. Host readiness is verified separately at submission.
 - Existing password verification/reservation and Task commands remain included. This release does not implement remote password mutation or enable backend private execution.
 
 [Paired CLI/Python examples](https://cli.dreamlake.ai/runs) cover submission, discovery, status and cancellation. Private production activation requires the reviewed worker termination fix and fresh acceptance. Validation: 1,019 CLI tests, typecheck and the 33-page documentation build passed. All eight platform binaries built with embedded WASM checks; the native binary reports 0.20.0 with dependencies detached. A fresh isolated registry installation passed the installed binary hash, version and capability-help checks. Public native latest and npm latest/next resolve to 0.20.0. [Release and manifest](https://github.com/dreamlake-ai/dreamlake-cli/releases/tag/v0.20.0).

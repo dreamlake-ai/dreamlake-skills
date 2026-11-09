@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes/layers.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes/layers.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Scene Layers Reference
 
@@ -17,10 +17,10 @@ imperative session updates (`add` / `upsert` / `update` / `remove`), where
 `Update` is a *meta component*: its `key` addresses an element, its props
 ARE the opinions. No op has a privileged role — "scene", "embodiment",
 "physics profile" are things you *do* with layers, not schema concepts.
-Ops apply in order and **later wins, always**. `dreamlake scene compose`
+Ops apply in order and **later wins, always**. `dl scene compose`
 materializes the stack into an ordinary `mujoco` scene directory — entry
 XML, flat assets, and a fully **pinned** copy of the stack side by side —
-and `dreamlake scene push` publishes it as a normal scene version. Consumers
+and `dl scene push` publishes it as a normal scene version. Consumers
 (viewer, SDKs, training code) read only the materialized artifact; the
 embedded stack is what makes the scene permanently re-openable: edit a pin,
 a pose, or an opinion, recompose, push again — content-addressed dedup
@@ -36,7 +36,7 @@ materialization to the Python engine in **dreamlake-py**:
 pip install "dreamlake[compose]"   # the engine + mujoco (optional extra, lazily imported)
 ```
 
-`dreamlake scene compose` requires it on the composing machine and says so
+`dl scene compose` requires it on the composing machine and says so
 clearly when it is absent. Push / pull / list need no Python. Registry
 layers are resolved through the immutable, hash-verified cache at
 `~/.dreamlake/cache/envs/<ns>/<name>/<version>/`.
@@ -421,8 +421,8 @@ CLI read v3 only, and a v2 file gets an error carrying this table:
 | merge name collision | two Merge layers define an element with the same name — merge never silently last-wins | rename the element in one layer; if the upper layer is *meant to change* the element, that should be an `Update`/`Patch`, not a `Merge` |
 | strict-match miss | an `Update`, `Remove`, or `Patch` opinion names an element the stack below doesn't have; the error reports the layer index | fix the typo — and after an `Attach`, target the **keyed** name (`right:palm`, `mug2:handle`), not the source scene's original name |
 | ambiguous address | a bare `key` matches more than one kind (a body and a geom named alike) | qualify it: `body:thing` |
-| scene src not resolved ("resolve refs first") | the Python engine was invoked directly on a stack that still contains registry srcs — the engine only takes resolved local paths | run through `dreamlake scene compose`, which resolves refs into `~/.dreamlake/cache/envs/…` first; for private layers, check you are logged in to the right remote |
-| missing Python engine | `dreamlake scene compose` delegates materialization to dreamlake-py, and it (or its mujoco extra) is not installed | `pip install "dreamlake[compose]"` on the composing machine. Machines that only push / pull / list don't need it |
+| scene src not resolved ("resolve refs first") | the Python engine was invoked directly on a stack that still contains registry srcs — the engine only takes resolved local paths | run through `dl scene compose`, which resolves refs into `~/.dreamlake/cache/envs/…` first; for private layers, check you are logged in to the right remote |
+| missing Python engine | `dl scene compose` delegates materialization to dreamlake-py, and it (or its mujoco extra) is not installed | `pip install "dreamlake[compose]"` on the composing machine. Machines that only push / pull / list don't need it |
 | `from_file(): incompatible function arguments` at layer 0 | MuJoCo 3.2 is installed — dreamlake 0.23.0 declares `>=3.2.0` but the engine needs the modern MjSpec API (0.23.1 declares `>=3.8` and guards this up front) | upgrade: `pip install -U "mujoco>=3.8"` (validated 3.8.1 / 3.14.0) |
 | Update `xyaxes`: "has no attribute … settable through MjSpec" | dreamlake 0.23.0 supports orientation opinions via `quat` only | upgrade to dreamlake ≥ 0.23.1, which accepts the alternate orientation specifiers — or state a `quat` opinion (compute it from your look-at axes), or put the `xyaxes` in the layer's own MJCF |
 

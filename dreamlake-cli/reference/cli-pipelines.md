@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/pipelines.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/pipelines.md at 0.112.0 0d1fe91; do not edit -->
 
 # Pipelines
 
@@ -9,19 +9,19 @@ upload of the source produces a new immutable version, identified by a
 ## Creating and updating
 
 ```bash file="terminal"
-dreamlake pipeline create my-pipeline --file ./pipeline.py --message "initial"
-dreamlake pipeline list
-dreamlake pipeline show my-pipeline
+dl pipeline create my-pipeline --file ./pipeline.py --message "initial"
+dl pipeline list
+dl pipeline show my-pipeline
 ```
 
 Passing `--file` (or `--source` for an inline string) runs the parser and
 creates a version. Without either, `create` makes an empty pipeline.
 
 ```bash file="terminal"
-dreamlake pipeline update my-pipeline --file ./pipeline.py --message "fix sampling"
-dreamlake pipeline update my-pipeline --rename better-name
-dreamlake pipeline update my-pipeline --tags robotics,training
-dreamlake pipeline delete my-pipeline        # soft — versions survive
+dl pipeline update my-pipeline --file ./pipeline.py --message "fix sampling"
+dl pipeline update my-pipeline --rename better-name
+dl pipeline update my-pipeline --tags robotics,training
+dl pipeline delete my-pipeline        # soft — versions survive
 ```
 
 `--tags` replaces the existing tags rather than adding to them.
@@ -29,11 +29,11 @@ dreamlake pipeline delete my-pipeline        # soft — versions survive
 ## Versions and nodes
 
 ```bash file="terminal"
-dreamlake pipeline version list my-pipeline
-dreamlake pipeline version show my-pipeline a1b2c3d4e5f6
+dl pipeline version list my-pipeline
+dl pipeline version show my-pipeline a1b2c3d4e5f6
 
-dreamlake pipeline node list my-pipeline a1b2c3d4e5f6
-dreamlake pipeline node show my-pipeline a1b2c3d4e5f6 tr_source
+dl pipeline node list my-pipeline a1b2c3d4e5f6
+dl pipeline node show my-pipeline a1b2c3d4e5f6 tr_source
 ```
 
 `version show` and `node show` always emit JSON — they exist to be piped
@@ -44,10 +44,10 @@ into something else.
 `node state` is the endpoint an execution engine uses to report progress.
 
 ```bash file="terminal"
-dreamlake pipeline node state my-pipeline a1b2c3d4e5f6 tr_source \
+dl pipeline node state my-pipeline a1b2c3d4e5f6 tr_source \
   --status running --started-at 2026-07-29T10:00:00Z
 
-dreamlake pipeline node state my-pipeline a1b2c3d4e5f6 tr_source \
+dl pipeline node state my-pipeline a1b2c3d4e5f6 tr_source \
   --status done \
   --artifacts '{"iframe_url":"https://...","segments_data":[{"start":0,"end":10}]}'
 ```
@@ -68,8 +68,8 @@ Invalid JSON is rejected before the request is sent.
 ## Agent workspaces
 
 ```bash file="terminal"
-dreamlake pipeline workspace host --dist ./dist.tar.gz
-dreamlake pipeline workspace upload --workspace-id ws_123 --dist ./dist.tar.gz
+dl pipeline workspace host --dist ./dist.tar.gz
+dl pipeline workspace upload --workspace-id ws_123 --dist ./dist.tar.gz
 ```
 
 `host` uploads a built frontend bundle and returns a `page_url` to open,

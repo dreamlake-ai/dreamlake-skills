@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.112.0 0d1fe91; do not edit -->
 
 # Host enrollment
 
@@ -43,9 +43,9 @@ A stale/offline daemon must reconnect before execution can be verified.
 
 ## List and inspect hosts
 
-In CLI 0.76.0 and later, bare `dreamlake hosts` defaults to `hosts list`,
-and accepts the same list options directly. `dreamlake hosts -h` shows both
-listing options and host commands; `dreamlake hosts list -h` shows only listing
+In CLI 0.76.0 and later, bare `dl hosts` defaults to `hosts list`,
+and accepts the same list options directly. `dl hosts -h` shows both
+listing options and host commands; `dl hosts list -h` shows only listing
 help. See [collection defaults](https://cli.dreamlake.ai/command-reference#collection-defaults-and-help).
 Earlier releases require explicit `list`.
 
@@ -58,19 +58,19 @@ and shows only active hosts with at least one verified online enrollment. Use
 Omit `--namespace` to use the signed-in personal namespace, or select another authorized namespace explicitly. `--group` accepts a single group name.
 
 ```bash cli-help="hosts list"
-dreamlake hosts list
-dreamlake hosts list --namespace geyang --group workstations
-dreamlake hosts list --json
-dreamlake hosts list --all
-dreamlake hosts list --wide
-dreamlake hosts --fields
-dreamlake hosts --format '{name} {user} {ips} {network_freshness}'
-dreamlake hosts --probe --format '{name} {ip} {public_ip} {macs} {uptime}'
+dl hosts list
+dl hosts list --namespace geyang --group workstations
+dl hosts list --json
+dl hosts list --all
+dl hosts list --wide
+dl hosts --fields
+dl hosts --format '{name} {user} {ips} {network_freshness}'
+dl hosts --probe --format '{name} {ip} {public_ip} {macs} {uptime}'
 ```
 
 The expanded inventory (CLI 0.104.3+) shows host ID, full name, catalog state,
 verified connection state, hostname, Unix user, and IP addresses by default.
-Use `dreamlake hosts --wide` (or `hosts list --wide`) to add enrollment ID,
+Use `dl hosts --wide` (or `hosts list --wide`) to add enrollment ID,
 OS, architecture, CPU core count, Nymph version, and last-seen timestamp.
 Each enrollment has its own row so observations from different daemons or Unix
 users stay separate. The host total still counts distinct hosts. An active host
@@ -144,9 +144,9 @@ the personal namespace unless `--namespace` is supplied; a full name already
 contains its namespace, and a conflicting flag is rejected.
 
 ```bash cli-help="hosts status"
-dreamlake hosts status geyang/workstations/worker
-dreamlake hosts status HOST_ID --namespace geyang --json
-dreamlake hosts status 'geyang/workstations/*' --page 2 --page-size 100 --json
+dl hosts status geyang/workstations/worker
+dl hosts status HOST_ID --namespace geyang --json
+dl hosts status 'geyang/workstations/*' --page 2 --page-size 100 --json
 ```
 
 Exact status shows a readable enrollment table by default; `--json` preserves the
@@ -174,8 +174,8 @@ Exact `hosts status` and `hosts enrollments` lookups by ID or full name still wo
 List filters affect visibility, never authorization:
 
 ```bash
-dreamlake hosts list --namespace geyang --all --archived include
-dreamlake hosts list --namespace geyang --all --archived only
+dl hosts list --namespace geyang --all --archived include
+dl hosts list --namespace geyang --all --archived only
 ```
 
 `--all` controls connection state; `--archived` controls catalog visibility.
@@ -187,15 +187,15 @@ one exact lowercase 24-character Host ID, not a name or wildcard. Use the revisi
 returned by the read; `0` below illustrates a record with no prior catalog changes.
 
 ```bash cli-help="hosts lifecycle"
-dreamlake hosts lifecycle HOST_ID --namespace geyang --json
+dl hosts lifecycle HOST_ID --namespace geyang --json
 ```
 
 ```bash cli-help="hosts archive"
-dreamlake hosts archive HOST_ID --namespace geyang --request-id archive-example-1 --expected-revision 0 --json
+dl hosts archive HOST_ID --namespace geyang --request-id archive-example-1 --expected-revision 0 --json
 ```
 
 ```bash cli-help="hosts restore"
-dreamlake hosts restore HOST_ID --namespace geyang --request-id restore-example-1 --expected-revision 1 --json
+dl hosts restore HOST_ID --namespace geyang --request-id restore-example-1 --expected-revision 1 --json
 ```
 
 Every accepted new request increments the revision, including archiving an
@@ -229,8 +229,8 @@ host ID. The namespace rules match `hosts status`; wildcards are not accepted.
 This is read-only and does not retire, revoke, restart, or delete anything.
 
 ```bash cli-help="hosts enrollments"
-dreamlake hosts enrollments geyang/workstations/worker
-dreamlake hosts enrollments HOST_ID --namespace geyang --json
+dl hosts enrollments geyang/workstations/worker
+dl hosts enrollments HOST_ID --namespace geyang --json
 ```
 
 The output separates the host ID, canonical enrollment ID, and runtime machine
@@ -263,8 +263,8 @@ Select a host and an exact enrollment ID from `hosts enrollments`; the CLI does
 not choose an enrollment or combine readings across enrollments.
 
 ```bash cli-help="hosts metrics"
-dreamlake hosts metrics geyang/workstations/worker --enrollment ENROLLMENT_ID
-dreamlake hosts metrics HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --resolution 60 --json
+dl hosts metrics geyang/workstations/worker --enrollment ENROLLMENT_ID
+dl hosts metrics HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --resolution 60 --json
 ```
 
 Text shows the latest CPU percentage, RAM and disk bytes, source sample timestamp,
@@ -290,8 +290,8 @@ access, revoked enrollment, identity, or transport failures exit nonzero.
 ## Check observed action capability
 
 ```bash cli-help="hosts check"
-dreamlake hosts check geyang/workstations/worker --enrollment ENROLLMENT_ID --action ssh
-dreamlake hosts check HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --action tracked-run --json
+dl hosts check geyang/workstations/worker --enrollment ENROLLMENT_ID --action ssh
+dl hosts check HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --action tracked-run --json
 ```
 
 Both `--enrollment` and `--action` are required. The command reads the backend's
@@ -310,7 +310,7 @@ No grant, handshake, job, enrollment change, or machine lifecycle action occurs.
 
 ## Enrollment
 
-`dreamlake hosts enroll` bootstraps a user-owned nymph on this computer with
+`dl hosts enroll` bootstraps a user-owned nymph on this computer with
 `--local`, or over an existing SSH connection with `--ssh`. It waits for the
 backend to confirm that exact enrollment online.
 Provider registration is not required. It requires the new authenticated Hosts
@@ -384,9 +384,9 @@ directory. Enrollment reports terminal setup separately from Nymph's online
 status and gives a retry action if terminal readiness is still pending.
 
 ```bash
-dreamlake hosts enroll --local --name geyang/dev/my-mac --web-terminal
+dl hosts enroll --local --name geyang/dev/my-mac --web-terminal
 # Enroll without browser shell access.
-dreamlake hosts enroll --local --name geyang/dev/my-mac --no-web-terminal
+dl hosts enroll --local --name geyang/dev/my-mac --no-web-terminal
 ```
 
 ## Output format
@@ -400,9 +400,9 @@ These output changes require CLI 0.52.1.
 
 ```bash cli-help="hosts enroll"
 # Human-readable output (default).
-dreamlake hosts enroll --local --name geyang/dev/my-mac
+dl hosts enroll --local --name geyang/dev/my-mac
 # Structured output for scripts.
-dreamlake hosts enroll --local --name geyang/dev/my-mac --json
+dl hosts enroll --local --name geyang/dev/my-mac --json
 ```
 
 A successful default summary starts with:
@@ -427,10 +427,10 @@ is added in CLI 0.52.0. No loopback connection or SSH credentials are needed.
 The default web terminal option additionally requires the system OpenSSH server.
 
 ```bash
-dreamlake hosts enroll -n geyang/lab/current-computer --local --dry-run
-dreamlake hosts enroll -n geyang/lab/current-computer --local \
+dl hosts enroll -n geyang/lab/current-computer --local --dry-run
+dl hosts enroll -n geyang/lab/current-computer --local \
   --request-id current-computer-001
-dreamlake hosts status geyang/lab/current-computer --json
+dl hosts status geyang/lab/current-computer --json
 ```
 
 `--local` is mutually exclusive with `--ssh` and SSH credential-saving options.
@@ -446,7 +446,7 @@ tracked-run support and `uv` available to the user service):
 
 ```bash
 printf 'import socket; print("Hello from", socket.gethostname())\n' > hello.py
-dreamlake run --target geyang/lab/current-computer --include hello.py \
+dl run --target geyang/lab/current-computer --include hello.py \
   --request-id local-hello-001 --timeout-seconds 60 --uv-run python hello.py
 ```
 
@@ -460,9 +460,9 @@ package manager if they are absent. For Homebrew:
 
 ```shell
 brew install python uv openssl@3
-dreamlake hosts enroll --local --name YOUR_NAMESPACE/dev/my-mac \
+dl hosts enroll --local --name YOUR_NAMESPACE/dev/my-mac \
   --nymph-version v0.1.11
-dreamlake hosts status YOUR_NAMESPACE/dev/my-mac --json
+dl hosts status YOUR_NAMESPACE/dev/my-mac --json
 ```
 
 Starting with CLI 0.71.0, a version such as `0.1.26` is normalized to the published
@@ -510,19 +510,19 @@ a real Mac against the deployed control plane.
 ## Register another computer
 
 ```shell
-dreamlake hosts enroll -p fortyfive/bos14 -n bos14-ctrl --ssh bos14-ctrl
-dreamlake hosts status fortyfive/bos14/bos14-ctrl --json
-dreamlake hosts status 'fortyfive/bos14/*' --json
+dl hosts enroll -p fortyfive/bos14 -n bos14-ctrl --ssh bos14-ctrl
+dl hosts status fortyfive/bos14/bos14-ctrl --json
+dl hosts status 'fortyfive/bos14/*' --json
 ```
 
 For configuration-only validation:
 
 ```shell
-dreamlake hosts enroll -p fortyfive/bos14 -n bos14-ctrl \
+dl hosts enroll -p fortyfive/bos14 -n bos14-ctrl \
   --ssh bos14-ctrl --dry-run
 
 # Equivalent full name, with structured output:
-dreamlake hosts enroll -n fortyfive/bos14/bos14-ctrl \
+dl hosts enroll -n fortyfive/bos14/bos14-ctrl \
   --ssh '-i "/Users/ge/My Keys/key" \
     -J ge@bastion.example.com \
     -p 2222 geyang@bos14-ctrl.internal' --dry-run --json
@@ -539,7 +539,7 @@ from the DreamLake namespace.
 ## JSON input
 
 ```shell
-dreamlake hosts enroll --config ./bos14-host.json --dry-run --json
+dl hosts enroll --config ./bos14-host.json --dry-run --json
 ```
 
 ```json
@@ -591,16 +591,16 @@ only suppresses progress. JSON/noninteractive calls never prompt automatically.
 
 ```shell
 # Re-enter the target password securely after enrollment (masked prompt).
-dreamlake hosts enroll -n fortyfive/bos14/bos14-ctrl --ssh bos14-ctrl \
+dl hosts enroll -n fortyfive/bos14/bos14-ctrl --ssh bos14-ctrl \
   --save-credentials --target-password ge/bos14/login
 
 # Explicit, separate target and jump-key exports.
-dreamlake hosts enroll -n fortyfive/bos14/bos14-ctrl --ssh '-J jump bos14-ctrl' \
+dl hosts enroll -n fortyfive/bos14/bos14-ctrl --ssh '-J jump bos14-ctrl' \
   --save-credentials --target-key ge/bos14/key=/secure/target-key \
   --jump-key jump=ge/jump/key=/secure/jump-key
 
 # Automation: exact UTF-8 bytes from a protected file/pipe, never argv secrets.
-dreamlake hosts enroll -n fortyfive/bos14/bos14-ctrl --ssh bos14-ctrl \
+dl hosts enroll -n fortyfive/bos14/bos14-ctrl --ssh bos14-ctrl \
   --save-credentials --target-password ge/bos14/login \
   --password-fd ge/bos14/login=3 --json 3</secure/target-password
 ```
@@ -621,10 +621,10 @@ A `saved_unbound` result includes exact `binding` metadata for retry without SSH
 or secret rereads:
 
 ```shell
-dreamlake vault bind --host-id HOST_ID --enrollment-id ENROLLMENT_ID \
+dl vault bind --host-id HOST_ID --enrollment-id ENROLLMENT_ID \
   --entry-id ENTRY_ID --entry-revision 1 --role target --endpoint bos14-ctrl \
   --kind password
-dreamlake vault bindings --host-id HOST_ID --enrollment-id ENROLLMENT_ID
+dl vault bindings --host-id HOST_ID --enrollment-id ENROLLMENT_ID
 ```
 
 Binding management is account-only, idempotent for identical references and
@@ -695,7 +695,7 @@ Re-enrollment regenerates the service configuration. Restore reviewed custom set
 ## Provision and control machine power
 
 Requires CLI **0.72.0+** and the matching Host power API. Older installed
-clients do not expose these commands; check `dreamlake --version` and command help.
+clients do not expose these commands; check `dl --version` and command help.
 
 `hosts create` uses the existing provider launch flow and requires automatic
 Nymph enrollment. Choose an existing provider and a full host name in its
@@ -705,7 +705,7 @@ Provider configuration, launch layers, credentials and bootstrap prerequisites
 are the same as for `providers instances launch`.
 
 ```bash cli-help="hosts create"
-dreamlake hosts create geyang/PROVIDER_ID --host-name geyang/dev/worker \
+dl hosts create geyang/PROVIDER_ID --host-name geyang/dev/worker \
   --layer development --request-id create-worker-01
 ```
 
@@ -718,8 +718,8 @@ Inspect the provider binding and cloud-observed power state before choosing a
 power operation. Use the exact enrollment ID reported by this command.
 
 ```bash cli-help="hosts power"
-dreamlake hosts power geyang/dev/worker
-dreamlake hosts power HOST_ID --namespace geyang --json
+dl hosts power geyang/dev/worker
+dl hosts power HOST_ID --namespace geyang --json
 ```
 
 Power commands apply to the machine, not just the Nymph process. They require a
@@ -731,22 +731,22 @@ Start, stop, restart and terminate preserve the Host catalog record and do not
 revoke enrollment credentials. `restart` uses the provider's reboot operation.
 
 ```bash cli-help="hosts start"
-dreamlake hosts start geyang/dev/worker --enrollment ENROLLMENT_ID \
+dl hosts start geyang/dev/worker --enrollment ENROLLMENT_ID \
   --request-id start-worker-01
 ```
 
 ```bash cli-help="hosts stop"
-dreamlake hosts stop geyang/dev/worker --enrollment ENROLLMENT_ID \
+dl hosts stop geyang/dev/worker --enrollment ENROLLMENT_ID \
   --request-id stop-worker-01
 ```
 
 ```bash cli-help="hosts restart"
-dreamlake hosts restart geyang/dev/worker --enrollment ENROLLMENT_ID \
+dl hosts restart geyang/dev/worker --enrollment ENROLLMENT_ID \
   --request-id restart-worker-01
 ```
 
 ```bash cli-help="hosts terminate"
-dreamlake hosts terminate geyang/dev/worker --enrollment ENROLLMENT_ID \
+dl hosts terminate geyang/dev/worker --enrollment ENROLLMENT_ID \
   --request-id terminate-worker-01 --volumes delete-on-termination
 ```
 
@@ -769,12 +769,12 @@ client with an authenticated host-key pin and a temporary per-session key.
 No inbound SSH port is required on the target for the Nymph relay path.
 
 ```bash cli-help="ssh"
-dreamlake ssh geyang/dev/worker
-dreamlake ssh HOST_ID --namespace geyang --enrollment ENROLLMENT_ID
+dl ssh geyang/dev/worker
+dl ssh HOST_ID --namespace geyang --enrollment ENROLLMENT_ID
 ```
 
 ```bash cli-help="hosts ssh"
-dreamlake hosts ssh geyang/dev/worker --duration 1800
+dl hosts ssh geyang/dev/worker --duration 1800
 ```
 
 Select an exact host by ID or full name. A single ready SSH enrollment is selected
@@ -785,7 +785,7 @@ CLI prints those choices with copyable commands and exits without connecting.
 prompts. Cancelling the chooser opens no session. Session lifetime is 120–1800 seconds (`--duration`, default 1800).
 
 With CLI 0.100.0+, when the selector names no host (a keyword such as
-`dreamlake ssh gpu`, a misspelled or missing `namespace/group/host[/user]`, or an
+`dl ssh gpu`, a misspelled or missing `namespace/group/host[/user]`, or an
 unknown ID) and the command runs in a terminal, a host picker opens in place
 of a bare error:
 
@@ -819,12 +819,12 @@ exponential backoff, whichever is longer. Any other delegation failure is
 reported without resubmission, because it may have created a session.
 
 ```bash cli-help="exec"
-dreamlake exec geyang/dev/worker -- uname -a
-dreamlake exec geyang/dev/worker --timeout 30 -- sh -c 'printf "%s\n" "$HOME"'
+dl exec geyang/dev/worker -- uname -a
+dl exec geyang/dev/worker --timeout 30 -- sh -c 'printf "%s\n" "$HOME"'
 ```
 
 ```bash cli-help="hosts exec"
-dreamlake hosts exec geyang/dev/worker -- python3 -c 'print("hello")'
+dl hosts exec geyang/dev/worker -- python3 -c 'print("hello")'
 ```
 
 Place the remote command after `--`. Arguments are passed literally; invoke
@@ -837,23 +837,23 @@ session. File copy and forwarding remain outside these commands.
 
 ## Upgrade nymph on enrolled hosts
 
-`dreamlake hosts upgrade` installs an exact Nymph release on enrolled hosts and
-restarts each host's Nymph service exactly once. `dreamlake hosts rollback`
+`dl hosts upgrade` installs an exact Nymph release on enrolled hosts and
+restarts each host's Nymph service exactly once. `dl hosts rollback`
 restores the binary that the last upgrade replaced. Both run the enrollment
-bootstrap on the host through the same Nymph relay as `dreamlake exec`, so the
+bootstrap on the host through the same Nymph relay as `dl exec`, so the
 host needs a ready SSH enrollment (web terminal), Python 3, and the service that
 `hosts enroll` installed. No inbound SSH port or saved SSH credential is used.
 
 ```bash cli-help="hosts upgrade"
-dreamlake hosts upgrade geyang/dev/worker --nymph-version 0.1.32 --dry-run
-dreamlake hosts upgrade geyang/dev/worker --nymph-version 0.1.32
-dreamlake hosts upgrade 'geyang/lab/*' --nymph-version 0.1.32 --concurrency 4 --max-failures 2
-dreamlake hosts upgrade --all --namespace geyang --nymph-version 0.1.32 --json
+dl hosts upgrade geyang/dev/worker --nymph-version 0.1.32 --dry-run
+dl hosts upgrade geyang/dev/worker --nymph-version 0.1.32
+dl hosts upgrade 'geyang/lab/*' --nymph-version 0.1.32 --concurrency 4 --max-failures 2
+dl hosts upgrade --all --namespace geyang --nymph-version 0.1.32 --json
 ```
 
 ```bash cli-help="hosts rollback"
-dreamlake hosts rollback geyang/dev/worker
-dreamlake hosts rollback geyang/dev/worker --upgrade-id 20261029-001 --json
+dl hosts rollback geyang/dev/worker
+dl hosts rollback geyang/dev/worker --upgrade-id 20261029-001 --json
 ```
 
 Select hosts by host ID, `namespace/group/host[/user]` or a quoted `namespace/group/*`,
@@ -976,7 +976,7 @@ bound to their original owner namespace and remain independently authorized.
 Preview first with the exact Host ID from inventory:
 
 ```bash cli-help="hosts move"
-dreamlake hosts move HOST_ID --namespace alice --to acme --dry-run --json
+dl hosts move HOST_ID --namespace alice --to acme --dry-run --json
 ```
 
 The preview includes `revision`, `previewHash`, destination name, private owner
@@ -984,7 +984,7 @@ and dependency blockers. Review the full preview before applying. Apply never
 refreshes the preview or invents a request ID:
 
 ```bash
-dreamlake hosts move HOST_ID --namespace alice --to acme --confirm \
+dl hosts move HOST_ID --namespace alice --to acme --confirm \
   --request-id laptop-move-001 --expected-revision REVISION \
   --preview-hash PREVIEW_HASH --json
 ```
@@ -1038,7 +1038,7 @@ enrollment, machine keys, saved sessions and running work; it does not restart N
 A username suffix must match the enrolled Unix account. Namespace changes use `hosts move`.
 
 ```bash cli-help="hosts rename"
-dreamlake hosts rename HOST_ID --name fortyfive/bos14/bos14-ctrl/geyang --expected-name fortyfive/bos14/bos14-ctrl-geyang
+dl hosts rename HOST_ID --name fortyfive/bos14/bos14-ctrl/geyang --expected-name fortyfive/bos14/bos14-ctrl-geyang
 ```
 
 After an uncertain response, reuse the same Host ID, `--name` and `--expected-name`.
@@ -1053,4 +1053,4 @@ Read the new name back and verify SSH independently.
 
 **CLI 0.103.1 and matching deployed services required.** Host details display used/limit counts for SSH sessions, forwarding tunnels and the shared control-plane namespace total. SSH/exec limit errors retain `session_limit` and describe those counts when supplied by the server; older servers show a generic message. Counts are shared worker/namespace capacity, not your personal quota.
 
-See [SSH capacity and usage](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#ssh-capacity-and-usage) for the configuration reference, counting rules, limits, examples, recovery and rollout. See [Nymph permissions and commands](https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions) before changing local policy or proposing live configuration. There is no new `dreamlake ssh --limit` flag or remote config setter in this change.
+See [SSH capacity and usage](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#ssh-capacity-and-usage) for the configuration reference, counting rules, limits, examples, recovery and rollout. See [Nymph permissions and commands](https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions) before changing local policy or proposing live configuration. There is no new `dl ssh --limit` flag or remote config setter in this change.

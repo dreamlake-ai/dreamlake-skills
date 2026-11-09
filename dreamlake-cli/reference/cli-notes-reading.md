@@ -1,8 +1,8 @@
-<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.112.0 0d1fe91; do not edit -->
 
 # Reading and changes
 
-Set `MEMO_ID` to an ID or slug from `dreamlake memos list`. Add `--namespace`
+Set `MEMO_ID` to an ID or slug from `dl memos list`. Add `--namespace`
 (or its alias `--ns`) when the memo belongs to an organization: the CLI looks an
 ID or slug up in that namespace or your configured one. The shell examples use `jq`.
 
@@ -10,7 +10,7 @@ ID or slug up in that namespace or your configured one. The shell examples use `
 
 ```bash
 MEMO_ID=release-plan
-dreamlake memos read "$MEMO_ID" --json > baseline.json
+dl memos read "$MEMO_ID" --json > baseline.json
 HASH=$(jq -er .hash baseline.json)
 REVISION=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > base.md
@@ -20,7 +20,7 @@ jq -jr .content baseline.json > base.md
 the mapped Markdown reading view, generated hints included, and is **not** a
 source export; `--json` is the structured snapshot, and `--view source` prints
 the exact source bytes only (no header, no added newline), so
-`dreamlake memos read "$MEMO_ID" --view source > memo.md` is a byte-exact export.
+`dl memos read "$MEMO_ID" --view source > memo.md` is a byte-exact export.
 
 | Field | Use it for |
 | --- | --- |
@@ -34,7 +34,7 @@ text can have different revisions; do not substitute one token for the other.
 
 ## Read a saved version
 
-With CLI 0.44.1+, `dreamlake memos read MEMO_ID --version VERSION_ID` reads the
+With CLI 0.44.1+, `dl memos read MEMO_ID --version VERSION_ID` reads the
 immutable text saved by `memos tag`; `memos hist MEMO_ID` lists its version IDs.
 `note` aliases `notes`. Saved reads return version metadata and `text` in JSON,
 not a live write baseline, and refuse live/partial/HTML/collaboration options.
@@ -44,16 +44,16 @@ See [Saved versions](cli-notes-versions.md). Without `--version`, reads remain l
 
 ```bash cli-help="memos diff"
 MEMO_ID=release-plan
-dreamlake memos read "$MEMO_ID" --json > baseline.json
+dl memos read "$MEMO_ID" --json > baseline.json
 HASH=$(jq -er .hash baseline.json)
-dreamlake memos diff "$MEMO_ID" --since "$HASH" --format diff
+dl memos diff "$MEMO_ID" --since "$HASH" --format diff
 ```
 
 `memos diff` is an alias for `memos read --since`. Both accept either format:
 
 ```bash
-dreamlake memos read "$MEMO_ID" --since "$HASH" --format inline-dff
-dreamlake memos read "$MEMO_ID" --since "$HASH" --format diff --json > changes.json
+dl memos read "$MEMO_ID" --since "$HASH" --format inline-dff
+dl memos read "$MEMO_ID" --since "$HASH" --format diff --json > changes.json
 jq -jr .patch changes.json > changes.diff
 ```
 
@@ -75,7 +75,7 @@ baseline. Preserve `baseline.json` and `base.md` until that edit is resolved.
 Retained time references also work:
 
 ```bash
-dreamlake memos read "$MEMO_ID" --since "2 hours ago"
+dl memos read "$MEMO_ID" --since "2 hours ago"
 ```
 
 The server resolves times and retention. Prefer a saved hash for “since my last
@@ -85,15 +85,15 @@ the CLI does not silently replace them with the latest revision.
 ## Read one section
 
 ```bash cli-help="memos sections"
-dreamlake memos sections release-plan
-dreamlake memos sections release-plan --json
+dl memos sections release-plan
+dl memos sections release-plan --json
 ```
 
 Use the returned heading anchor to read a passage. Section reads use the
 explicit compatibility interface; for a line range use `--lines` (below):
 
 ```bash
-dreamlake memos read "$MEMO_ID" --legacy --section outline --numbered
+dl memos read "$MEMO_ID" --legacy --section outline --numbered
 ```
 
 Sections include their heading and all subsections, ending at the next heading
@@ -105,8 +105,8 @@ memo, while its source is only a slice. Never upload that slice as the whole bod
 ## Read a line range
 
 ```bash
-dreamlake memos read "$MEMO_ID" --lines 40:80
-dreamlake memos read "$MEMO_ID" --lines 40:80 --json
+dl memos read "$MEMO_ID" --lines 40:80
+dl memos read "$MEMO_ID" --lines 40:80 --json
 ```
 
 `--lines a:b` takes two integers, 1-based and inclusive, and prints the exact
@@ -127,11 +127,11 @@ lines to code points is done by the CLI and by the TypeScript API
 ## Search passages
 
 ```bash
-dreamlake memos find "Draft" --note "$MEMO_ID" --json
-dreamlake memos grep "TODO" -C 2
-dreamlake memos grep --regex '\bFIXME\b' --case-sensitive
-dreamlake memos grep "deploy" --glob 'spec-*' --limit 20
-dreamlake memos toc --note "$MEMO_ID"
+dl memos find "Draft" --note "$MEMO_ID" --json
+dl memos grep "TODO" -C 2
+dl memos grep --regex '\bFIXME\b' --case-sensitive
+dl memos grep "deploy" --glob 'spec-*' --limit 20
+dl memos toc --note "$MEMO_ID"
 ```
 
 `search` finds memos; `find` searches one memo; `grep` returns locations across
@@ -146,7 +146,7 @@ capture a full current snapshot for a v2 patch.
 
 ```bash
 # REVISION came from a read or a successful patch receipt.
-dreamlake memos read "$MEMO_ID" --if-match "$REVISION" --json > verified.json
+dl memos read "$MEMO_ID" --if-match "$REVISION" --json > verified.json
 ```
 
 A matching read returns that snapshot. A mismatch exits `3` with no source on
@@ -165,10 +165,10 @@ exclusive, and cannot combine with `--since` or `--linger`:
 
 ```bash
 # MEMO_ID identifies an accessible note; copy REVISION from its read receipt.
-dreamlake memos read "$MEMO_ID"
-dreamlake memos read "$MEMO_ID" --at "$REVISION" --toc
-dreamlake memos read "$MEMO_ID" --at "$REVISION" --section s1.1
-dreamlake memos read "$MEMO_ID" --at "$REVISION" --tag s1.1.p1
+dl memos read "$MEMO_ID"
+dl memos read "$MEMO_ID" --at "$REVISION" --toc
+dl memos read "$MEMO_ID" --at "$REVISION" --section s1.1
+dl memos read "$MEMO_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
@@ -235,9 +235,9 @@ rendered HTML as the complete memo.
 
 ```bash
 # edit.dff is prepared from the exact source at REVISION.
-dreamlake memos patch "$MEMO_ID" --file edit.dff --base-revision "$REVISION" --exact
+dl memos patch "$MEMO_ID" --file edit.dff --base-revision "$REVISION" --exact
 # NEXT_REVISION comes from that write receipt.
-dreamlake memos read "$MEMO_ID" --at "$NEXT_REVISION" --tag s1.1.p1
+dl memos read "$MEMO_ID" --at "$NEXT_REVISION" --tag s1.1.p1
 ```
 
 Exact mode refuses concurrent edits with 412; native merge mode remains available
@@ -255,8 +255,8 @@ For Markdown with address hints (CLI 0.33.0), select the annotated view:
 
 ```bash
 # REVISION is the original read revision; MEMO_ID identifies an accessible note.
-dreamlake memos read "$MEMO_ID" --at "$REVISION" --section s1 --view markdown
-dreamlake memos read "$MEMO_ID" --at "$REVISION" --tag s1.ul2.li3 --view markdown
+dl memos read "$MEMO_ID" --at "$REVISION" --section s1 --view markdown
+dl memos read "$MEMO_ID" --at "$REVISION" --tag s1.ul2.li3 --view markdown
 ```
 
 Lists and items use the shared section-local order above; a list or parent item
@@ -273,7 +273,7 @@ HTML-source memo prints exact source instead.
 
 ## Addressed reading view
 
-`dreamlake memos read MEMO_ID` (the text default; `--view markdown` says so
+`dl memos read MEMO_ID` (the text default; `--view markdown` says so
 explicitly) uses the shared v2 reading view.
 It prints actual line breaks and addressed block hints, automatically draining
 pages pinned to the first revision. A failed continuation exits unsuccessfully;

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Browser terminal
 
@@ -185,7 +185,7 @@ Changing machines does not transfer either one.
 Saved sessions require matching product API and terminal gateway deployments
 with Codex launch support, plus the Sessions page. CLI **0.74.1 or later** uses
 the same saved descriptors through the companion
-[`dreamlake sessions` commands](https://cli.dreamlake.ai/sessions).
+[`dl sessions` commands](https://cli.dreamlake.ai/sessions).
 Updating the CLI does not deploy those server capabilities. Existing terminal
 access and connection limits below still apply.
 

@@ -1,16 +1,16 @@
-<!-- generated from https://cli.dreamlake.ai/snapshot-launch.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/snapshot-launch.md at 0.112.0 0d1fe91; do not edit -->
 
 # Snapshot & launch
 
 Two commands run a script from this repository somewhere else.
 
 ```bash file="terminal"
-dreamlake snapshot                    # archive + register this tree → an id
-dreamlake launch train.py --queue cpu # snapshot, queue it, wait for the result
+dl snapshot                    # archive + register this tree → an id
+dl launch train.py --queue cpu # snapshot, queue it, wait for the result
 ```
 
 Both submit control requests to the **lakeshore control plane**. Neither needs
-`dreamlake login`; they need `--server` (or `$LAKESHORE_URL`). This transport does
+`dl login`; they need `--server` (or `$LAKESHORE_URL`). This transport does
 not grant the control plane cloud-launch authority. Workload execution must use
 an explicitly user-configured launch server with its appropriate IAM role; verify
 the selected queue's execution route before submitting. No control-plane/service
@@ -45,7 +45,7 @@ From that shell there are two different ways to run a script:
 - **Run it here.** For example, `python hello_job.py --message hi`. There is no
   snapshot and no queue, and `code:` is not read. Its dependencies must be
   installed on this machine.
-- **Submit it.** For example, `dreamlake launch hello_job.py --queue cpu`.
+- **Submit it.** For example, `dl launch hello_job.py --queue cpu`.
   - It runs on whichever worker serves the queue, possibly another machine.
   - The selected code is archived here, uploaded to the namespace's
     `code-staging` storage, and unpacked on the worker.
@@ -74,7 +74,7 @@ snapshot
   remote:     git@github.com:you/proj.git
   commit:     a1b2c3d
 ✓ registered 665f0a1b2c3d4e5f60718293  (4.1 MB, kit-local)
-  dreamlake launch <script> --snapshot 665f0a1b2c3d4e5f60718293
+  dl launch <script> --snapshot 665f0a1b2c3d4e5f60718293
 ```
 
 The server and namespace are printed **before** the write, never after. If you
@@ -98,7 +98,7 @@ was clean:
 | `--json` | one `{ status, id, remote, commit, sizeBytes, … }` object instead of prose |
 
 ```bash file="terminal"
-dreamlake launch train.py --snapshot $(dreamlake snapshot --json | jq -r .id)
+dl launch train.py --snapshot $(dl snapshot --json | jq -r .id)
 ```
 
 ## Choosing the code: `.dreamrc` `code:`
@@ -132,9 +132,9 @@ This requires the same SDK bridge, which is not yet on PyPI.
 ## `launch`
 
 ```bash file="terminal"
-dreamlake launch train.py --queue cpu
-dreamlake launch train.py --arg --epochs --arg 10
-dreamlake launch eval.py --snapshot 665f0a1b2c3d4e5f60718293 --no-wait
+dl launch train.py --queue cpu
+dl launch train.py --arg --epochs --arg 10
+dl launch eval.py --snapshot 665f0a1b2c3d4e5f60718293 --no-wait
 ```
 
 | Flag | Meaning |
@@ -168,7 +168,7 @@ available, the launch stops before it spawns anything:
 
 ```text file="output"
 ✗ no queue — a launch has to say where it runs. Any one of:
-    dreamlake launch train.py --queue cpu
+    dl launch train.py --queue cpu
     export LAKESHORE_QUEUE=cpu
     queue: cpu        # at the top level of .dreamrc
 ```
@@ -185,7 +185,7 @@ available, the launch stops before it spawns anything:
 **provider**. To see which, and whether anything is currently claiming it:
 
 ```bash file="terminal"
-dreamlake provider status -n aws-demo
+dl provider status -n aws-demo
 ```
 
 Zero live workers for a provider is a normal state, not a fault — see

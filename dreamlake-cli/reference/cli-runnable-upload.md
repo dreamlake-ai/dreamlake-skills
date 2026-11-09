@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/runnable-upload.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/runnable-upload.md at 0.112.0 0d1fe91; do not edit -->
 
 # Register UDFs and agents
 
@@ -7,8 +7,8 @@ publish them. Use a CLI release containing `runnable register` and `agents edit`
 installed help before using these commands. Registration is separate from execution.
 
 ```bash cli-help="runnable register"
-dreamlake runnable register .dreamrc --dry-run
-dreamlake runnable register .dreamrc --namespace acme
+dl runnable register .dreamrc --dry-run
+dl runnable register .dreamrc --namespace acme
 ```
 
 `upload` is an alias for `register`. The offline preview reads the explicitly
@@ -64,17 +64,17 @@ is refused. The runnable and source-version metadata record `repo_id`, optional
 `snapshot_id`, `source_file`, and `entrypoint`. These references still require
 worker-side source/tree verification before execution.
 
-`dreamlake snapshot` is the existing execution-control-plane capture/upload path;
+`dl snapshot` is the existing execution-control-plane capture/upload path;
 it is a different API from declaration registry snapshots. Do not interchange
 their IDs without an explicit bridge.
 
 ## One definition at a time
 
 ```bash
-dreamlake declare udf.yaml --collection runnables
-dreamlake runnable version push recipes.add --source tasks/math.py
-dreamlake runnable version show recipes.add --source-only
-dreamlake agents create triage --scope recipes --prompt 'Triage failed runs.'
+dl declare udf.yaml --collection runnables
+dl runnable version push recipes.add --source tasks/math.py
+dl runnable version show recipes.add --source-only
+dl agents create triage --scope recipes --prompt 'Triage failed runs.'
 ```
 
 ```yaml
@@ -93,8 +93,8 @@ remain planned; a repo pointer alone is not a runnable execution contract.
 A manifest is optional when registering one definition:
 
 ```bash
-dreamlake runnable register --name recipes.add --source tasks/math.py --entrypoint tasks.math:add
-dreamlake runnable register --name recipes.triage --kind agent --source agents/triage.md
+dl runnable register --name recipes.add --source tasks/math.py --entrypoint tasks.math:add
+dl runnable register --name recipes.triage --kind agent --source agents/triage.md
 ```
 
 Direct source paths resolve from the current directory and remain inside it.
@@ -119,14 +119,14 @@ CLI 0.71.0 introduced execution of one registered Python module on an exact
 same-namespace enrolled host:
 
 ```bash
-dreamlake runnable run udf/NAMESPACE/recipes.add@FULL_SHA256 \
+dl runnable run udf/NAMESPACE/recipes.add@FULL_SHA256 \
   --target NAMESPACE/GROUP/HOST --enrollment-id ENROLLMENT_ID \
   --request-id YOUR_STABLE_REQUEST_ID --inputs inputs.json
-dreamlake runnable receipt NAMESPACE/RUN_ID
+dl runnable receipt NAMESPACE/RUN_ID
 ```
 
 The immutable version must bind an authorized repository, source file, and
 matching entrypoint. This executor rejects registry snapshot bindings and does
 not deliver a complete repo, install project dependencies, or execute agents.
 Retain the same request ID and inputs when recovering an uncertain submission.
-Inspect `dreamlake runnable run --help` for its supported runtime.
+Inspect `dl runnable run --help` for its supported runtime.

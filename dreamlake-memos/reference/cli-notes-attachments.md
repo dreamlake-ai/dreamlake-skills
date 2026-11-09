@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.112.0 0d1fe91; do not edit -->
 
 # Attachments
 
@@ -13,10 +13,10 @@ when needed.
 
 ```bash
 MEMO_ID=release-plan
-dreamlake memos files upload ./report.html --note "$MEMO_ID"
-dreamlake memos files upload ./chart.png --path assets/chart.png --note "$MEMO_ID"
-dreamlake memos files cat config.json --note "$MEMO_ID"
-dreamlake memos files download report.html --note "$MEMO_ID" -o ./downloaded-report.html
+dl memos files upload ./report.html --note "$MEMO_ID"
+dl memos files upload ./chart.png --path assets/chart.png --note "$MEMO_ID"
+dl memos files cat config.json --note "$MEMO_ID"
+dl memos files download report.html --note "$MEMO_ID" -o ./downloaded-report.html
 ```
 
 Uploads and downloads preserve bytes. `cat` refuses binary content; use
@@ -24,22 +24,22 @@ Uploads and downloads preserve bytes. `cat` refuses binary content; use
 Existing paths require explicit `--overwrite` where supported.
 
 ```bash cli-help="memos files list"
-dreamlake memos files list --note release-plan
-dreamlake memos files list 'assets/*.png' --note release-plan --limit 50
-dreamlake memos files list --note release-plan --json
+dl memos files list --note release-plan
+dl memos files list 'assets/*.png' --note release-plan --limit 50
+dl memos files list --note release-plan --json
 ```
 
 ## Upload inline media and return its URL
 
-Check `dreamlake memos media upload --help` for availability. Requires CLI 0.37.0 or later. If unavailable in your installed CLI, use the
+Check `dl memos media upload --help` for availability. Requires CLI 0.37.0 or later. If unavailable in your installed CLI, use the
 [HTTP upload example](https://docs.dreamlake.ai/notes/files/#get-an-image-url-for-markdown-or-html)
 with a valid API bearer token.
 
-After `dreamlake login`, upload an image and print only its embeddable URL:
+After `dl login`, upload an image and print only its embeddable URL:
 
 ```bash cli-help="memos media upload"
-dreamlake memos media upload ./diagram.png
-IMAGE_URL=$(dreamlake memos media upload ./diagram.png)
+dl memos media upload ./diagram.png
+IMAGE_URL=$(dl memos media upload ./diagram.png)
 ```
 
 Choose one of those commands: each invocation uploads a new media object.
@@ -56,7 +56,7 @@ printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the im
 ```
 
 To append the Markdown to an existing memo, set `MEMO_ID` to its ID and run
-`dreamlake memos append "$MEMO_ID" --file image.md`. Uploading media alone
+`dl memos append "$MEMO_ID" --file image.md`. Uploading media alone
 does not edit a memo. Use Markdown for the Memos body; HTML markup is for an
 HTML document. Keep the returned media URL, not its temporary storage redirect.
 
@@ -70,10 +70,10 @@ returns a viewer page, not an image `src`. Media uploads are not included in
 ## Manage files
 
 ```bash
-dreamlake memos files mv old.txt new.txt --note "$MEMO_ID"
-dreamlake memos files cp report.html report-copy.html --note "$MEMO_ID"
-dreamlake memos files rm old.txt --note "$MEMO_ID"
-dreamlake memos files list --trashed --note "$MEMO_ID"
+dl memos files mv old.txt new.txt --note "$MEMO_ID"
+dl memos files cp report.html report-copy.html --note "$MEMO_ID"
+dl memos files rm old.txt --note "$MEMO_ID"
+dl memos files list --trashed --note "$MEMO_ID"
 ```
 
 `rm` moves a file to trash. Use `files restore --help` to restore the returned
@@ -96,11 +96,11 @@ For text writes and copies only, supply a stable printable ASCII key (1–256 by
 without surrounding spaces for one exact request. The CLI passes it unchanged and never automatically retries.
 
 ```bash cli-help="memos files write"
-dreamlake memos files write config.json --text '{"enabled":true}' --note "$MEMO_ID" --idempotency-key config-initial-1
+dl memos files write config.json --text '{"enabled":true}' --note "$MEMO_ID" --idempotency-key config-initial-1
 ```
 
 ```bash cli-help="memos files cp"
-dreamlake memos files cp config.json config-copy.json --note "$MEMO_ID" --idempotency-key config-copy-1
+dl memos files cp config.json config-copy.json --note "$MEMO_ID" --idempotency-key config-copy-1
 ```
 
 A response supplies an operation ID on stderr, or as an additive `operationId`
@@ -113,11 +113,11 @@ or this journal recovery contract; media upload is also outside this scope.
 
 ```bash cli-help="memos files status"
 # OPERATION_ID is the ID from the original response.
-dreamlake memos files status "$OPERATION_ID" --note "$MEMO_ID" --json
+dl memos files status "$OPERATION_ID" --note "$MEMO_ID" --json
 ```
 
 ```bash cli-help="memos files reconcile"
-dreamlake memos files reconcile "$OPERATION_ID" --note "$MEMO_ID" --json
+dl memos files reconcile "$OPERATION_ID" --note "$MEMO_ID" --json
 ```
 
 Status is read-only. Reconcile verifies original staged bytes and may publish the
@@ -128,7 +128,7 @@ An unconfirmed outcome stays unresolved:404 from storage, elapsed time and a
 failed request do not establish that an upload cannot arrive later.
 
 ```bash cli-help="memos files cancel"
-dreamlake memos files cancel "$OPERATION_ID" --note "$MEMO_ID" --json
+dl memos files cancel "$OPERATION_ID" --note "$MEMO_ID" --json
 ```
 
 Cancel is available only while admitted, before upload authorization. It retains
@@ -140,15 +140,15 @@ These commands do not transfer a Memo, grant access or complete storage recovery
 ## Preview and share
 
 ```bash
-dreamlake memos files preview report.html --note "$MEMO_ID" --open
+dl memos files preview report.html --note "$MEMO_ID" --open
 ```
 
 The default preview requires sign-in. HTML renders on a separate origin from
 the dashboard. To deliberately create or withdraw a public preview link:
 
 ```bash
-dreamlake memos files preview report.html --note "$MEMO_ID" --share
-dreamlake memos files preview report.html --note "$MEMO_ID" --revoke
+dl memos files preview report.html --note "$MEMO_ID" --share
+dl memos files preview report.html --note "$MEMO_ID" --revoke
 ```
 
 A shared link opens without sign-in and does not expire. Revoking it withdraws

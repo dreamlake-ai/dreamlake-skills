@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/registered-udf.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/registered-udf.md at 0.112.0 0d1fe91; do not edit -->
 
 # Execute a registered Python UDF
 
@@ -51,7 +51,7 @@ The Python adapter rechecks the selected module before evaluating it.
 ```
 
 ```bash cli-help="runnable run"
-dreamlake runnable run udf/NAMESPACE/NAME@FULL_SHA256 \
+dl runnable run udf/NAMESPACE/NAME@FULL_SHA256 \
   --target NAMESPACE/GROUP/HOST --enrollment-id ENROLLMENT_ID \
   --request-id YOUR_STABLE_REQUEST_ID --inputs inputs.json --json
 ```
@@ -68,7 +68,7 @@ the accepted receipt reference before waiting. `--no-wait` returns after submiss
 a client wait timeout does not cancel or establish failure of the workload.
 
 ```bash cli-help="runnable receipt"
-dreamlake runnable receipt NAMESPACE/RUN_ID --json
+dl runnable receipt NAMESPACE/RUN_ID --json
 ```
 
 Receipt retrieval reads only the owned run and retained output, so it works

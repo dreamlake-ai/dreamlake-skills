@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Libraries Reference
 
@@ -153,7 +153,7 @@ curl "$API/namespaces/acme/libraries/gso/manifest" \
 
 `revision` on the catalog row is the cache key: re-read the manifest only
 when it changed. From the CLI this whole check is one command —
-`dreamlake library stat acme/gso --asset <id> -o ./scene/assets` — exit 0
+`dl library stat acme/gso --asset <id> -o ./scene/assets` — exit 0
 means the pull can be skipped. (`push --dry-run` remains the
 authoring-direction diff: local tree as truth, member token required.)
 
@@ -174,7 +174,7 @@ also answers `unknown_path` rather than a URL that would 404).
 
 ## The write path
 
-Three calls, member JWT required. The CLI (`dreamlake library push`) is the
+Three calls, member JWT required. The CLI (`dl library push`) is the
 reference client.
 
 1. **`POST …/libraries/:name/upload-authorizations`** — body
@@ -306,20 +306,20 @@ usable sidecar are keyword-only — the search envelope says so via
 `semantic: false`.
 
 `dreamlake` ≥ 0.25.0 writes the SigLIP2 id by default, and
-`dreamlake library push --embed --model <name>` selects the encoder
+`dl library push --embed --model <name>` selects the encoder
 explicitly (`siglip2` · `clip` · a raw `open_clip` name).
 
 ## CLI equivalents
 
 | Task | Command | Machine output |
 |---|---|---|
-| Survey | `dreamlake library list --all` | `--json` — the HTTP body, verbatim |
-| Search | `dreamlake library search "mug" --library acme/gso [--license …] [--offset …]` | `--json` — the raw search response; scope memos go to stderr |
-| Summarize / inspect | `dreamlake library info acme/gso [--asset <id>]` | `--json` — client-computed library summary, or one asset's card incl. its closure digest |
-| Verify freshness | `dreamlake library stat acme/gso [--asset <id>] -o <dir>` | `--json`; exit 0 = up-to-date, 1 = stale/absent |
-| Pull | `dreamlake library pull acme/gso [--asset <id>] -o <dir>` — incremental: byte-identical local files are skipped | `--json` |
-| Remote edit | `dreamlake library add acme/gso ./asset-dir [--replace]` · `dreamlake library rm acme/gso <id…>` | `--json` |
-| Authoring diff | `dreamlake library push <dir> --dry-run` (local tree as truth; member token) | `--json` |
+| Survey | `dl library list --all` | `--json` — the HTTP body, verbatim |
+| Search | `dl library search "mug" --library acme/gso [--license …] [--offset …]` | `--json` — the raw search response; scope memos go to stderr |
+| Summarize / inspect | `dl library info acme/gso [--asset <id>]` | `--json` — client-computed library summary, or one asset's card incl. its closure digest |
+| Verify freshness | `dl library stat acme/gso [--asset <id>] -o <dir>` | `--json`; exit 0 = up-to-date, 1 = stale/absent |
+| Pull | `dl library pull acme/gso [--asset <id>] -o <dir>` — incremental: byte-identical local files are skipped | `--json` |
+| Remote edit | `dl library add acme/gso ./asset-dir [--replace]` · `dl library rm acme/gso <id…>` | `--json` |
+| Authoring diff | `dl library push <dir> --dry-run` (local tree as truth; member token) | `--json` |
 
 The pull verifies every file against its manifest sha256 and materializes
 original relative paths; `--all` adds platform artifacts. See the

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/machine-auth.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/machine-auth.md at 0.112.0 0d1fe91; do not edit -->
 
 # Machine authentication
 
@@ -14,15 +14,15 @@ window and single-use nonces, bound to the configured deployment audience.
 ## Inspect and select an identity
 
 ```bash cli-help="machine"
-dreamlake machine self
-dreamlake machine host 0123456789abcdef01234567
-dreamlake machine project 0123456789abcdef01234567
+dl machine self
+dl machine host 0123456789abcdef01234567
+dl machine project 0123456789abcdef01234567
 ```
 
 ```bash cli-help="auth identity"
-dreamlake auth identity
-dreamlake --identity machine profile
-dreamlake --identity user profile
+dl auth identity
+dl --identity machine profile
+dl --identity user profile
 ```
 
 `~/.config/dreamlake/machine.json` selects the machine by default when present.
@@ -33,10 +33,10 @@ selects a process and its children. Managed background agents set the latter to
 which credentials the process uses; it never grants additional backend authority.
 A broken machine configuration fails closed and never falls back to a human token.
 
-`dreamlake login` reuses the existing browser/device flow and writes only personal
+`dl login` reuses the existing browser/device flow and writes only personal
 `~/.dreamlake` files. `logout` and `auth env use` also affect only personal files.
 Use separate Unix accounts for concurrent human users. To inspect personal
-access after login, use `dreamlake --identity user profile`. Machine configuration
+access after login, use `dl --identity user profile`. Machine configuration
 and keys are not written by login, logout or environment switching.
 
 The initial signed surface supports identity and explicitly granted host/project
@@ -67,8 +67,8 @@ into the other. Do not copy personal tokens or a shared fleet key into this file
 
 The CLI reloads the protected key for each request. Nymph's existing key rotation
 and overlap deadline remain authoritative. Revoke the service account with
-`dreamlake --identity user service-accounts revoke namespace/ACCOUNT_ID`; verify
-that `dreamlake machine self` now fails. A pending control-plane revocation must
+`dl --identity user service-accounts revoke namespace/ACCOUNT_ID`; verify
+that `dl machine self` now fails. A pending control-plane revocation must
 be retried and is not proof of remote shutdown. Offline identity inspection is
 not authentication success: machine profile requires an authenticated API reply.
 

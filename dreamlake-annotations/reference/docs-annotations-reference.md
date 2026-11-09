@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations/reference.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations/reference.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Annotations Reference
 
@@ -194,7 +194,7 @@ The preset subclasses the generic `Annotation` and registers its schemaType:
 
 | param | meaning |
 | --- | --- |
-| `name` | platform mode: catalog entry + managed bucket (needs `dreamlake login` / `DREAMLAKE_API_KEY`). Accepts `namespace/name` |
+| `name` | platform mode: catalog entry + managed bucket (needs `dl login` / `DREAMLAKE_API_KEY`). Accepts `namespace/name` |
 | `backend` | self-hosted mode: `file:///abs/path` or `https://…` S3 URL — no platform involved |
 | `visibility` | `"private"` (default) / `"public"`; public annotations omit absolute source paths from metadata |
 | `preview_height` / `preview_fps` / `frag_seconds` | the **encoding profile** — playback resolution, frame rate, and fragment length. Chosen once, for the annotation's lifetime, stored in the space meta. Per-episode calls never pass encoding |

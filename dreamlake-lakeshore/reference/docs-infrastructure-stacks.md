@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/infrastructure-stacks.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/infrastructure-stacks.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Infrastructure stacks
 
@@ -277,16 +277,16 @@ state, so review the destination's grants before moving. A state lock, name or
 path collision, cross-Project runbook binding, or incompatible Bindr membership blocks the operation.
 
 ```bash
-dreamlake infra status "$STACK_ID"
-dreamlake infra move "$STACK_ID" \
+dl infra status "$STACK_ID"
+dl infra move "$STACK_ID" \
   --namespace acme --project infrastructure-archive \
   --dry-run --out stack-move-review.json
 
 # Inspect executable, blockers, source/destination and the saved request.
 # Execute the same reviewed intent once, within the authorized scope.
-dreamlake infra move "$STACK_ID" \
+dl infra move "$STACK_ID" \
   --request-file stack-move-review.json --confirm
-dreamlake infra status "$STACK_ID"
+dl infra status "$STACK_ID"
 ```
 
 Omitting `--destination-path` preserves the current path. To choose a new location,

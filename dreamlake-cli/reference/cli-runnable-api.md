@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/runnable-api.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/runnable-api.md at 0.112.0 0d1fe91; do not edit -->
 
 # Runnable registry API
 
@@ -61,9 +61,9 @@ Keep these receipt types distinct:
 
 | Execution path | Identity / evidence |
 | --- | --- |
-| `dreamlake launch` | Queue invocation ID; placement requests a queue. |
-| `dreamlake run --target` | Managed host-run receipt; selects a host and exact enrollment when required. |
-| `dreamlake jobs register/report` | External job observation; not proof that DreamLake launched or verified the process. |
+| `dl launch` | Queue invocation ID; placement requests a queue. |
+| `dl run --target` | Managed host-run receipt; selects a host and exact enrollment when required. |
+| `dl jobs register/report` | External job observation; not proof that DreamLake launched or verified the process. |
 | Provider worker provisioning | Durable provisioning request; acceptance is not workload readiness. |
 
 A future unified execution receipt needs `execution_kind`, typed linked IDs,

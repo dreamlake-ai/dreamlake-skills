@@ -1,8 +1,8 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.112.0 0d1fe91; do not edit -->
 
 # Terminal sessions
 
-CLI **0.74.1 or later** provides `dreamlake sessions`, which shares saved terminal
+CLI **0.74.1 or later** provides `dl sessions`, which shares saved terminal
 descriptors with the DreamLake Sessions page. The matching `terminal-sessions`
 API and terminal gateway Codex launch support are required. Updating the CLI
 does not deploy those server capabilities.
@@ -33,18 +33,18 @@ Use `--visibility private` when creating/registering/syncing new sessions. This
 option affects new records only. To change an existing session explicitly:
 
 ```bash cli-help="sessions visibility"
-dreamlake sessions visibility <saved-id> --namespace <personal-namespace> --visibility private
+dl sessions visibility <saved-id> --namespace <personal-namespace> --visibility private
 ```
 
 Register a native Codex/Claude UUID without a host, gateway, or terminal process:
 
 ```bash cli-help="sessions register"
-dreamlake sessions register --provider codex --session <native-uuid> --cwd /absolute/repository --json
+dl sessions register --provider codex --session <native-uuid> --cwd /absolute/repository --json
 # Explicit private override for a new registration:
-dreamlake sessions register --provider claude --session <native-uuid> --cwd /absolute/repository --visibility private --json
+dl sessions register --provider claude --session <native-uuid> --cwd /absolute/repository --visibility private --json
 # From inside a Claude Code session: register it, print the saved ID and the control send recipe,
 # and write an env file other shells can source so their note/artifact writes link to it:
-dreamlake sessions register --provider claude --session "${CLAUDE_SESSION_ID:-$CLAUDE_CODE_SESSION_ID}" --cwd "$PWD" --visibility private --write-env "$HOME/.dreamlake/sessions/current.env"
+dl sessions register --provider claude --session "${CLAUDE_SESSION_ID:-$CLAUDE_CODE_SESSION_ID}" --cwd "$PWD" --visibility private --write-env "$HOME/.dreamlake/sessions/current.env"
 ```
 
 This returns a **saved descriptor ID**, distinct from the native UUID. Registration
@@ -59,7 +59,7 @@ without one, `--permission` on `send` notwithstanding — then plain
 `control send` / `control status`) and, with `--write-env <path>`, the file it wrote:
 `export DREAMLAKE_TERMINAL_SESSION_ID='…'` and `export
 DREAMLAKE_SESSION_NAMESPACE='…'` (exported, so `source`-ing it hands the pair to
-every `dreamlake` process that shell starts), mode 600, the explicit
+every `dl` process that shell starts), mode 600, the explicit
 saved-session context described below. The
 [`/dreamlake` Claude Code skill](https://cli.dreamlake.ai/dev/claude-code-skill) wraps exactly this
 command.
@@ -99,21 +99,21 @@ keep an orange lock visible in lists, details and session navigation.
 
 ```bash cli-help="claude"
 # Interactive Claude Code, registered private before it starts, acceptEdits (workspace-write):
-dreamlake claude
+dl claude
 # One headless turn at plan level; everything after the wrapper's flags goes to claude unchanged:
-dreamlake claude --permission read-only -p "Summarize the open PRs" --model opus
+dl claude --permission read-only -p "Summarize the open PRs" --model opus
 ```
 
 ```bash cli-help="codex"
-dreamlake codex --permission full-access "Fix the failing test"
+dl codex --permission full-access "Fix the failing test"
 ```
 
-`dreamlake claude …` mints the native session UUID, registers it
+`dl claude …` mints the native session UUID, registers it
 (`sessions register`, idempotent, private by default) **before** Claude Code
 starts, writes the env file `~/.dreamlake/sessions/<uuid>.env`, and runs
 `claude --session-id <uuid> --permission-mode <mode> …` with
 `DREAMLAKE_TERMINAL_SESSION_ID` / `DREAMLAKE_SESSION_NAMESPACE` exported, so
-every `dreamlake` call the session makes links to it and the
+every `dl` call the session makes links to it and the
 [hook relay](https://cli.dreamlake.ai/dev/claude-code-hooks) finds it without a lookup. `--permission`
 maps `read-only` / `workspace-write` (default) / `full-access` onto `plan` /
 `acceptEdits` / `bypassPermissions` (Codex: `--sandbox read-only` /
@@ -132,7 +132,7 @@ the provider exits the wrapper beats `stopped`, uploads the transcript
 retry) and exits with the provider's exit code. Before the launch, stderr
 names the saved session and the recipe that lets a runner message it (below).
 
-`dreamlake codex …` cannot register first: Codex has no `--session-id` and
+`dl codex …` cannot register first: Codex has no `--session-id` and
 names its thread only in its own rollout file. The wrapper runs
 `codex -C <cwd> --sandbox <mode> …`, then adopts the **one** rollout created in
 this directory at or after the moment the launch began (a rollout from before
@@ -140,7 +140,7 @@ it, however recent, is another session's), registers it, writes its env file
 and uploads the transcript; with none it reports `no rollout created`, with
 several it names them, and in both cases registers nothing and prints the
 `sessions register --provider codex --session <thread-id>` line to run by
-hand. Inside the session, `dreamlake` calls link through the
+hand. Inside the session, `dl` calls link through the
 `CODEX_THREAD_ID` Codex sets. Both wrappers start the provider in a clean
 environment: an inherited `DREAMLAKE_TERMINAL_SESSION_ID` /
 `DREAMLAKE_SESSION_NAMESPACE` pair (a sourced env file, a parent agent
@@ -165,7 +165,7 @@ custom Claude configuration root. `--codex-session` remains the Codex-compatible
 UUID option. The default provider is Codex.
 
 ```bash
-dreamlake sessions create --provider claude --session <uuid> --target <target-id> --cwd /absolute/repository --namespace geyang
+dl sessions create --provider claude --session <uuid> --target <target-id> --cwd /absolute/repository --namespace geyang
 ```
 
 The descriptor reports the agent tool separately from `modelProvider`. Its
@@ -185,19 +185,19 @@ Linking requires resource write access and session read access. Every list check
 both permissions again; sharing a resource does not share its terminal.
 
 ```bash cli-help="sessions link"
-dreamlake sessions link SESSION_ID --namespace geyang \
+dl sessions link SESSION_ID --namespace geyang \
   --resource-namespace fortyfive --note MEMO_ID --json
-dreamlake sessions link SESSION_ID --namespace geyang \
+dl sessions link SESSION_ID --namespace geyang \
   --resource-namespace fortyfive --artifact loss-plot --json
 ```
 
 ```bash cli-help="sessions unlink"
-dreamlake sessions unlink SESSION_ID --namespace geyang \
+dl sessions unlink SESSION_ID --namespace geyang \
   --resource-namespace fortyfive --artifact loss-plot --json
 ```
 
 ```bash cli-help="sessions resources"
-dreamlake sessions resources SESSION_ID --namespace geyang --page-size 25 --json
+dl sessions resources SESSION_ID --namespace geyang --page-size 25 --json
 ```
 
 `resources` returns bounded pages (maximum 50); continue with its `nextCursor`.
@@ -213,7 +213,7 @@ session identity. Explicit `DREAMLAKE_SESSION_ID` plus
 identities are not guessed. New attribution-only records start private, with no
 launch target or transcript upload. Existing session visibility is preserved.
 
-Use `dreamlake memos contributors NOTE --json` to distinguish server-observed
+Use `dl memos contributors NOTE --json` to distinguish server-observed
 `created`/`edited` evidence from a manually linked session (`contribution: null`).
 No-op and failed edits, reads and presence announcements do not become contributions.
 The new CLI does not issue a second Memo link request after content writes.
@@ -235,12 +235,12 @@ existing enrolled-host terminal access as the web page; it creates no machines,
 enrollments, or permissions.
 
 ```bash cli-help="sessions"
-dreamlake sessions targets --namespace geyang
-dreamlake sessions list --namespace geyang
+dl sessions targets --namespace geyang
+dl sessions list --namespace geyang
 ```
 
 ```bash cli-help="sessions targets"
-dreamlake sessions targets --namespace geyang --json
+dl sessions targets --namespace geyang --json
 ```
 
 Choose `--target` from the returned inventory. Its exact enrollment is discovered
@@ -253,7 +253,7 @@ be saved as a session. Re-enrollment does not silently retarget saved sessions.
 This is the terminal equivalent of selecting a saved session in the web page:
 
 ```bash cli-help="sessions resume"
-dreamlake sessions resume 01a13cbc-d4a7-7893-81cc-39696769c454 \
+dl sessions resume 01a13cbc-d4a7-7893-81cc-39696769c454 \
   --namespace geyang --target TARGET_ID \
   --cwd /home/ubuntu/workspace-3
 ```
@@ -302,7 +302,7 @@ ticket. `resume --json` explicitly **saves only** and reports `executed: false`.
 ## Save and reopen
 
 ```bash cli-help="sessions create"
-dreamlake sessions create --namespace geyang \
+dl sessions create --namespace geyang \
   --target TARGET_ID \
   --cwd /home/ubuntu/workspace-3 \
   --codex-session 01a13cbc-d4a7-7893-81cc-39696769c454 \
@@ -314,15 +314,15 @@ target/enrollment, working directory, and conversation inputs resolve to the
 existing descriptor. A successful registration alone is not execution proof.
 
 ```bash cli-help="sessions list"
-dreamlake sessions list --namespace geyang --json
+dl sessions list --namespace geyang --json
 ```
 
 ```bash cli-help="sessions show"
-dreamlake sessions show SESSION_ID --namespace geyang --json
+dl sessions show SESSION_ID --namespace geyang --json
 ```
 
 ```bash cli-help="sessions open"
-dreamlake sessions open SESSION_ID --namespace geyang
+dl sessions open SESSION_ID --namespace geyang
 ```
 
 `list` and `show` read saved metadata, not live process state. The terminal service
@@ -335,7 +335,7 @@ The following commands require CLI **0.75.0 or later** and the matching
 managed-session gateway. CLI 0.74.3 and earlier do not provide them.
 
 ```bash cli-help="sessions status"
-dreamlake sessions status SESSION_ID --namespace geyang --json
+dl sessions status SESSION_ID --namespace geyang --json
 ```
 
 `status` reads the saved descriptor first (`/terminal-sessions/:id/metadata`)
@@ -355,7 +355,7 @@ succeeds. `list` and `show` remain saved metadata only. A status response is a
 timestamped observation; `sessions watch` is the continuous view.
 
 ```bash cli-help="sessions start"
-dreamlake sessions start SESSION_ID --namespace geyang --json
+dl sessions start SESSION_ID --namespace geyang --json
 ```
 
 When tmux is available, `start` explicitly starts the agent in detached, managed
@@ -371,7 +371,7 @@ If Codex exits immediately, `start` reports its observed state and exits nonzero
 `open` declines the attachment. Use `status` to inspect the retained pane state.
 
 ```bash cli-help="sessions reconnect"
-dreamlake sessions reconnect SESSION_ID --namespace geyang
+dl sessions reconnect SESSION_ID --namespace geyang
 ```
 
 `reconnect` requires a terminal and attaches only to an existing live runtime.
@@ -380,7 +380,7 @@ detaches while keeping the process running. If a start or stop request loses
 its response, inspect `status` before retrying.
 
 ```bash cli-help="sessions stop"
-dreamlake sessions stop SESSION_ID --namespace geyang --yes --json
+dl sessions stop SESSION_ID --namespace geyang --yes --json
 ```
 
 `stop` ends the managed remote program and disconnects all its viewers. It first
@@ -408,8 +408,8 @@ Use explicit `sync` to discover and register recent conversations without openin
 a terminal or sending any input to Codex:
 
 ```bash cli-help="sessions sync"
-dreamlake sessions sync --namespace geyang --target TARGET_ID --json
-dreamlake sessions sync --namespace geyang --all --json
+dl sessions sync --namespace geyang --target TARGET_ID --json
+dl sessions sync --namespace geyang --all --json
 ```
 
 Choose exactly one `--target` or `--all`. One invocation reads at most one page
@@ -443,9 +443,9 @@ refresh, search, and listing never trigger discovery.
 The matching registry supports bounded pagination and saved-metadata filtering:
 
 ```bash
-dreamlake sessions list --namespace geyang --sort recent --page-size 50 --json
-dreamlake sessions list --namespace geyang --sort recent --page-size 50 --cursor CURSOR --json
-dreamlake sessions list --namespace geyang --query workspace --machine MACHINE_ID --json
+dl sessions list --namespace geyang --sort recent --page-size 50 --json
+dl sessions list --namespace geyang --sort recent --page-size 50 --cursor CURSOR --json
+dl sessions list --namespace geyang --query workspace --machine MACHINE_ID --json
 ```
 
 Registry and discovery cursors are different. Continue registry pages with the
@@ -464,9 +464,9 @@ must identify a trusted gateway and its configured allowed web origin. Custom
 environment tokens are never sent to the production gateway implicitly.
 
 ```bash
-dreamlake sessions targets --namespace alice \
+dl sessions targets --namespace alice \
   --gateway https://terminal.example.com --origin https://app.example.com
-dreamlake sessions open SESSION_ID --namespace alice \
+dl sessions open SESSION_ID --namespace alice \
   --gateway https://terminal.example.com --origin https://app.example.com
 ```
 
@@ -484,7 +484,7 @@ CLI 0.79.0 adds conversation archives to the session affiliations introduced in
 Select an exact export to upload its readable conversation text:
 
 ```bash cli-help="sessions upload-conversation"
-dreamlake sessions upload-conversation SESSION_ID --namespace geyang \
+dl sessions upload-conversation SESSION_ID --namespace geyang \
   --file /absolute/path/to/conversation.jsonl --json
 ```
 
@@ -550,10 +550,10 @@ Session list/search defaults to your personal namespace. Scope never widens
 merely because a query has no matches. Explicit examples:
 
 ```bash
-dreamlake sessions list --query RTC
-dreamlake sessions list --owner geyang --query RTC
-dreamlake sessions list --team fortyfive --query RTC
-dreamlake sessions list --scope available --query RTC
+dl sessions list --query RTC
+dl sessions list --owner geyang --query RTC
+dl sessions list --team fortyfive --query RTC
+dl sessions list --scope available --query RTC
 ```
 
 `--scope mine` cannot combine with `--owner` or `--team`. Owner is an exact personal

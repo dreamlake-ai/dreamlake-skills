@@ -1,28 +1,28 @@
-<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.112.0 0d1fe91; do not edit -->
 
 # Create and find memos
 
 ## Quick start
 
-Log in with `dreamlake login`. Core examples require **CLI 0.29.0+** and a
+Log in with `dl login`. Core examples require **CLI 0.29.0+** and a
 compatible server; individual guides state newer feature requirements.
-Check your installed version with `dreamlake --version`.
+Check your installed version with `dl --version`.
 
 Before an agent's first live read or edit, [set its task identity](cli-notes-collaboration.md#one-identity-per-task).
 Set both `DREAMLAKE_AGENT_ID` and `DREAMLAKE_AGENT_NAME` and reuse them for the task.
 
 ```bash cli-help="memos"
 # Find a note and read it directly.
-dreamlake memos search "release plan"
-dreamlake memos read release-plan
+dl memos search "release plan"
+dl memos read release-plan
 
 # Preview a unique wording change, apply it, then read back.
-dreamlake memos replace "Draft checklist" --text "Ready for review" --note release-plan --dry-run
-dreamlake memos replace "Draft checklist" --text "Ready for review" --note release-plan
-dreamlake memos read release-plan
+dl memos replace "Draft checklist" --text "Ready for review" --note release-plan --dry-run
+dl memos replace "Draft checklist" --text "Ready for review" --note release-plan
+dl memos read release-plan
 
 # Create a private note from a Markdown file.
-dreamlake memos create "Release plan" --file release-plan.md
+dl memos create "Release plan" --file release-plan.md
 
 # Cross-interface design (unreleased target APIs; verify installed --help):
 # https://docs.dreamlake.ai/notes/api/
@@ -35,10 +35,10 @@ For an edit prepared from an older snapshot, use a [patch with the original
 baseline revision](cli-notes-editing.md).
 
 ```bash cli-help="memos list"
-dreamlake memos list --limit 10
-dreamlake memos list --shared
-dreamlake memos list --namespace acme
-dreamlake memos list --include-archived
+dl memos list --limit 10
+dl memos list --shared
+dl memos list --namespace acme
+dl memos list --include-archived
 ```
 `--ns` is an alias of `--namespace` on every Memos command; both are the source
 namespace to look in, never a destination. `--offset N` pages by rows
@@ -47,9 +47,9 @@ namespace to look in, never a destination. `--offset N` pages by rows
 memo; the TypeScript facade (`dl.notes(noteId)`) discovers the owner itself.
 
 ```bash cli-help="memos search"
-dreamlake memos search "release plan"
-dreamlake memos search deploy --namespace acme --json
-dreamlake memos search deploy --include-archived
+dl memos search "release plan"
+dl memos search deploy --namespace acme --json
+dl memos search deploy --include-archived
 ```
 
 The default namespace is personal. Add `--namespace acme` for an organization's
@@ -62,28 +62,28 @@ Search matches titles and indexed bodies by case-insensitive substring.
 ## Create or follow a memo
 
 ```bash cli-help="memos create"
-dreamlake memos create "Release plan" --text "Draft checklist"
-printf '# Release plan\n' | dreamlake memos create "Release plan" --file - --json
+dl memos create "Release plan" --text "Draft checklist"
+printf '# Release plan\n' | dl memos create "Release plan" --file - --json
 ```
-The title is optional: `dreamlake memos create --ns your-workspace` creates an
+The title is optional: `dl memos create --ns your-workspace` creates an
 empty memo named `Untitled`; `--file -` reads the initial source from stdin.
 
 New memos are private unless you pass `--public`. Repeated titles get distinct
 slugs; keep the returned ID. Use a file or `printf` for multiline text.
 
 ```bash cli-help="memos read"
-dreamlake memos read release-plan
+dl memos read release-plan
 # Inspect source with generated address hints; do not write the hints back.
-dreamlake memos read release-plan --view markdown
+dl memos read release-plan --view markdown
 # Preserve exact source plus revision/hash for a programmatic edit baseline.
-dreamlake memos read release-plan --json > baseline.json
-dreamlake memos read release-plan --since "10 minutes ago" --format diff
+dl memos read release-plan --json > baseline.json
+dl memos read release-plan --since "10 minutes ago" --format diff
 # Detailed read design (unreleased target syntax):
 # https://docs.dreamlake.ai/notes/api/reading/
 # Reuse a stable agent identity for this task.
 export DREAMLAKE_AGENT_ID=release-reviewer-a
 export DREAMLAKE_AGENT_NAME="Release reviewer A"
-dreamlake memos read release-plan --linger
+dl memos read release-plan --linger
 # Ctrl-C stops following.
 ```
 

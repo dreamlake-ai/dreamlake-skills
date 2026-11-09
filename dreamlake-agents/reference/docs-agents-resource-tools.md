@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Resource APIs in the built-in agent
 

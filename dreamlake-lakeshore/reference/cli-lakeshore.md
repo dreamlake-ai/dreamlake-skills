@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/lakeshore.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/lakeshore.md at 0.112.0 0d1fe91; do not edit -->
 
 # Lakeshore resources
 
@@ -13,16 +13,16 @@ same five verbs and differ only in the noun.
 
 | Group | What a row describes |
 | --- | --- |
-| `dreamlake provider` | **how a machine gets launched** — the launcher and its credentials |
-| `dreamlake storage` | **where a worker reads and writes bulk data** |
-| `dreamlake queue-def` | **a queue's policy** — not its live state |
+| `dl provider` | **how a machine gets launched** — the launcher and its credentials |
+| `dl storage` | **where a worker reads and writes bulk data** |
+| `dl queue-def` | **a queue's policy** — not its live state |
 
 ```bash file="terminal"
-dreamlake provider create --file provider.json --if-exists ok
-dreamlake provider list
-dreamlake provider show kit-local
-dreamlake provider update kit-local --description '…'    # config is a REPLACE
-dreamlake provider delete kit-local --yes                # soft delete
+dl provider create --file provider.json --if-exists ok
+dl provider list
+dl provider show kit-local
+dl provider update kit-local --description '…'    # config is a REPLACE
+dl provider delete kit-local --yes                # soft delete
 ```
 
 Every verb takes `--namespace <slug>` (default: the active login) and `--json`.
@@ -36,8 +36,8 @@ it is a free string server-side on purpose, so a new launcher never needs a
 schema change.
 
 ```bash file="terminal"
-dreamlake provider create --name kit-local --kind local --config '{"shell":"bash"}'
-dreamlake provider create --file provider.json --if-exists ok
+dl provider create --name kit-local --kind local --config '{"shell":"bash"}'
+dl provider create --file provider.json --if-exists ok
 ```
 
 | Flag | Meaning |
@@ -58,7 +58,7 @@ you expect to run twice. That is what `--if-exists ok` is for:
 ⚠ a provider named 'kit-local' already exists — nothing was overwritten
 ```
 
-`dreamlake declare provider.json --collection lakeshore-providers` does exactly
+`dl declare provider.json --collection lakeshore-providers` does exactly
 what `provider create` does. `declare` is the generic writer for all five head
 collections; these groups are the lifecycle for one of them.
 
@@ -100,9 +100,9 @@ deliberately did not do the thing" is a success in this CLI, not a failure.
 ## Reading
 
 ```bash file="terminal"
-dreamlake provider list --kind k8s --json
-dreamlake provider list --page 2 --page-size 50
-dreamlake provider show kit-local            # name or 24-hex id
+dl provider list --kind k8s --json
+dl provider list --page 2 --page-size 50
+dl provider show kit-local            # name or 24-hex id
 ```
 
 `list` filters `--kind` server-side, exact match. The server clamps

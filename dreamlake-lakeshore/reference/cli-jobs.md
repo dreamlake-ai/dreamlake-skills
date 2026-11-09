@@ -1,23 +1,23 @@
-<!-- generated from https://cli.dreamlake.ai/jobs.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/jobs.md at 0.112.0 0d1fe91; do not edit -->
 
 # External job tracking
 
-`dreamlake jobs` tracks work launched by another tool. It requires CLI 0.55.0 or later
+`dl jobs` tracks work launched by another tool. It requires CLI 0.55.0 or later
 and a compatible Jobs API. Availability depends on both deployments; this source
 change does not establish production availability. CLI 0.54.1 and earlier do not
 include these commands. Registration does not launch
 work, discover processes, collect output, or grant runner control. Existing
-[`dreamlake run` and `dreamlake runs`](cli-runs.md) remain the managed execution interface.
+[`dl run` and `dl runs`](cli-runs.md) remain the managed execution interface.
 
 ## Register external work
 
-Find the exact host ID with `dreamlake hosts list --namespace geyang --json`.
+Find the exact host ID with `dl hosts list --namespace geyang --json`.
 `--host` accepts only the lowercase 24-character hexadecimal `Host.id`, not a
 host name, enrollment ID, or the illustrative `h_...` IDs in design examples.
 The selected host must be owned and accessible in the selected namespace.
 
 ```bash cli-help="jobs register"
-dreamlake jobs register --namespace geyang --name train-baseline \
+dl jobs register --namespace geyang --name train-baseline \
   --host 0123456789abcdef01234567 --request-id train-baseline-01
 ```
 
@@ -36,10 +36,10 @@ condition. `cancelled` reports cancellation performed elsewhere; it does not sto
 a process. A successful report command exits zero even when reporting `failed`.
 
 ```bash cli-help="jobs report"
-dreamlake jobs report 89abcdef0123456789abcdef --namespace geyang --state running
-dreamlake jobs report 89abcdef0123456789abcdef --namespace geyang \
+dl jobs report 89abcdef0123456789abcdef --namespace geyang --state running
+dl jobs report 89abcdef0123456789abcdef --namespace geyang \
   --state succeeded --exit-code 0
-dreamlake jobs report fedcba9876543210fedcba98 --namespace geyang \
+dl jobs report fedcba9876543210fedcba98 --namespace geyang \
   --state failed --exit-code 7 --message 'Training process exited with an error'
 ```
 
@@ -51,7 +51,7 @@ changed payloads at an existing timestamp, and timestamps more than 60 seconds
 in the future. Seconds or three fractional digits are accepted, always with `Z`.
 
 ```bash
-dreamlake jobs report 89abcdef0123456789abcdef --namespace geyang \
+dl jobs report 89abcdef0123456789abcdef --namespace geyang \
   --state running --reported-at 2026-10-12T12:00:00.000Z --json
 ```
 
@@ -65,9 +65,9 @@ No program output is automatically captured or indexed.
 ## Read reported state and age
 
 ```bash cli-help="jobs list"
-dreamlake jobs list --namespace geyang
-dreamlake jobs list --namespace geyang --host 0123456789abcdef01234567 --state running
-dreamlake jobs list --namespace geyang --page 2 --page-size 50 --json
+dl jobs list --namespace geyang
+dl jobs list --namespace geyang --host 0123456789abcdef01234567 --state running
+dl jobs list --namespace geyang --page 2 --page-size 50 --json
 ```
 
 Lists return one page, with `page`, `pageSize`, `total`, `totalPages`, and `readAt`.
@@ -77,8 +77,8 @@ state filters remain explicit. Access and namespace failures are errors, never
 substituted with an empty list.
 
 ```bash cli-help="jobs status"
-dreamlake jobs status 89abcdef0123456789abcdef --namespace geyang
-dreamlake jobs status 89abcdef0123456789abcdef --namespace geyang --json
+dl jobs status 89abcdef0123456789abcdef --namespace geyang
+dl jobs status 89abcdef0123456789abcdef --namespace geyang --json
 ```
 
 Text labels the **reported state**, last report age, and freshness. Registration

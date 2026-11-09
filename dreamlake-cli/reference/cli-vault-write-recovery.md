@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-write-recovery.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-write-recovery.md at 0.112.0 0d1fe91; do not edit -->
 
 # Vault write recovery
 
@@ -57,12 +57,12 @@ policy.
 
 ```shell
 # Secure producer supplies stdin; the request ID is not a credential.
-secure-secret-producer | dreamlake vault add -p alice -n service --stdin --request-id service-write-001
+secure-secret-producer | dl vault add -p alice -n service --stdin --request-id service-write-001
 # After an uncertain response, inspect metadata without providing the secret:
-dreamlake vault write-status --request-id service-write-001
+dl vault write-status --request-id service-write-001
 # If retry is needed within retention, repeat the identical input/options/ID.
 # A new replacement uses a new ID and the revision from vault show:
-secure-secret-producer | dreamlake vault add -p alice -n service --stdin --if-match 1 --request-id service-write-002
+secure-secret-producer | dl vault add -p alice -n service --stdin --if-match 1 --request-id service-write-002
 ```
 
 ```python

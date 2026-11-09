@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.112.0 0d1fe91; do not edit -->
 
 # Environments
 
@@ -10,35 +10,35 @@ the other.
 ## Log into a built-in environment
 
 ```bash file="terminal"
-dreamlake login --env staging
-dreamlake login --env prod
+dl login --env staging
+dl login --env prod
 ```
 
-`dreamlake login` prints the complete authorization link with the code in its
+`dl login` prints the complete authorization link with the code in its
 query parameters. Open that link to authorize without copying the code manually,
 including when using `--no-browser` on a remote machine. The code is also shown
 as a fallback if prompted.
 
-No `--url` / `--bss` needed — the URLs are baked in. `dreamlake login` with
+No `--url` / `--bss` needed — the URLs are baked in. `dl login` with
 no `--env` re-authenticates the active environment, and falls back to `prod`
 when nothing is logged in yet.
 
 ## Switch environments
 
 ```bash file="terminal"
-dreamlake auth env list           # show logged-in envs (* = active)
-dreamlake auth env use prod       # switch — no URLs, no re-login
-dreamlake auth env remove staging # forget a saved env
+dl auth env list           # show logged-in envs (* = active)
+dl auth env use prod       # switch — no URLs, no re-login
+dl auth env remove staging # forget a saved env
 ```
 
-> **Note:** These lived at `dreamlake env ...` before v0.6; the top-level `env` command
-> is a compatibility alias for `dreamlake scene` (see [Scenes](cli-scenes.md)). For login switching,
-> update scripts to `dreamlake auth env ...`.
+> **Note:** These lived at `dl env ...` before v0.6; the top-level `env` command
+> is a compatibility alias for `dl scene` (see [Scenes](cli-scenes.md)). For login switching,
+> update scripts to `dl auth env ...`.
 
 Every command then targets the active environment — **and so does the
 Python SDK**: switching writes the token and server to `~/.dreamlake`,
 the same files `dreamlake-py` resolves its connection from. One switch
-moves both tools. `dreamlake profile` shows which environment is in
+moves both tools. `dl profile` shows which environment is in
 effect (`[env: prod]`).
 
 The `*` in `auth env list` marks the environment your commands will *actually*
@@ -52,10 +52,10 @@ disappears and a memo explains why.
 resource namespace for subsequent CLI invocations under the current saved login:
 
 ```bash cli-help="su"
-dreamlake su fortyfive
-dreamlake hosts list
-dreamlake hosts list --namespace geyang
-dreamlake su geyang
+dl su fortyfive
+dl hosts list
+dl hosts list --namespace geyang
+dl su geyang
 ```
 
 Use the actual namespace name; `personal` is not a special alias. Selection
@@ -87,8 +87,8 @@ conversation-scoped selection.
 Define a custom environment once with its URLs, then switch by name forever:
 
 ```bash file="terminal"
-dreamlake login --env dev --url https://dev-api.example.com
-dreamlake auth env use dev
+dl login --env dev --url https://dev-api.example.com
+dl auth env use dev
 ```
 
 > **Warning:** The device-flow auth server must be the one your target API trusts. The
@@ -179,7 +179,7 @@ override the directory for tests only.
   until it expires.
 
 ```bash cli-help="logout"
-dreamlake logout --env staging
+dl logout --env staging
 ```
 
 > **Note:** State previously lived at `~/.config/dreamlake`. The first run of a newer
@@ -207,8 +207,8 @@ register a second daemon or automatically migrate a legacy installation. Setup
 failure does not undo successful authentication.
 
 ```bash cli-help="nymph"
-dreamlake nymph
-dreamlake nymph --json
+dl nymph
+dl nymph --json
 ```
 
 The overview keeps three things separate:
@@ -236,17 +236,17 @@ without the separate-policy interface is refused before enrollment grants are
 requested. Configure or upgrade Nymph first when that prerequisite is missing.
 
 ```bash cli-help="nymph setup"
-dreamlake nymph setup --name alice/computers/laptop --lakeshore-id CONNECTION_ID
+dl nymph setup --name alice/computers/laptop --lakeshore-id CONNECTION_ID
 ```
 
 Configuration is managed independently of access:
 
 ```bash cli-help="nymph config"
-dreamlake nymph config --name alice/computers/laptop
+dl nymph config --name alice/computers/laptop
 ```
 
 ```bash cli-help="nymph config set"
-dreamlake nymph config set --name alice/computers/laptop --poll-seconds 30 --max-invocations 4
+dl nymph config set --name alice/computers/laptop --poll-seconds 30 --max-invocations 4
 ```
 
 Use CLI **0.86.1+** when selecting a named enrollment. It honors `--name` on
@@ -259,27 +259,27 @@ They do not change `access.json`. Select a managed enrollment by its full name
 when the automatic `namespace/computers/hostname` name does not apply.
 
 ```bash cli-help="nymph access show"
-dreamlake nymph access show --name alice/computers/laptop
+dl nymph access show --name alice/computers/laptop
 ```
 
 ```bash cli-help="nymph access grant"
-dreamlake nymph access grant upload --name alice/computers/laptop
-dreamlake nymph access grant command-execution --name alice/computers/laptop
+dl nymph access grant upload --name alice/computers/laptop
+dl nymph access grant command-execution --name alice/computers/laptop
 ```
 
 Each grant has its own default-No confirmation. For automation, `--yes` explicitly
 approves only that one permission. Revoke independently:
 
 ```bash cli-help="nymph access revoke"
-dreamlake nymph access revoke upload --name alice/computers/laptop
-dreamlake nymph access revoke command-execution --name alice/computers/laptop
+dl nymph access revoke upload --name alice/computers/laptop
+dl nymph access revoke command-execution --name alice/computers/laptop
 ```
 
 Changes are saved locally and take effect after restarting that enrollment;
 configuration inspection is not evidence of a running process applying them.
 
 ```bash cli-help="nymph restart"
-dreamlake nymph restart --name alice/computers/laptop
+dl nymph restart --name alice/computers/laptop
 ```
 
 The daemon fails closed on missing, malformed, foreign-scope or non-private managed

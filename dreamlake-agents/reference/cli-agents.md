@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/agents.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/agents.md at 0.112.0 0d1fe91; do not edit -->
 
 # Agents
 
@@ -6,7 +6,7 @@ An agent is a **prompt with a name**. Nothing else is required, and an agent
 with nothing else is the normal case, not a degraded one.
 
 ```bash file="terminal"
-dreamlake agents create triage --prompt 'You triage failed runs. Read the
+dl agents create triage --prompt 'You triage failed runs. Read the
 terminal event first, classify the failure, quote the line that decided it.'
 ```
 
@@ -28,12 +28,12 @@ and folders.
 Projects are filed atomically with creation; a failed filing creates no orphan.
 
 ```bash cli-help="agents create"
-dreamlake agents create reviewer --runtime builtin-v1 \
+dl agents create reviewer --runtime builtin-v1 \
   --prompt 'Read the evidence and summarize it with citations.' \
   --tools dreamlake_notes_read --project dreamlake --namespace fortyfive
 
 # Existing Memo/folder IDs; references remain live and are authorized per caller.
-dreamlake agents create researcher --instruction-note "$MAIN_MEMO_ID" \
+dl agents create researcher --instruction-note "$MAIN_MEMO_ID" \
   --skill-note "$SKILL_MEMO_ID" --skill-folder "$SKILLS_FOLDER_ID" \
   --project dreamlake --namespace fortyfive
 ```
@@ -76,11 +76,11 @@ lists and unfiles its project mounts. Conditional edits return a conflict if
 The agent management commands below are available in CLI 0.104.0 and later.
 
 ```bash cli-help="agents list"
-dreamlake agents list --namespace my-workspace
+dl agents list --namespace my-workspace
 # Stable text, even in a terminal; redirected output also defaults to text.
-dreamlake agents list --namespace my-workspace --plain
+dl agents list --namespace my-workspace --plain
 # Prefixes match the beginning of a scoped agent name or registry ID.
-dreamlake agents list --prefix my_repo. --project research
+dl agents list --prefix my_repo. --project research
 ```
 
 On a TTY, use the arrow keys to select an agent and Enter to inspect or edit it.
@@ -91,7 +91,7 @@ The TUI requires both stdin and stdout to be terminals; pipes print a text table
 `--json` explicitly selects JSON and bypasses the TUI.
 
 ```bash cli-help="agents show"
-dreamlake agents show my_repo.tri --namespace my-workspace
+dl agents show my_repo.tri --namespace my-workspace
 ```
 
 A unique name or ID prefix identifies an agent. Exact matches take precedence;
@@ -99,9 +99,9 @@ ambiguous prefixes fail with the matching names. Show prints the complete prompt
 and parameters. Use `--json` for the registry record.
 
 ```bash cli-help="agents edit"
-dreamlake agents edit my_repo.tri --namespace my-workspace
+dl agents edit my_repo.tri --namespace my-workspace
 # Browser form: follow the localhost URL printed by the command.
-dreamlake agents edit my_repo.tri --namespace my-workspace --web
+dl agents edit my_repo.tri --namespace my-workspace --web
 ```
 
 The browser form has separate prompt and YAML parameter fields and a **Save**
@@ -125,9 +125,9 @@ agent, register an immutable version, or publish it.
 Affiliate an agent with one or more existing projects in its namespace:
 
 ```bash
-dreamlake agents create triage --scope my_repo \
+dl agents create triage --scope my_repo \
   --project research --project operations --prompt 'Triage failed runs.'
-dreamlake agents list --project research --plain
+dl agents list --project research --plain
 ```
 
 Agent frontmatter and the parameter editor accept the same list:
@@ -155,7 +155,7 @@ Quote the delimiter — `<<'AGENT'`, not `<<AGENT` — or the shell expands
 `$VARIABLES` and backticks inside your prose before the CLI ever sees it.
 
 ```bash file="terminal"
-dreamlake agents create triage --file - <<'AGENT'
+dl agents create triage --file - <<'AGENT'
 # Run triage
 
 You triage failed invocations. Read the terminal event before the logs — it
@@ -193,7 +193,7 @@ Triage invocation {{ invocation_id }}. Read its terminal event first.
 ### `$EDITOR`, on a scaffold
 
 ```bash file="terminal"
-dreamlake agents create run-triage --edit
+dl agents create run-triage --edit
 ```
 
 Opens a filled-in scaffold and declares whatever you save.
@@ -252,7 +252,7 @@ replaces the file's list wholesale. Rule lists (`allow`, `ask`, `deny`,
 Every property has a flag.
 
 ```bash file="terminal"
-dreamlake agents create run-triage \
+dl agents create run-triage \
   --description 'Triages a failed invocation.' \
   --tools Read,Grep,Bash --model claude-opus-5 \
   --allow 'Read(./runs/**)' --deny 'Bash(rm:*)' \
@@ -307,7 +307,7 @@ you to think in packages. The name is **scoped to the repository you are
 standing in**, so two repos can each hold a `triage` without colliding.
 
 ```text file="output"
-dreamlake agents create triage        # in dreamlake-starter-kit
+dl agents create triage        # in dreamlake-starter-kit
 → agent `triage`, scope `dreamlake_starter_kit`
 ```
 
@@ -322,7 +322,7 @@ Most agents need none. Attach one when the agent has to run somewhere in
 particular — a GPU, a specific image, a prepared host:
 
 ```bash file="terminal"
-dreamlake agents create colmap-driver --file agent.md \
+dl agents create colmap-driver --file agent.md \
   --run-config colmap-docker-gpu --queue colmap-gpu
 ```
 

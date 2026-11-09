@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.112.0 0d1fe91; do not edit -->
 
 # Live collaboration
 
@@ -30,7 +30,7 @@ Exports in one shell tool call do not persist into separate calls. Save the
 initial values in task context and inject the same literal values into every
 later Memos command environment. Never generate a new UUID per command.
 
-After the first intended live read, use `dreamlake memos presence "$MEMO_ID"`
+After the first intended live read, use `dl memos presence "$MEMO_ID"`
 (CLI 0.31.0+) to match the task ID and name in the roster. This command only
 observes presence; it does not join. If absent, check the environment of the
 actual read/edit process before diagnosing a UI regression. Do not repeat a
@@ -47,7 +47,7 @@ SESSION_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')
 export DREAMLAKE_AGENT_ID="codex:$SESSION_ID"
 export DREAMLAKE_AGENT_NAME="Codex"
 MEMO_ID=release-plan
-dreamlake memos read "$MEMO_ID" --linger
+dl memos read "$MEMO_ID" --linger
 ```
 
 Separate tool shells must receive the same saved environment values; an export
@@ -72,7 +72,7 @@ mean the owner is currently present. Recent presence is not proof of attention.
 ## How updates arrive
 
 ```bash
-dreamlake memos read "$MEMO_ID" --linger --debounce 1s --throttle 2s
+dl memos read "$MEMO_ID" --linger --debounce 1s --throttle 2s
 ```
 
 The first snapshot is immediate. Then:
@@ -140,7 +140,7 @@ Use this only when a program needs NDJSON. Ordinary collaboration, including
 coding-agent sessions, should use the text commands above.
 
 ```bash
-dreamlake memos read "$MEMO_ID" --linger --json
+dl memos read "$MEMO_ID" --linger --json
 ```
 
 Stdout is newline-delimited JSON, with one object per line. Stderr carries
@@ -193,7 +193,7 @@ keeper per note/task identity because multiple keepers share the same lease.
 ```bash cli-help="memos visit"
 # Reuse the task's DREAMLAKE_AGENT_ID and DREAMLAKE_AGENT_NAME.
 MEMO_ID=release-plan
-dreamlake memos visit "$MEMO_ID"
+dl memos visit "$MEMO_ID"
 ```
 
 `read --linger` manages the session lifecycle: start it to join, let it maintain
@@ -205,9 +205,9 @@ your session and does not require an agent ID.
 ```bash cli-help="memos presence"
 # Read the participant roster without joining. Text is the default.
 MEMO_ID=release-plan
-dreamlake memos presence "$MEMO_ID"
+dl memos presence "$MEMO_ID"
 # Include a source-bound human selection snapshot.
-dreamlake memos presence "$MEMO_ID" --selections
+dl memos presence "$MEMO_ID" --selections
 ```
 
 Add `--json` only for a program consuming the roster. The old action arguments
@@ -219,7 +219,7 @@ Add `--json` only for a program consuming the roster. The old action arguments
 CLI 0.111.0+ with the matching server can request a source-bound snapshot:
 
 ```bash
-dreamlake memos presence "$MEMO_ID" --selections
+dl memos presence "$MEMO_ID" --selections
 ```
 
 `--selections` reads the existing RTC selection observer without joining or
@@ -247,7 +247,7 @@ alone does not grant collaboration access.
 
 ## If joining fails
 
-A successful read does not prove presence support. Check `dreamlake --version`,
+A successful read does not prove presence support. Check `dl --version`,
 `memos read --help`, the selected server, memo access, and your stable identity.
 `--remote <url>` selects a specific API; a local binary still uses your configured
 remote unless told otherwise. Connection errors and unsupported endpoints end
@@ -274,9 +274,9 @@ test memo when trying examples. Replace the memo ID and exact source passage:
 export DREAMLAKE_AGENT_ID="review-session-42"
 export DREAMLAKE_AGENT_NAME="Codex"
 MEMO_ID="your-note-id"
-dreamlake memos select --text "The next step is tested in simulation." --note "$MEMO_ID"
+dl memos select --text "The next step is tested in simulation." --note "$MEMO_ID"
 # Select the last occurrence of a repeated passage.
-dreamlake memos select --text "simulation" --note "$MEMO_ID" -o -1
+dl memos select --text "simulation" --note "$MEMO_ID" -o -1
 ```
 
 The command matches literal canonical source (including Markdown or HTML markup),
@@ -292,9 +292,9 @@ values count from the end (`-1` is last, `-2` is second-last). Zero is invalid:
 
 ```bash
 # Use the heading anchor from notes sections; this fetches only that section.
-dreamlake memos select --text "simulation" --section next-steps --note "$MEMO_ID"
-dreamlake memos select --text "simulation" --section next-steps --occurrence 2 --note "$MEMO_ID"
-dreamlake memos select --text "simulation" --section next-steps -o -1 --note "$MEMO_ID"
+dl memos select --text "simulation" --section next-steps --note "$MEMO_ID"
+dl memos select --text "simulation" --section next-steps --occurrence 2 --note "$MEMO_ID"
+dl memos select --text "simulation" --section next-steps -o -1 --note "$MEMO_ID"
 ```
 
 Section resolution uses one section read with a global code-point range and the
@@ -346,9 +346,9 @@ never prevents a Memo save. A new attribution-only session is private and has no
 terminal launch target; existing session visibility stays unchanged.
 
 ```bash cli-help="memos contributors"
-dreamlake memos contributors release-plan --namespace geyang --json
+dl memos contributors release-plan --namespace geyang --json
 # If hasMore is true, continue with the returned nextCursor:
-dreamlake memos contributors release-plan --namespace geyang --cursor LINK_CURSOR --json
+dl memos contributors release-plan --namespace geyang --cursor LINK_CURSOR --json
 ```
 
 One page returns `sessions`, `hasMore` and `nextCursor`. Each visible session has

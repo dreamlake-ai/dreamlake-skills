@@ -1,11 +1,11 @@
-<!-- generated from https://cli.dreamlake.ai/dev/notes/task-session-scope.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/dev/notes/task-session-scope.md at 0.112.0 0d1fe91; do not edit -->
 
 # Task session scope defaults
 
 ## 2026-09-14 — Implementation and release preparation
 
 For [Workstream #301](https://github.com/dreamlake-ai/dreamlake-workspace/issues/301),
-`dreamlake tasks` resolves namespace and project independently: explicit flags,
+`dl tasks` resolves namespace and project independently: explicit flags,
 then `DREAMLAKE_NAMESPACE` / `DREAMLAKE_PROJECT`. Namespace retains its login
 fallback; project fails before network access when absent. No shared context file
 is introduced, and the existing namespace/project syntax and order remain intact.

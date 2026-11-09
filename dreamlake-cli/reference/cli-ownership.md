@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/ownership.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/ownership.md at 0.112.0 0d1fe91; do not edit -->
 
 # Ownership transfers
 
@@ -29,18 +29,18 @@ support requires the matching
 its identity and ownership metadata without reading the graph or version history.
 
 ```bash cli-help="ownership transfer"
-dreamlake ownership transfer artifact ARTIFACT_ID --namespace alice --to acme \
+dl ownership transfer artifact ARTIFACT_ID --namespace alice --to acme \
   --dry-run --out artifact-transfer.json
 # Review the full access inventory and blockers, then submit that exact file.
-dreamlake ownership transfer artifact ARTIFACT_ID --namespace alice --to acme \
+dl ownership transfer artifact ARTIFACT_ID --namespace alice --to acme \
   --confirm --request-file artifact-transfer.json --accept-if-authorized --wait
 # Scene resources use the canonical env adapter, only if advertised and enabled.
-dreamlake ownership transfer scene SCENE_ID --namespace alice --to acme --dry-run
+dl ownership transfer scene SCENE_ID --namespace alice --to acme --dry-run
 # Pipeline requires the separately advertised metadata adapter.
-dreamlake ownership transfer pipeline PIPELINE_ID --namespace alice --to acme \
+dl ownership transfer pipeline PIPELINE_ID --namespace alice --to acme \
   --dry-run --out pipeline-transfer.json
 # Source requires its own enabled metadata-only capability.
-dreamlake ownership transfer source SOURCE_ID --namespace alice --to acme \
+dl ownership transfer source SOURCE_ID --namespace alice --to acme \
   --dry-run --out source-transfer.json
 ```
 
@@ -75,12 +75,12 @@ resource/secret disposition are implemented.
 Inspect authority and incoming/outgoing requests:
 
 ```bash cli-help="ownership capabilities"
-dreamlake ownership capabilities --namespace acme
+dl ownership capabilities --namespace acme
 ```
 
 ```bash cli-help="ownership list"
-dreamlake ownership list --namespace acme --direction incoming
-dreamlake ownership list --namespace acme --direction outgoing
+dl ownership list --namespace acme --direction incoming
+dl ownership list --namespace acme --direction outgoing
 ```
 
 A resource-specific preview request is a saved JSON object with `apiVersion: 1`,
@@ -94,7 +94,7 @@ manifest from the server plan. A hand-built partial manifest cannot skip
 attached resources or turn an unsupported attachment into a partial ownership move.
 
 ```bash cli-help="ownership preview"
-dreamlake ownership preview request.json --namespace acme
+dl ownership preview request.json --namespace acme
 ```
 
 Review the returned blockers and resource effects. Add the exact `previewHash`
@@ -103,7 +103,7 @@ resolved before creation; changing grants, filing, names or quota invalidates
 the preview.
 
 ```bash cli-help="ownership create"
-dreamlake ownership create reviewed-request.json --namespace acme
+dl ownership create reviewed-request.json --namespace acme
 ```
 
 Use the destination namespace for acceptance or rejection, and the source
@@ -115,19 +115,19 @@ access/filing rows, source bodies or secrets. Review policy and effects before
 accepting; counts alone are not a complete access inventory.
 
 ```bash cli-help="ownership status"
-dreamlake ownership status 000000000000000000000001 --namespace acme
+dl ownership status 000000000000000000000001 --namespace acme
 ```
 
 ```bash cli-help="ownership accept"
-dreamlake ownership accept 000000000000000000000001 --namespace acme
+dl ownership accept 000000000000000000000001 --namespace acme
 ```
 
 ```bash cli-help="ownership reject"
-dreamlake ownership reject 000000000000000000000001 --namespace acme
+dl ownership reject 000000000000000000000001 --namespace acme
 ```
 
 ```bash cli-help="ownership cancel"
-dreamlake ownership cancel 000000000000000000000001 --namespace acme
+dl ownership cancel 000000000000000000000001 --namespace acme
 ```
 
 Retry creation with the **same saved request and key** after an ambiguous network
@@ -147,11 +147,11 @@ Project ADMIN can manage existing grants and delete, but cannot transfer. Source
 EDIT does not grant management or transfer authority.
 
 ```bash cli-help="ownership inspect"
-dreamlake ownership inspect <resource-id> --type project --namespace acme
+dl ownership inspect <resource-id> --type project --namespace acme
 ```
 
 ```bash cli-help="ownership manifest"
-dreamlake ownership manifest <resource-id> --type source --namespace acme
+dl ownership manifest <resource-id> --type source --namespace acme
 ```
 
 Manifest inspection requires the current server-advertised namespace authority. It returns
@@ -192,7 +192,7 @@ never implicitly copies credentials or changes original Connections and
 non-transferred consumers.
 
 ```bash cli-help="ownership restore"
-dreamlake ownership restore <resource-id> --type project --namespace acme
+dl ownership restore <resource-id> --type project --namespace acme
 ```
 
 Restore is explicitly unsupported for projects without retained deletion
@@ -210,9 +210,9 @@ For whole-Project execution, use `project move` in CLI 0.63.0; the older helper
 below selects reviewed Memos explicitly and never fills the complete plan itself.
 
 ```bash cli-help="project transfer-preview"
-dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive
+dl project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive
 # Explicitly include only reviewed Notes already filed in this project.
-dreamlake project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive --include-note MEMO_ID --json
+dl project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive --include-note MEMO_ID --json
 ```
 
 Requires current source namespace transfer authority and access to destination capability
@@ -238,7 +238,7 @@ backend and CLI 0.67.0 or later. Installing a newer CLI does
 not enable server storage or cleanup capabilities.
 
 ```bash cli-help="ownership snapshot"
-dreamlake ownership snapshot 000000000000000000000001 --namespace acme
+dl ownership snapshot 000000000000000000000001 --namespace acme
 ```
 
 Snapshot inspection returns operation state, object metadata and cleanup
@@ -250,9 +250,9 @@ and cleanup when new admission is disabled.
 
 ```bash cli-help="ownership snapshot-cleanup"
 # Inspect eligibility without deleting anything (the default).
-dreamlake ownership snapshot-cleanup 000000000000000000000001 --namespace acme
+dl ownership snapshot-cleanup 000000000000000000000001 --namespace acme
 # Delete only after server retention and recovery checks pass.
-dreamlake ownership snapshot-cleanup 000000000000000000000001 --namespace acme --execute
+dl ownership snapshot-cleanup 000000000000000000000001 --namespace acme --execute
 ```
 
 Cleanup applies to one explicit operation. The server refuses active operations
@@ -278,13 +278,13 @@ execution; a progress ledger alone is insufficient.
 
 ```bash
 # Save the exact server-bound streaming review and stable request key.
-dreamlake project move research --namespace personal --to acme --stream --dry-run --preserve-access --preserve-external-filings --out stream-review.json
+dl project move research --namespace personal --to acme --stream --dry-run --preserve-access --preserve-external-filings --out stream-review.json
 # Only after reviewing the full policy/access inventory; recipient acceptance is explicit.
-dreamlake project move research --namespace personal --to acme --stream --confirm --request-file stream-review.json --accept-if-authorized --wait
+dl project move research --namespace personal --to acme --stream --confirm --request-file stream-review.json --accept-if-authorized --wait
 # Inspect the same operation; cursor is opaque and never rebuilt by the CLI.
-dreamlake ownership progress OPERATION_ID --namespace personal
+dl ownership progress OPERATION_ID --namespace personal
 # Resume that existing operation only; pending requests still need recipient acceptance.
-dreamlake ownership resume OPERATION_ID --namespace personal --confirm
+dl ownership resume OPERATION_ID --namespace personal --confirm
 ```
 
 The review binds the root Project ID, source/destination identities, owner/version,

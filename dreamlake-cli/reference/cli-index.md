@@ -1,8 +1,9 @@
-<!-- generated from https://cli.dreamlake.ai/index.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/index.md at 0.112.0 0d1fe91; do not edit -->
 
 # DreamLake CLI
 
-**`dreamlake`** is the command-line tool for the DreamLake data warehouse.
+**`dl`** is the command-line tool for the DreamLake data warehouse.
+The longer `dreamlake` command remains supported for compatibility.
 Upload and download assets, organize them into projects, bindrs, and
 datasets, and administer organizations and teams — all from your terminal.
 
@@ -30,10 +31,10 @@ Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs on
 your terminal                DreamLake server              BSS (storage)
 ─────────────                ────────────────              ─────────────
 
- dreamlake upload  ──┬──▶  POST /nodes (register)
+ dl upload  ──┬──▶  POST /nodes (register)
                      └────────────────────────────▶  multipart /files → S3
- dreamlake list    ─────▶  GET /nodes/:id/contents
- dreamlake org ... ─────▶  POST /graphql
+ dl list    ─────▶  GET /nodes/:id/contents
+ dl org ... ─────▶  POST /graphql
 ```
 
 | Surface | What it covers |
@@ -46,9 +47,9 @@ your terminal                DreamLake server              BSS (storage)
 ## Quick example
 
 ```bash file="terminal"
-dreamlake login
-dreamlake create project my-robots --public
-dreamlake upload ./clip.mp4 --episode my-robots:run-001 --to /camera/front
-dreamlake list --episode my-robots:run-001
-dreamlake download --episode my-robots:run-001 --from /camera/front/clip.mp4 -o ./out.mp4
+dl login
+dl create project my-robots --public
+dl upload ./clip.mp4 --episode my-robots:run-001 --to /camera/front
+dl list --episode my-robots:run-001
+dl download --episode my-robots:run-001 --from /camera/front/clip.mp4 -o ./out.mp4
 ```

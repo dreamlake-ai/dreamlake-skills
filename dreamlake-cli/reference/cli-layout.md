@@ -1,8 +1,8 @@
-<!-- generated from https://cli.dreamlake.ai/layout.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/layout.md at 0.112.0 0d1fe91; do not edit -->
 
 # Layout control
 
-`dreamlake layout` controls an existing page through the same high-level layout
+`dl layout` controls an existing page through the same high-level layout
 controller used by application interactions. The controller resolves named,
 spatial, size and content queries; UIKit owns the lower-level panel mechanics.
 
@@ -17,7 +17,7 @@ not supported by this transport.
 
 ```bash cli-help="layout pages"
 # Use the endpoint of your explicitly enabled local debugging session.
-dreamlake layout pages --cdp http://127.0.0.1:9222
+dl layout pages --cdp http://127.0.0.1:9222
 ```
 
 Choose a page ID from the result. The page must register the layout protocol
@@ -25,13 +25,13 @@ Choose a page ID from the result. The page must register the layout protocol
 instances. Multiple layouts are listed explicitly; select the intended one.
 
 ```bash cli-help="layout list"
-dreamlake layout list --cdp http://127.0.0.1:9222 --page PAGE_ID
+dl layout list --cdp http://127.0.0.1:9222 --page PAGE_ID
 ```
 
 ## Inspect, resolve, apply
 
 ```bash cli-help="layout inspect"
-dreamlake layout inspect --cdp http://127.0.0.1:9222 --page PAGE_ID --layout LAYOUT_ID
+dl layout inspect --cdp http://127.0.0.1:9222 --page PAGE_ID --layout LAYOUT_ID
 ```
 
 Inspection returns a revision and flat regions with stable session IDs, bounds,
@@ -67,7 +67,7 @@ loading remains subject to the page's normal authorization. Layout placement
 success does not prove the artifact loaded successfully.
 
 ```bash cli-help="layout resolve"
-dreamlake layout resolve request.json --cdp http://127.0.0.1:9222 --page PAGE_ID --layout LAYOUT_ID
+dl layout resolve request.json --cdp http://127.0.0.1:9222 --page PAGE_ID --layout LAYOUT_ID
 ```
 
 Resolve returns the chosen destination, planned effect and reason without changing
@@ -75,7 +75,7 @@ the layout. `apply` re-resolves against current state; `ifRevision` prevents a s
 plan from changing a layout the user has rearranged.
 
 ```bash cli-help="layout apply"
-dreamlake layout apply request.json --cdp http://127.0.0.1:9222 --page PAGE_ID --layout LAYOUT_ID
+dl layout apply request.json --cdp http://127.0.0.1:9222 --page PAGE_ID --layout LAYOUT_ID
 ```
 
 Results are JSON. Non-ready resolutions and unsuccessful applications exit nonzero.

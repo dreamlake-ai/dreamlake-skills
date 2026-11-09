@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/deletion.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/deletion.md at 0.112.0 0d1fe91; do not edit -->
 
 # Delete a memo
 
@@ -7,13 +7,13 @@ Available in CLI 0.47.1 and later. `memos rm` deletes a whole memo;
 
 ```bash cli-help="memos rm"
 # Read it first and confirm it is the note you mean.
-dreamlake memos read MEMO_ID
+dl memos read MEMO_ID
 # Asks for confirmation, showing the title and owning namespace.
-dreamlake memos rm MEMO_ID
+dl memos rm MEMO_ID
 # Scripts and agents: skip the prompt and take a JSON receipt.
-dreamlake memos rm MEMO_ID --yes --json
+dl memos rm MEMO_ID --yes --json
 # Afterwards a read reports not found.
-dreamlake memos read MEMO_ID
+dl memos read MEMO_ID
 ```
 
 Only the namespace owner or the memo's creator who is still a member of the

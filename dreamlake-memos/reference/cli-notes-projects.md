@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/projects.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/projects.md at 0.112.0 0d1fe91; do not edit -->
 
 # Project filing
 
@@ -12,7 +12,7 @@ does not grant access to Memo content or make organization Memos team-private.
 Organization members retain their existing Memo read/edit baseline.
 
 ```bash
-dreamlake memos create "Disposable filing check" --namespace acme \
+dl memos create "Disposable filing check" --namespace acme \
   --project research --project reviews --json
 ```
 
@@ -25,7 +25,7 @@ Inspect an existing Memo's project candidates and current affiliations by its
 stable ID, using the Memo's owning namespace:
 
 ```bash cli-help="memos projects"
-dreamlake memos projects 000000000000000000000001 --namespace acme
+dl memos projects 000000000000000000000001 --namespace acme
 ```
 
 The JSON contains `bound`, `nodeId`, `canBind`, effective project `role`, and
@@ -56,13 +56,13 @@ moved Project always detach. That Project path does not replace standalone
 
 ```bash cli-help="memos move"
 # Standalone cross-namespace Memo transfer is unavailable (exit 3).
-dreamlake memos move MEMO_ID --to-namespace my-org --project shared-research --dry-run
+dl memos move MEMO_ID --to-namespace my-org --project shared-research --dry-run
 # Add a project association within the note's CURRENT workspace.
-dreamlake memos move MEMO_ID --to-namespace current-workspace --project research --dry-run
+dl memos move MEMO_ID --to-namespace current-workspace --project research --dry-run
 # Apply only an executable same-workspace preview.
-dreamlake memos move MEMO_ID --to-namespace current-workspace --project research
+dl memos move MEMO_ID --to-namespace current-workspace --project research
 # Relocate the note to an existing folder of one project (CLI 0.87.0+).
-dreamlake memos move MEMO_ID --namespace acme --project research --folder reports/2026 --dry-run
+dl memos move MEMO_ID --namespace acme --project research --folder reports/2026 --dry-run
 ```
 `--to-project` and `--to-folder` are the contract spellings of `--project` and
 `--folder`; `--ns` asserts the source namespace. A display-name change
@@ -93,8 +93,8 @@ CLI 0.87.0 and later relocate a Memo's node inside one project's tree with
 folder changes. Preview first, then apply:
 
 ```bash
-dreamlake memos move MEMO_ID --namespace acme --project research --folder reports/2026 --dry-run
-dreamlake memos move MEMO_ID --namespace acme --project research --folder reports/2026
+dl memos move MEMO_ID --namespace acme --project research --folder reports/2026 --dry-run
+dl memos move MEMO_ID --namespace acme --project research --folder reports/2026
 ```
 
 `--folder` is a project-relative path to an existing folder. An empty value
@@ -108,7 +108,7 @@ shares are unchanged. A Memo with the same name in the destination fails with
 `name_collision` (exit 3); permission refusals report `forbidden`. You need write
 access to the project. `--dry-run` prints the current and destination paths
 without writing; `--json` emits the same receipt. Confirm the result with
-`dreamlake list --episode PROJECT@NAMESPACE`.
+`dl list --episode PROJECT@NAMESPACE`.
 
 To tag a filed Memo with a bindr in the same project, use
-`dreamlake update bindr BINDR --project PROJECT@NAMESPACE --add-note MEMO_ID`.
+`dl update bindr BINDR --project PROJECT@NAMESPACE --add-note MEMO_ID`.

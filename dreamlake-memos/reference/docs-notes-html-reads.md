@@ -1,10 +1,10 @@
-<!-- generated from https://docs.dreamlake.ai/notes/html-reads.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/html-reads.md at 0.1.134 4bbe54f7; do not edit -->
 
 # HTML reads
 
 ## HTML snapshot preview
 
-With the compatible v2 server and CLI, `dreamlake memos read "$NOTE_ID" --view html`
+With the compatible v2 server and CLI, `dl memos read "$NOTE_ID" --view html`
 returns a complete inert HTML document. Root `data-note`, `data-hash`,
 `data-revision`, `data-source-type`, `data-offset-unit` and `data-source`
 attributes contain the exact canonical source and its baseline. Element
@@ -59,10 +59,10 @@ exclusive, and cannot combine with `--since` or `--linger`:
 
 ```bash
 # NOTE_ID identifies an accessible note; copy REVISION from its read receipt.
-dreamlake memos read "$NOTE_ID"
-dreamlake memos read "$NOTE_ID" --at "$REVISION" --toc
-dreamlake memos read "$NOTE_ID" --at "$REVISION" --section s1.1
-dreamlake memos read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
+dl memos read "$NOTE_ID"
+dl memos read "$NOTE_ID" --at "$REVISION" --toc
+dl memos read "$NOTE_ID" --at "$REVISION" --section s1.1
+dl memos read "$NOTE_ID" --at "$REVISION" --tag s1.1.p1
 ```
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
@@ -100,9 +100,9 @@ rendered HTML as the complete memo.
 
 ```bash
 # edit.dff is prepared from the exact source at REVISION.
-dreamlake memos patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
+dl memos patch "$NOTE_ID" --file edit.dff --base-revision "$REVISION" --exact
 # NEXT_REVISION comes from that write receipt.
-dreamlake memos read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
+dl memos read "$NOTE_ID" --at "$NEXT_REVISION" --tag s1.1.p1
 ```
 
 Exact mode refuses concurrent edits with 412; native merge mode remains available

@@ -1,18 +1,18 @@
-<!-- generated from https://cli.dreamlake.ai/uploading.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/uploading.md at 0.112.0 0d1fe91; do not edit -->
 
 # Uploading
 
-`dreamlake upload` sends a file (or a flat directory) to an episode. Large
+`dl upload` sends a file (or a flat directory) to an episode. Large
 files use resumable S3 multipart uploads.
 
-> **Note:** `dreamlake upload` is for episodes. To put original bytes into a Source's
-> managed files, use `dreamlake source upload` — see
+> **Note:** `dl upload` is for episodes. To put original bytes into a Source's
+> managed files, use `dl source upload` — see
 > [Upload files into a Source](cli-sources.md#upload-files-into-a-source).
 
 ## A single file
 
 ```bash file="terminal"
-dreamlake upload ./clip.mp4 --episode my-robots:run-001 --to /camera/front
+dl upload ./clip.mp4 --episode my-robots:run-001 --to /camera/front
 ```
 
 - `--episode` — the target `project[@namespace][:episode]`. The episode is
@@ -29,7 +29,7 @@ Point `upload` at a directory to upload every file in it (flat — top level
 only):
 
 ```bash file="terminal"
-dreamlake upload ./capture/ --episode my-robots:run-001 --to /sensors --yes
+dl upload ./capture/ --episode my-robots:run-001 --to /sensors --yes
 ```
 
 - Junk/hidden files (`.DS_Store`, `*.tmp`, dotfiles, …) are skipped.
@@ -53,7 +53,7 @@ It asks the server which parts already landed and only sends the rest.
 don't exist):
 
 ```bash file="terminal"
-dreamlake upload ./clip.mp4 --episode my-robots:run-001 --to /camera/front --bindr cam-set
+dl upload ./clip.mp4 --episode my-robots:run-001 --to /camera/front --bindr cam-set
 ```
 
 > **Note:** There is no separate `video` command — upload a `.mp4` like anything else,

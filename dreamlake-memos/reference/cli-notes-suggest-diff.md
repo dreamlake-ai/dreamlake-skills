@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/suggest-diff.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/suggest-diff.md at 0.112.0 0d1fe91; do not edit -->
 
 # Suggested-edit redlines
 
@@ -14,7 +14,7 @@ version of a Markdown document, it prints a memo body in which every change is a
 suggested edit:
 
 ```bash
-dreamlake memos suggest-diff before.md after.md
+dl memos suggest-diff before.md after.md
 ```
 
 ```markdown
@@ -24,16 +24,16 @@ We ship on :replace[Friday after]{with="Thursday once"} the smoke tests :insert[
 The command only reads the two files and prints Markdown. It sends nothing, so
 you choose where the output goes: a new review memo, back into the memo you are
 editing, or a file. **Availability:** CLI 0.47.0 and later; check that
-`dreamlake memos suggest-diff --help` exists.
+`dl memos suggest-diff --help` exists.
 
 ```bash cli-help="memos suggest-diff"
 # Review a change as a new private note.
-dreamlake memos suggest-diff before.md after.md --user "Docs review" \
-  | dreamlake memos create "Redline: release plan" --file -
+dl memos suggest-diff before.md after.md --user "Docs review" \
+  | dl memos create "Redline: release plan" --file -
 # Propose edits inside the note itself; refuses changes it cannot express.
-dreamlake memos suggest-diff current.md edited.md --in-place --user "$DREAMLAKE_AGENT_NAME" > proposal.md
+dl memos suggest-diff current.md edited.md --in-place --user "$DREAMLAKE_AGENT_NAME" > proposal.md
 # Count insertions, deletions, replacements and changed code blocks.
-dreamlake memos suggest-diff before.md after.md --json | jq .stats
+dl memos suggest-diff before.md after.md --json | jq .stats
 ```
 
 There are two kinds of output, and the scenarios below use one or the other.
@@ -55,8 +55,8 @@ note:
 ```bash
 git show main:docs/pages/quickstart/+Page.mdx > before.mdx
 git show HEAD:docs/pages/quickstart/+Page.mdx > after.mdx
-dreamlake memos suggest-diff before.mdx after.mdx --user "Docs review" \
-  | dreamlake memos create "Redline: quickstart" --file -
+dl memos suggest-diff before.mdx after.mdx --user "Docs review" \
+  | dl memos create "Redline: quickstart" --file -
 ```
 
 A pull request that touches several pages fits in one memo, with one section
@@ -71,10 +71,10 @@ BASE=main
     printf '## %s\n\n' "$f"
     git show "$BASE:$f" > before 2>/dev/null || : > before
     git show "HEAD:$f" > after 2>/dev/null || : > after
-    dreamlake memos suggest-diff before after --mdx | sed 's/^#/###/'
+    dl memos suggest-diff before after --mdx | sed 's/^#/###/'
     printf '\n'
   done
-} | dreamlake memos create "Redline: $(git rev-parse --abbrev-ref HEAD)" --file -
+} | dl memos create "Redline: $(git rev-parse --abbrev-ref HEAD)" --file -
 ```
 
 The `sed` demotes each page's own headings below the per-file heading. Pass
@@ -96,12 +96,12 @@ and write it back on the condition that nobody changed the memo in the meantime:
 
 ```bash
 MEMO_ID=release-plan
-dreamlake memos read "$MEMO_ID" --legacy --json > base.json
+dl memos read "$MEMO_ID" --legacy --json > base.json
 jq -jr .text base.json > current.md
 cp current.md edited.md            # make the intended edits in edited.md
-dreamlake memos suggest-diff current.md edited.md --in-place \
+dl memos suggest-diff current.md edited.md --in-place \
   --user "$DREAMLAKE_AGENT_NAME" > proposal.md
-dreamlake memos write "$MEMO_ID" --file proposal.md --if-match "$(jq -r .etag base.json)"
+dl memos write "$MEMO_ID" --file proposal.md --if-match "$(jq -r .etag base.json)"
 ```
 
 The owner then sees, for example:
@@ -133,15 +133,15 @@ changed between two of them as a readable redline, read each version's text
 and create a review memo. A saved-version read returns its body as `.text`:
 
 ```bash
-dreamlake memos hist "$MEMO_ID" --json | jq -r '.versions[] | "\(.id)  \(.tag)"'
-dreamlake memos read "$MEMO_ID" --version "$OLDER" --json | jq -jr .text > older.md
-dreamlake memos read "$MEMO_ID" --version "$NEWER" --json | jq -jr .text > newer.md
-dreamlake memos suggest-diff older.md newer.md \
-  | dreamlake memos create "Changes: release plan v1 → v2" --file -
+dl memos hist "$MEMO_ID" --json | jq -r '.versions[] | "\(.id)  \(.tag)"'
+dl memos read "$MEMO_ID" --version "$OLDER" --json | jq -jr .text > older.md
+dl memos read "$MEMO_ID" --version "$NEWER" --json | jq -jr .text > newer.md
+dl memos suggest-diff older.md newer.md \
+  | dl memos create "Changes: release plan v1 → v2" --file -
 ```
 
 Comparing a saved version with the live memo works the same way, with
-`dreamlake memos read "$MEMO_ID" --json | jq -jr .content` as the newer side.
+`dl memos read "$MEMO_ID" --json | jq -jr .content` as the newer side.
 
 ## Review what changed since you last read
 
@@ -150,11 +150,11 @@ rather than the whole memo. Keep the `revision` from your earlier read, read
 the memo as it was then with `--at`, and compare it with the live note:
 
 ```bash
-dreamlake memos read "$MEMO_ID" --json > earlier.json      # earlier, at your last read
-dreamlake memos read "$MEMO_ID" --at "$(jq -r .revision earlier.json)" --json | jq -jr .content > then.md
-dreamlake memos read "$MEMO_ID" --json | jq -jr .content > now.md
-dreamlake memos suggest-diff then.md now.md \
-  | dreamlake memos create "Changes since my last read: release plan" --file -
+dl memos read "$MEMO_ID" --json > earlier.json      # earlier, at your last read
+dl memos read "$MEMO_ID" --at "$(jq -r .revision earlier.json)" --json | jq -jr .content > then.md
+dl memos read "$MEMO_ID" --json | jq -jr .content > now.md
+dl memos suggest-diff then.md now.md \
+  | dl memos create "Changes since my last read: release plan" --file -
 ```
 
 `--at` reads only retained snapshots, so keep the revision rather than relying
@@ -169,9 +169,9 @@ design memo and the docs page written from it, compare them in either
 direction. Either side can be `-` for standard input:
 
 ```bash
-dreamlake memos read design-notes --json | jq -jr .content \
-  | dreamlake memos suggest-diff - docs/pages/design/+Page.mdx --mdx \
-  | dreamlake memos create "Redline: design note → docs page" --file -
+dl memos read design-notes --json | jq -jr .content \
+  | dl memos suggest-diff - docs/pages/design/+Page.mdx --mdx \
+  | dl memos create "Redline: design note → docs page" --file -
 ```
 
 To bring the memo in line with the file instead, use the memo as the earlier

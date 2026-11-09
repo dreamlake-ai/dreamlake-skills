@@ -1,10 +1,10 @@
-<!-- generated from https://cli.dreamlake.ai/collections.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/collections.md at 0.112.0 0d1fe91; do not edit -->
 
 # Declaration collections
 
 DreamLake stores **declarations** — named descriptions of code and of the
 environments that code runs inside. Five of them are *head* collections, all
-created the same way, with `dreamlake declare`:
+created the same way, with `dl declare`:
 
 | Collection | What it describes |
 | --- | --- |
@@ -16,7 +16,7 @@ created the same way, with `dreamlake declare`:
 
 Runnables additionally have **versions**: immutable rows keyed by
 `sha256(source)`. Those are not declared — they are pushed, with
-`dreamlake runnable version push`.
+`dl runnable version push`.
 
 > **Warning:** Nothing on this page schedules, claims, launches, or connects to anything.
 > These commands are storage and CRUD. Execution belongs to the lakeshore
@@ -44,7 +44,7 @@ history back, and import a pinned copy onto another machine.
 ```
 
 ```bash file="terminal"
-dreamlake declare runnable.json
+dl declare runnable.json
 ```
 
 ```text file="output"
@@ -63,8 +63,8 @@ The collection was inferred from the payload's own shape — `module` and
 when a payload is ambiguous:
 
 ```bash file="terminal"
-dreamlake declare gpu-small.yaml --collection run-configs
-dreamlake declare */*.json --dry-run          # resolve targets, send nothing
+dl declare gpu-small.yaml --collection run-configs
+dl declare */*.json --dry-run          # resolve targets, send nothing
 ```
 
 Inference rules, in order: `runtime` or `extras` → `run-configs`; `module` or
@@ -83,8 +83,8 @@ collections, so a second `declare` of the same name returns 409 and **nothing
 is touched**.
 
 ```bash file="terminal"
-dreamlake declare runnable.json                    # ✗ exit 1
-dreamlake declare runnable.json --if-exists ok     # ⚠ exit 0
+dl declare runnable.json                    # ✗ exit 1
+dl declare runnable.json --if-exists ok     # ⚠ exit 0
 ```
 
 ```text file="output"
@@ -98,7 +98,7 @@ typing a command, a success for a `make push` you expect to run twice.
 ### 3 · Register a version
 
 ```bash file="terminal"
-dreamlake runnable version push examples.embed.embed_frames --source src/embed.py
+dl runnable version push examples.embed.embed_frames --source src/embed.py
 ```
 
 ```text file="output"
@@ -135,9 +135,9 @@ through untouched.
 ### 4 · Read the history back
 
 ```bash file="terminal"
-dreamlake runnable list --kind udf
-dreamlake runnable show examples.embed.embed_frames
-dreamlake runnable version list examples.embed.embed_frames
+dl runnable list --kind udf
+dl runnable show examples.embed.embed_frames
+dl runnable version list examples.embed.embed_frames
 ```
 
 ```text file="output"
@@ -156,7 +156,7 @@ characters in tables so the columns fit; `runnable show` always prints the full
 To get the source of one version:
 
 ```bash file="terminal"
-dreamlake runnable version show examples.embed.embed_frames c41e9a0f77bd… --source-only > embed.py
+dl runnable version show examples.embed.embed_frames c41e9a0f77bd… --source-only > embed.py
 ```
 
 `--source-only` writes the stored bytes to stdout with no decoration at all, so
@@ -168,7 +168,7 @@ command emits the whole row as JSON.
 `import` is a composition of the reads above, not a new capability:
 
 ```bash file="terminal"
-dreamlake runnable import examples.embed.embed_frames --out ./vendor/embed
+dl runnable import examples.embed.embed_frames --out ./vendor/embed
 ```
 
 ```text file="output"
@@ -183,9 +183,9 @@ head, then fetch that version. With `--at <sha256>` it makes one fewer decision
 and pins whatever you named; `--at latest` and `--at <hex prefix>` are also
 accepted and resolved client-side.
 
-> **Warning:** `dreamlake` declares `-v, --version` on the root program, and Commander
+> **Warning:** `dl` declares `-v, --version` on the root program, and Commander
 > resolves a root option from **any** descendant command. So
-> `dreamlake runnable import <name> --version <sha256>` prints the CLI's own
+> `dl runnable import <name> --version <sha256>` prints the CLI's own
 > version number and **exits 0 having imported nothing** — a silent no-op that
 > looks like a success. Use `--at`.
 
@@ -197,9 +197,9 @@ to the source: a pin that lives only in shell history is not a pin.
 ### 6 · Find the environment
 
 ```bash file="terminal"
-dreamlake runconfig list
-dreamlake runconfig show gpu-small
-dreamlake runconfig list --host-key hk1_2f6c9d
+dl runconfig list
+dl runconfig show gpu-small
+dl runconfig list --host-key hk1_2f6c9d
 ```
 
 `--host-key` answers exactly one question: which configs resolve to the same
@@ -208,17 +208,17 @@ placement key, i.e. which ones could share a worker.
 ## The nine commands
 
 ```bash file="terminal"
-dreamlake declare <file...> [--collection <name>] [--if-exists ok|fail] [--dry-run] [--json]
+dl declare <file...> [--collection <name>] [--if-exists ok|fail] [--dry-run] [--json]
 
-dreamlake runnable list [--kind <k>] [--module <m>] [--json]
-dreamlake runnable show <name> [--json]
-dreamlake runnable version push <name> --source <file> [--signature <file>] [--json]
-dreamlake runnable version list <name> [--json]
-dreamlake runnable version show <name> [version] [--at <ref>] [--source-only] [--json]
-dreamlake runnable import <name> [--at <latest|prefix|sha256>] --out <dir> [--json]
+dl runnable list [--kind <k>] [--module <m>] [--json]
+dl runnable show <name> [--json]
+dl runnable version push <name> --source <file> [--signature <file>] [--json]
+dl runnable version list <name> [--json]
+dl runnable version show <name> [version] [--at <ref>] [--source-only] [--json]
+dl runnable import <name> [--at <latest|prefix|sha256>] --out <dir> [--json]
 
-dreamlake runconfig list [--provider <name>] [--host-key <hk>] [--json]
-dreamlake runconfig show <name> [--json]
+dl runconfig list [--provider <name>] [--host-key <hk>] [--json]
+dl runconfig show <name> [--json]
 ```
 
 `version show`'s positional argument is **optional** and defaults to `latest`;
@@ -248,7 +248,7 @@ environment it runs in", make two calls and correlate them yourself.
 
 **3 · `hostKey` is derived, display-only and non-authoritative.**
 The server recomputes it on every write and never accepts it from a request
-body — `dreamlake declare` refuses a payload containing `hostKey` locally,
+body — `dl declare` refuses a payload containing `hostKey` locally,
 rather than letting you believe a value you sent was stored. The Python SDK's
 copy, stamped at submit time, is the one a scheduler uses. A **null** `hostKey`
 does not mean "no placement"; it means the key could not be computed, most

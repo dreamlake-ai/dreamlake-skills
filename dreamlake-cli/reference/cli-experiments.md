@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.112.0 0d1fe91; do not edit -->
 
 # Experiments
 
@@ -10,26 +10,26 @@ DreamLake login. The run key makes creation idempotent; inspect the run after an
 uncertain write before retrying.
 
 ```bash cli-help="experiments runs list"
-dreamlake experiments runs list --namespace fortyfive --project research
+dl experiments runs list --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs create"
-dreamlake experiments runs create trial_1 --namespace fortyfive --project research
+dl experiments runs create trial_1 --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs log"
-dreamlake experiments runs log "$RUN_ID" "training started" --level info --namespace fortyfive --project research
+dl experiments runs log "$RUN_ID" "training started" --level info --namespace fortyfive --project research
 ```
 
 Archive hides a run from default lists while preserving its data. Restore makes
 it visible again; neither operation deletes historical Dash data.
 
 ```bash cli-help="experiments runs archive"
-dreamlake experiments runs archive "$RUN_ID" --namespace fortyfive --project research
+dl experiments runs archive "$RUN_ID" --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs restore"
-dreamlake experiments runs restore "$RUN_ID" --namespace fortyfive --project research
+dl experiments runs restore "$RUN_ID" --namespace fortyfive --project research
 ```
 
 Terminal runs can be moved to trash and restored without changing their
@@ -37,15 +37,15 @@ archive state. Running runs must finish before deletion. Historical Dash runs
 remain on the old service.
 
 ```bash cli-help="experiments runs delete"
-dreamlake experiments runs delete "$RUN_ID" --namespace fortyfive --project research
+dl experiments runs delete "$RUN_ID" --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs trash list"
-dreamlake experiments runs trash list --namespace fortyfive --project research
+dl experiments runs trash list --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs trash restore"
-dreamlake experiments runs trash restore "$RUN_ID" --namespace fortyfive --project research
+dl experiments runs trash restore "$RUN_ID" --namespace fortyfive --project research
 ```
 
 ### Run data
@@ -56,25 +56,25 @@ Paged reads return one page and `nextCursor`; pass it to `--cursor` for the
 next page. `--data` and `--metadata` read JSON from a file or `-` (stdin).
 
 ```bash cli-help="experiments runs show"
-dreamlake experiments runs show "$RUN_ID" --namespace fortyfive --project research
+dl experiments runs show "$RUN_ID" --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs status"
-dreamlake experiments runs status "$RUN_ID" COMPLETED --namespace fortyfive --project research
+dl experiments runs status "$RUN_ID" COMPLETED --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs params set"
-echo '{"lr": 0.001, "batch": 64}' | dreamlake experiments runs params set "$RUN_ID" --data - --namespace fortyfive --project research
+echo '{"lr": 0.001, "batch": 64}' | dl experiments runs params set "$RUN_ID" --data - --namespace fortyfive --project research
 ```
 
 `params get` reads and `params delete` removes all parameters of a run.
 
 ```bash cli-help="experiments runs metrics append"
-dreamlake experiments runs metrics append "$RUN_ID" train.loss --data points.json --namespace fortyfive --project research
+dl experiments runs metrics append "$RUN_ID" train.loss --data points.json --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs metrics rows"
-dreamlake experiments runs metrics rows "$RUN_ID" train.loss --limit 1000 --namespace fortyfive --project research
+dl experiments runs metrics rows "$RUN_ID" train.loss --limit 1000 --namespace fortyfive --project research
 ```
 
 `--description`, `--tags` and `--metadata` on `metrics append` are stored
@@ -83,17 +83,17 @@ count and metadata, and `metrics metadata` updates its `--description`,
 `--tags` or `--metadata`.
 
 ```bash cli-help="experiments runs logs read"
-dreamlake experiments runs logs read "$RUN_ID" --level warn,error --search timeout --namespace fortyfive --project research
+dl experiments runs logs read "$RUN_ID" --level warn,error --search timeout --namespace fortyfive --project research
 ```
 
 `logs append --data` appends up to 1000 `{timestamp, level, message}` entries.
 
 ```bash cli-help="experiments runs files upload"
-dreamlake experiments runs files upload "$RUN_ID" ./model.pt --prefix /checkpoints --tags best --namespace fortyfive --project research
+dl experiments runs files upload "$RUN_ID" ./model.pt --prefix /checkpoints --tags best --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs files download"
-dreamlake experiments runs files download "$RUN_ID" "$FILE_ID" --out ./model.pt --namespace fortyfive --project research
+dl experiments runs files download "$RUN_ID" "$FILE_ID" --out ./model.pt --namespace fortyfive --project research
 ```
 
 A download never overwrites an existing path and is removed if its bytes do not
@@ -107,11 +107,11 @@ the native Dash store. `append` writes up to 10000 entries in one commit, and
 `read` prints JSON or exports to a new file.
 
 ```bash cli-help="experiments runs tracks append"
-dreamlake experiments runs tracks append "$RUN_ID" robot/position --data entries.json --namespace fortyfive --project research
+dl experiments runs tracks append "$RUN_ID" robot/position --data entries.json --namespace fortyfive --project research
 ```
 
 ```bash cli-help="experiments runs tracks read"
-dreamlake experiments runs tracks read "$RUN_ID" robot/position --format mcap --out position.mcap --namespace fortyfive --project research
+dl experiments runs tracks read "$RUN_ID" robot/position --format mcap --out position.mcap --namespace fortyfive --project research
 ```
 
 `tracks list` lists a run's tracks, and `tracks create` creates a track with an
@@ -122,7 +122,7 @@ Run files use DreamLake's existing project file storage. Address the episode by
 the run key you created; file upload uses your DreamLake login.
 
 ```bash
-dreamlake upload checkpoint.bin --episode research@fortyfive:trial_1 --to /models
+dl upload checkpoint.bin --episode research@fortyfive:trial_1 --to /models
 ```
 
 ## Historical Dash workspace binding
@@ -136,14 +136,14 @@ managed Dash instance. No Dash URL or token is accepted or copied by this flow.
 An identical organization name does not establish a binding.
 
 ```bash cli-help="experiments workspaces"
-dreamlake experiments workspaces --namespace fortyfive --json
+dl experiments workspaces --namespace fortyfive --json
 ```
 
 Inspect the current binding, including its revision. Results contain stable
 DreamLake and Dash namespace identifiers; a slug is only a discovery aid.
 
 ```bash cli-help="experiments binding"
-dreamlake experiments binding --namespace fortyfive --json
+dl experiments binding --namespace fortyfive --json
 ```
 
 Select a unique slug or `namespaceId` returned by discovery. `connect` first
@@ -151,9 +151,9 @@ previews the selected target without changing anything. Review its `instanceId`,
 `namespaceId`, current binding, and `expectedRevision`.
 
 ```bash cli-help="experiments connect"
-dreamlake experiments connect research --namespace fortyfive --json
+dl experiments connect research --namespace fortyfive --json
 # Apply only after reviewing the preview. Use its actual revision, not this example's 0.
-dreamlake experiments connect "$DASH_NAMESPACE_ID" --namespace fortyfive --instance-id "$DASH_INSTANCE_ID" --apply --expected-revision 0 --json
+dl experiments connect "$DASH_NAMESPACE_ID" --namespace fortyfive --instance-id "$DASH_INSTANCE_ID" --apply --expected-revision 0 --json
 ```
 
 Apply requires the discovered stable `namespaceId` (`DASH_NAMESPACE_ID` above),
@@ -171,9 +171,9 @@ or revoking SDK credentials. It remains available when remote discovery is down.
 Detached rows keep their revision; only a namespace with no previous binding uses 0.
 
 ```bash cli-help="experiments disconnect"
-dreamlake experiments disconnect --namespace fortyfive --json
+dl experiments disconnect --namespace fortyfive --json
 # Replace 1 with the revision returned by this preview.
-dreamlake experiments disconnect --namespace fortyfive --apply --expected-revision 1 --json
+dl experiments disconnect --namespace fortyfive --apply --expected-revision 1 --json
 ```
 
 Success always emits a JSON receipt. With `--json`, errors emit
