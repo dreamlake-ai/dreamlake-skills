@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.109.0 9f5a92b; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.110.1 25b3739; do not edit -->
 
 # Artifacts
 
@@ -453,6 +453,37 @@ The catalog mutation API is an upsert without a conditional-write validator.
 The CLI first checks that the artifact exists and is manageable, but a concurrent
 delete between that check and mutation can restore its catalog row.
 
+## Share only the most recent version
+
+CLI 0.110.1 and later can restrict external recipients to the most recent
+registered version. Namespace members keep their full history. The same link
+follows future pushes; this is not a snapshot pinned to today's version.
+The policy covers share links, public/unlisted links and Project-derived readers.
+It does not grant access by itself or recall content already downloaded.
+
+```bash cli-help="artifact share latest-only"
+# Change an existing artifact without uploading or changing its link.
+dreamlake artifact share latest-only report on
+dreamlake artifact share get report --json
+# Allow recipients to browse history again.
+dreamlake artifact share latest-only report off
+```
+
+To enable the policy while minting a link, use
+`dreamlake artifact share create report --latest-only`. At upload time:
+
+```bash
+dreamlake artifact push ./report.html --id report --share --latest-only
+```
+
+Both `share create` and `push` accept `--no-latest-only` to disable the policy.
+Omitting either flag preserves the saved setting. `share get --json` reports
+`shareLatestOnly`; human-readable output shows **Most recent version only**.
+`--namespace <slug>` selects the owning namespace. Management requires namespace
+membership. A failed or uncertain mutation is not automatically retried; inspect
+`share get` before retrying. Older servers that do not confirm a policy change
+cause `share latest-only` and `share create --latest-only` to fail.
+
 ## Whole-Project ownership transfer
 
 With CLI 0.74.2+ and a compatible backend, new whole-Project requests use
@@ -516,3 +547,17 @@ await api.artifacts("my-team").share("report").visibility("unlisted");
 The sharing method checks management permission before updating metadata. It
 does not upload content or change the existing share token. A later publication
 that omits visibility preserves the saved setting.
+
+TypeScript API 0.110.1 adds a metadata-only policy setter:
+
+```ts
+await api.artifacts("my-team").share("report").latestOnly(true);
+const artifact = await api.artifacts("my-team").get("report");
+// Set false to allow recipient history again.
+await api.artifacts("my-team").share("report").latestOnly(false);
+```
+
+`publish` and `register` also accept `shareLatestOnly?: boolean`. An explicit
+`false` disables the policy; omission preserves it. `latestOnly` verifies
+management permission and resolves a renamed slug to its immutable artifact ID
+before writing. It neither creates a share token nor uploads a version.

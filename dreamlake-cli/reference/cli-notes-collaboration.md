@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.109.0 9f5a92b; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/collaboration.md at 0.110.1 25b3739; do not edit -->
 
 # Live collaboration
 
@@ -206,11 +206,44 @@ your session and does not require an agent ID.
 # Read the participant roster without joining. Text is the default.
 MEMO_ID=release-plan
 dreamlake memos presence "$MEMO_ID"
+# Include a source-bound human selection snapshot.
+dreamlake memos presence "$MEMO_ID" --selections
 ```
 
 Add `--json` only for a program consuming the roster. The old action arguments
 (`join`, `heartbeat`, `clear`, `leave`, and `--watch`) are removed. Use `visit`,
 `read --linger`, and Ctrl-C instead.
+
+## Observe a human selection
+
+With the matching client and server, request a source-bound snapshot:
+
+```bash
+dreamlake memos presence "$MEMO_ID" --selections
+```
+
+`--selections` reads the existing RTC selection observer without joining or
+extending a lease. Text output includes roster/selection status, observation
+time, source hash and any resolved ranges. Add `--json` for structured output.
+The JSON fields are `status` (`available` or `inactive`), `selectionStatus`
+(`available`, `inactive` or `not_requested`), and `selectionHash` when available.
+An observed empty roster is different from an inactive room. Connection failures
+return an error; older servers omit these fields, and the selection text view
+reports `unknown` / `unsupported` instead of claiming nobody is present.
+
+Each participant's `selection` is null, unresolved, or a resolved selection with
+`anchor`, `head`, `start`, `end`, `unit: "unicode-code-point"`, `text` and
+`truncated`. Ranges are half-open at `selectionHash`; text previews are bounded.
+A collapsed range is a caret. These observations do not prove attention or
+identify who edited the Memo. To inspect recent source changes, compare against
+a previously retained revision with `memos diff`; it is not an actor audit log.
+Use a fresh guarded source read before an edit, not selection coordinates alone.
+
+The TypeScript handle exposes `await dl.memos(memoId).presence({selections:true})`;
+the namespace API exposes `await dl.memos.namespace(ns).presence(memoId,{selections:true})`.
+Python exposes `dl.memos(memo_id).presence(selections=True)`.
+All require matching server support and existing Memo access. Public visibility
+alone does not grant collaboration access.
 
 ## If joining fails
 

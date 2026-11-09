@@ -11,6 +11,9 @@ Flag semantics and the kind/extension table:
 After a successful push the CLI prints an **open link** (the dashboard URL,
 with `?share=` appended when `--share` was used) — hand it to the user.
 
+For customer-facing latest-only sharing, follow [share](share.md#external-customers-latest-version-only)
+and inspect the saved policy after pushing.
+
 ## Before the first write
 
 1. Install the standalone CLI (`curl -fsSL https://dl.dreamlake.ai/install.sh | bash`,
