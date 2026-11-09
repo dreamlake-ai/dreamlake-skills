@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-memos",
-  "description": "Work with DreamLake collaborative Memos through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create memos, set summaries, file into Projects, link list items to Memos or artifacts, transfer a standalone Memo.",
+  "description": "Work with DreamLake Memos: read and edit with revision guards, inspect presence and human selections, compare recent changes, follow collaboration, manage versions and files, create or summarize memos, file into Projects, link resources and transfer ownership.",
   "requires": [
     "dreamlake-cli"
   ],

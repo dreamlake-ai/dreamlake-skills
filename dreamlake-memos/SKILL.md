@@ -1,6 +1,6 @@
 ---
 name: dreamlake-memos
-description: Work with DreamLake collaborative Memos through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files, get inline image URLs, create memos, set summaries, file into Projects, turn list items into linked Memos or artifact references, and transfer a standalone Memo. Use the Python SDK only for explicit SDK integration or a documented CLI gap.
+description: "Work with DreamLake Memos: read and edit with revision guards, inspect presence and human selections, compare recent changes, follow collaboration, manage versions and files, create or summarize memos, file into Projects, link resources and transfer ownership. Use the Python SDK only for explicit SDK integration or a documented CLI gap."
 ---
 
 # DreamLake Memos
@@ -12,10 +12,11 @@ memo. One action per task:
 
 | Request | Action |
 | --- | --- |
-| Agent identity, presence roster, contributing sessions | [identity](actions/identity.md) |
+| Agent identity, contributing sessions | [identity](actions/identity.md) |
 | Read: outline, section, element, delta, snapshot, comment targets; explicit Python SDK read | [read](actions/read.md) |
 | Edit with a revision-guarded patch; Markdown authoring rules | [edit](actions/edit.md) |
 | Save checkpoints, browse history, recover a retained draft or uncertain save | [versions](actions/versions.md) |
+| Who is present, human selection, recent changes or unavailable observations | [observe](actions/observe.md) |
 | Keep presence and receive live edits | [watch](actions/watch.md) |
 | Get an image URL for Markdown or HTML | [media](actions/media.md) |
 | Attachments: upload, list, download, preview, share, move, copy, write, recover | [attachments](actions/attachments.md) |

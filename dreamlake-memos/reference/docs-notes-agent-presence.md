@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.132 e997a2d0; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.132 1601d304; do not edit -->
 
 # Agent presence and activity
 
@@ -59,7 +59,7 @@ selection style or a tool-call log.
 
 Insertion/replacement text uses a fading highlight only after acknowledgement.
 Deletion has no special marker in this iteration. Failed writes and dry runs never
-produce success highlights. Selections expire after 8 seconds; completed edit
+produce success highlights. Agent read selections expire after 8 seconds; completed edit
 highlights fade over 5 seconds. Neither heartbeat nor badge renewal extends those
 lifetimes. A completed edit may finish fading after its author leaves. Human
 cursors retain relative CRDT anchoring; CLI selections are exact-source-hash bound
@@ -69,9 +69,10 @@ People and agents share participant-color rules, not action-specific colors.
 Use an agent icon and agent/owner labels to distinguish them; do not rely on color
 alone. Concurrent sessions must remain distinguishable even when names match.
 
-The defaults are a 60-second recent-presence timeout and a 5-second
-completed-edit fade. Optional passage activity has an independent 8-second
-expiry. These are DreamLake choices, not asserted Google Docs, iMessage, or
+The agent defaults are a 60-second recent-presence timeout and a 5-second
+completed-edit fade. Agent passage activity has an independent 8-second
+expiry. Human selections come from the browser connection’s current RTC awareness;
+they can change or clear on focus changes and do not inherit the agent activity TTL. These are DreamLake choices, not asserted Google Docs, iMessage, or
 Claude Tag timing constants.
 
 ## Availability and optional controls

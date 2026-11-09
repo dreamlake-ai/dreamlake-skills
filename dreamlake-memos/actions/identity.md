@@ -30,6 +30,10 @@ readback verifies presence, not browser highlights. Only claim visual
 verification after observing the highlight. See
 [one identity per task](../reference/cli-notes-collaboration.md#one-identity-per-task).
 
+For a question about human presence, a selected passage or recent changes, use
+[inspect current collaboration](observe.md) rather than treating task attribution
+as evidence of what the user is doing.
+
 ## Contributing sessions
 
 Presence IDs identify an editing task; they do not identify a resumable Codex
