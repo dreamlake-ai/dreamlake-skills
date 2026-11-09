@@ -1,14 +1,14 @@
 # Link Memo items: prompt, comments, details, acceptance
 
 Links reference existing Memos or sections; linking creates or edits no Memo
-content. Use IDs returned by the Memos APIs (`dreamlake memos list`; skill
+content. Use IDs returned by the Memos APIs (`dl memos list`; skill
 `dreamlake-memos`) and resolve section anchors against the actual document.
 
 ```bash
-dreamlake tasks notes add vault/entries/write-recovery --role agent_prompt --note-id NOTE_ID_PROMPT --section recovery-agent
-dreamlake tasks notes add vault/entries/write-recovery --role comment --note-id NOTE_ID_DISCUSSION --section review-feedback
-dreamlake tasks notes add vault/entries/write-recovery --role details --note-id NOTE_ID_DESIGN
-dreamlake tasks notes list vault/entries/write-recovery --to-json
+dl tasks notes add vault/entries/write-recovery --role agent_prompt --note-id NOTE_ID_PROMPT --section recovery-agent
+dl tasks notes add vault/entries/write-recovery --role comment --note-id NOTE_ID_DISCUSSION --section review-feedback
+dl tasks notes add vault/entries/write-recovery --role details --note-id NOTE_ID_DESIGN
+dl tasks notes list vault/entries/write-recovery --to-json
 ```
 
 Roles include `agent_prompt`, `comment`, `details` and `acceptance`. Linking

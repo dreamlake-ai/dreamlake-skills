@@ -1,10 +1,10 @@
-<!-- generated from https://cli.dreamlake.ai/scenes.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/scenes.md at 0.112.0 0d1fe91; do not edit -->
 
 # Scenes
 
 A **scene** is a versioned world: one entry file — a MuJoCo MJCF scene
 or a URDF robot — plus the assets it references (meshes, textures,
-`<include>`d XMLs). `dreamlake scene` pushes a directory as a new version of a
+`<include>`d XMLs). `dl scene` pushes a directory as a new version of a
 scene under your namespace, and every version opens as an interactive 3D viewer
 at `dreamlake.ai/<namespace>/scenes/<name>`.
 
@@ -17,14 +17,14 @@ flags still apply as a metadata update).
 ## Push a version
 
 ```bash cli-help="scene push"
-dreamlake scene push ./cartpole                 # name defaults to the dir name
-dreamlake scene push ./scenes/cassie \
+dl scene push ./cartpole                 # name defaults to the dir name
+dl scene push ./scenes/cassie \
   --name cassie --entry scene.mjcf \
   --title "Agility Cassie" --visibility public
 # A composed scene whose stack still references local layers is refused —
 # push the layers as scenes first, or push anyway with marked provenance.
-dreamlake scene push ./kitchen-g1 --push-layers
-dreamlake scene push ./kitchen-g1 --allow-local
+dl scene push ./kitchen-g1 --push-layers
+dl scene push ./kitchen-g1 --allow-local
 ```
 
 - `--type` records the simulator family (`isaaclab`, `superdex`, … are
@@ -64,12 +64,12 @@ known prod/staging mapping and the `DREAMLAKE_WEB_URL` override.
 ## List, pull, delete
 
 ```bash file="terminal"
-dreamlake scene list                     # scenes in your namespace
-dreamlake scene pull cassie              # latest → ./cassie/
-dreamlake scene pull cassie@1 -o /tmp/c1 # a specific version
-dreamlake scene delete cassie            # soft delete (restorable)
-dreamlake scene restore cassie
-dreamlake scene delete cassie --permanent  # purge storage — irreversible
+dl scene list                     # scenes in your namespace
+dl scene pull cassie              # latest → ./cassie/
+dl scene pull cassie@1 -o /tmp/c1 # a specific version
+dl scene delete cassie            # soft delete (restorable)
+dl scene restore cassie
+dl scene delete cassie --permanent  # purge storage — irreversible
 ```
 
 With a server that includes the dreamlake-workspace #1343 fix (not yet
@@ -91,9 +91,9 @@ sparse-MJCF file. `scene compose` materializes it into a runnable scene
 directory:
 
 ```bash cli-help="scene compose"
-dreamlake scene compose                         # stack: ./dreamlake.layers.json
-dreamlake scene compose ./kitchen-g1/dreamlake.layers.json -o ./composed
-dreamlake scene compose --force                 # write into a non-empty out dir
+dl scene compose                         # stack: ./dreamlake.layers.json
+dl scene compose ./kitchen-g1/dreamlake.layers.json -o ./composed
+dl scene compose --force                 # write into a non-empty out dir
 ```
 
 - The stack file defaults to `./dreamlake.layers.json`. `-o/--out` defaults
@@ -137,8 +137,8 @@ Scenes are **private** by default (only namespace members can see them). Make
 one public at push time (`--visibility public`) or later from the scene's web
 page; a public scene's viewer link opens without login.
 
-> **Note:** Before v0.6, `dreamlake env` switched login environments. That moved to
-> `dreamlake auth env list|use|remove` — see [Environments](https://cli.dreamlake.ai/environments).
+> **Note:** Before v0.6, `dl env` switched login environments. That moved to
+> `dl auth env list|use|remove` — see [Environments](https://cli.dreamlake.ai/environments).
 
 ## Scenes compatibility and product vocabulary
 
@@ -155,7 +155,7 @@ The canonical collection and detail URLs are `/<namespace>/scenes` and
 query and fragment. Libraries remain a Scenes tab; library detail URLs remain
 `/<namespace>/libraries/<name>`.
 
-CLI 0.45.0 introduces `dreamlake scene` (`env` remains an alias). REST uses
+CLI 0.45.0 introduces `dl scene` (`env` remains an alias). REST uses
 `/namespaces/:slug/scenes` and all existing resource/version/upload/restore/delete
 suffixes. The `/envs` API aliases run the same handlers, with identical auth and
 storage; writes are not redirected. Catalog responses expose `scenes`, retaining
@@ -163,7 +163,7 @@ storage; writes are not redirected. Catalog responses expose `scenes`, retaining
 Existing `envType`, `EnvEntry`, `env_*` identifiers, `ENVS_*` configuration,
 `envs/` object prefixes, the immutable `~/.dreamlake/cache/envs/` cache,
 `dreamlake.env-layers/v3` and `dreamlake.envlayer` remain compatible technical
-contracts. Login environments (`dreamlake auth env`), environment variables and
+contracts. Login environments (`dl auth env`), environment variables and
 RL environment interfaces retain their technical names.
 
 ## Whole-Project ownership transfer

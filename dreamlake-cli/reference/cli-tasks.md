@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.112.0 0d1fe91; do not edit -->
 
 # Task operation examples
 
@@ -12,8 +12,8 @@ Task commands accept session defaults starting in CLI 0.19.1:
 export DREAMLAKE_NAMESPACE=ge
 export DREAMLAKE_PROJECT=my-project
 
-dreamlake tasks list
-dreamlake tasks show vault/entries/write-recovery
+dl tasks list
+dl tasks show vault/entries/write-recovery
 ```
 
 For each argument, an explicit flag overrides its environment variable. Namespace
@@ -22,10 +22,10 @@ must be supplied by `--project` or `DREAMLAKE_PROJECT`; an empty environment val
 counts as unset. Existing namespace/project syntax and order are unchanged:
 
 ```shell
-dreamlake tasks list --namespace another-team --project another-project
+dl tasks list --namespace another-team --project another-project
 ```
 
-These defaults apply to `dreamlake tasks` commands only. No context file or global
+These defaults apply to `dl tasks` commands only. No context file or global
 selected project is written. Agent runners should inject the variables into every
 tool process, including resumed sessions; an export in one isolated shell may not
 carry into the next. Give each session its own environment. Use existing
@@ -41,10 +41,10 @@ when recording a known observation or retrying an uncertain write.
 Parents must already exist; `add` does not implicitly create missing ancestors. These tasks need no Memo content.
 
 ```shell
-dreamlake tasks add vault --kind workstream --title 'Vault' --blurb 'Credential management'
-dreamlake tasks add vault/entries --kind stage --title 'Entries' --blurb 'Entry lifecycle'
-dreamlake tasks add vault/entries/write-recovery --title 'Write recovery' --blurb 'Safely retry writes' --to-json
-dreamlake tasks list vault --tree --to-json
+dl tasks add vault --kind workstream --title 'Vault' --blurb 'Credential management'
+dl tasks add vault/entries --kind stage --title 'Entries' --blurb 'Entry lifecycle'
+dl tasks add vault/entries/write-recovery --title 'Write recovery' --blurb 'Safely retry writes' --to-json
+dl tasks list vault --tree --to-json
 ```
 
 The create response returns stable IDs and revisions. Persist those IDs for API/evidence links; readable paths are for lookup. Use the returned current revision for edits.
@@ -52,8 +52,8 @@ The create response returns stable IDs and revisions. Persist those IDs for API/
 ## Read status and show the waterfall
 
 ```shell
-dreamlake tasks status vault --recursive --to-json
-dreamlake tasks show vault/entries/write-recovery --to-json
+dl tasks status vault --recursive --to-json
+dl tasks show vault/entries/write-recovery --to-json
 ```
 
 The UI opens the selected task/folder in an outline and waterfall. Its detail panel shows memo links and event history. A task with a start and no end has a striped open bar to the present; it does not acquire an endedAt timestamp.
@@ -63,9 +63,9 @@ The UI opens the selected task/folder in an outline and waterfall. Its detail pa
 Rename changes the title, keeping slug/path and ID. Move changes placement or slug explicitly, keeping ID. `--if-match` supplies the current revision; tokens below stand for successive revisions read after each operation.
 
 ```shell
-dreamlake tasks rename vault/entries/write-recovery --title 'Recover interrupted writes' --if-match REV_BEFORE_RENAME
-dreamlake tasks move vault/entries/write-recovery vault/entries/recovery --if-match REV_BEFORE_MOVE
-dreamlake tasks reorder vault/entries --children 'TASK_ID_RECOVERY,TASK_ID_READ' --if-match PARENT_REVISION
+dl tasks rename vault/entries/write-recovery --title 'Recover interrupted writes' --if-match REV_BEFORE_RENAME
+dl tasks move vault/entries/write-recovery vault/entries/recovery --if-match REV_BEFORE_MOVE
+dl tasks reorder vault/entries --children 'TASK_ID_RECOVERY,TASK_ID_READ' --if-match PARENT_REVISION
 ```
 
 Reorder supplies the full existing child-ID array in the desired order; it does not add/remove membership. The example assumes both listed children exist. On conflict, read the current parent rather than overwriting concurrent edits.
@@ -75,11 +75,11 @@ Reorder supplies the full existing child-ID array in the desired order; it does 
 These lifecycle commands log the corresponding typed events. Example times describe actual task work, never PR creation/merge. The examples below address a task before any optional move above.
 
 ```shell
-dreamlake tasks start vault/entries/write-recovery --at '2026-09-13T20:00:00Z' --event-id recovery-start-001 --if-match REV_BEFORE_START
-dreamlake tasks progress vault/entries/write-recovery --mode discrete --completed 3 --total 5 --unit checks --at '2026-09-13T20:15:00Z' --event-id recovery-progress-003 --if-match REV_BEFORE_PROGRESS
-dreamlake tasks progress vault/entries/write-recovery --mode discrete --completed 5 --total 5 --unit checks --at '2026-09-13T20:25:00Z' --event-id recovery-progress-005 --if-match REV_BEFORE_FINISH_PROGRESS
-dreamlake tasks end vault/entries/write-recovery --at '2026-09-13T20:26:00Z' --event-id recovery-end-001 --if-match REV_BEFORE_END
-dreamlake tasks status set vault/entries/write-recovery --status done --at '2026-09-13T20:27:00Z' --event-id recovery-done-001 --if-match REV_BEFORE_DONE
+dl tasks start vault/entries/write-recovery --at '2026-09-13T20:00:00Z' --event-id recovery-start-001 --if-match REV_BEFORE_START
+dl tasks progress vault/entries/write-recovery --mode discrete --completed 3 --total 5 --unit checks --at '2026-09-13T20:15:00Z' --event-id recovery-progress-003 --if-match REV_BEFORE_PROGRESS
+dl tasks progress vault/entries/write-recovery --mode discrete --completed 5 --total 5 --unit checks --at '2026-09-13T20:25:00Z' --event-id recovery-progress-005 --if-match REV_BEFORE_FINISH_PROGRESS
+dl tasks end vault/entries/write-recovery --at '2026-09-13T20:26:00Z' --event-id recovery-end-001 --if-match REV_BEFORE_END
+dl tasks status set vault/entries/write-recovery --status done --at '2026-09-13T20:27:00Z' --event-id recovery-done-001 --if-match REV_BEFORE_DONE
 ```
 
 `end` alone does not imply done. `done` does not imply acceptance. If the work ends unsuccessfully, log context and leave status `not_done`. Reuse an event ID only when replaying precisely the same update. Each new progress snapshot gets a new ID.
@@ -89,7 +89,7 @@ dreamlake tasks status set vault/entries/write-recovery --status done --at '2026
 Use a separate task or explicitly designed reset when changing progress mode/unit. Here `vault/ingest` is an existing task using continuous progress.
 
 ```shell
-dreamlake tasks progress vault/ingest --mode continuous --completed 0.375 --total 1 --unit fraction --at '2026-09-13T20:15:00Z' --event-id ingest-progress-003 --if-match INGEST_REVISION
+dl tasks progress vault/ingest --mode continuous --completed 0.375 --total 1 --unit fraction --at '2026-09-13T20:15:00Z' --event-id ingest-progress-003 --if-match INGEST_REVISION
 ```
 
 This records 0.375 / 1 fraction. Progress is an absolute snapshot: omitting total makes the total unknown, including when a previous total was known. Mode and unit stay fixed until reopen.
@@ -97,8 +97,8 @@ This records 0.375 / 1 fraction. Progress is an absolute snapshot: omitting tota
 ## Log a contextual event and list events
 
 ```shell
-dreamlake tasks events add vault/entries/write-recovery --type message --message 'Replay test passed; human acceptance pending.' --at '2026-09-13T20:28:00Z' --event-id recovery-message-001
-dreamlake tasks events list vault/entries/write-recovery --limit 50 --to-json
+dl tasks events add vault/entries/write-recovery --type message --message 'Replay test passed; human acceptance pending.' --at '2026-09-13T20:28:00Z' --event-id recovery-message-001
+dl tasks events list vault/entries/write-recovery --limit 50 --to-json
 ```
 
 A message event never changes completion/acceptance state. Events should carry evidence references rather than secrets or raw credential-bearing command lines.
@@ -108,10 +108,10 @@ A message event never changes completion/acceptance state. Events should carry e
 These are references to existing Notes/sections. Linking does not create or edit Memo content. Use IDs returned by existing Memos APIs and resolve section anchors against the actual document.
 
 ```shell
-dreamlake tasks notes add vault/entries/write-recovery --role agent_prompt --note-id MEMO_ID_PROMPT --section recovery-agent
-dreamlake tasks notes add vault/entries/write-recovery --role comment --note-id MEMO_ID_DISCUSSION --section review-feedback
-dreamlake tasks notes add vault/entries/write-recovery --role details --note-id MEMO_ID_DESIGN
-dreamlake tasks notes list vault/entries/write-recovery --to-json
+dl tasks notes add vault/entries/write-recovery --role agent_prompt --note-id MEMO_ID_PROMPT --section recovery-agent
+dl tasks notes add vault/entries/write-recovery --role comment --note-id MEMO_ID_DISCUSSION --section review-feedback
+dl tasks notes add vault/entries/write-recovery --role details --note-id MEMO_ID_DESIGN
+dl tasks notes list vault/entries/write-recovery --to-json
 ```
 
 The detail panel groups links by role and opens the linked memo item. Comments use Memos content for this first proposal, not a new Comment collection. A separate comment/post API or immutable discussion timeline is not implied. Prompt revision pinning is optional and must match Memos capabilities; record what the agent actually read when execution evidence needs it.
@@ -121,10 +121,10 @@ The detail panel groups links by role and opens the linked memo item. Comments u
 Deletion hides the record, preserves ID/events/Note links, and never deletes Memo content. Under the proposed first-version rule, deletion with live children fails. These are independent examples, not one mandatory sequence.
 
 ```shell
-dreamlake tasks delete vault/entries/write-recovery --if-match REV_BEFORE_DELETE
-dreamlake tasks list vault --include-deleted --to-json
-dreamlake tasks restore TASK_ID_RECOVERY --if-match REV_BEFORE_RESTORE
-dreamlake tasks status set vault/entries/write-recovery --status deprecated --at '2026-09-13T21:00:00Z' --event-id recovery-deprecated-001 --if-match REV_BEFORE_DEPRECATE
+dl tasks delete vault/entries/write-recovery --if-match REV_BEFORE_DELETE
+dl tasks list vault --include-deleted --to-json
+dl tasks restore TASK_ID_RECOVERY --if-match REV_BEFORE_RESTORE
+dl tasks status set vault/entries/write-recovery --status deprecated --at '2026-09-13T21:00:00Z' --event-id recovery-deprecated-001 --if-match REV_BEFORE_DEPRECATE
 ```
 
 There is no hard-delete example. Deprecation is a visible status, distinct from soft deletion.

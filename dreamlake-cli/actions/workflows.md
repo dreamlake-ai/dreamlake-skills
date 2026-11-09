@@ -5,9 +5,9 @@ publishing belong to `dreamlake-workflows`. This action covers only the CLI
 push and listing of an existing spec file.
 
 ```bash
-dreamlake workflow --help
-dreamlake workflow push ./workflow.json
-dreamlake workflow list
+dl workflow --help
+dl workflow push ./workflow.json
+dl workflow list
 ```
 
 Inspect the spec schema and validate before pushing, and do not treat a

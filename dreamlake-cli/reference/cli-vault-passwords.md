@@ -1,11 +1,11 @@
-<!-- generated from https://cli.dreamlake.ai/vault-passwords.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-passwords.md at 0.112.0 0d1fe91; do not edit -->
 
 # Verify a saved SSH password
 
 **CLI source included in released tag 0.19.1; Python 0.16.0 remains an unpublished candidate.** Fresh installed-client and hosted password acceptance remains required. Saving during enrollment does not prove the password works. This command verifies one explicitly selected binding using a fresh password-only connection; it does not change a password or authorize backend SSH.
 
 ```shell
-dreamlake vault verify-password --binding-id "$password_binding_id" \
+dl vault verify-password --binding-id "$password_binding_id" \
   --ssh 'worker@worker.example' --known-hosts "$HOME/.ssh/known_hosts"
 ```
 
@@ -37,11 +37,11 @@ Password rotation remains required work and needs separately verified recovery a
 **CLI source included in released tag 0.19.1; paired Python candidate remains unpublished.** Requires [backend #370](https://github.com/dreamlake-ai/dreamlake-workspace/pull/370). These low-level commands never change SSH passwords. Use a dedicated non-expiring replacement entry. Private intent/proof files contain metadata only: exact entry references, observed account identity and separately verified recovery-key evidence. The privileged rotation adapter and explicit rollback-resolution API remain required; never fabricate proof to finish an operation.
 
 ```shell
-dreamlake vault password-rotation reserve --binding-id "$binding_id" \
+dl vault password-rotation reserve --binding-id "$binding_id" \
   --operation-id "$operation_id" --input "$intent_file"
-dreamlake vault password-rotation show --operation-id "$operation_id"
+dl vault password-rotation show --operation-id "$operation_id"
 # Cancellation is permitted only before mutation starts.
-dreamlake vault password-rotation cancel --operation-id "$operation_id"
+dl vault password-rotation cancel --operation-id "$operation_id"
 ```
 
 ```python

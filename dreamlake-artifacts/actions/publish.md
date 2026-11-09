@@ -1,13 +1,13 @@
 # Publish
 
 ```bash
-dreamlake artifact push <file> [--title "Title"] [--id <id>] [--kind <kind>] \
+dl artifact push <file> [--title "Title"] [--id <id>] [--kind <kind>] \
     [--namespace <slug>] [--visibility public|private] [--share] \
     [--description "One sentence"] [--cover cover.png]
 ```
 
 Flag semantics and the kind/extension table:
-[Pushing](../reference/cli-artifacts.md#pushing) or `dreamlake artifact push --help`.
+[Pushing](../reference/cli-artifacts.md#pushing) or `dl artifact push --help`.
 After a successful push the CLI prints an **open link** (the dashboard URL,
 with `?share=` appended when `--share` was used) — hand it to the user.
 
@@ -17,11 +17,11 @@ and inspect the saved policy after pushing.
 ## Before the first write
 
 1. Install the standalone CLI (`curl -fsSL https://dl.dreamlake.ai/install.sh | bash`,
-   see the `dreamlake-cli` skill) and check `dreamlake --version` and
-   `dreamlake artifact --help`. The Python package installs the SDK, not the
+   see the `dreamlake-cli` skill) and check `dl --version` and
+   `dl artifact --help`. The Python package installs the SDK, not the
    supported CLI.
-2. `dreamlake login` (device-auth flow). A push otherwise fails with
-   `not authenticated. run 'dreamlake login' first.`
+2. `dl login` (device-auth flow). A push otherwise fails with
+   `not authenticated. run 'dl login' first.`
 3. A push writes to the user's own namespace by default; `--namespace <slug>`
    targets another namespace the user is a member of.
 4. For a single-file artifact, complete the [author](author.md) checklist.
@@ -31,12 +31,12 @@ and inspect the saved policy after pushing.
 
 ```bash
 # Only with a compatible CLI and configured static-site hosting:
-dreamlake artifact push ./dist/client --site --id my-site
+dl artifact push ./dist/client --site --id my-site
 ```
 
 For a built application, media-heavy deck or simulation, prefer this workflow
 while respecting an explicit request for a self-contained file. Check
-`dreamlake artifact push --help` and target hosting availability first; an
+`dl artifact push --help` and target hosting availability first; an
 installed skill does not enable the feature.
 Build/prerender the site, select its client output directory, and preserve the
 bundler's chunks and lazy imports. Do not upload the source tree or server build.
@@ -101,8 +101,8 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
 - A title, description or cover the user set **survives later pushes**: a
   push without the flag keeps the stored value, so do not restate them on
   every re-push. Change or clear them later with
-  `dreamlake artifact meta set <id> …` and inspect with
-  `dreamlake artifact meta show <id>`. See
+  `dl artifact meta set <id> …` and inspect with
+  `dl artifact meta show <id>`. See
   [Link previews](../reference/cli-artifacts.md#link-previews) and
   [Make the link card yours](../reference/docs-artifacts.md#make-the-link-card-yours).
 - What the card reveals depends on visibility — see [share](share.md) before
@@ -132,16 +132,16 @@ link, never the push. Selection, opt-out and manual link/unlink are the
 
 ```bash
 # Dashboard (kind auto-detected as html) with its link-card description
-dreamlake artifact push ./dashboard.html --title "Q1 Dashboard" \
+dl artifact push ./dashboard.html --title "Q1 Dashboard" \
     --description "Revenue, churn and pipeline for the quarter"
 
 # React component with a stable id, then a new version of the same artifact
-dreamlake artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart"
-dreamlake artifact push ./chart.jsx --id sales-chart
+dl artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart"
+dl artifact push ./chart.jsx --id sales-chart
 
 # Public (viewable without login); private with a share link in one step
-dreamlake artifact push ./report.html --visibility public --title "Public Report"
-dreamlake artifact push ./draft.md --share
+dl artifact push ./report.html --visibility public --title "Public Report"
+dl artifact push ./draft.md --share
 ```
 
 An owned artifact moves with its whole Project; see the `projects` action of

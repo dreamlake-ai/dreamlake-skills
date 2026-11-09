@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/analytics.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/analytics.md at 0.112.0 0d1fe91; do not edit -->
 
 # Product analytics
 
@@ -14,15 +14,15 @@ completion event rather than attributing it to a different saved account.
 Disable before running any command:
 
 ```bash
-DREAMLAKE_TELEMETRY=0 dreamlake list
+DREAMLAKE_TELEMETRY=0 dl list
 ```
 
 Or save the preference (no network request):
 
 ```bash cli-help="telemetry"
-dreamlake telemetry disable --quiet
-dreamlake telemetry status
-dreamlake telemetry enable --quiet
+dl telemetry disable --quiet
+dl telemetry status
+dl telemetry enable --quiet
 ```
 
 `DO_NOT_TRACK=1` also disables telemetry. Environment opt-out overrides saved

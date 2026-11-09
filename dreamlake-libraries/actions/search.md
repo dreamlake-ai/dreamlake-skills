@@ -1,17 +1,17 @@
 # Search, inspect, verify, pull
 
 ```bash
-dreamlake library list --all                                       # every visible library, with descriptions
-dreamlake library search "coffee mug" [--library ns/a,ns/b] [--kind mjcf] [--category …] [--tag …] [--license …] [--offset N]
-dreamlake library info <ns>/<name>                                  # library summary: counts, size, facets, semantic
-dreamlake library info <ns>/<name> --asset <id>                     # one asset's card: files, bytes, digest, license
-dreamlake library stat <ns>/<name> --asset <id> -o ./scene/assets   # local copy current?
-dreamlake library pull <ns>/<name> --asset <id> -o ./scene/assets   # one asset's files
-dreamlake library pull <ns>/<name> -o ./copy                        # clean source tree, byte-identical
-dreamlake library pull <ns>/<name> --all -o ./copy                  # + platform artifacts (.dreamlake/)
+dl library list --all                                       # every visible library, with descriptions
+dl library search "coffee mug" [--library ns/a,ns/b] [--kind mjcf] [--category …] [--tag …] [--license …] [--offset N]
+dl library info <ns>/<name>                                  # library summary: counts, size, facets, semantic
+dl library info <ns>/<name> --asset <id>                     # one asset's card: files, bytes, digest, license
+dl library stat <ns>/<name> --asset <id> -o ./scene/assets   # local copy current?
+dl library pull <ns>/<name> --asset <id> -o ./scene/assets   # one asset's files
+dl library pull <ns>/<name> -o ./copy                        # clean source tree, byte-identical
+dl library pull <ns>/<name> --all -o ./copy                  # + platform artifacts (.dreamlake/)
 ```
 
-Flags and scopes: `dreamlake library <cmd> --help`,
+Flags and scopes: `dl library <cmd> --help`,
 [Search it](../reference/docs-libraries.md#search-it) and
 [The read path](../reference/docs-libraries-reference.md#the-read-path).
 Every command takes `--json`: `list` and `search` emit the raw HTTP

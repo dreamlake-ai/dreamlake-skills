@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/connect-aws.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/connect-aws.md at 0.112.0 0d1fe91; do not edit -->
 
 # Connect AWS to DreamLake
 
@@ -50,13 +50,13 @@ agent skill: review local edits before updating that skill.
 
 ```bash file="terminal"
 curl -fsSL https://dl.dreamlake.ai/install.sh | bash
-dreamlake --version
-dreamlake login
-dreamlake skill install --agent codex
+dl --version
+dl login
+dl skill install --agent codex
 # Or use --agent claude for Claude Code.
-dreamlake auth env list
-dreamlake providers --help
-dreamlake hosts enroll --help
+dl auth env list
+dl providers --help
+dl hosts enroll --help
 ```
 
 See [installation](https://cli.dreamlake.ai/installation) and [authentication environments](https://cli.dreamlake.ai/environments)
@@ -102,8 +102,8 @@ These plural `providers` commands use the authenticated product API; the singula
 `provider create --provider ...` command below creates local scaffold files.
 
 ```bash file="terminal"
-dreamlake providers list YOUR_NAMESPACE --json
-dreamlake providers status YOUR_NAMESPACE/EXISTING_PROVIDER_ID --json
+dl providers list YOUR_NAMESPACE --json
+dl providers status YOUR_NAMESPACE/EXISTING_PROVIDER_ID --json
 ```
 
 If your intended account/region has no suitable owned record, prepare an
@@ -112,7 +112,7 @@ Include the selected account and region and, if needed, a Vault entry reference;
 never include AWS key contents. Within the requested registration scope:
 
 ```bash file="terminal"
-dreamlake providers register YOUR_NAMESPACE --file provider.json \
+dl providers register YOUR_NAMESPACE --file provider.json \
   --request-id aws-starter-provider-001 --json
 ```
 
@@ -128,7 +128,7 @@ Choose one deliberate scaffold name and keep using it. `create` is local and
 does not invoke Terraform or register a provider in the product.
 
 ```bash file="terminal"
-dreamlake provider create -n aws-starter --provider aws-jump-worker --json
+dl provider create -n aws-starter --provider aws-jump-worker --json
 ```
 
 Open `AGENT.md`, `ADAPT.md`, `inputs.schema.json` and `backend.schema.json` in
@@ -144,8 +144,8 @@ Choose `controller_mode: "ec2"` only for an explicitly requested second EC2
 controller, with its own distinct jump inputs.
 
 ```bash file="terminal"
-dreamlake provider create -n aws-starter --continue --json
-dreamlake provider plan -n aws-starter --json
+dl provider create -n aws-starter --continue --json
+dl provider plan -n aws-starter --json
 ```
 
 Read `status`, `blocking` and `nextAction`. `needs_input` exits zero: edit the
@@ -188,7 +188,7 @@ starts no daemon and does not change the existing controller or Launch worker.
 After reviewing the plan and confirming it is within the user's authorization:
 
 ```bash file="terminal"
-dreamlake provider apply -n aws-starter --yes --json
+dl provider apply -n aws-starter --yes --json
 ```
 
 `--yes` performs the action; a returned command containing `--yes` does not
@@ -205,8 +205,8 @@ Generic `provider connect` and `provider disconnect` do not manage this template
 Read the existing controller and worker host status first:
 
 ```bash file="terminal"
-dreamlake hosts status YOUR_NAMESPACE/EXISTING_CONTROLLER --json
-dreamlake hosts status YOUR_NAMESPACE/EXISTING_WORKER --json
+dl hosts status YOUR_NAMESPACE/EXISTING_CONTROLLER --json
+dl hosts status YOUR_NAMESPACE/EXISTING_WORKER --json
 ```
 
 Reuse a suitable owned enrollment on each role. Do not install another daemon
@@ -218,7 +218,7 @@ bootstrap grant travels over SSH stdin and does not enter Terraform.
 
 ```bash file="terminal"
 # Only for a worker that needs enrollment, within the authorized setup scope.
-dreamlake hosts enroll --name YOUR_NAMESPACE/aws-starter/worker \
+dl hosts enroll --name YOUR_NAMESPACE/aws-starter/worker \
   --ssh '-F /private/operator-ssh-config dreamlake-worker-enroll' \
   --lakeshore-id YOUR_LAKESHORE_ID --nymph-version v0.1.17 \
   --request-id aws-starter-worker-001 --no-save-credentials --json
@@ -250,7 +250,7 @@ on that exact worker is authorized. In a new local test directory:
 
 ```bash file="terminal"
 printf 'print(20 + 22)\n' > hello.py
-dreamlake run --target YOUR_NAMESPACE/aws-starter/worker --include hello.py \
+dl run --target YOUR_NAMESPACE/aws-starter/worker --include hello.py \
   --request-id aws-starter-hello-001 --timeout-seconds 60 --uv-run python hello.py
 ```
 

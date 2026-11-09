@@ -4,9 +4,9 @@ Episode data and connected Sources use different commands. Quote paths that
 contain spaces and choose the correct Source explicitly.
 
 ```bash
-dreamlake upload --file ./model.pt --workspace ws --episode exp
-dreamlake download --episode my-robots:run-001 --from "/camera/front/clip.mp4" -o "./out file.mp4"
-dreamlake source download "datasets/run 01/" --source my-bucket -r -o "./local data"
+dl upload --file ./model.pt --workspace ws --episode exp
+dl download --episode my-robots:run-001 --from "/camera/front/clip.mp4" -o "./out file.mp4"
+dl source download "datasets/run 01/" --source my-bucket -r -o "./local data"
 ```
 
 Check the target before downloading. Recursive Source download preserves the
@@ -17,9 +17,9 @@ for supported selectors and limits.
 ## Upload into a Source
 
 To upload files into a Source (not an episode), use
-`dreamlake source upload <path> --source <name> --to <prefix> [-r]` with an
+`dl source upload <path> --source <name> --to <prefix> [-r]` with an
 explicit `--to`. It silently replaces any managed file already at that path, so
-run `dreamlake source browse <prefix> --source <name>` first and prefer a fresh
+run `dl source browse <prefix> --source <name>` first and prefer a fresh
 prefix. See [sources](../reference/cli-sources.md).
 
 Connecting a bucket or Hugging Face repo as a Source, preparing a dataset layout

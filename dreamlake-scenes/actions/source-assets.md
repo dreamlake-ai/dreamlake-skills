@@ -12,8 +12,8 @@ no required survey or library-search step:
   source, often the best one for tables, shelves, walls. Element/attribute
   authority: the
   [MuJoCo XML reference](https://mujoco.readthedocs.io/en/latest/XMLreference.html).
-- **A DreamLake library** (optional convenience; needs the `dreamlake` CLI
-  logged in — `dreamlake login`, check `dreamlake profile`): per-asset
+- **A DreamLake library** (optional convenience; needs the `dl` CLI
+  logged in — `dl login`, check `dl profile`): per-asset
   search and manifest-sha256-verified pulls through the `search` action of
   `dreamlake-libraries`.
 
@@ -52,9 +52,9 @@ with an external tool, verify the output like any downloaded mesh.
 ## Library search, when you use it
 
 ```bash
-dreamlake library list --all
-dreamlake library search "coffee mug" --library <ns>/<lib> --kind mjcf
-dreamlake library pull <ns>/<lib> --asset <id> -o ./assets   # incremental; safe into a non-empty dir
+dl library list --all
+dl library search "coffee mug" --library <ns>/<lib> --kind mjcf
+dl library pull <ns>/<lib> --asset <id> -o ./assets   # incremental; safe into a non-empty dir
 python tools/scene_report.py ./assets/<id>
 ```
 
@@ -70,7 +70,7 @@ Scopes, filters, `info`/`stat`, `--json` and the hit format are in the
   another library — **or leave the library route** and download or author
   the asset instead. Empty results switch the source, never end the task.
   Libraries without usable embeddings fall back to keyword matching
-  silently; use short literal terms there (`dreamlake library info <ns>/<lib>`
+  silently; use short literal terms there (`dl library info <ns>/<lib>`
   reports `semantic`).
 - Every pulled file is verified against its manifest sha256 — rerun a failed
   pull; nothing lands silently corrupted. Then run the checklist above on

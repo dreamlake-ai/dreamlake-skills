@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Linked memo items
 
@@ -95,8 +95,8 @@ Do not retry extraction or rewrite a parent from stale text to bypass a sync hol
 ## Agent skill
 
 Linked-item extraction, raw full-ID references, concurrency checks and CLI
-readback are part of the `dreamlake-memos` skill: run `dreamlake init` once,
-then `dreamlake skill install dreamlake-memos`; or copy `dreamlake-memos/`
+readback are part of the `dreamlake-memos` skill: run `dl init` once,
+then `dl skill install dreamlake-memos`; or copy `dreamlake-memos/`
 and `dreamlake-cli/` from the latest
 [dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
 tarball into your agent's skills directory.

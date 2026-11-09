@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/infrastructure.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/infrastructure.md at 0.112.0 0d1fe91; do not edit -->
 
 # Infrastructure stacks
 
@@ -13,11 +13,11 @@ for the architecture. The walkthrough below covers both manual and automated
 execution. Stack registration alone does not deploy infrastructure.
 
 These six commands require CLI 0.58.0 or later and a compatible Infrastructure
-API. CLI 0.57.0 does not include `dreamlake infra`. Check the installed version
+API. CLI 0.57.0 does not include `dl infra`. Check the installed version
 and command help before using these examples.
 
 ```bash cli-help="infra list"
-dreamlake infra list --namespace fortyfive --project dreamlake-infra --json
+dl infra list --namespace fortyfive --project dreamlake-infra --json
 ```
 
 `--project` is required. Without `--namespace`, the current user's namespace is
@@ -29,7 +29,7 @@ and organization membership alone do not grant infrastructure READ access,
 which includes secret-bearing state.
 
 ```bash cli-help="infra status"
-dreamlake infra status da8e49cf-1b37-446f-9494-9620faf3192d --json
+dl infra status da8e49cf-1b37-446f-9494-9620faf3192d --json
 ```
 
 Use an immutable stack UUID, never its label. Status reads configuration and
@@ -38,7 +38,7 @@ separately from client-reported Who and Operation. Missing lock details remain
 unknown. A state version does not establish deployment success or resource health.
 
 ```bash cli-help="infra connect"
-dreamlake infra connect da8e49cf-1b37-446f-9494-9620faf3192d
+dl infra connect da8e49cf-1b37-446f-9494-9620faf3192d
 ```
 
 Connect first reads stack detail to validate access, then prints HTTP backend
@@ -80,7 +80,7 @@ terraform {
 }
 ```
 
-Run `dreamlake infra connect STACK_UUID` and review the printed environment for
+Run `dl infra connect STACK_UUID` and review the printed environment for
 the intended remote. It does not execute its output. Supply `DREAMLAKE_TOKEN`
 privately from the authorized credential mechanism; do not echo it or pass it
 in backend command-line arguments. A login used by the CLI does not automatically
@@ -201,7 +201,7 @@ for client configuration and plan artifact handling.
 ## Retained metadata
 
 ```bash cli-help="infra history"
-dreamlake infra history da8e49cf-1b37-446f-9494-9620faf3192d --json
+dl infra history da8e49cf-1b37-446f-9494-9620faf3192d --json
 ```
 
 History follows descending `before` cursors and returns `versions` with
@@ -211,7 +211,7 @@ above JavaScript's safe integer range. No state snapshot is downloaded.
 Unordered versions, malformed metadata and more than 100 pages fail the read.
 
 ```bash cli-help="infra events"
-dreamlake infra events da8e49cf-1b37-446f-9494-9620faf3192d --after 0 --json
+dl infra events da8e49cf-1b37-446f-9494-9620faf3192d --after 0 --json
 ```
 
 Events follows increasing sequence cursors, retaining decimal strings. `--after`
@@ -225,7 +225,7 @@ of execution or health. Infrastructure READ access is enforced on every request.
 ## Register an empty backend
 
 ```bash cli-help="infra create"
-dreamlake infra create analytics --namespace fortyfive --project dreamlake-infra \
+dl infra create analytics --namespace fortyfive --project dreamlake-infra \
   --environment production --repository https://github.com/example/repo \
   --directory infra/analytics --path infra/analytics/production --json
 ```
@@ -291,20 +291,20 @@ creating a replacement stack or stripping its path.
 
 ```bash cli-help="infra move"
 # Save one reviewed move; no location changes occur during preview.
-dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
+dl infra move da8e49cf-1b37-446f-9494-9620faf3192d \
   --namespace fortyfive --project dreamlake-infra --dry-run --out stack-move.json
 # Execute the exact saved intent and optimistic concurrency checks.
-dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
+dl infra move da8e49cf-1b37-446f-9494-9620faf3192d \
   --request-file stack-move.json --confirm --json
 # Path-only move: same namespace/project, new place in its resource tree.
-dreamlake infra move da8e49cf-1b37-446f-9494-9620faf3192d \
+dl infra move da8e49cf-1b37-446f-9494-9620faf3192d \
   --namespace fortyfive --project dreamlake-infra \
   --destination-path platform/aws/analytics --dry-run --out stack-path.json
 # Archive a registration in another Project, preserving its current relative path.
-dreamlake infra move 28609d8d-4dce-42a3-afd2-faa13a45b958 \
+dl infra move 28609d8d-4dce-42a3-afd2-faa13a45b958 \
   --namespace fortyfive --project infrastructure-archive \
   --dry-run --out stack-archive.json
-dreamlake infra move 28609d8d-4dce-42a3-afd2-faa13a45b958 \
+dl infra move 28609d8d-4dce-42a3-afd2-faa13a45b958 \
   --request-file stack-archive.json --confirm --json
 ```
 
@@ -342,7 +342,7 @@ remain intact. Mounted and runbook-bound stacks remain blocked in this stage.
 Save a new private review file; existing files are never overwritten:
 
 ```bash cli-help="infra transfer plan"
-dreamlake infra transfer plan 616658fd-531c-4bb9-8f52-7ebcbaa350b9 \
+dl infra transfer plan 616658fd-531c-4bb9-8f52-7ebcbaa350b9 \
   --namespace fortyfive --project dreamlake-infra \
   --out stack-transfer.json
 ```
@@ -352,7 +352,7 @@ policy and blockers. The saved SHA256 binds that exact request and destination.
 Create only from an executable review:
 
 ```bash cli-help="infra transfer create"
-dreamlake infra transfer create 616658fd-531c-4bb9-8f52-7ebcbaa350b9 \
+dl infra transfer create 616658fd-531c-4bb9-8f52-7ebcbaa350b9 \
   --request-file stack-transfer.json --confirm --accept-if-authorized
 ```
 
@@ -365,14 +365,14 @@ same operation before deciding whether to replay the same request.
 A recipient can save the server's bounded public receipt for review:
 
 ```bash cli-help="infra transfer status"
-dreamlake infra transfer status 616658fd-531c-4bb9-8f52-7ebcbaa350b1 \
+dl infra transfer status 616658fd-531c-4bb9-8f52-7ebcbaa350b1 \
   --out stack-transfer-acceptance.json
 ```
 
 Then explicitly accept that reviewed operation:
 
 ```bash cli-help="infra transfer accept"
-dreamlake infra transfer accept 616658fd-531c-4bb9-8f52-7ebcbaa350b1 \
+dl infra transfer accept 616658fd-531c-4bb9-8f52-7ebcbaa350b1 \
   --request-file stack-transfer-acceptance.json --confirm
 ```
 

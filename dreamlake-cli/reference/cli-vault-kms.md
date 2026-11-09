@@ -1,15 +1,15 @@
-<!-- generated from https://cli.dreamlake.ai/vault-kms.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-kms.md at 0.112.0 0d1fe91; do not edit -->
 
 # Prefix KMS policies
 
 **Published CLI 0.17.0 and Python 0.14.0; requires the matching backend.** Managed KMS is the default and needs no cloud setup for ordinary users. These owner-only commands inspect trusted references configured by an operator; they do not create cloud keys or permissions. Scoped access keys and project membership do not grant policy-management authority.
 
 ```shell
-dreamlake vault -p alice/research kms show
-dreamlake vault -p alice/research kms preview --key research-key
+dl vault -p alice/research kms show
+dl vault -p alice/research kms preview --key research-key
 # Persist the account/server, prefix, key reference and request ID before activation.
-dreamlake vault -p alice/research kms activate --key research-key --request-id research-kms-001
-dreamlake vault kms status research-kms-001
+dl vault -p alice/research kms activate --key research-key --request-id research-kms-001
+dl vault kms status research-kms-001
 ```
 
 ```python
@@ -30,10 +30,10 @@ The empty-prefix foundation is merged. Populated-prefix migration is merged and 
 Migration changes the key for future writes, then explicitly re-encrypts retained entry and recovery ciphertext in bounded batches. It preserves logical revisions, HOTP counters and existing request IDs. Keep the original account/server/prefix/key/request ID when a response is uncertain; `status` and another bounded `resume` reconcile committed progress. Libraries never prompt or launch a background loop.
 
 ```shell
-dreamlake vault -p alice/research kms preview --key research-key
-dreamlake vault -p alice/research kms migrate --key research-key --request-id research-move-001
-dreamlake vault -p alice/research kms resume research-move-001 --limit 50
-dreamlake vault kms status research-move-001
+dl vault -p alice/research kms preview --key research-key
+dl vault -p alice/research kms migrate --key research-key --request-id research-move-001
+dl vault -p alice/research kms resume research-move-001 --limit 50
+dl vault kms status research-move-001
 # Repeat resume explicitly until state is completed.
 ```
 

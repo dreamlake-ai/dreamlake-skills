@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Files and attachments
 
@@ -9,17 +9,17 @@ Files inherit the memo's permissions.
 **CLI**
 
 ```bash
-dreamlake memos files upload ./report.html --note "$NOTE_ID"
-dreamlake memos files list --note "$NOTE_ID"
-dreamlake memos files list 'assets/*.png' --note "$NOTE_ID"
-dreamlake memos files cat config.json --note "$NOTE_ID"
-dreamlake memos files write config.json --text '{}' --note "$NOTE_ID"
-dreamlake memos files download report.html --note "$NOTE_ID" -o ./report.html
-dreamlake memos files mv old.txt new.txt --note "$NOTE_ID"
-dreamlake memos files cp a.txt b.txt --note "$NOTE_ID"
-dreamlake memos files rm old.txt --note "$NOTE_ID"       # trash
-dreamlake memos files list --trashed --note "$NOTE_ID"   # ids of trashed files
-dreamlake memos files restore <file-id> --note "$NOTE_ID"
+dl memos files upload ./report.html --note "$NOTE_ID"
+dl memos files list --note "$NOTE_ID"
+dl memos files list 'assets/*.png' --note "$NOTE_ID"
+dl memos files cat config.json --note "$NOTE_ID"
+dl memos files write config.json --text '{}' --note "$NOTE_ID"
+dl memos files download report.html --note "$NOTE_ID" -o ./report.html
+dl memos files mv old.txt new.txt --note "$NOTE_ID"
+dl memos files cp a.txt b.txt --note "$NOTE_ID"
+dl memos files rm old.txt --note "$NOTE_ID"       # trash
+dl memos files list --trashed --note "$NOTE_ID"   # ids of trashed files
+dl memos files restore <file-id> --note "$NOTE_ID"
 ```
 
 **Python**
@@ -63,10 +63,10 @@ you want a conditional move. The same option is available on `rm`:
 set -euo pipefail
 : "${NOTE_ID:?set a disposable note ID}"
 : "${NAMESPACE:?set its namespace}"
-ETAG=$(dreamlake memos files cat config.json --note "$NOTE_ID" \
+ETAG=$(dl memos files cat config.json --note "$NOTE_ID" \
   --namespace "$NAMESPACE" --json | jq -er '.etag')
 : "${ETAG:?the read must return a nonempty ETag}"
-dreamlake memos files mv config.json config-renamed.json --note "$NOTE_ID" \
+dl memos files mv config.json config-renamed.json --note "$NOTE_ID" \
   --namespace "$NAMESPACE" --if-match "$ETAG"
 ```
 
@@ -113,7 +113,7 @@ CLI 0.48.2 adds `--idempotency-key` to `files write` and `files cp`, plus select
 `files status`, `files reconcile` and `files cancel` commands. Its public npm/native
 release, latest/stable pointers and real isolated Linux installations are verified;
 the other seven OS targets were byte-verified, not runtime-tested. Check
-`dreamlake --version` and use these commands only with that version or later and
+`dl --version` and use these commands only with that version or later and
 the verified journal-enabled API. Older CLI 0.48.1 does not expose these controls.
 The API examples below remain available for explicit API integrations.
 
@@ -159,12 +159,12 @@ the key and exact request; the CLI never automatically retries.
 ```bash
 : "${NOTE_ID:?set a disposable Note ID}"
 : "${NAMESPACE:?set its namespace}"
-dreamlake --version
+dl --version
 # Choose only the intended write or copy.
-dreamlake memos files write journal-example.txt --text 'reviewed text' \
+dl memos files write journal-example.txt --text 'reviewed text' \
   --note "$NOTE_ID" --namespace "$NAMESPACE" \
   --idempotency-key example-text-001 --json
-dreamlake memos files cp journal-example.txt journal-copy.txt \
+dl memos files cp journal-example.txt journal-copy.txt \
   --note "$NOTE_ID" --namespace "$NAMESPACE" \
   --idempotency-key example-copy-001 --json
 ```
@@ -174,13 +174,13 @@ including a failure receipt. Inspect before choosing any further action:
 
 ```bash
 : "${OPERATION_ID:?set the retained operation ID}"
-dreamlake memos files status "$OPERATION_ID" \
+dl memos files status "$OPERATION_ID" \
   --note "$NOTE_ID" --namespace "$NAMESPACE" --json
 # Choose reconcile only to finish the original retained publication.
-dreamlake memos files reconcile "$OPERATION_ID" \
+dl memos files reconcile "$OPERATION_ID" \
   --note "$NOTE_ID" --namespace "$NAMESPACE" --json
 # Choose cancel only when admitted work is no longer wanted.
-dreamlake memos files cancel "$OPERATION_ID" \
+dl memos files cancel "$OPERATION_ID" \
   --note "$NOTE_ID" --namespace "$NAMESPACE" --json
 ```
 
@@ -311,14 +311,14 @@ they do not change Memo ownership or project filing.
 set -euo pipefail
 : "${NOTE_ID:?Set NOTE_ID to your disposable Note ID}"
 : "${NAMESPACE:?Set NAMESPACE to that Note namespace}"
-dreamlake memos files write access-check.txt --text before \
+dl memos files write access-check.txt --text before \
   --note "$NOTE_ID" --namespace "$NAMESPACE"
-ETAG=$(dreamlake memos files cat access-check.txt --json \
+ETAG=$(dl memos files cat access-check.txt --json \
   --note "$NOTE_ID" --namespace "$NAMESPACE" | jq -er '.etag')
 : "${ETAG:?Expected a nonempty file ETag before replacement}"
-dreamlake memos files write access-check.txt --text after --overwrite --if-match "$ETAG" \
+dl memos files write access-check.txt --text after --overwrite --if-match "$ETAG" \
   --note "$NOTE_ID" --namespace "$NAMESPACE"
-dreamlake memos files cat access-check.txt --note "$NOTE_ID" --namespace "$NAMESPACE"
+dl memos files cat access-check.txt --note "$NOTE_ID" --namespace "$NAMESPACE"
 ```
 
 The readback should be `after`, and the file ID remains unchanged. Reusing the old
@@ -355,7 +355,7 @@ With the CLI installed and signed in, set `NOTE_ID` to your memo's full ID and
 upload a local PNG. No JSON flag or parsing is needed for interactive use:
 
 ```bash
-dreamlake memos files upload ./diagram.png --note "$NOTE_ID" --path assets/diagram.png
+dl memos files upload ./diagram.png --note "$NOTE_ID" --path assets/diagram.png
 ```
 
 The output shows `assets/diagram.png`, the size, content type and file ID.
@@ -363,7 +363,7 @@ You chose that logical path with `--path`; without it, the path defaults to
 `diagram.png`. To get just the authenticated **preview page URL** on stdout:
 
 ```bash
-dreamlake memos files preview assets/diagram.png --note "$NOTE_ID"
+dl memos files preview assets/diagram.png --note "$NOTE_ID"
 ```
 
 For scripts that need to capture the returned attachment path, use the
@@ -372,7 +372,7 @@ structured response below (`jq` required):
 ```bash
 set -e
 NOTE_ID="<full-note-id>"
-dreamlake memos files upload ./diagram.png --note "$NOTE_ID" \
+dl memos files upload ./diagram.png --note "$NOTE_ID" \
   --path assets/diagram.png --json > attachment.json
 IMAGE_PATH=$(jq -er '.path' attachment.json)
 printf '%s\n' "$IMAGE_PATH"  # assets/diagram.png
@@ -420,13 +420,13 @@ file preview.
 CLI 0.37.0 and later return that URL directly using your saved login:
 
 ```bash
-dreamlake memos media upload ./diagram.png
+dl memos media upload ./diagram.png
 ```
 
 Or capture it for insertion into a document:
 
 ```bash
-IMAGE_URL=$(dreamlake memos media upload ./diagram.png)
+IMAGE_URL=$(dl memos media upload ./diagram.png)
 printf '\n![Architecture diagram](%s)\n' "${IMAGE_URL:?Upload the image first}" > image.md
 printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the image first}" > image.html
 ```
@@ -434,7 +434,7 @@ printf '<img src="%s" alt="Architecture diagram">\n' "${IMAGE_URL:?Upload the im
 Choose either the direct upload or the capture command; each call uploads a
 new media object. No memo ID or namespace is needed, and upload alone does not
 edit a memo. Optional `--json` returns the full receipt. This command requires
-CLI 0.37.0 or later; check `dreamlake memos media upload --help` for availability.
+CLI 0.37.0 or later; check `dl memos media upload --help` for availability.
 For installed versions without it, use the HTTP example below.
 
 Set `DREAMLAKE_TOKEN` to a valid bearer token for the API environment you are
@@ -481,7 +481,7 @@ attachment path or ID.
 Insert the Markdown snippet into your existing memo with the append helper:
 
 ```bash
-dreamlake memos append "$NOTE_ID" --file image.md
+dl memos append "$NOTE_ID" --file image.md
 ```
 
 Use `image.html` in an HTML document; for the Memos Markdown body, use
@@ -500,9 +500,9 @@ preview instead of publishing an inline media URL.
 **CLI**
 
 ```bash
-dreamlake memos files preview report.html --note "$NOTE_ID" --open
-dreamlake memos files preview report.html --note "$NOTE_ID" --share
-dreamlake memos files preview report.html --note "$NOTE_ID" --revoke
+dl memos files preview report.html --note "$NOTE_ID" --open
+dl memos files preview report.html --note "$NOTE_ID" --share
+dl memos files preview report.html --note "$NOTE_ID" --revoke
 ```
 
 **Python**

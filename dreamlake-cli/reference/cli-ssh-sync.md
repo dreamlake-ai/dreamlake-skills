@@ -1,18 +1,18 @@
-<!-- generated from https://cli.dreamlake.ai/ssh-sync.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/ssh-sync.md at 0.112.0 0d1fe91; do not edit -->
 
 # Selected SSH import
 
-`dreamlake vault import --ssh` reads a local SSH config and saves selected items through
+`dl vault import --ssh` reads a local SSH config and saves selected items through
 the existing vault entry API. It does not connect to hosts. The destination server
 must have authenticated vault routes and encryption configured; unavailable routes
 are reported as failures. No episode or other plaintext upload is used.
 
 ```shell
 # Discover item IDs and review metadata without reading private keys or calling vault.
-dreamlake vault import --ssh -p alice --config /absolute/path/to/config --dry-run
+dl vault import --ssh -p alice --config /absolute/path/to/config --dry-run
 
 # Open an empty checklist, then review selected destinations before uploading.
-dreamlake vault import --ssh -p alice --config /absolute/path/to/config
+dl vault import --ssh -p alice --config /absolute/path/to/config
 ```
 
 Omitting `--config` uses `~/.ssh/config`. Use arrows to move, Space to toggle,
@@ -27,11 +27,11 @@ confirmation. Hardware-backed keys remain references.
 
 ```shell
 # Automation: explicit selections are the upload consent; no prompt opens.
-dreamlake vault import --ssh -p alice --config /absolute/path/to/config --json \
+dl vault import --ssh -p alice --config /absolute/path/to/config --json \
   --select profile:dev
 
 # Add the key only when exporting its private contents is intended.
-dreamlake vault import --ssh -p alice --config /absolute/path/to/config --json \
+dl vault import --ssh -p alice --config /absolute/path/to/config --json \
   --select profile:dev --select key:dev:1
 ```
 
@@ -59,8 +59,8 @@ An equal active destination is reported as verified, without another write.
 A differing destination is a conflict until its revision is explicitly supplied:
 
 ```shell
-dreamlake vault show -n alice/ssh/profiles/dev
-dreamlake vault import --ssh -p alice --config /absolute/path/to/config --json \
+dl vault show -n alice/ssh/profiles/dev
+dl vault import --ssh -p alice --config /absolute/path/to/config --json \
   --select profile:dev --if-match profile:dev=3
 ```
 
@@ -98,7 +98,7 @@ named store. Selected TOTP upload and owner-only code retrieval are available in
 servers, use a backend with TOTP support. HOTP storage, explicit counter ownership, and retry-safe issuance are published in CLI 0.16.0 / Python 0.13.0, with the matching HOTP backend required; package publication and hosted acceptance remain separate. See [Vault operations](cli-vault-operations.md). Ordinary `--pass` is reserved and rejected.
 
 ```shell
-dreamlake vault import --pass-otp -p alice --dry-run \
+dl vault import --pass-otp -p alice --dry-run \
   --store /absolute/path/to/password-store --gpg-home /absolute/path/to/gnupg
 ```
 
@@ -145,10 +145,10 @@ After importing credentials, verify the intended host login separately.
 
 ```shell
 # Create only the selected login.gpg registration under alice/otp/login.
-dreamlake vault import --pass-otp -p alice/otp --store /canonical/test-store --select login
+dl vault import --pass-otp -p alice/otp --store /canonical/test-store --select login
 # Explicitly reveal a code; never put it in logs or command arguments.
-dreamlake vault otp -p alice/otp -n login
-dreamlake vault otp -p alice/otp -n login --to-json
+dl vault otp -p alice/otp -n login
+dl vault otp -p alice/otp -n login --to-json
 ```
 
 ```python

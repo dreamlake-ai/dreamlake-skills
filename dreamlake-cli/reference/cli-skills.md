@@ -1,11 +1,11 @@
-<!-- generated from https://cli.dreamlake.ai/skills.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/skills.md at 0.112.0 0d1fe91; do not edit -->
 
 # Agent skills
 
 DreamLake skills are written once, in the public
 [dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills) repository,
 and published as a release: a `catalog.json` listing every skill and a
-`skills.tar.gz` holding their directories. The `dreamlake` CLI is the installer.
+`skills.tar.gz` holding their directories. The `dl` CLI is the installer.
 It carries one skill, `dreamlake-cli`, embedded for offline use; everything else
 is downloaded from the latest release. Manual install is unpacking the same
 tarball. Reading a skill needs no install: `skill read` prints any file of
@@ -14,26 +14,26 @@ revision it came from.
 
 ## Setup
 
-Run `dreamlake init` once. It asks which agent you use (Claude Code, Codex,
+Run `dl init` once. It asks which agent you use (Claude Code, Codex,
 or both) and where skills should go (this project or your home directory), remembers
 both, installs the embedded `dreamlake-cli` skill without touching the
 network, and lists the other skills in the catalog.
 
 ```bash file="terminal" cli-help="dreamlake"
 # Guided agent setup: choose agent and scope, install dreamlake-cli offline
-dreamlake init
+dl init
 # Install more skills from the public release
-dreamlake skill install dreamlake-memos
+dl skill install dreamlake-memos
 # Keep installed skills current
-dreamlake skill update
+dl skill update
 ```
 
 ```bash file="terminal" cli-help="init"
-dreamlake init
-dreamlake init --agent codex
-dreamlake init --agent claude --global
+dl init
+dl init --agent codex
+dl init --agent claude --global
 # Claude Code and Codex: one copy in each agent's directory
-dreamlake init --agent all --global
+dl init --agent all --global
 ```
 
 With `--agent`, `init` runs without prompts and still saves the choice; add
@@ -49,63 +49,63 @@ honoured). Several agents are saved as `{ "agent", "agents", "scope" }`:
 multi-agent support still reads the file and uses that one agent. Every `skill` subcommand defaults to it; `--agent`, `--global`,
 `--project` and `--dir <path>` override it for one invocation without changing
 it. With nothing saved and no `--agent`, commands use Claude Code and the
-current project and print a one-line hint to run `dreamlake init`.
+current project and print a one-line hint to run `dl init`.
 
 ## Commands
 
 ```bash file="terminal" cli-help="skill"
-dreamlake skill list
-dreamlake skill read dreamlake-memos
-dreamlake skill install dreamlake-memos
-dreamlake skill update
-dreamlake skill remove dreamlake-memos
+dl skill list
+dl skill read dreamlake-memos
+dl skill install dreamlake-memos
+dl skill update
+dl skill remove dreamlake-memos
 ```
 
 ```bash file="terminal" cli-help="skill list"
 # The server's registry when logged in, else the embedded snapshot
-dreamlake skill list
+dl skill list
 # Choose the source; --local never uses the network
-dreamlake skill list --local
-dreamlake skill list --remote
+dl skill list --local
+dl skill list --remote
 # Fetch the latest catalog and show it next to the installed versions
-dreamlake skill list --refresh
-dreamlake skill list --agent codex --json
+dl skill list --refresh
+dl skill list --agent codex --json
 ```
 
 ```bash file="terminal" cli-help="skill read"
 # SKILL.md, from the server's registry when logged in, else the embedded bundle
-dreamlake skill read dreamlake-memos
+dl skill read dreamlake-memos
 # One file inside the skill
-dreamlake skill read dreamlake-memos --file actions/read.md
+dl skill read dreamlake-memos --file actions/read.md
 # Choose the source; --json carries the same fields as the agent's dreamlake_skills_read
-dreamlake skill read dreamlake-cli --local --json
-dreamlake skill read dreamlake-scenes --remote
+dl skill read dreamlake-cli --local --json
+dl skill read dreamlake-scenes --remote
 ```
 
 ```bash file="terminal" cli-help="skill install"
 # The embedded dreamlake-cli skill; offline when it matches the release
-dreamlake skill install dreamlake-cli
+dl skill install dreamlake-cli
 # A catalog skill plus whatever it requires, from the latest release
-dreamlake skill install dreamlake-memos --agent codex
+dl skill install dreamlake-memos --agent codex
 # One copy for Claude Code and one for Codex
-dreamlake skill install dreamlake-memos --agent all --global
+dl skill install dreamlake-memos --agent all --global
 # Replace files you edited with the release copies
-dreamlake skill install dreamlake-memos --force
+dl skill install dreamlake-memos --force
 ```
 
 ```bash file="terminal" cli-help="skill update"
 # Every skill with a manifest in the selected scope
-dreamlake skill update
-dreamlake skill update dreamlake-cli --global
+dl skill update
+dl skill update dreamlake-cli --global
 # Overwrite edited files; retired files you edited are still kept
-dreamlake skill update dreamlake-memos --force
+dl skill update dreamlake-memos --force
 # Go back to an older release, or replace a copy whose version cannot be ordered
-dreamlake skill update dreamlake-memos --allow-downgrade
+dl skill update dreamlake-memos --allow-downgrade
 ```
 
 ```bash file="terminal" cli-help="skill remove"
-dreamlake skill remove dreamlake-memos
-dreamlake skill remove dreamlake-memos --agent codex --global --json
+dl skill remove dreamlake-memos
+dl skill remove dreamlake-memos --agent codex --global --json
 ```
 
 | Command | Reads | Writes | Network |
@@ -129,7 +129,7 @@ two sources, and every answer names the source and the bundle's tag and commit:
 | `remote` | the server's read-only skills registry (`GET /skills`, `GET /skills/:skill`, `GET /skills/:skill/files/*`), serving the bundle the server pins | a login is saved, or `--remote` |
 | `local` | the bundle embedded in this CLI — `dreamlake-cli` and the catalog snapshot — offline | no login, or `--local` |
 
-`--remote` without a login is `kind: "not-logged-in"` with `dreamlake login`
+`--remote` without a login is `kind: "not-logged-in"` with `dl login`
 as the next action; `--local` with `--remote` is `kind: "invalid-source"`.
 Without a flag, a registry that cannot answer at all — unreachable, `503
 skills_unavailable`, `503 skills_lock_mismatch`, a refused token — falls back
@@ -170,7 +170,7 @@ before anything is read, and a file that is not UTF-8 text with
 The output examples below illustrate the response shape; release versions,
 commits, hashes and file counts depend on the installed or serving catalog.
 
-`dreamlake skill read --json`, the TypeScript `dl.skills.read({ skill, path })`
+`dl skill read --json`, the TypeScript `dl.skills.read({ skill, path })`
 ([TypeScript API](https://cli.dreamlake.ai/dev/typescript-api#skills)) and the built-in agent's
 `dreamlake_skills_read` tool are one operation. All three return `tag`,
 `commit`, `skill`, `renamedFrom` (only when the name was retired), `path`,
@@ -182,7 +182,7 @@ file and the whole index, so the paging fields never appear, `filesTruncated`
 is always `false` and `filesTotal` equals `files.length`. The CLI adds
 `source`, `status` and `nextAction`:
 
-```json file="dreamlake skill read dreamlake-memos --file actions/read.md --json"
+```json file="dl skill read dreamlake-memos --file actions/read.md --json"
 {
   "status": "ok",
   "source": "remote",
@@ -238,7 +238,7 @@ pinned) and `read-failed`. `skill_result_too_large` (413) and
 Skill names are lower-case letters, digits and dashes, starting with a letter
 (`^[a-z][a-z0-9-]*$`); anything else is refused with `kind: "invalid-name"`
 before any path is resolved, and a skill is always a direct child of the
-skills directory. `--project` forces the current project when `dreamlake init`
+skills directory. `--project` forces the current project when `dl init`
 saved global scope. `--dir <path>` replaces the project root and overrides `--global` and
 `--project`, retaining the agent-specific subdirectory. It does not name the
 skill directory itself. Codex's supported
@@ -407,7 +407,7 @@ override, and a symlinked manifest is rejected.
     · reference/cli-notes.md
 
   overwrite it with:
-        dreamlake skill install dreamlake-cli --force
+        dl skill install dreamlake-cli --force
 ```
 
 Nothing was written. A skill you edited survives a mistyped install.
@@ -463,7 +463,7 @@ project and your home directory. When something newer exists it prints one
 stderr line per installed path per CLI version:
 
 ```text file="stderr"
-Installed skill /work/.claude/skills/dreamlake-cli is v2026.10.27; v2026.11.02 is available. Update with: dreamlake skill update dreamlake-cli --agent claude --dir '/work'
+Installed skill /work/.claude/skills/dreamlake-cli is v2026.10.27; v2026.11.02 is available. Update with: dl skill update dreamlake-cli --agent claude --dir '/work'
 ```
 
 Reminders never change files, never use the network, and stay out of JSON,
@@ -477,7 +477,7 @@ required, nullable `nextAction` (`{ "kind": "run", "command" }`,
 `{ "kind": "download", "url" }`, or `null`). On failure, stdout still carries
 exactly one object and stderr stays empty.
 
-```json file="dreamlake skill list --refresh --json"
+```json file="dl skill list --refresh --json"
 {
   "status": "ok",
   "source": "embedded-skills",
@@ -512,7 +512,7 @@ snapshot (with `catalog.unreachable` saying why a default remote fell back) and
 `source`, `tag`, `commit`, and `mismatch` when the server's differs from the
 embedded one. See [Reading a skill](#reading-a-skill).
 
-```json file="dreamlake init --agent codex --json"
+```json file="dl init --agent codex --json"
 {
   "status": "installed",
   "agent": "codex",
@@ -541,7 +541,7 @@ embedded one. See [Reading a skill](#reading-a-skill).
 other skills in the embedded catalog snapshot). Its `catalog.origin` is never
 `release`: `init` does not use the network.
 
-```json file="dreamlake skill install dreamlake-memos --json"
+```json file="dl skill install dreamlake-memos --json"
 {
   "status": "installed",
   "agent": "claude",
@@ -585,7 +585,7 @@ adopted — then also `unmanaged: true`) carries `message`. `update` adds
 `embedded` (the release was not consulted or unreachable — then
 `catalog.unreachable` says why) or `none`.
 
-```json file="offline: dreamlake skill install dreamlake-memos --json"
+```json file="offline: dl skill install dreamlake-memos --json"
 {
   "status": "error",
   "agent": "claude",
@@ -597,7 +597,7 @@ adopted — then also `unmanaged: true`) carries `message`. `update` adds
 }
 ```
 
-```json file="dreamlake skill remove dreamlake-memos --json"
+```json file="dl skill remove dreamlake-memos --json"
 {
   "status": "removed",
   "agent": "claude",
@@ -628,7 +628,7 @@ With one agent every object above is unchanged. With several, the top-level
 - `list` replaces each row's `project` and `global` with `installs`, keyed by
   agent.
 
-```json file="dreamlake skill list --agent all --json"
+```json file="dl skill list --agent all --json"
 {
   "status": "ok",
   "source": "embedded-skills",
@@ -700,7 +700,7 @@ and source as the native binary. Bumping the pin is an ordinary pull request.
       same skill back through `bin/dreamlake.js` (`skill list`, `skill install`).
 - [ ] Publish immutable versioned binaries and npm packages; verify downloaded
       bytes before moving release pointers.
-- [ ] Repeat `dreamlake init` and `skill install <name>` from the public native
+- [ ] Repeat `dl init` and `skill install <name>` from the public native
       download and npm package.
 
 `bun run scripts/verify-native-skills.ts` runs the isolated packaging gate and

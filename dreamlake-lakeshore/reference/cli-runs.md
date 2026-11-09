@@ -1,16 +1,16 @@
-<!-- generated from https://cli.dreamlake.ai/runs.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/runs.md at 0.112.0 0d1fe91; do not edit -->
 
 # Tracked host runs
 
-`dreamlake run` submits a persistent run to an enrolled host through the authenticated DreamLake API. The server and nymph must support tracked runs, the enrollment must be online, and the target must have `uv`. This client change does not deploy those services. Host enrollment and resource provisioning are separate steps.
+`dl run` submits a persistent run to an enrolled host through the authenticated DreamLake API. The server and nymph must support tracked runs, the enrollment must be online, and the target must have `uv`. This client change does not deploy those services. Host enrollment and resource provisioning are separate steps.
 
 ```shell
-dreamlake run --target fortyfive/bos14/bos14-ctrl \
+dl run --target fortyfive/bos14/bos14-ctrl \
   --include train.py --include pyproject.toml \
   --request-id train-trial-001 \
   --uv-run train.py --epochs 10
 
-dreamlake run --target fortyfive/bos14/bos14-ctrl --no-wait \
+dl run --target fortyfive/bos14/bos14-ctrl --no-wait \
   --uvx --from ruff ruff --version
 ```
 
@@ -19,10 +19,10 @@ Put every DreamLake option before `--uv-run` or `--uvx`. The selector consumes a
 The default waits for a terminal receipt and streams stdout and stderr. `--no-wait` returns after submission. `--json` produces a JSON receipt; read logs separately. A generated request ID is printed before submission in human output. For retryable automation, supply your own `--request-id` and reuse the same payload; a changed payload with that ID is rejected. If a wait is interrupted, the remote run continues. A transport failure does not prove that submission failed.
 
 ```shell
-dreamlake runs status fortyfive/RUN_ID --json
-dreamlake runs logs fortyfive/RUN_ID --json
-dreamlake runs logs fortyfive/RUN_ID --cursor CURSOR --json
-dreamlake runs cancel fortyfive/RUN_ID --json
+dl runs status fortyfive/RUN_ID --json
+dl runs logs fortyfive/RUN_ID --json
+dl runs logs fortyfive/RUN_ID --cursor CURSOR --json
+dl runs cancel fortyfive/RUN_ID --json
 ```
 
 Log requests return one page. JSON pages contain `entries` with base64 bytes, `nextCursor`, and `done`; repeat using the cursor until done. Human output writes bytes directly to their original streams. Cancellation records an intent; `cancel_requested` does not mean the process has stopped. Inspect the terminal receipt. `--timeout-seconds` sets a remote deadline from 1 to 86400 seconds (default 3600). Use `--enrollment-id` before the selector when a host has multiple eligible enrollments.
@@ -59,11 +59,11 @@ Private setup delegates only reviewed vault entry IDs, exact revisions and selec
 Replace the illustrative repository, commit, entry and enrollment with reviewed values. CLI options precede the execution selector:
 
 ```shell
-dreamlake run --target alice/research/host --enrollment-id REVIEWED_ENROLLMENT_ID \
+dl run --target alice/research/host --enrollment-id REVIEWED_ENROLLMENT_ID \
   --setup setup.json --allow-vault-delivery --request-id research-check-001 \
   --no-wait --uv-run python verify_service.py
-dreamlake runs status alice/RUN_ID --json
-dreamlake runs cancel alice/RUN_ID --json
+dl runs status alice/RUN_ID --json
+dl runs cancel alice/RUN_ID --json
 ```
 
 ```python
@@ -86,7 +86,7 @@ it does not assert that an enrolled host is online or authorized for a run.
 Private setup remains subject to fresh checks when submitted.
 
 ```shell
-dreamlake runs capabilities alice --json
+dl runs capabilities alice --json
 ```
 
 ```python

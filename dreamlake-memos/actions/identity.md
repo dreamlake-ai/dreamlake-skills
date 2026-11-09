@@ -18,7 +18,7 @@ inject those same literal values into every later Memos command environment.
 Do not generate a new UUID for each command or change global shell configuration.
 
 No separate join is needed. After the first intended live read, inspect
-`dreamlake memos presence "$MEMO_ID"` (CLI 0.31.0+) and match the task ID and
+`dl memos presence "$MEMO_ID"` (CLI 0.31.0+) and match the task ID and
 name. The roster command does not join. If attribution is missing, check the
 variables in the process doing the read or edit before treating it as a UI
 regression. Never replay a successful edit just to produce a highlight, and do

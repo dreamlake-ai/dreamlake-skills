@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.112.0 0d1fe91; do not edit -->
 
 # Projects & data
 
@@ -21,11 +21,11 @@ DreamLake organizes assets in a hierarchy: a **project** contains
 ## Projects
 
 ```bash file="terminal"
-dreamlake create project my-robots --description "robot captures"   # private
-dreamlake create project shared-set --public                        # public
-dreamlake update project my-robots --public                         # flip visibility
-dreamlake list project
-dreamlake delete project my-robots                                  # soft delete; the slug becomes free
+dl create project my-robots --description "robot captures"   # private
+dl create project shared-set --public                        # public
+dl update project my-robots --public                         # flip visibility
+dl list project
+dl delete project my-robots                                  # soft delete; the slug becomes free
 ```
 
 Projects are **private by default**; `--public` / `--visibility public`
@@ -56,11 +56,11 @@ whole request; there is no fixed-manifest fallback or per-Memo move loop.
 
 ```bash cli-help="project move"
 # Save a read-only streaming review with its stable request/key.
-dreamlake project move research --namespace personal --to acme --dry-run --out project-move-review.json
+dl project move research --namespace personal --to acme --dry-run --out project-move-review.json
 # Confirm that exact saved review; the recipient must accept separately.
-dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json
+dl project move research --namespace personal --to acme --confirm --request-file project-move-review.json
 # Accept only with verified destination namespace authority, then wait a bounded time.
-dreamlake project move research --namespace personal --to acme --confirm --request-file project-move-review.json --accept-if-authorized --wait
+dl project move research --namespace personal --to acme --confirm --request-file project-move-review.json --accept-if-authorized --wait
 ```
 
 Eligible access and external filings are preserved by default. Explicit flags
@@ -101,17 +101,17 @@ the Bindr and earlier tags remain. Inspect it before retrying. Update also repor
 partial progress when a later membership request fails.
 
 ```bash file="terminal"
-dreamlake create bindr front-cam --project my-robots --episode "camera/front/*"
-dreamlake update bindr front-cam --project my-robots --add "2026/04/*"
-dreamlake update bindr front-cam --project my-robots --remove "run-bad"
-dreamlake update bindr front-cam --project my-robots --add-note MEMO_ID   # CLI 0.87.0+
-dreamlake list bindr --project my-robots
-dreamlake delete bindr front-cam --project my-robots
+dl create bindr front-cam --project my-robots --episode "camera/front/*"
+dl update bindr front-cam --project my-robots --add "2026/04/*"
+dl update bindr front-cam --project my-robots --remove "run-bad"
+dl update bindr front-cam --project my-robots --add-note MEMO_ID   # CLI 0.87.0+
+dl list bindr --project my-robots
+dl delete bindr front-cam --project my-robots
 ```
 
 ```bash cli-help="create bindr"
 # Seed a Bindr with matching episodes without an interactive prompt.
-dreamlake create bindr front-cam --project my-robots --episode "camera/front/*" --yes
+dl create bindr front-cam --project my-robots --episode "camera/front/*" --yes
 ```
 
 ## Datasets
@@ -119,18 +119,18 @@ dreamlake create bindr front-cam --project my-robots --episode "camera/front/*" 
 A **dataset** groups bindrs (matched by a glob over their name).
 
 ```bash file="terminal"
-dreamlake create dataset train-v1 --project my-robots --tags robotics,training
-dreamlake update dataset train-v1 --project my-robots --add "front-*"
-dreamlake list dataset --project my-robots
-dreamlake delete dataset train-v1 --project my-robots
+dl create dataset train-v1 --project my-robots --tags robotics,training
+dl update dataset train-v1 --project my-robots --add "front-*"
+dl list dataset --project my-robots
+dl delete dataset train-v1 --project my-robots
 ```
 
 ## Episodes & files
 
 ```bash file="terminal"
-dreamlake list episode --project my-robots
-dreamlake delete episode run-001 --project my-robots                 # hard-delete episode + its files
-dreamlake delete file /camera/front/clip.mp4 --episode my-robots:run-001
+dl list episode --project my-robots
+dl delete episode run-001 --project my-robots                 # hard-delete episode + its files
+dl delete file /camera/front/clip.mp4 --episode my-robots:run-001
 ```
 
 `delete file` also accepts a folder path to remove a whole subtree.
@@ -145,11 +145,11 @@ Read on organization projects. Project ADMIN is not ownership-transfer authority
 Neither command changes membership or grants.
 
 ```bash cli-help="project inspect"
-dreamlake project inspect research --namespace acme
+dl project inspect research --namespace acme
 ```
 
 ```bash cli-help="project grants"
-dreamlake project grants research --namespace acme
+dl project grants research --namespace acme
 ```
 
 In a terminal, inspect shows your role and whether you can manage grants; grants
@@ -175,13 +175,13 @@ Use an existing active organization member or an active team in that organizatio
 Team access does not make organization Memos private from other members.
 
 ```bash cli-help="project grant"
-dreamlake project grant research --namespace acme --user teammate --role WRITE
-dreamlake project grant research --namespace acme --team TEAM_ID --role READ
+dl project grant research --namespace acme --user teammate --role WRITE
+dl project grant research --namespace acme --team TEAM_ID --role READ
 ```
 
 ```bash cli-help="project revoke"
-dreamlake project grants research --namespace acme
-dreamlake project revoke research GRANT_ID --namespace acme
+dl project grants research --namespace acme
+dl project revoke research GRANT_ID --namespace acme
 ```
 
 Use the exact grant ID from the list. Removing a grant preserves other inherited
@@ -213,11 +213,11 @@ and server support before relying on attachment commands.
 Attach by database ID (Artifact uses its database ID, not its artifactId):
 
 ```bash cli-help="project attach"
-dreamlake project attach research --namespace acme --type note --resource "$MEMO_ID"
+dl project attach research --namespace acme --type note --resource "$MEMO_ID"
 ```
 
 ```bash cli-help="project detach"
-dreamlake project detach research --namespace acme --type note --resource "$MEMO_ID"
+dl project detach research --namespace acme --type note --resource "$MEMO_ID"
 ```
 
 Supported types are `note`, `artifact`, `annotation`, `workflow`, `env` and

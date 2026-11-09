@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-operations.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-operations.md at 0.112.0 0d1fe91; do not edit -->
 
 # Vault operations
 
@@ -16,13 +16,13 @@ next unused value without writing back to pass. Initial activation supports SHA1
 with at least a 128-bit seed; unsupported algorithms remain inactive.
 
 ```shell
-dreamlake vault import --pass-otp -p alice/otp \
+dl vault import --pass-otp -p alice/otp \
   --store /absolute/password-store --select login
-dreamlake vault otp -n alice/otp/login \
+dl vault otp -n alice/otp/login \
   --activate --counter-owner dreamlake --if-match 1
 
 # Alternatively, take ownership during a new import.
-dreamlake vault import --pass-otp -p alice/otp \
+dl vault import --pass-otp -p alice/otp \
   --store /absolute/password-store --select another-login --hotp-owner dreamlake
 ```
 
@@ -43,7 +43,7 @@ request directories. Hardware/filesystems that ignore fsync cannot promise durab
 
 ```shell
 mkdir -m 700 -p "$HOME/.dreamlake/hotp-requests"
-dreamlake vault otp -n alice/otp/login \
+dl vault otp -n alice/otp/login \
   --request-file "$HOME/.dreamlake/hotp-requests/login-request-001.json"
 # Reuse this exact invocation to recover an uncertain response.
 ```
@@ -77,11 +77,11 @@ token it holds.
 
 ```bash cli-help="vault add"
 # Keep a 90-day registry token for exactly as long as the registry honors it.
-pbpaste | dreamlake vault add -p alice -n cli/npm/access-token --stdin --expires-in 90d --env NPM_TOKEN
+pbpaste | dl vault add -p alice -n cli/npm/access-token --stdin --expires-in 90d --env NPM_TOKEN
 # An exact UTC timestamp works the same way.
-pbpaste | dreamlake vault add -p alice -n cli/npm/access-token --stdin --expires-at 2027-01-24T00:00:00Z
+pbpaste | dl vault add -p alice -n cli/npm/access-token --stdin --expires-at 2027-01-24T00:00:00Z
 # Replace a value and clear its expiry, pinning the current revision.
-pbpaste | dreamlake vault add -p alice -n cli/npm/access-token --stdin --if-match 2 --no-expiry
+pbpaste | dl vault add -p alice -n cli/npm/access-token --stdin --if-match 2 --no-expiry
 ```
 
 ## Metadata pages
@@ -97,16 +97,16 @@ even in a terminal. `--tree` remains the separate prefix-policy browser.
 
 ```bash cli-help="vault list"
 # Interactive on a terminal; JSON when piped or redirected.
-dreamlake vault list -p alice
+dl vault list -p alice
 # Always emit metadata JSON.
-dreamlake vault list -p alice --to-json
+dl vault list -p alice --to-json
 ```
 
 ```shell
-dreamlake vault -p alice/remote list
-dreamlake vault -p alice/remote list --limit 50
-dreamlake vault -p alice/remote list --limit 50 --cursor "$cursor"
-dreamlake vault -p alice/remote list --include-deleted
+dl vault -p alice/remote list
+dl vault -p alice/remote list --limit 50
+dl vault -p alice/remote list --limit 50 --cursor "$cursor"
+dl vault -p alice/remote list --include-deleted
 ```
 
 ```python
@@ -130,7 +130,7 @@ but preserve the binding receipt first. It does not revoke a remote key/password
 delete an active secret, or bypass retired-entry retention.
 
 ```shell
-dreamlake vault unbind --binding-id "$binding_id" \
+dl vault unbind --binding-id "$binding_id" \
   --entry-id "$entry_id" --entry-revision 1
 ```
 
@@ -142,16 +142,16 @@ client.vault.unbind_host_credential(
 
 ## Organization/team management preview (not released)
 
-Discover scope IDs with `dreamlake vault scopes`. Put `--scope org:<id>` or `--scope team:<id>` before supported entry or management commands. Personal remains the default; recovery keeps the original actor, scope and request ID, with no fallback on denial.
+Discover scope IDs with `dl vault scopes`. Put `--scope org:<id>` or `--scope team:<id>` before supported entry or management commands. Personal remains the default; recovery keeps the original actor, scope and request ID, with no fallback on denial.
 
 ```shell
-dreamlake vault --scope org:<id> capabilities
-dreamlake vault --scope org:<id> secret-copy-preview --name org/path --destination-scope team:<id> --destination-name team/path --if-match 1 --request-id copy-001
-dreamlake vault --scope org:<id> secret-copy --operation-id <id> --action commit
-dreamlake vault --scope org:<id> secret-copy-recover --request-id copy-001
-dreamlake vault --scope org:<id> policy
-dreamlake vault --scope org:<id> policy --export false --if-match 0 --request-id policy-001
-dreamlake vault --scope org:<id> audit
+dl vault --scope org:<id> capabilities
+dl vault --scope org:<id> secret-copy-preview --name org/path --destination-scope team:<id> --destination-name team/path --if-match 1 --request-id copy-001
+dl vault --scope org:<id> secret-copy --operation-id <id> --action commit
+dl vault --scope org:<id> secret-copy-recover --request-id copy-001
+dl vault --scope org:<id> policy
+dl vault --scope org:<id> policy --export false --if-match 0 --request-id policy-001
+dl vault --scope org:<id> audit
 ```
 
 Use `--destination-scope personal` for an explicit personal destination. `secret-copy --action status` recovers committed identity; `--action cancel` permanently cancels a pending preview. Metadata never includes secret values. Preview expires after 24 hours, policy updates compare revision, and commits recheck source and destination authority. Export/policy requires org OWNER or direct-team MAINTAINER; ordinary entry CRUD remains member-based.
@@ -169,7 +169,7 @@ an organization owner does not bypass direct team membership.
 
 ```bash cli-help="vault delete"
 # Use a disposable entry and its current metadata revision.
-dreamlake vault --scope org:000000000000000000000001 delete \
+dl vault --scope org:000000000000000000000001 delete \
   --name acme/test-entry --if-match 1
 ```
 

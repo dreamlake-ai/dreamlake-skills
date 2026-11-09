@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.112.0 0d1fe91; do not edit -->
 
 # Artifacts
 
@@ -12,7 +12,7 @@ history stays intact.
 ## Pushing
 
 ```bash file="terminal"
-dreamlake artifact push ./dashboard.html --title "Q1 Dashboard"
+dl artifact push ./dashboard.html --title "Q1 Dashboard"
 ```
 
 The kind is detected from the extension:
@@ -41,8 +41,8 @@ separate one, pass a different `--id` — changing only the title creates a new
 artifact, because the slug changes with it.
 
 ```bash file="terminal"
-dreamlake artifact push ./chart.jsx --kind react --id sales-chart
-dreamlake artifact push ./chart.jsx --id sales-chart   # v2 of the same artifact
+dl artifact push ./chart.jsx --kind react --id sales-chart
+dl artifact push ./chart.jsx --id sales-chart   # v2 of the same artifact
 ```
 
 ## Static sites with on-demand files
@@ -54,10 +54,10 @@ resources to request. Vite/Vike bundling and dynamic imports are preserved.
 
 ```bash file="terminal"
 # Vike: prerender the site first; upload dist/client, not dist/server.
-dreamlake artifact push ./dist/client --site --id simulation
+dl artifact push ./dist/client --site --id simulation
 
 # A client-only SPA can explicitly opt into extensionless-route fallback.
-dreamlake artifact push ./dist --site --spa --id dashboard
+dl artifact push ./dist --site --spa --id dashboard
 ```
 
 This mode is available on DreamLake hosting. Self-hosted installations require
@@ -107,7 +107,7 @@ origins retain the version 1 format.
 
 DreamLake CLI 0.107.0 and newer support delegated private managed Source data.
 The deployed hosting service and trusted viewer support this flow. Check
-`dreamlake --version` before using it; an older installed binary is not upgraded
+`dl --version` before using it; an older installed binary is not upgraded
 by a server release. The same configuration can include one `privateData` binding:
 
 ```json
@@ -220,7 +220,7 @@ viewer with page-bundle support. Deploy the updated artifact frame before using
 this feature; `--full` changes storage encoding, not viewer compatibility.
 
 ```bash file="terminal"
-dreamlake artifact push ./report --entry index.html --id quarterly-report
+dl artifact push ./report --entry index.html --id quarterly-report
 ```
 
 The directory becomes one version of one artifact. The default entry is
@@ -263,17 +263,17 @@ format, including for older self-hosted viewers. `--no-incremental` remains a
 compatibility alias; use that spelling with CLI 0.39.1.
 
 ```bash file="terminal" cli-help="artifact push"
-dreamlake artifact push ./dashboard.html --id q1-dashboard
+dl artifact push ./dashboard.html --id q1-dashboard
 # Edit the file, then repeat the same command to upload only new chunks.
 
 # Static build with on-demand assets (CLI 0.101.0+; requires site hosting):
-dreamlake artifact push ./dist/client --site --id simulation
+dl artifact push ./dist/client --site --id simulation
 
 # Compatibility with older self-hosted viewers:
-dreamlake artifact push ./dashboard.html --id q1-dashboard --full
+dl artifact push ./dashboard.html --id q1-dashboard --full
 
 # Multiple self-contained HTML pages (requires an updated viewer):
-dreamlake artifact push ./report --entry index.html --id quarterly-report
+dl artifact push ./report --entry index.html --id quarterly-report
 ```
 
 The first incremental push establishes the chunks. Later pushes reuse identical
@@ -313,9 +313,9 @@ appending ordinary versions; old viewers cannot decode incremental versions.
 Artifacts are private by default — only namespace members can read them.
 
 ```bash file="terminal"
-dreamlake artifact push ./report.md --visibility public
-dreamlake artifact push ./report.md --visibility unlisted
-dreamlake artifact push ./report.md --share
+dl artifact push ./report.md --visibility public
+dl artifact push ./report.md --visibility unlisted
+dl artifact push ./report.md --share
 ```
 
 `--visibility public` makes the artifact readable without logging in and lists it
@@ -335,17 +335,17 @@ dreamlake-workspace #1383, you decide what the card says.
 
 ```bash file="terminal" cli-help="artifact meta set"
 # At push time:
-dreamlake artifact push ./report.html --id q1-dashboard \
+dl artifact push ./report.html --id q1-dashboard \
   --description "Revenue, churn and pipeline for the quarter" \
   --cover ./cover.png
 
 # Or after the fact, for an artifact that already exists:
-dreamlake artifact meta set q1-dashboard --description "Revenue, churn and pipeline"
-dreamlake artifact meta set q1-dashboard --cover ./cover.png
-dreamlake artifact meta show q1-dashboard
+dl artifact meta set q1-dashboard --description "Revenue, churn and pipeline"
+dl artifact meta set q1-dashboard --cover ./cover.png
+dl artifact meta show q1-dashboard
 
 # Back to the automatic description / the generated cover:
-dreamlake artifact meta set q1-dashboard --clear-description --clear-cover
+dl artifact meta set q1-dashboard --clear-description --clear-cover
 ```
 
 What a card shows depends on who can see the artifact:
@@ -378,12 +378,12 @@ changed cover or a revoked share link can keep showing in old messages.
 ## Listing, deleting, restoring
 
 ```bash file="terminal"
-dreamlake artifact list
-dreamlake artifact list --namespace other-ns --json
+dl artifact list
+dl artifact list --namespace other-ns --json
 
-dreamlake artifact delete q1-dashboard          # soft — restorable
-dreamlake artifact restore q1-dashboard
-dreamlake artifact delete q1-dashboard --permanent   # purges storage
+dl artifact delete q1-dashboard          # soft — restorable
+dl artifact restore q1-dashboard
+dl artifact delete q1-dashboard --permanent   # purges storage
 ```
 
 `delete` hides the artifact and can be undone with `restore`. Re-pushing the
@@ -404,7 +404,7 @@ project again. Older servers leave its project placements in place.
 
 ## Manage existing share links
 
-Available in CLI 0.32.4 and later; check `dreamlake artifact share --help` for installed support.
+Available in CLI 0.32.4 and later; check `dl artifact share --help` for installed support.
 
 Requires an authenticated login, an existing resource, and permission to
 manage its sharing. Run these mutation steps only when the user has asked
@@ -413,17 +413,17 @@ metadata only; they do not upload content or create a new version.
 
 ```bash cli-help="artifact share"
 # Find the dashboard you already uploaded; no new version is needed.
-dreamlake artifact list
+dl artifact list
 ARTIFACT="q1-dashboard" # Replace with the id from list.
-dreamlake artifact share get "$ARTIFACT"
+dl artifact share get "$ARTIFACT"
 
 # Give signed-in recipients read access, then verify the returned link.
-dreamlake artifact share create "$ARTIFACT"
-dreamlake artifact share get "$ARTIFACT"
+dl artifact share create "$ARTIFACT"
+dl artifact share get "$ARTIFACT"
 
 # When link access is no longer needed, revoke it and verify.
-dreamlake artifact share revoke "$ARTIFACT"
-dreamlake artifact share get "$ARTIFACT"
+dl artifact share revoke "$ARTIFACT"
+dl artifact share get "$ARTIFACT"
 ```
 
 `get` never enables sharing. It reports the resource URL, visibility, and
@@ -433,9 +433,9 @@ expose the token to this caller, not that sharing is disabled.
 
 ```bash cli-help="artifact visibility"
 ARTIFACT="q1-dashboard" # Your existing artifact id.
-dreamlake artifact visibility "$ARTIFACT" public
-dreamlake artifact visibility "$ARTIFACT" private
-dreamlake artifact visibility "$ARTIFACT" unlisted
+dl artifact visibility "$ARTIFACT" public
+dl artifact visibility "$ARTIFACT" private
+dl artifact visibility "$ARTIFACT" unlisted
 ```
 
 Visibility and sharing are independent. Making a resource private does not
@@ -463,17 +463,17 @@ It does not grant access by itself or recall content already downloaded.
 
 ```bash cli-help="artifact share latest-only"
 # Change an existing artifact without uploading or changing its link.
-dreamlake artifact share latest-only report on
-dreamlake artifact share get report --json
+dl artifact share latest-only report on
+dl artifact share get report --json
 # Allow recipients to browse history again.
-dreamlake artifact share latest-only report off
+dl artifact share latest-only report off
 ```
 
 To enable the policy while minting a link, use
-`dreamlake artifact share create report --latest-only`. At upload time:
+`dl artifact share create report --latest-only`. At upload time:
 
 ```bash
-dreamlake artifact push ./report.html --id report --share --latest-only
+dl artifact push ./report.html --id report --share --latest-only
 ```
 
 Both `share create` and `push` accept `--no-latest-only` to disable the policy.
@@ -513,7 +513,7 @@ signed URLs retain their original finite TTL; transfer does not revoke them.
 ## Rename the URL slug
 
 ```bash cli-help="artifact rename"
-dreamlake artifact rename session-work-map-20261014 session-work-map --namespace my-team
+dl artifact rename session-work-map-20261014 session-work-map --namespace my-team
 ```
 
 `artifact rename <artifact-id-or-slug> <new-slug>` reads the current catalog and

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.134 4bbe54f7; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -66,7 +66,7 @@ containing project. See [Profiles and workspaces](docs-workspaces.md).
 curl -fsSL https://dl.dreamlake.ai/install.sh | bash   # the dreamlake CLI
 pip install dreamlake dreamdb   # SDK + storage engine
 brew install ffmpeg             # transcoding (any install method works)
-dreamlake login                 # browser sign-in; CI uses DREAMLAKE_API_KEY
+dl login                 # browser sign-in; CI uses DREAMLAKE_API_KEY
 ```
 
 Windows, what the installer puts where, release channels, and auto-update:
@@ -162,7 +162,7 @@ prefix targets that org, and membership is checked per request.
 ## Let Claude do it
 
 Install the [annotations skill](https://github.com/dreamlake-ai/dreamlake-skills)
-(`dreamlake init` once, then `dreamlake skill install dreamlake-annotations`;
+(`dl init` once, then `dl skill install dreamlake-annotations`;
 or copy `dreamlake-annotations/` from the latest
 [release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest) tarball
 into your agent's skills directory) and skip the SDK — describe what you

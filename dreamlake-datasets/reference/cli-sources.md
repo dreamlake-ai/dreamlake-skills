@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sources.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sources.md at 0.112.0 0d1fe91; do not edit -->
 
 # Sources
 
@@ -15,15 +15,15 @@ Reads never copy anything into DreamLake. `source upload` writes only to the
 managed layer. The commands on this page need CLI 0.45.3 or later.
 
 ```bash file="terminal"
-dreamlake source list
-dreamlake source browse --source my-bucket datasets/
-dreamlake source fetch  --source my-bucket datasets/frames.tar
-dreamlake source download --source my-bucket datasets/ -r -o ./local
-dreamlake source upload ./run-01 -r --source my-bucket --to uploads/run-01
+dl source list
+dl source browse --source my-bucket datasets/
+dl source fetch  --source my-bucket datasets/frames.tar
+dl source download --source my-bucket datasets/ -r -o ./local
+dl source upload ./run-01 -r --source my-bucket --to uploads/run-01
 ```
 
 Sources are declared like any other head collection —
-`dreamlake declare source.yaml --collection sources` — see
+`dl declare source.yaml --collection sources` — see
 [Declaration collections](https://cli.dreamlake.ai/collections).
 
 ### How a path resolves
@@ -62,7 +62,7 @@ keeps settings access; uploads and reads are refused.
 ## `list`
 
 ```bash file="terminal"
-dreamlake source list [--limit <n>] [--cursor <c>] [--name-contains <t>] [--provider <id>] \
+dl source list [--limit <n>] [--cursor <c>] [--name-contains <t>] [--provider <id>] \
   [--external | --no-external] [--lifecycle active|disabled] [--namespace <slug>] [--json]
 ```
 
@@ -72,16 +72,16 @@ other command's `--source` wants.
 ## `create`
 
 ```bash file="terminal"
-dreamlake source create <name> [--description <text>] [--namespace <slug>] [--idempotency-key <key>] [--json]
+dl source create <name> [--description <text>] [--namespace <slug>] [--idempotency-key <key>] [--json]
 ```
 
 Creates an empty, managed-only source. Owner only. To attach an external store,
-use `dreamlake source import` (see `dreamlake source import --help`).
+use `dl source import` (see `dl source import --help`).
 
 ## `browse`
 
 ```bash file="terminal"
-dreamlake source browse [path] --source <name> [--namespace <slug>] [--dirs] [--files] [-r] [-0] [--json]
+dl source browse [path] --source <name> [--namespace <slug>] [--dirs] [--files] [-r] [-0] [--json]
 ```
 
 Lists paths in the resolved view, **one level at a time** by default. Omit
@@ -99,14 +99,14 @@ Lists paths in the resolved view, **one level at a time** by default. Omit
 newline-separated list piped into `xargs` splits them in the wrong place.
 
 ```bash file="terminal"
-dreamlake source browse datasets/ --source my-bucket -r --files -0 \
-  | xargs -0 -n1 dreamlake source fetch --source my-bucket
+dl source browse datasets/ --source my-bucket -r --files -0 \
+  | xargs -0 -n1 dl source fetch --source my-bucket
 ```
 
 ## `stat`
 
 ```bash file="terminal"
-dreamlake source stat <path> --source <name> [--namespace <slug>] [--json]
+dl source stat <path> --source <name> [--namespace <slug>] [--json]
 ```
 
 Shows one exact path in the resolved view, with its metadata and the layer it
@@ -115,7 +115,7 @@ resolves from.
 ## `fetch` — one short-lived URL
 
 ```bash file="terminal"
-dreamlake source fetch <path> --source <name> [--json]
+dl source fetch <path> --source <name> [--json]
 ```
 
 Mints a **public, short-lived download URL** for one file and prints it.
@@ -129,7 +129,7 @@ Nothing is downloaded.
 ## `download` — bytes on disk
 
 ```bash file="terminal"
-dreamlake source download <path> --source <name> [-o <dir>] [-r]
+dl source download <path> --source <name> [-o <dir>] [-r]
 ```
 
 Writes the file to local disk. With `-r` it takes a folder path and downloads
@@ -142,7 +142,7 @@ not a shell glob, and the shell will get there first if you leave it bare.
 ## Upload files into a Source
 
 ```bash file="terminal"
-dreamlake source upload <path> --source <name> [--to <prefix>] [-r] \
+dl source upload <path> --source <name> [--to <prefix>] [-r] \
   [--namespace <slug>] [--idempotency-key <key>] [--json]
 ```
 
@@ -198,35 +198,35 @@ command if that is not your active login.
 1. Find the source, or create an empty managed-only one (owner only):
 
    ```bash file="terminal"
-   dreamlake source list
-   dreamlake source create robot-data --description "Robot recordings"
+   dl source list
+   dl source create robot-data --description "Robot recordings"
    ```
 
 2. Check that the target prefix is fresh — expect nothing, or not found:
 
    ```bash file="terminal"
-   dreamlake source browse uploads/2026-10-15 --source robot-data
+   dl source browse uploads/2026-10-15 --source robot-data
    ```
 
 3. Upload a file. It lands at `uploads/2026-10-15/calib.yaml`:
 
    ```bash file="terminal"
-   dreamlake source upload ./calib.yaml --source robot-data --to uploads/2026-10-15
+   dl source upload ./calib.yaml --source robot-data --to uploads/2026-10-15
    ```
 
 4. Upload a folder:
 
    ```bash file="terminal"
-   dreamlake source upload ./run-01 -r --source robot-data --to uploads/2026-10-15/run-01
+   dl source upload ./run-01 -r --source robot-data --to uploads/2026-10-15/run-01
    ```
 
 5. Validate — list what landed, check the layer and metadata, and compare a
    round trip:
 
    ```bash file="terminal"
-   dreamlake source browse uploads/2026-10-15 --source robot-data -r --files
-   dreamlake source stat uploads/2026-10-15/calib.yaml --source robot-data
-   dreamlake source download uploads/2026-10-15/calib.yaml --source robot-data -o ./check
+   dl source browse uploads/2026-10-15 --source robot-data -r --files
+   dl source stat uploads/2026-10-15/calib.yaml --source robot-data
+   dl source download uploads/2026-10-15/calib.yaml --source robot-data -o ./check
    cmp ./calib.yaml ./check/calib.yaml
    ```
 
@@ -268,10 +268,10 @@ the namespace owner, since organizations currently have only OWNER and MEMBER
 roles.
 
 ```bash file="terminal"
-dreamlake source share --source my-bucket --role read   # turn it on, print the link
-dreamlake source shares --source my-bucket              # who the link admitted
-dreamlake source shares-remove --source my-bucket --user u_123
-dreamlake source share-off --source my-bucket [--forget]
+dl source share --source my-bucket --role read   # turn it on, print the link
+dl source shares --source my-bucket              # who the link admitted
+dl source shares-remove --source my-bucket --user u_123
+dl source share-off --source my-bucket [--forget]
 ```
 
 `--role read` grants the whole resolved tree, read-only. `--role write` adds

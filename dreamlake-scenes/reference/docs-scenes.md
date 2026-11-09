@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.134 4bbe54f7; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -47,7 +47,7 @@ scene chat reaches your server:
    nothing exists on the server until the agent's first successful push.
 2. The draft opens straight into the **intro composer** — describe the
    scene there; the agent sources assets, measures, composes, validates,
-   and publishes with `dreamlake scene push`.
+   and publishes with `dl scene push`.
 3. On the first successful push the draft becomes the **saved preview** —
    the interactive viewer on the pushed version, chat still beside it.
 4. **Follow-up prompts create new versions** of the same scene. The viewer
@@ -65,7 +65,7 @@ scene chat reaches your server:
 
 The scene chat opens in **Auto** permission mode, so one prompt can carry
 through the whole workflow — the agent runs the scene tools and
-`dreamlake scene push` without per-command approval. The composer's
+`dl scene push` without per-command approval. The composer's
 permission control still works as usual: switch to **Ask permissions** or
 **Plan mode** for a read-only conversation (the agent inspects and answers
 but does not generate or push), and switch back to Auto when you want it
@@ -98,7 +98,7 @@ loads.
 ## Push one
 
 ```bash
-dreamlake scene push ./cassie
+dl scene push ./cassie
 ```
 
 The entry file is auto-detected — the one root-level `*.xml`/`*.mjcf`
@@ -196,15 +196,15 @@ Two overrides beat all of the above:
 - **The camera button in the viewer toolbar** (members only, latest version):
   orbit to any angle and click it — that exact view becomes the cover, and
   the angle is remembered, so **future versions auto-capture from it** too.
-- **`dreamlake scene push --thumbnail cover.png`** stores your own image
+- **`dl scene push --thumbnail cover.png`** stores your own image
   (≤ 512 KiB PNG) and marks it manual, so the viewer won't overwrite it for
   that version. Works on a no-change push (thumbnail-only update).
 
 ## Pull it back
 
 ```bash
-dreamlake scene pull cassie          # latest → ./cassie/
-dreamlake scene pull cassie@1 -o v1  # any version
+dl scene pull cassie          # latest → ./cassie/
+dl scene pull cassie@1 -o v1  # any version
 ```
 
 Every file is verified against its content hash on the way down — the
@@ -237,8 +237,8 @@ reopened, edited, and recomposed later.
 ```
 
 ```bash
-dreamlake scene compose          # materialize ./dreamlake.layers.json locally
-dreamlake scene push <out-dir>   # push artifact + pinned stack as one version
+dl scene compose          # materialize ./dreamlake.layers.json locally
+dl scene push <out-dir>   # push artifact + pinned stack as one version
 ```
 
 | op | what it does |
@@ -252,7 +252,7 @@ dreamlake scene push <out-dir>   # push artifact + pinned stack as one version
 `src` is one string: `ns/name[@v]` is a registry scene (unversioned floats),
 a `./`-prefixed path is a local directory or file.
 
-> **Note:** Materialization is a real MuJoCo build, so `dreamlake scene compose`
+> **Note:** Materialization is a real MuJoCo build, so `dl scene compose`
 >   delegates it to the engine in **dreamlake-py** — install it with
 >   `pip install "dreamlake[compose]"` (Python + MuJoCo) on the composing
 >   machine. Push / pull / list need no Python.
@@ -270,9 +270,9 @@ HTTP client can list and download a scene without special tooling.
 ## Delete it (safely)
 
 ```bash
-dreamlake scene delete cassie              # soft delete (restorable)
-dreamlake scene restore cassie             # bring it back
-dreamlake scene delete cassie --permanent  # erase storage — no undo
+dl scene delete cassie              # soft delete (restorable)
+dl scene restore cassie             # bring it back
+dl scene delete cassie --permanent  # erase storage — no undo
 ```
 
 ## Let Claude do it
@@ -281,11 +281,11 @@ Install the [scenes skill](https://github.com/dreamlake-ai/dreamlake-skills),
 point at a repo, and say *"push the MuJoCo scenes in here to DreamLake"*:
 
 ```bash
-dreamlake init                           # once: pick your agent and scope
-dreamlake skill install dreamlake-scenes
+dl init                           # once: pick your agent and scope
+dl skill install dreamlake-scenes
 ```
 
-`dreamlake skill update` brings in new releases and leaves your local edits
+`dl skill update` brings in new releases and leaves your local edits
 alone. Without the CLI, download `skills.tar.gz` from the latest
 [dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
 and copy `dreamlake-scenes/` and `dreamlake-cli/` into your agent's skills
@@ -328,7 +328,7 @@ The canonical collection and detail URLs are `/<namespace>/scenes` and
 query and fragment. Libraries remain a Scenes tab; library detail URLs remain
 `/<namespace>/libraries/<name>`.
 
-CLI 0.45.0 introduces `dreamlake scene` (`env` remains an alias). REST uses
+CLI 0.45.0 introduces `dl scene` (`env` remains an alias). REST uses
 `/namespaces/:slug/scenes` and all existing resource/version/upload/restore/delete
 suffixes. The `/envs` API aliases run the same handlers, with identical auth and
 storage; writes are not redirected. Catalog responses expose `scenes`, retaining
@@ -336,7 +336,7 @@ storage; writes are not redirected. Catalog responses expose `scenes`, retaining
 Existing `envType`, `EnvEntry`, `env_*` identifiers, `ENVS_*` configuration,
 `envs/` object prefixes, the immutable `~/.dreamlake/cache/envs/` cache,
 `dreamlake.env-layers/v3` and `dreamlake.envlayer` remain compatible technical
-contracts. Login environments (`dreamlake auth env`), environment variables and
+contracts. Login environments (`dl auth env`), environment variables and
 RL environment interfaces retain their technical names.
 
 ## Project attachment access

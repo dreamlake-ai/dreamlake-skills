@@ -1,13 +1,13 @@
 # Share and control access
 
 ```bash
-dreamlake artifact share get <id>        # inspect: URL, visibility, existing share link
-dreamlake artifact share create <id>     # mint a share link (signed-in recipients can read)
-dreamlake artifact share revoke <id>     # clear the token
-dreamlake artifact visibility <id> public|private
+dl artifact share get <id>        # inspect: URL, visibility, existing share link
+dl artifact share create <id>     # mint a share link (signed-in recipients can read)
+dl artifact share revoke <id>     # clear the token
+dl artifact visibility <id> public|private
 ```
 
-Available in CLI 0.32.4 and later; check `dreamlake artifact share --help`
+Available in CLI 0.32.4 and later; check `dl artifact share --help`
 for installed support. These change metadata only — no upload, no new
 version. Run the mutating steps only when the user asked to grant or revoke
 access, and run `get` before and after a change to verify it. Flags,
@@ -17,16 +17,16 @@ access, and run `get` before and after a change to verify it. Flags,
 ## External customers: latest version only
 
 ```bash
-dreamlake artifact share get <id> --json
-dreamlake artifact share latest-only <id> on
-dreamlake artifact share get <id> --json
+dl artifact share get <id> --json
+dl artifact share latest-only <id> on
+dl artifact share get <id> --json
 ```
 
 For a request to share only the most recent version, check the installed CLI's
 `artifact share latest-only --help`, read the
 [version policy and SDK options](../reference/cli-artifacts.md#share-only-the-most-recent-version),
 and inspect access before changing it. For a new link, use
-`dreamlake artifact share create <id> --latest-only`, then read back the policy
+`dl artifact share create <id> --latest-only`, then read back the policy
 and link. Only run `latest-only <id> off` when the user wants recipient history
 restored. Do not change visibility or revoke links as a substitute.
 

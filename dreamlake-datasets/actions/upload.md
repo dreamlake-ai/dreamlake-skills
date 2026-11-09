@@ -2,11 +2,11 @@
 
 Upload with the provider's own tools, or upload into an existing Source's
 managed layer with the CLI. The managed-source route requires an existing
-source name; discover it with `dreamlake source list` first. It transfers bytes
+source name; discover it with `dl source list` first. It transfers bytes
 directly to storage using short-lived signed operations:
 
 ```bash
-dreamlake source upload ./my-dataset --source <name> --recursive --to <prefix>
+dl source upload ./my-dataset --source <name> --recursive --to <prefix>
 ```
 
 For one file, omit `--recursive`; use `--to` to select a destination prefix.
@@ -14,12 +14,12 @@ Per-command file-count and size limits:
 [Upload files into a Source](../reference/cli-sources.md#upload-files-into-a-source). For an unanswered
 request, retry with the same `--idempotency-key` so it cannot create a second
 write. `upload` never creates or links a source: a namespace owner creates an
-empty managed-only Source with `dreamlake source create`, and external storage
+empty managed-only Source with `dl source create`, and external storage
 is linked in the dashboard ([connect](connect.md)). Uploading to an existing
 managed path replaces it and shadows the same path in the external layer, so
 `browse` the target first and prefer a fresh prefix. Flags, path rules and
 limits: [reference/cli-sources.md](../reference/cli-sources.md) or
-`dreamlake source upload --help`.
+`dl source upload --help`.
 
 ```bash
 # S3 (or any S3-compatible bucket)

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Writing and formatting
 
@@ -176,12 +176,12 @@ For example, set `NOTE_ID` to the target memo ID and read its legacy ETag
 ```bash
 # NOTE_ID is the ID returned by create/list; this edits an existing highlight.
 SNAPSHOT=$(mktemp)
-dreamlake memos read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
+dl memos read --legacy --note "$NOTE_ID" --json > "$SNAPSHOT"
 REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
-dreamlake memos replace ':highlight[Review needed]' \
+dl memos replace ':highlight[Review needed]' \
   --text ':highlight[Review needed]{user="geyang" comment="Check the source"}' \
   --note "$NOTE_ID" --if-match "$REV"
-dreamlake memos read "$NOTE_ID" --json
+dl memos read "$NOTE_ID" --json
 rm "$SNAPSHOT"
 ```
 

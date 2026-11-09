@@ -24,8 +24,8 @@ alone does not prove execution readiness. A pending or uncertain cloud write
 must be inspected through its durable operation receipt before another action.
 
 After preparing a launch server, stop it from claiming shared jobs (CLI 0.92.0):
-run `dreamlake queues worker-claims <prefix> <worker-id> --disable --json` and
-confirm the output has `"claimJobs": false`. Then check that `dreamlake queues
+run `dl queues worker-claims <prefix> <worker-id> --disable --json` and
+confirm the output has `"claimJobs": false`. Then check that `dl queues
 workers <prefix> --json` shows a fresh `lastSeenAt`, and that a harmless
 management call such as `providers instances list <provider>` still succeeds.
 For what the switch covers, see [stop a worker from claiming jobs](../reference/cli-queues.md#stop-a-worker-from-claiming-jobs).
@@ -69,11 +69,11 @@ For an existing enrolled host, create its dedicated account and use
 Both identities must be in the same namespace; existing different bindings cannot
 be replaced.
 
-Use `dreamlake machine self` and a granted `machine host` or `machine project`
+Use `dl machine self` and a granted `machine host` or `machine project`
 read on the provisioned host. Human login uses separate Unix credentials and
 `--identity user`; it must not replace background machine credentials.
 
-For current-computer registration, use `dreamlake hosts enroll --local --name
+For current-computer registration, use `dl hosts enroll --local --name
 <namespace/group/host>`. Enrollment prints readable text by default; add `--json`
 when a program needs the structured result, including pending and error receipts.
 `--quiet` suppresses progress, not the final result. Text-output behavior requires

@@ -5,7 +5,7 @@ skill:
 
 1. **`upload` + `connect` actions** — put the `.mcap` in linkable storage
    (HF repo, S3 bucket, …) with that provider's tools, or into an existing
-   managed Source with `dreamlake source upload`, and connect it as a source.
+   managed Source with `dl source upload`, and connect it as a source.
    The dashboard flow is in [reference/docs-sources.md](../reference/docs-sources.md).
 2. **`dreamrc` + `validate` actions** — drop a `.dreamrc` (`format: mcap`,
    `episodes: auto`) that binds `/tf`, `/robot` (or `models:`), and

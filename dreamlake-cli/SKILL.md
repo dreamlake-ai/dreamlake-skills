@@ -49,9 +49,11 @@ backend; the rule and its evidence standard are the `machines` action of
 
 ## Conventions
 
-- Run `dreamlake <command> --help` for syntax; actions do not restate flags.
+- Prefer `dl` for commands. If it is missing or belongs to another program,
+  use `dreamlake` and follow [setup](actions/setup.md); never overwrite a conflicting command.
+- Run `dl <command> --help` for syntax; actions do not restate flags.
 - Plain text is for people and agents; add `--json` only when a program parses the output.
-- Check the installed `dreamlake --version` against each action's version floor. A
+- Check the installed `dl --version` against each action's version floor. A
   merged change, updated docs or an installed skill does not prove that the
   executable or the server supports a command.
 - Use the Python or TypeScript SDK only for explicit SDK integration or a documented

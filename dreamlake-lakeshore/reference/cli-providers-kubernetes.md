@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/providers/kubernetes.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/providers/kubernetes.md at 0.112.0 0d1fe91; do not edit -->
 
 # Kubernetes launch setup
 
@@ -29,7 +29,7 @@ Create a task-specific directory and scaffold the `kube` provider template:
 ```bash
 mkdir kube-dev
 cd kube-dev
-dreamlake provider create --name kube-dev --provider kube --json
+dl provider create --name kube-dev --provider kube --json
 ```
 
 Edit the generated `.dream/providers/kube-dev/terraform/terraform.tfvars`.
@@ -65,8 +65,8 @@ hosted-backend egress as a substitute for the launch server.
 Register a hosted state backend in your infrastructure project:
 
 ```bash
-dreamlake infra create kube-dev --namespace team --project infrastructure --environment dev --repository https://github.com/example/infra --directory kube-dev --json
-dreamlake infra connect STACK_ID
+dl infra create kube-dev --namespace team --project infrastructure --environment dev --repository https://github.com/example/infra --directory kube-dev --json
+dl infra connect STACK_ID
 ```
 
 Add `terraform { backend "http" {} }` to the Terraform root. Apply the environment
@@ -136,7 +136,7 @@ docker push REGISTRY/dreamlake-kube-launch:smoke
 
 Read the pushed digest and replace the image placeholder in `launch.jsonl`.
 Register that layer as the provider default; create the larger-pool overlay with
-`dreamlake providers layers create team/PROVIDER_ID --name large --file
+`dl providers layers create team/PROVIDER_ID --name large --file
 examples/kubernetes-launch/large.jsonl --request-id large-layer-01` and launch
 with `--layer large`. The sample leaves `command` unset to verify the image's
 Docker `ENTRYPOINT` is preserved. Supply `imagePullSecrets` for an existing namespace-local pull secret

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scene-generation/quickstart.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scene-generation/quickstart.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Scene Generation Quickstart
 
@@ -27,7 +27,7 @@ Skills-compatible client) the complete scene workflow:
   forces, and that props stay where they were placed, with explicit per-body
   assertions rather than a vague "looks stable".
 - **Render and publish** — camera renders for your eyes, then
-  `dreamlake scene push` publishes a versioned scene with an interactive
+  `dl scene push` publishes a versioned scene with an interactive
   [browser viewer page](docs-scenes.md), private by default.
 - **Edit and reuse with more prompts** — a published scene stays editable:
   the agent pulls it back, changes what you asked for, and pushes a new
@@ -44,13 +44,13 @@ during the skill's evaluation runs:
 
 ## Prerequisites
 
-- **`dreamlake` CLI ≥ 0.45.0**, logged in (`dreamlake login`).
+- **`dl` CLI ≥ 0.45.0**, logged in (`dl login`).
 - **Python** — how much depends on the route the agent takes:
   - **Raw MJCF scenes** need only the skill's inspection/validation tools'
     dependencies: `mujoco` (≥ 3.2) and `numpy`. The layer composer is
     **optional** — a scene authored as one self-contained MJCF directory is
     pushed directly, no `dreamlake[compose]` install involved.
-  - **Layer-composed scenes** (`dreamlake scene compose`) additionally need
+  - **Layer-composed scenes** (`dl scene compose`) additionally need
     the composer: dreamlake-py ≥ 0.23 with **MuJoCo 3.14**. Details
     in [Scene Generation § Requirements](docs-scene-generation.md#requirements).
 - **An agent that reads Skills** — Claude Code is the reference client.
@@ -68,7 +68,7 @@ pip install "dreamlake[compose]==0.23.1" "mujoco==3.14.0"
 
 python -c "import dreamlake, mujoco; print(dreamlake.__version__, mujoco.__version__)"
 # expect: 0.23.1 3.14.0
-dreamlake --version    # ≥ 0.45.0
+dl --version    # ≥ 0.45.0
 
 # the CLI's compose step finds this venv through DREAMLAKE_PYTHON
 # (there is no --python flag):
@@ -84,30 +84,30 @@ Scene generation ships in the `dreamlake-scenes` skill, written in the public
 [dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills)
 repository: `SKILL.md`, one action page per task, the runnable `tools/`
 (physics validation and reporting) and the reference pages fetched from
-these docs. The `dreamlake` CLI installs it:
+these docs. The `dl` CLI installs it:
 
 ```bash
 # once: pick Claude or Codex, and project or user scope
-dreamlake init
+dl init
 
 # installs dreamlake-scenes and dreamlake-cli, which it requires
-dreamlake skill install dreamlake-scenes
+dl skill install dreamlake-scenes
 ```
 
-`dreamlake init` remembers the agent and scope; `--global` or `--dir` on a
+`dl init` remembers the agent and scope; `--global` or `--dir` on a
 later command overrides them for one install.
 
-**Updating safely.** `dreamlake skill update dreamlake-scenes` brings in a
+**Updating safely.** `dl skill update dreamlake-scenes` brings in a
 new release: unchanged files are replaced, files you have edited are
 reported as conflicts and kept unless you pass `--force`, and nothing the
-installer did not write is touched. `dreamlake skill list` shows the
+installer did not write is touched. `dl skill list` shows the
 installed and latest versions.
 
 Without the CLI, download `skills.tar.gz` from the latest
 [dreamlake-skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/latest)
 and copy `dreamlake-scenes/` and `dreamlake-cli/` into `~/.claude/skills/`
 (user scope) or `.claude/skills/` (one project). A copied directory has no
-install manifest, so its first `dreamlake skill update` needs `--force`.
+install manifest, so its first `dl skill update` needs `--force`.
 
 The agent discovers the skill from its frontmatter and picks it up when a
 scene request matches — no registration step.
@@ -191,7 +191,7 @@ works:
 3. **Describe the scene** in the intro composer the draft opens into ("a
    breakfast table with two mugs and a bowl…"). The prompt goes to the
    embedded agent, which runs the same skill workflow — source, measure,
-   compose, validate — and publishes with `dreamlake scene push`. The chat
+   compose, validate — and publishes with `dl scene push`. The chat
    opens in **Auto** permission mode so this runs end-to-end without
    per-command approval; switching the composer to Ask/Plan makes it a
    read-only conversation (no generation, no push) until you switch back.

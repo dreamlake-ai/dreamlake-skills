@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sim-rollouts.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sim-rollouts.md at 0.1.134 4bbe54f7; do not edit -->
 
 {/* Figures come from the site-wide mdxComponents map (SimRolloutFigures) — no
     import needed. The page is figure-led: each section opens with a diagram,
@@ -20,7 +20,7 @@ DreamLake already ships the last two moves; this guide is mostly the first.
 ```bash
 pip install foxglove-sdk trimesh          # write MCAP; export meshes to OBJ
 curl -fsSL https://dl.dreamlake.ai/install.sh | bash   # the dreamlake CLI
-dreamlake login                           # browser sign-in
+dl login                           # browser sign-in
 ```
 
 ## Generate the MCAP
@@ -96,7 +96,7 @@ Embed the mesh for a self-contained file, or — if DreamLake's robot registry
 ## Let Claude do it
 
 The [sim-to-mcap skill](https://github.com/dreamlake-ai/dreamlake-skills)
-(`dreamlake init` once, then `dreamlake skill install sim-to-mcap`, which
+(`dl init` once, then `dl skill install sim-to-mcap`, which
 pulls in `dreamlake-datasets`) runs the rollout end to end and hands off to
 the datasets skill for upload and `.dreamrc`:
 

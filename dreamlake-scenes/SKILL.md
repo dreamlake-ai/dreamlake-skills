@@ -7,8 +7,8 @@ description: Build, validate and publish simulation scenes on DreamLake — MuJo
 
 A Scene is a versioned world or robot model: one directory with the entry
 MJCF/URDF at its root plus every referenced asset. Commands need DreamLake
-CLI 0.45.0 or later (`dreamlake scene …`; `dreamlake env` is a legacy alias) —
-check `dreamlake --version` first and prefer `dreamlake scene <cmd> --help`
+CLI 0.45.0 or later (`dl scene …`; `dl env` is a legacy alias) —
+check `dl --version` first and prefer `dl scene <cmd> --help`
 for flags. The bundled `tools/` (report, render, validate) run on any MJCF
 file or pulled scene with `pip install mujoco numpy` (mujoco ≥ 3.2) and no
 account; composing stacks needs `dreamlake[compose]` (see
@@ -45,7 +45,7 @@ package: do not upload unless the user asked to publish.
   `dreamlake-datasets`.
 - An owned scene moves with its whole Project; see the `projects` action of
   `dreamlake-cli`.
-- The old `dreamlake-envs` skill name, `/envs` URLs and `dreamlake env` all
+- The old `dreamlake-envs` skill name, `/envs` URLs and `dl env` all
   mean Scenes; see
   [compatibility and vocabulary](reference/docs-scenes.md#scenes-compatibility-and-product-vocabulary).
 

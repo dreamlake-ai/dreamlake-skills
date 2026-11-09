@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/rich-content.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/rich-content.md at 0.112.0 0d1fe91; do not edit -->
 
 # Rich content and HTML
 
@@ -74,12 +74,12 @@ ID returned by create/list. This complete example annotates an existing highligh
 
 ```bash
 SNAPSHOT=$(mktemp)
-dreamlake memos read --legacy --note "$MEMO_ID" --json > "$SNAPSHOT"
+dl memos read --legacy --note "$MEMO_ID" --json > "$SNAPSHOT"
 REV=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["etag"])' "$SNAPSHOT")
-dreamlake memos replace ':highlight[Review needed]' \
+dl memos replace ':highlight[Review needed]' \
   --text ':highlight[Review needed]{user="geyang" comment="Check the source"}' \
   --note "$MEMO_ID" --if-match "$REV"
-dreamlake memos read "$MEMO_ID" --json
+dl memos read "$MEMO_ID" --json
 rm "$SNAPSHOT"
 ```
 
@@ -108,7 +108,7 @@ generated labels, and editor decorations are not replacement document source.
 
 ```bash
 MEMO_ID=release-plan
-dreamlake memos read "$MEMO_ID" --view html > preview.html
+dl memos read "$MEMO_ID" --view html > preview.html
 ```
 
 The CLI writes the complete server-rendered HTML byte-for-byte, with no text
@@ -118,7 +118,7 @@ result of an edit:
 
 ```bash
 ACK=$(jq -er .revision receipt.json)
-dreamlake memos read "$MEMO_ID" --view html --if-match "$ACK" > verified.html
+dl memos read "$MEMO_ID" --view html --if-match "$ACK" > verified.html
 ```
 
 A revision mismatch exits `3` without output. HTML reads require the matching

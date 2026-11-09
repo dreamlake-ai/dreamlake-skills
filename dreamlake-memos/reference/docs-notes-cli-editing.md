@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Read, edit and search from the CLI
 
@@ -7,9 +7,9 @@
 **CLI**
 
 ```bash
-dreamlake memos read --legacy design-doc                     # slug
-dreamlake memos read --legacy 6aa948b3fea6e541282b747e       # id
-dreamlake memos read --legacy "Design Doc"                   # exact title
+dl memos read --legacy design-doc                     # slug
+dl memos read --legacy 6aa948b3fea6e541282b747e       # id
+dl memos read --legacy "Design Doc"                   # exact title
 
 # Every example below uses $NOTE_ID. Set it once — any of the three forms:
 NOTE_ID=design-doc
@@ -30,7 +30,7 @@ A memo you may not read answers exactly as one that does not exist.
 
 ```bash
 # Set NOTE_ID to the note ID, slug, or exact title you want to read.
-dreamlake memos read "$NOTE_ID"
+dl memos read "$NOTE_ID"
 ```
 
 The default is an annotated reading view. Use the smallest relevant read for
@@ -38,7 +38,7 @@ inspection; do not write generated address hints back into the Memo. For an
 editing baseline, retain the complete structured snapshot and its opaque revision:
 
 ```bash
-dreamlake memos read "$NOTE_ID" --json > baseline.json
+dl memos read "$NOTE_ID" --json > baseline.json
 BASE=$(jq -er .revision baseline.json)
 jq -jr .content baseline.json > baseline.md
 ```
@@ -115,13 +115,13 @@ The existing examples below use the explicit `--legacy` CLI contract (source
 **CLI**
 
 ```bash
-dreamlake memos read --legacy "$NOTE_ID"                                    # whole body
-dreamlake memos read --legacy "$NOTE_ID" --section install                  # one section
-dreamlake memos read --legacy "$NOTE_ID" --start-line 40 --end-line 80
-dreamlake memos read --legacy "$NOTE_ID" --start-line 40 --end-line 80 --numbered
-dreamlake memos read --legacy --note "$NOTE_ID" --json                      # body + revision
-dreamlake memos toc --note "$NOTE_ID"                              # the outline
-dreamlake memos toc --note "$NOTE_ID" --json
+dl memos read --legacy "$NOTE_ID"                                    # whole body
+dl memos read --legacy "$NOTE_ID" --section install                  # one section
+dl memos read --legacy "$NOTE_ID" --start-line 40 --end-line 80
+dl memos read --legacy "$NOTE_ID" --start-line 40 --end-line 80 --numbered
+dl memos read --legacy --note "$NOTE_ID" --json                      # body + revision
+dl memos toc --note "$NOTE_ID"                              # the outline
+dl memos toc --note "$NOTE_ID" --json
 ```
 
 **Python**
@@ -157,7 +157,7 @@ Before each revision-checked edit, read the memo and capture its revision
 (the CLI recipe uses `jq`):
 
 ```bash
-REV=$(dreamlake memos read --legacy "$NOTE_ID" --json | jq -er .etag)
+REV=$(dl memos read --legacy "$NOTE_ID" --json | jq -er .etag)
 ```
 
 Inspect the returned body before choosing the edit. After a successful write,
@@ -167,12 +167,12 @@ conflict with `--force`.
 **CLI**
 
 ```bash
-dreamlake memos find "Draft" --note "$NOTE_ID"
-dreamlake memos find --regex '\bTODO\b.*' --flags im --note "$NOTE_ID"
+dl memos find "Draft" --note "$NOTE_ID"
+dl memos find --regex '\bTODO\b.*' --flags im --note "$NOTE_ID"
 
-dreamlake memos replace "Draft" --text "Published" --all --note "$NOTE_ID" --if-match "$REV"
-dreamlake memos insert --text "New line" --line 10 --note "$NOTE_ID" --if-match "$REV"
-dreamlake memos delete "obsolete paragraph" --note "$NOTE_ID"
+dl memos replace "Draft" --text "Published" --all --note "$NOTE_ID" --if-match "$REV"
+dl memos insert --text "New line" --line 10 --note "$NOTE_ID" --if-match "$REV"
+dl memos delete "obsolete paragraph" --note "$NOTE_ID"
 ```
 
 **Python**
@@ -210,8 +210,8 @@ expansion is automatic; there is no flag for it.
 **CLI**
 
 ```bash
-dreamlake memos replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE_ID"
-dreamlake memos replace --regex '(?<key>timeout|retries)=(?<value>\d+)' \
+dl memos replace --regex '(\w+)=(\d+)' --text '$1: $2' --all --note "$NOTE_ID"
+dl memos replace --regex '(?<key>timeout|retries)=(?<value>\d+)' \
   --text '$<key>: $<value>' --all --note "$NOTE_ID" --if-match "$REV" --dry-run
 ```
 
@@ -233,10 +233,10 @@ come from a read or from `toc`.
 **CLI**
 
 ```bash
-dreamlake memos replace --text "Updated line" --line 10 --note "$NOTE_ID" --if-match "$REV"
-dreamlake memos replace --text "New block" --line 10:15 --note "$NOTE_ID"
-dreamlake memos replace --text "replacement" --ind 120:145 --note "$NOTE_ID"
-dreamlake memos insert --text "inserted text" --ind 120 --note "$NOTE_ID"
+dl memos replace --text "Updated line" --line 10 --note "$NOTE_ID" --if-match "$REV"
+dl memos replace --text "New block" --line 10:15 --note "$NOTE_ID"
+dl memos replace --text "replacement" --ind 120:145 --note "$NOTE_ID"
+dl memos insert --text "inserted text" --ind 120 --note "$NOTE_ID"
 ```
 
 **Python**
@@ -264,9 +264,9 @@ ambiguous.
 **CLI**
 
 ```bash
-dreamlake memos select "#contact" --note "$NOTE_ID"          # where it is, and its text
-dreamlake memos replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE_ID"
-dreamlake memos insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE_ID"
+dl memos select "#contact" --note "$NOTE_ID"          # where it is, and its text
+dl memos replace "Contact us" --text "Talk to sales" --selector "#contact" --note "$NOTE_ID"
+dl memos insert --text "<li>New</li>" --selector "#list" --position append --note "$NOTE_ID"
 ```
 
 **Python**
@@ -303,24 +303,24 @@ removed it. Live docs and public skill propagation are separate release checks.
 
 ```bash
 # CLI 0.61.0: retain the original source used to prepare whole.md.
-dreamlake memos read "$NOTE_ID" --json > whole-baseline.json
+dl memos read "$NOTE_ID" --json > whole-baseline.json
 WHOLE_BASE=$(jq -er '.revision' whole-baseline.json)
 jq -jr .content whole-baseline.json > whole.md
 # Edit whole.md while keeping whole-baseline.json unchanged.
-dreamlake memos write "$NOTE_ID" --file whole.md --base-revision "$WHOLE_BASE" --json > whole-ack.json
+dl memos write "$NOTE_ID" --file whole.md --base-revision "$WHOLE_BASE" --json > whole-ack.json
 WHOLE_ACK=$(jq -er '.revision' whole-ack.json)
-dreamlake memos read "$NOTE_ID" --at "$WHOLE_ACK"
+dl memos read "$NOTE_ID" --at "$WHOLE_ACK"
 # Section write remains on its explicit compatibility API.
-dreamlake memos write "$NOTE_ID" --section install --file install.md
+dl memos write "$NOTE_ID" --section install --file install.md
 # Append uses original-revision patches in CLI 0.59.0 and later. Requires jq.
-dreamlake memos read "$NOTE_ID" --json > append-baseline.json
+dl memos read "$NOTE_ID" --json > append-baseline.json
 BASE=$(jq -er '.revision' append-baseline.json)
-dreamlake memos append "$NOTE_ID" --text "one more line" --base-revision "$BASE" --json > append-ack.json
+dl memos append "$NOTE_ID" --text "one more line" --base-revision "$BASE" --json > append-ack.json
 ACK=$(jq -er '.revision' append-ack.json)
-dreamlake memos read "$NOTE_ID" --at "$ACK"
+dl memos read "$NOTE_ID" --at "$ACK"
 # For a file, use --file more.md with the same saved original baseline.
-dreamlake memos add-section "$NOTE_ID" --file trouble.md --after install
-dreamlake memos rm-section "$NOTE_ID" troubleshooting
+dl memos add-section "$NOTE_ID" --file trouble.md --after install
+dl memos rm-section "$NOTE_ID" troubleshooting
 ```
 
 **Python**
@@ -402,18 +402,18 @@ The CLI returns the same ref in `read --json` and accepts it via `--since`:
 ```bash
 # Requires jq. Keep the snapshot and ref for a later shell session.
 NOTE_ID=design-doc
-dreamlake memos read --legacy "$NOTE_ID" --json > note-snapshot.json
+dl memos read --legacy "$NOTE_ID" --json > note-snapshot.json
 REV=$(jq -er .etag note-snapshot.json)
-dreamlake memos diff --legacy "$NOTE_ID" --since "$REV"
-dreamlake memos diff --legacy "$NOTE_ID" --since "$REV" --json
+dl memos diff --legacy "$NOTE_ID" --since "$REV"
+dl memos diff --legacy "$NOTE_ID" --since "$REV" --json
 # Apply a diff prepared against that saved body:
-dreamlake memos patch --legacy "$NOTE_ID" --file change.patch --if-match "$REV" --json
+dl memos patch --legacy "$NOTE_ID" --file change.patch --if-match "$REV" --json
 ```
 
 `notes diff` requires `--since`; it does not keep a hidden local baseline.
 Plain output is the diff on stdout and current ETag on stderr. `--json` also
 returns `from` and `to`. The CLI help includes this workflow:
-`dreamlake memos diff --legacy --help`, `notes read --help`, and `notes patch --help`.
+`dl memos diff --legacy --help`, `notes read --help`, and `notes patch --help`.
 
 Reads return `doc.etag`, a quoted SHA-256 hash of the complete memo text. Keep
 that ref to see changes since your own read or successful edit across sessions:
@@ -486,8 +486,8 @@ native identities and preserves compatible concurrent edits.
 **CLI**
 
 ```bash
-diff -u before.md after.md | dreamlake memos patch --legacy "$NOTE_ID" --file -
-dreamlake memos patch --legacy "$NOTE_ID" --file change.patch --dry-run
+diff -u before.md after.md | dl memos patch --legacy "$NOTE_ID" --file -
+dl memos patch --legacy "$NOTE_ID" --file change.patch --dry-run
 ```
 
 **Python**
@@ -502,9 +502,9 @@ note.patch(unified_diff, if_match=doc.etag, legacy=True)
 **CLI**
 
 ```bash
-dreamlake memos grep "TODO" -C 2
-dreamlake memos grep --regex '\bFIXME\b' --case-sensitive --glob 'spec-*'
-dreamlake memos grep "Draft" --json        # revision + character range per hit
+dl memos grep "TODO" -C 2
+dl memos grep --regex '\bFIXME\b' --case-sensitive --glob 'spec-*'
+dl memos grep "Draft" --json        # revision + character range per hit
 ```
 
 **Python**
@@ -537,9 +537,9 @@ Older server responses fail explicitly.
 export DREAMLAKE_AGENT_ID="review-session-42"
 export DREAMLAKE_AGENT_NAME="Codex"
 NOTE_ID="your-note-id"
-dreamlake memos select --text "The next step is tested in simulation." --note "$NOTE_ID"
-dreamlake memos select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
-dreamlake memos select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
+dl memos select --text "The next step is tested in simulation." --note "$NOTE_ID"
+dl memos select --text "simulation" --section next-steps --occurrence 2 --note "$NOTE_ID"
+dl memos select --text "simulation" --section next-steps -o -1 --note "$NOTE_ID"
 ```
 
 Use a stable task identity and your normal authenticated Memos access. The command
@@ -614,8 +614,8 @@ between is **refused** rather than overwritten:
 **CLI**
 
 ```bash
-REV=$(dreamlake memos read --legacy "$NOTE_ID" --json | jq -r .etag)
-dreamlake memos write "$NOTE_ID" --file new.md --if-match "$REV"
+REV=$(dl memos read --legacy "$NOTE_ID" --json | jq -r .etag)
+dl memos write "$NOTE_ID" --file new.md --if-match "$REV"
 ```
 
 **Python**
@@ -653,6 +653,6 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
 
 ## Next steps
 
-    Every `dreamlake memos` command and flag.
+    Every `dl memos` command and flag.
 
     The endpoints underneath, if you need them directly.

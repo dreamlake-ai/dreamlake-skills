@@ -4,13 +4,13 @@ Use this action when the user wants an image URL for Markdown or HTML. For an
 attachment kept under a memo's permissions, use `memos files upload` instead.
 An attachment path or preview page URL cannot be used as an image `src`.
 
-After signing in with `dreamlake login`, check
-`dreamlake memos media upload --help`. Requires CLI 0.37.0 or later; if missing,
+After signing in with `dl login`, check
+`dl memos media upload --help`. Requires CLI 0.37.0 or later; if missing,
 use the documented HTTP fallback only when valid API credentials are available.
 Do not substitute a file-preview URL or upload the image twice.
 
 ```bash
-IMAGE_URL=$(dreamlake memos media upload "./architecture diagram.png")
+IMAGE_URL=$(dl memos media upload "./architecture diagram.png")
 ```
 
 On success, use the returned URL directly. No `--json`, `jq`, memo ID or

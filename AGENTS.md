@@ -1,5 +1,9 @@
 # Public DreamLake skills
 
+Prefer `dl` in CLI examples and agent instructions. Retain `dreamlake` for
+compatibility and missing-command/conflict recovery; keep package names, paths,
+environment variables, services, and process-matching identifiers unchanged.
+
 The docs sites (docs.dreamlake.ai, cli.dreamlake.ai, viz.dreamlake.ai) are the
 source of product facts: commands, flags, APIs, behaviour. This repository is
 the source of task procedures: when to use a skill and the steps, exceptions
@@ -24,7 +28,7 @@ create, split, rename or retire a skill, the size caps (defined once under
 "Maintain an existing skill"), the acceptance a PR needs and the release flow.
 Do not maintain a second policy here or in any skill.
 
-Releases are date tags cut by the nightly workflow; the `dreamlake` CLI
+Releases are date tags cut by the nightly workflow; the `dl` CLI
 installs from the release assets `skills.tar.gz` and `catalog.json`. A merged
 PR is not a release, and a release is not an installation: when reporting,
 state the merge, the tag and a fresh install read-back separately.

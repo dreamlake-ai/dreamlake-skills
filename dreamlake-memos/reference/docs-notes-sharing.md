@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Sharing, access and transfer
 
@@ -62,9 +62,9 @@ an existing Memo with `PATCH /namespaces/:slug/notes/:noteId` and only
 Only callers with `permissions.setVisibility` may change visibility.
 
 ```bash
-dreamlake memos create "Link-only review" --visibility unlisted
-dreamlake memos visibility MEMO_ID unlisted
-dreamlake memos share get MEMO_ID
+dl memos create "Link-only review" --visibility unlisted
+dl memos visibility MEMO_ID unlisted
+dl memos share get MEMO_ID
 ```
 
 The built-in `dreamlake_notes_create` tool accepts `visibility`; the metadata
@@ -123,7 +123,7 @@ sharing memos still require authentication and their existing permissions.
 
 ## Manage existing share links
 
-Available in CLI 0.32.4 and later; check `dreamlake memos share --help` for installed support.
+Available in CLI 0.32.4 and later; check `dl memos share --help` for installed support.
 
 Requires an authenticated login, an existing resource, and permission to
 manage its sharing. Run these mutation steps only when the user has asked
@@ -132,18 +132,18 @@ metadata only; they do not upload content or create a new version.
 
 ```bash
 # Find the release plan and inspect its source and current sharing.
-dreamlake memos search "release plan"
+dl memos search "release plan"
 NOTE="release-plan" # Replace with the id or slug from search.
-dreamlake memos read "$NOTE"
-dreamlake memos share get "$NOTE"
+dl memos read "$NOTE"
+dl memos share get "$NOTE"
 
 # Give signed-in recipients read access, then verify the returned link.
-dreamlake memos share create "$NOTE" --role read
-dreamlake memos share get "$NOTE"
+dl memos share create "$NOTE" --role read
+dl memos share get "$NOTE"
 
 # When link access is no longer needed, revoke it and verify.
-dreamlake memos share revoke "$NOTE"
-dreamlake memos share get "$NOTE"
+dl memos share revoke "$NOTE"
+dl memos share get "$NOTE"
 ```
 
 `get` never enables sharing. It reports the resource URL, visibility, and
@@ -153,9 +153,9 @@ expose the token to this caller, not that sharing is disabled.
 
 ```bash
 NOTE="release-plan" # Your existing note id or slug.
-dreamlake memos visibility "$NOTE" unlisted
-dreamlake memos visibility "$NOTE" public
-dreamlake memos visibility "$NOTE" private
+dl memos visibility "$NOTE" unlisted
+dl memos visibility "$NOTE" public
+dl memos visibility "$NOTE" private
 ```
 
 Visibility and sharing are independent. Making a resource private does not
@@ -171,7 +171,7 @@ everyone admitted through the link. Memo IDs resolve their owning namespace auto
 
 ```bash
 NOTE="release-plan" # Your existing note id or slug.
-dreamlake memos share revoke "$NOTE" --revoke-accepted
+dl memos share revoke "$NOTE" --revoke-accepted
 ```
 
 Ordinary revocation clears the link and blocks subsequent link-derived access,
@@ -183,13 +183,13 @@ editing until the room is rotated; this command does not rotate rooms.
 ```bash
 NOTE="release-plan" # Your existing note id or slug.
 # List acceptance records and stored roles as a readable table.
-dreamlake memos share access "$NOTE"
+dl memos share access "$NOTE"
 ```
 
 ```bash
 NOTE="release-plan" # Your existing note id or slug.
 USER_ID="user-id-from-access-list"
-dreamlake memos share remove "$NOTE" "$USER_ID"
+dl memos share remove "$NOTE" "$USER_ID"
 ```
 
 The access list defaults to a readable table; use `--json` for a structured
@@ -247,16 +247,16 @@ Organization members retain their existing read/edit baseline for organization
 Memos; filing a Memo in a project does not make it team-private. No preview
 grants destination access or changes the original Memo.
 
-For the CLI, check `dreamlake memos move --help`. CLI 0.44.3 and earlier do not
+For the CLI, check `dl memos move --help`. CLI 0.44.3 and earlier do not
 include this command; a matching server endpoint is also required:
 
 ```bash
 # Inspect an organization destination; currently blocked, with exit status 3.
-dreamlake memos move NOTE_ID --to-namespace my-org --project shared-research --dry-run
+dl memos move NOTE_ID --to-namespace my-org --project shared-research --dry-run
 # Preview an additive filing in the Note's current workspace.
-dreamlake memos move NOTE_ID --to-namespace current-workspace --project research --dry-run
+dl memos move NOTE_ID --to-namespace current-workspace --project research --dry-run
 # Apply only an executable same-workspace preview authorized by the user.
-dreamlake memos move NOTE_ID --to-namespace current-workspace --project research
+dl memos move NOTE_ID --to-namespace current-workspace --project research
 ```
 
 Use the source workspace owner's login. Same-workspace filing requires write

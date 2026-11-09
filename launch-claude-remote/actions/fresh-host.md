@@ -50,7 +50,7 @@ or organization fields to bypass the failure.
 
 Check development services independently. DreamLake's `auth.yml` is a saved
 multi-environment cache: copying it alone left Memos unauthenticated. Activate
-the intended saved login with `dreamlake auth env use <saved-name>`, then verify
+the intended saved login with `dl auth env use <saved-name>`, then verify
 an authorized Memo or Vault read. Its published npm package is
 `@dreamlake/dreamlake-cli`; `@dreamlake/cli` returned 404 during this run.
 Restored npm credentials still yielded `npm whoami` HTTP 401, and a passing

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.134 4bbe54f7; do not edit -->
 
 # History and saved versions
 
@@ -154,15 +154,15 @@ This does not enable cross-namespace transfers or change who can read history.
 ### Use the CLI for saved versions
 
 CLI **0.44.1+** supports current-draft checkpoints, version lists, and saved
-text reads. Check the installed `dreamlake note tag --help`, `note hist --help`,
+text reads. Check the installed `dl note tag --help`, `note hist --help`,
 and `note read --help` first. `note` and `notes` are aliases; the older
 `notes version` group was removed in 0.44.2.
 
 ```bash
 # Keep the same explicit namespace on every command.
-dreamlake note tag "$NOTE_ID" reviewed --namespace "$NOTE_NAMESPACE" --summary "Reviewed draft"
-dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --json
-dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --version "$VERSION_ID" --json
+dl note tag "$NOTE_ID" reviewed --namespace "$NOTE_NAMESPACE" --summary "Reviewed draft"
+dl note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --json
+dl note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --version "$VERSION_ID" --json
 ```
 
 `hist` lists saved checkpoints, not every autosaved edit. JSON is appropriate
@@ -199,7 +199,7 @@ mechanism; do not paste it into memos, shell history, or receipts. Explicitly se
 
 ```bash
 # These variables must already identify the intended account, Note and baseline.
-dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" \
+dl note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" \
   --view source --at "$OLD_REVISION"
 ```
 
@@ -241,7 +241,7 @@ def keep(name, value):
         json.dump(value, output, ensure_ascii=False, indent=2)
 def read_source(name, *extra):
     raw = subprocess.check_output([
-        "dreamlake", "note", "read", note, "--namespace", ns,
+        "dl", "note", "read", note, "--namespace", ns,
         "--view", "source", "--json", *extra], text=True)
     value = json.loads(raw)
     keep(name, value)
@@ -292,7 +292,7 @@ def verify_metadata(value):
     assert observed.tzinfo is not None
 verify_metadata(saved)
 verified = json.loads(subprocess.check_output([
-    "dreamlake", "note", "read", note, "--namespace", ns,
+    "dl", "note", "read", note, "--namespace", ns,
     "--version", version_id, "--json"], text=True))
 keep("verified-version.json", verified)
 verify_metadata(verified)
@@ -334,11 +334,11 @@ Inspect saved metadata on the **same remote, namespace and Memo**, starting
 with the first page and continuing through `nextCursor` using `--before`:
 
 ```bash
-dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --json
+dl note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --json
 # Repeat for each non-null nextCursor until the attempt's time range is covered.
-dreamlake note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --before "$NEXT_CURSOR" --json
+dl note hist "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --before "$NEXT_CURSOR" --json
 # Read each plausible candidate by immutable ID.
-dreamlake note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --version "$CANDIDATE_ID" --json
+dl note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" --version "$CANDIDATE_ID" --json
 ```
 
 Each page has at most 50 entries. Compare candidates with the retained request:

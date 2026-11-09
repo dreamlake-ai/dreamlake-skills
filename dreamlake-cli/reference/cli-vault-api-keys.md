@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-api-keys.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-api-keys.md at 0.112.0 0d1fe91; do not edit -->
 
 # Third-party API keys in pass and Vault
 
@@ -19,7 +19,7 @@ or in an agent transcript.
 | Vault `--env` | the variable the service's own tooling reads | `RUNWAYML_API_SECRET` |
 
 `<owner>/cli/<service>/…` groups every key that a CLI, SDK or agent plugin
-reads under one prefix, so `dreamlake vault list -p alice/cli` audits all of
+reads under one prefix, so `dl vault list -p alice/cli` audits all of
 them and one prefix policy can cover them. Use a different leaf when a service
 issues more than one kind of credential (`alice/cli/gh/github-token`). Entries
 saved earlier under `<owner>/env/<VARIABLE>` keep working; move them to the
@@ -37,11 +37,11 @@ pass insert runway
 
 # 2. Vault copy, piped from pass. --stdin stores the bytes exactly as received,
 #    so keep the first line only and drop its newline.
-pass show runway | head -n 1 | tr -d '\n' | dreamlake vault add \
+pass show runway | head -n 1 | tr -d '\n' | dl vault add \
   -p alice/cli/runway -n api-key --stdin --env RUNWAYML_API_SECRET
 
 # 3. Confirm metadata. show never prints the value.
-dreamlake vault show -n alice/cli/runway/api-key
+dl vault show -n alice/cli/runway/api-key
 ```
 
 `vault add` takes the value only from stdin or from a masked prompt; there is
@@ -51,7 +51,7 @@ exported inside the variable, which is why the pipe strips it.
 The write prints metadata and a request ID and no secret. Keep the ID. After a
 timeout or an uncertain response, repeat the identical pipe with
 `--request-id <id>`, or look the write up with
-`dreamlake vault write-status --request-id <id>`; see
+`dl vault write-status --request-id <id>`; see
 [Vault write recovery](cli-vault-write-recovery.md).
 
 ## Rotate the key
@@ -61,8 +61,8 @@ revision. `vault add` replaces an existing entry only with `--if-match`.
 
 ```shell
 pass insert -f runway
-dreamlake vault show -n alice/cli/runway/api-key        # read "revision"
-pass show runway | head -n 1 | tr -d '\n' | dreamlake vault add \
+dl vault show -n alice/cli/runway/api-key        # read "revision"
+pass show runway | head -n 1 | tr -d '\n' | dl vault add \
   -p alice/cli/runway -n api-key --stdin --env RUNWAYML_API_SECRET --if-match 1
 ```
 
@@ -70,11 +70,11 @@ pass show runway | head -n 1 | tr -d '\n' | dreamlake vault add \
 
 ```shell
 # The saved --env names the variable: export RUNWAYML_API_SECRET='…'
-eval "$(dreamlake vault get -n alice/cli/runway/api-key --to-envs)"
+eval "$(dl vault get -n alice/cli/runway/api-key --to-envs)"
 
 # The same value under a second name, in the same call. An ALIAS=path selector
 # sets the exported name for that selector only.
-eval "$(dreamlake vault get \
+eval "$(dl vault get \
   -n alice/cli/runway/api-key \
   -n RUNWAY_SKILLS_API_SECRET=alice/cli/runway/api-key --to-envs)"
 
@@ -98,7 +98,7 @@ two-selector `get` above. The variables hold the same key; there is one entry.
 
 ## `vault import --pass` is reserved
 
-`dreamlake vault import` lists a `--pass` flag, but it is reserved: ordinary
+`dl vault import` lists a `--pass` flag, but it is reserved: ordinary
 pass entry import is not implemented and the command rejects it. Only `--ssh`
 and `--pass-otp` import. The pipe above is the supported path from `pass` to
 Vault for an API key, one entry per command. The two stores are kept in step by

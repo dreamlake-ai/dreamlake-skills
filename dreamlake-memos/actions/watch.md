@@ -9,7 +9,7 @@ with Ctrl-C when finished.
 ```bash
 # Reuse the identity from task setup; do not generate a second one here.
 MEMO_ID=release-plan
-dreamlake memos read "$MEMO_ID" --linger
+dl memos read "$MEMO_ID" --linger
 ```
 
 The command handles joining, heartbeats and leaving. It stays in the foreground

@@ -12,7 +12,7 @@ restated here; they are in `reference/` or in `--help`.
 
 ## Before you start
 
-- The `dreamlake` CLI is installed and logged in to the right environment
+- The `dl` CLI is installed and logged in to the right environment
   (`dreamlake-cli` skill, action `setup`).
 - The file renders on its own: no CDN scripts, web fonts or remote images. The
   artifact frame is offline; see [reference/docs-artifacts.md](../reference/docs-artifacts.md).
@@ -23,7 +23,7 @@ restated here; they are in `reference/` or in `--help`.
    identifier that versions accumulate under.
 
    ```bash
-   dreamlake artifact push ./report.html --title "Weekly report" --id weekly-report
+   dl artifact push ./report.html --title "Weekly report" --id weekly-report
    ```
 
    Pushing again with the same `--id` appends a version; a different `--id`
@@ -33,7 +33,7 @@ restated here; they are in `reference/` or in `--help`.
 2. Read it back and confirm the new version is listed:
 
    ```bash
-   dreamlake artifact list --json
+   dl artifact list --json
    ```
 
 3. Give the user the artifact URL printed by the push. Say it rendered only if
@@ -43,7 +43,7 @@ restated here; they are in `reference/` or in `--help`.
 
 | Symptom | Likely cause | Do |
 |---|---|---|
-| `401` or `403` on push | Wrong environment or token | `dreamlake login`; check `DREAMLAKE_REMOTE` (`dreamlake-cli` skill) |
+| `401` or `403` on push | Wrong environment or token | `dl login`; check `DREAMLAKE_REMOTE` (`dreamlake-cli` skill) |
 | The page renders blank | Content loads remote assets | Inline them; the frame is offline ([reference/docs-artifacts.md](../reference/docs-artifacts.md)) |
 | "Changing the title made a new artifact" | `--id` defaults to a slug of the title | Pass the old `--id` explicitly |
 | Artifact must move with its project | Whole-project transfer rules | [reference/cli-projects.md](../reference/cli-projects.md); the `projects` action of `dreamlake-cli` |

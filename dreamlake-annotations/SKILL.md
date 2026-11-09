@@ -17,7 +17,7 @@ and read back writes before relying on them.
 ## Rules that hold across actions
 
 - Prerequisites: `pip install dreamlake dreamdb`, `ffmpeg` on PATH for video
-  paths, `dreamlake login` once (CI uses `DREAMLAKE_API_KEY`). Local preset
+  paths, `dl login` once (CI uses `DREAMLAKE_API_KEY`). Local preset
   testing needs no login: `backend="file:///abs/path"`.
 - Names: `"my-set"` is the login's own namespace; `"acme/my-set"` is the acme
   org (member required; leading `@` tolerated).

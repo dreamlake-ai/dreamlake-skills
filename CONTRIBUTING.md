@@ -9,7 +9,7 @@ templates point here and restate nothing.
 ```
 edit <name>/ ──▶ python3 scripts/check.py ──▶ PR (check.yml: check.py --offline + unit tests)
    ──▶ merge to main ──▶ nightly (nightly.yml): sync_references.py ──▶ commit ──▶ tag vYYYY.MM.DD
-   ──▶ release: skills.tar.gz + catalog.json ──▶ users: dreamlake skill update
+   ──▶ release: skills.tar.gz + catalog.json ──▶ users: dl skill update
    ──▶ dreamlake-cli repository bumps skills.lock to the tag (its embedded dreamlake-cli skill)
 
 product fact changed ──▶ edit the product repository's docs/pages ──▶ docs site deploys
@@ -157,7 +157,7 @@ worked example.
 1. Install the **branch working tree's** copy of the skill and its whole
    `requires` closure (transitive: a required skill's own `requires` come
    too) into a temporary project for both agents. Never use
-   `dreamlake skill install` for this step: it installs the released bundle,
+   `dl skill install` for this step: it installs the released bundle,
    so it would test the old version. Resolve the closure from `catalog.json`
    (run `python3 scripts/catalog.py` first if `skill.json` changed):
 
@@ -169,7 +169,7 @@ worked example.
    for s in $closure; do cp -R "$s" "$tmp/.claude/skills/" && cp -R "$s" "$tmp/.agents/skills/"; done
    ```
 
-   Only after the release does `dreamlake skill install <name> --agent claude --dir "$tmp"`
+   Only after the release does `dl skill install <name> --agent claude --dir "$tmp"`
    (and `--agent codex`) re-check what users actually get.
 2. Open the installed `SKILL.md` and read it back word for word.
 3. Start Claude Code and Codex in `$tmp` and run three requests each: a
@@ -233,7 +233,7 @@ taken), builds `skills.tar.gz` (every skill directory plus the committed
 `catalog.json` at the archive root, so a manual installer can read `requires`
 offline) and the release `catalog.json` (the committed catalog plus the
 tarball's `assets` hash and size), and publishes a GitHub release. The
-`dreamlake` CLI installs from that release; its own repository pins a tag in
+`dl` CLI installs from that release; its own repository pins a tag in
 `skills.lock` and embeds the `dreamlake-cli` skill at that tag.
 
 Push with an explicit ref, `git push origin HEAD:refs/heads/<branch>`, never a

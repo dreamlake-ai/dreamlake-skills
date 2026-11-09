@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/workflows.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/workflows.md at 0.112.0 0d1fe91; do not edit -->
 
 # Workflows
 
@@ -12,11 +12,11 @@ A workflow has two sides, and they use different commands:
 ## Pushing a spec
 
 ```bash file="terminal"
-dreamlake workflow push ./pipeline.workflow.json
+dl workflow push ./pipeline.workflow.json
 ```
 
 The `.workflow.json` (or `.json`) suffix is optional, so
-`dreamlake workflow push ./pipeline` finds the same file.
+`dl workflow push ./pipeline` finds the same file.
 
 The workflow name comes from the spec's own `name` field. `--name` overrides
 it, which is how you push one spec under two names.
@@ -50,10 +50,10 @@ sampler.
 ## Managing workflows
 
 ```bash file="terminal"
-dreamlake workflow list
-dreamlake workflow show my-flow
-dreamlake workflow update my-flow --description "..." --tags a,b
-dreamlake workflow delete my-flow          # soft — version history survives
+dl workflow list
+dl workflow show my-flow
+dl workflow update my-flow --description "..." --tags a,b
+dl workflow delete my-flow          # soft — version history survives
 ```
 
 With a server that includes the dreamlake-workspace #1343 fix (not yet
@@ -70,8 +70,8 @@ its versioning.
 These are for the process executing a workflow, not for day-to-day use.
 
 ```bash file="terminal"
-dreamlake workflow push-run my-flow ./wf_abc123.json
-dreamlake workflow watch-run my-flow ./wf_abc123.json --interval 5
+dl workflow push-run my-flow ./wf_abc123.json
+dl workflow watch-run my-flow ./wf_abc123.json --interval 5
 ```
 
 `push-run` sends one snapshot. `watch-run` keeps sending them until the run

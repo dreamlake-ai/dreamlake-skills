@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.134 4bbe54f7; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -23,7 +23,7 @@ server-side, encrypted — never in files or URLs.
 | --- | --- | --- |
 | S3 bucket | bucket credentials | `aws s3 cp --recursive ./my-dataset s3://bucket/prefix` |
 | Hugging Face repo | OAuth | `hf upload you/dataset ./my-dataset --repo-type dataset` |
-| Any source (managed files) | `dreamlake source create` (namespace owner) | `dreamlake source upload ./my-dataset -r --source <name> --to <prefix>` |
+| Any source (managed files) | `dl source create` (namespace owner) | `dl source upload ./my-dataset -r --source <name> --to <prefix>` |
 
 Uploads land in the source's managed layer, never in your bucket or repo. An
 uploaded file at a path that also exists in the connected storage takes
@@ -34,10 +34,10 @@ rules: the [CLI sources guide](https://cli.dreamlake.ai/sources/).
 Then verify from a shell (CLI 0.45.3+) that the source holds what you think:
 
 ```bash
-dreamlake source list                                    # sources you can reach
-dreamlake source browse [path] --source <name>           # one level; -r to recurse, --files for files only
-dreamlake source stat <path> --source <name>             # one path, which layer it resolves from
-dreamlake source download <path> --source <name> -o ./out # spot-check a file
+dl source list                                    # sources you can reach
+dl source browse [path] --source <name>           # one level; -r to recurse, --files for files only
+dl source stat <path> --source <name>             # one path, which layer it resolves from
+dl source download <path> --source <name> -o ./out # spot-check a file
 ```
 
 Public GitHub repository support is an [implementation preview](./github/),
@@ -215,8 +215,8 @@ point at a folder, and say *"visualize this dataset in DreamLake"*:
 | `.dreamrc` | writes and debugs the `.dreamrc` — bindings, validation, iteration |
 
 ```bash
-dreamlake init                             # once: pick your agent and scope
-dreamlake skill install dreamlake-datasets
+dl init                             # once: pick your agent and scope
+dl skill install dreamlake-datasets
 ```
 
 One skill does both — it gets the bytes connected, then makes them render.

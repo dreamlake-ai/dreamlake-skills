@@ -7,7 +7,7 @@ description: "Work with DreamLake Memos: read and edit with revision guards, ins
 
 Requires `dreamlake-cli` (install, login, environment). Before the first live
 read or edit, [set and reuse the task identity](actions/identity.md). For an
-existing memo start with `dreamlake memos list`; a media upload alone needs no
+existing memo start with `dl memos list`; a media upload alone needs no
 memo. One action per task:
 
 | Request | Action |

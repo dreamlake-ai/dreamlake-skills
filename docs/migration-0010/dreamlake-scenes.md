@@ -51,7 +51,7 @@ packages `mujoco>=3.2`, `numpy`, `pytest` (the test module imports it).
 | `version-and-remove.md` § Project-derived access | `actions/restore.md` § Project-derived access | |
 | `version-and-remove.md` § Whole-Project transfer boundary (`env` type, `PROJECT_STREAM_RESOURCE_UNSUPPORTED`, legacy replay, no standalone move) | `dreamlake-cli/actions/projects.md` (other agent); here one sentence in `actions/push.md`, `actions/restore.md`, `SKILL.md` | Per task instruction |
 | `scenes/references/compose-layers.md` § 5 model summary, pip install, compose/push commands, push discipline, three caveats | `actions/compose.md` (§ The model compressed, § Authoring caveats) + `actions/push.md` § Composed scenes | |
-| `compose-layers.md` § Traps (clean directory, `dreamlake env` → `auth env`, unattended `DREAMLAKE_API_KEY`/`DREAMLAKE_REMOTE`) | `actions/package.md` § Keep the directory clean; `actions/push.md` § Traps | |
+| `compose-layers.md` § Traps (clean directory, `dl env` → `auth env`, unattended `DREAMLAKE_API_KEY`/`DREAMLAKE_REMOTE`) | `actions/package.md` § Keep the directory clean; `actions/push.md` § Traps | |
 | `scenes/reference/layers.md` § Model, compressed | `actions/compose.md` § The model, compressed | Hand-reconciled file, not generated |
 | `layers.md` § From the user's words to a stack (table + joint choice) | `actions/compose.md` § From the user's words to a stack | |
 | `layers.md` § Field reference (distilled) | dropped: duplicates `docs.dreamlake.ai/scenes/layers` field reference (fetched into `reference/docs-scenes-layers.md`); `actions/compose.md` links it | |
@@ -60,4 +60,4 @@ packages `mujoco>=3.2`, `numpy`, `pytest` (the test module imports it).
 | `layers.md` § Migrating a v2 stack | dropped: duplicates `docs.dreamlake.ai/scenes/layers#migrating-a-v2-stack`; `actions/compose.md` links it | |
 | `layers.md` § Errors and remedies | dropped: duplicates `docs.dreamlake.ai/scenes/layers#common-errors` (which also carries the 3.2 and `xyaxes` rows); `actions/compose.md` § Materialize links it | |
 | `layers.md` § Caveats (URDF Attach-only/unactuated, key targeting, strict matching, order, pin) | `actions/compose.md` § Authoring caveats | |
-| `dreamlake-envs/SKILL.md` (alias to scenes; `dreamlake env` alias, `/envs` compatibility, login-env names unchanged) | deleted; `SKILL.md` § Boundaries one line → `reference/docs-scenes.md#scenes-compatibility-and-product-vocabulary` | Rename map handled by the integrator (`renamed.json`: `dreamlake-envs` → `dreamlake-scenes`, `dreamlake-scene-generation` → `dreamlake-scenes`) |
+| `dreamlake-envs/SKILL.md` (alias to scenes; `dl env` alias, `/envs` compatibility, login-env names unchanged) | deleted; `SKILL.md` § Boundaries one line → `reference/docs-scenes.md#scenes-compatibility-and-product-vocabulary` | Rename map handled by the integrator (`renamed.json`: `dreamlake-envs` → `dreamlake-scenes`, `dreamlake-scene-generation` → `dreamlake-scenes`) |

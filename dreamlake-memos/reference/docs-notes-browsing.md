@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Browse, create and organize
 
@@ -157,15 +157,15 @@ omitted. This reader change does not enable ownership transfer.
 **CLI**
 
 ```bash
-dreamlake memos create "Design Doc"
-dreamlake memos create "Design Doc" --file draft.md
-dreamlake memos create "Design Doc" --text "# Design Doc"
-dreamlake memos create "Design Doc" --public        # default is private
+dl memos create "Design Doc"
+dl memos create "Design Doc" --file draft.md
+dl memos create "Design Doc" --text "# Design Doc"
+dl memos create "Design Doc" --public        # default is private
 
-dreamlake memos list
-dreamlake memos list --limit 20
-dreamlake memos list --shared                       # what others sent you
-dreamlake memos list --json
+dl memos list
+dl memos list --limit 20
+dl memos list --shared                       # what others sent you
+dl memos list --json
 ```
 
 **Python**
@@ -258,8 +258,8 @@ Use the memo's full `id` in browser links:
 https://dreamlake.ai/<namespaceSlug>/notes?note=<noteId>
 ```
 
-Read `namespaceSlug` and `id` from `dreamlake memos create --json` or
-`dreamlake memos list --json`. Do not substitute the title or human-readable
+Read `namespaceSlug` and `id` from `dl memos create --json` or
+`dl memos list --json`. Do not substitute the title or human-readable
 slug in this URL: the browser detail route expects the ID, even though the
 CLI accepts slugs and titles. Use the returned owner namespace rather than
 assuming your personal namespace. The ID is sometimes called the memo hash;
@@ -346,7 +346,7 @@ to sessions only; it does not change the Memo's visibility.
 
 A metadata warning never invalidates an acknowledged Memo save. Retry only
 session registration, linkage or explicit conversation upload; do not repeat the
-Memo write. Use `dreamlake sessions register --provider codex --session
+Memo write. Use `dl sessions register --provider codex --session
 <native-uuid> --cwd /original/directory --json`, then `sessions link <saved-id>
 --namespace <personal-namespace> --resource-namespace <note-namespace> --note
 <note-id>`. A target-discovery 403 is separate from metadata registration and

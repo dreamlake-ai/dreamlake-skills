@@ -11,7 +11,7 @@ its end.
 | User has | Action |
 |---|---|
 | Recordings on disk, "visualize my data", unsure what format | [prepare](actions/prepare.md) — inspect first, pick the layout, fix the video encoding |
-| Files to get into storage, or bytes for an existing managed Source | [upload](actions/upload.md) — provider tools or `dreamlake source upload`; `index.json` for static HTTPS |
+| Files to get into storage, or bytes for an existing managed Source | [upload](actions/upload.md) — provider tools or `dl source upload`; `index.json` for static HTTPS |
 | Storage to link (S3 / Hugging Face / Dropbox), or a Source to verify | [connect](actions/connect.md) — dashboard linking, CLI browse/download, episode-tree alternative |
 | A Source plus paths that a workflow spec will name | [check](actions/check.md) — prove browse **and** fetch; reject URLs and local paths |
 | A reachable dataset root with no `.dreamrc`, or a broken one | [dreamrc](actions/dreamrc.md) — match `format`, read the field inventory, bind views |

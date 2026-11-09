@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/service-accounts.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/service-accounts.md at 0.112.0 0d1fe91; do not edit -->
 
 # Service accounts
 
@@ -15,13 +15,13 @@ human credentials onto a machine.
 ## Create and inspect
 
 ```bash cli-help="service-accounts"
-dreamlake service-accounts create my-team --name dreamfs-worker --description "DreamFS development daemon"
-dreamlake service-accounts list my-team
-dreamlake service-accounts show my-team/0123456789abcdef01234567
+dl service-accounts create my-team --name dreamfs-worker --description "DreamFS development daemon"
+dl service-accounts list my-team
+dl service-accounts show my-team/0123456789abcdef01234567
 ```
 
 ```bash cli-help="service-accounts create"
-dreamlake service-accounts create my-team --name dreamfs-worker --description "DreamFS development daemon"
+dl service-accounts create my-team --name dreamfs-worker --description "DreamFS development daemon"
 ```
 
 An account name starts with a lowercase letter and contains at most 63 lowercase
@@ -30,11 +30,11 @@ returns the existing account. Changing the description or reusing a revoked name
 returns a conflict. No credential is printed by account creation.
 
 ```bash cli-help="service-accounts list"
-dreamlake service-accounts list my-team --page 1 --page-size 50 --json
+dl service-accounts list my-team --page 1 --page-size 50 --json
 ```
 
 ```bash cli-help="service-accounts show"
-dreamlake service-accounts show my-team/0123456789abcdef01234567 --json
+dl service-accounts show my-team/0123456789abcdef01234567 --json
 ```
 
 `show` includes the account, its explicit project and host grants, and its bound
@@ -43,16 +43,16 @@ enrollment ID when a Nymph is registered.
 ## Limit access to selected resources
 
 ```bash cli-help="service-accounts project-grants"
-dreamlake service-accounts project-grants set my-team/0123456789abcdef01234567 --project 111111111111111111111111 --role READ
-dreamlake service-accounts project-grants remove my-team/0123456789abcdef01234567 --project 111111111111111111111111
+dl service-accounts project-grants set my-team/0123456789abcdef01234567 --project 111111111111111111111111 --role READ
+dl service-accounts project-grants remove my-team/0123456789abcdef01234567 --project 111111111111111111111111
 ```
 
 ```bash cli-help="service-accounts project-grants set"
-dreamlake service-accounts project-grants set my-team/0123456789abcdef01234567 --project 111111111111111111111111 --role READ
+dl service-accounts project-grants set my-team/0123456789abcdef01234567 --project 111111111111111111111111 --role READ
 ```
 
 ```bash cli-help="service-accounts project-grants remove"
-dreamlake service-accounts project-grants remove my-team/0123456789abcdef01234567 --project 111111111111111111111111
+dl service-accounts project-grants remove my-team/0123456789abcdef01234567 --project 111111111111111111111111
 ```
 
 Project roles are `READ`, `WRITE` or `ADMIN`. The project must belong to the
@@ -61,16 +61,16 @@ API exposes scoped metadata reads; storing `WRITE` or `ADMIN` grants does not
 enable arbitrary human-user endpoints or imply machine write APIs are shipped.
 
 ```bash cli-help="service-accounts host-grants"
-dreamlake service-accounts host-grants set my-team/0123456789abcdef01234567 --host 222222222222222222222222 --read --use
-dreamlake service-accounts host-grants remove my-team/0123456789abcdef01234567 --host 222222222222222222222222
+dl service-accounts host-grants set my-team/0123456789abcdef01234567 --host 222222222222222222222222 --read --use
+dl service-accounts host-grants remove my-team/0123456789abcdef01234567 --host 222222222222222222222222
 ```
 
 ```bash cli-help="service-accounts host-grants set"
-dreamlake service-accounts host-grants set my-team/0123456789abcdef01234567 --host 222222222222222222222222 --read --use
+dl service-accounts host-grants set my-team/0123456789abcdef01234567 --host 222222222222222222222222 --read --use
 ```
 
 ```bash cli-help="service-accounts host-grants remove"
-dreamlake service-accounts host-grants remove my-team/0123456789abcdef01234567 --host 222222222222222222222222
+dl service-accounts host-grants remove my-team/0123456789abcdef01234567 --host 222222222222222222222222
 ```
 
 Host permissions are independent: `--use` does not imply `--read`. Setting a host
@@ -84,7 +84,7 @@ DreamLake creates a dedicated service account automatically. To select an accoun
 you prepared with grants, pass its unused ID with `--service-account`:
 
 ```bash
-dreamlake providers instances launch my-team/333333333333333333333333 --service-account 0123456789abcdef01234567 --host-name my-team/dreamfs/worker --unix-user dreamlake-agent --request-id dreamfs-worker-1 --json
+dl providers instances launch my-team/333333333333333333333333 --service-account 0123456789abcdef01234567 --host-name my-team/dreamfs/worker --unix-user dreamlake-agent --request-id dreamfs-worker-1 --json
 ```
 
 The matching protected-delivery backend release supplies a short-lived,
@@ -98,7 +98,7 @@ Use one account per Nymph and `--count 1`; provision additional machines with
 separate names and request IDs. Omit `--service-account` to create each account
 automatically. Reuse the same request ID and identical inputs
 to recover an interrupted launch. A launch receipt is not proof that Nymph is
-online or can run a workload. Inspect the named host with `dreamlake hosts status`
+online or can run a workload. Inspect the named host with `dl hosts status`
 and verify the intended workload before treating it as ready. Cloud bootstrap
 requires the server's configured installer and control plane to be reachable.
 
@@ -107,7 +107,7 @@ requires the server's configured installer and control plane to be reachable.
 Keep an enrolled machine running while assigning its dedicated account:
 
 ```bash cli-help="service-accounts bind"
-dreamlake service-accounts bind my-team/0123456789abcdef01234567 --enrollment 444444444444444444444444
+dl service-accounts bind my-team/0123456789abcdef01234567 --enrollment 444444444444444444444444
 ```
 
 The account and enrollment must belong to the same namespace. One account binds
@@ -119,7 +119,7 @@ check the machine with `hosts status` afterward.
 ## Revoke
 
 ```bash cli-help="service-accounts revoke"
-dreamlake service-accounts revoke my-team/0123456789abcdef01234567
+dl service-accounts revoke my-team/0123456789abcdef01234567
 ```
 
 Revocation is permanent. Use a new account for a replacement identity. If control-plane
@@ -129,7 +129,7 @@ confirmation that the daemon credential has been disabled everywhere. Local
 account access is disabled immediately, but this is not a claim that already
 running jobs have been killed. Revoking an
 account does not terminate its EC2 instance or delete its data; manage the cloud
-instance separately through `dreamlake providers instances`.
+instance separately through `dl providers instances`.
 
 The protected CLI bootstrap requires Nymph 0.1.10, CLI 0.50.0 and a matching
 DreamLake backend, with configured CLI checksums, machine audience, dedicated

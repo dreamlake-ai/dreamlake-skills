@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/queues.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/queues.md at 0.112.0 0d1fe91; do not edit -->
 
 # Mount a queue server
 
@@ -31,7 +31,7 @@ mount's inability to Add Host does not mean Add Host is globally unavailable.
 ## Configure optional queue inspection access
 
 The queue commands are present in CLI 0.81.0. Availability also depends on the
-DreamLake server. Check `dreamlake --version` and `dreamlake queues --help`;
+DreamLake server. Check `dl --version` and `dl queues --help`;
 a successful listing does not establish enrollment or job execution capability.
 
 1. **Check your DreamLake login.** These commands use the same environment and
@@ -39,8 +39,8 @@ a successful listing does not establish enrollment or job execution capability.
    DreamLake namespaces.
 
    ```bash
-   dreamlake auth env list
-   dreamlake profile
+   dl auth env list
+   dl profile
    ```
 
 2. **Mount your Lakeshore server.** Use its HTTPS URL and choose a short prefix.
@@ -48,7 +48,7 @@ a successful listing does not establish enrollment or job execution capability.
    the namespace on Lakeshore and an access token in a hidden prompt.
 
    ```bash
-   dreamlake queues mount --uri "$LAKESHORE_URL" --prefix lab
+   dl queues mount --uri "$LAKESHORE_URL" --prefix lab
    ```
 
    Paste a **Lakeshore access token**, created by your Lakeshore administrator.
@@ -65,10 +65,10 @@ a successful listing does not establish enrollment or job execution capability.
    `lab/training`, for example; the prefix does not rename the remote queue.
 
    ```bash
-   dreamlake queues inspect lab
-   dreamlake queues list lab
-   dreamlake queues jobs lab
-   dreamlake queues workers lab
+   dl queues inspect lab
+   dl queues list lab
+   dl queues jobs lab
+   dl queues workers lab
    ```
 
 `inspect` performs a live connection check. The other commands read current
@@ -80,7 +80,7 @@ an authorization boundary.
 For scripts, provide both namespaces explicitly and read a token from stdin:
 
 ```bash
-cat /path/to/lakeshore-access-token | dreamlake queues mount \
+cat /path/to/lakeshore-access-token | dl queues mount \
   --uri "$LAKESHORE_URL" --prefix lab \
   --namespace geyang --lakeshore-namespace default --token-stdin --json
 ```
@@ -91,9 +91,9 @@ To list registrations, replace an expired or revoked access token, or remove a
 mount:
 
 ```bash
-dreamlake queues mounts
-dreamlake queues token lab
-dreamlake queues unmount lab
+dl queues mounts
+dl queues token lab
+dl queues unmount lab
 ```
 
 `token` prompts for a replacement token; it also accepts `--token-stdin`.
@@ -184,12 +184,12 @@ deployment without the worker job-claim switch, the command reports that the
 switch is unavailable, and nothing changes.
 
 A management-only host, such as a launch server, can stay reachable without
-consuming any queue. Take the worker ID from `dreamlake queues workers lab`:
+consuming any queue. Take the worker ID from `dl queues workers lab`:
 
 ```bash cli-help="queues worker-claims"
-dreamlake queues worker-claims lab WORKER_ID --namespace geyang
-dreamlake queues worker-claims lab WORKER_ID --namespace geyang --disable
-dreamlake queues worker-claims lab WORKER_ID --namespace geyang --enable --json
+dl queues worker-claims lab WORKER_ID --namespace geyang
+dl queues worker-claims lab WORKER_ID --namespace geyang --disable
+dl queues worker-claims lab WORKER_ID --namespace geyang --enable --json
 ```
 
 Without a flag, the command shows the current value. `--disable` stops the
@@ -216,13 +216,13 @@ pool siblings are ignored, and nothing is created automatically. Create the
 queue first:
 
 ```bash cli-help="queues create"
-dreamlake queues create lab fixture --namespace geyang
+dl queues create lab fixture --namespace geyang
 ```
 
 ```bash cli-help="queues worker-pin"
-dreamlake queues worker-pin lab WORKER_ID --namespace geyang
-dreamlake queues worker-pin lab WORKER_ID --namespace geyang --queue fixture --host geyang/dev/worker
-dreamlake queues worker-pin lab WORKER_ID --namespace geyang --clear --host geyang/dev/worker --json
+dl queues worker-pin lab WORKER_ID --namespace geyang
+dl queues worker-pin lab WORKER_ID --namespace geyang --queue fixture --host geyang/dev/worker
+dl queues worker-pin lab WORKER_ID --namespace geyang --clear --host geyang/dev/worker --json
 ```
 
 Without `--queue` or `--clear`, the command shows the stored pin. Changing it
@@ -259,15 +259,15 @@ reported tracking records. Use the Slurm commands below for scheduler jobs.
 Discover configured clusters in your authorized DreamLake namespace:
 
 ```bash cli-help="queues slurm clusters"
-dreamlake queues slurm clusters --namespace geyang
+dl queues slurm clusters --namespace geyang
 ```
 
 Pass an exact cluster ID from that listing:
 
 ```bash cli-help="queues slurm jobs"
-dreamlake queues slurm jobs CLUSTER_ID --namespace geyang
-dreamlake queues slurm jobs CLUSTER_ID --namespace geyang --details
-dreamlake queues slurm jobs CLUSTER_ID --namespace geyang --json
+dl queues slurm jobs CLUSTER_ID --namespace geyang
+dl queues slurm jobs CLUSTER_ID --namespace geyang --details
+dl queues slurm jobs CLUSTER_ID --namespace geyang --json
 ```
 
 The default table shows scheduler job ID, user, job name, partition and observed

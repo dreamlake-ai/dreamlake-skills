@@ -1,8 +1,8 @@
 # Log and list events
 
 ```bash
-dreamlake tasks events add vault/entries/write-recovery --type message --message 'Replay test passed; human acceptance pending.' --at '2026-09-13T20:28:00Z' --event-id recovery-message-001
-dreamlake tasks events list vault/entries/write-recovery --limit 50 --to-json
+dl tasks events add vault/entries/write-recovery --type message --message 'Replay test passed; human acceptance pending.' --at '2026-09-13T20:28:00Z' --event-id recovery-message-001
+dl tasks events list vault/entries/write-recovery --limit 50 --to-json
 ```
 
 A message event never changes completion or acceptance state. Supported client

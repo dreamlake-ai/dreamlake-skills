@@ -4,10 +4,10 @@ Parents must already exist; `add` does not create missing ancestors, so create
 them first. These tasks need no Memo content.
 
 ```bash
-dreamlake tasks add vault --kind workstream --title 'Vault' --blurb 'Credential management'
-dreamlake tasks add vault/entries --kind stage --title 'Entries' --blurb 'Entry lifecycle'
-dreamlake tasks add vault/entries/write-recovery --title 'Write recovery' --blurb 'Safely retry writes' --to-json
-dreamlake tasks list vault --tree --to-json
+dl tasks add vault --kind workstream --title 'Vault' --blurb 'Credential management'
+dl tasks add vault/entries --kind stage --title 'Entries' --blurb 'Entry lifecycle'
+dl tasks add vault/entries/write-recovery --title 'Write recovery' --blurb 'Safely retry writes' --to-json
+dl tasks list vault --tree --to-json
 ```
 
 The `--kind` default is in

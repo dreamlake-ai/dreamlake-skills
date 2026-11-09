@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/provider-lifecycle.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/provider-lifecycle.md at 0.112.0 0d1fe91; do not edit -->
 
 # Provider lifecycle
 
@@ -24,16 +24,16 @@ a live worker whose `providerName` is your provider's name.
 
 ```bash file="terminal"
 # provision
-dreamlake provider create -n aws-demo --provider kube
-dreamlake provider plan    -n aws-demo
-dreamlake provider apply   -n aws-demo --yes
-dreamlake provider connect -n aws-demo
+dl provider create -n aws-demo --provider kube
+dl provider plan    -n aws-demo
+dl provider apply   -n aws-demo --yes
+dl provider connect -n aws-demo
 
 # adopt
-dreamlake provider create  -n lab-box --provider ssh
-dreamlake provider connect -n lab-box --host you@ops.internal
+dl provider create  -n lab-box --provider ssh
+dl provider connect -n lab-box --host you@ops.internal
 
-dreamlake provider status  -n aws-demo
+dl provider status  -n aws-demo
 ```
 
 ## The CLI embeds no model
@@ -103,7 +103,7 @@ which is to find out what it cannot decide and say so. An agent driving under
 a question. Exit 1 is reserved for *the tool could not do its job*: bad flags,
 no auth, no binary, a terraform error, an unreachable host.
 
-This is not new. `dreamlake provider delete` without `--yes` on a non-TTY
+This is not new. `dl provider delete` without `--yes` on a non-TTY
 already cancels and returns 0 — "I deliberately did not do the thing" has
 always been a success in this CLI.
 
@@ -154,7 +154,7 @@ is the loop the agent walks. Everything else is a DAG.
 
 **`error` is not a dead end.** Every terraform failure — `init`, `validate`,
 `plan` or `apply` — carries a real `nextAction`: `edit_then_continue` pointing
-at the terraform directory, with `dreamlake provider plan -n <name>` as the
+at the terraform directory, with `dl provider plan -n <name>` as the
 command. That is the one state where an agent most needs a next step, and
 `nextAction: null` there would tell it the run is over.
 
@@ -186,12 +186,12 @@ provider create  aws-demo
     · node type     — not set
 
   next: edit .dream/providers/aws-demo/terraform/terraform.tfvars, then
-        dreamlake provider create -n aws-demo --continue
+        dl provider create -n aws-demo --continue
 ```
 
 The same run, with `--json`. This is the payload an agent branches on:
 
-```json file="dreamlake provider create -n aws-demo --provider kube --json"
+```json file="dl provider create -n aws-demo --provider kube --json"
 {
   "status": "needs_input",
   "provider": "aws-demo",
@@ -215,7 +215,7 @@ The same run, with `--json`. This is the payload an agent branches on:
   "nextAction": {
     "kind": "edit_then_continue",
     "file": "/Users/you/proj/.dream/providers/aws-demo/terraform/terraform.tfvars",
-    "command": "dreamlake provider create -n aws-demo --continue"
+    "command": "dl provider create -n aws-demo --continue"
   }
 }
 ```
@@ -276,14 +276,14 @@ interface ProviderLifecycleResult {
 ✓ scaffolded .dream/providers/aws-demo/terraform/
   every decision in this template has a value.
 
-  next: dreamlake provider plan -n aws-demo
+  next: dl provider plan -n aws-demo
 ```
 
 ```text file="ready"
 ✓ plan is clean — 14 to add, 0 to change, 0 to destroy
   nothing has been applied. The next command spends money.
 
-  next: dreamlake provider apply -n aws-demo --yes
+  next: dl provider apply -n aws-demo --yes
 ```
 
 `--yes` is baked into the printed command **on purpose**. There is no
@@ -294,7 +294,7 @@ a different command than the one you just ran.
 ⚠ an apply is in progress or was interrupted
   terraform holds a state lock (…/terraform.tfstate.lock.info, held 00:04:12)
 
-  next: dreamlake provider apply -n aws-demo --yes    # re-run; terraform resumes
+  next: dl provider apply -n aws-demo --yes    # re-run; terraform resumes
 ```
 
 ```text file="connected / unclaimed"
@@ -306,7 +306,7 @@ a different command than the one you just ran.
 ⚠ unclaimed — no bridge is claiming 'aws-demo'
   this is a normal state, not a fault: it means nothing can launch into this
   account right now.
-  next: dreamlake provider connect -n aws-demo
+  next: dl provider connect -n aws-demo
 ```
 
 `connected` is the **only** status whose `nextAction` is `null`. All of these
@@ -410,7 +410,7 @@ the prose says so plainly:
 ⚠ no supervisor on this host — the daemon is running under tmux (session nymph-lab-box)
   tmux keeps it alive after your ssh session ends. It does NOT restart it.
   If this daemon dies, nothing brings it back:
-    dreamlake provider connect -n lab-box     # re-run to restart
+    dl provider connect -n lab-box     # re-run to restart
 ```
 
 **The SSH connection is never the supervisor.** `connect` returns as soon as
@@ -469,10 +469,10 @@ references only the separate EC2 worker. It does not create a Slurm cluster or r
 new inventory in DreamLake.
 
 ```bash file="terminal" cli-help="provider create"
-dreamlake provider create -n aws-demo --provider aws-jump-worker --json
+dl provider create -n aws-demo --provider aws-jump-worker --json
 # Read the generated AGENT.md and terraform/ENROLLMENT.md.
 # Fill terraform/terraform.tfvars.json and terraform/backend.json explicitly.
-dreamlake provider create -n aws-demo --continue --json
+dl provider create -n aws-demo --continue --json
 ```
 
 The template starts in `reference-existing` mode with `controller_mode=external`. Supply the expected AWS account,
@@ -500,11 +500,11 @@ those JSON files. See [Terraform state and Vault]
 
 ```bash file="terminal" cli-help="provider plan"
 # Requires the selected backend and authorized AWS read access.
-dreamlake provider plan -n aws-demo --json
+dl provider plan -n aws-demo --json
 ```
 
 Review the exact account, resources, changes, cost and retention choices before
-an authorized `dreamlake provider apply -n aws-demo --yes --json`. Planning may
+an authorized `dl provider apply -n aws-demo --yes --json`. Planning may
 use the remote backend's lock; it does not provision instances. A local schema
 check or mocked plan is not live AWS plan evidence. Never disable locking or
 reuse production control-plane state. Backend initialization does not authorize
@@ -538,10 +538,10 @@ SSM-managed running instance with outbound SSM connectivity. It opens no inbound
 ports and changes no security groups or instance metadata settings.
 
 ```bash file="terminal" cli-help="provider machine"
-dreamlake provider machine status -n aws-dev --account 123456789012 --json
-dreamlake provider machine start -n aws-dev --account 123456789012 --yes
-dreamlake provider machine terminal -n aws-dev --account 123456789012
-dreamlake provider machine stop -n aws-dev --account 123456789012 --yes
+dl provider machine status -n aws-dev --account 123456789012 --json
+dl provider machine start -n aws-dev --account 123456789012 --yes
+dl provider machine terminal -n aws-dev --account 123456789012
+dl provider machine stop -n aws-dev --account 123456789012 --yes
 ```
 
 All commands accept `--dream-dir` and `--profile`. Before each operation the CLI

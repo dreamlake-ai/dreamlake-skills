@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/installation.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/installation.md at 0.112.0 0d1fe91; do not edit -->
 
 # Installation
 
@@ -22,17 +22,17 @@ From CMD, wrap it: `powershell -NoProfile -Command "irm https://dl.dreamlake.ai/
 Open a new terminal and confirm:
 
 ```bash file="terminal"
-dreamlake --version
 dl --version
 ```
 
 ## The `dl` command
 
 Starting with CLI 0.110.0, both native installers and the npm package provide
-`dl` alongside `dreamlake`. They run the same CLI with the same arguments,
+`dl` alongside the compatibility command `dreamlake`. Use `dl` in new commands,
+scripts, and agent instructions. They run the same CLI with the same arguments,
 exit status, credentials, settings, and help. For example, `dl login` and
-`dl memos list` are equivalent to their `dreamlake` forms. Help continues to
-use the canonical `dreamlake` name.
+`dl memos list` are equivalent to their `dreamlake` forms. Starting with
+CLI 0.112.0, help and documentation use the preferred `dl` name.
 
 This is an executable on PATH, so Bash, Zsh, Fish, sh/dash, PowerShell, CMD,
 and scripts can use it without loading a shell alias. Both names need the
@@ -40,11 +40,12 @@ same bin directory on PATH. On POSIX, `~/.local/bin/dl` links to `dreamlake`,
 so it follows upgrades, pins, and downgrades automatically. On Windows,
 `~/.local/bin/dl.exe` is a managed copy refreshed with the main executable.
 
-For an existing native installation, re-run the bootstrap installer above to
-add `dl`. An update driven by a pre-0.110.0 binary does not create the new
-command; after updating, run `dreamlake install --no-modify-path` to add it
-without changing shell configuration. This follows your saved channel; if you
-want to retain an exact pin, pass that version to `install` explicitly.
+For an existing native installation, the first invocation of CLI 0.112.0 or later
+creates a missing `dl` automatically, even when an older updater installed it.
+For example, update with `dreamlake self-update`, then run `dreamlake --version`
+once before switching to `dl`. No reinstall or PATH-edit flag is needed.
+This local setup does not download anything, change your selected version or
+pin, or edit shell configuration. It also works with background updates disabled.
 Subsequent installs and updates maintain both commands.
 
 The native installer leaves an unrelated `dl` file, directory, symlink, or
@@ -59,6 +60,12 @@ of `dreamlake`.
 Shells can complete the command name from PATH. DreamLake currently ships no
 argument-completion scripts for either name. Any user-maintained `dreamlake`
 completion needs an additional binding for `dl`.
+
+Package names, configuration paths, environment variables, and service names
+keep their existing DreamLake identifiers. For process management, prefer
+`kill <PID>` after identifying the intended process. Do not change `pkill`,
+`pgrep`, or `killall` patterns merely because command examples now use `dl`:
+the process name depends on the platform and how the executable was launched.
 
 ## npm
 
@@ -85,7 +92,7 @@ No npm install scripts or shell startup edits are needed for `dl`.
 CLI 0.56.0 and later support quiet, optional usage measurement through the
 DreamLake API. No command arguments or contents are collected. Set
 `DREAMLAKE_TELEMETRY=0` before running the CLI or save the preference with
-`dreamlake telemetry disable --quiet`. See [product analytics](cli-analytics.md) for
+`dl telemetry disable --quiet`. See [product analytics](cli-analytics.md) for
 collected fields and delivery limits.
 
 ## What it installs
@@ -102,7 +109,7 @@ Everything lands under `$HOME` — no `sudo`, nothing system-wide:
 
 (`~/.dreamlake` also holds your logins — `tokens.json`, `config.json`, and
 the per-environment cache `auth.yml`, all chmod 600 and shared with the
-Python SDK — but those are written by `dreamlake login`, not the installer.)
+Python SDK — but those are written by `dl login`, not the installer.)
 
 Every download is checked against the SHA-256 in the release manifest before
 writing anything executable. `XDG_DATA_HOME` and `XDG_STATE_HOME`, when absolute,
@@ -118,7 +125,7 @@ move the version store and update state respectively; the launcher stays at
 The installer configures the shell named by `$SHELL`, even when the bootstrap
 runs through `curl ... | bash`. It prints each file it updates or finds already
 configured, and a command to apply PATH in your current shell. No prompt or
-terminal is required. Only explicit `dreamlake install` configures PATH;
+terminal is required. Only explicit `dl install` configures PATH;
 `self-update`, including background updates, leaves shell files alone.
 
 | Shell | Startup files configured | Applies to |
@@ -157,9 +164,9 @@ An installed or downloaded binary accepts the same flag:
 
 ```bash cli-help="install" file="terminal"
 # Reinstall and configure the shell selected by SHELL.
-dreamlake install
+dl install
 # Install a channel without editing shell startup files or user PATH.
-dreamlake install stable --no-modify-path
+dl install stable --no-modify-path
 ```
 
 The installer cannot change its parent shell's environment. Open a new terminal
@@ -187,11 +194,11 @@ command's environment:
 
 ```bash file="remote POSIX shell"
 "$HOME/.local/bin/dreamlake" --version
-PATH="$HOME/.local/bin:$PATH" dreamlake --version
+PATH="$HOME/.local/bin:$PATH" dl --version
 ```
 
-For example, a macOS account using Zsh may run `dreamlake` successfully in a new
-terminal while `sh -lc 'dreamlake --version'` still cannot find it. Use
+For example, a macOS account using Zsh may run `dl` successfully in a new
+terminal while `sh -lc 'dl --version'` still cannot find it. Use
 `sh -lc '"$HOME/.local/bin/dreamlake" --version'` for that environment. No global
 shell configuration or SSH daemon settings are changed.
 
@@ -205,10 +212,10 @@ background process that installs any newer release; it takes effect on your
 next command.
 
 ```bash file="terminal"
-dreamlake self-update                  # update now
-dreamlake self-update 0.3.0            # pin to an exact version
-dreamlake self-update channel stable   # switch channel (also unpins)
-dreamlake self-update --status         # version, channel, pin, last check
+dl self-update                  # update now
+dl self-update 0.3.0            # pin to an exact version
+dl self-update channel stable   # switch channel (also unpins)
+dl self-update --status         # version, channel, pin, last check
 ```
 
 Installing an exact version **pins** it — auto-update stays paused until you
@@ -218,25 +225,25 @@ the version you asked for.
 > **Warning:** The install lives under that machine's `~/.local/share/dreamlake`, so every
 > computer you use updates on its own schedule. A feature that works on one
 > machine and prints an older error on another usually means the second one
-> hasn't picked up the release yet: run `dreamlake --version` there, then
-> `dreamlake self-update`.
+> hasn't picked up the release yet: run `dl --version` there, then
+> `dl self-update`.
 
-On macOS, every update check (background or `dreamlake self-update`) also
+On macOS, every update check (background or `dl self-update`) also
 removes the leftover nymph restart job from the October 2026 fleet upgrade, if
 present: a submitted `ai.dreamlake.refresh.*` launchd job running
 `~/.local/share/dreamlake/fleet-upgrades/<id>/restart.py`, which restarted
 nymph every ~15 seconds. No other job is touched.
 
 On Windows there is no background updater at all: Windows locks a running
-`.exe`, so updates are always an explicit `dreamlake self-update`.
+`.exe`, so updates are always an explicit `dl self-update`.
 
 After an update, installed agent skills are checked against the new bundled
 reference. If a local copy differs, the CLI reminds you with its path and an
 update command. Skills are never overwritten automatically. See
 [skill update reminders](cli-skills.md#reminders-after-updating) for scope and behavior.
 
-> **Note:** `dreamlake update` edits bindrs, datasets, and projects. Updating the CLI
-> itself is `dreamlake self-update`.
+> **Note:** `dl update` edits bindrs, datasets, and projects. Updating the CLI
+> itself is `dl self-update`.
 
 Channels: `latest` (default) ships every release; `stable` moves only when a
 release is promoted with `publish-release.sh --stable`. Set
@@ -247,7 +254,7 @@ block every path that would change your version.
 ## Diagnosing
 
 ```bash file="terminal"
-dreamlake doctor
+dl doctor
 ```
 
 Prints the running executable, the version the launcher points at, your

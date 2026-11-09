@@ -14,7 +14,7 @@ into two actions along its own §1/§2 boundary; nothing was concatenated.
 |---|---|
 | `dreamlake-source/SKILL.md` (routing, `source upload` does not create/link, dashboard linking, sources retain data in place) | `SKILL.md` router + rules; `actions/upload.md`; `actions/connect.md` |
 | `dreamlake-source/references/prepare-data.md` §1 Inspect FIRST (signature table, no-reader containers, raw sim trajectories, video H.264 + faststart, flat folders) | `actions/prepare.md` |
-| `dreamlake-source/references/prepare-data.md` §2 Put the bytes in linkable storage (`source upload`, limits, idempotency key, aws/hf commands, CORS + `index.json` manifest) | `actions/upload.md` (+ `dreamlake source create` from cli docs for a managed-only source) |
+| `dreamlake-source/references/prepare-data.md` §2 Put the bytes in linkable storage (`source upload`, limits, idempotency key, aws/hf commands, CORS + `index.json` manifest) | `actions/upload.md` (+ `dl source create` from cli docs for a managed-only source) |
 | `dreamlake-source/references/connect-and-verify.md` §3 Link the storage as a source (dashboard, AES-256-GCM, list/browse/download, `fetch`, Node resolver note) | `actions/connect.md` §top |
 | `connect-and-verify.md` §4 Alternative channel — the DreamLake episode tree | `actions/connect.md` §Alternative channel |
 | `connect-and-verify.md` §5 Drop the `.dreamrc` and verify (no `storage:` at root, `@dreamlake/viz` resolver snippet, zero-episodes → manifests) | `actions/connect.md` §Drop the `.dreamrc` and verify |

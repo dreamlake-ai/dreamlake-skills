@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows/cjs-vs-python.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows/cjs-vs-python.md at 0.1.134 4bbe54f7; do not edit -->
 
 # CJS Workflows vs Python Pipelines
 
@@ -11,7 +11,7 @@
 ## Part 1 — the three artifacts
 
 Three separate things in this system are called a workflow. Two of them answer
-to `dreamlake workflow`.
+to `dl workflow`.
 
 | | Artifact | Authored as | Stored as | Executed by |
 |---|---|---|---|---|
@@ -25,9 +25,9 @@ other two: **W1 against P**, with W2 present only where the comparison needs it.
 
 ### Two facts that make this genuinely confusing
 
-**One CLI verb, two file formats.** `dreamlake workflow create` and
-`dreamlake workflow update` take `--file <script.js>` and parse a `meta` literal
-out of JavaScript. `dreamlake workflow push` takes a WorkflowSpec v1 JSON file
+**One CLI verb, two file formats.** `dl workflow create` and
+`dl workflow update` take `--file <script.js>` and parse a `meta` literal
+out of JavaScript. `dl workflow push` takes a WorkflowSpec v1 JSON file
 and writes it to DreamDB. Same command group, same workflow name, entirely
 different artifact on each side of the flag.
 
@@ -44,7 +44,7 @@ Nothing keeps them in sync. A workflow can be at `currentVersionHash` `a1b2…`
 and `specVersion` 7 with no relationship whatsoever between the two, because
 they were written by two different commands describing two different artifacts.
 
-**And a third `push`.** `dreamlake workflow push` also exists in the Python CLI,
+**And a third `push`.** `python -m dreamlake.cli workflow push` also exists in the Python CLI,
 with the same `<file> [--name]` shape and byte-identical output — both CLIs
 re-serialize the spec at two-space indent so they append to the same dataset.
 The TypeScript CLI acknowledges the split in its own error text: its hidden
@@ -60,12 +60,11 @@ applies.
 
 ### 0. What the name means
 
-**W1.** One of three artifacts, and the least documented of them. `dreamlake
-workflow` covers W1 (`create`, `update`, `show`, `push-run`, `watch-run`) and W2
+**W1.** One of three artifacts, and the least documented of them. `dl workflow` covers W1 (`create`, `update`, `show`, `push-run`, `watch-run`) and W2
 (`push`) from the same command group, so the verb alone never tells you which
 one you are operating on.
 
-**P.** One artifact. `dreamlake pipeline` means exactly one thing: a Python file
+**P.** One artifact. `dl pipeline` means exactly one thing: a Python file
 with a `@dl.pipeline` entry point.
 
 ### 1. Where the graph comes from
@@ -222,10 +221,10 @@ a structural helper there does not raise; the loop **body** is strict again.
 
 **W1.** The Claude Code CLI's Workflow tool runs the script locally and rewrites
 a `wf_<runId>.json` run file under the session's `workflows/` directory as it
-goes. `dreamlake workflow push-run` and `watch-run` reduce that file and PUT it
+goes. `dl workflow push-run` and `watch-run` reduce that file and PUT it
 to the server, which is how a local run becomes a visible run.
 
-**P.** Nothing executes it. `dreamlake pipeline create --file` stores the source
+**P.** Nothing executes it. `dl pipeline create --file` stores the source
 and the derived graph; that is the entire lifecycle. There is no runner, no
 scheduler and no queue on the pipeline side.
 
@@ -358,25 +357,25 @@ here.
 
 ```bash
 # W1 — the JavaScript orchestration script
-dreamlake workflow create <name> --file <script.js> [--message <text>]
-dreamlake workflow update <name> --file <script.js> [--message <text>]
-dreamlake workflow show   <name>
-dreamlake workflow list
+dl workflow create <name> --file <script.js> [--message <text>]
+dl workflow update <name> --file <script.js> [--message <text>]
+dl workflow show   <name>
+dl workflow list
 
 # W1 — run traces, pushed from the local wf_*.json the Workflow tool writes
-dreamlake workflow push-run  <name> <wf_*.json>
-dreamlake workflow watch-run <name> <wf_*.json> [--interval 5]
+dl workflow push-run  <name> <wf_*.json>
+dl workflow watch-run <name> <wf_*.json> [--interval 5]
 
 # W2 — a WorkflowSpec v1 JSON, NOT the JS
-dreamlake workflow push <spec.json> [--name <name>]
+dl workflow push <spec.json> [--name <name>]
 
 # P — the Python pipeline
-dreamlake pipeline create <name> --file <pipeline.py>
-dreamlake pipeline update <name> --file <pipeline.py>
-dreamlake pipeline version list <name>
-dreamlake pipeline version show <name> <hash>
-dreamlake pipeline node    list <name> <hash>
-dreamlake pipeline node    show <name> <hash> <nodeId>
+dl pipeline create <name> --file <pipeline.py>
+dl pipeline update <name> --file <pipeline.py>
+dl pipeline version list <name>
+dl pipeline version show <name> <hash>
+dl pipeline node    list <name> <hash>
+dl pipeline node    show <name> <hash> <nodeId>
 ```
 
 Two details worth knowing before you use them.
@@ -473,4 +472,4 @@ what the two systems *mean*. This describes what is not there.
     The Python authoring vocabulary, one construct per page, each with a live
     node view.
 
-    The rest of the `dreamlake` command surface.
+    The rest of the `dl` command surface.

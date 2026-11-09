@@ -2,7 +2,7 @@
 
 ```bash
 # edit the editable source, then push the SAME scene name → new version
-dreamlake scene push ./composed --name <scene-name>
+dl scene push ./composed --name <scene-name>
 # ✓ pushed <ns>/<scene-name> vN+1 …
 ```
 

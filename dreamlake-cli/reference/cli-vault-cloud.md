@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-cloud.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-cloud.md at 0.112.0 0d1fe91; do not edit -->
 
 # Cloud configuration in Vault
 
@@ -10,14 +10,14 @@ No provider login is performed.
 
 ```bash cli-help="vault cloud import"
 # No --file: list standard candidate paths without opening their contents.
-dreamlake vault cloud import --provider aws -p alice/aws/dev
+dl vault cloud import --provider aws -p alice/aws/dev
 # Explicit selections: preview names, sizes and profile metadata, without upload.
-dreamlake vault cloud import --provider aws -p alice/aws/dev \
+dl vault cloud import --provider aws -p alice/aws/dev \
   --file "$HOME/.aws/config" --file "$HOME/.aws/credentials"
 # Repeat the selection with --apply to upload.
-dreamlake vault cloud import --provider aws -p alice/aws/dev \
+dl vault cloud import --provider aws -p alice/aws/dev \
   --file "$HOME/.aws/config" --file "$HOME/.aws/credentials" --apply
-dreamlake vault cloud import --provider gcp -p alice/gcp/dev \
+dl vault cloud import --provider gcp -p alice/gcp/dev \
   --file /private/config/service-account.json --apply
 ```
 
@@ -45,7 +45,7 @@ explicit `--file` selection and `--apply`.
 Existing entries are never silently replaced. For one explicitly selected file,
 use `--if-match REVISION`. Each upload prints a nonsecret request ID before the
 write; `--request-id ID` permits an exact single-file retry after reconciling
-`dreamlake vault write-status --request-id ID`. Changed contents/options require
+`dl vault write-status --request-id ID`. Changed contents/options require
 a new ID. A failed batch may have partially completed: inspect the per-entry
 statuses. Readback verifies exact content; no hashes or secret values are printed.
 
@@ -61,10 +61,10 @@ absolute paths inside configuration files are not rewritten.
 
 ```bash cli-help="vault cloud restore"
 # Preview checks metadata and destination without retrieving the secret.
-dreamlake vault cloud restore -n alice/aws/dev/credentials \
+dl vault cloud restore -n alice/aws/dev/credentials \
   --to '~/.aws/credentials'
 # Write only after explicit --apply; existing files additionally need --overwrite.
-dreamlake vault cloud restore -n alice/aws/dev/credentials \
+dl vault cloud restore -n alice/aws/dev/credentials \
   --to '~/.aws/credentials' --apply
 ```
 

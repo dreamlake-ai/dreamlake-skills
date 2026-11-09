@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Memos
 
@@ -88,28 +88,28 @@ and [HTML reads](docs-notes-html-reads.md).
 
 ```bash
 curl -fsSL https://dl.dreamlake.ai/install.sh | bash
-dreamlake login
+dl login
 ```
 
 **Python**
 
 ```bash
 pip install dreamlake
-dreamlake login
+dl login
 ```
 
 Both read the same saved login. `pip install dreamlake` installs the Python
 SDK; install the standalone CLI using the CLI tab before running
-`dreamlake login`. The Python package is not the supported CLI installer.
+`dl login`. The Python package is not the supported CLI installer.
 
 ## For coding agents
 
 ```bash
-dreamlake init                          # once: pick your agent and scope
-dreamlake skill install dreamlake-memos
+dl init                          # once: pick your agent and scope
+dl skill install dreamlake-memos
 ```
 
-`dreamlake skill update` then updates it. `dreamlake init` chooses between
+`dl skill update` then updates it. `dl init` chooses between
 your user directory and one project, and the `dreamlake-cli` skill that the
 Memos skill requires is installed with it. Without the CLI, download
 `skills.tar.gz` from the latest

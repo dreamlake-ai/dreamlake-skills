@@ -10,10 +10,10 @@ Files inherit the memo's permissions. Set `MEMO_ID` to an accessible memo; add
 ```bash
 MEMO_ID=release-plan
 # Pick the requested operation; each command is independent.
-dreamlake memos files upload ./report.html --note "$MEMO_ID"
-dreamlake memos files list --note "$MEMO_ID"
-dreamlake memos files download report.html --note "$MEMO_ID" -o ./report.html
-dreamlake memos files preview report.html --note "$MEMO_ID" --open
+dl memos files upload ./report.html --note "$MEMO_ID"
+dl memos files list --note "$MEMO_ID"
+dl memos files download report.html --note "$MEMO_ID" -o ./report.html
+dl memos files preview report.html --note "$MEMO_ID" --open
 ```
 
 Uploads and downloads preserve bytes. `cat` is for text and refuses binary
@@ -75,10 +75,10 @@ keep the original account, Memo, namespace and `operationId` from JSON or stderr
 
 ```bash
 # Inspect the original operation; do not resend uncertain bytes.
-dreamlake memos files status "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
+dl memos files status "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
 # Choose only the intended next action, under the original account.
-dreamlake memos files reconcile "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
-dreamlake memos files cancel "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
+dl memos files reconcile "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
+dl memos files cancel "$OPERATION_ID" --note "$MEMO_ID" --namespace "$NAMESPACE" --json
 ```
 
 Reconcile may publish the original database result but never uploads bytes again.

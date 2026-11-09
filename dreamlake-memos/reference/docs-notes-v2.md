@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/v2.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/v2.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Memos v2: merge and exact patches
 
@@ -17,22 +17,22 @@ to make an old patch pass.
 ```bash
 set -euo pipefail
 NOTE_ID=design-doc
-dreamlake memos read "$NOTE_ID" --json > baseline.json
+dl memos read "$NOTE_ID" --json > baseline.json
 BASE_HASH=$(jq -er '.hash' baseline.json)
 BASE=$(jq -er '.revision' baseline.json)
 jq -jr '.content' baseline.json > base.md
 
-dreamlake memos read "$NOTE_ID" --since "$BASE_HASH" --format inline-dff
-dreamlake memos read "$NOTE_ID" --since "$BASE_HASH" --format diff
+dl memos read "$NOTE_ID" --since "$BASE_HASH" --format inline-dff
+dl memos read "$NOTE_ID" --since "$BASE_HASH" --format diff
 
 # Example requires saved source exactly Hello world. without a final newline.
-dreamlake memos patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
+dl memos patch "$NOTE_ID" --format inline-dff --base-revision "$BASE" --json > committed.json <<'PATCH'
 @@ chars 0:12 @@
 ~ Hello [-world-]{+team+}.
 PATCH
 
 REVISION=$(jq -er '.revision' committed.json)
-dreamlake memos read "$NOTE_ID" --if-match "$REVISION" --json > verified.json
+dl memos read "$NOTE_ID" --if-match "$REVISION" --json > verified.json
 ```
 
 Use a quoted heredoc delimiter absent from the patch body. Multiline stdin is
@@ -131,7 +131,7 @@ used for both operations, as set in [Name a memo](docs-notes-cli-editing.md#name
 ```bash
 BASE_HASH=$(jq -er .hash baseline.json)
 ACK_REVISION=$(jq -er .revision receipt.json)
-dreamlake memos read "$NOTE_ID" --since "$BASE_HASH" \
+dl memos read "$NOTE_ID" --since "$BASE_HASH" \
   --if-match "$ACK_REVISION" --json > verified-delta.json
 ```
 
@@ -164,9 +164,9 @@ then make a separate, explicit merge request. There is no automatic downgrade.
 
 ```bash
 set -euo pipefail
-dreamlake memos create "Merge/exact example" --text 'Hello world.' --json > fixture.json
+dl memos create "Merge/exact example" --text 'Hello world.' --json > fixture.json
 NOTE_ID=$(jq -er '.id' fixture.json)
-dreamlake memos read "$NOTE_ID" --json > baseline.json
+dl memos read "$NOTE_ID" --json > baseline.json
 BASE=$(jq -er '.revision' baseline.json)
 jq -jr '.content' baseline.json > original.md
 cat > agent.patch <<'PATCH'
@@ -175,14 +175,14 @@ cat > agent.patch <<'PATCH'
 PATCH
 
 # Simulate a second participant inserting a prefix after the agent's read.
-dreamlake memos patch "$NOTE_ID" --base-revision "$BASE" --json > human.json <<'PATCH'
+dl memos patch "$NOTE_ID" --base-revision "$BASE" --json > human.json <<'PATCH'
 @@ chars 0:0 @@
 ~ {+Human: +}
 PATCH
 
 # Expected conflict: stdout stays empty; stderr explains the failure; exit is 3.
 set +e
-dreamlake memos patch "$NOTE_ID" --base-revision "$BASE" --exact \
+dl memos patch "$NOTE_ID" --base-revision "$BASE" --exact \
   --file agent.patch --json > exact.stdout 2> exact.stderr
 STATUS=$?
 set -e
@@ -191,10 +191,10 @@ test ! -s exact.stdout
 cat exact.stderr
 
 # A separate explicit choice to merge the ORIGINAL patch and identities.
-dreamlake memos patch "$NOTE_ID" --base-revision "$BASE" \
+dl memos patch "$NOTE_ID" --base-revision "$BASE" \
   --file agent.patch --json > merged.json
 jq '{note, mode, baseRevision, hash, revision}' merged.json
-dreamlake memos read "$NOTE_ID" --json > observed.json
+dl memos read "$NOTE_ID" --json > observed.json
 jq -er '.content == "Human: Hello team."' observed.json
 ```
 
@@ -244,19 +244,19 @@ individual request; the following empty patch uses the default merge mode.
 **CLI**
 
 ```bash
-dreamlake memos read "$NOTE_ID" --json > exact-baseline.json
+dl memos read "$NOTE_ID" --json > exact-baseline.json
 EXACT_BASE=$(jq -er '.revision' exact-baseline.json)
 cat > exact.patch <<'PATCH'
 @@ chars 18:18 @@
 ~ {+!+}
 PATCH
-dreamlake memos patch "$NOTE_ID" --base-revision "$EXACT_BASE" --exact \
+dl memos patch "$NOTE_ID" --base-revision "$EXACT_BASE" --exact \
   --file exact.patch --json > exact-success.json
 jq '{note, mode, baseRevision, hash, revision}' exact-success.json
 
-dreamlake memos read "$NOTE_ID" --json > after-exact.json
+dl memos read "$NOTE_ID" --json > after-exact.json
 NEXT_BASE=$(jq -er '.revision' after-exact.json)
-printf '' | dreamlake memos patch "$NOTE_ID" --base-revision "$NEXT_BASE" \
+printf '' | dl memos patch "$NOTE_ID" --base-revision "$NEXT_BASE" \
   --json > merge-after-exact.json
 jq -er '.mode == "merge"' merge-after-exact.json
 ```

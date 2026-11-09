@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-terraform-state.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-terraform-state.md at 0.112.0 0d1fe91; do not edit -->
 
 # Terraform state and Vault
 
@@ -54,9 +54,9 @@ follow Terraform's backend schema.
 
 ```bash file="terminal" cli-help="vault terraform backend"
 chmod 600 ./backend-reference.json
-dreamlake vault terraform backend --file ./backend-reference.json --name alice/terraform/aws-demo
+dl vault terraform backend --file ./backend-reference.json --name alice/terraform/aws-demo
 # Upload only after explicitly selecting the file and destination.
-dreamlake vault terraform backend --file ./backend-reference.json --name alice/terraform/aws-demo --apply --request-id aws-demo-backend-001
+dl vault terraform backend --file ./backend-reference.json --name alice/terraform/aws-demo --apply --request-id aws-demo-backend-001
 ```
 
 ## Explicit snapshot backup
@@ -67,9 +67,9 @@ explicitly. No command searches for state files or uploads active state
 automatically. Preview reads the selected file locally and reports metadata only.
 
 ```bash file="terminal" cli-help="vault terraform backup"
-dreamlake vault terraform backup --file /private/aws-demo.snapshot.json --prefix alice/terraform/backups
+dl vault terraform backup --file /private/aws-demo.snapshot.json --prefix alice/terraform/backups
 # This is an explicit upload of this selected sensitive file.
-dreamlake vault terraform backup --file /private/aws-demo.snapshot.json --prefix alice/terraform/backups --apply --request-id aws-demo-snapshot-001
+dl vault terraform backup --file /private/aws-demo.snapshot.json --prefix alice/terraform/backups --apply --request-id aws-demo-snapshot-001
 ```
 
 Snapshots use the existing audited Vault entry API and the entry's governing KMS
@@ -102,9 +102,9 @@ state, or different bytes with the same serial. That comparison is as current as
 the authoritative backend's workflow before a recovery decision.
 
 ```bash file="terminal" cli-help="vault terraform restore"
-dreamlake vault terraform restore --name alice/terraform/backups/state-SHA256 --if-match 1 --current-state /private/current.snapshot.json --to /private/recovery/candidate.snapshot.json
+dl vault terraform restore --name alice/terraform/backups/state-SHA256 --if-match 1 --current-state /private/current.snapshot.json --to /private/recovery/candidate.snapshot.json
 # Explicitly write the verified candidate into a new file.
-dreamlake vault terraform restore --name alice/terraform/backups/state-SHA256 --if-match 1 --current-state /private/current.snapshot.json --to /private/recovery/candidate.snapshot.json --apply
+dl vault terraform restore --name alice/terraform/backups/state-SHA256 --if-match 1 --current-state /private/current.snapshot.json --to /private/recovery/candidate.snapshot.json --apply
 ```
 
 Replace `state-SHA256` with the complete name emitted by backup. Use an existing

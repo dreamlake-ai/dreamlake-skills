@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/transfers.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/transfers.md at 0.112.0 0d1fe91; do not edit -->
 
 # Ownership transfers
 
@@ -11,13 +11,13 @@ history in place: a 700 MB history is not downloaded or copied for the transfer.
 Preview the access inventory and blockers before submitting.
 
 ```bash cli-help="memos transfer"
-dreamlake memos transfer MEMO_ID --namespace alice --to acme \
+dl memos transfer MEMO_ID --namespace alice --to acme \
   --dry-run --out note-transfer.json
 # Submit the exact reviewed file; the authorized destination member accepts separately.
-dreamlake memos transfer MEMO_ID --namespace alice --to acme \
+dl memos transfer MEMO_ID --namespace alice --to acme \
   --confirm --request-file note-transfer.json
 # If you also have destination acceptance authority:
-dreamlake memos transfer MEMO_ID --namespace alice --to acme \
+dl memos transfer MEMO_ID --namespace alice --to acme \
   --confirm --request-file note-transfer.json --accept-if-authorized --wait
 ```
 

@@ -4,10 +4,10 @@ Registration and editor commands require CLI 0.71.1; check installed help
 first. Preview the explicit definition files before registering:
 
 ```bash
-dreamlake runnable register .dreamrc --dry-run
-dreamlake runnable register .dreamrc --namespace YOUR_NAMESPACE
-dreamlake agents list --plain
-dreamlake agents edit YOUR_AGENT --web
+dl runnable register .dreamrc --dry-run
+dl runnable register .dreamrc --namespace YOUR_NAMESPACE
+dl agents list --plain
+dl agents edit YOUR_AGENT --web
 ```
 
 See [registration](../reference/cli-runnable-upload.md), [all `.dreamrc`

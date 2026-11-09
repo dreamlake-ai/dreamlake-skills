@@ -1,6 +1,6 @@
 ---
 name: dreamlake-libraries
-description: Publish and consume DreamLake asset libraries — collections of 3D assets (MuJoCo models, URDF robots, meshes, textures, 3D Gaussian splats, any files) searched per asset. Push a directory zero-config with `dreamlake library push`, curate it with one optional dreamlake.yml, render thumbnails and semantic-search embeddings at push time, search libraries for a model ("find me a mug"), inspect a library or one asset without downloading, check whether a local copy is current, pull one asset or the clean source tree byte-identical, and add or remove single assets remotely. Use when a user wants to upload, curate, search, inspect, pull or edit a collection of 3D models, meshes, textures or splats. Not for versioned worlds (dreamlake-scenes) or recordings (dreamlake-datasets).
+description: Publish and consume DreamLake asset libraries — collections of 3D assets (MuJoCo models, URDF robots, meshes, textures, 3D Gaussian splats, any files) searched per asset. Push a directory zero-config with `dl library push`, curate it with one optional dreamlake.yml, render thumbnails and semantic-search embeddings at push time, search libraries for a model ("find me a mug"), inspect a library or one asset without downloading, check whether a local copy is current, pull one asset or the clean source tree byte-identical, and add or remove single assets remotely. Use when a user wants to upload, curate, search, inspect, pull or edit a collection of 3D models, meshes, textures or splats. Not for versioned worlds (dreamlake-scenes) or recordings (dreamlake-datasets).
 ---
 
 # DreamLake Asset Libraries
@@ -18,9 +18,9 @@ Your directory is the format: the user's files plus ONE optional
 in the tree. The discovery conventions, splat formats, coordinate
 conventions, the generated wire manifest and the gotchas are in
 [`assets/library-conventions.md`](assets/library-conventions.md); read it
-before a first push. Commands need the `dreamlake` CLI logged in
-(`dreamlake login`; `dreamlake-cli` skill) — some flags carry minimum
-versions, check `dreamlake --version` and `dreamlake library <cmd> --help`.
+before a first push. Commands need the `dl` CLI logged in
+(`dl login`; `dreamlake-cli` skill) — some flags carry minimum
+versions, check `dl --version` and `dl library <cmd> --help`.
 
 ## Route the request
 

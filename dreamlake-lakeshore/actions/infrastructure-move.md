@@ -1,16 +1,16 @@
 # Move an Infrastructure registration
 
 ```bash
-dreamlake infra status "$STACK_ID"
-dreamlake infra move "$STACK_ID" --namespace "$DESTINATION_OWNER" \
+dl infra status "$STACK_ID"
+dl infra move "$STACK_ID" --namespace "$DESTINATION_OWNER" \
   --project "$DESTINATION_PROJECT" --dry-run --out stack-move-review.json
 # Review the saved intent before executing it.
-dreamlake infra move "$STACK_ID" --request-file stack-move-review.json --confirm
-dreamlake infra status "$STACK_ID"
+dl infra move "$STACK_ID" --request-file stack-move-review.json --confirm
+dl infra status "$STACK_ID"
 ```
 
 1. Use the setup action of `dreamlake-cli` to select the authenticated environment.
-   Inspect the installed version and `dreamlake infra move --help`, then consult
+   Inspect the installed version and `dl infra move --help`, then consult
    [the current move contract](../reference/cli-infrastructure.md#move-an-existing-stack-registration).
    Do not infer support from an installed skill or a merged source change.
 2. Discover the existing registration and retain its UUID, repository/root,

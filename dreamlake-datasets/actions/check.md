@@ -9,8 +9,8 @@ paths cannot be consumed by a remote worker.
 ## Prerequisites
 
 Use the standalone DreamLake CLI, with the intended deployment active and the
-user authenticated. Check `dreamlake --version` and `dreamlake source --help`;
-`dreamlake source list` is the first read. This workflow is read-only.
+user authenticated. Check `dl --version` and `dl source --help`;
+`dl source list` is the first read. This workflow is read-only.
 
 ## What you need
 
@@ -32,7 +32,7 @@ publishes.
 **2. Confirm the source exists in that namespace.**
 
 ```bash
-dreamlake source list --namespace <ns> --json
+dl source list --namespace <ns> --json
 ```
 
 If the name is absent, list what IS there rather than just failing — the answer
@@ -42,8 +42,8 @@ right one from "not found".
 **3. Confirm each path resolves, and look at what came back.**
 
 ```bash
-dreamlake source browse "<dir>" --source <name> --namespace <ns> --files --json
-dreamlake source fetch  "<path>" --source <name> --namespace <ns> --json
+dl source browse "<dir>" --source <name> --namespace <ns> --files --json
+dl source fetch  "<path>" --source <name> --namespace <ns> --json
 ```
 
 `browse` shows the path really exists and how it is spelled; `fetch` proves this

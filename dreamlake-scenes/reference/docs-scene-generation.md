@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scene-generation.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scene-generation.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Scene Generation
 
@@ -30,9 +30,9 @@ The loop this guide teaches:
 
 ## Requirements
 
-- The `dreamlake` CLI, logged in (`dreamlake login`) — scene and library
+- The `dl` CLI, logged in (`dl login`) — scene and library
   commands are in CLI ≥ 0.45.0.
-- Python with `pip install "dreamlake[compose]"` for `dreamlake scene compose`
+- Python with `pip install "dreamlake[compose]"` for `dl scene compose`
   (installs the layer engine and `mujoco`; dreamlake-py ≥ 0.23). The engine
   needs **MuJoCo ≥ 3.8** — use 3.14, the version this workflow is validated
   with; dreamlake 0.23.0 still _declares_ `>=3.2.0` but composition fails on
@@ -162,13 +162,13 @@ present a conversion pipeline you haven't run as if it works.
 
 ### Searching a DreamLake library
 
-When you do use a library: `dreamlake library list --all` prints every
+When you do use a library: `dl library list --all` prints every
 library you can see _with its description_ — pick where to search, then
 search there.
 
 ```bash
-dreamlake library list --all
-dreamlake library search "coffee mug" --library acme/props --kind mjcf
+dl library list --all
+dl library search "coffee mug" --library acme/props --kind mjcf
 ```
 
 Read search results skeptically:
@@ -196,7 +196,7 @@ Inspect a candidate before committing to it — pull just that asset and
 measure it (tools below):
 
 ```bash
-dreamlake library pull acme/props --asset blue_mug -o ./assets
+dl library pull acme/props --asset blue_mug -o ./assets
 python tools/scene_report.py ./assets/blue_mug --body model
 ```
 
@@ -275,7 +275,7 @@ Two equally valid routes to a pushed scene:
 
 - **Raw MJCF**: author (or assemble) one self-contained scene directory —
   entry XML plus every mesh/texture it references — validate and render it
-  with the tools, and `dreamlake scene push` it directly. This is a complete,
+  with the tools, and `dl scene push` it directly. This is a complete,
   supported workflow, and the right one for a scene you authored as a
   whole.
 - **A layer stack**: publish components as their own scenes and compose them.
@@ -320,7 +320,7 @@ output directory is derived from the stack's `name` (else the stack
 directory's basename), so the next commands may point at nothing:
 
 ```bash
-dreamlake scene compose ./dreamlake.layers.json -o ./composed
+dl scene compose ./dreamlake.layers.json -o ./composed
 python tools/scene_validate.py ./composed --settle mug1:model --support mug1:model
 python tools/scene_render.py ./composed -o ./shots --camera thumbnail
 ```
@@ -380,9 +380,9 @@ physical validity — run the checks.
 ## Publish, preview in the browser, iterate
 
 ```bash
-dreamlake scene push ./composed --name my-scene --title "My scene"
+dl scene push ./composed --name my-scene --title "My scene"
 # ✓ pushed <ns>/my-scene v3 — …    ← save this exact version
-dreamlake scene pull my-scene@3 -o ./readback   # empty dir; hash-verified
+dl scene pull my-scene@3 -o ./readback   # empty dir; hash-verified
 ```
 
 Push privately by default (`--visibility public` is opt-in) and **save the
@@ -393,7 +393,7 @@ which can race a concurrent push. Then compare what matters: the embedded
 appended), and a validation run on the readback.
 
 If a push fails mid-flight or times out, **check before retrying**: run
-`dreamlake scene list` and compare against your last receipt to learn what
+`dl scene list` and compare against your last receipt to learn what
 actually landed. Retrying an _unchanged_ directory is normally safe — the
 CLI compares the entry and every file hash against the latest version and
 reuses or re-registers an identical version (even adopting an identical
@@ -442,7 +442,7 @@ orientation specifiers in opinions too) — see
 | compose: "strict-match miss"                           | an op targets a pre-attach name — after `Attach key="mug1"`, address `mug1:body`, not `body`                                                          |
 | compose: engine missing                                | `pip install "dreamlake[compose]"`; point `DREAMLAKE_PYTHON` at that interpreter                                                                      |
 | push rejected: unpinned local layers                   | push each local layer as its own scene first (`--push-layers`), then pin and recompose                                                                  |
-| upload/readback network errors                         | check `dreamlake scene list` against your last receipt first (an ambiguous failure may have finalized a version), then retry at most 2–3 times          |
+| upload/readback network errors                         | check `dl scene list` against your last receipt first (an ambiguous failure may have finalized a version), then retry at most 2–3 times          |
 | scene passes validation but looks wrong                | that is expected — the validator checks physics only; render and fix lights/cameras/materials                                                         |
 
 ## Next steps

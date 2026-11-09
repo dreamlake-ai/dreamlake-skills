@@ -1,8 +1,8 @@
 # Read status and show the waterfall
 
 ```bash
-dreamlake tasks status vault --recursive --to-json
-dreamlake tasks show vault/entries/write-recovery --to-json
+dl tasks status vault --recursive --to-json
+dl tasks show vault/entries/write-recovery --to-json
 ```
 
 `status` returns the task, immediate child summaries and an explicitly labelled

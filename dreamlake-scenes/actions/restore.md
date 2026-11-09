@@ -1,12 +1,12 @@
 # Delete, restore, purge — and who else can read a scene
 
 ```bash
-dreamlake scene delete my-scene               # soft delete (restorable; -y skips the confirm)
-dreamlake scene restore my-scene              # bring it back
-dreamlake scene delete my-scene --permanent   # purge storage + catalog — IRREVERSIBLE
+dl scene delete my-scene               # soft delete (restorable; -y skips the confirm)
+dl scene restore my-scene              # bring it back
+dl scene delete my-scene --permanent   # purge storage + catalog — IRREVERSIBLE
 ```
 
-Options: `dreamlake scene delete --help` and
+Options: `dl scene delete --help` and
 [List, pull, delete](../reference/cli-scenes.md#list-pull-delete).
 
 ## Safety rules

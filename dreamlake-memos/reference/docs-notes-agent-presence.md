@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.132 1601d304; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.134 4bbe54f7; do not edit -->
 
 # Agent presence and activity
 
@@ -109,7 +109,7 @@ memo you can access as a member or explicitly shared reader.
 
 ```bash
 # NOTE_ID and the stable task identity must already be set.
-dreamlake memos read "$NOTE_ID" --linger
+dl memos read "$NOTE_ID" --linger
 ```
 
 **Use the default text output for people and coding agents.** It shows readable
@@ -143,9 +143,9 @@ values are rejected before presence registration. For example:
 
 ```bash
 # One second of edit quiet; no more than one output batch every two seconds.
-dreamlake memos read "$NOTE_ID" --linger --debounce 1s --throttle 2s
+dl memos read "$NOTE_ID" --linger --debounce 1s --throttle 2s
 # Slower text output for a coding agent or a quieter session.
-dreamlake memos read "$NOTE_ID" --linger --debounce 2s --throttle 5s
+dl memos read "$NOTE_ID" --linger --debounce 2s --throttle 5s
 ```
 
 **CLI 0.42.0+:** `--intent "…"` publishes a self-reported purpose with the
@@ -156,7 +156,7 @@ heartbeats preserve it, and leave or lease expiry removes it. The flag requires
 trims the text and rejects empty values and more than 280 Unicode code points.
 
 ```bash
-dreamlake memos read "$NOTE_ID" --linger \
+dl memos read "$NOTE_ID" --linger \
   --intent "I'm reviewing this sequence to make the pacing clearer."
 ```
 
@@ -193,7 +193,7 @@ syncing states, repeated selected text and empty batches stay silent in text.
 IDs, connection details, offsets and source hashes remain
 in `--json`; use it to distinguish identical names or tabs and apply exact source
 positions. Initial content and diffs still include revision metadata for safe edits.
-These examples also appear in `dreamlake memos read --help`.
+These examples also appear in `dl memos read --help`.
 
 Human selections in JSON resolve native CRDT anchors against the observed source. Each
 selection carries `anchor`, `head`, `start`, `end`, `unit: "unicode-code-point"`,
@@ -228,7 +228,7 @@ Use `--json` only when a program needs NDJSON; ordinary collaboration, including
 coding-agent sessions, should use the text commands above.
 
 ```bash
-dreamlake memos read "$NOTE_ID" --linger --json
+dl memos read "$NOTE_ID" --linger --json
 ```
 
 With `--json`, stdout is NDJSON: one `type: "snapshot"` object containing
@@ -251,7 +251,7 @@ revision is not a replacement baseline for an older draft.
 ```bash cli-help="memos visit"
 # Optional one-shot registration: does not fetch the note body or keep a daemon.
 # NOTE_ID and the stable task identity must already be set.
-dreamlake memos visit "$NOTE_ID"
+dl memos visit "$NOTE_ID"
 ```
 
 `visit` uses the existing join lease (60 seconds unless renewed by an attributed
@@ -270,7 +270,7 @@ In CLI 0.31.0+, `presence` reads the current roster without joining or refreshin
 your session. It does not require an agent ID. Text is the default:
 
 ```bash cli-help="memos presence"
-dreamlake memos presence "$NOTE_ID"
+dl memos presence "$NOTE_ID"
 ```
 
 Add `--json` only for a program consuming the roster. There are no direct
@@ -468,7 +468,7 @@ registers or refreshes presence; a preceding `visit` is never required. Reading
 without agent identity does not invent or register an agent session. Retain the generated ID in the task context and inject that same literal value into each later shell; rerunning the UUID fallback in a new shell would create a different session.
 
 After the first intended live read, verify attribution with
-`dreamlake memos presence "$NOTE_ID"` (CLI 0.31.0+). This only inspects the roster;
+`dl memos presence "$NOTE_ID"` (CLI 0.31.0+). This only inspects the roster;
 it does not register an agent. Check the task ID and display name, not merely
 another session named Codex. If absent, check the environment passed to the
 actual read/edit process before diagnosing a UI regression. Do not repeat a
@@ -488,8 +488,8 @@ The last two commands require CLI 0.29.0+. A normal
 read does not mean the agent remains actively reading between commands.
 
 ```bash
-dreamlake memos read "$NOTE_ID" --json > baseline.json
-dreamlake memos find lighthouse --note "$NOTE_ID" --json
+dl memos read "$NOTE_ID" --json > baseline.json
+dl memos find lighthouse --note "$NOTE_ID" --json
 # Draft a reviewed patch against baseline.json, using the patch workflow below.
 # Retain its revision, apply the patch, and read back the acknowledged revision.
 ```
@@ -534,7 +534,7 @@ The reader must independently be allowed to read the Memo and each session.
 
 ```bash
 # CLI with the matching release; this is read-only and does not join presence.
-dreamlake memos contributors "$NOTE_ID" --namespace "$NAMESPACE" --json
+dl memos contributors "$NOTE_ID" --namespace "$NAMESPACE" --json
 ```
 
 The built-in agent exposes the same read as a real tool:

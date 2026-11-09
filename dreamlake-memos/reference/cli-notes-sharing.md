@@ -1,8 +1,8 @@
-<!-- generated from https://cli.dreamlake.ai/notes/sharing.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/sharing.md at 0.112.0 0d1fe91; do not edit -->
 
 # Sharing and visibility
 
-Available in CLI 0.32.4 and later; check `dreamlake memos share --help` for installed support.
+Available in CLI 0.32.4 and later; check `dl memos share --help` for installed support.
 
 Requires an authenticated login, an existing resource, and permission to
 manage its sharing. Run these mutation steps only when the user has asked
@@ -11,18 +11,18 @@ metadata only; they do not upload content or create a new version.
 
 ```bash cli-help="memos share"
 # Find the release plan and inspect its source and current sharing.
-dreamlake memos search "release plan"
+dl memos search "release plan"
 MEMO="release-plan" # Replace with the id or slug from search.
-dreamlake memos read "$MEMO"
-dreamlake memos share get "$MEMO"
+dl memos read "$MEMO"
+dl memos share get "$MEMO"
 
 # Give signed-in recipients read access, then verify the returned link.
-dreamlake memos share create "$MEMO" --role read
-dreamlake memos share get "$MEMO"
+dl memos share create "$MEMO" --role read
+dl memos share get "$MEMO"
 
 # When link access is no longer needed, revoke it and verify.
-dreamlake memos share revoke "$MEMO"
-dreamlake memos share get "$MEMO"
+dl memos share revoke "$MEMO"
+dl memos share get "$MEMO"
 ```
 
 `get` never enables sharing. It reports the resource URL, visibility, and
@@ -32,15 +32,15 @@ expose the token to this caller, not that sharing is disabled.
 
 ```bash cli-help="memos visibility"
 MEMO="release-plan" # Your existing memo id or slug.
-dreamlake memos visibility "$MEMO" unlisted
-dreamlake memos visibility "$MEMO" public
-dreamlake memos visibility "$MEMO" private
+dl memos visibility "$MEMO" unlisted
+dl memos visibility "$MEMO" public
+dl memos visibility "$MEMO" private
 ```
 
 `unlisted` permits anonymous reading through the direct URL but hides the Memo
 from public profiles, catalogs and discovery. Owners and existing collaborators
 can still find it. `public` is discoverable; `private` requires existing access.
-Create an Unlisted memo with `dreamlake memos create "Review" --visibility unlisted`.
+Create an Unlisted memo with `dl memos create "Review" --visibility unlisted`.
 The legacy `--public` flag still creates publicly listed memos and cannot be
 combined with a conflicting `--visibility`.
 
@@ -60,7 +60,7 @@ everyone admitted through the link. Memo IDs resolve their owning namespace auto
 
 ```bash cli-help="memos share revoke"
 MEMO="release-plan" # Your existing memo id or slug.
-dreamlake memos share revoke "$MEMO" --revoke-accepted
+dl memos share revoke "$MEMO" --revoke-accepted
 ```
 
 Ordinary revocation clears the link and blocks subsequent link-derived access,
@@ -72,13 +72,13 @@ editing until the room is rotated; this command does not rotate rooms.
 ```bash cli-help="memos share access"
 MEMO="release-plan" # Your existing memo id or slug.
 # List acceptance records and stored roles as a readable table.
-dreamlake memos share access "$MEMO"
+dl memos share access "$MEMO"
 ```
 
 ```bash cli-help="memos share remove"
 MEMO="release-plan" # Your existing memo id or slug.
 USER_ID="user-id-from-access-list"
-dreamlake memos share remove "$MEMO" "$USER_ID"
+dl memos share remove "$MEMO" "$USER_ID"
 ```
 
 The access list defaults to a readable table; use `--json` for a structured
@@ -94,8 +94,8 @@ Public and unlisted memos have a separate public URL slug. This is independent o
 the internal memo slug and display name. Get or allocate it from the saved H1:
 
 ```bash cli-help="memos permalink"
-dreamlake memos permalink <memo-id> --namespace <namespace> --json
-dreamlake memos permalink <memo-id> --namespace <namespace> --slug my-article --json
+dl memos permalink <memo-id> --namespace <namespace> --json
+dl memos permalink <memo-id> --namespace <namespace> --slug my-article --json
 ```
 
 The response contains `noteId`, `namespaceSlug`, `slug`, `href`, and `aliases`

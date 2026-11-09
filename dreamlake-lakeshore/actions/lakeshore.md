@@ -51,7 +51,7 @@ Resolve the target queue, runtime and worker permissions. Inspect existing
 workers before creating duplicates. Use the deployed Lakeshore worker tooling
 to register/configure the daemon or worker process, associate it with the queue,
 and start consumption. Check actual command help/API support instead of inventing
-a `dreamlake queues` registration or submission command. Host enrollment does
+a `dl queues` registration or submission command. Host enrollment does
 not perform these Runtime steps. A development Host may also run these workers.
 
 Verify worker association and readiness for the selected queue, submit a small

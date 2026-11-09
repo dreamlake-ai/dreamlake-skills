@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.112.0 0d1fe91; do not edit -->
 
 # Execute a bound UDF on a queue
 
@@ -25,8 +25,8 @@ snapshot is refused. The project directory inside the snapshot must contain
 `pyproject.toml`, `uv.lock` and an exact `.python-version` such as `3.12.13`.
 
 ```bash
-dreamlake runnable register .dreamrc --namespace acme   # registers the UDF source version
-dreamlake snapshot --server "$LAKESHORE_URL" --namespace acme   # prints the CodeRepo id
+dl runnable register .dreamrc --namespace acme   # registers the UDF source version
+dl snapshot --server "$LAKESHORE_URL" --namespace acme   # prints the CodeRepo id
 ```
 
 On each worker, prepare the environment from the same lock before any
@@ -48,10 +48,10 @@ verified.
 ## Bind
 
 ```bash cli-help="runnable bind"
-dreamlake runnable bind udf/acme/recipes.process@FULL_SHA256 \
+dl runnable bind udf/acme/recipes.process@FULL_SHA256 \
   --snapshot CODE_REPO_ID --project recipes \
   --server "$LAKESHORE_URL" --cp-namespace acme --dry-run
-dreamlake runnable bind udf/acme/recipes.process@FULL_SHA256 \
+dl runnable bind udf/acme/recipes.process@FULL_SHA256 \
   --snapshot CODE_REPO_ID --project recipes --server "$LAKESHORE_URL" --cp-namespace acme
 ```
 
@@ -81,9 +81,9 @@ archive key or storage differs from the binding.
 ## Execute and recover
 
 ```bash cli-help="runnable execute"
-dreamlake runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
+dl runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
   --queue cpu --inputs record.json --timeout-seconds 600 --json
-dreamlake runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
+dl runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
   --queue cpu --inputs record.json --timeout-seconds 600 --attempt 2 --json
 ```
 
@@ -103,7 +103,7 @@ deliberate new attempt of the same task. Inputs are one JSON object of at most
 256 KiB; non-integer numbers must be encoded as strings.
 
 ```bash cli-help="runnable execution-receipt"
-dreamlake runnable execution-receipt exec/acme/recipes.process@EXECUTION_DIGEST \
+dl runnable execution-receipt exec/acme/recipes.process@EXECUTION_DIGEST \
   --queue cpu --inputs record.json --timeout-seconds 600 --wait-seconds 30
 ```
 
@@ -118,7 +118,7 @@ credentials; you must own the host, and its worker must be pinned
 to the queue you name (see [Pin a worker to dedicated queues](../queues/)).
 
 ```bash
-dreamlake runnable bind udf/acme/recipes.process@FULL_SHA256 \
+dl runnable bind udf/acme/recipes.process@FULL_SHA256 \
   --target acme/compute/worker --project recipes
 ```
 
@@ -129,7 +129,7 @@ control plane, and registers the RepoSnapshot. `bind` then registers the binding
 with the server-derived control-plane block.
 
 ```bash
-dreamlake runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
+dl runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
   --target acme/compute/worker --queue fixture --inputs record.json --timeout-seconds 600 --json
 ```
 

@@ -3,16 +3,16 @@
 Project attachment commands require CLI 0.62.0 and the companion Project-sharing
 backend release; `project inspect`, `grants`, `grant` and `revoke` require CLI
 0.45.1. Python Project support requires SDK 0.29.0+. Check the installed version,
-`dreamlake project --help` and [Projects](../reference/cli-projects.md#project-attachment-access-cli-0620)
+`dl project --help` and [Projects](../reference/cli-projects.md#project-attachment-access-cli-0620)
 before relying on them; verify installed versions separately from server support.
 
 ```bash
-dreamlake project inspect research --namespace acme      # effective role, manageGrants
-dreamlake project grants research --namespace acme
-dreamlake project grant research --namespace acme --user teammate --role WRITE
-dreamlake project revoke research GRANT_ID --namespace acme
-dreamlake project attach research --namespace acme --type note --resource "$NOTE_ID"
-dreamlake project detach research --namespace acme --type note --resource "$NOTE_ID"
+dl project inspect research --namespace acme      # effective role, manageGrants
+dl project grants research --namespace acme
+dl project grant research --namespace acme --user teammate --role WRITE
+dl project revoke research GRANT_ID --namespace acme
+dl project attach research --namespace acme --type note --resource "$NOTE_ID"
+dl project detach research --namespace acme --type note --resource "$NOTE_ID"
 ```
 
 Grants target an existing active organization member or team and need the

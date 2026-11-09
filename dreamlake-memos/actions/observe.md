@@ -4,8 +4,8 @@ Complete [task identity setup](identity.md), then check installed help before
 requesting selection support:
 
 ```bash
-dreamlake memos presence --help
-dreamlake memos presence "$MEMO_ID" --selections
+dl memos presence --help
+dl memos presence "$MEMO_ID" --selections
 ```
 
 Use this action when the user asks who is present or what they selected. Inspect

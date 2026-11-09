@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/versions.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/versions.md at 0.112.0 0d1fe91; do not edit -->
 
 # Saved versions
 
@@ -8,7 +8,7 @@ edit access, including reading history that may contain previously removed text.
 
 **Availability:** `memos tag`, `memos hist`, and `memos read --version` require
 CLI **0.44.1 or later**. `note` and `notes` are aliases. Check
-`dreamlake memos hist --help` in your installed executable
+`dl memos hist --help` in your installed executable
 before using them in automation. They require the server's native Memos
 `/versions` endpoints; an older server's failure is not an empty version list.
 
@@ -16,13 +16,13 @@ before using them in automation. They require the server's native Memos
 
 ```bash cli-help="memos tag"
 # Save the current content on the existing Memo.
-dreamlake memos tag MEMO_ID end-of-day --namespace my-org --summary "Reviewed today's actions"
+dl memos tag MEMO_ID end-of-day --namespace my-org --summary "Reviewed today's actions"
 # Require the hash retained from a reviewed full read (not its opaque revision).
-dreamlake memos tag MEMO_ID reviewed --hash sha256:CONTENT_HASH --json
+dl memos tag MEMO_ID reviewed --hash sha256:CONTENT_HASH --json
 # Connect this checkpoint to an earlier version in the same Memo.
-dreamlake memos tag MEMO_ID next-checkpoint --parent VERSION_ID
+dl memos tag MEMO_ID next-checkpoint --parent VERSION_ID
 # Read and validate without creating a version.
-dreamlake memos tag MEMO_ID preview --dry-run --json
+dl memos tag MEMO_ID preview --dry-run --json
 ```
 
 Creation performs one complete Memos v2 source read, verifies its SHA-256 hash,
@@ -52,9 +52,9 @@ Memos diagnostics.
 ## List saved versions
 
 ```bash cli-help="memos hist"
-dreamlake memos hist MEMO_ID --namespace my-org --json
+dl memos hist MEMO_ID --namespace my-org --json
 # Continue with nextCursor returned by the previous page.
-dreamlake memos hist MEMO_ID --before VERSION_ID --json
+dl memos hist MEMO_ID --before VERSION_ID --json
 ```
 
 One request returns up to 50 versions, newest first. JSON preserves
@@ -65,8 +65,8 @@ metadata, not bodies, and does not automatically fetch all pages.
 ## Read a saved version
 
 ```bash
-dreamlake memos read MEMO_ID --version VERSION_ID
-dreamlake memos read MEMO_ID --version VERSION_ID --namespace my-org --json
+dl memos read MEMO_ID --version VERSION_ID
+dl memos read MEMO_ID --version VERSION_ID --namespace my-org --json
 ```
 
 Read by the returned version ID (`v_<timestamp>_<uuid>`), not by tag. Plain

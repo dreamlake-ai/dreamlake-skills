@@ -1,6 +1,6 @@
 ---
 name: dreamlake-workflows
-description: Turn a natural-language data-production, labeling, or training goal into a complete DreamLake WorkflowSpec v1 JSON file (stages, typed compute/uda/sampler/control nodes, typed data edges), validate it against the bundled schema, publish it to the intended namespace with `dreamlake workflow push`, report the canvas URL, and recover from validation failures or version questions. Use for "create / generate / design a workflow", "turn this description into a workflow", "push / publish this spec", or "why did validation fail". Not for the fixed video subtask-labeling workflow (video-labeling-workflow), verifying source paths (the `check` action of dreamlake-datasets), or Python pipelines.
+description: Turn a natural-language data-production, labeling, or training goal into a complete DreamLake WorkflowSpec v1 JSON file (stages, typed compute/uda/sampler/control nodes, typed data edges), validate it against the bundled schema, publish it to the intended namespace with `dl workflow push`, report the canvas URL, and recover from validation failures or version questions. Use for "create / generate / design a workflow", "turn this description into a workflow", "push / publish this spec", or "why did validation fail". Not for the fixed video subtask-labeling workflow (video-labeling-workflow), verifying source paths (the `check` action of dreamlake-datasets), or Python pipelines.
 ---
 
 # DreamLake workflows

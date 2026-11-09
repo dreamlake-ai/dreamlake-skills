@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/organizations.md at 0.111.0 ac296b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/organizations.md at 0.112.0 0d1fe91; do not edit -->
 
 # Organizations
 
@@ -9,12 +9,12 @@ matching namespace.
 ## Manage organizations
 
 ```bash file="terminal"
-dreamlake org list
-dreamlake org show my-org
-dreamlake org create my-org --name "My Org" --description "..."
-dreamlake org update my-org --description "..."
-dreamlake org delete my-org          # must have no remaining projects
-dreamlake org leave my-org           # owners must transfer ownership first
+dl org list
+dl org show my-org
+dl org create my-org --name "My Org" --description "..."
+dl org update my-org --description "..."
+dl org delete my-org          # must have no remaining projects
+dl org leave my-org           # owners must transfer ownership first
 ```
 
 ## Members
@@ -23,10 +23,10 @@ Users are referenced by **email or name** — the CLI resolves them to a user
 id (an exact email is unambiguous).
 
 ```bash file="terminal"
-dreamlake org member list   my-org
-dreamlake org member add    my-org alice@example.com --role member
-dreamlake org member role   my-org alice@example.com --role owner
-dreamlake org member remove my-org alice@example.com
+dl org member list   my-org
+dl org member add    my-org alice@example.com --role member
+dl org member role   my-org alice@example.com --role owner
+dl org member remove my-org alice@example.com
 ```
 
 ## Permissions
