@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.130 e630d3c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.132 1601d304; do not edit -->
 
 # History and saved versions
 
@@ -408,4 +408,16 @@ The content hash identifies text, not the identity-bearing RTC baseline used
 for collaborative patches. Saving a version is a retained snapshot operation,
 not a content write. Use `note tag`, `note hist`, and `note read --version`
 for ordinary saved-version work. Retained-revision promotion and checkpoint/journal
-reads currently require authenticated REST; the Python SDK has no saved-version helpers.
+reads currently require authenticated REST. The current Python facade supports
+saved-version listing and reading:
+
+```python
+memo = dl.memos(memo_id)
+page = memo.versions.list()
+version = memo.versions.read(version_id=page.versions[0].id)
+```
+
+Only read an entry when the page is nonempty; continue with
+`memo.versions.list(before=page.next_cursor)` when a cursor is returned.
+A saved version is not a current write baseline. These helpers do not create
+versions, promote retained revisions, or provide a complete human edit audit.

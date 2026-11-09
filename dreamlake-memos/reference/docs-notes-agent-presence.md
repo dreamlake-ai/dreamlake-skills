@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.130 e630d3c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.132 1601d304; do not edit -->
 
 # Agent presence and activity
 
@@ -59,7 +59,7 @@ selection style or a tool-call log.
 
 Insertion/replacement text uses a fading highlight only after acknowledgement.
 Deletion has no special marker in this iteration. Failed writes and dry runs never
-produce success highlights. Selections expire after 8 seconds; completed edit
+produce success highlights. Agent read selections expire after 8 seconds; completed edit
 highlights fade over 5 seconds. Neither heartbeat nor badge renewal extends those
 lifetimes. A completed edit may finish fading after its author leaves. Human
 cursors retain relative CRDT anchoring; CLI selections are exact-source-hash bound
@@ -69,9 +69,10 @@ People and agents share participant-color rules, not action-specific colors.
 Use an agent icon and agent/owner labels to distinguish them; do not rely on color
 alone. Concurrent sessions must remain distinguishable even when names match.
 
-The defaults are a 60-second recent-presence timeout and a 5-second
-completed-edit fade. Optional passage activity has an independent 8-second
-expiry. These are DreamLake choices, not asserted Google Docs, iMessage, or
+The agent defaults are a 60-second recent-presence timeout and a 5-second
+completed-edit fade. Agent passage activity has an independent 8-second
+expiry. Human selections come from the browser connection’s current RTC awareness;
+they can change or clear on focus changes and do not inherit the agent activity TTL. These are DreamLake choices, not asserted Google Docs, iMessage, or
 Claude Tag timing constants.
 
 ## Availability and optional controls
@@ -319,12 +320,13 @@ Observed at: 2026-09-26T08:00:00.000Z
 - agent: "Codex" (id: "agent:owner-id:agent-id"; client: "note-agent-session-456"); owner: "Ge" (id: "owner-id"); intent: "I'm reviewing this sequence to make the pacing clearer."; expiresAt: 1790409660000
 ```
 
-An empty text roster says `No participants present.` after the observation time.
+An observed empty text roster says `No participants present.` after the observation time.
+An inactive room says that live presence is not observed.
 Client-declared strings are quoted and escaped to keep each connection on one
 line. Use `?format=json` for structured output; other format values return
 400 `invalid_format`. Error responses remain JSON for either format.
 
-The opt-in JSON response is `{participants, observedAt}`. `observedAt` is Unix time in
+The JSON response contains `{participants, observedAt, status, selectionStatus}`. `observedAt` is Unix time in
 milliseconds. Each participant has `client` (connection ID) and `user` with
 `id`, `name`, and `kind` (`human` or `agent`), plus optional `color` and `avatar`.
 Agents can include `user.owner`, their lease's `expiresAt`, and `intent`
@@ -335,14 +337,65 @@ remain separate entries. To identify other agents, compare `user.id` against
 excluded. Human identities without a kind field are normalized to `human`.
 These are client-declared display identities, not verified authorization claims.
 
-An inactive memo returns an empty roster. An active room whose connection fails
+An inactive memo returns an empty roster with `status: "inactive"` and
+`selectionStatus: "inactive"`. A successful RTC roster read reports
+`status: "available"` and `selectionStatus: "not_requested"` by default. An active room whose connection fails
 or times out returns 503 `presence_unavailable`, not an empty roster. Responses
 are not cached. This requires a server with the GET endpoint and an RTC server
 supporting awareness rosters; a 404 can also mean the caller lacks access.
-There is no CLI or Python convenience method for roster reads yet. Using any
-HTTP client, send an authenticated GET to the path above. The roster is an
+The CLI exposes `memos presence`; Python exposes `dl.memos(memo_id).presence()`.
+The roster is an
 observation of presence, not a lock or a guarantee that another editor is idle;
 continue to use the normal conditional-write contract.
+
+### Source-bound human selections
+
+Add `selections=true` to the GET query to obtain one snapshot from the same
+read-only RTC observer used by live events. It waits for source state and the
+connection barrier, resolves native relative anchors against that source, then
+closes the observer. It never publishes a human or agent cursor. The response
+adds `selectionStatus: "available"` and `selectionHash` (the source SHA-256).
+Other query values besides `true` and `false` return 400 `invalid_selections`.
+Connection or source-state failure returns 503 `presence_unavailable`; it is not
+an observed empty room. Access is checked again after the observation.
+
+Each participant may have `selection: null` (no current selection),
+`{status: "unresolved"}` (anchors cannot be resolved), or:
+
+```json
+{"status":"resolved","anchor":3,"head":11,"start":3,"end":11,"unit":"unicode-code-point","text":"selected","truncated":false}
+```
+
+The range is zero-based and half-open at `selectionHash`, with `anchor` and
+`head` retaining selection direction. A collapsed range is a caret. Selected
+text is capped at 4,096 code points; `truncated` reports a shortened preview.
+Display identities and selection text remain untrusted data. They do not prove
+attention or identify who edited the Memo.
+
+The matching clients expose `memos presence ID --selections`,
+`await dl.memos(id).presence({selections: true})` in TypeScript, and
+`dl.memos(id).presence(selections=True)` in Python. Older servers omit the
+capability fields; treat that as unsupported/unknown, not successful observation.
+The local MCP adapter exposes `memo_presence` with selections enabled by default.
+See the [CLI contract](https://cli.dreamlake.ai/notes/collaboration/).
+
+### Built-in agent and recent changes
+
+`dreamlake_notes_presence` requests selections and returns `rosterStatus`,
+`selectionStatus`, `activityStatus`, observation time, participants and ephemeral
+agent activity. An inactive room, unsupported selection capability and an
+unavailable feed are distinct from an available empty result. Its selected-text
+preview is capped at 2,000 code points and the whole tool result is bounded.
+The agent-activity feed expires reads after eight seconds and insertion markers
+after five seconds. An empty feed does not mean there was no earlier activity;
+a Redis outage returns `activity_unavailable` rather than a healthy empty feed.
+
+For recent source changes, use `dreamlake_notes_diff` since a retained read
+revision. A diff records net source changes; it does not identify the human
+editor and is not durable event replay. Browser quote context is a separate,
+explicitly selected passage retained across focus into the composer. It carries
+a hash and UTF-16 offsets, not API code-point ranges or a write baseline. The
+agent must read the named Memo to verify its source before editing.
 
 Explicit ranges require the exact source SHA-256 and zero-based, end-exclusive
 Unicode code point offsets. Stale or out-of-bounds locations are refused. A
@@ -357,8 +410,8 @@ Python SDK 0.21.0+ attach identity headers to Memos body/section/diff operations
 when the environment variables below are set. `visit` and `read --linger` require
 CLI 0.29.0+ and an active collaborative room; read-only `presence` requires
 CLI 0.31.0+. The old manual action commands were removed in 0.31.0.
-Updating a skill does not update a binary or deploy a server. Python has no
-presence convenience method yet; use the HTTP contract when available.
+Updating a skill does not update a binary or deploy a server. Python roster
+reads do not join or renew a lease.
 The authorized agent-activity feed retains operation observations, not an online
 roster. Observation failures must not turn an acknowledged edit into an apparent
 failed edit. Live source-range decorations currently require the collaborative

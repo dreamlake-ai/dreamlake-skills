@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.05-3-g9124967",
+  "version": "v2026.11.08",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -61,12 +61,12 @@
       "files": 8
     },
     "dreamlake-memos": {
-      "description": "Work with DreamLake collaborative Memos through the CLI: find, read, edit with revision guards, save or recover versions, follow live collaboration, attach files and media, create memos, set summaries, file into Projects, link list items to Memos or artifacts, transfer a standalone Memo.",
+      "description": "Work with DreamLake Memos: read and edit with revision guards, inspect presence and human selections, compare recent changes, follow collaboration, manage versions and files, create or summarize memos, file into Projects, link resources and transfer ownership.",
       "requires": [
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 14
+      "files": 15
     },
     "dreamlake-scenes": {
       "description": "Build, validate and publish MuJoCo (MJCF) and URDF scenes on DreamLake: source and measure assets, derive placements, author the base scene, compose layered stacks, validate physics per body, package, push, preview, pull back byte-identical, version, delete and restore.",

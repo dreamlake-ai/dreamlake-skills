@@ -1,6 +1,28 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.109.0 9f5a92b; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.110.1 25b3739; do not edit -->
 
 # Release notes
+
+## 0.110.1 — Latest-only artifact sharing
+
+`artifact share latest-only <id> on|off` changes recipient version access without
+uploading content or changing the link. `share create` and `artifact push` accept
+`--latest-only` and `--no-latest-only`; omission preserves the policy.
+`share get` reports `shareLatestOnly`. The TypeScript API adds
+`artifacts(namespace).share(id).latestOnly(boolean)` and accepts
+`shareLatestOnly` in publishing/registration input. See [Artifact sharing](cli-artifacts.md#share-only-the-most-recent-version).
+
+## 0.110.0 — The dl command
+
+Native installers and npm now provide `dl` alongside `dreamlake`, with the same
+commands, arguments, settings, credentials, and exit status. The executable
+works in Bash, Zsh, Fish, sh/dash, PowerShell, CMD, and scripts. Native installs
+preserve unrelated `dl` commands and report conflicts.
+
+For an older native installation, re-run the bootstrap installer to add `dl`,
+or update and then run `dreamlake install --no-modify-path`. Subsequent native
+updates maintain both names; npm updates and uninstall manage both bin entries.
+See [installation](cli-installation.md#the-dl-command) for exact pins, PATH, completion,
+conflict handling, and uninstall.
 
 ## 0.109.0 — Editable public article URLs
 

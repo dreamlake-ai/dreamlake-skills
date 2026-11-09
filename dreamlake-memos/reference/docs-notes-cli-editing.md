@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.130 e630d3c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.132 1601d304; do not edit -->
 
 # Read, edit and search from the CLI
 
@@ -49,22 +49,33 @@ for a guarded edit. See the current [CLI read contract](https://cli.dreamlake.ai
 
 ### Python SDK read
 
-Python SDK **0.41.0** exposes the canonical `memo` handle. With the SDK installed
-and the intended account logged in, retain one complete snapshot:
+Python SDK **0.41.0+** exposes the canonical `memos` facade. With the SDK
+installed and the intended account logged in, retain one complete snapshot:
 
 ```python
 import dreamlake as dl
 
-memo = dl.memo("<full-memo-id>")
-snapshot = memo.read_snapshot()
+memo = dl.memos("<full-memo-id>")
+snapshot = memo.read(view="source")
 print(snapshot.content)
 # Retain snapshot.revision and snapshot.hash with this original source.
+changes = memo.diff(since=snapshot.revision)
+print(changes.patch)
 ```
 
-Use the actual full ID returned by DreamLake. The older `note` and `create_note`
-entry points remain compatibility aliases in this release; new examples use
-`memo` and `create_memo`. SDK configuration and login are documented in the
-[Python SDK guide](https://py.dreamlake.ai/memos).
+The facade's `diff(since=...)` accepts a retained RTC revision or prior read
+result, reads that retained source and verifies the resulting net diff. It does
+not identify the human editor or advance a write baseline. Missing retained
+source is an error, not an empty diff. With Python 0.43.0+ and matching server
+support, `memo.presence(selections=True)` observes human selections; inspect its
+availability fields before interpreting an empty roster. See
+[agent presence](docs-notes-agent-presence.md#source-bound-human-selections).
+
+Use the actual full ID returned by DreamLake. `dl.notes` remains an alias for
+the facade. The lower-level `dl.memo`/`dl.note` interfaces below remain available;
+their `read_snapshot` and hash-based `diff` contract differs from the facade's
+revision-based `diff`. Do not interchange those inputs. SDK configuration and
+login are documented in the [Python SDK guide](https://py.dreamlake.ai/memos).
 
 {/* <!-- skill-entrypoint:end --> */}
 
