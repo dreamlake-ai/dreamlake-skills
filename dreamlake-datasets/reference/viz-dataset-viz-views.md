@@ -32,12 +32,29 @@ becomes a family of traces. Here the two action columns are target x/y positions
 `unit: px` labels their stored units without converting them. Use an explicit
 `yRange` when comparing the same signal across episodes.
 
+`lineWidth` sets the chart-wide width in CSS pixels (default 2); a series entry's
+`width` overrides it. `activeLineWidth` sets the emphasized width when series
+identification is active, with a floor at the resolved base width. By default
+active traces use 1.65 times that base. These options pass through to
+[`EpisodeLineChart`](https://viz.dreamlake.ai/components/episode-line-chart#line-width-and-active-emphasis),
+including `highlightOnHover: true` when pointer identification is wanted.
+Keep reference traces readable with `dash` and `opacity` instead of hairline widths.
+
 ## trajectory2d
 
 An xy path shows where the target moved. The view uses columns named `x` and
 `y`, or the first two columns. `invertY` defaults to image coordinates; set it
 to `false` for upward-positive y. A `window` limits the displayed path to seconds
 around the cursor.
+
+Set `lineWidth` for the whole view (default 2 CSS pixels), and `width` on a
+`series` entry to override one path. `activeLineWidth` sets the recent trail's
+width; its default is 1.65 times the path width, and an explicit value never
+thins the base path. This changes stroke styling only: coordinates, missing-value
+gaps, cursor lookup and seek times keep their existing behavior. Widths do not
+scale with the SVG viewBox. Zero hides both the base and trail strokes but keeps
+the cursor marker and recorded data. Negative or non-finite values use the same
+fallback rules as the [line chart](https://viz.dreamlake.ai/components/episode-line-chart#line-width-and-active-emphasis).
 
 ## timeline
 
