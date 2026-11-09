@@ -1,6 +1,30 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.112.1 2a2fef0; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.114.0 d5d1409; do not edit -->
 
 # Release notes
+
+## Unreleased
+
+- `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.114.0 — Session aliases and search
+
+Use `dl sess`, `dl session`, or `dl sessions`, and `--sess` or `--session`.
+`dl sess search "release"` shares the existing list filters and pagination.
+`--search-in title|all` and the TypeScript `searchIn` field select title-only or
+broad search; title-only search requires the companion API release. Searches
+retain existing access checks and never launch a session.
+
+CLI output and SDK types preserve observation timestamps, the last observed
+state, and outstanding attention when current state becomes unknown.
+See [session commands and search](cli-sessions.md#command-aliases-and-search-01140).
+
+## 0.113.0 — Memo cover images
+
+`dl memos cover` (`title-image` alias) inspects, uploads, replaces and removes
+header images without editing the memo body. TypeScript handles expose
+`metadata()` and `setCover({fileId})`; namespace APIs expose `setCover(id, fileId)`.
+Use an existing attachment ID or null to clear. Permission checks and explicit
+acknowledgements prevent unsupported writes from being reported as saved.
 
 ## 0.112.1 — Bundled dl command guidance
 

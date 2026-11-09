@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.134 2292baa2; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.137 63222fe7; do not edit -->
 
 # Browser terminal
 
@@ -43,6 +43,74 @@ Custom commands are limited to 4096 bytes on one line. For example,
 newlines and control characters.
 
 ## Saved agent sessions
+
+### Session core interfaces
+
+Saved session identity is the DreamLake registry ID plus the provider/native UUID
+and exact enrolled host, machine and Unix-user binding. `vendorSessionId` is the
+provider UUID; the historic `codexSessionId` field is retained for compatibility.
+A display title, namespace, online machine or first search result is not a default
+SSH target. Resolve the caller-selected host/session explicitly; refuse ambiguity.
+
+| Interface | Core read/search contract | Boundary |
+| --- | --- | --- |
+| REST | `GET /namespaces/:ns/terminal-sessions`, `/terminal-sessions/available`, `/:id/metadata`, and owner `/sessions/attention` | `q`, `searchIn=title|all`, provider/machine filters and bounded cursors; read authority unchanged |
+| GUI | Session registry and `/session` command results | Search/panel opening does not start a provider; terminal connection is explicit |
+| CLI / TypeScript | Existing `sessions` command and `client.sessions` API; companion release adds search scope and CLI aliases | Exact registry IDs and existing target resolution; no implicit host |
+| Python | Companion SDK `DreamLakeClient().sessions`: list/search/available/get/attention/targets/target/reference | Read-only; no PTY or provider start |
+| Built-in agent | `dreamlake_sessions_list` and `dreamlake_session_get` | Search scope, fresh state, durable attention, binding metadata and native memo references; caller authorization retained |
+| GraphQL | No session-registry query or mutation is exposed | Use REST; unrelated GraphQL resource queries do not imply session parity |
+| External MCP | No standalone session-registry MCP server is exposed by these repositories | Built-in tool plugins are not an MCP publishing endpoint; external MCP projection is deferred |
+
+`searchIn=title` matches saved titles case-insensitively before pagination;
+`all`/omission preserves broad metadata/body search under existing visibility
+rules. Change filters by starting a new cursor sequence. Client releases that
+send this option require the matching API deployment; an older server ignoring
+an unknown query field is not title-search acceptance.
+
+The descriptor's `runState` is fresh-only (45 seconds), while `lastRunState` and
+`attention` preserve the last report. Stale `unknown` is neither stopped nor
+resolved. `archiveOnly`, `canManage`, target/enrollment/machine/username and
+observation timestamps describe binding and authority; they do not prove an SSH
+connection is open. `GET /namespaces/:ns/hosts/terminal-targets` and saved-session
+`/:id/target` resolve current authorized transport metadata without issuing an
+attach ticket. PTY, forwarding and native transcript UI additions are deferred.
+
+Discovery remains per enrolled Unix user. Use separate config, credentials,
+state/cache paths and service identities for separate users. The current host
+enrollment path refuses a different user/key under an existing host name with
+`host_identity_conflict`; a schema that includes Unix user does not establish a
+supported multi-user installer. No privileged cross-user discovery is provided.
+
+### `/session` title search
+
+In the command palette, type `/session reconnect` to search saved session titles
+in the selected command namespace. Results show the provider and enrolled machine.
+Enter opens the highlighted saved-session panel; the separate Open session action
+connects its terminal.
+Shift+Enter opens its page in a new browser tab. The command namespace is distinct
+from the active agent conversation's namespace. Searching launches nothing.
+
+The command uses `q=reconnect&searchIn=title` on the existing session listing API.
+`searchIn=all` or omission retains the existing broad search.
+Title filtering happens before pagination and retains the existing read permissions.
+It does not search transcript bodies or grant terminal access. Use Python SDK 0.45.0 or later for `client.sessions.search(..., search_in="title")`.
+CLI 0.114.0 adds `dl sessions search --search-in title` and the `sess`/`session` aliases.
+
+Opening reuses the existing managed tmux path and explicit foreground fallback
+when tmux is unavailable. Resuming saved app history is distinct from attaching
+an arbitrary running process; an existing native writer remains protected.
+Transport retries attach only. A foreground session is nonpersistent and cannot
+be shared; disconnecting may end its process.
+
+Nymph 0.1.39 registers valid Codex names/titles and Claude
+explicit log/index titles, using summaries only where applicable. Blank names
+cannot hide a usable title, and manual server-side names remain unchanged.
+Codex startup history is paged without the previous seven-day cutoff; new sessions
+keep priority. History backfill restarts with the daemon and excludes archived and
+child sessions. It never generates names from raw prompts or uploads transcripts.
+Upgrading a client does not upgrade an enrolled daemon; inspect its installed version
+before expecting this backfill behavior.
 
 **Provider discovery requirements:** Claude discovery and observed
 run states require **Nymph 0.1.31+**, **DreamLake CLI 0.77.0+** for the new CLI

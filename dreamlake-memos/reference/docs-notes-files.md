@@ -1,6 +1,41 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.134 2292baa2; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.137 63222fe7; do not edit -->
 
 # Files and attachments
+
+## Cover image
+
+Use **Add cover** above a memo's title to upload a PNG, JPEG, GIF, WebP, AVIF or
+SVG image. **Replace cover** uploads another image; **Remove cover** clears the
+header image while keeping the attachment available in Files. These controls
+are available to people who can edit the memo's title and metadata. Readers see
+the image without editing controls, including on public and unlisted articles.
+
+A cover uses the memo's attachment permissions and persists separately from the
+collaborative body. The REST metadata update accepts `coverFileId`, an image
+attachment ID belonging to the same memo, or `null` to remove the cover.
+An omitted field preserves the existing cover. No body write or RTC operation
+is needed. Duplicating a memo maps the cover to the copied attachment. Trashing a
+cover attachment makes its image unavailable; removing the cover never trashes it.
+
+The header uses text width and a graded frost behind the title and filing controls.
+Replace/remove are icon buttons with hover labels; touch labels dismiss after one second.
+
+```bash
+dl memos cover "$NOTE_ID" --file ./cover.png
+dl memos cover "$NOTE_ID" --file-id "$FILE_ID"
+dl memos cover "$NOTE_ID" --remove
+```
+
+`title-image` is an alias for `cover`. CLI and TypeScript support starts in 0.113.0;
+Python support starts in 0.44.0. Inspect with `dl memos cover "$NOTE_ID" --json`.
+TypeScript exposes `memo.metadata()` and `memo.setCover({fileId})`; Python exposes
+`memo.metadata().cover_file_id` and `memo.set_cover(file_id=...)`. Upload through
+the existing Memo files API before selecting a cover in either SDK.
+
+GraphQL `Note.coverFileId`, the built-in `dreamlake_note_update` tool's
+`coverFileId`, and MCP `memo_cover_set` use the same attachment-ID/null contract.
+MCP is a source adapter, not a separately published package. All writes enforce
+existing metadata permission and retain the body and live collaboration.
 
 ## Files
 

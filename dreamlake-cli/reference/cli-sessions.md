@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.112.1 2a2fef0; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.114.0 d5d1409; do not edit -->
 
 # Terminal sessions
 
@@ -543,6 +543,44 @@ memo read or save. Legacy `DREAMLAKE_AGENT_ID` still supplies Memos presence and
 agent attribution. Session context does not change permissions or create a
 managed terminal session, and it is sent only to supported resource routes.
 This capability requires the companion resource activity backend release.
+
+## Command aliases and search (0.114.0+)
+
+`dl sessions`, `dl session`, and `dl sess` are interchangeable. Commands that
+accept `--session` also accept `--sess`, including registration, creation,
+heartbeat/events, watching, and command filtering or broadcast. The identifier
+retains its existing meaning: native UUID for register/create, saved session ID
+for watch/control. Aliases do not change permissions or launch behavior.
+
+```bash cli-help="sessions search"
+dl sess search "tmux"
+dl session search "release" --machine MACHINE_ID --sort recent
+dl sess search "release" --search-in title
+dl sessions search "RTC" --owner geyang --page-size 25 --json
+```
+
+`search "query"` is the explicit form of `list --query "query"`. It accepts the
+same namespace, scope, owner/team, machine, sort, archive, and pagination filters.
+Continue with the returned `--cursor` and the same query and filters. Searching
+never starts, resumes, or attaches to a session and does not scan remote files.
+The existing `dl sessions --query "query"` form remains supported.
+
+Use `--search-in title` to search session titles only, or `--search-in all` for
+metadata and uploaded conversation text (the default). The TypeScript SDK accepts
+`sessions(namespace).list({ q: "release", searchIn: "title" })`; `available()`
+accepts the same search fields alongside owner/team filters. Keep `searchIn`
+unchanged when continuing with a cursor. Title-only search requires the companion
+API release.
+
+List/search and metadata reads preserve the session's provider/native ID and
+host/enrollment/machine/user binding. `runStateObservedAt` and
+`metadataObservedAt` date the observations; `lastActivityAt` dates activity.
+When current state becomes unknown, `lastRunState` preserves the last observation
+and `attention` retains `needs_input` or `error` until a newer observation clears
+it. CLI text output shows that attention alongside the last observed state;
+JSON and the TypeScript SDK retain the fields. These fields do not report the
+health of the local collector. Watch backlog and retry diagnostics remain Nymph
+log events.
 
 ## Search scope and access
 

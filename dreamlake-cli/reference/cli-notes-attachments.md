@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.112.1 2a2fef0; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/attachments.md at 0.114.0 d5d1409; do not edit -->
 
 # Attachments
 
@@ -155,3 +155,34 @@ A shared link opens without sign-in and does not expire. Revoking it withdraws
 all copies of that link. This is distinct from publishing the memo itself.
 
 Next: [Memos](cli-notes.md).
+
+## Header cover image
+
+CLI and TypeScript 0.113.0 add an optional cover, separate from the memo body.
+The `title-image` alias accepts the same arguments as `cover`.
+
+```bash cli-help="memos cover"
+# Upload or replace the header image; inspect the current attachment ID.
+dl memos cover "$MEMO_ID" --namespace team --file ./cover.png
+dl memos cover "$MEMO_ID" --namespace team --json
+# Select an existing image attachment, or clear the header while retaining it.
+dl memos cover "$MEMO_ID" --namespace team --file-id "$FILE_ID"
+dl memos cover "$MEMO_ID" --namespace team --remove
+```
+
+Use only one of `--file`, `--file-id` and `--remove`. Supported images are PNG,
+JPEG, GIF, WebP, AVIF and SVG. Uploads use a new attachment path; replacing or
+removing the cover never deletes older files. If a metadata update is unconfirmed,
+inspect the current cover and retained attachment before retrying.
+
+```typescript
+const memo = client.memos("team/<memo-id>")
+await memo.setCover({fileId: imageAttachmentId})
+console.log((await memo.metadata()).coverFileId)
+await memo.setCover({fileId: null})
+```
+
+Namespace SDK callers can use `client.memos.namespace("team").setCover(memoId, fileId)`.
+Upload bytes with the existing Memo files API first. The server checks metadata
+permission and that the image belongs to this memo. Body content and RTC state
+are unchanged.

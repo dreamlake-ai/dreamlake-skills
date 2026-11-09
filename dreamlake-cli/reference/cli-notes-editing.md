@@ -1,10 +1,64 @@
-<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.112.1 2a2fef0; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.114.0 d5d1409; do not edit -->
 
 # Editing with patches
 
 A patch describes changes to the source you read. Save that source and its
 revision, submit the patch against that original revision, then verify the
 acknowledgment. **MERGE is the default; EXACT is an option for one request.**
+
+## Reviewed prose and prompt revisions
+
+Requires CLI 0.114.0 or later and a named-version writer that preserves the
+requested opaque revision. A mismatched version receipt is refused before
+content editing; matching text alone does not establish exact revision identity.
+
+`memos revise` combines a reviewed source snapshot, concrete presence intent,
+pending redlines and verified immutable before/after checkpoints. Existing
+low-level edits remain available for targeted operations and recovery.
+
+```bash cli-help="memos revise"
+dl memos read MEMO_ID --json > baseline.json
+# Review baseline.json and prepare proposed.md from its exact content.
+dl memos revise MEMO_ID --baseline baseline.json --file proposed.md \
+  --intent "Clarify the proposed evaluation criteria." --label evaluation-criteria \
+  --receipt revision-receipt.json
+```
+
+The default stores pending native suggestions, preserving the author's wording.
+Use `--direct` when the current instruction authorizes direct replacement, such
+as updating an agent-owned working prompt. A request to review an essay does
+not by itself authorize replacement. Existing pending suggestions and changes
+to code/frontmatter that cannot be represented as suggestions are refused;
+retain the proposal and use a targeted supported edit rather than accepting
+unrelated suggestions.
+
+Resource directives are preserved byte-for-byte, including attributes,
+fragments and repeated references. Do not flatten them into links or IDs.
+Use `--allow-reference-changes` only for an intentional reference change;
+this check is conservative, including code examples. Use each resource's
+supported authoring syntax: native artifact/experiment/project/folder directives,
+ordinary links for new Memos, and preserved saved `:note[...]` references.
+
+The command requires a stable `DREAMLAKE_AGENT_ID`, validates intent before
+requests, and publishes it with the existing presence API. Identity, presence
+intent, version summary and native session identity remain distinct. Both
+checkpoint summaries describe the change; saved IDs, revision, full text and
+hash are read back and verified. Before editing it checks the live revision
+against the reviewed baseline, then submits one exact patch with a recorded
+command ID. A concurrent change stops the operation.
+
+`--receipt` must name a new local file. It holds source and write evidence under
+mode 600, is updated at each stage, and is never automatically replayed. After
+a failure, inspect its stage: `before-saving` or `after-saving` means reconcile
+`memos hist` and read candidate immutable IDs before another version save;
+`write-submitting` means inspect `memos command-status` with its recorded ID;
+`write-acknowledged` means the content succeeded and only verification/checkpoint
+work remains. Saved version IDs are recorded before readback. Never rerun a
+successful content write to recover a version or session link. A new receipt
+is for a deliberately reviewed new operation, not a retry. If another edit
+follows the acknowledgment, recover the retained revision separately instead
+of tagging someone else's draft. `--dry-run` creates no receipt, presence,
+version or content write. Receipts contain private source: retain them locally.
 
 ## Try a complete edit
 

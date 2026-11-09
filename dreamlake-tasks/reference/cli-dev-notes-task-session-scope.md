@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/dev/notes/task-session-scope.md at 0.112.1 2a2fef0; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/dev/notes/task-session-scope.md at 0.114.0 d5d1409; do not edit -->
 
 # Task session scope defaults
 
