@@ -1,5 +1,9 @@
 # Public DreamLake skills
 
+Prefer `dl` in CLI examples and agent instructions. Retain `dreamlake` for
+compatibility and missing-command/conflict recovery; keep package names, paths,
+environment variables, services, and process-matching identifiers unchanged.
+
 The docs sites (docs.dreamlake.ai, cli.dreamlake.ai, viz.dreamlake.ai) are the
 source of product facts: commands, flags, APIs, behaviour. This repository is
 the source of task procedures: when to use a skill and the steps, exceptions
