@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.114.0 d5d1409; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.115.0 8cef4e5; do not edit -->
 
 # Terminal sessions
 
@@ -581,6 +581,18 @@ it. CLI text output shows that attention alongside the last observed state;
 JSON and the TypeScript SDK retain the fields. These fields do not report the
 health of the local collector. Watch backlog and retry diagnostics remain Nymph
 log events.
+
+## Codex root binding (0.115.0+)
+
+With CLI/TypeScript **0.115.0+** and the companion API root-binding release,
+Codex descriptors may include
+`codexHome`, the canonical absolute state directory on the enrolled host. The
+TypeScript SDK exposes it on `Session` and accepts it in `terminal(namespace).create()`.
+The saved session and its launch descriptor must name the same root; reopening
+that session preserves it. The host checks that the root belongs to the enrolled
+Unix user. A missing root keeps legacy behavior. It does not select another host
+or user, and the CLI does not substitute its local `CODEX_HOME`. Root selection
+does not add a CLI flag or change terminal interaction.
 
 ## Search scope and access
 

@@ -1,10 +1,19 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.114.0 d5d1409; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.115.0 8cef4e5; do not edit -->
 
 # Release notes
 
 ## Unreleased
 
 - `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.115.0 — Exact Codex root binding
+
+Saved Codex sessions retain their explicit `codexHome` when reopened. The CLI
+requires the session and launch descriptor to agree on the canonical remote root;
+omitted roots keep legacy behavior. The TypeScript SDK exposes `Session.codexHome`
+and accepts it in `terminal(namespace).create()`. This requires the companion
+API/gateway root-binding release. No new flags or terminal interaction are added.
+See [Codex root binding](cli-sessions.md#codex-root-binding-01150).
 
 ## 0.114.0 — Session aliases and search
 

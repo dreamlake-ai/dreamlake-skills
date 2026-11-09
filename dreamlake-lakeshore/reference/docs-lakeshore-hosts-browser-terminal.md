@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.137 63222fe7; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.138 7bdb0f5e; do not edit -->
 
 # Browser terminal
 
@@ -361,8 +361,9 @@ files, and an explicit `enabled = true` keeps discovery on. See
 With **nymph 0.1.29 or later**, session discovery enabled and the matching
 product API on an enrolled machine, new local Codex
 sessions are registered automatically from the local SQLite metadata index.
-Nymph checks local index/WAL metadata every two seconds and sends bounded
-incremental batches. Newly discovered session titles update as Codex fills them
+Nymph checks local index/WAL metadata and sends bounded incremental batches.
+With multiple roots, one root is visited per two-second tick; a complete pass takes
+at least two seconds per root, plus I/O and retries. Newly discovered session titles update as Codex fills them
 in. Custom names, older saved names and sharing choices stay unchanged.
 It never uploads conversation or terminal contents. Missing or locked indexes and upload failures leave existing
 saved entries intact; retries are bounded. The visible session picker refreshes
@@ -380,11 +381,64 @@ credentials and conversation contents. Upload backoff can reach five minutes
 after repeated API failures; a recovered API does not reset an already-running
 daemon's retry timer.
 
-Nymph uses its configured Codex home, then inherited `CODEX_HOME`, then
-`~/.codex`. For a custom home, the terminal user environment must use the same
-`CODEX_HOME` to resume that conversation; saving metadata does not change the
-terminal environment. Older conversations outside the recent seven-day window
-can still be saved explicitly.
+### Multiple provider roots and exact resume
+
+Nymph 0.1.40 adds `include_default_roots` (default `true`) and `codex_homes`.
+With defaults enabled, discovery unions `~/.codex`, inherited `CODEX_HOME`, the
+legacy explicit `codex_home`, and `codex_homes`. Claude similarly unions
+`~/.claude`, inherited `CLAUDE_CONFIG_DIR` and `claude_config_dirs`. A custom
+environment root no longer replaces the default root.
+
+```toml
+[sessions]
+enabled = true
+include_default_roots = true
+codex_homes = ["/home/alice/.codex-work", "/home/alice/.codex-personal"]
+claude_config_dirs = ["/home/alice/.claude-work"]
+```
+
+Set `include_default_roots = false` to collect only explicit roots. The legacy
+`codex_home` remains an explicit root. Empty explicit lists with defaults disabled
+collect no roots. Paths are canonicalized, deduplicated and restricted to
+directories owned by the enrolled Unix user. Only the first 32 explicit entries
+per provider are probed; default roots and the singular legacy Codex root retain
+their slots. Missing roots are checked again periodically. Configuration changes
+require the normal daemon restart; discovery does not create users, inspect
+other users' home directories or change their services.
+
+Each Codex root has its own cursor and retry state, while roots share the existing
+per-tick upload/read budgets. Fresh metadata is checked during history backfill.
+Replacing an index at the same pathname restarts bounded history discovery.
+Removing a Claude root excludes its cached observations. A sustained backlog is
+reported through rate-limited service diagnostics; large histories and many roots
+can take longer to appear. Native status probes also rotate across roots, so a
+stale observation can become `unknown` before the next successful probe.
+
+The matching API and SSH gateway retain an optional `codexHome` in the saved
+session and Codex launch descriptor. It is an absolute canonical remote path,
+limited to 4096 UTF-8 bytes. It is part of registry, runtime and tmux identity:
+the same conversation UUID in two roots remains two distinct bindings. Launches
+set the exact saved `CODEX_HOME`, regardless of the interactive shell's default.
+CLI and TypeScript SDK 0.115.0 or later preserve that value, as does the
+matching browser release. Python SDK 0.45.0 keeps server-provided root fields in
+its read-only descriptor responses. Substituting or omitting the root of a bound
+session is rejected before launch. Root-aware clients require
+the matching API/gateway rollout; upgrading Nymph alone is insufficient.
+
+Existing descriptors with an absent or null top-level root keep their legacy
+behavior. They are not silently adopted into a new root binding; legacy and
+root-bound entries can coexist. UUID-only registration cannot select a root
+implicitly. The metadata update binding must include the exact `codexHome` for
+a bound Codex session. The API checks equality; the remote execution path checks
+that the directory still exists, is canonical and belongs to the enrolled user.
+
+Local responsiveness measurements use real collectors, the actual signed
+drain/poll loop, a separate control-request comparison and an authenticated
+OpenSSH stream with synthetic same-user data. They
+are separate from unit budget tests and do not establish production heartbeat,
+WebSocket relay, battery or fleet-wide latency guarantees. Reproduction steps and
+workload limits are documented in the
+[Nymph measurement harness](https://github.com/dreamlake-ai/nymph/blob/main/docs/session-responsiveness.md).
 
 A session created in a normal local terminal cannot be moved into a browser
 terminal. Opening its saved entry uses DreamLake's supported terminal runtime;

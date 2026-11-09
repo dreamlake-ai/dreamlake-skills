@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.137 63222fe7; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.138 7bdb0f5e; do not edit -->
 
 # Asset Libraries
 
@@ -288,9 +288,17 @@ of the metadata (768-d), stored as a platform artifact alongside the
 manifest. At query time the server embeds your query text in-process — an
 fp16 ONNX SigLIP2 text tower ships inside the server, no external service —
 then fuses vector similarity with the keyword ranking and marks the response
-`semantic: true`. Because SigLIP2 is multilingual, non-English queries work:
-keyword tokenization is ASCII-only, so a Chinese query carries no keyword
-tokens and ranks by vector alone.
+`semantic: true`. SigLIP2 supports multilingual query encoding; retrieval quality
+still depends on the library's images and should be checked with actual queries.
+Keyword search also retains Chinese text, but it only matches the metadata
+lexically: it does not translate a Chinese query into English asset names.
+Without usable vectors or matching metadata, a non-empty query returns no hits;
+it never becomes an unfiltered catalog listing.
+
+Entering a full asset ID (case-insensitive, surrounding whitespace ignored)
+returns only exact matches within the selected libraries and filters. The same
+ID may exist in several libraries. If no eligible exact ID exists, search uses
+the usual keyword/semantic ranking. Empty or whitespace-only queries browse.
 
 Semantic ranking is used only when the library's sidecar was produced by the
 **same model** as the active query encoder — `open_clip/ViT-B-16-SigLIP2/webli`.

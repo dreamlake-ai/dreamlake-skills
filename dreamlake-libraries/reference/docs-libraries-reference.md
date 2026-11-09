@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.137 63222fe7; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.138 7bdb0f5e; do not edit -->
 
 # Libraries Reference
 
@@ -98,14 +98,25 @@ Each hit carries exactly these fields (`/library-search` prepends
 | `license` | **Effective** license — the asset's own, else the library default. |
 | `entry` | The file a viewer opens, when declared. |
 | `thumbnailUrl` | Presigned GET, 900 s TTL; `null` when the asset has no thumbnail. |
-| `score` | Keyword relevance, or the fused score when `semantic: true`. |
+| `score` | Keyword relevance, the fused score when `semantic: true`, or `1` for an exact-ID lookup. |
 | `files` | `{count, bytes}` over the asset's own entries — the pull cost. |
 | `digest` | `sha256:<hex>` over the asset's sorted `path\nsha256\n` lines. Byte-identical to the CLI's digest, so equal digests mean a pull transfers nothing. |
 
 Keyword scoring matches query tokens against `title` (×3), `tags` (×2),
 `id` (×2), `description` (×1) — exact token = full weight, prefix = half.
-Tokenization is ASCII-only, so a non-Latin query yields no keyword tokens
-and ranks by vector alone when the semantic path is available.
+Tokens retain Unicode letters and numbers (including Chinese), normalize width
+and composition, and lowercase. Words match lexically; this does not translate
+Chinese into English or segment Chinese phrases. Only an empty/whitespace query
+browses the catalog. A non-empty query with no lexical matches and no usable
+vectors returns zero hits, including punctuation-only queries.
+
+When the trimmed query equals a full asset ID (case-insensitive) within the
+visible libraries and active filters, only exact-ID matches are returned.
+The same ID may occur in several libraries, and case-variant IDs may coexist
+in one library. All eligible exact matches are retained; non-exact hits are
+excluded across the whole search scope before counting and pagination. Exact-ID
+responses use `score: 1` and `semantic: false`. If there is no eligible exact ID,
+normal keyword/semantic search applies; token matches otherwise use OR semantics.
 
 Semantic ranking uses SigLIP2 image vectors of the thumbnails (text vectors
 substitute only for a sidecar that has no image rows at all), min-max

@@ -96,19 +96,48 @@ Dataset readers support specific layouts and encodings. Check the
 
 <span id="use-the-package" />
 
+## Install the package
+
+Install the public npm release into a React application:
+
+```bash
+npm install --save-exact @dreamlake/viz@0.28.5
+```
+
+The package includes ESM and TypeScript declarations. React and React DOM are
+peer dependencies. Components use Tailwind v4 utilities. In a stylesheet at
+`src/styles.css`, import the Viz styles and register its published source:
+
+```css
+@import "tailwindcss";
+@import "@dreamlake/viz/styles.css";
+@source "../node_modules/@dreamlake/viz/src";
+```
+
+Adjust the source path relative to your stylesheet. Set `data-theme="dark"`
+on the document element for dark mode. Import charts from `@dreamlake/viz`
+or `@dreamlake/viz/episode-line-chart`, dataset readers from
+`@dreamlake/viz/dataset-viz`, and file previews from `@dreamlake/viz/file-preview`.
+
+For a small embedded chart, use `size="compact"` (150px total height) or
+set an explicit `height`. Charts and timelines have transparent backgrounds
+by default; `background="subtle"` opts into a panel tint. The
+[compact example](https://viz.dreamlake.ai/components/episode-line-chart#compact-embeds) combines
+four charts with shared time and viewport state beside a video.
+
 ## Run the examples
 
-The package is currently private and consumed from TypeScript source in
-[viz-workspace](https://github.com/dreamlake-ai/viz-workspace). From a checkout:
+The [viz-workspace repository](https://github.com/dreamlake-ai/viz-workspace)
+uses local TypeScript source exports for development. From a checkout:
 
 ```bash
 pnpm install
 pnpm --filter docs dev
 ```
 
-Applications that include this workspace package import charts from
-`@dreamlake/viz`, dataset readers from `@dreamlake/viz/dataset-viz`, and file
-previews from `@dreamlake/viz/file-preview`.
+Maintainers can follow the repository's
+[release and consumer integration guide](https://github.com/dreamlake-ai/viz-workspace/blob/main/dev-notes/package-release.mdx)
+for npm tarball verification and documentation deployment.
 
 Existing `sources` / `panels` integrations use the separate
 [Schema API](https://viz.dreamlake.ai/schema-viz/overview). [Markdown exports](https://viz.dreamlake.ai/llm-readable) make these
