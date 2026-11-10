@@ -1,13 +1,13 @@
-<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.139 3428dd83; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.141 ef06aa08; do not edit -->
 
 # Project and Memo queries
 
-This reference describes the implementation branch. It does not establish that
-these fields are deployed to staging or production. Verify the target server's
-schema before switching a client. Existing mutation routes remain REST; Memo
-content, CRDT synchronization, and revision-protected editing are unchanged.
+The production Project read services enforce Workspace/Restricted policy from
+backend revision `d0efbb75`. Verify the target server's schema when using another
+environment. Project access-policy and grant-management mutations remain REST;
+Memo content, CRDT synchronization, and revision-protected editing are unchanged.
 
-## Restricted project access (implementation)
+## Restricted project access
 
 Project discovery, namespace profile counts, name search, direct ID/slug reads and tree queries use
 the project's effective access mode before pagination. `workspace` preserves
@@ -20,8 +20,11 @@ REST catalog responses include normalized `accessMode` on each project and
 `accessPolicy: { apiVersion: 1, modes: ["workspace", "restricted"], atomicCreate: true }`
 when the backend supports atomic restricted creation. Clients must check that
 capability before sending confidential creation intent to an older server.
-GraphQL uses the same underlying filtered read services; adding a REST field
-does not claim a new GraphQL mutation or field automatically exists.
+GraphQL uses the same underlying filtered read services. The GraphQL schema does
+not expose `accessMode`, the REST atomic-create capability, an effective-audience
+query, or Project policy/grant-management mutations. Do not copy REST fields into
+a GraphQL selection or invent equivalent mutations. Use the authenticated REST
+policy, audience and grant endpoints for those operations.
 
 [Project access management](https://docs.dreamlake.ai/workspaces/project-access) documents the policy
 and grants endpoints. Restricting a Project removes project-derived baseline
