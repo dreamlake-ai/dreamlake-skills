@@ -1,10 +1,28 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.117.0 6ff1564; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.119.0 4c56b6a; do not edit -->
 
 # Release notes
 
 ## Unreleased
 
 - `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.118.1 — Native file upload fix
+
+- Fix native run and project file uploads, including whole-run `.dash` uploads, sending an empty file when the source is a disk-backed Blob under Bun. Multipart requests now stream the original file bytes and preserve filenames, MIME types, size and checksum.
+- The existing native packaging check now uploads a disk-backed binary through a real HTTP receiver before a release can pass CI.
+
+## 0.118.0 — Native experiment parity
+
+- Transfer complete experiment runs with `dl experiments upload|download` in the
+  interoperable `.dash` format, preserving paths, metadata, Bindrs and protection.
+  Downloads verify files before replacing an existing local run; failed transfers
+  retain recovery state and the previous copy.
+- Manage native writer registration, inspection, rotation and retirement through
+  `dl experiments writers`; submit and inspect project-bound compute jobs through
+  `dl experiments jobs` and the TypeScript API.
+- Preserve Unicode, double quotes and literal percent sequences in native run and
+  project file uploads, including content replacement. The existing exported
+  FormData builder remains available for compatibility.
 
 ## 0.117.0 — Restricted Project sharing and terminal permissions
 

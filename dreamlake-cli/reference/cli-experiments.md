@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.117.0 6ff1564; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.119.0 4c56b6a6; do not edit -->
 
 # Experiments
 
@@ -32,8 +32,8 @@ dl experiments runs archive "$RUN_ID" --namespace fortyfive --project research
 dl experiments runs restore "$RUN_ID" --namespace fortyfive --project research
 ```
 
-Terminal runs can be moved to trash and restored without changing their
-archive state. Running runs must finish before deletion. Historical Dash runs
+Runs can be moved to trash and restored without changing their archive state.
+Lifecycle-enabled servers also allow running runs to be trashed; older servers require a terminal run. Historical Dash runs
 remain on the old service.
 
 ```bash cli-help="experiments runs delete"
@@ -184,3 +184,102 @@ network interruption.
 Binding administration preserves existing Dash workspaces for historical reads.
 It does not move their data or grant Dash data access. New native runs use
 DreamLake project permissions and storage.
+
+## Transfer complete experiments
+
+`dl experiments upload` and `download` use the interoperable `.dash` directory
+format. They use your selected DreamLake environment and existing `dl login`;
+they never send new data to the historical Dash service.
+
+```bash cli-help="experiments upload"
+dl experiments upload ./.dash --project 'fortyfive/research/*' --strict
+```
+
+```bash cli-help="experiments download"
+dl experiments download ./experiment-copy --project fortyfive/research --experiment trial_1
+```
+
+Transfers include run folders/names, description, tags, metadata, Bindr names,
+write protection, parameters, logs, metrics and run files. Both flat and directory
+metric layouts are accepted. Protection is applied after the run's data and labels
+are written. Files are checksum-verified and filenames preserve Unicode, quotes
+and literal percent sequences. Downloads are installed only after every selected
+section succeeds; `--overwrite` replaces a prior local run without appending its
+data again. A failed replacement leaves the previous local copy intact.
+
+Use `--dry-run` to inspect selection, `--target namespace/project/folder` to upload
+under another directory, and `--skip-logs`, `--skip-metrics`, `--skip-files` or
+`--skip-params` to omit sections. `--batch-size` controls log/metric batching;
+downloads also accept `--max-concurrent-metrics` and `--max-concurrent-files`.
+A failure exits nonzero and retains the state file. `--resume --state-file PATH`
+skips fully completed runs for the same server, local root and target. A partially
+written remote run can contain accepted appends: inspect it before repeating an
+upload; resume is not transactional rollback or append deduplication.
+
+Tracks are transferred separately as JSONL entries, or exported in a server format:
+
+```bash
+dl experiments upload --tracks pose.jsonl --remote-path fortyfive/research/trial_1/robot/pose
+dl experiments download --tracks fortyfive/research/trial_1/robot/pose --format mcap --output pose.mcap
+```
+
+The `parquet` server format returns Arrow IPC bytes, preserving the existing
+ML-Dash wire contract. A project/run selector can include folder paths or globs;
+ordinary `--project namespace/project` selects all of that project's runs.
+
+## Native writers and jobs
+
+Writers are metadata identities used to mint short-lived recording sessions.
+Create with a stable intent UUID; inspect before rotating or retiring an observed
+generation. Retiring is permanent and does not stop a compute process.
+
+```bash cli-help="experiments writers list"
+dl experiments writers list --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments writers create"
+dl experiments writers create --namespace fortyfive --project research --idempotency-key "$INTENT_UUID" --run-id "$RUN_ID"
+```
+
+```bash cli-help="experiments writers inspect"
+dl experiments writers inspect "$WRITER_ID" --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments writers rotate"
+dl experiments writers rotate "$WRITER_ID" --expected-generation 1 --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments writers retire"
+dl experiments writers retire "$WRITER_ID" --expected-generation 2 --namespace fortyfive --project research
+```
+
+Native jobs create their experiment run in this DreamLake project and dispatch to
+your explicitly configured host. The manifest contains `requestId`, `target`,
+optional `enrollmentId`, `execution: {kind: "uv-run", argv: ["script.py"]}`,
+`source: {files: [{path, contentBase64, sha256, mode: 420}]}` and optional
+`timeoutSeconds`. Files are explicit; no script or dependency is inferred from argv.
+Keep the original manifest and request ID after an uncertain submission.
+
+```bash cli-help="experiments jobs submit"
+dl experiments jobs submit --spec job.json --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments jobs list"
+dl experiments jobs list --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments jobs show"
+dl experiments jobs show "$JOB_ID" --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments jobs logs"
+dl experiments jobs logs "$JOB_ID" --namespace fortyfive --project research
+```
+
+```bash cli-help="experiments jobs cancel"
+dl experiments jobs cancel "$JOB_ID" --namespace fortyfive --project research
+```
+
+`show` returns the compute receipt and native experiment binding. Cancellation and
+logs first verify the job belongs to the selected project. A job's SDK logging
+context uses the worker broker; the compute receipt owns terminal status.
