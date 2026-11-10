@@ -1,10 +1,25 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.119.0 423a131; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.119.1 983b77d; do not edit -->
 
 # Release notes
 
 ## Unreleased
 
 - `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.119.1 — Source workspace skill
+
+- Bundle DreamLake skills `v2026.11.10.4`. Fresh `dl init` installations include
+  the guarded Source text-edit procedure and the published workspace-file guide.
+  The procedure requires an explicit Source, preserves revision checks and keeps
+  Project edits and associations separate from Source edits.
+
+## 0.119.0 — Agent chat and Source text workspaces
+
+- Chat with the server-owned built-in agent through `dl agent chat`, with streamed
+  receipts, conversation continuation and explicit opt-in writes.
+- List, read, create and edit managed Source text using `dl source files` and the
+  exported TypeScript file adapter. Edits use revision guards and literal
+  replacement; Project associations do not select a writable Source.
 
 ## 0.118.1 — Native file upload fix
 
