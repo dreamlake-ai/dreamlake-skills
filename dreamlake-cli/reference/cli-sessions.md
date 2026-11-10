@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.117.0 6ff1564; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.119.0 4c56b6a; do not edit -->
 
 # Terminal sessions
 
@@ -628,3 +628,14 @@ Historical built-in agent conversations are indexed on their next turn.
 The deterministic scope limit returns HTTP 422; narrow the query instead of
 retrying it. Listings with no keyword keep their existing pagination and do not
 enumerate all owner groups.
+
+## Unreleased memo native-result adapter
+
+The source adapter for memo-linked Codex tmux commands retains a transcript cursor
+before delivery and waits for the matching prompt and native terminal turn event.
+Browser disconnect does not resend the prompt. Retained cursors can reconcile
+late results without replay; missing or ambiguous terminal evidence remains
+unresolved. This adapter requires the companion memo-command backend and an
+explicitly owned runner/pane. It does not adopt an unbound managed terminal or
+infer its permission level. Claude tmux memo result collection is unsupported.
+This is unreleased integration work, not a live acceptance claim.

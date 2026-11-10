@@ -39,7 +39,8 @@ dl source files replace --help
 Check the installed command before selecting this procedure. If the command is
 unavailable, report that client gap; do not replace a guarded edit with an
 unconditional upload. Use the current [Source docs](../reference/cli-sources.md)
-and command help for selectors, limits and output fields.
+and [agent workspace guide](../reference/docs-agents-workspace-files.md) with
+command help for selectors, limits and output fields.
 
 1. Confirm the namespace, Source and intended workspace prefix. Keep each run's
    inputs and outputs together under a stable identifier; do not infer a shared

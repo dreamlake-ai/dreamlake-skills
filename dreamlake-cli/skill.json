@@ -64,6 +64,7 @@
     "https://cli.dreamlake.ai/vault-terraform-state",
     "https://cli.dreamlake.ai/vault-write-recovery",
     "https://cli.dreamlake.ai/workflows",
+    "https://docs.dreamlake.ai/agents/workspace-files",
     "https://docs.dreamlake.ai/workspaces/project-access"
   ],
   "tools": null
