@@ -1,4 +1,22 @@
-# Grant Project access and attach resources
+# Manage Project access and attach resources
+
+For interactive permission management, first check installed help, then open the
+exact Project in its owning namespace:
+
+```bash
+dl project permissions --help
+dl project permissions "$PROJECT_ID" --namespace acme
+```
+
+Inspect the audience and its contributing access paths before choosing a change.
+Follow the requested recipients and roles; review the exact Project identity,
+policy change and surviving access in the terminal preview before confirming.
+Cancel to leave a preview without writing. After an uncertain response, inspect
+current access before deciding whether another mutation is needed. Installed
+version and compatible-backend requirements are in
+[Interactive permissions](../reference/cli-projects.md#interactive-permissions).
+An unsupported capability is a stop, never a reason to weaken the requested
+restriction or create first and restrict afterward.
 
 Project attachment commands require CLI 0.62.0 and the companion Project-sharing
 backend release; `project inspect`, `grants`, `grant` and `revoke` require CLI
@@ -18,8 +36,11 @@ dl project detach research --namespace acme --type note --resource "$NOTE_ID"
 Grants target an existing active organization member or team and need the
 server's current grant-management authority; a 401/403/404 is a failure, not an
 empty list, and the commands never retry in another namespace. Grant rows alone
-do not describe effective access: organization members keep baseline Read on
-organization projects. Attach by database ID (an Artifact uses its database ID,
+do not describe effective access: inspect the current policy and full audience,
+including membership, owner recovery and public access paths. For selecting a
+subset, follow [Workspace or Restricted](../reference/cli-projects.md#workspace-or-restricted-project-access)
+and verify the policy after saving; do not infer it from private visibility or an
+empty grant list. Attach by database ID (an Artifact uses its database ID,
 not its `artifactId`); supported types are `note`, `artifact`, `annotation`,
 `workflow`, `env` and `source`. Attachment requires the Project's content-create
 permission plus the resource's own sharing-management permission; ordinary

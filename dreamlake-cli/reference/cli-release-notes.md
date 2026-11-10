@@ -1,10 +1,22 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.116.0 6de1dfd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.117.0 6ff1564; do not edit -->
 
 # Release notes
 
 ## Unreleased
 
 - `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.117.0 — Restricted Project sharing and terminal permissions
+
+`dl project permissions` selects an organization and Project, explains effective
+human access, and previews user/team grants, revocations and Workspace/Restricted
+changes before confirmation. `project audience --json` returns the same complete,
+bounded snapshot. `project access --mode restricted --visibility private` removes
+the organization-member READ baseline; explicit grants and owner recovery remain.
+Restricted creation is atomic and requires advertised backend support. Unsupported
+contracts and uncertain receipts stop without automatic retries. TypeScript gains
+matching access, audience and restricted-creation APIs. Independent attached-resource
+shares remain separate. See [Project permissions](cli-projects.md#interactive-permissions).
 
 ## 0.116.0 — Persistent remote tmux shells
 
