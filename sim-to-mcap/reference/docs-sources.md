@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.138 7bdb0f5e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.138 1b861762; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -102,6 +102,26 @@ wins:
 The more standard the recording, the more the no-config default shows;
 channels outside the Foxglove / JSON / ROS schema set fall back to the
 metadata table with the reason stated.
+
+## Show an annotation as an Output Source
+
+A Source can present a published annotation instead of describing files. Give
+its root `.dreamrc` exactly one key:
+
+```yaml file=".dreamrc"
+annotation: dreamlake://<namespace>/<annotation-name>
+```
+
+**Visualize** then opens that annotation in the annotation viewer: its
+episodes, video and labelled timeline, plus [semantic search](https://docs.dreamlake.ai/annotations#search-it)
+when the annotation stores search vectors.
+
+- **Private reads:** reads go through the annotation's own private access under
+  the reader's session. A reader who may open the Source but not the annotation
+  sees the annotation's refusal, not its data.
+- **Strict format:** the file must contain only the `annotation` key, with a
+  `dreamlake://<namespace>/<name>` value. Any other `.dreamrc` is read as a
+  dataset config, exactly as above.
 
 ## ROS bags and robots
 

@@ -327,8 +327,8 @@ export function DenseComparisonSpec() {
     <div data-testid="parallel-dense-demo" className="min-w-0 space-y-3">
       <p className="text-xs opacity-65">
         100 synthetic runs. Move across traces, or Tab through runs and press
-        Space to select. Escape dismisses the preview. Swipe the plot
-        horizontally on a narrow screen.
+        Space to select. Escape dismisses the preview. Open an axis label to
+        configure its scale. The plot fits the available width.
       </p>
       <button
         type="button"
@@ -350,8 +350,8 @@ export function DenseComparisonSpec() {
 ```
 
 Use Tab to focus a run, Space or Enter to toggle it, and Escape to dismiss its
-preview. Touch users can tap the experiment controls and swipe the plot
-horizontally. Hovering never selects a run. Keep `axes` and `series` references
+preview. Touch users can tap experiment controls and axis labels. Set `minAxisSpacing`
+when you want a horizontally scrollable plot. Hovering never selects a run. Keep `axes` and `series` references
 stable when their contents have not changed so cached geometry can be reused.
 
 This example uses 100 synthetic records. For larger studies, filter the comparison
@@ -494,6 +494,304 @@ inherit the chart width; an invalid chart width falls back to 2px, and an invali
 active width uses the automatic multiplier. Line widths never alter axis domains,
 recorded positions or missing-value gaps.
 
+## Curves, padding and axis values
+
+Smooth cubic connectors pass through each recorded axis position, stay within
+adjacent endpoint bounds, and split at missing values. They do not create new
+observations or smooth research data. Set `curve="linear"` for straight segments.
+Normal strokes default to 2px and highlights retain the proportional width contract above. The active trace
+has a wider surface-colored halo; `activeHaloColor` matches a custom host surface
+without adding a chart background.
+
+Both `paddingLeft` and `paddingRight` default to **0**. The first and last axes
+sit at the edges of the available plot, including after a resize. Insets are
+independent pixels and clamp to fit. Labels align inward at the edges; long
+labels expose their full text through the button title and accessible name.
+`minAxisSpacing={112}` opts into a minimum gap and horizontal scrolling; its
+zero default keeps all axes within the available width.
+
+Hover or focus shows the raw formatted value at **every visible axis**, including
+values whose points are outside the displayed limits. The full text below the
+plot explains missing, nonnumeric, nonpositive-log and out-of-domain values.
+`labelPlacement` is `"above"` or `"below"`; `hoverLayout` accepts `"above"`,
+`"below"`, or `"auto"` (opposite the labels).
+
+## Axis modes and custom functions
+
+Open an axis label with a click, tap or Enter. Its settings provide numeric or
+categorical positioning, linear or logarithmic scale, exact explicit limits,
+automatic limits for that axis, and uniform automatic limits across visible
+numeric axes. The dialog supports Escape and returns focus to its label.
+
+```tsx file="AxisModesSpec.tsx"
+
+const axes: ParallelCoordinatesAxis[] = [
+  { id: "rate", label: "Learning rate", type: "continuous" },
+  {
+    id: "batch",
+    label: "Batch",
+    type: "categorical",
+    categories: ["32", "64", "128"],
+  },
+  {
+    id: "optimizer",
+    label: "Optimizer",
+    type: "categorical",
+    categories: ["SGD", "Adam", "AdamW"],
+  },
+  {
+    id: "score",
+    label: "Score",
+    type: "continuous",
+    formatValue: (v) => `${v}%`,
+  },
+  { id: "hours", label: "Hours", type: "continuous" },
+];
+const series: ParallelCoordinatesSeries[] = [
+  {
+    id: "a",
+    label: "Synthetic A",
+    values: {
+      rate: 0.001,
+      batch: "32",
+      optimizer: "SGD",
+      score: 81.25,
+      hours: 0,
+    },
+  },
+  {
+    id: "b",
+    label: "Synthetic B",
+    values: {
+      rate: 0.01,
+      batch: "128",
+      optimizer: "AdamW",
+      score: 93.75,
+      hours: 12,
+    },
+  },
+  {
+    id: "c",
+    label: "Synthetic C",
+    values: {
+      rate: 0.0001,
+      batch: "64",
+      optimizer: "Adam",
+      score: 76.5,
+      hours: 8,
+    },
+  },
+  {
+    id: "d",
+    label: "Synthetic D",
+    values: {
+      rate: 0.003,
+      batch: "64",
+      optimizer: "AdamW",
+      score: null,
+      hours: 3,
+    },
+  },
+];
+const strategies: ParallelAxisModeOption[] = [
+  {
+    id: "sqrt",
+    label: "Square root + function limits",
+    mode: {
+      type: "continuous",
+      domain: ({ extent }) => [0, Math.max(1, extent?.[1] ?? 1)],
+      scale: {
+        label: "Square root",
+        transform: Math.sqrt,
+        inverse: (v) => v * v,
+      },
+    },
+  },
+  {
+    id: "categories",
+    label: "Reverse distinct categories",
+    mode: {
+      type: "categorical",
+      categories: ({ values }) =>
+        [
+          ...new Set(
+            values.filter(
+              (v): v is string | number =>
+                typeof v === "string" ||
+                (typeof v === "number" && Number.isFinite(v)),
+            ),
+          ),
+        ].reverse(),
+    },
+  },
+  {
+    id: "numeric-text",
+    label: "Parse numeric text explicitly",
+    mode: {
+      type: "continuous",
+      scale: "linear",
+      domain: "auto",
+      numericValue: (value) =>
+        typeof value === "number"
+          ? value
+          : typeof value === "string" &&
+              value.trim() !== "" &&
+              Number.isFinite(Number(value))
+            ? Number(value)
+            : null,
+    },
+  },
+];
+
+export function AxisModesSpec() {
+  const [modes, setModes] = useState<ParallelAxisModes>({});
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [padding, setPadding] = useState(false);
+  const [below, setBelow] = useState(false);
+  const [linear, setLinear] = useState(false);
+  return (
+    <div data-testid="parallel-modes-demo" className="min-w-0 space-y-3">
+      <p className="text-xs opacity-65">
+        Synthetic records. Open any axis label to change its type, scale or
+        limits. Caller strategies below demonstrate real category, domain and
+        transform functions.
+      </p>
+      <div className="flex flex-wrap gap-3 text-xs">
+        <label>
+          <input
+            type="checkbox"
+            checked={padding}
+            onChange={(e) => setPadding(e.target.checked)}
+          />{" "}
+          Left 20px / right 44px
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={below}
+            onChange={(e) => setBelow(e.target.checked)}
+          />{" "}
+          Labels below
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={linear}
+            onChange={(e) => setLinear(e.target.checked)}
+          />{" "}
+          Straight connectors
+        </label>
+        <button
+          type="button"
+          onClick={() => {
+            setModes({});
+            setSelectedIds([]);
+          }}
+          className="rounded border border-black/15 px-2 dark:border-white/15"
+        >
+          Reset example
+        </button>
+      </div>
+      <ParallelCoordinates
+        title="Axis modes and caller strategies"
+        axes={axes}
+        series={series}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        axisModes={modes}
+        onAxisModesChange={setModes}
+        axisModeOptions={strategies}
+        paddingLeft={padding ? 20 : 0}
+        paddingRight={padding ? 44 : 0}
+        labelPlacement={below ? "below" : "above"}
+        hoverLayout="auto"
+        curve={linear ? "linear" : "smooth"}
+      />
+    </div>
+  );
+}
+```
+
+Settings keep local component state by default. To control them, pass
+`axisModes` and `onAxisModesChange`; the callback receives the next complete
+map keyed by axis ID. A controlled map without a callback is read-only.
+`defaultAxisModes` seeds uncontrolled settings. If the host changes the resolved
+limits while the dialog is open, those authoritative limits replace any draft;
+ordinary renders with unchanged limits preserve the draft. Modes survive hiding an axis
+and are scoped to this component instance; they do not write browser storage.
+
+```tsx
+const [axisModes, setAxisModes] = useState<ParallelAxisModes>({
+  rate: { type: "continuous", scale: "log", domain: "auto" },
+  score: { domain: [60, 100] },
+});
+
+<ParallelCoordinates
+  axes={axes}
+  series={experiments}
+  axisModes={axisModes}
+  onAxisModesChange={setAxisModes}
+/>;
+```
+
+Numeric mode accepts finite numbers. Strings remain categorical unless a caller
+explicitly supplies `numericValue`. Log mode leaves zero and negative values as
+gaps while retaining their raw readouts. A logarithmic axis with nonpositive
+explicit or uniform limits reports an unavailable scale: choose positive limits
+or per-axis automatic limits. Uniform mode pools the finite numeric observations
+of all visible numeric axes; use it when comparing compatible units. When a uniform log axis
+participates and every pooled value is positive, all uniform axes share positive
+decade bounds. Nonpositive pooled values cannot be displayed on that log axis.
+
+Automatic linear limits use the shared [Numeric axes](https://viz.dreamlake.ai/components/numeric-axis)
+1/2/5 grid. Explicit bounds stay exact. An invalid explicit tuple follows that
+contract's automatic fallback; a failing custom strategy reports an unavailable
+axis rather than inventing positions.
+
+Functions are first-class strategies in `ParallelAxisMode`:
+
+```tsx
+const rootScale: ParallelAxisMode = {
+  type: "continuous",
+  domain: ({ extent }) => [0, Math.max(1, extent?.[1] ?? 1)],
+  scale: {
+    label: "Square root",
+    transform: Math.sqrt,
+    inverse: (value) => value * value,
+    // Optional ticks are raw numeric positions, not normalized fractions.
+    ticks: ({ domain }) => [domain[0], domain[1] / 4, domain[1]],
+  },
+};
+const ordered: ParallelAxisMode = {
+  type: "categorical",
+  categories: ({ values }) =>
+    [
+      ...new Set(
+        values.filter((value): value is string => typeof value === "string"),
+      ),
+    ].reverse(),
+};
+
+<ParallelCoordinates
+  axes={axes}
+  series={experiments}
+  axisModeOptions={[
+    { id: "root", label: "Square-root strategy", mode: rootScale },
+    { id: "ordered", label: "Reverse category order", mode: ordered },
+  ]}
+/>;
+```
+
+These options apply the supplied functions to rendering; they are not just
+menu notifications. `categories` receives the original axis and raw values.
+`domain` and custom `ticks` receive the axis, finite numeric values, their
+`extent`, and the pooled `uniformExtent`; `ticks` also receives the resolved
+domain. A transform must be finite and strictly increasing throughout that
+domain, with a matching inverse. Bounds, observations and supplied ticks are
+validated. Keep strategy objects and data references stable between changes.
+Ticks, curves, point markers and pointer hit targets all use the resolved scale;
+hover descriptions continue to use the original observations and formatter.
+
 ## Data and controlled state
 
 Define axes in display order and key each run's values by axis ID:
@@ -538,28 +836,45 @@ without changing their declared order.
 
 ## Props
 
-| Prop                | Type                                   | Default                   | Purpose                                                               |
-| ------------------- | -------------------------------------- | ------------------------- | --------------------------------------------------------------------- |
-| `axes`              | `readonly ParallelCoordinatesAxis[]`   | required                  | Axes in display order.                                                |
-| `series`            | `readonly ParallelCoordinatesSeries[]` | required                  | Experiments with stable IDs, labels, values, and optional CSS colors. |
-| `lineWidth` | `number` | `2` | Default non-scaling run width in CSS pixels; a run’s `width` overrides it. |
-| `activeLineWidth` | `number` | base × 1.65 | Hovered, focused or selected run width, never thinner than its base. |
-| `selectedIds`       | `readonly string[]`                    | `[]`                      | Selected experiment IDs.                                              |
-| `onSelectionChange` | `(ids: string[]) => void`              | —                         | Receive the requested selection.                                      |
-| `visibleAxisIds`    | `readonly string[]`                    | all axes                  | Axes to display, in `axes` order.                                     |
-| `title`             | `string`                               | `'Experiment comparison'` | Visible and accessible chart name.                                    |
-| `className`         | `string`                               | —                         | Root CSS classes.                                                     |
+| Prop                               | Default                   | Meaning                                                                  |
+| ---------------------------------- | ------------------------- | ------------------------------------------------------------------------ |
+| `axes`, `series`                   | required                  | Stable-ID axis definitions and raw observations.                         |
+| `selectedIds`, `onSelectionChange` | `[]`, absent              | Controlled experiment multi-selection.                                   |
+| `visibleAxisIds`                   | all                       | Visible subset, in declared axis order.                                  |
+| `axisModes`, `onAxisModesChange`   | uncontrolled              | Controlled mode map and next-map callback.                               |
+| `defaultAxisModes`                 | `{}`                      | Initial uncontrolled mode map.                                           |
+| `axisModeOptions`                  | `[]`                      | Named caller strategies available in each axis dialog.                   |
+| `paddingLeft`, `paddingRight`      | `0`, `0`                  | Independent horizontal pixel insets.                                     |
+| `minAxisSpacing`                   | `0`                       | Optional minimum pixel gap; enables horizontal scrolling when necessary. |
+| `curve`                            | `"smooth"`                | `"smooth"` or `"linear"`.                                                |
+| `lineWidth`, `activeLineWidth`     | `2`, base × 1.65          | Normal and highlighted stroke widths in pixels.                          |
+| `activeHaloWidth`                  | active width + 4          | Full active halo stroke width, at least the active stroke width.         |
+| `activeHaloColor`                  | white / dark surface      | CSS color override for a custom host surface.                            |
+| `labelPlacement`                   | `"above"`                 | Axis labels `"above"` or `"below"`.                                      |
+| `hoverLayout`                      | `"auto"`                  | Values `"above"`, `"below"`, or opposite the labels.                     |
+| `title`                            | `"Experiment comparison"` | Visible and accessible chart name.                                       |
+| `className`                        | `""`                      | Root CSS classes.                                                        |
 
-Use at least two visible axes. The plot scrolls horizontally when needed;
-brushing and axis-reordering controls are not included. Start with a small
-comparison set.
+`ParallelAxisMode` accepts optional `type`, `scale`, `domain`, `categories` and
+`numericValue` fields. `scale` is `"linear"`, `"log"`, or a
+`ParallelScaleTransform`; `domain` is `"auto"`, `"uniform"`, a two-number tuple,
+or a function. Categories can be a typed string/number array or a function.
+All related types are exported from `@dreamlake/viz` and
+`@dreamlake/viz/parallel-coordinates`.
+
+Use at least two visible axes. Brushing and axis-reordering controls are not
+included. For dense studies, filter the comparison set in the host table.
 
 ### ParallelCoordinatesSeries
 
-| Field | Type | Default | Purpose |
-| --- | --- | --- | --- |
-| `id` | `string` | required | Stable experiment identity for hover and selection. |
-| `label` | `string` | required | Visible experiment label. |
-| `values` | `Record<string, number \| string \| null \| undefined>` | required | Recorded values keyed by axis ID; missing values break the trace. |
-| `color` | `string` | palette | Optional CSS trace color. |
-| `width` | `number` | chart `lineWidth` (`2`) | Per-run width in CSS pixels; zero hides its stroke. |
+| Field    | Type                                                    | Default                 | Purpose                                                           |
+| -------- | ------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------- |
+| `id`     | `string`                                                | required                | Stable experiment identity for hover and selection.               |
+| `label`  | `string`                                                | required                | Visible experiment label.                                         |
+| `values` | `Record<string, number \| string \| null \| undefined>` | required                | Recorded values keyed by axis ID; missing values break the trace. |
+| `color`  | `string`                                                | palette                 | Optional CSS trace color.                                         |
+| `width`  | `number`                                                | chart `lineWidth` (`2`) | Per-run width in CSS pixels; zero hides its stroke.               |
+
+## Related API comparison
+
+See the [versioned Vuer API comparison](https://viz.dreamlake.ai/guides/api-comparison) for migration mappings, intentional differences, and remaining capabilities.

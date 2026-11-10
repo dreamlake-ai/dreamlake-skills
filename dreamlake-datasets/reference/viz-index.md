@@ -101,7 +101,7 @@ Dataset readers support specific layouts and encodings. Check the
 Install the public npm release into a React application:
 
 ```bash
-npm install --save-exact @dreamlake/viz@0.28.9
+npm install --save-exact @dreamlake/viz@0.29.0
 ```
 
 The package includes ESM and TypeScript declarations. React and React DOM are

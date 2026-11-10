@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.115.0 8cef4e5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.116.0 6de1dfd; do not edit -->
 
 # Host enrollment
 
@@ -834,6 +834,43 @@ transport failures return the native SSH error status. `--timeout` closes the
 session and returns 124; it does not guarantee termination of detached remote
 processes. SSH session cleanup removes temporary local keys and closes the
 session. File copy and forwarding remain outside these commands.
+
+## Persistent tmux shells
+
+**CLI 0.116.0+.** `dl tmux HOST` creates or attaches to the remote tmux session `dl-session`.
+`dl hosts tmux HOST` is the same command. Linux/macOS, local OpenSSH, an interactive
+terminal on stdin and stdout, and remote tmux are required. The host is always
+explicit; `dl-session` is a tmux name, not a default machine or saved agent session.
+
+```bash cli-help="tmux"
+# Create or return to dl-session on this host
+dl tmux geyang/dev/worker
+# A separate named terminal; --sess and --session are interchangeable
+dl tmux geyang/dev/worker --sess work
+```
+
+```bash cli-help="hosts tmux"
+dl hosts tmux geyang/dev/worker --session work
+```
+
+Detach with **Ctrl-B, then D**, and run the same command to reconnect. Creation
+and attachment use tmux's atomic `new-session -A` operation. Names match exactly,
+including when another name starts with the same text. The command neither
+injects input into an existing pane nor detaches other viewers. Names contain
+1–64 letters, digits, underscores or hyphens.
+
+Host selection, `--namespace`, `--enrollment`, `--duration` and `--timeout` use the
+same authenticated, host-key-pinned SSH relay as `dl ssh`. tmux is looked up in
+the enrolled account's login PATH. If it is missing, the command exits 127 and
+explains how to install it or open a plain shell with `dl ssh HOST`.
+
+Each connection has its own SSH lifetime (default 1800 seconds). Reconnecting
+requires fresh authorization; it does not replay input. Detaching or losing the
+connection leaves tmux running, but reboot survival is not provided. When a user
+systemd manager is available, newly started tmux servers use a separate scope.
+Existing servers keep their original lifecycle; without a separate scope, a Nymph
+service restart may also stop the tmux server. This does not change or resume a
+saved Codex/Claude conversation; use `dl sessions` for those identities.
 
 ## Upgrade nymph on enrolled hosts
 

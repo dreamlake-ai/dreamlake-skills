@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.138 7bdb0f5e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.138 1b861762; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -111,6 +111,39 @@ grow without the picture changing:
 
 Each is optional. The player shows what you have and skips what you don't —
 a bare video simply streams.
+
+## Search it
+
+An annotation is searchable once its episodes have search vectors. With
+`pip install "dreamlake[search]"`:
+
+```python
+ann.embed_episodes()                  # frame vectors (CLIP ViT-B/32) + segment-label vectors (BGE-small)
+ann.search("picking up thread snips") # -> [{"episode_id", "time_sec", "score", "source", ...}]
+```
+
+Frame vectors come from each camera's source video. Run `embed_episodes()`
+where those files are, or pass `video_path=` per episode.
+
+In the web app, an annotation shown through an [Output Source](https://docs.dreamlake.ai/sources#show-an-annotation-as-an-output-source)
+has **Enable semantic search** above the viewer:
+
+- **Model download:** enabling it downloads the two query models (about 100 MB)
+  into the browser once.
+- **What to search:** **Segments** (the default) ranks the labelled segments,
+  **Frames** ranks the sampled frames, and **Both** fuses the two rankings the
+  way `ann.search(..., kind="both")` does. Segments and Frames show each
+  result's similarity score. Clicking a result seeks the player to that time.
+- **Complete for small annotations:** the browser scores every stored vector,
+  up to 20,000 vectors or 64 MiB per field. Above that, or when the exact scan
+  is unavailable, it falls back to the approximate index and the panel says so,
+  because some matches may be missing.
+- **Ranking, not judgement:** results are the closest stored matches, best
+  first. A close match is not necessarily the moment you meant.
+- **Private reads:** the search reads the annotation's stored vectors privately,
+  like the viewer. Nothing is sent to a search service.
+- **No vectors yet:** if the annotation has none, it says which are missing
+  instead of returning no matches.
 
 ## When there's no overlay yet
 

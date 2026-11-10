@@ -1,10 +1,20 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.115.0 8cef4e5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.116.0 6de1dfd; do not edit -->
 
 # Release notes
 
 ## Unreleased
 
 - `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.116.0 — Persistent remote tmux shells
+
+`dl tmux HOST` and `dl hosts tmux HOST` create or attach to the remote tmux
+session `dl-session`. Use `--sess NAME` or `--session NAME` for another name.
+The host remains explicit, and the command reuses the existing authenticated,
+host-key-pinned SSH relay. Detach with Ctrl-B, then D; reconnect with the same
+command. Remote tmux and an interactive local terminal are required. Missing
+tmux reports how to open a plain shell with `dl ssh HOST`.
+See [persistent tmux shells](https://cli.dreamlake.ai/host-enrollment#persistent-tmux-shells).
 
 ## 0.115.0 — Exact Codex root binding
 
