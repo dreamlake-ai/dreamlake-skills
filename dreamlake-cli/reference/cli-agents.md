@@ -1,10 +1,10 @@
-<!-- generated from https://cli.dreamlake.ai/agents.md at 0.119.0 4c56b6a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/agents.md at 0.119.0 423a131; do not edit -->
 
 # Agents
 
 ## Chat with the built-in agent
 
-Source candidate (not yet released). `dl agent` is an alias of `dl agents`.
+Available in CLI 0.119.0 and later. `dl agent` is an alias of `dl agents`.
 Use `chat` for the same server-owned agent used in the browser; definition
 commands such as `create`, `list` and `edit` keep their existing behavior.
 `dl sessions chat` uses the same handler and options.
