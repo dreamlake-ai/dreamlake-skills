@@ -1,0 +1,14 @@
+{
+  "name": "dreamlake-experiments",
+  "description": "Log ML experiments with the DreamLake Python SDK and configure per-run Dash dashboards; use for RL logging, inspecting recorded data and missing charts, not implementing training algorithms or provisioning compute.",
+  "requires": [
+    "dreamlake-cli"
+  ],
+  "docs": [
+    "https://docs.dreamlake.ai/ml-dash/examples/rl-logging",
+    "https://docs.dreamlake.ai/ml-dash/reference/native-charts",
+    "https://docs.dreamlake.ai/ml-dash/reference/native-workload-credentials",
+    "https://cli.dreamlake.ai/experiments"
+  ],
+  "tools": null
+}

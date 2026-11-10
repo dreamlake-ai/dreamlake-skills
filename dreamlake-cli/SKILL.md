@@ -38,6 +38,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Scenes, MJCF/URDF packaging, asset libraries | `dreamlake-scenes` |
 | Robot datasets, Source connection and path checks, `.dreamrc` | `dreamlake-datasets` |
 | Author, validate and publish WorkflowSpecs | `dreamlake-workflows` |
+| Python experiment logging, RL fixtures, recorded metrics and per-run Dash dashboards | `dreamlake-experiments` |
 | Annotations through the Python SDK | `dreamlake-annotations` |
 
 ## Launch-server requirement
