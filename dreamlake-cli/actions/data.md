@@ -56,9 +56,9 @@ and command help for selectors, limits and output fields.
    Record simulator or renderer validation separately: a successful file write
    does not establish that a scene loads or physics runs.
 
-When working through built-in agent tools, inspect the available endpoint first.
-If the default is missing or ambiguous, ask which Source to use; never create or
-change a binding as a workaround. Finish every returned text range and
-verify a consistent revision before editing. Copy browser-only work to a durable
-Source before reporting publication. A Project association is a routing hint,
-not proof of permission to the underlying Source.
+When working through built-in agent tools, require the explicitly selected Source
+endpoint. Never infer it from a Project attachment or change bindings to make a
+file operation work. Keep Project edits, Source edits and attach/link operations
+separate. Finish every returned text range and verify a consistent revision
+before editing. Copy browser-only work to an explicitly selected durable Source
+before reporting publication. Check canonical permissions for each operation.
