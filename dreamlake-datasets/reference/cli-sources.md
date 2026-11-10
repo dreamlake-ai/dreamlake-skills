@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sources.md at 0.117.0 6ff1564; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sources.md at 0.119.0 4c56b6a; do not edit -->
 
 # Sources
 
@@ -340,3 +340,58 @@ Sources, Workflows or Annotations. `ProjectSourceBinding` stays unchanged; there
 is no Source migration or implicit Connection/credential transfer. Do not skip
 its manifest entry, silently detach it or simulate an ownership move with
 copy/delete. Standalone Source transfer remains execution-gated.
+
+## Managed text workspaces
+
+`dl source files` provides bounded UTF-8 text operations for manifests, MJCF and
+reports. These commands address only DreamLake-managed objects, not external
+fallbacks. Large meshes and archives still use `source upload` and `download`.
+Choose the Source explicitly. Project edits and Project–Source attachments use
+their own APIs; an attachment never selects a default writable Source or redirects
+Project edits into Source storage. Source operations retain canonical permission
+checks, including legitimate Project-derived access. The explicit prefix confines
+relative paths but does not add or narrow your Source permission grant. Files are at most 256 KiB; NUL and invalid UTF-8 are
+rejected.
+
+```bash cli-help="source files write"
+dl source files write --source my-workspace --prefix workspaces/v1/demo --path scene/manifest.json --file ./manifest.json --create --json
+```
+
+```bash cli-help="source files read"
+dl source files read --source my-workspace --prefix workspaces/v1/demo --path scene/manifest.json --json
+```
+
+```bash cli-help="source files list"
+dl source files list --source my-workspace --prefix workspaces/v1/demo --path '' --json
+```
+
+```bash cli-help="source files replace"
+dl source files replace --source my-workspace --prefix workspaces/v1/demo --path scene/manifest.json --old-file ./old.txt --new-file ./new.txt --revision '"etag-from-read"' --json
+```
+
+All four commands emit JSON. Read returns `{path, content, revision}`. To replace
+an entire file, pass `write --revision` with the exact opaque revision returned
+by read, instead of `--create`. Never remove a revision check to work around a
+conflict. `replace` requires exactly one literal match; a missing or ambiguous
+match is refused. Writes use conditional storage requests and read back the
+managed object. An unconfirmed result requires inspection before retrying.
+Lists return `nextCursor`; follow it even if the filtered managed page is empty.
+
+The TypeScript API uses the same adapter contract:
+
+```typescript
+import { createClient } from '@dreamlake/dreamlake-cli/api';
+const dl = createClient({ remote: 'https://api.dreamlake.ai', token });
+const files = dl.files({ kind: 'source', namespace, sourceId,
+  prefix: 'workspaces/v1/demo' });
+const created = await files.write('scene/manifest.json', '{"assets":[]}', null);
+const readBack = await files.read('scene/manifest.json');
+await files.replace('scene/manifest.json', '[]', '["box"]', readBack.revision);
+```
+
+`FileWorkspace` and `FileAdapter` are exported for hosts that supply a different
+authorized endpoint. The packaged adapter is for managed Sources. It does not
+claim a remote browser filesystem or a Project Node filesystem. Project
+operations retain their own canonical APIs. The built-in browser adapter is
+provided by an active browser client and stores only temporary conversation data. Model-facing reads use
+explicit ranges, whereas SDK and CLI reads return the complete bounded text.

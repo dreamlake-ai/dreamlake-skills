@@ -1,6 +1,91 @@
-<!-- generated from https://cli.dreamlake.ai/agents.md at 0.117.0 6ff1564; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/agents.md at 0.119.0 4c56b6a; do not edit -->
 
 # Agents
+
+## Chat with the built-in agent
+
+Source candidate (not yet released). `dl agent` is an alias of `dl agents`.
+Use `chat` for the same server-owned agent used in the browser; definition
+commands such as `create`, `list` and `edit` keep their existing behavior.
+`dl sessions chat` uses the same handler and options.
+
+```bash cli-help="agents chat"
+# Interactive conversation; /exit or Ctrl+D leaves it.
+dl agent chat
+# One request, with streamed answer and tool receipts.
+dl agent chat "Search my workspace for rope assets"
+# Continue the conversation ID printed by a previous turn or the browser URL's s parameter.
+dl agent chat --conversation <id> "Read the first result"
+# One UTF-8 request from a file or pipe, with JSON events on stdout.
+dl agent chat --file request.txt --json
+printf '%s' 'Search my workspace for rope assets' | dl agent chat --json
+# The request file identifies the Source namespace/ID, prefix and relative path.
+# Allow changes to that explicit target, matching the browser tool-changes toggle.
+dl agent chat --extensions --tools-write --file source-request.txt --json
+```
+
+Each positional message, file, or complete stdin stream is **one turn**. Without
+one, a terminal opens a conversation loop. `--json` requires one-turn input and
+emits newline-delimited events, including `context` (with `sessionId` and
+`turnId`), `delta`, `tool`, `done`, or `error`. Stream failures exit nonzero;
+a connection ending before `done` is a failure. Inspect the saved conversation
+before retrying a potentially completed write. Ctrl+C interrupts the local
+request; it does not roll back server work.
+
+Prompts, skills, search and resource permissions come from the server's
+existing agent configuration. This command does not load local
+skills or create a separate harness. `--extensions` enables personal extensions
+and MCP discovery when available on the server, matching a browser that
+advertises this capability. It is opt-in here to preserve existing CLI defaults;
+inspect the `context.extensions` JSON event to verify actual availability.
+This is separate from the server's built-in skill bundle, which does not require
+the flag. Browser-executed external actions still need a browser executor.
+`--namespace <slug>` explicitly selects the
+agent namespace; `--page <pathname>` supplies page context (default `/`). Neither
+option grants access. Without `--namespace`, the server resolves conversation
+and page context as it does for existing `sessions chat` requests.
+
+Writes are opt-in: `--tools-write` enables the browser's tool-changes capability;
+`--notes-write` and `--control` retain the narrower memo and session capabilities.
+File-tool availability depends on the deployed backend. The CLI does not
+implement Source file tools itself or grant a local filesystem to the agent.
+Browser-only layout/cache actions require an active browser executor; passing a
+page path does not supply one.
+
+### Select the file target explicitly
+
+Editing a Project and editing files in a Source are separate operations with
+separate APIs. Attaching or linking a Source to a Project does **not** select
+that Source as a default writable target, even if it is the only attached
+Source. `--namespace` and `--page` are conversation context, not a file endpoint.
+
+For a Source file request, identify the Source namespace and ID, prefix, and
+relative path in the request. For example, save this as `source-request.txt`,
+replacing `TEST_SOURCE_ID` with the ID of a disposable test Source you own:
+
+```text
+Use Source file operations on namespace marvin, Source ID TEST_SOURCE_ID.
+Under prefix workspaces/v1/agent-chat-test, create scene/manifest.json with
+exact content {} followed by a newline, using create-only semantics.
+If the path already exists, read it without overwriting it. Read back the file
+and report its Source ID, prefix, relative path, exact content and revision.
+Do not edit Project settings, infer a target from Project attachments,
+create a Source, change bindings, or substitute Memo attachments or Project files.
+If these Source tools are unavailable, report that and make no substitute write.
+```
+
+Use the same resolved request text in the CLI and browser for comparison.
+For direct deterministic Source file operations, see [Source text files](https://cli.dreamlake.ai/sources).
+A Project-targeted request must instead name the Project and its own supported
+operation; it is not a fallback for a failed Source request.
+
+Continue in the browser by opening the same account/page with `?s=<conversation-id>`
+(or adding `&s=...` to an existing query). Continue back in the CLI using
+`--conversation`. Inspect durable results with
+`dl sessions tool-calls <conversation-id> --json`; use its `nextCursor` with
+`--cursor` for later pages.
+
+## Agent definitions
 
 An agent is a **prompt with a name**. Nothing else is required, and an agent
 with nothing else is the normal case, not a degraded one.
