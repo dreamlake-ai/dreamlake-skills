@@ -685,6 +685,36 @@
         "sha256": "32f9eb49b762c7c8f39bdf4bf0237c4e0bd0668e3e88df6e65a33e7207620780"
       }
     ],
+    "dreamlake-experiments": [
+      {
+        "url": "https://docs.dreamlake.ai/ml-dash/examples/rl-logging",
+        "file": "reference/docs-ml-dash-examples-rl-logging.md",
+        "version": "0.1.144 afeb8337",
+        "source_sha256": "83823a9d621045aeff00e346d7796985b81c98024f3b5c55ed1bc2181b4e7949",
+        "sha256": "58c4091329cf1aa4d36925a3e14fe0cad0450e7a65d97647ada2ab1dcbf071f1"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/ml-dash/reference/native-charts",
+        "file": "reference/docs-ml-dash-reference-native-charts.md",
+        "version": "0.1.144 afeb8337",
+        "source_sha256": "d87fd1299a8f68e0808c906acda699830080724592e1c6ed13ed15d068c1b8fb",
+        "sha256": "d326497900677ae3b6faa32f841d496ad4328e774ac66219aa6fa793eba27fd2"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/ml-dash/reference/native-workload-credentials",
+        "file": "reference/docs-ml-dash-reference-native-workload-credentials.md",
+        "version": "0.1.144 afeb8337",
+        "source_sha256": "a84f6228a8ff4da91c0350b84b477ce074714acad1b1e66111e2d3e0c5716d3b",
+        "sha256": "d9f0788a4534c7b25030b5e28554f2f572fd10800b1243444dfdcfdf56ff1c40"
+      },
+      {
+        "url": "https://cli.dreamlake.ai/experiments",
+        "file": "reference/cli-experiments.md",
+        "version": "0.119.1 983b77d",
+        "source_sha256": "8211264a2b3977e72bf732021a4d4a03dfe5ff72acc1462e680ad310c160c2e2",
+        "sha256": "1310aee2bd4f3e3c6674a0939a3e145a457b4ae023930ed91641251f52059176"
+      }
+    ],
     "dreamlake-lakeshore": [
       {
         "url": "https://cli.dreamlake.ai/lakeshore",
