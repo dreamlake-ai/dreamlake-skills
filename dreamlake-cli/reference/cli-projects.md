@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.116.0 6de1dfd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.117.0 6ff1564; do not edit -->
 
 # Projects & data
 
@@ -167,6 +167,84 @@ and Sources retain their namespace ownership; their lifecycle is separate from
 the project's data subtree. No recoverable project deletion snapshot is promised
 by this CLI. Source deletion is terminal; source disable/enable is reversible.
 
+## Workspace or restricted project access
+
+`project access` inspects or changes the workspace-member baseline through the
+same Project access endpoint as the product. This requires the companion server
+contract; older servers return an error rather than an inferred access policy.
+Project IDs and slugs are accepted within an explicit owning namespace.
+`--ns` is an alias of `--namespace` for this command; supplying both with different
+values is rejected. These flags identify the source workspace, not a destination.
+
+```bash cli-help="project access"
+# Inspect current baseline, visibility and your effective authority.
+dl project access research --ns acme --json
+# Remove the workspace-member Read baseline; explicit grants remain.
+dl project access research --ns acme --mode restricted
+# A public Project must become private atomically when restricted.
+dl project access research --ns acme --mode restricted --visibility private
+# Restore the workspace-member baseline; this does not make the Project public.
+dl project access research --ns acme --mode workspace
+```
+
+`workspace` preserves the existing workspace-member Read baseline. `restricted`
+removes only that baseline; active namespace owners retain Admin, and existing
+user/team grants retain their roles. Independent resource access and other
+Project filings remain in effect. Restricted is not an isolation guarantee for
+resources that remain independently shared or namespace-readable.
+
+Restricted access can also be selected at creation, without an intermediate
+workspace-readable Project:
+
+```bash cli-help="create project"
+dl create project "Private review" --namespace acme --access-mode restricted
+```
+
+```typescript
+const project = await client.projects('acme').create({
+  name: 'Private review', accessMode: 'restricted', visibility: 'private',
+})
+```
+
+Restricted creation first checks the list endpoint's advertised
+`accessPolicy` (`apiVersion: 1`, supported modes and `atomicCreate: true`), then
+sends one atomic POST. An old server that cannot confirm this capability receives
+no creation request. Never create and then PATCH to simulate restricted creation.
+A missing/mismatched creation acknowledgment is an unknown outcome; retain any
+returned Project ID and inspect before retrying. Omitted access mode keeps the
+existing creation payload and default workspace behavior unchanged.
+
+`restricted` with final public visibility is refused. `--visibility private`
+explicitly authorizes the atomic public-to-private change; omitting it must not
+silently hide a public Project. The command does not change recipients, team
+membership, resource ownership, or file/Note content. Use the existing grant and
+revoke commands below for recipient access.
+
+Inspect requires Project read access; changes require current Project Admin.
+The server checks authority at mutation time. A 404 denial is not an empty
+Project. Responses return stable `projectId`, resolved namespace/slug,
+`accessMode`, `visibility`, inherited `baseline`, `viewerRole` and
+`manageGrants`. JSON is automatic when stdout is piped; diagnostics go to stderr.
+A failed or unconfirmed change is never automatically retried in another mode
+or namespace. Inspect the same Project to reconcile uncertain outcomes.
+
+TypeScript uses named input fields on the existing namespace-bound API:
+
+```typescript
+const projects = client.projects('acme')
+const access = await projects.access({ project: projectId })
+const updated = await projects.setAccess({
+  project: projectId,
+  accessMode: 'restricted',
+  visibility: 'private',
+})
+```
+
+The namespace remains explicit; this change does not add a new global default or
+replace existing `get`, `grants`, `grant` and `revoke` methods. Client source,
+server deployment, published CLI version and installed binary are separate
+release states.
+
 ## Manage supported project grants (CLI 0.45.1)
 
 The product equivalent is **Projects → Project access** at
@@ -236,3 +314,42 @@ separate from Project inheritance.
 `--accept-if-owner` remains a compatibility alias for `--accept-if-authorized`.
 Both use current server action capabilities; neither bypasses source or destination
 authorization or unsupported access-preservation blockers.
+
+## Interactive permissions
+
+**CLI 0.117.0+.** Interactive permissions require the compatible backend
+audience and access-policy endpoints. Earlier clients retain their existing
+direct-grant commands.
+
+```bash cli-help="project permissions"
+# Choose organization and Project with the keyboard.
+dl project permissions
+# Or select the owning namespace and exact Project up front.
+dl project permissions research --namespace acme
+```
+
+Use arrows and Enter to select, type to filter people, and Ctrl-C to cancel.
+The screen shows exact namespace/Project ID, effective named users and why each
+has access, membership/public baselines and namespace-owner recovery. It also
+shows organization members who have no Project access. Anonymous/public visitors
+are an open audience; direct grants are not an exhaustive list of people.
+
+Choose a person or team and READ/WRITE/ADMIN, revoke one grant, or switch between
+Workspace and Restricted. Every write has a preview and confirmation defaulting
+to No. Revocation previews the highest surviving source for each affected person.
+Access is refreshed before submission; a changed snapshot requires another
+review. Cancellation before confirmation submits no writes. A lost or invalid
+mutation receipt stops the flow with an unknown-outcome message; read current
+state before retrying. Changes to other access sources may occur after review.
+
+```bash cli-help="project audience"
+dl project audience research --namespace acme --json
+```
+
+`project audience` and TypeScript `projects(namespace).audience({project})` use
+the server's ADMIN-only, consistent human-audience snapshot. Unsupported or
+incomplete responses fail closed. The server refuses an inventory above 1,000
+rows in a grant/member source or 1,000 candidate users with
+`PROJECT_AUDIENCE_TOO_LARGE`, rather than pretending a partial list is complete.
+The established `grant`, `grants`, `revoke`, `inspect` and JSON commands remain
+available for scripts. Independent attached-resource shares remain separate.
