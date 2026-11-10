@@ -587,9 +587,9 @@
       {
         "url": "https://docs.dreamlake.ai/workspaces/project-access",
         "file": "reference/docs-workspaces-project-access.md",
-        "version": "0.1.140 141e40a6",
-        "source_sha256": "a1664bd680f2d2c5743ec0b2e5b31559a1a152de2a44b6dc0f91248b1821d6d1",
-        "sha256": "526b1ca79c600d0acf7df99e0049ef112e71a6109577c34e3ce4dce9cc925468"
+        "version": "0.1.141 ef06aa08",
+        "source_sha256": "bdc812669fa3b8703528ba472513509623c1ba97bbb403a96ca6e6c1e7197239",
+        "sha256": "21c2457dcdc040162e34a4b932d90069efac187c94791ddc5b960a37afb548ef"
       }
     ],
     "dreamlake-datasets": [

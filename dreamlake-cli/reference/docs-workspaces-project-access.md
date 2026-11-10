@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.140 141e40a6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.141 ef06aa08; do not edit -->
 
 # Project access
 
@@ -418,11 +418,13 @@ use a weaker legacy endpoint to make a refusal pass.
 | GraphQL | Existing Project catalog, known-ID and association reads apply the shared permission rules. No policy/audience fields or Project access mutations; use REST. See [Project queries](https://docs.dreamlake.ai/api/project-queries). |
 | Built-in agent tools | `dreamlake_project_access`, `dreamlake_project_access_set`, `dreamlake_project_grants`, `dreamlake_project_grant` and `dreamlake_project_revoke` are registered with declared scopes, explicit machine grants and current human authority. No whole-audience tool; retain the namespace/provisioning limits above. |
 | Local MCP adapter | Source-only adapter; no direct Project policy, grant or audience tools. `assistant_invoke` does not bypass the built-in assistant's restrictions and is not an organization-admin permission API. See [MCP](https://docs.dreamlake.ai/lakeshore/agents/mcp). |
+| Skills API | Authenticated `/skills` and file reads serve the backend's separately pinned bundle. Check tag/commit headers and bytes; reading guidance grants no Project authority. |
 
 The public skill is guidance, not an authority or a server API. Installed help,
 package versions and deployed capability determine what can be called; a new
 skill bundle cannot add an unsupported GraphQL field or MCP tool. See
-[skill distribution](https://docs.dreamlake.ai/dev/skills) for public reference generation and CLI pins.
+[skill distribution and API](https://docs.dreamlake.ai/dev/skills#authenticated-skills-api) for generated
+references and the separately accepted public, CLI-embedded and server pins.
 
 ## REST contract
 
