@@ -17,6 +17,10 @@ version and compatible-backend requirements are in
 [Interactive permissions](../reference/cli-projects.md#interactive-permissions).
 An unsupported capability is a stop, never a reason to weaken the requested
 restriction or create first and restrict afterward.
+For an SDK, GraphQL or MCP request, check the
+[interface coverage](../reference/docs-workspaces-project-access.md#interface-coverage)
+before choosing a supported call. Do not infer API or tool availability from the
+existence of a CLI command, and never use a model invocation to bypass a refusal.
 
 Project attachment commands require CLI 0.62.0 and the companion Project-sharing
 backend release; `project inspect`, `grants`, `grant` and `revoke` require CLI
