@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.138 1b861762; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.139 3428dd83; do not edit -->
 
 # Profiles and workspaces
 
@@ -210,12 +210,20 @@ set **Read**, **Write**, or **Admin**. Saving the same recipient updates their
 existing grant instead of adding duplicates. Existing grants can be changed or
 removed; user rows report their current effective project role.
 
-Workspace owners retain Admin access. Organization members retain baseline Read
-access to organization projects, and public projects remain readable publicly.
-The highest direct, team, or workspace role applies. Removing one grant does not
-remove access obtained elsewhere. Private memos keep their own permissions;
-granting project access does not publish them. This feature does not introduce
-projects restricted to selected teams.
+Project access has two modes in the implementation update: **Workspace** keeps
+the existing organization-member Read and public visibility baselines;
+**Restricted** removes those baselines and admits current explicit user/team
+grants plus namespace-owner recovery access. Legacy projects remain Workspace.
+There is no namespace-global default setting or automatic change to existing
+projects. See [Project access](https://docs.dreamlake.ai/workspaces/project-access) for policy APIs,
+atomic restricted creation, client examples and deployment status.
+
+The highest applicable direct/team role applies; workspace owners retain Admin.
+Removing one grant does not remove access obtained elsewhere. Restricted mode
+hides project discovery and its tree from ungranted members; it does not revoke
+independent Memo/resource membership, accepted shares or other Project grants.
+A public project must be explicitly made private in the same policy request
+before it becomes Restricted. No silent visibility change is performed.
 
 ## Deleting a project
 
