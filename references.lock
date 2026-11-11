@@ -130,30 +130,30 @@
       {
         "url": "https://viz.dreamlake.ai/",
         "file": "reference/viz-index.md",
-        "version": "0.31.0 53d45fef",
-        "source_sha256": "7fe0afd4b7a5e4753ad7237e222f2f544cec9213b161ed8a22484b9aaed3c015",
-        "sha256": "9f05d52900263d7e393216ef2b98ba1b68ea639dc13992633277038baf592511"
+        "version": "0.31.0 b2364ff6",
+        "source_sha256": "e613036fd109ed8b4e1500c9fb65c1933104a0ca41682984c17e1b298041c164",
+        "sha256": "58376024d9aaf8e0753e3e8c913dbaf3af5f08c30ffcdb35d2f14d065a7bcb7b"
       },
       {
         "url": "https://viz.dreamlake.ai/components/episode-line-chart",
         "file": "reference/viz-components-episode-line-chart.md",
-        "version": "0.31.0 53d45fef",
-        "source_sha256": "8060eb299963e8a79c13c454976f08bcfd87646bd37b35e089de00b0d893fad2",
-        "sha256": "e797a8cf21e5a7fed0b81b9b9a8f45f1141b64528cc6fb13de044eed80c38e1c"
+        "version": "0.31.0 b2364ff6",
+        "source_sha256": "5cbe6c1a5258fd6f7763fc4c833b0a2ba9baeb3376b062051c275a18a30a48c7",
+        "sha256": "3bfbed2442fc912b56b074833c1fea251bb9c0895f295af203668e975cf8fc2b"
       },
       {
         "url": "https://viz.dreamlake.ai/components/parallel-coordinates",
         "file": "reference/viz-components-parallel-coordinates.md",
-        "version": "0.31.0 53d45fef",
-        "source_sha256": "858fcd88fb28057b462abf5726c2005ef7945ad4cde3f60dbc0d1f4ca042a421",
-        "sha256": "667c354c1c55807a0bf6df7d73b469dfe2c633feeafba060122edf72526919b9"
+        "version": "0.31.0 b2364ff6",
+        "source_sha256": "d69ce9d71dc2b9c649230e91fb40040ebd76fc80ed1cd06ddeb8f951453a6005",
+        "sha256": "a60384f495f39f8adea98d29c03532a71ef98618de3d58315dcd9761a6ec460a"
       },
       {
         "url": "https://viz.dreamlake.ai/components/episode-timeline",
         "file": "reference/viz-components-episode-timeline.md",
-        "version": "0.31.0 53d45fef",
-        "source_sha256": "6f2faa1c722e7827246ae4f68d6bb8855818892f1ec12113b7101bd364affca3",
-        "sha256": "26bcfb2063798a24e7c905b293a982b3604feb5ba1cad753cd55f3112f313133"
+        "version": "0.31.0 b2364ff6",
+        "source_sha256": "68cab6b88b33165783ff13c9e01d24914dbc8e1aad32adb1a1f86e5dd5c5fe11",
+        "sha256": "7a9e353184f39d50493b545454197f4a827b9e9909203270095d623858de8814"
       }
     ],
     "dreamlake-cli": [
@@ -1209,30 +1209,30 @@
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/reference",
         "file": "reference/viz-dataset-viz-reference.md",
-        "version": "0.31.0 53d45fef",
-        "source_sha256": "5fd13c6526051771998d1b930d7a7a4fcac6269ce965d78d3bd03b9880e9b17c",
-        "sha256": "4986ec687008f9480f72ca3fd939b46bfa799b0e024088af6f4084b6547106c6"
+        "version": "0.31.0 b2364ff6",
+        "source_sha256": "5f4c257976066f8aab20b8f210121c791499194692bb39e2e1801b359dc1fbd0",
+        "sha256": "dd0a0559e1e6860e80e3e3ed07040403a15b38bdd57978b5873e98c19696fd76"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/spec",
         "file": "reference/viz-dataset-viz-spec.md",
-        "version": "0.31.0 53d45fef",
-        "source_sha256": "2b4eeff7bbddd54235ff2622a187112aaa90725b3a48e1112331cf9f63000223",
-        "sha256": "a89ac52737f24261c06f7f2a7e4aff6e5237d6e118fa40021d818cb9abad9b66"
+        "version": "0.31.0 b2364ff6",
+        "source_sha256": "9783432db1ccb1ea4d7caedd8e3dbd3eaeac767c43baec9f286a66b3f471af75",
+        "sha256": "f67c5d93883186352f62b650d99d0063a8bf0bb2009a10be1926af3b74e9f0b3"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/views",
         "file": "reference/viz-dataset-viz-views.md",
-        "version": "0.31.0 53d45fef",
-        "source_sha256": "6e1bf4347c0d8e37cb836c2bfdf514774e6bfb5c86a71ec6679624eb9dd828f8",
-        "sha256": "74765422d3b4aa1a52e5dcee1b84cc18c327e62bd259bea7810ca3afa0d34a1c"
+        "version": "0.31.0 b2364ff6",
+        "source_sha256": "de195ac5ca58386d0a3973ffb830712351f0a498441c427e69f1f7b09aecc8dc",
+        "sha256": "849f6aff020e3281dcaab95e0d43c3bac2e5ce260e81b6082fa1c73466303f89"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/robots",
         "file": "reference/viz-dataset-viz-robots.md",
-        "version": "0.31.0 53d45fef",
-        "source_sha256": "be86693f65da2900e660703ef2661a7951066c50c8189ac00174c7e00ef7316a",
-        "sha256": "115e954c554f002fe1c4367fb719766db6f2233039ec2387038a65935794672e"
+        "version": "0.31.0 b2364ff6",
+        "source_sha256": "c8ce891869aeb042649c7af2f529874ddd2520e97a6707d8afe473495f791d6c",
+        "sha256": "33fab01432e6df77153c5fa1b015c33a0fe02b082eb18dd33f288242b3c96a34"
       }
     ],
     "video-labeling-workflow": [

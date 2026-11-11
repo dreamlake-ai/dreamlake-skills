@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.31.0 53d45fef; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.31.0 b2364ff6; do not edit -->
 
 <span id="reference" />
 
@@ -204,11 +204,20 @@ Always call `ds.release()` when the owning dataset is replaced/unmounted.
 ## USD resources
 
 The portable renderer and indexed collection API require version 0.31.0 or later.
-The exact tested package archive can be installed independently:
+The exact tested package archive can be installed independently. Its GitHub
+repository is private: use an authenticated GitHub CLI account with repository
+access, then install the downloaded archive. The release URL is not an anonymous
+package endpoint. npm publication of this version has not been verified.
 
 ```bash
-pnpm add https://github.com/dreamlake-ai/viz-workspace/releases/download/v0.31.0/dreamlake-viz-0.31.0.tgz react react-dom
+gh release download v0.31.0 --repo dreamlake-ai/viz-workspace \
+  --pattern dreamlake-viz-0.31.0.tgz --dir .vendor
+pnpm add ./.vendor/dreamlake-viz-0.31.0.tgz react react-dom
 ```
+
+The public [USD example](viz-dataset-viz-views.md#usd) renders without GitHub
+authentication; package archive download authorization is separate from runtime
+USD resource authorization.
 
 `UsdViewer` is the same lazily loaded renderer used by Libraries and `view: usd`:
 
