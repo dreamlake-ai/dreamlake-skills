@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.31.0 b2364ff6; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.31.1 c535c548; do not edit -->
 
 <span id="reference" />
 
@@ -194,9 +194,14 @@ the DreamLake app supplies their playback implementations.
 
 `DatasetBrowser({ ds, config, ...episodeBrowserProps })` chooses the configured
 presentation. `CollectionBrowser({ ds, views, labels?, pageSize = 50,
-groupBy = 'directory', selectedPath?, onSelect? })` is also available directly.
+groupBy = 'directory', selectedPath?, onSelect?, onClose? })` is also available directly.
 `selectedPath` makes selection controlled; `onSelect(info)` reports the original
-EpisodeInfo. The collection owns metadata search, task filtering, incremental
+EpisodeInfo. Pass `selectedPath={null}` to show the grid in controlled mode,
+and clear the path in `onClose()` when the preview close button is pressed.
+Since 0.31.1, uncontrolled collections start with no selection. Selecting a thumbnail shrinks
+the grid into a compact browser alongside one preview; closing it unmounts the
+preview and restores the full grid, filters and grid scroll position. No episode
+is materialized before selection. The collection owns metadata search, task filtering, incremental
 list display and one selected DatasetViz. Its search is local and metadata-only;
 `EpisodeBrowser` search providers and semantic-search chips are list-mode APIs.
 Always call `ds.release()` when the owning dataset is replaced/unmounted.
@@ -210,9 +215,9 @@ access, then install the downloaded archive. The release URL is not an anonymous
 package endpoint. npm publication of this version has not been verified.
 
 ```bash
-gh release download v0.31.0 --repo dreamlake-ai/viz-workspace \
-  --pattern dreamlake-viz-0.31.0.tgz --dir .vendor
-pnpm add ./.vendor/dreamlake-viz-0.31.0.tgz react react-dom
+gh release download v0.31.1 --repo dreamlake-ai/viz-workspace \
+  --pattern dreamlake-viz-0.31.1.tgz --dir .vendor
+pnpm add ./.vendor/dreamlake-viz-0.31.1.tgz react react-dom
 ```
 
 The public [USD example](viz-dataset-viz-views.md#usd) renders without GitHub

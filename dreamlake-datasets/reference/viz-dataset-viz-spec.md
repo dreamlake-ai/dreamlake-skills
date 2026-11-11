@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.31.0 b2364ff6; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.31.1 c535c548; do not edit -->
 
 <span id="write-the-dreamrc" />
 
@@ -180,7 +180,9 @@ browser:
 ```
 
 Pass this config to `DatasetBrowser`. Absent `browser` (or `mode: list`) keeps
-the existing paged `EpisodeBrowser`. `collection` displays one selected episode
+the existing paged `EpisodeBrowser`. `collection` starts with a responsive thumbnail grid and no selected episode.
+Selecting an item shrinks the browser and opens one preview. Closing the preview
+restores the grid and releases its rendering resources. It displays one selected episode
 at a time using **any** configured views. `groupBy` is `directory` by default,
 or `none`; `pageSize` defaults to 50 and must be an integer from 1 to 200.
 Load more reveals another page of metadata without fetching those scenes.
@@ -191,7 +193,8 @@ textures, embeddings or files excluded by the episode glob/limit. Task selection
 filters by parent directory. Counts describe the current metadata filter.
 Filtering preserves the loaded selection and says when it is outside the filter.
 Scene numbers follow enumeration order; the original filename/path remains
-available. Narrow screens collapse the browser behind Browse scenes.
+available. On narrow screens, selecting an item collapses the browser behind Browse scenes;
+closing the preview restores the visible grid.
 
 For a root `.dreamrc`, omit storage and let the host inject its authorized root.
 Use an explicit glob and adequate episode limit to cover all task directories;

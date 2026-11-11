@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scene-generation/quickstart.md at 0.1.147 24acba47; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scene-generation/quickstart.md at 0.1.148 240f5360; do not edit -->
 
 # Scene Generation Quickstart
 

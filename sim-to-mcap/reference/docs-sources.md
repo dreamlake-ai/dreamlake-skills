@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.147 24acba47; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.148 240f5360; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -340,7 +340,11 @@ enumerated names, paths and task metadata, and renders one selected episode.
 Task counts, filename details and selection state remain visible while filtering;
 filters do not silently change the current scene. The Source Visualize tab hides
 file navigation to give the scene more room; Files restores file browsing.
-The collection browser collapses on narrow screens.
+Collections open as a responsive thumbnail grid without loading a USD scene.
+Selecting an item contracts the grid into a compact browser alongside the preview.
+Close preview restores the grid, search filters and scroll position, and releases
+the renderer. On narrow screens, the grid uses the full width; after selection,
+Browse scenes opens the collapsed browser.
 
 For tabletop robotics, `framing: workbench` offers a closer default view; Reset
 view and Show full scene remain available. Large scenes are loaded on demand in
