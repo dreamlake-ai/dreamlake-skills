@@ -6,6 +6,9 @@ keys — fetch the reference page for option-level detail.
 
 ## 1. Match the dataset to a `format`
 
+For USD files or packages, start with [Scene collections](#scene-collections)
+before applying the folder recipe below.
+
 `dataset.format` names the reader. Look at the dataset root and match:
 
 | you find at the root | `format` | requires |
@@ -121,3 +124,14 @@ robots, frame trees and URDF animation:
 
 Next: [validate](validate.md) until every binding decodes, then place the file
 at the dataset root ([connect](connect.md)).
+
+## Scene collections
+
+When the input is a collection of USD scenes, inspect the root and a sample
+package before choosing the episode glob. Follow the USD scene collection
+recipe in [configuration reference](../reference/viz-dataset-viz-spec.md).
+Check that the enumeration covers all task directories and excludes support
+assets. Test one scene from each task, then switch scenes and inspect viewer
+warnings, materials, camera framing and resource cleanup. Verify both the
+individual file preview and the collection's Visualize view before reporting
+completion. Do not infer successful rendering from a valid configuration.
