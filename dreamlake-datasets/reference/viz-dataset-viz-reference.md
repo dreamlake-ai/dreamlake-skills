@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at unknown; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.31.0 53d45fef; do not edit -->
 
 <span id="reference" />
 
@@ -189,3 +189,99 @@ A custom component receives the fields, bound `read` function, timeline, cursor,
 and config. Reuse the cursor to synchronize with existing views. The `mujoco`
 and `urdf` registrations in this package are contracts with placeholders;
 the DreamLake app supplies their playback implementations.
+
+## Collection API
+
+`DatasetBrowser({ ds, config, ...episodeBrowserProps })` chooses the configured
+presentation. `CollectionBrowser({ ds, views, labels?, pageSize = 50,
+groupBy = 'directory', selectedPath?, onSelect? })` is also available directly.
+`selectedPath` makes selection controlled; `onSelect(info)` reports the original
+EpisodeInfo. The collection owns metadata search, task filtering, incremental
+list display and one selected DatasetViz. Its search is local and metadata-only;
+`EpisodeBrowser` search providers and semantic-search chips are list-mode APIs.
+Always call `ds.release()` when the owning dataset is replaced/unmounted.
+
+## USD resources
+
+The portable renderer and indexed collection API require version 0.31.0 or later.
+The exact tested package archive can be installed independently:
+
+```bash
+pnpm add https://github.com/dreamlake-ai/viz-workspace/releases/download/v0.31.0/dreamlake-viz-0.31.0.tgz react react-dom
+```
+
+`UsdViewer` is the same lazily loaded renderer used by Libraries and `view: usd`:
+
+```tsx
+
+<UsdViewer entry="pick.usda" sceneKey="pick"
+  files={[{ path: 'pick.usda', url: 'https://example.com/pick.usda' },
+          { path: 'robot.usda', url: 'https://example.com/robot.usda' }]} />
+```
+
+`entry` is a relative virtual path. `files` maps allowed relative paths to direct
+HTTP(S) URLs. `sceneKey` identifies the mounted scene. Optional
+`resolveResource(path): Promise<string>` authorizes additional relative resources
+on demand, never an arbitrary authored external URL. `fallback` customizes the
+error fallback. `framing`, `focusPaths`, `cameraDirection`, `maxTextureSize` and `exposure` match the view options.
+Keep file arrays and callback identities stable to avoid restarting loads.
+
+A dataset host injects authorization without replacing the USD component:
+
+```tsx
+
+// Define once or memoize in the host. Resolve only against the authorized root.
+const resolveAsset = async ({ field, payload, signal }) => {
+  signal.throwIfAborted()
+  const entry = String(field.meta.path)
+  return {
+    entry,
+    files: [{ path: entry, url: payload.url }],
+    resolveResource: async (path) => {
+      signal.throwIfAborted()
+      return authorizedStorage.resolveUrl(path)
+    },
+  }
+}
+<UsdResourceProvider resolveAsset={resolveAsset}>
+  <DatasetBrowser ds={dataset} config={config} fill />
+</UsdResourceProvider>
+```
+
+The typed `UsdAssetResolver` receives `{ field, payload, signal }` and returns
+`Promise`. Its signal is aborted on selection changes and unmount.
+Project hosts may translate opaque node IDs into virtual paths; Source hosts
+resolve paths relative to the selected storage root. No credentials enter the
+package, config, worker messages or authored USD. Without a provider,
+`publicUsdAsset` resolves siblings under the public entry URL's directory.
+Dependencies outside that directory need an explicit manifest or scoped provider.
+
+Importing the package is SSR-safe; WebGL and Worker start only after mounting.
+The package ships worker/WASM assets with source and built distributions. Serve
+those emitted assets with your application (WASM MIME `application/wasm`), allow
+same-origin workers in CSP and use a bundler that supports static
+`new URL('./asset', import.meta.url)` assets. No CDN, remote runtime, patch-package
+step or DreamLake application code is required. The docs live example uses this
+same public entry point and public HTTP storage.
+
+For Vite development, exclude the library from dependency prebundling so asset
+URLs stay relative to their package module (production Vite rewrites them):
+
+```ts
+export default defineConfig({
+  optimizeDeps: {
+    exclude: ['@dreamlake/viz', '@dreamlake/viz/dataset-viz'],
+    include: ['@react-three/fiber', '@react-three/drei'],
+  },
+})
+```
+
+Include the package CSS emitted by your build; the source entry imports its CSS.
+When consuming prebuilt ESM directly, import `@dreamlake/viz/dataset-viz.css`
+via your bundler's asset mapping or serve the built CSS alongside it.
+
+`DatasetHandle.resolveAssetUrl?(path)` resolves a root-relative thumbnail or
+other catalog asset lazily through the dataset's storage. CollectionBrowser
+uses it only after a thumbnail approaches the viewport. Manually constructed
+handles may omit it; their entries then render without thumbnails. Indexed USD
+catalogs populate `EpisodeInfo.meta.thumbnail`, `tasks`, `bytes` and `filename`.

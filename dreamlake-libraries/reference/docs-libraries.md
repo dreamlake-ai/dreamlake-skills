@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.146 85bea702; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.147 24acba47; do not edit -->
 
 # Asset Libraries
 
@@ -585,3 +585,31 @@ skills directory.
 - [Scenes](https://docs.dreamlake.ai/scenes) — versioned worlds; a library is where a scene's
   ingredients come from.
 - [CLI](https://docs.dreamlake.ai/cli) — install and authenticate `dl`.
+
+## Portable USD previews and collections
+
+USD rendering is owned by `@dreamlake/viz/dataset-viz`. Libraries, Project file
+previews and Source file previews share this renderer. DreamLake supplies
+Project/Source authorization through `UsdResourceProvider`; independent hosts
+can use the same component with public HTTP resources or their own resolver.
+See the [view parameters and live example](https://viz.dreamlake.ai/dataset-viz/views#usd)
+and [resource API](https://viz.dreamlake.ai/dataset-viz/reference#usd-resources).
+
+Collection search belongs to `DatasetBrowser`, not to `view: usd`. Opt in
+explicitly in `.dreamrc`:
+
+```yaml
+browser: { mode: collection, groupBy: directory, pageSize: 50 }
+```
+
+This presentation works with any dataset format and view. It searches only the
+enumerated names, paths and task metadata, and renders one selected episode.
+Task counts, filename details and selection state remain visible while filtering;
+filters do not silently change the current scene. The Source Visualize tab hides
+file navigation to give the scene more room; Files restores file browsing.
+The collection browser collapses on narrow screens.
+
+For tabletop robotics, `framing: workbench` offers a closer default view; Reset
+view and Show full scene remain available. Large scenes are loaded on demand in
+an abortable worker and render on demand. Unsupported materials and primitives
+remain documented preview limitations, not simulation support.

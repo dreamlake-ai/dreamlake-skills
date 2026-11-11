@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at unknown; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.31.0 53d45fef; do not edit -->
 
 <span id="write-the-dreamrc" />
 
@@ -156,8 +156,7 @@ views:
     height: 640
 ```
 
-The `usd` view accepts exactly one file in its `scene` binding. It renders
-in the DreamLake app using the Libraries USD renderer. The app's USD catalog
+The `usd` view accepts exactly one file in its `scene` binding. It renders in any app using the package-owned USD renderer, also used by DreamLake Libraries. The optional collection browser
 supports search over scene names and task paths and opens one scene at a time.
 The selected scene loads in a worker; switching scenes cancels the old load
 and releases its GPU resources. Static scenes render on demand.
@@ -168,3 +167,92 @@ read interface. Keep relative dependencies inside that location. Absolute
 external URLs are refused. USDZ packages resolve their own embedded resources.
 This is a static visual preview, not a physics simulation. Unsupported USD
 primitives, materials and missing dependencies appear as viewer warnings.
+
+## Collection browser
+
+Collection browsing is independent of `dataset.format` and `view: usd`. Add:
+
+```yaml
+browser:
+  mode: collection
+  groupBy: directory
+  pageSize: 50
+```
+
+Pass this config to `DatasetBrowser`. Absent `browser` (or `mode: list`) keeps
+the existing paged `EpisodeBrowser`. `collection` displays one selected episode
+at a time using **any** configured views. `groupBy` is `directory` by default,
+or `none`; `pageSize` defaults to 50 and must be an integer from 1 to 200.
+Load more reveals another page of metadata without fetching those scenes.
+
+Search matches case-insensitive substrings in enumerated names, full paths and
+task metadata; underscores match spaces. It does not search mesh contents,
+textures, embeddings or files excluded by the episode glob/limit. Task selection
+filters by parent directory. Counts describe the current metadata filter.
+Filtering preserves the loaded selection and says when it is outside the filter.
+Scene numbers follow enumeration order; the original filename/path remains
+available. Narrow screens collapse the browser behind Browse scenes.
+
+For a root `.dreamrc`, omit storage and let the host inject its authorized root.
+Use an explicit glob and adequate episode limit to cover all task directories;
+`**` is unsupported. For large scenes prefer `browser.mode: collection` over a
+scrolling list of independent viewers, which may mount multiple visible episodes.
+
+## Indexed USD catalogs and thumbnails
+
+A precomputed index avoids walking every task directory and supplies previews
+without downloading USD. Store it beside the collection, then configure:
+
+```yaml
+version: 1
+dataset:
+  format: usd
+  index: .dreamlake/usd-scenes/index.json
+  episodes: { limit: 10000 }
+browser: { mode: collection, groupBy: directory, pageSize: 50 }
+views:
+  - view: usd
+    scene: [scene]
+    height: 70vh
+    framing: workbench
+    focusPaths: [/World/robot, /World/deformables]
+```
+
+Example index (JSON):
+
+```json
+{
+  "version": 1,
+  "generatedAt": "2026-11-11T00:00:00Z",
+  "scenes": [
+    {
+      "path": "task-a/episode-001.usdz",
+      "task": "Task A",
+      "bytes": 8521546,
+      "thumbnail": ".dreamlake/usd-scenes/thumbs/episode-001.jpg"
+    }
+  ]
+}
+```
+
+`path` is required, unique and relative to the dataset root. `title`, `task`,
+`bytes` and `thumbnail` are optional metadata; `thumbnail` is also root-relative.
+Only supported USD suffixes are accepted. Parent traversal, absolute paths and
+external URL strings are refused. The reader caps indexes at 8 MiB and 100,000
+entries. Use auto enumeration (omit `episodes` or set a limit without a glob);
+a glob selects storage enumeration instead of the index.
+
+The browser resolves thumbnail URLs through `DatasetHandle.resolveAssetUrl`,
+which uses the same authorized storage as scene files. Only thumbnails near the
+viewport resolve/download, and image decoding is asynchronous. A broken image
+shows Preview unavailable; it does not prevent opening the scene. Missing
+thumbnails remain text-only entries. Search reads the index metadata, never USD
+geometry. Changing the filter does not initiate scene downloads.
+
+Generate thumbnails outside the interactive page with bounded concurrency,
+using the same camera/material settings as the preview. Publish images before
+the index/config. Record inventory coverage and generation failures; never point
+a failed scene at another scene's image. The index is a snapshot: regenerate it
+when files, sizes, content or rendering settings change. It does not discover
+new files automatically. Keep the glob-based config when live enumeration is
+more important than a precomputed catalog.

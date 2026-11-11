@@ -135,3 +135,24 @@ assets. Test one scene from each task, then switch scenes and inspect viewer
 warnings, materials, camera framing and resource cleanup. Verify both the
 individual file preview and the collection's Visualize view before reporting
 completion. Do not infer successful rendering from a valid configuration.
+
+Choose collection presentation explicitly from the configuration reference;
+do not infer browsing UI from the file format or attribute search to a single
+view. For independent consumers, follow the resource API reference and run the
+built-package example, including emitted worker, WASM and CSS assets. Hosts
+inject scoped authorization; they do not replace the public renderer.
+
+For a visual catalog, inspect existing preview assets before generating new
+ones. If previews are absent, precompute thumbnails with bounded offline work;
+never generate them by opening every scene in the user's browsing session.
+Keep the original scene path on each index entry, verify index coverage against
+the complete inventory, and record missing or failed thumbnails honestly.
+Publish into a fresh managed prefix, verify representative image readback,
+then switch the root config to the documented index. Preserve source scenes and
+unrelated files. Regenerate previews after scene content or framing changes.
+
+Validate keyword/task filters, empty results, selected items outside filters,
+thumbnail failures, keyboard access, narrow screens and dark theme. Check rapid
+switching and sustained browsing for overlapping workers, scene downloads or
+retained GPU resources. Verify standalone, Libraries, Project and Source entry
+points before declaring a shared-renderer change complete.

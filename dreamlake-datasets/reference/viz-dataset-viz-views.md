@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at unknown; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.31.0 53d45fef; do not edit -->
 
 <span id="view-components" />
 
@@ -107,3 +107,49 @@ For a camera and chart in one row, see [layout](viz-dataset-viz-spec.md#layout).
 For a URDF driven by tf or joint states, see [robot motion](viz-dataset-viz-robots.md).
 Function-valued options such as tick formatters belong in the React component
 API; they cannot be supplied by YAML.
+
+## usd
+
+Render one static `.usd`, `.usda`, `.usdc` or `.usdz` scene. Bind exactly one
+file field with `scene: [scene]`. The package includes the real renderer,
+worker and WASM; no DreamLake application registration is needed.
+
+This live example composes an authored robot from a sibling USDA layer and
+renders its geometry and colors. Download the [config](https://viz.dreamlake.ai/examples/usd/.dreamrc),
+[scene](https://viz.dreamlake.ai/examples/usd/pick.usda), [second scene](https://viz.dreamlake.ai/examples/usd/place.usda),
+[robot layer](https://viz.dreamlake.ai/examples/usd/robot.usda) and [scene index](https://viz.dreamlake.ai/examples/usd/scene-index.json), [pick thumbnail](https://viz.dreamlake.ai/examples/usd/pick.jpg), [place thumbnail](https://viz.dreamlake.ai/examples/usd/place.jpg) and [HTTP index](https://viz.dreamlake.ai/examples/usd/index.json)
+to run it on your own static server.
+
+| Parameter | Default | Behavior |
+| --- | --- | --- |
+| `scene` | required | Exactly one file field; wildcards are accepted only if they resolve to one field |
+| `height` | `480` | Pixels or CSS size such as `70vh`; parent row slots can supply the height |
+| `framing` | `scene` | Fit non-planar subject bounds; `workbench` focuses the upper 62% of those bounds |
+| `focusPaths` | `[]` | USD prim path prefixes used in workbench framing; empty uses the upper-bounds heuristic |
+| `cameraDirection` | `[-1, 0.65, 0.18]` | Non-zero finite direction from target to camera, normalized before fitting |
+| `maxTextureSize` | `2048` | Integer 128–2048; use 512 for offline thumbnail generation to reduce decoder/GPU work |
+| `exposure` | `1.0` | Positive tone-mapping exposure, maximum 4 |
+
+Drag to orbit, right-drag to pan and scroll/pinch to zoom. Reset view restores
+the configured framing. Focus workbench / Show full scene changes framing
+without reloading geometry. Loading reports layers, geometry and textures;
+failures offer Retry and unsupported content is listed in warnings.
+
+Search is **not** part of this view. The example explicitly selects the public
+collection browser; see [collection configuration](viz-dataset-viz-spec.md#collection-browser)
+and [resource injection API](viz-dataset-viz-reference.md#usd-resources).
+
+USD is a static preview, not a simulator or animation player. Renderer support
+is bounded by the shipped OpenUSD reader; unsupported primitives/materials may
+produce warnings. USDZ embedded resources are supported. Loose dependencies
+must remain inside the allowed root and use HTTP(S), CORS-readable URLs without
+redirects. Public resolution defaults to the entry file's directory; private or
+signed storage must inject authorized resolution. Authored external URLs are
+rejected. UDIM PNG atlases require an explicit file manifest listing their tiles.
+
+Only a selected scene downloads. Rendering runs on demand with DPR capped at
+1.5, textures capped at 2048 pixels, four concurrent fetches, 256 MiB layer and
+texture budgets, a 512 MiB network budget and at most 2048 dynamic dependency
+requests. Large images have additional decoder limits. Switching/unmounting
+aborts work, terminates its worker and disposes geometry, textures and materials.
+These are resource caps, not a promise that every scene below them fits every GPU.
