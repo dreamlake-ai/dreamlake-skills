@@ -1,11 +1,12 @@
 {
   "name": "dreamlake-datasets",
-  "description": "Get a robot dataset reachable and rendered in DreamLake: lay out the files, upload or link them as a Source, prove the paths a workflow will read, and write the .dreamrc that binds fields to views, including MuJoCo/URDF sim playback.",
+  "description": "Visualize data on DreamLake: inspect and upload or link a Source, verify workflow paths, configure preset .dreamrc views, or publish custom Source-owned static applications with the CLI or SDK.",
   "requires": [
     "dreamlake-cli"
   ],
   "docs": [
     "https://docs.dreamlake.ai/sources",
+    "https://docs.dreamlake.ai/sources/custom-visualization",
     "https://cli.dreamlake.ai/sources",
     "https://viz.dreamlake.ai/",
     "https://viz.dreamlake.ai/dataset-viz/start",

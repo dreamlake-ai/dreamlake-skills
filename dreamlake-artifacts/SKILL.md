@@ -1,6 +1,6 @@
 ---
 name: dreamlake-artifacts
-description: Create or repair content for DreamLake's isolated offline artifact frame (HTML, React, Markdown, SVG, Mermaid, code), then publish it with the CLI, add versions, list artifacts, make them public or shared, revoke links, delete and restore them, and reference them from Memos. Use for any request to write, fix, publish or manage a DreamLake artifact. Not for AI-generated hosted pages, Memos editing, scenes, or dataset uploads.
+description: Create or repair content for DreamLake's isolated offline artifact frame (HTML, React, Markdown, SVG, Mermaid, code), then publish it with the CLI, add versions, list artifacts, make them public or shared, revoke links, delete and restore them, and reference them from Memos. Use for any request to write, fix, publish or manage a DreamLake artifact. Not for Source-owned custom visualizations, AI-generated hosted pages, Memos editing, scenes, or dataset uploads.
 ---
 
 # DreamLake Artifacts
