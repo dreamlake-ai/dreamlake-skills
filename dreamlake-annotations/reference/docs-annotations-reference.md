@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations/reference.md at 0.1.155 3f4728cb; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations/reference.md at 0.1.157 93913542; do not edit -->
 
 # Annotations Reference
 
@@ -444,3 +444,124 @@ frame indices vs camera names — so don't name a camera a bare number.
 - **`x_` is yours, everything else is the contract.** Preset track names
   and metadata keys evolve only by addition, in SDK releases; tools render
   what they recognize and skip the rest.
+
+## Update a title or URL slug
+
+An annotation's immutable `id` and storage `name` remain unchanged. `title` is a
+separate display label. `slug` is its current URL spelling and `slugRevision` is
+the rename generation (zero on legacy rows). Renaming preserves DreamDB content,
+history, project filings, visibility and share tokens; it does not upload data.
+
+Read `GET /namespaces/:slug/annotations/:name`, then send the observed identity
+and generation to `PATCH` on that same resource:
+
+```json
+{
+  "slug": "retail-task-annotation",
+  "expectedResourceId": "0123456789abcdef01234567",
+  "expectedSlug": "original-name",
+  "expectedRevision": 0
+}
+```
+
+This is an illustrative resource ID, not a live annotation. A title-only patch
+is `{ "title": "Retail Task Annotation" }`. Supply both title and guarded slug
+fields to update them atomically. Omitting `slug` preserves the URL; changing a
+title never generates or changes a slug. Two annotations can have the same title.
+
+Slugs must match `^[a-z0-9][a-z0-9._-]{0,63}$`: 1–64 ASCII characters, lowercase,
+starting with a letter or digit. The server does not trim, lowercase or otherwise
+normalize them. Names and historical slugs are reserved within the annotation's
+namespace, including deleted resources and previously used slugs. No additional
+keyword blacklist applies. Other namespaces can use the same spelling.
+
+A namespace owner or organization member can rename a slug. A signed-in edit-link
+recipient can edit the title but cannot rename the URL or change visibility.
+Invalid input or missing rename guards returns 400; denied management returns
+403; a missing resource returns 404. Stale revisions, collisions and active
+storage/ownership operations return 409. Re-read and reconcile a conflict;
+clients must not blindly retry with a new revision. Concurrent renames from the
+same generation have at most one successful winner. Repeating an unchanged slug
+with the current generation leaves that generation unchanged.
+
+The original URL and each previous slug keep resolving to the same resource,
+subject to its current permissions. They are not access grants and cannot be
+reassigned to an unrelated annotation, even after purge. Aliases are scoped to
+one namespace, not global. After ownership transfer, the destination initially
+uses the immutable name; historical reads still require verified transfer
+provenance and current access. Writes through an old namespace are rejected.
+
+Upload credentials use the immutable `name`, not the display slug. Opening an
+annotation through the Python SDK first reads the catalog and uses that returned
+storage name. Existing content handles continue to work through a rename.
+
+### TypeScript and CLI
+
+The TypeScript API is exported from `@dreamlake/dreamlake-cli/api`:
+
+```ts
+const annotations = client.annotations('team')
+const row = await annotations.get('original-name')
+await annotations.update(row.name, {
+  slug: 'retail-task-annotation',
+  expectedResourceId: row.id,
+  expectedSlug: row.slug!,
+  expectedRevision: row.slugRevision!,
+})
+```
+
+```bash
+dl annotation get original-name --namespace team
+dl annotation update original-name --namespace team --title "Retail Task Annotation"
+dl annotation rename original-name retail-task-annotation --namespace team --json
+```
+
+The CLI reads fresh metadata and submits one guarded rename. It refuses a server
+that does not expose `slug` and `slugRevision`. See the
+[CLI annotation commands](https://cli.dreamlake.ai/annotations).
+
+### Python
+
+Metadata operations do not require DreamDB or open a content lease:
+
+```python
+from dreamlake.api._client import DreamLakeClient
+
+client = DreamLakeClient()
+row = client.annotations.get("team", "original-name")
+client.annotations.update("team", row["name"], title="Retail Task Annotation")
+client.annotations.rename("team", row["name"], "retail-task-annotation")
+```
+
+`rename` reads fresh metadata and submits one guarded patch. For an edit that
+remains open while a user reviews it, retain the original `row` and use `update`
+with that snapshot instead:
+
+```python
+client.annotations.update(
+    "team", row["name"], slug="retail-task-annotation",
+    expected_resource_id=row["id"], expected_slug=row["slug"],
+    expected_revision=row["slugRevision"],
+)
+```
+
+The SDK serializes these guards as `expectedResourceId`, `expectedSlug` and
+`expectedRevision`; revision zero is valid. Omitting `title` preserves it.
+`AnnotationMetadataError` exposes `status` and `code`; a 409 or uncertain write
+requires read-back and reconciliation, never an automatic retry with fresh
+guards. See the [Python metadata reference](https://py.dreamlake.ai/annotations)
+for the published SDK interface.
+
+For a content handle opened with `Annotation.open(...)`, `set_title(title)` and
+`rename_slug(slug)` update metadata while preserving the handle's `name` and data.
+`AnnotationInfo` exposes `title`, `slug` and `slug_revision` in catalog listings.
+
+### Built-in agent and MCP
+
+The resource API discovery tools derive this PATCH operation and its body schema
+from the same registered REST route. Discover the `annotations` family, read the
+resource, then submit the guarded patch through the existing resource write tool.
+The tool's scope and current server permissions still apply. The source-only local MCP adapter exposes `annotation_get` and
+`annotation_update` over the same REST route. It requires explicit namespace and
+observed rename guards, strips share tokens from results and never retries writes.
+It is not a separately published npm service.
