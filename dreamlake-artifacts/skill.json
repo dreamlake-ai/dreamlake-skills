@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-artifacts",
-  "description": "Author content that renders inside DreamLake's isolated offline artifact frame, then publish, version, list, share, revoke, remove and restore artifacts with the CLI, and reference them from Memos.",
+  "description": "Author, publish, version, list, share, revoke, remove and restore standalone DreamLake artifacts, and reference them from Memos. Excludes Source-owned custom visualizations.",
   "requires": [
     "dreamlake-cli"
   ],

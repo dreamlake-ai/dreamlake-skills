@@ -36,7 +36,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Read, edit, version, attach, inline images, references, transfer a Memo | `dreamlake-memos` |
 | Task folders, subtasks, progress, events, linked Memos | `dreamlake-tasks` |
 | Scenes, MJCF/URDF packaging, asset libraries | `dreamlake-scenes` |
-| Robot datasets, Source connection and path checks, `.dreamrc` | `dreamlake-datasets` |
+| Robot datasets, Source connection and path checks, `.dreamrc`, custom Source visualization | `dreamlake-datasets` |
 | Author, validate and publish WorkflowSpecs | `dreamlake-workflows` |
 | Python experiment logging, RL fixtures, recorded metrics and per-run Dash dashboards | `dreamlake-experiments` |
 | Annotations through the Python SDK | `dreamlake-annotations` |

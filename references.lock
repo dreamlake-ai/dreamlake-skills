@@ -605,7 +605,14 @@
         "file": "reference/docs-sources.md",
         "version": "0.1.153 20cf5486",
         "source_sha256": "1b85dc27934caba5908f4a8527cfc70efdde202dd8d883a1937e819e1eb4a456",
-        "sha256": "a5776ef990f470bf3457786017ac7debb57e76e73a7256bc9c757aa2c2733ada"
+        "sha256": "1dd45e2264b97b25c5f671cfc462813af34a706e3700ba2d4b2ad2a0df554afe"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/sources/custom-visualization",
+        "file": "reference/docs-sources-custom-visualization.md",
+        "version": "0.1.153 20cf5486",
+        "source_sha256": "30285790f7d47a017f50b1d2bd38c75ca91abc13a61ed048b65655d4c8a7339d",
+        "sha256": "8715aaae4ea532634cc67b6f80527fd520a2c0512836e0fe68fb18c03713e180"
       },
       {
         "url": "https://cli.dreamlake.ai/sources",

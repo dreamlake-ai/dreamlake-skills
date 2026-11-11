@@ -367,5 +367,5 @@ snapshots and must be refreshed when the underlying scene collection changes.
 
 For a visualization that needs its own UI and interaction, publish a static
 application under `.dreamlake/visualization/` and select it in `.dreamrc`.
-[Custom Source visualization](https://docs.dreamlake.ai/sources/custom-visualization) covers publishing,
+[Custom Source visualization](docs-sources-custom-visualization.md) covers publishing,
 the read-only Source bridge, permissions and SDK examples.
