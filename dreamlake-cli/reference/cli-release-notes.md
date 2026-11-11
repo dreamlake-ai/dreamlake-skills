@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.120.0 dff5d89; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.121.0 7786352; do not edit -->
 
 # Release notes
 

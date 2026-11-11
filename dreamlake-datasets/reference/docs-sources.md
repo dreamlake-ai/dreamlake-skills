@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.150 29155024; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.153 20cf5486; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -362,3 +362,10 @@ The Source can hold the index and JPEG thumbnails in its managed layer while
 original USD files remain in external storage. The list reads only metadata and
 nearby thumbnails; selecting an entry starts the USD download. Indexes are
 snapshots and must be refreshed when the underlying scene collection changes.
+
+## Custom applications
+
+For a visualization that needs its own UI and interaction, publish a static
+application under `.dreamlake/visualization/` and select it in `.dreamrc`.
+[Custom Source visualization](https://docs.dreamlake.ai/sources/custom-visualization) covers publishing,
+the read-only Source bridge, permissions and SDK examples.

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sources.md at 0.120.0 dff5d89; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sources.md at 0.121.0 7786352; do not edit -->
 
 # Sources
 
@@ -395,3 +395,34 @@ claim a remote browser filesystem or a Project Node filesystem. Project
 operations retain their own canonical APIs. The built-in browser adapter is
 provided by an active browser client and stores only temporary conversation data. Model-facing reads use
 explicit ranges, whereas SDK and CLI reads return the complete bounded text.
+
+## Custom visualization
+
+Publish a static application into a Source with `source visualization push`:
+
+```bash cli-help="source visualization push"
+dl source visualization push ./dist --source my-data --namespace my-team
+```
+
+Use `--entry` to select an HTML entry relative to the build directory (default:
+`index.html`). Build with relative asset URLs, for example Vite `base: './'`.
+`--json` returns `{namespace, sourceId, entry, files, url}`; no signed URLs are
+printed. The returned URL opens this Source's Visualize tab.
+
+The command uploads a new generation under `.dreamlake/visualization/<digest>/`
+and then updates `visualize` in the managed root `.dreamrc` using its current
+revision. Other configuration keys and old generations are preserved. A missing
+managed `.dreamrc` is created only when no resolved external configuration exists;
+materialize an existing external configuration first. Upload failures leave the
+pointer unchanged; concurrent config edits fail the conditional write.
+
+The server must support `visualization-session` and isolated code hosting. The
+caller needs Source USE and managed-file edit permissions. No Artifact record,
+ACL or share link is created. Limits are 1,000 files, 32 MiB per asset and 128 MiB
+per build. Symlinks and special files are rejected. The TypeScript API exports
+`publishSourceVisualization(client.transport, namespace, sourceId, files,
+{entry})`; `files` contains `{path, bytes: Uint8Array}` entries. The SDK does not
+read local directories or CLI login state.
+
+See [Custom Source visualization](https://docs.dreamlake.ai/sources/custom-visualization)
+for `.dreamrc`, the browser's read-only data bridge, isolation and Python examples.
