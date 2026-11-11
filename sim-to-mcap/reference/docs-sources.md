@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.153 20cf5486; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.155 3f4728cb; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -338,18 +338,20 @@ browser: { mode: collection, groupBy: directory, pageSize: 50 }
 This presentation works with any dataset format and view. It searches only the
 enumerated names, paths and task metadata, and renders one selected episode.
 Task counts, filename details and selection state remain visible while filtering;
-filters do not silently change the current scene. The Source Visualize tab hides
-file navigation to give the scene more room; Files restores file browsing.
+filters do not silently change the current scene. The Source Visualize tab retains the native file-navigation column and its
+resize controls; changing views does not automatically hide that column.
 Collections open as a responsive thumbnail grid without loading a USD scene.
 Scrolling near the bottom automatically reveals another page until all matching
 items are shown; `pageSize` is the append size, not a total scene limit.
 A displayed/total count and an end-of-list message make progress explicit.
 Search and task filters apply to the complete indexed catalog, including items
 not yet displayed. Thumbnails stay lazy and offscreen images are released.
-Selecting an item contracts the grid into a compact browser alongside the preview.
+Selecting an item narrows the grid alongside the preview while retaining multiple
+columns of thumbnail cards.
 Close preview restores the grid, search filters and scroll position, and releases
-the renderer. On narrow screens, the grid uses the full width; after selection,
-Browse scenes opens the collapsed browser.
+the renderer. When the available preview panel is narrow, the visible two-column
+grid sits above the selected preview. Native mobile List/Detail navigation remains
+available through the existing application layout.
 
 For tabletop robotics, `framing: workbench` offers a closer default view; Reset
 view and Show full scene remain available. Large scenes are loaded on demand in

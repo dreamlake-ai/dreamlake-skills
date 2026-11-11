@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.31.2 4b3f7d74; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.31.3 545152ca; do not edit -->
 
 <span id="reference" />
 
@@ -199,7 +199,7 @@ groupBy = 'directory', selectedPath?, onSelect?, onClose? })` is also available 
 EpisodeInfo. Pass `selectedPath={null}` to show the grid in controlled mode,
 and clear the path in `onClose()` when the preview close button is pressed.
 Since 0.31.1, uncontrolled collections start with no selection. Selecting a thumbnail shrinks
-the grid into a compact browser alongside one preview; closing it unmounts the
+the grid into a narrower, multi-column grid alongside one preview; closing it unmounts the
 preview and restores the full grid, filters and grid scroll position. No episode
 is materialized before selection. The collection owns metadata search, task filtering, scroll-triggered incremental
 list display (400px bottom margin, one page per intersection; Load more fallback) and one selected DatasetViz. Its search is local and metadata-only;
@@ -215,9 +215,9 @@ access, then install the downloaded archive. The release URL is not an anonymous
 package endpoint. npm publication of this version has not been verified.
 
 ```bash
-gh release download v0.31.2 --repo dreamlake-ai/viz-workspace \
-  --pattern dreamlake-viz-0.31.2.tgz --dir .vendor
-pnpm add ./.vendor/dreamlake-viz-0.31.2.tgz react react-dom
+gh release download v0.31.3 --repo dreamlake-ai/viz-workspace \
+  --pattern dreamlake-viz-0.31.3.tgz --dir .vendor
+pnpm add ./.vendor/dreamlake-viz-0.31.3.tgz react react-dom
 ```
 
 The public [USD example](viz-dataset-viz-views.md#usd) renders without GitHub

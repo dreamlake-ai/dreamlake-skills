@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.121.0 7786352; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.121.1 361dc74; do not edit -->
 
 # Execute a bound UDF on a queue
 

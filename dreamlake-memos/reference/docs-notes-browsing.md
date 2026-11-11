@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.153 20cf5486; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.155 3f4728cb; do not edit -->
 
 # Browse, create and organize
 
@@ -22,6 +22,21 @@ The guest agent entry offers sign-in to start a conversation.
 
 Signed-in Memo details retain resource navigation. Details opened inside a
 project retain their return-to-project action. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+
+### Returning to a project folder
+
+Project folder lists refresh when you return to the browser
+page, return from another app, or reveal a previously hidden list panel. Only
+visible folder lists refresh; there is no periodic directory polling while the
+page is hidden or while it remains visible. A return event refreshes the pages
+already loaded in that directory, keeping the search, sort, selection and
+reading position. A list already at the top stays at the top so new Memos
+are visible. If the top visible item was removed, the next surviving
+visible item anchors the position; if none survive, the scroll offset is kept
+as far as the remaining content allows. Failed return refreshes retain the
+existing rows and wait for another return event instead of retrying in the
+background. Changes made elsewhere while you remain on the page appear on
+its next return refresh or when you navigate back into the folder.
 
 ### Archive memos and folders
 
@@ -283,6 +298,17 @@ Inside another DreamLake Memo, insert an ordinary Markdown link using the
 returned or copied full URL. Do not add new `:note` directives; existing saved
 directives remain readable, and no `:memo` directive is defined. A browser link does not change visibility or grant access to a
 private memo.
+
+Hovering a project folder's title reveals a link
+icon that copies the folder's URL. Keyboard focus also reveals the icon.
+Use **Copy folder path** in a folder's right-click menu to copy its full
+`namespace/project-slug/folder/path`, including the namespace and project even
+when the breadcrumb shows a display name. Paste this path into an AI request
+to identify the folder whose Memos you want read.
+Project list items and folder grid cards offer **Copy URL** in their right-click
+menu; folders also offer **Copy folder path**. A copied URL opens the selected
+item without carrying unrelated open Memos or panel layouts. Copying a path or
+URL does not grant access to the folder or its Memos.
 
 ## Profile introduction
 
