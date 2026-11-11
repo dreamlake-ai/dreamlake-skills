@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.144 afeb8337; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.146 85bea702; do not edit -->
 
 # Browser terminal
 
@@ -75,6 +75,38 @@ observation timestamps describe binding and authority; they do not prove an SSH
 connection is open. `GET /namespaces/:ns/hosts/terminal-targets` and saved-session
 `/:id/target` resolve current authorized transport metadata without issuing an
 attach ticket. PTY, forwarding and native transcript UI additions are deferred.
+
+### Terminal target catalog
+
+`GET /namespaces/:ns/hosts/terminal-targets` returns the caller's ready SSH
+targets: unrevoked enrollments of the caller on hosts the caller owns in the
+namespace, after the usual `lakeshore:use` check. A revoked enrollment is never
+listed or connectable. Enrollments that are not online with SSH are skipped.
+
+| Query | Meaning |
+| --- | --- |
+| `limit` (1–100), `cursor` | Page in ascending enrollment order. The response is `{ targets, nextCursor }`; continue with `cursor=<nextCursor>` until it is `null`. A page can hold fewer than `limit` targets, including none, while `nextCursor` is set: skipped enrollments still advance the cursor, and one request examines at most 1000 records. |
+| `archived=include` | Also list enrollments of archived hosts. They are excluded by default. |
+| `hostId`, `enrollmentId` | Exact lookup of one host's or one enrollment's targets. It includes archived hosts and does not depend on the size of the rest of the catalog. |
+
+Archiving a host changes catalog visibility only. It does not revoke an
+enrollment or stop a machine: an archived host stays connectable by exact name,
+host ID or enrollment ID. `dl exec`, `dl ssh` and `dl tmux` use the exact
+`hostId` lookup.
+
+Without `limit` or `cursor`, the response is the original single-page
+`{ targets }` used by older clients. It returns `503 terminal_inventory_limit`
+when more than 100 eligible enrollments exist, rather than a truncated list;
+revoked enrollments and archived hosts do not count toward that limit.
+
+The browser terminal gateway (`term.dreamlake.ai`) builds its target list by
+following the cursor for at most five pages (500 targets) and answers
+`503 terminal_inventory_limit` beyond that. A ticket or saved session resolves its
+one target with the exact `enrollmentId` lookup. Gateway responses keep the
+product API's meaning: a `401` or `403` from the API is
+`403 terminal_access_denied`; `429` and `5xx` failures keep their status and
+error code (for example `503 terminal_inventory_limit`), or
+`terminal_discovery_unavailable` when the API gave no code.
 
 Discovery remains per enrolled Unix user. Use separate config, credentials,
 state/cache paths and service identities for separate users. The current host

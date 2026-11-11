@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.144 afeb8337; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.146 85bea702; do not edit -->
 
 # Markdown authoring
 
@@ -245,3 +245,73 @@ Existing saved `:note` forms remain readable. Do not author new `:note` or
 
 See [Memos](docs-notes.md) for resource attributes and API editing, and
 [Linked memo items](docs-notes-linked-items.md) for extracting a list item into a Memo.
+
+## Chat directives
+
+Regular Chat and the built-in agent share Memo's directive validators. Message
+source is stored unchanged. Typing `:` opens the insertion menu; typing more
+filters it. Arrow keys choose, Enter or click inserts, and Escape dismisses.
+Menu selection never sends a message. Complete the selected content slot before
+sending. `::` offers standalone leaves and `:::` offers row/column templates.
+Code spans, fenced code and URLs do not open this menu.
+
+All 19 rich-token names below accept the existing inline form and a standalone
+block-leaf form with exactly two leading colons. Leaves must occupy their own
+line. Triple or longer fences belong only to `row`/`col`; other combinations
+remain literal. Invalid or incomplete directives do not activate resources.
+
+| Name | Content and attributes | Context and interaction |
+| --- | --- | --- |
+| `color` | Text; `color` | Validated CSS color, plain text content |
+| `highlight` | Text; `color`, `user`, `comment` | Styled text and review metadata |
+| `placeholder` | Prompt text | Display placeholder; no input mutation |
+| `insert`, `delete` | Text; `user`, `reason`, `comment` | Display a suggested change only |
+| `replace` | Old text; `with`, `user`, `reason`, `comment` | Display old/new text only |
+| `comment` | Comment text; `user` | Display comment; no implicit Memo write |
+| `note` | Existing Memo ID; `fragment` | Compatibility rendering; new authoring uses ordinary Memo links |
+| `session` | `namespace/24-character-session-id` | Open session; permissions checked by destination |
+| `artifact` | `namespace/id`; `fragment`, `embed`, `inline`, `width`, `height`, `zoom`, `border` | Permission-checked metadata; open or inline frame |
+| `preview` | HTTPS URL; `title` and the same embed options | Safe external preview; does not carry application credentials |
+| `asset-reference` | Asset ID; `caption` | Permission-checked asset metadata and download |
+| `bindr` | Bindr ID | Resolve accessible Bindr and open its location |
+| `file` | `files/path` | Needs explicit owning Memo and file-opening callback; context-free Chat disables it |
+| `dashboard` | `namespace/project/folder` | Open the dashboard for that path |
+| `experiment` | `namespace/project/run` | Open the specified experiment |
+| `project` | `namespace/project` | Open project |
+| `folder` | `namespace/project/folder` | Open folder |
+| `chatgpt-content-reference` | Imported citation index | Unresolved marker; does not invent a citation target |
+| `video` | HTTPS URL or Memo `files/path`; required nonempty `title`, optional paired `width`/`height` | Standalone `:video` or `::video`; attachment media needs its explicit owner |
+| `row`, `col` | Balanced fences of three or more colons | Row container; grouped columns require a shorter fence than their row |
+
+Legacy brace-attribute rich tokens, `#artifact:namespace/id`, imported ChatGPT
+private-use citation markers and `:contentReference[oaicite:…]{index=…}` remain
+readable. Existing Memo `#note:…` references, placeholders, `<Lead>`, template
+variables and `<Columns>` are compatibility features, not new colon directives.
+Ordinary Markdown, math and footnotes retain their existing surface-specific
+behavior. New Chat menus preserve the retirement of new `:note` authoring.
+
+```markdown
+::highlight[Needs review]{color="yellow"}
+::artifact[namespace/artifact-id]{embed="4:3"}
+
+::::row
+:::col
+First column heading
+
+First column detail
+:::
+:::col
+Second column
+:::
+::::
+```
+
+A Chat embedded next to a Memo does not borrow that Memo's attachments or editing
+authority. Resource menus search the explicit Chat/agent namespace; assets also
+need project context. Missing context and inaccessible resources remain explicit.
+Rendering a reference neither grants access nor executes a command. Review markup
+in a message never accepts or rejects edits in a document.
+
+The built-in agent receives a compact capability hint and can retrieve this
+reference through `dreamlake_web_read` when available. It should use only known
+resource IDs, look up exact syntax when needed, and keep ordinary answers plain.

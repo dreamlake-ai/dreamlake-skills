@@ -134,3 +134,37 @@ Credentials belong in the host's authorized driver, not in the config.
 
 This folder dataset combines camera overlays, object motion, and task intervals.
 Scrub the timeline to compare all three at one moment:
+
+## USD scene collections
+
+Use one USD file per episode with `format: usd` and an explicit file glob.
+USD, USDA, USDC and USDZ are supported. The reader lists files without
+fetching scene bytes; each episode exposes one `scene` file field.
+
+```yaml
+version: 1
+name: Simulation scenes
+dataset:
+  format: usd
+  episodes:
+    glob: "*/*.usdz"
+    limit: 10000
+views:
+  - view: metaPanel
+  - view: usd
+    scene: [scene]
+    height: 640
+```
+
+The `usd` view accepts exactly one file in its `scene` binding. It renders
+in the DreamLake app using the Libraries USD renderer. The app's USD catalog
+supports search over scene names and task paths and opens one scene at a time.
+The selected scene loads in a worker; switching scenes cancels the old load
+and releases its GPU resources. Static scenes render on demand.
+
+Place `.dreamrc` at the collection root without `storage`. The app supplies
+the Project or Source location and resolves dependencies using its authorized
+read interface. Keep relative dependencies inside that location. Absolute
+external URLs are refused. USDZ packages resolve their own embedded resources.
+This is a static visual preview, not a physics simulation. Unsupported USD
+primitives, materials and missing dependencies appear as viewer warnings.

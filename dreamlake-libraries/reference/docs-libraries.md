@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.144 afeb8337; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.146 85bea702; do not edit -->
 
 # Asset Libraries
 
@@ -375,6 +375,7 @@ The asset panel mounts a viewer chosen by `kind`:
 | `mjcf` | The interactive MuJoCo viewer (same engine as [Scenes](https://docs.dreamlake.ai/scenes)): physics, actuator sliders, alt-drag forces. |
 | `urdf` | The URDF poser with joint gizmos. |
 | `mesh` | GLB/GLTF, OBJ, STL and mesh PLY. |
+| `usd` | USD, USDA, USDC and USDZ with composed layers and textures. |
 | `splat` | 3D Gaussian splats — see below. |
 | anything else | A file listing with per-file downloads. |
 
@@ -382,6 +383,15 @@ Entry points render as a switcher — flip between `scene.xml` and the bare
 robot without leaving the panel. Files load through short-lived presigned
 URLs and are cached per content hash, so assets sharing files download them
 once.
+
+### USD preview reuse
+
+The USD viewer also previews USDZ packages and is shared with Project and
+Source file previews and the `.dreamrc` USD scene view. It loads composed
+layers and textures in a worker, shows missing-resource and unsupported-content
+warnings, and releases resources when the scene closes. The scene catalog
+configuration is documented in the
+[USD collection reference](https://viz.dreamlake.ai/dataset-viz/spec#usd-scene-collections).
 
 ### 3D Gaussian splats
 
