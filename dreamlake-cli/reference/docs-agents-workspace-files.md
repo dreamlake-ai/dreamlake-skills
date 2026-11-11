@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/workspace-files.md at 0.1.155 3f4728cb; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/workspace-files.md at 0.1.157 93913542; do not edit -->
 
 # Agent workspace files
 
