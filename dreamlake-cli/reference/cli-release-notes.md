@@ -1,10 +1,24 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.119.1 983b77d; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.119.2 8c48835; do not edit -->
 
 # Release notes
 
 ## Unreleased
 
 - `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.119.2 — Exact host terminal targets
+
+- `dl exec`, `dl ssh` and `dl tmux` look up SSH targets for the selected host
+  (and `--enrollment`, when given) instead of reading the namespace's whole
+  terminal catalog, so other hosts, including archived ones, never block a
+  connection. Archived hosts remain reachable by full name or ID. Host,
+  enrollment, delegation and host-key checks are unchanged.
+- Terminal API failures name their code, for example
+  `HTTP 503: terminal_inventory_limit` or `HTTP 409: terminal_not_ready`, with
+  recovery text for both.
+- Bundle DreamLake skills `v2026.11.11`, which adds experiment task routing and
+  USD preview and scene collection guidance since 0.119.1; no CLI behavior
+  change.
 
 ## 0.119.1 — Source workspace skill
 

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.119.1 983b77d; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.119.2 8c48835; do not edit -->
 
 # Host enrollment
 
@@ -817,6 +817,16 @@ delegation before creating a session, so the client resubmits it: up to four
 attempts within 25 seconds, waiting `Retry-After` (at most 5 seconds) or an
 exponential backoff, whichever is longer. Any other delegation failure is
 reported without resubmission, because it may have created a session.
+
+**CLI 0.119.2+.** `dl exec`, `dl ssh` and `dl tmux` look up SSH targets for the
+selected host only, so the rest of the namespace's catalog never blocks a
+connection. An archived host stays reachable by its full name or ID: archiving
+changes list visibility, not access. A revoked enrollment is never a target.
+Terminal API failures name their stage, for example
+`Host API request failed (HTTP 409): terminal_not_ready` when the enrollment is
+not online with SSH. Earlier CLIs read the whole terminal catalog first and fail
+with `Host API request failed (HTTP 503)` when the namespace has more than 100
+connectable enrollments; update the CLI.
 
 ```bash cli-help="exec"
 dl exec geyang/dev/worker -- uname -a
