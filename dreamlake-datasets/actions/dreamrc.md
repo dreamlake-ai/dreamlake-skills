@@ -6,6 +6,9 @@ keys — fetch the reference page for option-level detail.
 
 ## 1. Match the dataset to a `format`
 
+For USD files or packages, start with [Scene collections](#scene-collections)
+before applying the folder recipe below.
+
 `dataset.format` names the reader. Look at the dataset root and match:
 
 | you find at the root | `format` | requires |
