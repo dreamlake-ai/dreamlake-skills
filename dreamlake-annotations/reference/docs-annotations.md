@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.155 3f4728cb; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.157 93913542; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -31,6 +31,16 @@ the annotation. Changing a link from edit to view affects existing holders;
 a link blocks new reads and video signatures; already issued video URLs remain
 usable until their short expiry. Sharing an annotation does not grant access to
 its namespace or other resources.
+
+## Rename an annotation URL
+
+Namespace members can choose **Rename URL** in the annotation header. The new
+slug uses 1–64 lowercase letters, digits, dots, underscores or hyphens, starting
+with a letter or digit. Existing links keep working, and data, history, sharing
+and the storage name stay unchanged. Copying a share link uses the current slug.
+If another rename wins while the dialog is open, the save reports a conflict;
+refresh the annotation before trying again. Title editing remains independent.
+See [the API and SDK reference](docs-annotations-reference.md#update-a-title-or-url-slug).
 
 ## Public catalog reads
 

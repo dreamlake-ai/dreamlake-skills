@@ -1,22 +1,23 @@
 ---
 name: dreamlake-annotations
-description: Upload data to DreamLake annotations with the Python SDK (`dreamlake.annotation`) — annotated robot-training episodes (video + per-frame joints + action segments + optional 3D reconstruction, single- or multi-camera) via the VideoAnnotation preset, or ANY user-defined schema via the generic Annotation (declare tracks, append rows/ranges, read back) — then extend, revise, search and read them. Use when a user wants to upload or ingest data or video to DreamLake, create an annotation (preset or custom schema), add episodes or cameras, revise annotation layers, append time-series/tabular/embedding data, run natural-language search over an annotation, or read the public catalog. This is an SDK workflow; there is no equivalent annotation CLI procedure. Not for `.dreamrc` dataset visualization (dreamlake-datasets).
+description: Upload data to DreamLake annotations with the Python SDK (`dreamlake.annotation`) — annotated robot-training episodes (video + per-frame joints + action segments + optional 3D reconstruction, single- or multi-camera) via the VideoAnnotation preset, or ANY user-defined schema via the generic Annotation (declare tracks, append rows/ranges, read back) — then extend, revise, search and read them. Use when a user wants to upload or ingest data or video to DreamLake, create an annotation (preset or custom schema), add episodes or cameras, revise annotation layers, append time-series/tabular/embedding data, run natural-language search over an annotation, or read the public catalog. Content workflows use the SDK; title and URL changes use the metadata action. Not for `.dreamrc` dataset visualization (dreamlake-datasets).
 ---
 
-# DreamLake annotations (Python SDK)
+# DreamLake annotations
 
-Choose one writer per annotation, preserve the schema and anchor constraints,
-and read back writes before relying on them.
+For content changes, choose one writer per annotation and preserve schema and
+anchor constraints. Read back metadata and content writes before relying on them.
 
 | Data | Action |
 |---|---|
+| Change an annotation display title or URL; update a document that links it | [metadata](actions/metadata.md) |
 | Robot video with joints / subtasks / reconstruction, one or many cameras | [video-episodes](actions/video-episodes.md) — `VideoAnnotation.ensure`, `add_episode`, `add_cameras`, `revise`, `x_` custom tracks, search |
 | Sensor logs, tabular / time-series, embeddings, image sets — a schema you define | [custom-schema](actions/custom-schema.md) — `Schema`, `Annotation.ensure`, `append_rows` / `append_range`, video `ingest`, read-back, the rules behind most errors |
 | Browse or read what exists; open it in the app; Project-derived access | [read-and-visualize](actions/read-and-visualize.md) |
 
-## Rules that hold across actions
+## Content workflow prerequisites
 
-- Prerequisites: `pip install dreamlake dreamdb`, `ffmpeg` on PATH for video
+- Content prerequisites: `pip install dreamlake dreamdb`, `ffmpeg` on PATH for video
   paths, `dl login` once (CI uses `DREAMLAKE_API_KEY`). Local preset
   testing needs no login: `backend="file:///abs/path"`.
 - Names: `"my-set"` is the login's own namespace; `"acme/my-set"` is the acme

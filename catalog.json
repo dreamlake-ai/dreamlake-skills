@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.11.4-1-ga4dae56",
+  "version": "v2026.11.11.7",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -11,7 +11,7 @@
       "files": 4
     },
     "dreamlake-annotations": {
-      "description": "Upload, extend, revise and read back DreamLake annotations with the Python SDK: annotated robot-video episodes through the VideoAnnotation preset, or any user-defined schema through the generic Annotation.",
+      "description": "Create, extend, revise and read DreamLake annotations with the Python SDK; change annotation display titles and URL slugs through the metadata API or CLI while preserving identity and links.",
       "requires": [],
       "tools": {
         "python": ">=3.10",
@@ -20,7 +20,7 @@
           "dreamdb"
         ]
       },
-      "files": 5
+      "files": 6
     },
     "dreamlake-artifacts": {
       "description": "Author, publish, version, list, share, revoke, remove and restore standalone DreamLake artifacts, and reference them from Memos. Excludes Source-owned custom visualizations.",
