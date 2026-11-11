@@ -121,3 +121,14 @@ robots, frame trees and URDF animation:
 
 Next: [validate](validate.md) until every binding decodes, then place the file
 at the dataset root ([connect](connect.md)).
+
+## Scene collections
+
+When the input is a collection of USD scenes, inspect the root and a sample
+package before choosing the episode glob. Follow the USD scene collection
+recipe in [configuration reference](../reference/viz-dataset-viz-spec.md).
+Check that the enumeration covers all task directories and excludes support
+assets. Test one scene from each task, then switch scenes and inspect viewer
+warnings, materials, camera framing and resource cleanup. Verify both the
+individual file preview and the collection's Visualize view before reporting
+completion. Do not infer successful rendering from a valid configuration.
