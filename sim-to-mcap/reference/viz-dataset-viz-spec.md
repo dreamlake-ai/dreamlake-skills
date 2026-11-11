@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.31.1 c535c548; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.31.2 4b3f7d74; do not edit -->
 
 <span id="write-the-dreamrc" />
 
@@ -185,7 +185,13 @@ Selecting an item shrinks the browser and opens one preview. Closing the preview
 restores the grid and releases its rendering resources. It displays one selected episode
 at a time using **any** configured views. `groupBy` is `directory` by default,
 or `none`; `pageSize` defaults to 50 and must be an integer from 1 to 200.
-Load more reveals another page of metadata without fetching those scenes.
+Since 0.31.2, scrolling within 400px of the browser's bottom automatically reveals
+another page of metadata, until every matching scene is shown. `pageSize` is the
+append size, not a total scene limit. Load more remains a keyboard-accessible
+fallback. Search, task selection and clearing filters reset the displayed page.
+Counts show displayed versus matching scenes and the end of the collection.
+Only visible/nearby thumbnails resolve URLs; distant thumbnail images unmount.
+Appending metadata never downloads USD or creates additional renderers.
 
 Search matches case-insensitive substrings in enumerated names, full paths and
 task metadata; underscores match spaces. It does not search mesh contents,

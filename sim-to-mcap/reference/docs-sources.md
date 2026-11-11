@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.148 240f5360; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.150 29155024; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -341,6 +341,11 @@ Task counts, filename details and selection state remain visible while filtering
 filters do not silently change the current scene. The Source Visualize tab hides
 file navigation to give the scene more room; Files restores file browsing.
 Collections open as a responsive thumbnail grid without loading a USD scene.
+Scrolling near the bottom automatically reveals another page until all matching
+items are shown; `pageSize` is the append size, not a total scene limit.
+A displayed/total count and an end-of-list message make progress explicit.
+Search and task filters apply to the complete indexed catalog, including items
+not yet displayed. Thumbnails stay lazy and offscreen images are released.
 Selecting an item contracts the grid into a compact browser alongside the preview.
 Close preview restores the grid, search filters and scroll position, and releases
 the renderer. On narrow screens, the grid uses the full width; after selection,
