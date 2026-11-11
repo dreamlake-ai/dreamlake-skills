@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.144 afeb8337; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.146 85bea702; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -300,3 +300,21 @@ released Project-derived content access remain available.
 > promise. No released backend or client version supports this yet; the
 > [whole-Project contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer) is authoritative
 > for scope and current blockers.
+
+## USD scene previews
+
+Selecting a `.usd`, `.usda`, `.usdc` or `.usdz` file opens the shared Libraries
+USD viewer in the file preview. Project files use the same renderer. Scene
+layers and textures load on demand through authorized reads; relative
+references must remain within the Project or Source. USDZ embedded assets
+remain inside the package. Source preview permissions still apply. USD previews
+have a 256 MiB file ceiling, enforced again while reading layers in the worker; texture and
+package expansion limits are also enforced.
+
+For a collection, place a `.dreamrc` at its root using the
+[USD collection configuration](https://viz.dreamlake.ai/dataset-viz/spec#usd-scene-collections).
+Visualize provides a searchable scene catalog and one active 3D viewport,
+so browsing a large collection does not load all scenes. Orbit and zoom use
+the same controls, lighting and theme as Libraries. Previews show static
+geometry, not physics execution; inspect viewer warnings for unsupported
+content or missing dependencies.
