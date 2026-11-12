@@ -5,8 +5,8 @@ what each run did. Authenticate and select the intended environment first (the
 `setup` action of `dreamlake-cli`). How the flow works, the workflow and
 evidence contract and every limit are in the
 [product guide](../reference/docs-lakeshore-cict.md); commands and flags are in
-the [CLI reference](../reference/cli-cict.md). Check that `dl cict --help`
-exists in the installed CLI before using it. A `github_runners_disabled`
+the [CLI reference](../reference/cli-cict.md). These commands need CLI
+0.123.0 or later; check `dl cict --help` before using them. A `github_runners_disabled`
 answer means the server has the integration off: stop and report that; there
 is no other route.
 
@@ -30,6 +30,9 @@ namespace registered).
 ## Use DreamLake GPU
 
 1. `dl cict platform show NS`.
+   - *Not offered on this server* (`available: false`): DreamLake GPU is off
+     for the whole server, not just this namespace. Report it; nothing the
+     user runs changes that.
    - *Not enabled*: tell the user the DreamLake team enables it per namespace;
      there is nothing to run.
    - *Enabled, not started*: `dl cict platform start NS` (or `--source ID` for
@@ -63,17 +66,21 @@ namespace registered).
 ## Check a run
 
 1. `dl cict runs list NS --limit 20` and find the run by repository, job and
-   commit.
+   commit. The text output has no branch; use `--json` and its `headBranch`
+   field to find a pull request's runs.
 2. `dl cict runs show NS/RUN_ID` for routing, runner, Slurm job, evidence
    state, who triggered it and GPU time; add `--result` for the suite's
    `result.json`.
 3. `dl cict runs compare NS/RUN_ID` shows which cases regressed or were fixed
-   against the default-branch baseline (`--all` for every case).
+   against the baseline: the latest earlier run of the same repository,
+   workflow and job on the default branch whose evidence was written (`--all`
+   for every case).
 4. Explain the state with the guide's
    [Troubleshooting](../reference/docs-lakeshore-cict.md#troubleshooting)
    table. `queued #N` is a DreamLake GPU job waiting for a slot, not a fault.
-   `refused:<reason>` is DreamLake GPU access (not enabled, not started,
-   paused). `unbound` and `unmatched` are setup problems. A red GitHub check
+   `refused:<reason>` (shown as `not started: <reason>` in `runs show`) is
+   DreamLake GPU access (not enabled, not started, paused).
+   `rejected:<reason>` is a public repository or an inactive installation. `unbound` and `unmatched` are setup problems. A red GitHub check
    with evidence `written` is a test result, not an infrastructure failure.
 
 ## Administer DreamLake GPU
