@@ -30,7 +30,7 @@ evidence standard are in [machines](actions/machines.md).
 | SSH usage/limits, Nymph capacity configuration and command permission boundaries | [SSH capacity and permissions](actions/ssh-capacity.md) |
 | Move a personally owned host between namespaces, keeping it private (CLI or documented SDK fallback) | [move a host](actions/host-move.md) |
 | Read Slurm scheduler jobs; register and report externally launched work | [jobs](actions/jobs.md) |
-| CI/CT: run GitHub Actions jobs on DreamLake machines (connect GitHub, runner pools), inspect CI/CT runs and their evidence | [cict](actions/cict.md) |
+| CI/CT: run GitHub Actions jobs on DreamLake GPU or own runner pools, inspect runs, compare with the baseline, administer DreamLake GPU | [cict](actions/cict.md) |
 | Machine identities, service accounts, launch-server binding, provisioning and EC2 launches | [machines](actions/machines.md) |
 | Infrastructure Stacks: discover and collaborate (manual and automated Terraform setup), register an empty backend, Kubernetes capacity | [infrastructure](actions/infrastructure.md) |
 | Rename or relocate an existing Infrastructure registration (CLI, Python SDK or agent tools) | [move an Infrastructure registration](actions/infrastructure-move.md) |
