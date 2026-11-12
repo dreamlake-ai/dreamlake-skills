@@ -1,0 +1,9 @@
+Branch acceptance scope, 2026-11-12
+
+The user explicitly changed the task to Codex-only; no Claude session was launched. The active implementation Codex copied and read the exact branch SKILL.md files and complete requires closure (dreamlake-cli, dreamlake-agents) in an isolated temporary project. This is a same-session readback, not independent or fresh-session acceptance.
+
+Representative request: edit a workspace file. CLI skill routes to actions/data.md; explicit endpoint, installed help, read revision, guarded mutation and readback are required. This task exercised Source/memory byte parity and Project isolated tests, separately from skill readback.
+SDK-only request: transfer a mesh via Python. Both entrypoints allow explicit SDK integration; use the published workspace API guide, check release availability and byte hashes, never invent model tool names as SDK methods. Python adapter tests pass in the companion SDK PR.
+Unsupported request: execute arbitrary shell inside the built-in file endpoint. The actions provide no shell capability; report the missing transport/runtime and do not invent a command or treat file-write success as simulation acceptance.
+
+All three checks are active-agent procedural reviews. Fresh Codex replay remains unperformed; Claude replay intentionally omitted per user direction. Product, docs publication, skills tag and installed release readback remain separate release dependencies.

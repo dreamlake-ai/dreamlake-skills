@@ -25,3 +25,11 @@ Discovery and enablement are not resource permissions. Read the
 for supported transports, scopes and recovery guarantees. If this deployed
 version has no resource-discovery tools, use documented existing adapters and
 report the remaining capability gap.
+
+For workspace files, choose the explicit endpoint before operating and retain
+the returned revision for every edit. Check the documented transport's byte
+capability before handling images or meshes. Never stringify binary transfer
+payloads into model messages or receipts. A browser host may consume authorized
+bytes for rendering; a successful transfer alone does not prove that rendering
+or physics succeeded. Store useful browser outputs durably before reporting
+publication, and keep raw evidence linked rather than expanding the task memo.

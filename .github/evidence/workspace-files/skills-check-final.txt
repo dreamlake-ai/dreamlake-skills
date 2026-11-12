@@ -1,0 +1,2 @@
+WARN dreamlake-scenes: tools tests: nothing ran; every test skipped itself, probably because a package listed in skill.json tools is not installed here
+check (offline): ok, 16 skill dir(s) plus _template/, 1 warning(s)

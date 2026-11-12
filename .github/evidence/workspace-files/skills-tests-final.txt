@@ -1,0 +1,24 @@
+.......................................................
+----------------------------------------------------------------------
+Ran 55 tests in 0.672s
+
+OK
+catalog.json is missing; run scripts/catalog.py
+catalog.json: 2 skill(s), version v9
+catalog.json is up to date
+check (offline): ok, 2 skill dir(s) plus _template/, 0 warning(s)
+FAIL dreamlake-cli: references/ is a legacy hand-written directory; move task pages to actions/ and let docs[] fetch product pages into reference/
+FAIL dreamlake-cli: missing skill.json
+FAIL dreamlake-notes: skill.json: requires 'dreamlake-cli', which is not a skill in this repository
+FAIL renamed.json: dreamlake-tasks -> dreamlake-cli, but dreamlake-cli is not a skill in this repository
+FAIL catalog.json: catalog.json: lists dreamlake-cli, which has no skill.json
+FAIL catalog.json: run scripts/catalog.py to regenerate
+FAIL references.lock: dreamlake-cli: references.lock entry has no skill directory
+check (offline): 7 failure(s), 0 warning(s) across 2 skill dir(s) plus _template/
+/tmp/tmpicucz8z9/out/skills.tar.gz: 2 skill(s) (dreamlake-cli, dreamlake-notes)
+sha256 963adc61fe1f2be990102de426a136d429d71a15bafb058c5623dd6a202d066f
+/tmp/tmpicucz8z9/out/catalog.json: catalog.json plus assets.skills.tar.gz (sha256, bytes)
+reference/ matches references.lock
+dreamlake-a: reference/docs-index.md was changed by hand; it is generated, so revert it or run scripts/sync_references.py
+1 problem(s)
+reference/ matches references.lock
