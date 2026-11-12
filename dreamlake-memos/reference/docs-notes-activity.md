@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/activity.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/activity.md at 0.1.158 3f90c7b1; do not edit -->
 
 # Session and resource activity
 
@@ -22,7 +22,7 @@ The panel separates two questions:
 - **Related resources:** which resources are connected to this memo? Explicit
   links and Memo references in the currently open text appear together, with one
   row per resource and labels explaining the connection. Repeated mentions do
-  not duplicate rows. References use the existing `#note:ID`, `:note[ID]` and
+  not duplicate rows. References accept `:memo[ID]`, `#note:ID`, `:note[ID]` and
   `:note{id="ID"}` syntax; code examples, escaped references, link labels and
   self-references are excluded. Titles are resolved through the existing Memo
   access checks. Missing or inaccessible targets are omitted.

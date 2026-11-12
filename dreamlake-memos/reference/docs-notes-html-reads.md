@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/html-reads.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/html-reads.md at 0.1.158 3f90c7b1; do not edit -->
 
 # HTML reads
 
@@ -142,7 +142,7 @@ the surrounding block remains the edit target instead of a guessed comment range
 
 The v2 HTML renderer recognizes strict Markdown source tokens for
 `:placeholder[owner]`, `:asset-reference[asset-id]{caption="plot"}`,
-`:note[note-id]`, `:artifact[geyang/pitch-deck]`, `:bindr[bindr-id]` and
+`:memo[note-id]`, legacy `:note[note-id]`, `:artifact[geyang/pitch-deck]`, `:bindr[bindr-id]` and
 `:chatgpt-content-reference[0]` in the development preview, plus every saved legacy form. Attribute values use double quotes;
 unknown/duplicate attributes and malformed tokens remain literal source.
 Code, escaped punctuation, Markdown links and URL paths keep their ordinary

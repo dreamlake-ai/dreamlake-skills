@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.158 3f90c7b1; do not edit -->
 
 # Writing and formatting
 
@@ -227,11 +227,11 @@ page in the preview/browser.
 
 ### Artifact references (development preview)
 
-Use ordinary Markdown links for new Memo references. Other rich resources use
+Use `:memo[id]` for new Memo references. Existing Markdown links remain supported. Rich resources use
 Markdown directive notation:
 
 ```markdown
-[Memo](https://dreamlake.ai/geyang/notes?note=6ab5aaeed3b4339ea2f4c162)
+:memo[6ab5aaeed3b4339ea2f4c162]
 :artifact[geyang/pitch-deck]
 :bindr[bindr-id]
 :asset-reference[asset-id]{caption="plot"}
@@ -244,8 +244,8 @@ a Markdown extension, not core CommonMark. Brackets hold primary content; braces
 hold optional named attributes. Resource semantics are DreamLake-specific.
 The namespace and artifact ID are both required because artifact IDs are scoped
 to their owner; memo IDs resolve globally. Memo extraction and copy-reference
-controls produce ordinary links containing the full ID and owner namespace.
-New `:note` insertion suggestions are removed; no `:memo` directive is defined.
+controls produce `:memo[id]` with the full resource ID. Insertion menus and
+search/create flows use the same form. Copy URL continues returning a URL.
 Memo headers show a clickable `#…` badge with the last six ID characters.
 Artifact headers use a copy icon and copy the complete artifact reference,
 including its owner namespace. Copying either reference does not create a share
@@ -281,17 +281,18 @@ is no artifact insertion picker yet: type/paste the complete token.
 
 ### Fragment reference syntax (development preview)
 
-Use a URL fragment on an ordinary Memo link to retain a section target.
+Use `:memo[id#overview]` or `:memo[id]{fragment="overview"}` to retain a section target.
+Existing Markdown links with URL fragments also remain supported.
 Artifact directives can also retain a slide target:
 
 ```markdown
-[Memo overview](https://dreamlake.ai/geyang/notes?note=6ab5aaeed3b4339ea2f4c162#overview)
+:memo[6ab5aaeed3b4339ea2f4c162#overview]
 :artifact[geyang/pitch-deck#slide-3]
 :artifact[geyang/pitch-deck#/3]
 ```
 
 Existing `:note[id#overview]` and `:note[id]{fragment="overview"}` remain
-readable. Preserve those saved forms; use ordinary links for new references.
+readable. Preserve those saved forms; use `:memo` for new references.
 Specify the fragment only once. The parser separates it from the resource ID and
 preserves the exact raw token, including percent encoding. Malformed fragments
 remain literal. Static API HTML maps the complete reference atomically without

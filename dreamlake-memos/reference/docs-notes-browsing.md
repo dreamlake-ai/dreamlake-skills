@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.158 3f90c7b1; do not edit -->
 
 # Browse, create and organize
 
@@ -294,21 +294,20 @@ routes. List search includes ordering; default status/category chips are omitted
 from the compact panes. Project and Bindr member ordering is applied before
 pagination so it covers the entire result set.
 
-Inside another DreamLake Memo, insert an ordinary Markdown link using the
-returned or copied full URL. Do not add new `:note` directives; existing saved
-directives remain readable, and no `:memo` directive is defined. A browser link does not change visibility or grant access to a
+Inside another DreamLake Memo, use `:memo[id]` with the full resource ID. Existing Markdown
+links and legacy `:note` directives remain readable. Copy URL still returns a URL. A browser link does not change visibility or grant access to a
 private memo.
 
-Hovering a project folder's title reveals a link
-icon that copies the folder's URL. Keyboard focus also reveals the icon.
-Use **Copy folder path** in a folder's right-click menu to copy its full
-`namespace/project-slug/folder/path`, including the namespace and project even
-when the breadcrumb shows a display name. Paste this path into an AI request
-to identify the folder whose Memos you want read.
-Project list items and folder grid cards offer **Copy URL** in their right-click
-menu; folders also offer **Copy folder path**. A copied URL opens the selected
-item without carrying unrelated open Memos or panel layouts. Copying a path or
-URL does not grant access to the folder or its Memos.
+Project folder titles, list items and folder grid cards have a link icon that
+copies their URL. On a desktop it appears on hover or keyboard focus. On touch
+devices the icon stays visible with a tap target of at least 44 by 44 pixels;
+tapping it copies the link without opening the item. Desktop right-click menus
+also offer **Copy URL**, with no separate folder-path copy action.
+
+The copied URL includes the namespace, project slug and folder path, so you can
+paste it into an AI request to identify the folder whose Memos you want read.
+It opens the selected item without carrying unrelated open Memos or panel
+layouts. Copying a URL does not grant access to the folder or its Memos.
 
 ## Profile introduction
 

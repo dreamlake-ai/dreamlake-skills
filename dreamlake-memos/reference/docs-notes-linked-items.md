@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.158 3f90c7b1; do not edit -->
 
 # Linked memo items
 
@@ -11,17 +11,17 @@ Turn a list item into a memo while keeping the parent list compact.
 3. The reference displays a short hash and title, with an ellipsis when the title is too long.
 4. Click the reference to open an editable tab in the panel on the right. Create that panel only when absent; subsequent references add tabs there. References opened from a side Memo add tabs in that same side panel. An already-open Memo is focused instead of duplicated. On a narrow screen, navigation fills the viewport. Closing a tab does not delete the Memo.
 
-## Plain Markdown
+## Memo references
 
-New Memo references use ordinary Markdown links with the full ID and owner namespace:
+New Memo references use `:memo[full-id]`. Existing Markdown links remain supported:
 
 ```markdown
-1. [Design Memo](https://dreamlake.ai/geyang/notes?note=6aa9951250d9de84058e8ebb)
-   - [ ] Discuss [Demo plan](https://dreamlake.ai/geyang/notes?note=6aa989ea6aff1e1960afc51f) before the demo.
+1. :memo[6aa9951250d9de84058e8ebb]
+   - [ ] Discuss :memo[6aa989ea6aff1e1960afc51f] before the demo.
 ```
 
-Use the URL returned by DreamLake or copied from the Memo. Do not replace the
-full ID with a title or short hash, or guess the owner namespace. Text before
+Use the full ID returned by DreamLake. Copy Reference returns `:memo[id]`;
+Copy URL continues to return a URL. Do not replace the ID with a title or short hash. Text before
 and after a link remains ordinary Markdown. References inside code remain literal.
 
 Linked memos retain their own permissions. Creating a reference does not grant access to the child or make it public. A missing or inaccessible memo displays **Unavailable memo**.
@@ -30,9 +30,9 @@ If an item changes during creation, the source stays intact and the new memo ope
 
 ## Rich-component notation
 
-Memo extraction and the copy-reference button produce ordinary links.
-New `:note` authoring and its insertion suggestions are retired. There is no
-`:memo` directive. The renderer still accepts saved `:note[<full-note-id>]`,
+Memo insertion, search/create, list-item extraction and Copy Reference produce
+`:memo[id]`. Both `:memo` and legacy `:note` render in Memos and Chat.
+The renderer also accepts saved `:note[<full-note-id>]`,
 `#note:<full-note-id>` and `:note{id="<full-note-id>"}` references. Preserve existing
 source, attributes and fragments exactly; do not bulk-rewrite stored content.
 

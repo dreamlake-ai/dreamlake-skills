@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.157 d0b62f3d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.158 3f90c7b1; do not edit -->
 
 # Browser terminal
 
@@ -41,6 +41,32 @@ shell. Their input never goes into a reattached tmux session.
 Custom commands are limited to 4096 bytes on one line. For example,
 `tmux new-session -A -s web-ssh -c ~/project` or `htop`. The gateway rejects
 newlines and control characters.
+
+## Machine tabs: Brief, Agents and Jobs
+
+The selected machine's dock keeps three fixed tabs, followed by its open
+terminal sessions.
+
+- **Brief:** status, group, Unix user and last heartbeat, then recorded CPU,
+  memory and storage readings, SSH and tunnel counts, and observed
+  capabilities. A capability marked **Ready (observed)** is advertised by the
+  worker. It is not an SSH handshake or a test run. IDs, exact times and
+  limits are under **Technical details**.
+- **Agents:** sessions reported by the machine's agent-session collector,
+  grouped as Needs input, Working, Done, Idle and Unknown, youngest first.
+  - **Done** means the newest turn completed; a thread that is merely idle is
+    **Idle**.
+  - The age is the session's native creation time. Codex reports it, and a
+    resume keeps it. Claude sessions and older collectors report none and
+    show `—`.
+- **Jobs:** tracked runs bound to this exact machine enrollment, grouped as
+  Failed, Working, Done, Cancelled and Other, each with its exact state.
+  - The title is the uploaded program file when the run started it directly
+    (`script.py` or `python script.py`). Otherwise it is the run's request ID,
+    or a short job ID.
+  - Arguments and environment are never shown.
+  - The age counts from creation. Jobs are read 100 at a time across the
+    namespace, so other pages may hold more of this machine's jobs.
 
 ## Saved agent sessions
 

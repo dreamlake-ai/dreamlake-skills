@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.158 3f90c7b1; do not edit -->
 
 # Markdown authoring
 
@@ -233,15 +233,15 @@ they do not automatically gain the app’s color renderer.
 
 ## Link resources
 
-Use an ordinary Markdown link to another Memo. Artifacts use resource directives:
+Use `:memo[id]` to reference another Memo. Existing Markdown links remain supported:
 
 ```markdown
-[Memo](https://dreamlake.ai/geyang/notes?note=6ab5aaeed3b4339ea2f4c162)
+:memo[6ab5aaeed3b4339ea2f4c162]
 :artifact[namespace/artifact-id]
 ```
 
-Existing saved `:note` forms remain readable. Do not author new `:note` or
-`:memo` directives.
+Both `:memo` and legacy `:note` forms remain readable, including named attributes
+and fragments. Prefer `:memo[id]` for new references; never rewrite saved content.
 
 See [Memos](docs-notes.md) for resource attributes and API editing, and
 [Linked memo items](docs-notes-linked-items.md) for extracting a list item into a Memo.
@@ -268,7 +268,7 @@ remain literal. Invalid or incomplete directives do not activate resources.
 | `insert`, `delete` | Text; `user`, `reason`, `comment` | Display a suggested change only |
 | `replace` | Old text; `with`, `user`, `reason`, `comment` | Display old/new text only |
 | `comment` | Comment text; `user` | Display comment; no implicit Memo write |
-| `note` | Existing Memo ID; `fragment` | Compatibility rendering; new authoring uses ordinary Memo links |
+| `memo` / `note` | Memo ID; `fragment` | New authoring uses `:memo[id]`; `:note` remains compatible |
 | `session` | `namespace/24-character-session-id` | Open session; permissions checked by destination |
 | `artifact` | `namespace/id`; `fragment`, `embed`, `inline`, `width`, `height`, `zoom`, `border` | Permission-checked metadata; open or inline frame |
 | `preview` | HTTPS URL; `title` and the same embed options | Safe external preview; does not carry application credentials |
@@ -288,7 +288,7 @@ private-use citation markers and `:contentReference[oaicite:…]{index=…}` rem
 readable. Existing Memo `#note:…` references, placeholders, `<Lead>`, template
 variables and `<Columns>` are compatibility features, not new colon directives.
 Ordinary Markdown, math and footnotes retain their existing surface-specific
-behavior. New Chat menus preserve the retirement of new `:note` authoring.
+behavior. New Chat menus generate `:memo[id]`; legacy `:note` remains readable.
 
 ```markdown
 ::highlight[Needs review]{color="yellow"}

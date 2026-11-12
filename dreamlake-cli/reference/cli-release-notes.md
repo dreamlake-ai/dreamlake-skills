@@ -1,10 +1,23 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.121.1 361dc74; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.123.0 bb71aaa; do not edit -->
 
 # Release notes
 
-## Unreleased
+## 0.123.0 — CI/CT commands
 
+- `dl cict` manages CI/CT through GitHub Actions:
+  - `github connect/installations`;
+  - `pools list/create/update/delete/targets`;
+  - `runs list/show/compare`, where `compare` gives case-by-case regressions against the default-branch baseline;
+  - DreamLake GPU: `platform show/start/source` and `usage`;
+  - `platform admin list/allow/pause/limit/machine` for platform namespace admins.
+- The TypeScript API adds `dl.cict(namespace)` and `dl.cictPlatformAdmin`. See [CI/CT with GitHub Actions](https://cli.dreamlake.ai/cict).
 - `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.122.0 — Annotation URL rename
+
+- `dl annotation list/get/update/rename` and the TypeScript `client.annotations(namespace)` client read metadata and change titles or canonical URL slugs.
+- Slug updates preserve immutable identity, data/history and old links. Namespace management permission and observed ID/slug/revision guards prevent collisions and stale concurrent writes.
+- Servers without the new capability reject a rename before any write. See [Annotations](https://cli.dreamlake.ai/annotations).
 
 ## 0.119.2 — Exact host terminal targets
 
