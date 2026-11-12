@@ -1,6 +1,6 @@
 ---
 name: dreamlake-annotations
-description: Upload data to DreamLake annotations with the Python SDK (`dreamlake.annotation`) — annotated robot-training episodes (video + per-frame joints + action segments + optional 3D reconstruction, single- or multi-camera) via the VideoAnnotation preset, or ANY user-defined schema via the generic Annotation (declare tracks, append rows/ranges, read back) — then extend, revise, search and read them. Use when a user wants to upload or ingest data or video to DreamLake, create an annotation (preset or custom schema), add episodes or cameras, revise annotation layers, append time-series/tabular/embedding data, run natural-language search over an annotation, or read the public catalog. Content workflows use the SDK; title and URL changes use the metadata action. Not for `.dreamrc` dataset visualization (dreamlake-datasets).
+description: Upload data to DreamLake annotations with the Python SDK (`dreamlake.annotation`) — annotated robot-training episodes (video + per-frame joints + action segments + optional 3D reconstruction, single- or multi-camera) via the VideoAnnotation preset, or ANY user-defined schema via the generic Annotation (declare tracks, append rows/ranges, read back) — then extend, revise, search and read them. Use when a user wants to upload or ingest data or video to DreamLake, create an annotation (preset or custom schema), add episodes or cameras, revise annotation layers, append time-series/tabular/embedding data, run natural-language search over an annotation, or read the public catalog. Content workflows use the SDK; title and URL changes use the metadata action; visibility and signed-in links use the sharing action. Not for `.dreamrc` dataset visualization (dreamlake-datasets).
 ---
 
 # DreamLake annotations
@@ -11,6 +11,7 @@ anchor constraints. Read back metadata and content writes before relying on them
 | Data | Action |
 |---|---|
 | Change an annotation display title or URL; update a document that links it | [metadata](actions/metadata.md) |
+| Share an annotation, set visibility or link roles, inspect or remove accepted recipients | [sharing](actions/sharing.md) |
 | Robot video with joints / subtasks / reconstruction, one or many cameras | [video-episodes](actions/video-episodes.md) — `VideoAnnotation.ensure`, `add_episode`, `add_cameras`, `revise`, `x_` custom tracks, search |
 | Sensor logs, tabular / time-series, embeddings, image sets — a schema you define | [custom-schema](actions/custom-schema.md) — `Schema`, `Annotation.ensure`, `append_rows` / `append_range`, video `ingest`, read-back, the rules behind most errors |
 | Browse or read what exists; open it in the app; Project-derived access | [read-and-visualize](actions/read-and-visualize.md) |

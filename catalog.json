@@ -11,7 +11,7 @@
       "files": 4
     },
     "dreamlake-annotations": {
-      "description": "Create, extend, revise and read DreamLake annotations with the Python SDK; change annotation display titles and URL slugs through the metadata API or CLI while preserving identity and links.",
+      "description": "Create, extend, revise and read DreamLake annotations with the Python SDK; manage titles, URL slugs, visibility and signed-in sharing through the metadata API or CLI while preserving resource identity.",
       "requires": [],
       "tools": {
         "python": ">=3.10",
@@ -20,7 +20,7 @@
           "dreamdb"
         ]
       },
-      "files": 6
+      "files": 7
     },
     "dreamlake-artifacts": {
       "description": "Author, publish, version, list, share, revoke, remove and restore standalone DreamLake artifacts, and reference them from Memos. Excludes Source-owned custom visualizations.",

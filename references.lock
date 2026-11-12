@@ -89,6 +89,13 @@
         "version": "0.1.157 93913542",
         "source_sha256": "38b6cd9c4f7dee0d17b97d310796e7aa17ffdc670004300577a16a3a533620cf",
         "sha256": "490221560b88f9aaac6ea06c55d3125bf107cedb9c197fa86fc7a6beb680c346"
+      },
+      {
+        "url": "https://cli.dreamlake.ai/annotations",
+        "file": "reference/cli-annotations.md",
+        "version": "0.122.0 ee0b243",
+        "source_sha256": "30502f09ba6c25ed38d60faa03788d2b6ee21d4e90fc170fe1fa2aeb195b96a4",
+        "sha256": "e5f90d3ae5c7ec858d6ff93c4434110e03f56a41596862b342aadd9fa4757c18"
       }
     ],
     "dreamlake-artifacts": [
