@@ -1,0 +1,9 @@
+Fresh Codex candidate acceptance, 2026-11-12
+
+A separate native Codex session consumed an isolated copy of the candidate dreamlake-cli + dreamlake-agents requires closure. It made no implementation changes.
+
+1. Representative task PASS: installed CLI0.121.1 created a disposable Source text file, read it, replaced one literal match with its exact revision, rejected a stale write with file_revision_conflict and read the final expected content. Initial nonexistent-path404 and local missing-python launcher recovery were retained in evidence.
+2. Explicit SDK-only task PASS: branch editable Python read52,241 bytes and matched SHA256 d3fa989ad3295511c6b86289c6d13dc1a92a5f47ee7859157656b7cde920d61f. Read-only request; this is branch SDK evidence, not a published package test.
+3. Unsupported capability PASS: correctly stated workspace files cannot execute arbitrary Bash or establish physics success; no runtime launched and no invented endpoint.
+
+Selected exact command arguments, stdout/stderr and exit codes are attached to the task Memo. No internal reasoning/context or transcript archive was published. Claude intentionally omitted per explicit user direction. Fresh released-skill installation and generated reference provenance remain later publication checks; the PR stays Draft pending product/docs release.
