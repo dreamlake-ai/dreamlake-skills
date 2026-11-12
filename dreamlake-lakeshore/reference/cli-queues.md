@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/queues.md at 0.121.1 361dc74; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/queues.md at 0.123.0 bb71aaa; do not edit -->
 
 # Mount a queue server
 

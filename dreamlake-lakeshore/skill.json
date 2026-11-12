@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-lakeshore",
-  "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and external jobs, provision machines through a user-configured launch server, collaborate on Infrastructure Stacks, and connect AWS.",
+  "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and sessions, read Slurm and external jobs, provision machines via a user-configured launch server, Infrastructure Stacks, AWS, and CI/CT GitHub Actions runners.",
   "requires": [
     "dreamlake-cli"
   ],
@@ -13,6 +13,7 @@
     "https://cli.dreamlake.ai/queues",
     "https://cli.dreamlake.ai/providers",
     "https://cli.dreamlake.ai/providers/kubernetes",
+    "https://cli.dreamlake.ai/cict",
     "https://cli.dreamlake.ai/service-accounts",
     "https://cli.dreamlake.ai/infrastructure",
     "https://cli.dreamlake.ai/connect-aws",
@@ -20,7 +21,8 @@
     "https://docs.dreamlake.ai/lakeshore/hosts/enroll",
     "https://docs.dreamlake.ai/infrastructure-stacks",
     "https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal",
-    "https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions"
+    "https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions",
+    "https://docs.dreamlake.ai/lakeshore/cict"
   ],
   "tools": null
 }
