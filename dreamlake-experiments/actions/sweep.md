@@ -4,7 +4,7 @@ Read [the experiment workflow guide](../reference/docs-ml-dash-guides-experiment
 the project's `GET .../status` lists `experiments`; without it, record ordinary runs with
 [Record an experiment](record.md) and say the workflow view is unavailable.
 
-Create the environment with Python 3.13, the tested combination (Python 3.13.14, `dreamlake` 0.50.1,
+Create the environment with Python 3.13, the tested combination (Python 3.13.14, `dreamlake` 0.51.0,
 `params-proto` 3.3.0); see the guide's "Tested environment". With Python 3.14.5 and params-proto 3.3.0
 the template's grid generator fails with `TypeError: cannot pickle 'itertools.product' object`: if a user
 hits that, switch the environment to Python 3.13 rather than editing the generator. The project must
@@ -21,8 +21,8 @@ already exist (`dl create project <name> --namespace <ns>`).
 4. Review through the server contract (`folder.contract()`) or the Dash experiment view, not by
    averaging every run in the folder.
 
-Evaluation and analysis — **unreleased**: only when the installed template has `play.py` and
-`analysis.py` (the guide's "Evaluation and analysis" section); otherwise skip this part.
+Evaluation and analysis (from `dreamlake` 0.51.0; the guide's "Evaluation and analysis" section): with
+an older installed SDK the template has no `play.py` or `analysis.py` — upgrade rather than copy them.
 
 5. Keep evaluation a separate step after training completes: the launcher runs the user's plain
    `play.py` on the final checkpoint and records the checks on that attempt. Keep `play.py` free of
