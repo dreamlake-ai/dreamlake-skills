@@ -21,6 +21,19 @@ already exist (`dl create project <name> --namespace <ns>`).
 4. Review through the server contract (`folder.contract()`) or the Dash experiment view, not by
    averaging every run in the folder.
 
+Evaluation and analysis — **unreleased**: only when the installed template has `play.py` and
+`analysis.py` (the guide's "Evaluation and analysis" section); otherwise skip this part.
+
+5. Keep evaluation a separate step after training completes: the launcher runs the user's plain
+   `play.py` on the final checkpoint and records the checks on that attempt. Keep `play.py` free of
+   DreamLake imports; give every check a human-readable `name`, an optional machine `id`, a `reason`,
+   and `inconclusive` when the evidence is too thin. To evaluate an existing attempt again use
+   `--launch.eval-only --launch.attempt <id>`; never start a new training attempt for that.
+6. Run `analysis.py` after the evaluations you need are recorded. Exit 0: every criterion passed;
+   1: a criterion failed or could not be judged; 2: the analysis itself failed (fix the error, do not
+   report a verdict). If it prints STALE, or Dash shows the report stale, run it again rather than
+   quoting it. Write the criteria with the user; they are reading aids, not significance tests.
+
 Choosing an attempt kind:
 
 - A crashed or failed run that should continue: a **resume** with the explicit parent attempt id,
@@ -31,6 +44,11 @@ Choosing an attempt kind:
   `params`, `config` or `seed` means a different attempt: start a new one, do not force it.
 - A changed configuration or a clean re-run: a new **fresh** attempt. The previous one stays
   stored and is no longer compared.
+
+Report the three answers separately: training state (`completed`), evaluation (`Fail`, `Eval error`,
+`Not recorded`, `Stale`, ...) and the analysis outcome. A failed check never makes a run failed, an
+`Eval error` is not a policy verdict, `Not recorded` and `Stale` are not passes, and "Criteria not met"
+does not mean the hypothesis is disproven — quote the author's statement and the failing criterion.
 
 Report states as the contract gives them. `unknown` (a read failed) is not "not started", and
 `409 EXPERIMENT_INCOMPLETE` means no comparison exists yet: report the diagnostics, not partial numbers;
