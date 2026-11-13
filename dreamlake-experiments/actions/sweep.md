@@ -30,9 +30,13 @@ Evaluation and analysis — **unreleased**: only when the installed template has
    and `inconclusive` when the evidence is too thin. To evaluate an existing attempt again use
    `--launch.eval-only --launch.attempt <id>`; never start a new training attempt for that.
 6. Run `analysis.py` after the evaluations you need are recorded. Exit 0: every criterion passed;
-   1: a criterion failed or could not be judged; 2: the analysis itself failed (fix the error, do not
-   report a verdict). If it prints STALE, or Dash shows the report stale, run it again rather than
-   quoting it. Write the criteria with the user; they are reading aids, not significance tests.
+   1: a criterion failed or could not be judged; 2: no current verdict — the analysis failed, or its
+   published report is stale, replaced or could not be read back (fix or re-run; do not quote a
+   verdict). Each run publishes a new generation id; never reuse an id for changed content. Write the
+   criteria with the user; they are reading aids, not significance tests.
+7. On a worker, record evaluations with a write session bound to that attempt's run
+   (`Attempt.existing(...)` with the known folder and run ids). A managed job session cannot record
+   them: its run is not an experiment attempt.
 
 Choosing an attempt kind:
 
