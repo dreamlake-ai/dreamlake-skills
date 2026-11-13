@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.158 3f90c7b1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.158 e3e61780; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -144,7 +144,53 @@ This pins the binding, not the bytes against an authorized Source writer; it is 
 object-lock. The deployed backend and trusted viewer/frame support this flow. Existing
 ordinary/public Artifacts and unbound site sessions retain their behavior; no
 broad account cookie, account bearer token or server byte-proxy is added to site
-code. Data indexing and search can remain entirely in the browser.
+code. Data indexing and search can remain entirely in the browser, or use the
+server-side search below where a release has been pinned for it.
+
+#### Server-side private search
+
+Available for releases DreamLake has pinned server-side; other sites receive 404.
+
+A bound site can ask DreamLake to search an index stored under its approved
+private prefix, instead of downloading the model and index into the page:
+
+```
+GET /_dreamlake/private-search?alias=data&mode=search&q=jump%20right&limit=120
+```
+
+The request goes to the site's own content origin, so the five-minute Artifact
+HTML session cookie is the only credential: no account token, signed URL or
+cross-origin request is involved. Authorization is the same as for
+`site-private-data-capabilities`: the session must be eligible for private data
+(`privateData` was non-empty) and the current approved binding must still be
+valid. Anonymous, share-link-only and worker sessions are refused with 403.
+Because loading or queueing can take seconds, current Artifact access and the
+approved grant and binding are checked again after ranking; a revocation in
+between returns 403 instead of records.
+
+Only releases that DreamLake has pinned server-side for a specific Source prefix
+and alias can be searched; the site cannot name a release, model or object path.
+Pinned releases verify their search manifest and model file hashes before serving.
+
+| Parameter | Meaning |
+|---|---|
+| `alias` | Private data alias of the approved binding (required) |
+| `mode` | `init` (first page and facets), `search` (default) or `variants` |
+| `q` | Query text, at most 256 characters; empty browses in catalog order |
+| `filters` | JSON object of the release's supported filters, at most 4 KiB |
+| `limit` | Results to return, 1–1000, default 120. Semantic results are re-requested from the top with a larger `limit` (the top 1000 at most); `capped` marks the end |
+| `offset` | Browse offset for the next catalog page (empty `q`) |
+| `group` | `1` groups source segments |
+| `group_key` | Source group for `mode=variants` |
+
+The response is JSON with `items` (catalog records), `total`, `hasMore`, `offset`
+for browse pages, `ranking`, `textEvidence` and `timing`. Responses are
+`Cache-Control: no-store`. Status codes: 400 for invalid parameters; 401 when the
+Artifact session expired (retry after the viewer renews it); 403 without private
+data access; 404 when no release is pinned for the binding; 503 with `Retry-After`
+while the release is loading, unavailable (for example after its Source binding
+changed, until the service restarts) or busy. Previews and downloads
+keep using `requestPrivateData` and signed storage URLs.
 
 #### Publish the binding
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.158 3f90c7b1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.158 e3e61780; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -75,8 +75,10 @@ installation is bound to one namespace.
 shows it as ready: choose **Start using**. That picks or creates the
 `cict-evidence` Source, where runs save their results, and records you as the
 person who authorizes those writes. Starting needs the namespace admin role,
-because it may create a Source. After that, copy a label from the machine
-catalog in Setup. See [DreamLake GPU](#dreamlake-gpu) for limits and usage.
+because it may create a Source. Each run writes with that person's edit right
+on the Source: if they leave the namespace or lose it, jobs wait in the queue
+and Setup says so until another namespace admin chooses **Re-authorize**.
+After that, copy a label from the machine catalog in Setup. See [DreamLake GPU](#dreamlake-gpu) for limits and usage.
 
 *Your own machines.* You need a [Slurm provider](https://docs.dreamlake.ai/lakeshore/providers/slurm)
 registered in the namespace with a host bound to it, and a launch layer that
@@ -108,7 +110,10 @@ for every flag.
 
 ## DreamLake GPU
 
-| Label | GPU | CPU | Memory | Time limit |
+Each machine type is what **one job** gets, not one machine: jobs land on any
+free node of the cluster partition behind it.
+
+| Label | Per job: GPU | CPU | Memory | Time limit |
 | --- | --- | --- | --- | --- |
 | `dreamlake-gpu-rtx5090` | 1 × RTX 5090 | 8 | 32 GB | 2 h |
 
@@ -120,8 +125,9 @@ for every flag.
   you choose another in Setup), under the same folder layout as pools.
 - **Cache.** `DREAMLAKE_CACHE_DIR` is private to your namespace; other
   namespaces cannot read or change it.
-- **Usage.** Setup shows this month's GPU time, from each job's start to its
-  end, by repository and workflow.
+- **Usage.** Setup shows a month's GPU time, from each job's start to its
+  end: by the GitHub user who triggered each job, by repository and workflow,
+  and job by job with a link to each run. `dl cict usage` prints the same.
 - **Availability.** DreamLake GPU is enabled per namespace by the DreamLake
   team. A paused namespace starts no new jobs; running ones finish.
 
@@ -247,6 +253,7 @@ Two ways are supported by design:
 | Routing `unbound` | The App installation is not bound to a namespace. Run `dl cict github connect`. |
 | Routing `unmatched` | No pool or DreamLake GPU label covers every `runs-on` label. Check the machine catalog and `dl cict pools list`. |
 | Waiting for a GPU | The namespace or the machine type is at its limit; the job starts when a slot frees. |
+| Waiting for re-authorization | The person who authorized result writes can no longer edit the Source. A namespace admin chooses **Re-authorize** in Setup (or runs `dl cict platform source`); waiting jobs then start. |
 | Not started: DreamLake GPU not enabled | Ask the DreamLake team to enable it for the namespace. |
 | Not started: DreamLake GPU not set up | Open Setup and choose **Start using**. |
 | Not started: DreamLake GPU paused | New jobs are paused for the namespace; contact the DreamLake team. |
@@ -266,8 +273,8 @@ Two ways are supported by design:
 | GET | `/namespaces/:ns/github/runner-targets` | read: Slurm providers and whether a pool can start runners on each |
 | GET | `/namespaces/:ns/cict/platform` | read: DreamLake GPU catalog, access, occupancy, month GPU time |
 | POST | `/namespaces/:ns/cict/platform/activate` | execution admin + namespace admin: start using DreamLake GPU |
-| PATCH | `/namespaces/:ns/cict/platform` | execution admin: change the evidence Source |
-| GET | `/namespaces/:ns/cict/usage?month=YYYY-MM` | read |
+| PATCH | `/namespaces/:ns/cict/platform` | execution admin: change the evidence Source, or re-authorize with the same one (the caller becomes the authorizer) |
+| GET | `/namespaces/:ns/cict/usage?month=YYYY-MM&sender=&limit=` | read: totals, by repository and workflow, by the GitHub user who triggered each job, and the jobs (newest first) |
 | GET | `/namespaces/:ns/github/jobs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs/:run` | read |

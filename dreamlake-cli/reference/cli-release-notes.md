@@ -1,6 +1,16 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.123.0 bb71aaa; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.125.0 b8ca5e1; do not edit -->
 
 # Release notes
+
+## 0.125.0 — CI/CT usage by person, per-job machine specs
+
+- `dl cict usage` adds GPU time by the GitHub user who triggered each job; `--jobs` lists the jobs newest first, `--sender LOGIN` narrows them and `--limit` caps them. The TypeScript `usage(month, { sender, limit })` returns `bySender`, `runs` and `runsTotal`.
+- `dl cict platform admin list --month YYYY-MM` shows that month and the platform total.
+- Machine types are what one job gets: `platform show`, `admin list` and `admin machine` print `per job: 1x RTX 5090 · 8 CPU · 32 GB · 02:00:00`. That spec is read from the provider's launch layer, so `admin machine` drops `--gpus`, `--gpu`, `--cpus`, `--mem-gib` and `--time-limit`. The new `dl cict platform admin providers` lists the platform namespace's Slurm providers and what one job gets on each.
+
+## 0.124.0 — DreamLake GPU authorizer
+
+- `dl cict platform show` names who authorizes DreamLake GPU result writes and says when they can no longer write; jobs then wait, shown as `held: re-authorize` in `runs list` and "waiting for re-authorization" in `runs show`. `dl cict platform source NS --source <current Source>` re-authorizes. `platform admin list` flags namespaces that need it.
 
 ## 0.123.0 — CI/CT commands
 

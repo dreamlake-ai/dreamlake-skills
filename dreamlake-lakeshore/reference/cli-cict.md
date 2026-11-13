@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/cict.md at 0.123.0 bb71aaa; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/cict.md at 0.125.0 b8ca5e1; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -212,17 +212,26 @@ dl cict platform admin pause robotics-lab
 dl cict platform admin limit robotics-lab 4
 ```
 
+```bash cli-help="cict platform admin providers"
+dl cict platform admin providers
+```
+
+`providers` lists the Slurm providers in the platform namespace and what one
+job gets on each, read from its launch layer. A provider without a bound host,
+a launch layer or a GPU in it cannot back a machine type.
+
 ```bash cli-help="cict platform admin machine"
 dl cict platform admin machine gpu-rtx5090 --label dreamlake-gpu-rtx5090 \
   --provider 0123456789abcdef01234567 --limit 6 --enable \
-  --gpus 1 --gpu "RTX 5090" --cpus 8 --mem-gib 32 --time-limit 02:00:00
+  --env DREAMLAKE_ROBOT_ASSETS_CACHE=/work/shared/robot-assets
 dl cict platform admin machine gpu-rtx5090 --disable
 ```
 
-`machine` creates or changes a machine type. The provider must be a Slurm
-provider in the platform namespace; runners start with its association. The
-catalog spec is shown to users; the provider's launch layer sets the real
-allocation.
+`machine` creates or changes a machine type. A machine type is what one job
+gets, not one machine: jobs land on any free node of the provider's partition.
+The GPUs, CPUs, memory and time limit come from the provider's launch layer,
+so they always match what Slurm allocates; `--limit` caps jobs at once across
+all namespaces. Runners start with the provider's association.
 
 ## Troubleshooting
 
