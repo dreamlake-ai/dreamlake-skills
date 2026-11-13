@@ -1,6 +1,11 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.125.0 b8ca5e1; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.125.1 6a3ffb6; do not edit -->
 
 # Release notes
+
+## 0.125.1 — Bundled skills v2026.11.13.1
+
+- The embedded `dreamlake-cli` skill and the bundled skills catalog are pinned to dreamlake-skills [v2026.11.13.1](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.13.1). Its `dreamlake-experiments` skill covers experiment evaluation and analysis (Python SDK `dreamlake` 0.51.0); `dl skill install dreamlake-experiments` or `dl skill update` installs it.
+- Docs: the experiment guide names the tested Python 3.13 environment for planned sweeps.
 
 ## 0.125.0 — CI/CT usage by person, per-job machine specs
 

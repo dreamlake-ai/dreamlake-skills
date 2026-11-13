@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/sharing.md at 0.125.0 b8ca5e1; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/sharing.md at 0.125.1 6a3ffb6; do not edit -->
 
 # Sharing and visibility
 
