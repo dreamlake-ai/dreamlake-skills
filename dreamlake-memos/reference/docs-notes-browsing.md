@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.158 e3e61780; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.158 f5167273; do not edit -->
 
 # Browse, create and organize
 
@@ -22,6 +22,29 @@ The guest agent entry offers sign-in to start a conversation.
 
 Signed-in Memo details retain resource navigation. Details opened inside a
 project retain their return-to-project action. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+
+### Pin memos to the top
+
+Signed in, any memo you can read offers **Pin to top** among its row actions in
+the Memos catalog, in grid and list views, and in the list beside an open memo.
+Pinned memos come first. Within the pinned group and within the rest, the order
+you chose is kept, and search, the filter chips and **Show archived** still
+decide which memos appear. **Unpin from top** returns a memo to its place. In
+the list beside an open memo, a pinned memo shows a tilted pin in place of its
+memo icon.
+
+Pins belong to you and follow the memo, including memos shared with you. They
+are not shared with anyone else, do not change the memo, and are not the left
+panel's saved items. You can pin up to 100 memos. A pinned memo you can no
+longer read stops appearing.
+
+- `GET /me/memo-pins?namespace=<slug>` returns `ids`, the pinned memos you can
+  read now, and `notes`, the pinned memos that namespace's catalog lists, so a
+  pin on a page not yet loaded still shows first. Archived memos are included
+  only with `includeArchived=true`.
+- `PUT /me/memo-pins/:noteId` pins a memo you can read (`404` otherwise, `409`
+  at the limit). `DELETE /me/memo-pins/:noteId` unpins it. Repeating either is
+  harmless.
 
 ### Returning to a project folder
 
