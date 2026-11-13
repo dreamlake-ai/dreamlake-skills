@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.158 f5167273; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.158 47ad0d8e; do not edit -->
 
 # Browse, create and organize
 
@@ -321,11 +321,10 @@ Inside another DreamLake Memo, use `:memo[id]` with the full resource ID. Existi
 links and legacy `:note` directives remain readable. Copy URL still returns a URL. A browser link does not change visibility or grant access to a
 private memo.
 
-Project folder titles, list items and folder grid cards have a link icon that
-copies their URL. On a desktop it appears on hover or keyboard focus. On touch
-devices the icon stays visible with a tap target of at least 44 by 44 pixels;
-tapping it copies the link without opening the item. Desktop right-click menus
-also offer **Copy URL**, with no separate folder-path copy action.
+Project items expose a **More actions** (`…`) button on desktop hover or keyboard
+focus. Click it, right-click an item, or use the existing touch long-press menu
+and choose **Copy URL**. Panel titles have no copy action.
+There is no separate folder-path copy action. Menu actions do not open the item.
 
 The copied URL includes the namespace, project slug and folder path, so you can
 paste it into an AI request to identify the folder whose Memos you want read.

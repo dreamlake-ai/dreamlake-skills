@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.158 f5167273; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.158 47ad0d8e; do not edit -->
 
 # Libraries Reference
 
@@ -344,3 +344,156 @@ original relative paths; `--all` adds platform artifacts. See the
   platform-wide API index.
 - [Scene Generation](https://docs.dreamlake.ai/scene-generation) — the main consumer of this
   contract.
+
+## Agent and SDK integration
+
+Use the Library-enabled server and UI with Python SDK 0.52.0 or later. Older
+servers can return 404 for the batch and image routes. A skill installation
+does not deploy product updates.
+
+Assets are addressed by `namespace`, `library`, and `assetId` everywhere.
+The legacy asset detail `id` remains an alias for `assetId`. Detail `license`
+is the effective asset override or library default, as in search.
+
+### Bounded backend reads
+
+`GET /libraries?limit=50&offset=0` returns caller-visible libraries and
+`nextOffset` (null at the end). Ordering is update time descending, then row ID.
+Pages are live reads, not a catalog transaction: concurrent catalog updates
+can move rows. Deduplicate by namespace/library when enumerating.
+
+`GET /namespaces/:slug/libraries/:name/assets/:assetId` adds `namespace`,
+`library`, `assetId`, `revision`, `expiresAt`, `fileCount`, `nextFileOffset`
+and `images` (thumbnail reference, when present). Existing clients can still
+read all files; `fileOffset` and `fileLimit` (1–1000) bound the file page.
+Files are the asset's declared dependency closure. Reacquire expired URLs;
+never save them as asset identity. Read responses use `private, no-store`.
+
+`POST /library-batch` accepts `{requests: [...]}`, at most ten items with
+unique `id` strings (1–64 letters, digits, underscore, dot or hyphen).
+
+```json
+{"requests":[
+  {"id":"cups","operation":"search","libraries":["fortyfive/scanned-objects"],"q":"cup","limit":3},
+  {"id":"detail","operation":"asset","namespace":"fortyfive","library":"scanned-objects","assetId":"ACE_Coffee_Mug_Kristen_16_oz_cup"}
+]}
+```
+
+Search items accept `q`, `category`, `kind`, `license`, `tag`, `offset`, and
+`limit` (1–20, default 10); scope is 1–50 explicit namespace/library names.
+Asset items return a detail with at most 100 file URLs plus image references;
+continue its file cursor with the single-asset route. Results retain input
+order and ID: `{id, ok: true, data}` or
+`{id, ok: false, error: {status, code}}`. Missing and inaccessible libraries
+both return not-found. Three items run concurrently with a 20-second batch
+deadline. Already dispatched read work can finish after a deadline, but its
+late result is discarded; queued items are not dispatched after expiry.
+
+`GET /namespaces/:slug/libraries/:name/assets/:assetId/image` returns
+`status: ready`, source identifiers, `path`, `purpose`, `revision`,
+`mediaType`, `bytes` and base64 `data`. It reads the current thumbnail by
+default; optional `path` must name a PNG, JPEG or WebP declared in the asset's
+files. A file image has purpose `preview`; the thumbnail has purpose
+`thumbnail`. No thumbnail returns `status: no_image`. Each image is limited
+to 2 MiB and a ten-second storage read. Permissions are checked before and
+after reading. This route accepts stable asset IDs, never arbitrary image URLs.
+
+### Python SDK
+
+Use the existing `DreamLakeClient`; identity and server selection follow the
+SDK's normal configuration and saved `dl login` session.
+
+```python
+from pathlib import Path
+from dreamlake import DreamLakeClient
+
+libraries = DreamLakeClient().libraries
+catalog = libraries.list(limit=50)   # follow nextOffset when non-null
+hits = libraries.search(["fortyfive/scanned-objects"], "coffee cup", limit=3)
+if not hits["hits"]:
+    raise RuntimeError("No candidates in this query scope")
+chosen = hits["hits"][0]
+ref = (chosen["namespace"], chosen["library"], chosen["assetId"])
+asset = libraries.asset(*ref)       # follow nextFileOffset for file pages
+batch = libraries.batch([
+    {"id": "cups", "operation": "search", "libraries": ["fortyfive/scanned-objects"], "q": "cup", "limit": 3},
+    {"id": "selected", "operation": "asset", "namespace": ref[0], "library": ref[1], "assetId": ref[2]},
+])
+for result in batch["results"]:
+    print(result["id"], result["ok"])
+image = libraries.image(*ref)
+if image["status"] == "ready":
+    Path("asset-thumbnail." + image["mediaType"].split("/")[1]).write_bytes(image["content"])
+files = libraries.download(*ref, destination="./selected-asset", max_bytes=64 * 1024 * 1024)
+print(len(files), "verified files")
+```
+
+`download` keeps original relative paths and unrelated local files, verifies
+file size and SHA256, skips already verified files, and refreshes a rejected
+signature once. Revision changes stop a paginated transfer. Storage receives
+no DreamLake bearer token. Paths escaping the destination or using symlinks
+are rejected. Successful files survive a later failure. The default total
+transfer budget is 512 MiB; callers can set `max_bytes` explicitly.
+
+### Built-in tools and browser state
+
+Backend tools are `dreamlake_libraries_list`, `dreamlake_library_search`,
+`dreamlake_library_batch`, `dreamlake_library_get_asset` and
+`dreamlake_library_view_images`. They use the caller's resource permissions
+and `resources:read`; they do not require an open Library page. Search and
+batch tool output replaces signed image URLs with availability and bounds
+file metadata. `get_asset` returns five file download URLs per call with a
+cursor. `view_images` accepts up to four `assets` references, with optional
+image `path`, and sends actual image content to the model in the next
+multimodal request. It accepts one batch per turn, retaining at most four
+images. The live chat shows the same images in a transient gallery with
+asset links. Bytes are excluded from persisted chat and receipts; restored
+sessions must reacquire them under current permissions. The configured model/provider must support image input; provider
+acceptance requires deployment-specific validation.
+
+`dreamlake_library_get_view({})` lists mounted **single-Library** target IDs.
+Only `/:namespace/libraries/:libraryName` participates; the draft global
+`/libraries` search page exposes no Library target or result snapshot. Pass one
+`targetId` to read a live React-published snapshot. No search is executed.
+Snapshots include the requested `view`, `resultsView` that produced the
+cards, ordered stable result IDs/names/types/thumbnail references, selected
+asset, effective Library scope, loaded count, optional total, continuation,
+loading/error, selection status, version and observation time. Results mean
+**loaded rendered cards**, not all backend matches or only cards inside the
+viewport. A response contains at most 50 cards; subsequent `offset` reads
+require the same `expectedVersion`.
+
+`dreamlake_library_set_view` takes `targetId`, `expectedVersion`, and a
+complete replacement `view`. Copy fields to preserve from the read. Use
+`targetId: "page"` only to navigate from a page without a mounted Library;
+existing targets require the observed version. Every view must name
+`namespace` and `library`; omitting either or supplying a multi-library
+`libraries` field is rejected. Supported fields are `q`, `category`, `kind`, `license`, and an
+`asset: {namespace, library, assetId}` selection. `sort: "default"` reflects
+the existing relevance/browse ordering; no new sort or tag UI is introduced.
+Query, filters, scope and selection survive refresh, share links and
+Back/Forward. Independent backend search may span multiple libraries; choose
+a concrete Library before using the frontend display tool. For example, from a
+page with no mounted Library:
+
+```json
+{"targetId":"page","view":{"namespace":"fortyfive","library":"scanned-objects","q":"cup"}}
+```
+
+An ACK of `displayed` means the requested view and selected asset metadata
+finished loading; it does not certify completion of a 3D renderer.
+`loading`, `error`, `changed`, `not_open`, `unconfirmed` and
+`frontend_unavailable` are distinct outcomes. Set-view requires the turn's
+layout control capability. A disconnected browser never falls back to a
+backend search pretending to be a page observation. For “second and third”,
+read once and use the two IDs at those snapshot positions; use its version
+before changing selection. Re-read on conflict rather than selecting by a
+new search's ranking.
+
+Semantic ranking is candidate retrieval, not a relevance guarantee. A
+nonsense query can still return nearest neighbors. Inspect names, licenses,
+types and images before choosing. Exact ID matching and merged pagination
+retain their existing behavior. A qualified namespace/library/assetId query
+now performs an exact lookup when its Library is in the requested scope,
+with authorization and filters still applied. This integration does not change
+embeddings or semantic ranking thresholds.

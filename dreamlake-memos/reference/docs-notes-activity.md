@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/activity.md at 0.1.158 f5167273; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/activity.md at 0.1.158 47ad0d8e; do not edit -->
 
 # Session and resource activity
 
