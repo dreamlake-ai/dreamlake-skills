@@ -696,37 +696,37 @@
       {
         "url": "https://docs.dreamlake.ai/ml-dash/guides/experiment-workflow",
         "file": "reference/docs-ml-dash-guides-experiment-workflow.md",
-        "version": "0.1.158 7c9c07bd",
-        "source_sha256": "d825cacb49b6ad5e5ffe3c449c1c028162d25276c17693f88327a355a2779a3f",
-        "sha256": "e0835d9fa00996427960ae9241898e254cd5881707e3068a56d1d4016930ca4f"
+        "version": "0.1.158 e3e61780",
+        "source_sha256": "5535b84d5d8194491de64cd236ff4f379cc9d66659876169c5083217a7c16643",
+        "sha256": "2a8e463d2294d029406bcfe7ab367f0e3d330de971ca3461a81b55e34bcd9af0"
       },
       {
         "url": "https://docs.dreamlake.ai/ml-dash/examples/rl-logging",
         "file": "reference/docs-ml-dash-examples-rl-logging.md",
-        "version": "0.1.158 7c9c07bd",
-        "source_sha256": "66fcabe6b41640be039988e77954c0d69354f46a89946290a19c9aaf1c3410cd",
-        "sha256": "f4648fc5bb09bca7f3cea96b6b07905d6fa1bf3424def1b877be39a70c13e4fa"
+        "version": "0.1.158 e3e61780",
+        "source_sha256": "b70315a3b863a0728c91b3cdfe2fcc7cae9cd0bd60e9a84e2b93b69df0713ff2",
+        "sha256": "3addd9c44839a089f747aabdee25b4dad42ba091dcd54ae66add07817dfeefd7"
       },
       {
         "url": "https://docs.dreamlake.ai/ml-dash/reference/native-charts",
         "file": "reference/docs-ml-dash-reference-native-charts.md",
-        "version": "0.1.158 7c9c07bd",
-        "source_sha256": "da1f653b51e9b5885bc0a46dd6eab20a690e7bd1e6a54db203589850d9eaab9b",
-        "sha256": "ed2d0bd8dbe939277b6cd2d43fbd3c144dc9ea50e7d0eb25248eacccd7c5c89c"
+        "version": "0.1.158 e3e61780",
+        "source_sha256": "48b7921880785ea96695176aa88b242ec219761579a515595f1693496a073bb0",
+        "sha256": "ff529c27150f472c4c40be004ab76bfea8180c286dee27d0444daa30ea5ffdde"
       },
       {
         "url": "https://docs.dreamlake.ai/ml-dash/reference/native-workload-credentials",
         "file": "reference/docs-ml-dash-reference-native-workload-credentials.md",
-        "version": "0.1.158 7c9c07bd",
-        "source_sha256": "5dfa3aceed9d287bbe0a0214847589986f3446aee5a2148eddb2f0214235b09e",
-        "sha256": "6ad869da6bd81e8716c6842cd01ff5677b228be6f0776f2da86f52dcfc418da9"
+        "version": "0.1.158 e3e61780",
+        "source_sha256": "abd3b31a14686cadcdf796a89cb0002bce16aed82efb88a26e70efad5f3cd108",
+        "sha256": "a8628fdd21c8e7c879106418bfa3be9f8fb3f0f9b201b5341486f0f05515d4f7"
       },
       {
         "url": "https://cli.dreamlake.ai/experiments",
         "file": "reference/cli-experiments.md",
-        "version": "0.123.0 bb71aaa",
-        "source_sha256": "44861d279ac93f6ddc48deb1dccbc14381d8dc3e00e28a327b4242aa367a5167",
-        "sha256": "1e2a483f532ffd19ca2290f840dd332d6fd8994fa787f2ee234322995dd56284"
+        "version": "0.125.0 b8ca5e1",
+        "source_sha256": "c80f259908cdb9605cd6a5cacdb364ab311bfad80c8349a6138f8455c571a98d",
+        "sha256": "387e0da67640fb1551988551dfb8d57b952cd71e1a08996b41479483ba067d69"
       }
     ],
     "dreamlake-lakeshore": [

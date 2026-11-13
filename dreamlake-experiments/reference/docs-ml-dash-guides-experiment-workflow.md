@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/ml-dash/guides/experiment-workflow.md at 0.1.158 7c9c07bd; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/ml-dash/guides/experiment-workflow.md at 0.1.158 e3e61780; do not edit -->
 
 # Experiment workflow
 
@@ -6,18 +6,60 @@ An experiment answers one question with a committed plan (configs × seeds). Das
 reconciles that plan with what actually ran and compares one effective curve per
 seed. Needs a project whose `GET .../status` lists the `experiments` capability.
 
-## Start from the template
+## Tested environment
 
-The Python SDK ships the template and a small command line:
+The workflow was checked end to end with **Python 3.13.14, `dreamlake` 0.50.1 and
+`params-proto` 3.3.0**.
+
+On Python 3.14.5 with `params-proto` 3.3.0, the template's grid generator
+(`python ppo_lr_generate.py`) fails with
+`TypeError: cannot pickle 'itertools.product' object`, raised inside params-proto's
+`Sweep(...).list`. This failure occurs in the template generator's params-proto
+dependency. Use Python 3.13 for this template:
 
 ```sh
-python -m dreamlake.experiments.workflow init my-sweep     # generator, plain train.py, launcher, README.md, .dashrc
-python -m dreamlake.experiments.workflow status --namespace team --project rl --folder ppo/lr-sweep
-python -m dreamlake.experiments.workflow export --namespace team --project rl --folder ppo/lr-sweep --out results/runs.jsonl
+uv venv --python 3.13 .venv
+source .venv/bin/activate
+uv pip install "dreamlake==0.50.1" "params-proto==3.3.0"
 ```
 
-There is no `dl` command for this workflow: planning and launching are Python
-(params-proto v3), so the SDK owns them.
+The SDK uses your saved `dl login`. The project must already exist; the workflow
+commands do not create it. Create it in the app or with
+`dl create project <name> --namespace <ns>` (`--slug <project>` sets its URL slug;
+without it the slug is derived from the name).
+
+## Start from the template
+
+The Python SDK ships the template and a small command line. There is no `dl`
+command for this workflow: planning and launching are Python (params-proto v3),
+so the SDK owns them.
+
+```sh
+python -m dreamlake.experiments.workflow init my-sweep    # generator, plain train.py, launcher, README.md, .dashrc
+cd my-sweep
+python ppo_lr_generate.py                                 # writes the plan: 9 rows (3 configs × 3 seeds) -> grids/lr.jsonl
+```
+
+Publish, launch, and check with the template's launcher. Before running, replace
+`<ns>` with your namespace, `<project>` with the existing project's slug, and
+`<folder>` with the experiment folder to create in it (for example `ppo/lr-sweep`):
+
+```sh
+python ppo_experiment_lr_launch.py --launch.namespace <ns> --launch.project <project> --launch.folder <folder> --launch.publish
+python ppo_experiment_lr_launch.py --launch.namespace <ns> --launch.project <project> --launch.folder <folder>
+python ppo_experiment_lr_launch.py --launch.namespace <ns> --launch.project <project> --launch.folder <folder>
+python -m dreamlake.experiments.workflow status --namespace <ns> --project <project> --folder <folder>
+```
+
+| After | The experiment shows |
+| --- | --- |
+| `--launch.publish` | The manifest, README and plan only — nothing is launched: 9 planned, 9 not started. |
+| First launch | 9 completed, 9 attempts. |
+| The same launch again | Each run starts a fresh attempt: 18 attempts, still 9 logical runs, 9 superseded, and still 3 seeds per config in every comparison. |
+| `status` | `"complete": true`, completed 9, attempts 18, superseded 9, no diagnostics. |
+
+`python -m dreamlake.experiments.workflow export --namespace <ns> --project <project> --folder <folder>`
+(same placeholders) writes `results/runs.jsonl`, one line per attempt.
 
 Work in the order **generate → commit → launch → review**:
 

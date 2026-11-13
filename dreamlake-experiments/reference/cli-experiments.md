@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.123.0 bb71aaa; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/experiments.md at 0.125.0 b8ca5e1; do not edit -->
 
 # Experiments
 
@@ -124,6 +124,35 @@ the run key you created; file upload uses your DreamLake login.
 ```bash
 dl upload checkpoint.bin --episode research@fortyfive:trial_1 --to /models
 ```
+
+## Planned experiment sweeps
+
+A planned sweep (configs × seeds, with fresh, resumed and reconnected attempts
+compared one curve per seed in Dash) is set up and launched from Python, so it
+has no `dl` command. The DreamLake Python SDK (`pip install dreamlake`) ships
+the template and a small command line; Dash reads the result from any project
+whose `status` lists the `experiments` capability:
+
+```bash
+python -m dreamlake.experiments.workflow init my-sweep
+python -m dreamlake.experiments.workflow status --namespace fortyfive --project research --folder ppo/lr-sweep
+python -m dreamlake.experiments.workflow export --namespace fortyfive --project research --folder ppo/lr-sweep --out results/runs.jsonl
+```
+
+Tested with Python 3.13.14, `dreamlake` 0.50.1 and `params-proto` 3.3.0. With
+Python 3.14.5 and params-proto 3.3.0 the template's grid generator fails
+(`TypeError: cannot pickle 'itertools.product' object`), so create the
+environment with Python 3.13:
+
+```bash
+uv venv --python 3.13 .venv && source .venv/bin/activate
+uv pip install "dreamlake==0.50.1" "params-proto==3.3.0"
+```
+
+The project must already exist (`dl create project <name> --namespace <ns>`). The attempts are ordinary
+native runs, so the run commands above list, inspect, archive and trash them. See
+the [experiment workflow guide](https://docs.dreamlake.ai/ml-dash/guides/experiment-workflow)
+for the walkthrough and the expected counts after each step.
 
 ## Historical Dash workspace binding
 
