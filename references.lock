@@ -694,6 +694,13 @@
     ],
     "dreamlake-experiments": [
       {
+        "url": "https://docs.dreamlake.ai/ml-dash/guides/experiment-workflow",
+        "file": "reference/docs-ml-dash-guides-experiment-workflow.md",
+        "version": "unreleased dreamlake-workspace#1903",
+        "source_sha256": "b97cdf17505239dd2a174dded9568830a621e6d6b71dc24892174d0793855742",
+        "sha256": "adea812dc5df5069c5fe8250fe44d3facb1eb5813a2db5f3d7930ef688c6c7d6"
+      },
+      {
         "url": "https://docs.dreamlake.ai/ml-dash/examples/rl-logging",
         "file": "reference/docs-ml-dash-examples-rl-logging.md",
         "version": "0.1.158 3f90c7b1",
