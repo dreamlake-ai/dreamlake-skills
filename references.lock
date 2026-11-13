@@ -694,25 +694,32 @@
     ],
     "dreamlake-experiments": [
       {
+        "url": "https://docs.dreamlake.ai/ml-dash/guides/experiment-workflow",
+        "file": "reference/docs-ml-dash-guides-experiment-workflow.md",
+        "version": "0.1.158 7c9c07bd",
+        "source_sha256": "d825cacb49b6ad5e5ffe3c449c1c028162d25276c17693f88327a355a2779a3f",
+        "sha256": "e0835d9fa00996427960ae9241898e254cd5881707e3068a56d1d4016930ca4f"
+      },
+      {
         "url": "https://docs.dreamlake.ai/ml-dash/examples/rl-logging",
         "file": "reference/docs-ml-dash-examples-rl-logging.md",
-        "version": "0.1.158 3f90c7b1",
-        "source_sha256": "18c3fddf0d277b8e37bbb9119ddf32a4b0851c61c9d39bed575915eb77028f0e",
-        "sha256": "bc14e42cb4b693577c7a2b78da0438b63ce0f43744cbb44e1f51f809eb033afe"
+        "version": "0.1.158 7c9c07bd",
+        "source_sha256": "66fcabe6b41640be039988e77954c0d69354f46a89946290a19c9aaf1c3410cd",
+        "sha256": "f4648fc5bb09bca7f3cea96b6b07905d6fa1bf3424def1b877be39a70c13e4fa"
       },
       {
         "url": "https://docs.dreamlake.ai/ml-dash/reference/native-charts",
         "file": "reference/docs-ml-dash-reference-native-charts.md",
-        "version": "0.1.158 3f90c7b1",
-        "source_sha256": "ab513be5ff37bff86bc632a8db9a46f105ca46793138d56a5541704cd3f7fee0",
-        "sha256": "97631172ccf6fb61a3ab8f3062a772830ce4e65799175439c3337416dd330e14"
+        "version": "0.1.158 7c9c07bd",
+        "source_sha256": "da1f653b51e9b5885bc0a46dd6eab20a690e7bd1e6a54db203589850d9eaab9b",
+        "sha256": "ed2d0bd8dbe939277b6cd2d43fbd3c144dc9ea50e7d0eb25248eacccd7c5c89c"
       },
       {
         "url": "https://docs.dreamlake.ai/ml-dash/reference/native-workload-credentials",
         "file": "reference/docs-ml-dash-reference-native-workload-credentials.md",
-        "version": "0.1.158 3f90c7b1",
-        "source_sha256": "89f382e0c78cdd0b334e53498894c2f833041ae2e7cef8b054f94328f751305f",
-        "sha256": "aff503d2f883b003d30b535ac5e3418af110aca627fbbe9bf1f0ae0c890ada1a"
+        "version": "0.1.158 7c9c07bd",
+        "source_sha256": "5dfa3aceed9d287bbe0a0214847589986f3446aee5a2148eddb2f0214235b09e",
+        "sha256": "6ad869da6bd81e8716c6842cd01ff5677b228be6f0776f2da86f52dcfc418da9"
       },
       {
         "url": "https://cli.dreamlake.ai/experiments",

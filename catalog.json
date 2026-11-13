@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.11.8",
+  "version": "v2026.11.12",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -45,12 +45,12 @@
       "files": 15
     },
     "dreamlake-experiments": {
-      "description": "Log ML experiments with the DreamLake Python SDK and configure per-run Dash dashboards; use for RL logging, inspecting recorded data and missing charts, not implementing training algorithms or provisioning compute.",
+      "description": "Log ML experiments with the DreamLake Python SDK, run planned config × seed sweeps with fresh/resume/reconnect attempts, and configure per-run Dash dashboards; not implementing training algorithms or provisioning compute.",
       "requires": [
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 4
+      "files": 5
     },
     "dreamlake-lakeshore": {
       "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and sessions, read Slurm and external jobs, provision machines via a user-configured launch server, Infrastructure Stacks, AWS, and CI/CT GitHub Actions runners.",
