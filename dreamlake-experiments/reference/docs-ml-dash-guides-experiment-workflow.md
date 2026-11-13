@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/ml-dash/guides/experiment-workflow.md at unreleased dreamlake-workspace#1907; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/ml-dash/guides/experiment-workflow.md at 0.1.158 e3e61780; do not edit -->
 
 # Experiment workflow
 
@@ -14,8 +14,8 @@ The workflow was checked end to end with **Python 3.13.14, `dreamlake` 0.50.1 an
 On Python 3.14.5 with `params-proto` 3.3.0, the template's grid generator
 (`python ppo_lr_generate.py`) fails with
 `TypeError: cannot pickle 'itertools.product' object`, raised inside params-proto's
-`Sweep(...).list`. Only the template's generator is affected; the rest of the SDK
-does not have this limitation. Use Python 3.13 for the template:
+`Sweep(...).list`. This failure occurs in the template generator's params-proto
+dependency. Use Python 3.13 for this template:
 
 ```sh
 uv venv --python 3.13 .venv
@@ -23,8 +23,10 @@ source .venv/bin/activate
 uv pip install "dreamlake==0.50.1" "params-proto==3.3.0"
 ```
 
-The SDK uses your saved `dl login`. The project must already exist (create it in
-the app or with `dl create project`); the workflow commands do not create it.
+The SDK uses your saved `dl login`. The project must already exist; the workflow
+commands do not create it. Create it in the app or with
+`dl create project <name> --namespace <ns>` (`--slug <project>` sets its URL slug;
+without it the slug is derived from the name).
 
 ## Start from the template
 
@@ -38,8 +40,9 @@ cd my-sweep
 python ppo_lr_generate.py                                 # writes the plan: 9 rows (3 configs × 3 seeds) -> grids/lr.jsonl
 ```
 
-Publish, launch, and check (the template's launcher; `--launch.folder` is the
-experiment folder in your project):
+Publish, launch, and check with the template's launcher. Before running, replace
+`<ns>` with your namespace, `<project>` with the existing project's slug, and
+`<folder>` with the experiment folder to create in it (for example `ppo/lr-sweep`):
 
 ```sh
 python ppo_experiment_lr_launch.py --launch.namespace <ns> --launch.project <project> --launch.folder <folder> --launch.publish
@@ -56,7 +59,7 @@ python -m dreamlake.experiments.workflow status --namespace <ns> --project <proj
 | `status` | `"complete": true`, completed 9, attempts 18, superseded 9, no diagnostics. |
 
 `python -m dreamlake.experiments.workflow export --namespace <ns> --project <project> --folder <folder>`
-writes `results/runs.jsonl`, one line per attempt.
+(same placeholders) writes `results/runs.jsonl`, one line per attempt.
 
 Work in the order **generate → commit → launch → review**:
 
