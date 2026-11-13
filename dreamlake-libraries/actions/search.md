@@ -89,7 +89,8 @@ an installed skill alone does not make new tools available.
 
 1. Decide whether the user refers to the current page or asks for a new
    search. For “these”, “second”, “third” or “selected”, read the frontend
-   targets, select the explicit target and read its structured snapshot.
+   targets for a specific Library, select that explicit target and read its
+   structured snapshot. Do not use the draft global search page as a target.
    Retain its version and ordered asset identities. Never substitute another
    backend search for that observation.
 2. For a new search, survey accessible Libraries, choose explicit scopes and
@@ -98,7 +99,8 @@ an installed skill alone does not make new tools available.
 3. Read candidate details and actually view the images through the image
    tool. A URL in ordinary text is not evidence that the model saw the image.
    Preserve source identity and distinguish missing images from failed reads.
-4. To show candidates, copy the desired query/scope/filter state into the
+4. To show candidates, choose one concrete Library from the backend results,
+   then copy its query/filter state into the
    frontend tool. When selecting from an existing snapshot, carry its version
    and exact asset ID. Read back the applied state; a sent request is not a
    displayed result. On conflict, read again before acting.

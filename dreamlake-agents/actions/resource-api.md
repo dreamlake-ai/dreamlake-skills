@@ -34,3 +34,7 @@ frontend acknowledgement. When the Library integration has not been released
 on the target server, report the missing capability instead of inferring page
 results from a new search. Image inspection needs the offered image tool's
 actual multimodal result, not a text URL. Discover the deployed contracts first.
+
+For Library display or page-context work, choose a specific Library before
+opening or reading its view. Do not use the draft global search page as
+current-result context; backend searches may still span multiple Libraries.
