@@ -81,7 +81,7 @@ library card opens `/<ns>/libraries/<name>`, and an asset opens as a panel
 beside the grid at `?asset=<id>` — a shareable URL, not a separate page.
 Viewers by kind: [`assets/library-conventions.md`](../assets/library-conventions.md).
 
-## Built-in agent and SDK workflow (pending product release)
+## Built-in agent and SDK workflow
 
 Use this procedure only after the deployed tool catalog exposes the Library
 integration. Consult the Library reference for exact schemas and limits;
