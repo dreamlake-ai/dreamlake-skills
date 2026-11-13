@@ -80,3 +80,36 @@ the global search page (select libraries → search → asset cards). A
 library card opens `/<ns>/libraries/<name>`, and an asset opens as a panel
 beside the grid at `?asset=<id>` — a shareable URL, not a separate page.
 Viewers by kind: [`assets/library-conventions.md`](../assets/library-conventions.md).
+
+## Built-in agent and SDK workflow
+
+Use this procedure only after the deployed tool catalog exposes the Library
+integration. Consult the Library reference for exact schemas and limits;
+an installed skill alone does not make new tools available.
+
+1. Decide whether the user refers to the current page or asks for a new
+   search. For “these”, “second”, “third” or “selected”, read the frontend
+   targets for a specific Library, select that explicit target and read its
+   structured snapshot. Do not use the draft global search page as a target.
+   Retain its version and ordered asset identities. Never substitute another
+   backend search for that observation.
+2. For a new search, survey accessible Libraries, choose explicit scopes and
+   search. Batch independent questions when useful. Inspect every item's
+   result/error; do not discard successful results because a sibling failed.
+3. Read candidate details and actually view the images through the image
+   tool. A URL in ordinary text is not evidence that the model saw the image.
+   Preserve source identity and distinguish missing images from failed reads.
+4. To show candidates, choose one concrete Library from the backend results,
+   then copy its query/filter state into the
+   frontend tool. When selecting from an existing snapshot, carry its version
+   and exact asset ID. Read back the applied state; a sent request is not a
+   displayed result. On conflict, read again before acting.
+5. With no frontend, continue backend reads and downloads within the request.
+   Say when displaying is unavailable. For SDK-only work, use the existing
+   client and the runnable example in the owning Library reference; do not
+   translate model tool names into invented SDK methods. If the requested SDK
+   capability is unavailable, report that gap; do not substitute CLI execution
+   for an SDK-only request.
+6. Before downloading, check license, entry point and dependency size. Use
+   stable IDs to reacquire expired references and verify the downloaded
+   closure. Report partial results and remaining file pages accurately.
