@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.158 47ad0d8e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.158 c8ea58c6; do not edit -->
 
 # Libraries Reference
 
@@ -455,6 +455,9 @@ acceptance requires deployment-specific validation.
 Only `/:namespace/libraries/:libraryName` participates; the draft global
 `/libraries` search page exposes no Library target or result snapshot. Pass one
 `targetId` to read a live React-published snapshot. No search is executed.
+When no Library is mounted, the response includes `navigationTargetId: "page"`
+for opening a concrete Library in the connected browser. Copy returned target
+IDs exactly; a Library name or URL is not a target ID.
 Snapshots include the requested `view`, `resultsView` that produced the
 cards, ordered stable result IDs/names/types/thumbnail references, selected
 asset, effective Library scope, loaded count, optional total, continuation,

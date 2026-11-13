@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/authoring.md at 0.1.158 47ad0d8e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/authoring.md at 0.1.158 c8ea58c6; do not edit -->
 
 # Authoring agents
 
