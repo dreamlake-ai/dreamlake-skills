@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.125.2 8bb64db; do not edit -->
 
 # Projects & data
 
@@ -353,3 +353,35 @@ rows in a grant/member source or 1,000 candidate users with
 `PROJECT_AUDIENCE_TOO_LARGE`, rather than pretending a partial list is complete.
 The established `grant`, `grants`, `revoke`, `inspect` and JSON commands remain
 available for scripts. Independent attached-resource shares remain separate.
+
+## Rename and project addresses
+
+New projects created without an explicit slug follow their display name. A
+custom slug remains fixed on later name changes. Older projects preserve their
+existing address until you explicitly enable automatic updates.
+
+```bash cli-help="project rename"
+dl project rename research "Research Results" --namespace my-team
+dl project rename research --namespace my-team --slug stable-research
+dl project rename stable-research --namespace my-team --auto-slug
+```
+
+The command reads the project, then submits its stable ID and observed address
+revision. It requires Project ADMIN. A stale edit or occupied address fails
+without changing the name or slug; it never chooses a numbered fallback.
+`--slug` and `--auto-slug` cannot be combined. The JSON result contains the
+canonical `slug`, `slugMode`, `slugRevision`, and stable project `id`.
+
+Previous browser links still locate the project under its current permissions.
+Historical slugs are reserved for that project and cannot be claimed by another
+project. Use stable IDs in integrations; the canonical-location API resolves old
+browser addresses without redirecting a write. After a timeout, inspect the
+project ID before retrying.
+
+The TypeScript API follows the same contract:
+
+```ts
+await client.projects('my-team').update(projectId, { name: 'Research Results' });
+await client.projects('my-team').update(projectId, { slug: 'stable-research' });
+await client.projects('my-team').update(projectId, { slugMode: 'auto' });
+```

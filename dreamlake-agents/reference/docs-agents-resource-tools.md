@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.161 786eaab4; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -27,6 +27,27 @@ and its Agents editor link; creation does not launch a session.
   "tools": ["dreamlake_notes_read", "dreamlake_resource_api_discover", "dreamlake_resource_api_read"]
 }
 ```
+
+## Diagnose Project access
+
+Human Project ADMIN, the built-in agent's persistent Project delegation, and the
+turn's enabled tools are separate permissions. A folder write can be denied even
+when the human is an administrator. Use `dreamlake_agent_project_access` with the
+verified `namespace` and full `projectId` to inspect these layers. The read-only
+diagnostic requires human read access, works without an agent Project grant, and
+reports only the caller's own agent. It cannot change access.
+
+A human administrator can explicitly save READ or WRITE delegation for one Project
+through the [personal-agent delegation API](https://docs.dreamlake.ai/dev/builtin-agent-harness#explicit-personal-agent-project-delegation).
+The model cannot invoke that API's mutations. Enabling write tools alone does not
+save a delegation. Organization-scoped turns can use exact delegated Projects in
+that organization, subject to current human access; personal or other-organization
+grants are not inherited. A diagnostic is a snapshot: execution checks access again.
+
+Memo filing has a separate caller-permission path. Inspect the Memo's current
+filing permissions before concluding that a Project tree denial blocks filing.
+Keep the requested namespace and verified IDs; never silently create or search in
+a personal workspace as a workaround for denied organization access.
 
 ## Sending and steering
 

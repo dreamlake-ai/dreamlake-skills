@@ -1,6 +1,14 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.125.2 8bb64db; do not edit -->
 
 # Release notes
+
+## 0.125.2 — Canonical Memo references
+
+Memo creation JSON and TypeScript handles include `directive` with the returned
+immutable ID. Text output includes the same ready-to-insert `:memo[full-id]`.
+An unconfirmed ID stops before a body write; inspect existing Memos before
+retrying. Titles and slugs never replace reference IDs. Saved legacy references
+remain readable.
 
 ## 0.125.1 — Bundled skills v2026.11.13.1
 

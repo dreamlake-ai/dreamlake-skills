@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.161 786eaab4; do not edit -->
 
 # Profiles and workspaces
 
@@ -256,3 +256,8 @@ Organizations load in batches of six, with at most three simultaneous catalog
 requests. A failed organization can be retried without reloading your personal
 resources. Memos requests are bounded by the existing API; Scenes currently reads
 the organization's full catalog and displays the six most recent entries.
+
+## Project addresses
+
+[Project names and addresses](https://docs.dreamlake.ai/workspaces/project-addresses) explains automatic
+slugs, separate custom settings, preserved old links, and rename conflicts.
