@@ -15,7 +15,7 @@ an edit made while creating, linking or filing resources:
 | --- | --- |
 | Agent identity, contributing sessions | [identity](actions/identity.md) |
 | Read: outline, section, element, delta, snapshot, comment targets; explicit Python SDK read | [read](actions/read.md) |
-| Edit with a revision-guarded patch; Markdown authoring rules | [edit](actions/edit.md) |
+| Stream additions at a known cursor; revise or patch existing prose; Markdown rules | [edit](actions/edit.md) |
 | Save checkpoints, browse history, recover a retained draft or uncertain save | [versions](actions/versions.md) |
 | Who is present, human selection, recent changes or unavailable observations | [observe](actions/observe.md) |
 | Keep presence and receive live edits | [watch](actions/watch.md) |
@@ -46,7 +46,7 @@ Memo items are managed with `dreamlake-tasks`.
   redlines for human prose unless direct editing is authorized. Never replay an
   accepted body write for missing metadata; report incomplete steps explicitly.
 - Revision: retain complete source, opaque revision and content hash using the
-  [edit action](actions/edit.md), patch against that exact revision, and read
+  [edit action](actions/edit.md), edit against that original revision, and read
   the acknowledged revision back. On 412 or 409 stop, keep baseline and draft,
   and reconcile; never `--force`, never swap in a fresh baseline to make an old
   patch pass, never copy and delete a Memo, never pass a legacy ETag as a revision.

@@ -7,9 +7,24 @@ appending a reference, or updating a prompt. Named before/after checkpoints and
 presence intent are part of the edit workflow; do not wait for a separate request
 to make the work visible. A read-only review creates no checkpoints.
 
-Inspect installed
-`dl memos revise --help` first. Review a complete source snapshot, prepare the
-proposed text, then use the guarded revision path when available:
+For generated additions, prefer streaming into a reviewed cursor. Inspect
+installed `dl memos insert --help` and the
+[editing reference](../reference/cli-notes-editing.md) before choosing the input
+path. Publish intent and save a reviewed before checkpoint, stream the addition,
+then verify the last acknowledged revision and save one after checkpoint.
+Follow the returned cursor/revision for successive completed insertions; never
+follow the human's moving selection or guess an offset after a concurrent edit.
+If streaming is unavailable, use bounded acknowledged insertions only when the
+installed interface documents continuation; otherwise preserve the draft and
+use the documented targeted-edit workflow below. Never invent a stream flag.
+
+Honor the user's concurrency choice. Preserve the original baseline so human
+edits can be reconciled; do not add `--exact` as a general safeguard. Choose exact
+only for an explicit unchanged-revision requirement. See the editing reference
+for the modes and interruption recovery. Never resend acknowledged chunks.
+
+For revising existing prose, inspect installed `dl memos revise --help` first. Review a complete source snapshot, prepare the
+proposed text, then use the reviewed revision workflow when available:
 
 ```bash
 dl memos read "$MEMO_ID" --json > baseline.json
@@ -70,7 +85,7 @@ in its hints, and submit a v2 patch against that original revision:
 
 ```bash
 dl memos read "$MEMO_ID" --at "$BASE" --view markdown --tag s1.ul2.li3
-dl memos patch "$MEMO_ID" --base-revision "$BASE" --exact --file edit.dff
+dl memos patch "$MEMO_ID" --base-revision "$BASE" --file edit.dff
 ```
 
 Use the item's address and line hints to identify the selected text. Ranges
