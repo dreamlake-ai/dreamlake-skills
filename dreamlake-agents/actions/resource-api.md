@@ -38,3 +38,23 @@ actual multimodal result, not a text URL. Discover the deployed contracts first.
 For Library display or page-context work, choose a specific Library before
 opening or reading its view. Do not use the draft global search page as
 current-result context; backend searches may still span multiple Libraries.
+
+When a Project action is denied, keep the user's intended namespace and exact
+Project ID. Open the deployed access-diagnostic tool if offered, and compare the
+human role, the caller's own agent delegation and this turn's capability before
+choosing a next step. Follow the owning [resource tools reference](../reference/docs-agents-resource-tools.md)
+for the supported diagnostic and human-controlled remedy. If the deployed server
+has no diagnostic, report that gap and the known denial; do not invent an endpoint
+or infer a missing grant from an empty search. Do not substitute human Project
+policy or user/team grant inspection as evidence of the agent’s own delegation.
+For an SDK-only request, leave that layer unknown unless its exact diagnostic
+surface is documented; do not offer a different permission API as equivalent.
+Ask for a narrowly scoped human change only after identifying the missing layer. Never self-grant, request ADMIN
+as a shortcut, or retry in a personal workspace.
+
+For a Memo filing request, resolve the Memo's stable ID and owner, then inspect
+its filing permission separately before treating a Project-tree refusal as the
+answer. Continue through the dedicated Memo adapter when authorized; do not create
+a duplicate or move ownership to make filing succeed. After a human changes a
+delegation, refresh the exact-project diagnostic and retry only the originally
+requested operation.
