@@ -23,7 +23,7 @@ memo. One action per task:
 | Create a memo or a namespace profile introduction | [create](actions/create.md) |
 | Read or set the catalog summary | [summary](actions/summary.md) |
 | File into a Project, change its folder, inspect filing | [move](actions/move.md) |
-| Ordinary Memo links, existing `:note[...]`, `:artifact[...]`, `:dashboard`/`:experiment`/`:project`/`:folder` references, extraction, side panel, placeholders | [references](actions/references.md) |
+| New Memo references, saved legacy references, `:artifact[...]`, `:dashboard`/`:experiment`/`:project`/`:folder` references, extraction, side panel, placeholders | [references](actions/references.md) |
 | Transfer a standalone Memo to another namespace | [transfer](actions/transfer.md) |
 
 Moving a whole Project with its Memos is the `projects` action of `dreamlake-cli`;

@@ -1,7 +1,7 @@
 # Reference Memos and artifacts from list items
 
 Use this to extract a list or checklist item into a linked Memo, to edit an
-existing memo reference, or to write ordinary Memo links, `:artifact[...]`,
+existing memo reference, or to insert Memo references, `:artifact[...]`,
 experiment, project and folder references, and placeholder directives. It does not create a Task or mark work complete; Tasks
 that link Memo items are `dreamlake-tasks`.
 
@@ -11,15 +11,19 @@ follow the current representation below and retain saved native forms exactly.
 
 ## Representation
 
-For new Memo references, use an ordinary Markdown link with the namespace and
-full ID returned by the API. Do not add new `:note[...]` directives, including
-when copying an example or creating a child Memo. Do not introduce `:memo`.
-Preserve existing `:note[...]`, `#note:<id>` and brace-form references exactly
-when reading or making unrelated edits; never bulk-migrate saved content.
+Create or locate the Memo, retain the confirmed immutable ID, and copy its
+canonical directive into the parent or Chat. Follow the current
+[linked Memo representation](../reference/docs-notes-linked-items.md); never
+substitute the display title, search query, slug or shortened ID. Resolve a
+lookup first, then use its returned identity. Confirm duplicate-title results
+by identity and owner before choosing one.
 
-Create or locate the Memo, use its returned URL, and verify that the link opens
-the intended resource. Links do not grant access or change sharing. See
-[linked memo items](../reference/docs-notes-linked-items.md).
+Do not generate new legacy directives from older examples, stored conversation
+history or tool names. Preserve saved legacy source during unrelated edits.
+If a result has no confirmed ID, inspect the existing resource before retrying;
+never guess a target, switch syntax as a fallback or create a duplicate.
+Read back the inserted source and open the target to verify the intended Memo.
+Links do not grant access or change sharing.
 
 ## Artifact references (development preview)
 
@@ -62,8 +66,8 @@ Syntax and badge behavior:
 ## Create a Memo and link it
 
 Prefer an existing match over creating a duplicate. Create the Memo first with
-`dl memos create`, retain its returned identity and URL, then insert an
-ordinary Markdown link into the parent. If creation fails or its result is
+`dl memos create`, retain its returned identity and canonical directive, then insert that
+directive into the parent. Keep the title only as a display label. If creation fails or its result is
 unclear, inspect the Memos list before retrying; creation is not idempotent.
 Do not use the retired `:note[` authoring flow.
 
