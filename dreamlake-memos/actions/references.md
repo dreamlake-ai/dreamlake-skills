@@ -123,6 +123,10 @@ Follow [reconnect and recovery](../reference/docs-notes-collaboration.md#reconne
 
 ## CLI workflow
 
+Inserting a reference edits the parent body: complete the intent and before/after
+checkpoint workflow in [edit](edit.md), even for a one-line insertion. The child's
+creation receipt does not checkpoint the parent or publish intent on it.
+
 Check installed `dl memos --help` and the current server and editor
 version first. Follow [read](read.md) for an original complete source snapshot and
 retain its opaque revision. Locate or create the child, read it back, then use

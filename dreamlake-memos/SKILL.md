@@ -8,7 +8,8 @@ description: "Work with DreamLake Memos: read and edit with revision guards, ins
 Requires `dreamlake-cli` (install, login, environment). Before the first live
 read or edit, [set and reuse the task identity](actions/identity.md). For an
 existing memo start with `dl memos list`; a media upload alone needs no
-memo. One action per task:
+memo. Choose the matching action; every body edit also follows `edit`, including
+an edit made while creating, linking or filing resources:
 
 | Request | Action |
 | --- | --- |
@@ -36,10 +37,14 @@ Memo items are managed with `dreamlake-tasks`.
 - Identity: set both `DREAMLAKE_AGENT_ID` and `DREAMLAKE_AGENT_NAME` once and
   inject the same literal values into every shell call; concurrent tasks need
   distinct IDs. Respect an explicit request for unattributed work.
-- Authoring: for prompt edits and meaningful revisions, follow [edit](actions/edit.md):
-  reviewed before/after checkpoints, concrete edit intent, preserved native
-  references, and pending redlines for human prose unless direct editing is
-  authorized. Inspect installed help; never replay accepted writes for metadata.
+- References: copy the returned canonical Memo directive with its verified full
+  ID; never author a new legacy `:note` reference or substitute a title. Follow
+  [references](actions/references.md); preserve saved legacy source unrelated to the edit.
+- Before body edits, follow [edit](actions/edit.md): publish concrete presence
+  intent and save a reviewed before checkpoint; verify the acknowledged edit and
+  its after checkpoint. A revision guard alone is not a named version. Use pending
+  redlines for human prose unless direct editing is authorized. Never replay an
+  accepted body write for missing metadata; report incomplete steps explicitly.
 - Revision: retain complete source, opaque revision and content hash using the
   [edit action](actions/edit.md), patch against that exact revision, and read
   the acknowledged revision back. On 412 or 409 stop, keep baseline and draft,
