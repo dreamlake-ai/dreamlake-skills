@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.158 c8ea58c6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.159 ae6783ad; do not edit -->
 
 # Libraries Reference
 
@@ -435,6 +435,12 @@ no DreamLake bearer token. Paths escaping the destination or using symlinks
 are rejected. Successful files survive a later failure. The default total
 transfer budget is 512 MiB; callers can set `max_bytes` explicitly.
 
+The image endpoint also accepts optional `expectedRevision` (a nonnegative integer).
+After checking current access, a revision mismatch returns HTTP 409
+`library_image_revision_changed`, without image bytes. Access and revision are checked
+again after transfer. This lets historical chat cards retain the version the agent
+saw without granting access to old private images or requiring signed URL storage.
+
 ### Built-in tools and browser state
 
 Backend tools are `dreamlake_libraries_list`, `dreamlake_library_search`,
@@ -446,9 +452,16 @@ file metadata. `get_asset` returns five file download URLs per call with a
 cursor. `view_images` accepts up to four `assets` references, with optional
 image `path`, and sends actual image content to the model in the next
 multimodal request. It accepts one batch per turn, retaining at most four
-images. The live chat shows the same images in a transient gallery with
-asset links. Bytes are excluded from persisted chat and receipts; restored
-sessions must reacquire them under current permissions. The configured model/provider must support image input; provider
+images. Chat shows image cards inside the originating reply. Tool receipts
+save only namespace/library/assetId, image path, purpose and Library revision;
+image bytes and signed URLs are never saved. Cards remain attached when sending
+another message and restore when switching or reloading the conversation.
+Visible cards reacquire bytes under current permissions. Removed or inaccessible
+images show an unavailable state; a changed Library revision shows a changed-image
+state rather than silently substituting a newer image. Older calls without saved
+references cannot reconstruct their original pictures and ask for a new image read.
+Restored cards are display history, not automatic image input to a later model turn;
+use `view_images` again when the model needs to inspect the picture anew. The configured model/provider must support image input; provider
 acceptance requires deployment-specific validation.
 
 `dreamlake_library_get_view({})` lists mounted **single-Library** target IDs.

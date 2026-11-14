@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.158 c8ea58c6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.159 ae6783ad; do not edit -->
 
 # Linked memo items
 
@@ -20,7 +20,15 @@ New Memo references use `:memo[full-id]`. Existing Markdown links remain support
    - [ ] Discuss :memo[6aa989ea6aff1e1960afc51f] before the demo.
 ```
 
-Use the full ID returned by DreamLake. Copy Reference returns `:memo[id]`;
+Use the full ID returned by DreamLake. After creation, copy the returned
+`directive` (`:memo[<24-hex-id>]`) into the parent Memo or Chat. The bracket holds
+only the immutable ID, never `name`, `title`, a slug, URL or shortened display
+hash. Titles are resolved labels: duplicate names and later renames do not change
+the reference. A Memo in another namespace still uses its ID; access is checked
+when it is opened. If creation returns no confirmed ID, inspect the result before
+trying again; never insert a title or fall back to a legacy directive.
+
+Copy Reference returns `:memo[id]`;
 Copy URL continues to return a URL. Do not replace the ID with a title or short hash. Text before
 and after a link remains ordinary Markdown. References inside code remain literal.
 
