@@ -17,6 +17,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Install, log in, choose the environment or default CLI namespace; machine identity, telemetry, Nymph | [setup](actions/setup.md) |
 | Upload or download episode data; browse, upload or edit managed text in a Source | [data](actions/data.md) |
 | Manage Project permissions or restrict its audience; grant or revoke access; attach or detach a resource | [project-access](actions/project-access.md) |
+| Rename a Project or correct its URL slug | [project-address](actions/project-address.md) |
 | Move a whole Project and its owned resources to another namespace | [projects](actions/projects.md) |
 | Transfer one Artifact, Env/Scene, Annotation, Pipeline or Source | [ownership](actions/ownership.md) |
 | Link a Memo or Artifact write to the agent's session; upload a conversation | [session-links](actions/session-links.md) |
