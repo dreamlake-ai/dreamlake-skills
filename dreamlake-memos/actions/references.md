@@ -127,8 +127,8 @@ Check installed `dl memos --help` and the current server and editor
 version first. Follow [read](read.md) for an original complete source snapshot and
 retain its opaque revision. Locate or create the child, read it back, then use
 the revision-guarded exact patch in [edit](edit.md) to replace only the source
-item with an ordinary Markdown link to the returned child URL.
+item with the child's returned canonical directive, using its confirmed full ID.
 Re-read the returned revision to verify. On a conflict or uncertain outcome,
 retain the original baseline and proposed patch; reconcile before another write.
 Preserve checkbox state, list indentation, nested content and adjacent prose.
-Report the new Memo ID and what moved. Never force an overwrite or invent a URL.
+Report the new Memo ID and what moved. Never force an overwrite or invent a target.
