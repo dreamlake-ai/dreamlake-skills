@@ -1,16 +1,60 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.161 786eaab4; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.164 44b27201; do not edit -->
 
 # Browser terminal
 
 Compute can open an interactive SSH terminal on a machine you own and have
-enrolled. Open **Compute**, select the machine, choose **Terminal**
+enrolled, or on one whose owner has [shared it with you](#share-a-machine-with-a-teammate).
+Open **Compute**, select the machine, choose **Terminal**
 (`/:namespace/compute?view=terminal`), then **Connect**. The terminal runs as
 the enrolled Unix user. Keys stay on the server, and the browser never sends a
 host address or a key.
 
 A machine is listed only when its daemon is online, reports native SSH
-support, and is bound to your personal namespace enrollment. Organization
-namespaces are not supported yet.
+support, and is bound to an enrollment you own in that namespace or one
+shared with you. In an organization namespace, membership alone does not list
+anyone else's machines.
+
+## Share a machine with a teammate
+
+In an organization namespace, the owner of a machine can let one named member
+connect to it with their own DreamLake account:
+
+1. Open **Compute** in the organization namespace and select the machine.
+2. Under **Access**, choose the Unix account, enter the member's username, and
+   choose **Grant**.
+
+The member then sees the machine in Compute, marked **Shared with you**, and
+can open the terminal there or with `dl ssh <namespace>/<group>/<machine>`.
+Each person signs in as themselves, and their DreamLake sessions and saved
+sessions stay their own. DreamLake never passes the owner's DreamLake sign-in
+or connection credentials to the member; credentials stored on the machine
+itself are a different matter (see below). The grant covers connecting only. Machine settings, metrics,
+jobs, the agent list and sharing stay with the owner.
+
+- Only the machine's owner can grant or revoke, and only to a current member
+  of the organization. Personal namespaces cannot share machines.
+- A grant covers one enrollment, that is one Unix account on that machine.
+- **Revoke** stops new connections at once and asks the control plane to
+  close every connection opened through the grant, browser or `dl ssh`; they
+  usually end within a few seconds. If the control plane cannot confirm a
+  close, Compute says so and keeps the revoked member listed with a
+  **Retry close** button until those connections close or reach their time
+  limit (at most 30 minutes).
+- The grant also stops working while the member is not in the organization,
+  the owner can no longer use the machine, the enrollment is revoked, or the
+  machine moves to another namespace. Then new connections are refused and
+  browser terminals close, but a `dl ssh` session that is already open runs
+  until its time limit (at most 30 minutes).
+- A member's tmux sessions get their own names, so the default `web-ssh`
+  does not attach the owner's session. Their shell can still reach everything
+  the Unix account can.
+
+The shell runs as the enrolled Unix user. If you share your own account, the
+member can read its files, attach its tmux sessions, and use any credentials
+stored in it on that machine, including agent logins and the machine's
+DreamLake daemon identity. To keep people apart, create a separate Unix
+account for the member, [enroll](docs-lakeshore-hosts-enroll.md) that account, and
+share that enrollment instead.
 
 ## Connection command
 
