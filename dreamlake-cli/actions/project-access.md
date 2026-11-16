@@ -67,10 +67,19 @@ it only when `dl project attach --help` lists it. It records placement only.
 2. When you file, state once in the same reply that the Project's
    organization members, now and later, see the host's name and owner, and
    that nobody gains connection access through it.
-3. Attach, then tag the returned node into the Bindr if one was asked for. If
-   tagging fails or is uncertain, attach again (it returns the existing node)
-   and retry the tag on that node; never file a second copy, and report a tag
-   that did not succeed instead of dropping it.
+3. File, with the Bindr in the same command when one was asked for:
+
+   ```bash
+   dl project attach research --namespace acme --type host --resource "$HOST_ID" --bindr "Lab machines" --json
+   ```
+
+   Output and exit codes are in
+   [Project attachment access](../reference/cli-projects.md#project-attachment-access-cli-0620).
+   A partial result means the host is filed but not tagged: run the same
+   command again, which re-files the same node and tags it. Never file a
+   second copy, and report a tag that still did not succeed instead of
+   dropping it. A client without `--bindr` files first and tags the
+   returned node as a separate step, with the same retry rule.
 4. If the user wants Project members to connect, that is a separate explicit
    grant: the `host-access` action of `dreamlake-lakeshore`. Do not file a host
    to share it, and do not grant connection access because it is filed.
