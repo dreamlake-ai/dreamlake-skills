@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.128.2 e02e5fb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.130.0 78c835a; do not edit -->
 
 # Host enrollment
 
@@ -786,13 +786,15 @@ prompts. Cancelling the chooser opens no session.
 
 ### Keyboard-idle disconnect
 
+Nymph 0.1.42+ separates `max_duration_s` (total lifetime; `0` disables it) from `idle_timeout_s` (keyboard inactivity). `dl` uses the shorter of the host inactivity limit and its 30-minute request, and reports keyboard activity often enough for that limit. A total lifetime limit still closes an actively used session. Equal settings such as 1800 seconds are valid; timing grace is internal.
+
 **CLI 0.127.0+.** An interactive `dl ssh` or `dl tmux` session ends 30 minutes
-after the last keystroke or paste (or, before the first one, after the session
+(or the shorter negotiated host limit in CLI 0.129.0+) after the last keystroke or paste (or, before the first one, after the session
 was requested), not at a fixed time. It is disconnected at
 once, with no warning, and the CLI prints
 `dl: disconnected after 30 minutes without keyboard input.` and exits 124. A
 session in which you keep typing stays on the same connection, shell and
-foreground program for as long as you work: renewing it never reconnects.
+foreground program while you work, up to any configured total lifetime: renewing it never reconnects.
 
 Only keystrokes and pastes count. Remote output (a log you are watching, a
 progress bar, a tmux status line), mouse movement and clicks, focus changes,

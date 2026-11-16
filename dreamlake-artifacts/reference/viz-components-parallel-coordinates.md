@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/parallel-coordinates.md at 0.31.3 545152ca; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/parallel-coordinates.md at 0.31.5 0739ab83; do not edit -->
 
 # Parallel coordinates
 
@@ -282,9 +282,9 @@ Reuse the reported IDs for your own table or detail view.
 ## Smooth exploration of a larger comparison
 
 Hovering or focusing a run raises its trace without moving the pointer targets.
-Selection remains controlled by stable IDs. The background fades briefly when a
-preview opens; reduced-motion preferences disable this fade. Recorded positions
-and missing-value gaps update immediately, without interpolating research data.
+Selection remains controlled by stable IDs. The background dims immediately when
+a preview opens, with no fade for any motion preference. Recorded positions and
+missing-value gaps update immediately, without interpolating research data.
 
 ```tsx file="DenseComparisonSpec.tsx"
 
@@ -350,7 +350,9 @@ export function DenseComparisonSpec() {
 ```
 
 Use Tab to focus a run, Space or Enter to toggle it, and Escape to dismiss its
-preview. Touch users can tap experiment controls and axis labels. Set `minAxisSpacing`
+preview. Moving the pointer onto a different trace previews that trace even
+when a run control retains focus; moving away restores the focused run. A new
+keyboard focus takes over from a previous pointer preview. Touch users can tap experiment controls and axis labels. Set `minAxisSpacing`
 when you want a horizontally scrollable plot. Hovering never selects a run. Keep `axes` and `series` references
 stable when their contents have not changed so cached geometry can be reused.
 
@@ -496,9 +498,21 @@ recorded positions or missing-value gaps.
 
 ## Curves, padding and axis values
 
-Smooth cubic connectors pass through each recorded axis position, stay within
-adjacent endpoint bounds, and split at missing values. They do not create new
-observations or smooth research data. Set `curve="linear"` for straight segments.
+Smooth connectors (`curve="smooth"`) are the default. Their tangents follow
+neighboring trends instead of flattening at every axis; local extrema flatten
+to keep each segment within its endpoint bounds. Every curve passes through
+the exact recorded axis positions and splits at missing values. Set
+`curve="linear"` for straight segments. Hover and focus update immediately
+without fades or animated geometry. Neither style creates observations or
+numerically smooths research data.
+
+```tsx
+// Default: bounded smooth connectors and immediate hover feedback.
+<ParallelCoordinates axes={axes} series={series} />
+// Optional straight connectors, with independent explicit insets.
+<ParallelCoordinates axes={axes} series={series} curve="linear" paddingLeft={17} paddingRight={39} />
+```
+
 Normal strokes default to 2px and highlights retain the proportional width contract above. The active trace
 has a wider surface-colored halo; `activeHaloColor` matches a custom host surface
 without adding a chart background.
@@ -846,7 +860,7 @@ without changing their declared order.
 | `axisModeOptions`                  | `[]`                      | Named caller strategies available in each axis dialog.                   |
 | `paddingLeft`, `paddingRight`      | `0`, `0`                  | Independent horizontal pixel insets.                                     |
 | `minAxisSpacing`                   | `0`                       | Optional minimum pixel gap; enables horizontal scrolling when necessary. |
-| `curve`                            | `"smooth"`                | `"smooth"` or `"linear"`.                                                |
+| `curve`                            | `"smooth"`                | Bounded smooth connectors; `"linear"` uses straight segments.            |
 | `lineWidth`, `activeLineWidth`     | `2`, base × 1.65          | Normal and highlighted stroke widths in pixels.                          |
 | `activeHaloWidth`                  | active width + 4          | Full active halo stroke width, at least the active stroke width.         |
 | `activeHaloColor`                  | white / dark surface      | CSS color override for a custom host surface.                            |
@@ -877,4 +891,4 @@ included. For dense studies, filter the comparison set in the host table.
 
 ## Related API comparison
 
-See the [versioned Vuer API comparison](https://viz.dreamlake.ai/guides/api-comparison) for migration mappings, intentional differences, and remaining capabilities.
+See the [current two-site API comparison](https://viz.dreamlake.ai/guides/api-comparison) for source-linked contracts, migration examples, intentional differences, and remaining capabilities.

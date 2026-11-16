@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.167 a6ccd3cb; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.170 41a5fa06; do not edit -->
 
 # Browser terminal
 
@@ -898,6 +898,7 @@ enabled = true
 state_dir = "/home/worker/.local/state/dreamlake/ssh"
 sshd = "/usr/sbin/sshd"
 max_duration_s = 3600
+idle_timeout_s = 1800
 max_sessions = 28
 ```
 
@@ -908,17 +909,18 @@ Use the existing private state directory and SSH host key for an enrolled servic
 | `enabled` | `false` | Enables the SSH backend only when local `command_execution` also permits it. |
 | `state_dir` | Empty | Required private directory for enabled SSH; retains its host key and boot binding. |
 | `sshd` | `/usr/sbin/sshd` | Local OpenSSH server executable used by the backend. |
-| `max_duration_s` | 3600 | Session lifetime cap, 60–14400 seconds; request and credential expiry can shorten it. Browser/API delegations currently cap requests at 1800 seconds. For a keyboard-idle session (below) it bounds each renewal window instead. |
+| `max_duration_s` | 3600 | Total session lifetime in seconds, measured from creation. `0` disables the total limit; otherwise 60–14400. Keyboard activity never extends it. Nymph 0.1.42+. |
+| `idle_timeout_s` | 1800 | Keyboard inactivity limit, 60–14400 seconds. The CLI may request a shorter limit. Protocol grace is internal; setting both limits to 1800 is valid. Nymph 0.1.42+. |
 | `renewable_expiry` | `true` | Lets the control plane move an open keyboard-idle session's deadline forward through the daemon lease. `false` keeps every deadline fixed at open, and keyboard-idle sessions are refused for this host. Nymph 0.1.41+. |
 | `max_sessions` | 28 | Combined local SSH/tunnel task capacity, integer 1–4096; validated at configuration load. |
 
 #### Keyboard-idle sessions
 
-`dl ssh` and `dl tmux` sessions end after 30 minutes without keyboard input rather than at a fixed lifetime. The CLI observes keystrokes and pastes before encryption and reports them, at most about once a minute, to the DreamLake backend. The backend rechecks the user's current access to that exact enrollment, exactly as for a new session, and asks the control plane to renew. The control plane accepts a renewal only from the backend that issued the session, for the same worker binding and with that session's credential, and sets the deadline to 30 minutes 10 seconds from that moment. The session credential's expiry moves with it in place. Nymph applies the new deadline from its next 15-second lease reply. The relay connection, `sshd` and the remote shell are not touched by a renewal.
+`dl ssh` and `dl tmux` request a 30-minute keyboard inactivity limit, shortened by the host’s `idle_timeout_s` policy. With Nymph 0.1.42+, `max_duration_s` independently caps total lifetime. Set `max_duration_s = 0` and `idle_timeout_s = 1800` to keep active sessions open and close them after 30 minutes idle. The CLI observes keystrokes and pastes before encryption and reports them, at most about once a minute, to the DreamLake backend. The backend rechecks the user's current access to that exact enrollment, exactly as for a new session, and asks the control plane to renew. The control plane accepts a renewal only from the backend that issued the session, for the same worker binding and with that session's credential, and advances the inactivity deadline, with an internal ten-second grace for clean client shutdown. The total lifetime limit is never extended by this grace. The session credential's expiry moves with it in place. Nymph applies the new deadline from its next 15-second lease reply. The relay connection, `sshd` and the remote shell are not touched by a renewal.
 
-Remote output, mouse and focus reports, terminal replies, window resizes and SSH keepalives never renew a session. A host needs a Nymph that advertises `renewable_expiry` and a `max_duration_s` of at least 1810 seconds; otherwise the control plane refuses keyboard-idle and the CLI opens a fixed 30-minute session. Revoking the user's access, the grant, the enrollment or the issuing connection stops renewals; revoking a grant or connection also closes the session at once.
+Remote output, mouse and focus reports, terminal replies, window resizes and SSH keepalives never renew a session. A host needs Nymph that advertises renewable expiry. Nymph 0.1.42+ advertises the two independent timeout policies; no extra margin is required in configuration. Older daemons retain their renewal-window behavior. A daemon or control plane without support falls back to a fixed session, with a CLI notice. Revoking the user's access, the grant, the enrollment or the issuing connection stops renewals; revoking a grant or connection also closes the session at once.
 
-There is no new Nymph environment-variable or CLI-flag override for `max_sessions`. It belongs in the config selected by `--config` or the existing service configuration. Omitted options use defaults; unknown options are rejected. Nymph reads this file at startup, not on every poll. `nymph access --config /absolute/path/to/udf-daemon.toml` inspects the file plus local policy without starting a worker; its `settings.sshEnabled`, `sshMaxSessions`, `sshMaxDurationSeconds` and (newer daemons) `sshRenewableExpiry` describe that inspected startup configuration, not proof that an already-running daemon has reloaded it.
+There is no new Nymph environment-variable or CLI-flag override for `max_sessions`. It belongs in the config selected by `--config` or the existing service configuration. Omitted options use defaults; unknown options are rejected. Nymph reads this file at startup, not on every poll. `nymph access --config /absolute/path/to/udf-daemon.toml` inspects the file plus local policy without starting a worker; its `settings.sshEnabled`, `sshMaxSessions`, `sshMaxDurationSeconds`, `sshIdleTimeoutSeconds` and (newer daemons) `sshRenewableExpiry` describe that inspected startup configuration, not proof that an already-running daemon has reloaded it.
 
 Keep local combined capacity at least the intended simultaneous SSH plus tunnel count for the worker (28 for the defaults). A deliberately lower local capacity still applies: the control plane does not currently advertise or negotiate this local setting, so its counters are control-plane admission limits, not guaranteed local slots. OS process/file-descriptor limits, memory and OpenSSH remain additional constraints. Do not increase those blindly or use quota changes to broaden grants.
 

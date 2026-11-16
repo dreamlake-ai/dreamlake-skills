@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.167 a6ccd3cb; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.170 41a5fa06; do not edit -->
 
 # Sharing, access and transfer
 
