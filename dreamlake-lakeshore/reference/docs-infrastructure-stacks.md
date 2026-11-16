@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/infrastructure-stacks.md at 0.1.161 786eaab4; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/infrastructure-stacks.md at 0.1.164 f4b0b6da; do not edit -->
 
 # Infrastructure stacks
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.161 786eaab4; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.164 f4b0b6da; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -80,12 +80,36 @@ on the Source: if they leave the namespace or lose it, jobs wait in the queue
 and Setup says so until another namespace admin chooses **Re-authorize**.
 After that, copy a label from the machine catalog in Setup. See [DreamLake GPU](#dreamlake-gpu) for limits and usage.
 
-*Your own machines.* You need a [Slurm provider](https://docs.dreamlake.ai/lakeshore/providers/slurm)
-registered in the namespace with a host bound to it, and a launch layer that
-sets the partition, GPU type, memory, time limit and excluded nodes. Create a
-runner pool in Setup (**Your own machines → New pool**) or with the CLI. The
-pool name becomes the default label `dreamlake-<name>`. Setup only offers
-providers that can start runners and Sources you can edit.
+*Your own machines.* Only Slurm clusters are supported. The cluster needs a
+login node that can run `sbatch`, a directory shared between it and the compute
+nodes, `uv` and Python on the compute nodes, and outbound internet from them
+(the runner talks to GitHub). Setup → **Your own machines** lists six steps and
+shows which are done:
+
+1. **Enroll the login node** (Compute → **Enroll a Host**): run the shown
+   command from a terminal that can SSH to it. Jobs run as the Unix user you
+   enroll, with that user's files, quota and priority.
+2. **Bind a service account** (the host in Compute → **Service account → Bind
+   service account**): the machine's own DreamLake identity. Without it jobs
+   run but cannot save evidence; revoking it stops that machine's writes. A
+   namespace owner does this.
+3. **Register a [Slurm provider](https://docs.dreamlake.ai/lakeshore/providers/slurm)** (Providers →
+   **Register**): the cluster name and the partitions jobs may use.
+4. **Associate the login node** (the provider → **Hosts → Associate an
+   enrolled host**): which enrolled Unix account submits, the partition, the
+   shared directory as seen by the login node and by compute nodes, and uv and
+   Python on compute nodes.
+5. **Set the launch layer** (the provider → **Configuration → Set launch
+   layer**): what each job asks for, such as
+   `{"partition": "gpu", "gres": "gpu:1", "cpusPerTask": 8, "memGiB": 32, "time": "02:00:00"}`.
+   **Check** validates it without launching anything.
+6. **Create a runner pool** (Setup → **New pool**) or with the CLI. The pool
+   name becomes the default label `dreamlake-<name>`. Setup only offers
+   providers that can start runners and Sources you can edit, and warns when
+   the provider's machine cannot save evidence.
+
+Another spec on the same cluster (more time, another GPU type) is steps 3–6
+again with a different launch layer; another cluster is all six.
 
 ```bash
 dl cict pools create my-team --name bos14-gpu \
@@ -130,6 +154,21 @@ free node of the cluster partition behind it.
   and job by job with a link to each run. `dl cict usage` prints the same.
 - **Availability.** DreamLake GPU is enabled per namespace by the DreamLake
   team. A paused namespace starts no new jobs; running ones finish.
+
+## Check where a namespace stands
+
+`dl cict status` (or `GET /namespaces/:ns/cict/onboarding`) reports every
+step above, whether it is done, and the next one with the page, CLI command
+and API call that does it. It is the same for people and agents: an agent can
+take a namespace from nothing to running jobs by repeating it, except for
+installing the GitHub App, which a person does in a browser, and enrolling a
+login node and binding its service account, which need SSH access and a
+namespace owner.
+
+```bash
+dl cict status my-team          # ready / next step
+dl cict status my-team --json   # every step, with ui, cli and api hints
+```
 
 ## Write the workflow (developers)
 
@@ -271,6 +310,7 @@ Two ways are supported by design:
 | GET / POST | `/namespaces/:ns/github/runner-pools` | read / execution admin |
 | PATCH / DELETE | `/namespaces/:ns/github/runner-pools/:poolId` | execution admin (DELETE answers `409 runner_pool_busy` while jobs still need it) |
 | GET | `/namespaces/:ns/github/runner-targets` | read: Slurm providers and whether a pool can start runners on each |
+| GET | `/namespaces/:ns/cict/onboarding` | read: every setup step, done or not, and the next one with UI, CLI and API hints |
 | GET | `/namespaces/:ns/cict/platform` | read: DreamLake GPU catalog, access, occupancy, month GPU time |
 | POST | `/namespaces/:ns/cict/platform/activate` | execution admin + namespace admin: start using DreamLake GPU |
 | PATCH | `/namespaces/:ns/cict/platform` | execution admin: change the evidence Source, or re-authorize with the same one (the caller becomes the authorizer) |
