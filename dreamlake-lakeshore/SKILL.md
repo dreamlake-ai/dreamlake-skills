@@ -28,7 +28,7 @@ evidence standard are in [machines](actions/machines.md).
 | Connect Lakeshore: Add Host, Runtime workers, queue mounts, shared connection upkeep | [lakeshore](actions/lakeshore.md) |
 | Hosts, IP addresses, system inventory, enrollments, metrics, SSH/exec, power, catalog visibility, agent terminal sessions | [hosts](actions/hosts.md) |
 | SSH usage/limits, Nymph capacity configuration and command permission boundaries | [SSH capacity and permissions](actions/ssh-capacity.md) |
-| Share, list or revoke a teammate's connection access to one host enrollment (Unix account) | [host access](actions/host-access.md) |
+| Share, list or revoke a teammate's or a team's connection access to one host enrollment (Unix account) | [host access](actions/host-access.md) |
 | Move a personally owned host between namespaces, keeping it private (CLI or documented SDK fallback) | [move a host](actions/host-move.md) |
 | Read Slurm scheduler jobs; register and report externally launched work | [jobs](actions/jobs.md) |
 | CI/CT: run GitHub Actions jobs on DreamLake GPU or own runner pools, inspect runs, compare with the baseline, administer DreamLake GPU | [cict](actions/cict.md) |
