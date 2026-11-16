@@ -19,19 +19,28 @@ open step with `how.cli`, `how.api`, `how.ui` and, when a person must act,
 `how.human`. To set a namespace up, repeat:
 
 1. Run `dl cict status NS --json`. If `ready` is true, hand the developer the
-   `workflow` line (the `runs-on` label and the evidence contract) and stop.
+   `workflow` line and stop: it names every usable `runs-on` label (ask which
+   fits the job, or match the spec in `platform show`) and the evidence
+   contract. `results.json` is the manifest of files to keep; `result.json`
+   is the verdict the CI/CT page compares. `route` is the path being followed
+   (DreamLake GPU once enabled or when nothing else has started); `readyVia`
+   says which one is ready.
 2. Do `next`: run its `how.cli` after filling every `<placeholder>` from the
    user or from earlier output. When `how.human` is set, do the part you can
-   (for GitHub, create the install link) and give the user exactly what they
-   must do; then wait for them and run status again.
+   (for GitHub, create the install link: `github connect` is a write, it
+   starts a 15-minute binding) and give the user exactly what they must do;
+   then wait for them and run status again. Tell the user about every
+   `alsoNeeded` step at the same time: those are person-only steps (such as
+   asking the DreamLake team for DreamLake GPU) that can happen in parallel.
 3. Run status again and confirm the step is now `done` before moving on. If it
    is not, read its `detail`; do not repeat the same command in a loop.
 
 What only a person can do: install the GitHub App in a browser; ask the
 DreamLake team to enable DreamLake GPU; enroll a cluster login node (needs an
 SSH-capable terminal; you may run it if you have one and the user agrees);
-bind the machine's service account (a namespace owner). Everything else has a
-command. Confirm before any step that grants access or spends shared GPUs.
+bind the machine's service account (a namespace owner; a CLI session signed in
+as that owner can run the two commands after they confirm, DreamLake's
+built-in agent cannot). Everything else has a command. Confirm before any step that grants access or spends shared GPUs.
 
 There are two kinds of machines. Ask which the user wants if it is not clear:
 **DreamLake GPU** (machines DreamLake provides, chosen by label, nothing to
@@ -79,7 +88,12 @@ Only Slurm clusters are supported. The six steps, in order (`dl cict status`
 shows which are done): enroll the login node (`hosts` action), bind its
 service account (`dl service-accounts create` and `bind`, a namespace owner),
 register a Slurm provider, associate the login node with it, set its launch
-layer (all three in the `machines` action), create a runner pool (below).
+layer (all three in the `machines` action, which has the `provider.json`,
+`association.json` and layer formats), create a runner pool (below). The
+launch layer can be set at registration (`providers register --launch
+layer.json`); later changes take `--revision` from `dl providers show
+NS/ID --json`. A pool also needs an evidence Source the user can edit: pick or
+create it first (the `sources` action of `dreamlake-cli`).
 Check the cluster's real nodes (`sinfo -o '%P %G %c %m'` on the login node)
 before writing a launch layer: ask only for resources one node has.
 
