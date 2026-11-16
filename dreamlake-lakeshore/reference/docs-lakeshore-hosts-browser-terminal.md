@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.164 44b27201; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.166 f4636e0f; do not edit -->
 
 # Browser terminal
 
@@ -38,13 +38,15 @@ jobs, the agent list and sharing stay with the owner.
   close every connection opened through the grant, browser or `dl ssh`; they
   usually end within a few seconds. If the control plane cannot confirm a
   close, Compute says so and keeps the revoked member listed with a
-  **Retry close** button until those connections close or reach their time
-  limit (at most 30 minutes).
+  **Retry close** button until those connections close or reach their current
+  deadline. That is at most 30 minutes after a connection opened or, for a
+  keyboard-idle `dl ssh` session, at most 30 minutes 10 seconds after its last
+  keystroke renewal. A renewal rechecks the grant, so none succeeds after revoke.
 - The grant also stops working while the member is not in the organization,
   the owner can no longer use the machine, the enrollment is revoked, or the
   machine moves to another namespace. Then new connections are refused and
   browser terminals close, but a `dl ssh` session that is already open runs
-  until its time limit (at most 30 minutes).
+  until its current deadline (the same bounds; renewals are refused meanwhile).
 - A member's tmux sessions get their own names, so the default `web-ssh`
   does not attach the owner's session. Their shell can still reach everything
   the Unix account can.
@@ -55,6 +57,46 @@ stored in it on that machine, including agent logins and the machine's
 DreamLake daemon identity. To keep people apart, create a separate Unix
 account for the member, [enroll](docs-lakeshore-hosts-enroll.md) that account, and
 share that enrollment instead.
+
+### Manage grants without Compute
+
+The same owner-only grant is available through the API and its clients. Each
+call is made as the signed-in owner; none of them changes who may grant, the
+organization-member requirement or the one-enrollment scope.
+
+| Surface | List | Grant | Revoke |
+|---|---|---|---|
+| API | `GET /namespaces/:namespace/hosts/:hostId/access-grants` | `POST` the same path with `{"enrollmentId": "ENROLLMENT_ID", "grantee": "USERNAME"}` (`@` optional) | `DELETE …/access-grants/:grantId` |
+| CLI (0.128.0 or later) | `dl hosts access list HOST_ID` | `dl hosts access grant HOST_ID --enrollment ENROLLMENT_ID --user USERNAME` | `dl hosts access revoke HOST_ID GRANT_ID` |
+| TypeScript, `@dreamlake/dreamlake-cli/api` (same release) | `hosts(ns).accessGrants(hostId)` | `hosts(ns).grantAccess(hostId, { enrollmentId, grantee })` | `hosts(ns).revokeAccess(hostId, grantId)` |
+| Python (0.54.0 or later) | `client.hosts.access_grants(ns, host_id)` | `client.hosts.grant_access(ns, host_id, enrollment_id=…, grantee=…)` | `client.hosts.revoke_access(ns, host_id, grant_id)` |
+| Built-in agent | `dreamlake_host_access_grants` | `dreamlake_host_access_grant` | `dreamlake_host_access_revoke` |
+
+For CLI flags and output, see [Share connection access](https://cli.dreamlake.ai/host-enrollment#share-connection-access)
+in the CLI guide. A grant always names an exact enrollment, so choose the Unix account first;
+host and enrollment IDs come from `dl hosts enrollments HOST_ID` or the host
+details. Granting the same person the same enrollment again while the grant is
+active returns it unchanged (`201` when created, `200` when already active). After
+a revoke, the same request grants access again, so do not repeat a grant whose
+outcome is unknown. List the grants first, and grant again only as a new decision.
+Errors keep their
+API codes: `grantee_not_found`, `grantee_not_member`, `grantee_is_owner`,
+`host_access_grant_org_only`, `enrollment_not_found` and `host_not_found`.
+
+Each grant lists `id`, `enrollmentId`, `unixUser`, `machineId`, `grantee`
+(`username`, `name`), `grantedAt` and `state`. A revoke returns
+`closedConnections` and `unconfirmedConnections`, plus `unconfirmedUntil` when
+some closes were not confirmed. Those connections may stay open until that
+time. The grant then stays listed with `state: "revoked"`, `pendingConnections`
+and `pendingUntil`, and repeating the revoke retries the close.
+
+The built-in agent's mutating grant tools need **Tool changes** turned on for
+the message, and act only when you name the person and the machine. They use
+your own sign-in, not a service account, and the agent's generic API tools
+cannot reach these routes. Machine service-account host grants
+(`dl service-accounts host-grants`) are a different permission for a machine's
+own identity. They neither share a machine with a person nor make a service
+account a grantee.
 
 ## Connection command
 
@@ -659,7 +701,9 @@ observed, and saving/opening a bookmark does not automatically inspect a host.
 
 ## Limits
 
-- At most two terminals per user and eight per gateway.
+- At most 12 terminal connections per account across browser windows and CLI SSH, and 48 per gateway.
+- Settings → Compute → Concurrent web terminals defaults to 12 and can lower the limit for this account in this browser. The frontend counts connecting and connected terminals across panels on the page; lowering the setting preserves existing connections.
+- When a limit is reached, disconnect an unused terminal and retry. Disconnect and quota reasons remain visible in the terminal banner.
 - A session closes after five minutes without input, output or resize, and
   always after thirty minutes. tmux and its processes keep running after
   either limit, and reconnecting returns to them.
@@ -864,10 +908,17 @@ Use the existing private state directory and SSH host key for an enrolled servic
 | `enabled` | `false` | Enables the SSH backend only when local `command_execution` also permits it. |
 | `state_dir` | Empty | Required private directory for enabled SSH; retains its host key and boot binding. |
 | `sshd` | `/usr/sbin/sshd` | Local OpenSSH server executable used by the backend. |
-| `max_duration_s` | 3600 | Session lifetime cap, 60–14400 seconds; request and credential expiry can shorten it. Browser/API delegations currently cap requests at 1800 seconds. |
+| `max_duration_s` | 3600 | Session lifetime cap, 60–14400 seconds; request and credential expiry can shorten it. Browser/API delegations currently cap requests at 1800 seconds. For a keyboard-idle session (below) it bounds each renewal window instead. |
+| `renewable_expiry` | `true` | Lets the control plane move an open keyboard-idle session's deadline forward through the daemon lease. `false` keeps every deadline fixed at open, and keyboard-idle sessions are refused for this host. Nymph 0.1.41+. |
 | `max_sessions` | 28 | Combined local SSH/tunnel task capacity, integer 1–4096; validated at configuration load. |
 
-There is no new Nymph environment-variable or CLI-flag override for `max_sessions`. It belongs in the config selected by `--config` or the existing service configuration. Omitted options use defaults; unknown options are rejected. Nymph reads this file at startup, not on every poll. `nymph access --config /absolute/path/to/udf-daemon.toml` inspects the file plus local policy without starting a worker; its `settings.sshEnabled`, `sshMaxSessions` and `sshMaxDurationSeconds` describe that inspected startup configuration, not proof that an already-running daemon has reloaded it.
+#### Keyboard-idle sessions
+
+`dl ssh` and `dl tmux` sessions end after 30 minutes without keyboard input rather than at a fixed lifetime. The CLI observes keystrokes and pastes before encryption and reports them, at most about once a minute, to the DreamLake backend. The backend rechecks the user's current access to that exact enrollment, exactly as for a new session, and asks the control plane to renew. The control plane accepts a renewal only from the backend that issued the session, for the same worker binding and with that session's credential, and sets the deadline to 30 minutes 10 seconds from that moment. The session credential's expiry moves with it in place. Nymph applies the new deadline from its next 15-second lease reply. The relay connection, `sshd` and the remote shell are not touched by a renewal.
+
+Remote output, mouse and focus reports, terminal replies, window resizes and SSH keepalives never renew a session. A host needs a Nymph that advertises `renewable_expiry` and a `max_duration_s` of at least 1810 seconds; otherwise the control plane refuses keyboard-idle and the CLI opens a fixed 30-minute session. Revoking the user's access, the grant, the enrollment or the issuing connection stops renewals; revoking a grant or connection also closes the session at once.
+
+There is no new Nymph environment-variable or CLI-flag override for `max_sessions`. It belongs in the config selected by `--config` or the existing service configuration. Omitted options use defaults; unknown options are rejected. Nymph reads this file at startup, not on every poll. `nymph access --config /absolute/path/to/udf-daemon.toml` inspects the file plus local policy without starting a worker; its `settings.sshEnabled`, `sshMaxSessions`, `sshMaxDurationSeconds` and (newer daemons) `sshRenewableExpiry` describe that inspected startup configuration, not proof that an already-running daemon has reloaded it.
 
 Keep local combined capacity at least the intended simultaneous SSH plus tunnel count for the worker (28 for the defaults). A deliberately lower local capacity still applies: the control plane does not currently advertise or negotiate this local setting, so its counters are control-plane admission limits, not guaranteed local slots. OS process/file-descriptor limits, memory and OpenSSH remain additional constraints. Do not increase those blindly or use quota changes to broaden grants.
 

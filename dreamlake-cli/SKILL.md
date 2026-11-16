@@ -32,7 +32,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 
 | Task | Skill |
 | --- | --- |
-| Lakeshore, hosts, terminal sessions, Slurm and external jobs, machines, Infrastructure Stacks, AWS | `dreamlake-lakeshore` |
+| Lakeshore, hosts (including sharing a host's connection access), terminal sessions, Slurm and external jobs, machines, Infrastructure Stacks, AWS | `dreamlake-lakeshore` |
 | Publish, version, share, restore artifacts | `dreamlake-artifacts` |
 | Read, edit, version, attach, inline images, references, transfer a Memo | `dreamlake-memos` |
 | Task folders, subtasks, progress, events, linked Memos | `dreamlake-tasks` |

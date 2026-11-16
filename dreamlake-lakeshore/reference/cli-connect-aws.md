@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/connect-aws.md at 0.126.1 c1c4500; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/connect-aws.md at 0.128.0 596f7b6; do not edit -->
 
 # Connect AWS to DreamLake
 

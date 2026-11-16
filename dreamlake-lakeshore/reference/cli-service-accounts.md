@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/service-accounts.md at 0.126.1 c1c4500; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/service-accounts.md at 0.128.0 596f7b6; do not edit -->
 
 # Service accounts
 
@@ -76,6 +76,9 @@ dl service-accounts host-grants remove my-team/0123456789abcdef01234567 --host 2
 Host permissions are independent: `--use` does not imply `--read`. Setting a host
 grant replaces both permissions; omitted flags become false. Use `remove` to
 remove access entirely. Hosts must belong to the same namespace.
+These grants authorize a service account's machine identity; they do not let a
+person connect. To let an organization member connect to one of your Host's
+enrollments, use [`dl hosts access grant`](cli-host-enrollment.md#share-connection-access).
 
 ## Provision and enroll automatically
 
