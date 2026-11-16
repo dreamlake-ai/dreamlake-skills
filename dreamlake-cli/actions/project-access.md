@@ -59,12 +59,14 @@ current `canBind` result, not a role guessed from membership.
 Filing a host (type `host`, by its Host ID) is newer than the other types: use
 it only when `dl project attach --help` lists it. It records placement only.
 
-1. Confirm the exact host, Project and optional Bindr with the user. Only the
-   host's owner can file it, into a Project of the host's own namespace where
-   they can write.
-2. Before filing, tell the user that members of this Project in the
-   organization, now and later, will see the host's name and owner, and that
-   nobody gains connection access, sessions, metrics or lifecycle through it.
+1. Establish the exact host, Project and optional Bindr. A request that
+   names them explicitly is the authorization; ask only for what is missing
+   or ambiguous. Who may file, and where, is in
+   [Project attachment access](../reference/cli-projects.md#project-attachment-access-cli-0620);
+   a refusal is reported, not worked around.
+2. When you file, state once in the same reply that the Project's
+   organization members, now and later, see the host's name and owner, and
+   that nobody gains connection access through it.
 3. Attach, then tag the returned node into the Bindr if one was asked for. If
    tagging fails or is uncertain, attach again (it returns the existing node)
    and retry the tag on that node; never file a second copy, and report a tag
@@ -74,7 +76,9 @@ it only when `dl project attach --help` lists it. It records placement only.
    to share it, and do not grant connection access because it is filed.
 
 Unfiling (detach) removes the placement and its Bindr tags and leaves the host
-and its connection grants unchanged.
+and its connection grants unchanged. A whole-Project move is refused while a
+host is filed in the Project: unfile it first, with the user's authorization,
+then preview the move again (the `projects` action).
 
 ## What Project grants give and withhold
 

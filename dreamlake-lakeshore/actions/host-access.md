@@ -25,18 +25,20 @@ client's `dl hosts access grant --help` (or the SDK method) offers a team
 recipient and the server accepts it; otherwise follow the unsupported-team
 exception below.
 
-1. Resolve with the user the exact host, the exact enrollment (one Unix
-   account) and exactly one recipient: a person's DreamLake username or a
-   team's slug. Do not pick an enrollment, machine, person or team yourself,
-   and do not treat "share my machines" as consent for every host.
-2. Before granting, tell the user that the recipient will act as that Unix
-   account with its existing OS permissions, and what that exposes per the
-   product guide; no OS user is created. For a team, also say that every
-   current and future direct member of that team (not parent or child teams)
-   connects as the same Unix user, and that the team's maintainers decide who
-   that is. Grant to a team only after the user confirms this. If they want
-   isolation, stop: a separate Unix account must be created and enrolled
-   first (the enrollment steps in [hosts](hosts.md)), then shared.
+1. Establish the exact host, the exact enrollment (one Unix account) and
+   exactly one recipient: a person's DreamLake username or a team's slug.
+   When the user's request already names all three explicitly, that is the
+   authorization: use it without asking again. Ask only for what is missing
+   or ambiguous. Never pick an enrollment, machine, person or team yourself,
+   and do not read "share my machines" as authorization for every host.
+2. When you grant, state the consequence once, in the same reply: the
+   recipient acts as that Unix account with its existing OS permissions, and
+   a team grant reaches every current and future member the
+   [product guide](../reference/docs-lakeshore-hosts-browser-terminal.md#share-a-machine-with-a-teammate)
+   describes, all as that same Unix user. This is information, not a second
+   gate. If the user asks for isolation, stop: a separate Unix account must
+   be created and enrolled first (the enrollment steps in [hosts](hosts.md)),
+   then shared.
 3. Grant with an explicit enrollment and the one recipient, then read the
    grant list back and report the grant ID, person or team, Unix account and
    state.
@@ -46,9 +48,10 @@ exception below.
    a revoke with unconfirmed connections as fully closed. To retry the close,
    revoke the same grant again; do not grant it again.
 5. To cut one person off completely, list every path that reaches them on
-   that enrollment (their own grant and each granting team they belong to)
-   and confirm with the user which to revoke or which team membership to end.
-   Removing one path leaves the others in force.
+   that enrollment (their own grant and each granting team they belong to).
+   Removing one path leaves the others in force. Revoke the paths the user
+   named; ask only when a remaining path (a team grant other members still
+   use, or a team membership) is not covered by what they asked.
 
 ## Exceptions
 
@@ -77,12 +80,10 @@ exception below.
   see its name and owner but never connect through the Project. Never file a
   host as a way to share it; grant explicitly instead. Filing itself is in the
   `project-access` action of `dreamlake-cli`.
-- A grant covers connecting only. Inside the shell, everything the shared Unix
-  account can reach is exposed: its files, tmux sessions and credentials
-  stored in it, including any DreamLake sign-in stored there; sharing gives no
-  OS credential isolation. The grant itself confers no DreamLake authority:
-  host management, metrics, lifecycle, launches and saved agent sessions stay
-  with the owner. Do not use a grant as a workaround for those.
+- A grant covers connecting only; what the shared Unix account exposes and
+  what stays with the owner are in the product guide. Do not use a grant as a
+  workaround for host management, metrics, lifecycle, launches or saved agent
+  sessions.
 - A listed active grant can still be inert (the person left the organization,
   the host moved). Verify a connection only when the user asks, and only as
   that person.
