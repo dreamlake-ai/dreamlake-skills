@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.161 786eaab4; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.166 f4636e0f; do not edit -->
 
 # Project and Memo queries
 
@@ -50,6 +50,50 @@ The existing resource-project REST response without `view=nodes` remains a
 compatibility response that mixes candidate projects with `bound` and `canBind`.
 New clients should use the views above instead. The existing Bindr response
 without `view=choices` also keeps its prior tree-list contract.
+
+## Live project inventory (unreleased)
+
+`GET /namespaces/:namespace/projects/:projectSlug/resources?scope=all` is the
+Project root's live `#all` query. It includes readable, untagged resources at every
+depth without creating a Bindr or stored membership. It cannot be combined with
+`parent` or `bindr`. Existing calls without `scope=all` retain their folder or
+Bindr listing behavior.
+
+The response acknowledges `scope: "all"` and returns `items`, `page`, `pageSize`,
+`total`, and `totalPages`. Each item has `kind`, a stable `key`, `name`, `path`,
+`createdAt`, `updatedAt`, and `archivedAt`. A `kind: "node"` item carries `node`
+with the existing Project-resource fields and Bindr chips. A `kind: "native"`
+item carries a native `target`: run, run item (metric, track, file, parameters),
+run folder, or project file. Main-homed tree objects occur once, through their
+authorized Node rows. Ordinary tree folders remain the separate folder-navigation
+query; native folders retain their existing native destination.
+
+The existing Project kind chips use `filter=memos` or `filter=bindrs` with
+`scope=all`. Their predicates apply to the same complete authorized inventory
+before totals and page boundaries: Memo content or content with an existing live
+Project Bindr membership, respectively. Navigation containers remain available,
+as in the existing root filters. Native memberships use their immutable target
+identities; no new membership kinds are created. Calls without a filter show all.
+
+`search` matches names and paths across the complete readable union before
+paging. `sort` accepts `recent` (default), `oldest`, `name-az`, `name-za`,
+`created-newest`, or `created-oldest`; stable item keys break ties. Active resources
+are the default; `includeArchived=true` includes archived resources without
+including deleted or trashed targets. `type` narrows to the existing mounted
+resource types and excludes native targets. Counts describe the entire filtered
+answer, not just the loaded page. Pages are live reads, not a snapshot token;
+concurrent edits can change subsequent pages.
+
+Project access, independent Memo authority, and folder and Bindr discovery rules
+remain enforced before counts and paging. Hidden Bindr names do not appear in
+affiliation chips or qualify content for the Bindr filter. Main-homed run items
+are included only when their run passes the authorized tree query. Native metadata
+uses the recorded home and current lifecycle state. No metric points, track
+entries, file bytes, or parameter values are returned. A required native home
+failure fails the inventory; clients must not replace it with an empty native
+family or treat a legacy `resources` response as an `all` response. Servers
+require the additive private Dash `runItemSummaries` read operation before the
+gateway uses this query; deploy Dash first, then the gateway, then the UI. When native experiments are disabled, that surface is absent.
 
 ## Memo authority on filing reads (implementation)
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.161 786eaab4; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.166 f4636e0f; do not edit -->
 
 # Read, edit and search from the CLI
 
@@ -656,3 +656,61 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
     Every `dl memos` command and flag.
 
     The endpoints underneath, if you need them directly.
+
+## Proposed incremental insertion and concurrency defaults
+
+**Not available in the checked clients.** The published TypeScript/CLI package
+`@dreamlake/dreamlake-cli` 0.125.3 and Python `dreamlake` 0.52.2 do not expose the
+streaming methods and flags below (artifact audit: 15 November 2026). This section
+records the intended contract; its examples and defaults must not be treated as
+released client behavior. Continue using the supported editing commands above
+and inspect each command's installed help for its conflict mode.
+
+The proposed collaborative editing update adds `note.streamInsert` in TypeScript and
+`note.stream_insert` in Python. These accept an original snapshot or revision,
+a code-point cursor and an iterable of text chunks; TypeScript also accepts an
+async iterable. CLI `memos insert --file -` uses the same sequential ACK workflow
+by default (`--no-stream` selects a single buffered insertion). Each request
+contains at most 2048 code points. Batch producer tokens to limit request overhead.
+
+```python
+import dreamlake as dl
+note = dl.memos(memo_id)
+original = note.read()
+for receipt in note.stream_insert(at=original, cursor=0, chunks=generated_chunks):
+    persist_receipt(receipt)
+```
+
+```typescript
+const note = dl.memos(memoId)
+const original = await note.read()
+for await (const receipt of note.streamInsert({at: original, cursor: 0, chunks: generatedChunks})) {
+  await persistReceipt(receipt)
+}
+```
+
+The server returns `continuation: {revision, cursor}` after a single insertion.
+The stream uses the returned code-point cursor in that retained ACK revision,
+so human changes before the insertion point do not misplace the next chunk.
+A changed target gap or deleted anchor stops the stream. Never follow the
+human's moving selection, increment an old offset or search for inserted text.
+
+Merge is the default for patch, write, revise and insertion across these clients.
+Exact remains opt-in (`mode="exact"`, `mode: "exact"`, or CLI `--exact`) and
+checks the original revision separately for each chunk. Both modes commit
+through RTC. CLI `revise` checkpoints its retained ACK, including merged human
+contributions, even when the live draft advances afterward.
+
+An older server may acknowledge a chunk without continuation; clients yield the
+receipt and stop rather than guessing or resending it. SDK interruption errors
+carry `lastReceipt` / `last_receipt` and `pending`. Reconcile the pending command
+ID before continuing. Canceling preserves accepted text. CLI JSON output is one
+receipt per line. Optional stream IDs prefix unique chunk command IDs; do not
+restart a partially accepted stream from chunk zero.
+
+Built-in insertion tools expose continuation for successive completed calls;
+they do not execute unfinished model tool arguments. Publish presence intent and
+save before/after checkpoints for the logical edit, not every chunk. The Python
+version facade still supports list/read only; do not invent `versions.save` or
+`revise` SDK methods. See the [cross-client contract](https://docs.dreamlake.ai/notes/api/editing) and
+[CLI editing guide](https://cli.dreamlake.ai/notes/editing/) for recovery details.

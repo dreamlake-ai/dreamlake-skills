@@ -1,6 +1,43 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.125.2 8bb64db; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.128.0 596f7b6; do not edit -->
 
 # Release notes
+
+## 0.128.0 — Share connection access to a host
+
+- `dl hosts access grant HOST --enrollment ID --user USERNAME` lets one member of an organization namespace connect to one enrollment of a Host you own. They connect as that enrollment's Unix user and share its files, processes, credentials and OS permissions; DreamLake creates no OS user. Both flags are required; nothing is guessed. `dl hosts access list HOST` shows grants, and `dl hosts access revoke HOST GRANT` revokes one. Revoking denies new connections at once and reports how many open connections it closed. Any it could not confirm closed are reported with the time they end on their own; the command then exits 1, and running it again tries to close them again. A grant or revoke without a clear answer is reported as unknown and is never retried automatically. See [Share connection access](https://cli.dreamlake.ai/host-enrollment#share-connection-access).
+- A Host reached through a grant shows `shared` in an ACCESS column of `dl hosts list` (also `{access}`) and an `Access:` line in `dl hosts status`, taken from the server's `access.kind` marker. Owner output is unchanged.
+- TypeScript: `hosts(ns).accessGrants(id)`, `grantAccess(id, { enrollmentId, grantee })` and `revokeAccess(id, grantId)`, with exported `HostAccessGrantList`, `HostAccessGrantResult`, `HostAccessRevokeResult` and `HostSharedAccess`.
+
+## 0.127.0 — SSH sessions end after 30 minutes without keyboard input
+
+- `dl ssh` and `dl tmux` disconnect 30 minutes after the last keystroke or paste, print `dl: disconnected after 30 minutes without keyboard input.` and exit 124. Remote output, mouse, focus, terminal replies, resizes and keepalives never keep a session open; while you type, it renews on the same connection without reconnecting. Hosts, backends or installs that cannot do this keep a fixed 30-minute session and say so. `--duration` asks for a fixed lifetime; `--timeout` stays an absolute limit; `dl exec` is unchanged. See [Keyboard-idle disconnect](https://cli.dreamlake.ai/host-enrollment#keyboard-idle-disconnect).
+- After any SSH session ends, the terminal is restored and modes a remote program left on are switched off, so an abrupt disconnect no longer prints mouse movement as text such as `35;1;36M`. A session the server already ended no longer warns that cleanup could not be confirmed.
+- `dl hosts upgrade` now reaches Nymph running under a lingering systemd user manager on Linux; it previously stopped with `systemd_user_unavailable` because relay sessions have no `XDG_RUNTIME_DIR`.
+
+## 0.126.1 — CI/CT status names person-only steps
+
+- `dl cict status` also lists person-only steps that can happen alongside the next one (for example asking for DreamLake GPU while the GitHub App is installed), and the ready line names every runs-on label.
+
+## 0.126.0 — CI/CT setup status
+
+- `dl cict status NS` shows where a namespace stands on CI/CT (GitHub, DreamLake GPU, your own machines), which steps are done and the next one with its page, command and API call; `--json` for agents. TypeScript: `dl.cict(ns).onboarding()`.
+
+## 0.125.4 — Source, Folder and Bindr visibility
+
+Sources, Folders and Bindrs support Private, Unlisted and Public visibility.
+Unlisted items remain readable through their direct links and are excluded
+from public discovery. Visibility commands and TypeScript methods use the
+observed revision to reject stale changes. Existing unset Folder and Bindr
+settings retain inherited visibility; their parent Project and independent
+resource permissions remain separate.
+
+## 0.125.3 — Bundled skills v2026.11.14.1
+
+The embedded `dreamlake-cli` skill and bundled catalog now pin
+[v2026.11.14.1](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.14.1).
+This includes the Project address procedure and refreshed references from CLI
+docs 0.125.2 and product docs 0.1.161. Existing skill installation, update and
+local-edit conflict handling remain unchanged.
 
 ## 0.125.2 — Canonical Memo references
 

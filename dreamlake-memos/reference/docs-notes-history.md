@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.161 786eaab4; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.166 f4636e0f; do not edit -->
 
 # History and saved versions
 
@@ -252,9 +252,10 @@ def read_source(name, *extra):
 old = read_source("retained.json", "--at", revision)
 assert old["revision"] == revision
 before = read_source("live-before.json")
-payload = {"revision": revision, "hash": old["hash"][7:],
+payload = {"revision": revision, "hash": old["hash"][7:], "parentId": None,
            "tag": "Recovered retained draft", "summary": "Reviewed historical source"}
-# Set reviewed tag/summary above; add parentId only for intentional ancestry.
+# This recovery intentionally saves an independent root; use a reviewed
+# parentId for a branch, or omit parentId for automatic causal ancestry.
 keep("request.json", {"remote": remote, "namespace": ns, "note": note,
                      "startedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
                      "payload": payload})
@@ -398,10 +399,19 @@ intended retained content. The CLI does not yet expose this extension.
   with the specified retained baseline, or a coherent current read when
   `revision` is omitted, and returns `409 note_changed` on mismatch.
   Tags are at most 80 characters and summaries at most 2,000 characters.
+  Numeric dotted tags support any number of parts, with an optional `v` prefix,
+  such as `1.2.03.04.005`. The updated history UI uses the dotted tag as its
+  label and preserves leading zeros; immutable IDs and save numbers do not change.
   A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
   `createdBy`, `author`, `number`, and `parentId`. The optional nullable
   `parentId` must identify a version in this memo; a missing/foreign parent
-  returns `404 parent_not_found`. Omitting it records no parent. RTC-backed
+  returns `404 parent_not_found`. With the pending automatic-ancestry update,
+  omitting `parentId` selects the newest saved causal ancestor proven by the RTC
+  clock in the same room and generation. Explicit `parentId: null` creates an
+  independent root; an explicit ID preserves that branch choice. No proven
+  ancestor (including legacy snapshots without clocks) leaves the save unlinked.
+  The optional `parentMode: "auto"` remains supported; do not combine it with
+  `parentId`. Saved history is never rewritten. RTC-backed
   versions also include `revision`, `clock`, `editCount`, and `historyComplete`.
   The count measures retained content-edit messages, not keystrokes.
 - `GET /versions` returns `{versions, nextCursor}` with up to 50 metadata

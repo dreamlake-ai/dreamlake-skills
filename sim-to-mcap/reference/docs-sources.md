@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.161 786eaab4; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.166 f4636e0f; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -12,6 +12,45 @@
   `.dreamrc` file at a dataset's root and the app renders every episode in
   it: cameras, time series, timelines, 3D. Nothing is imported or converted
   to render — connected storage is read where it lives.
+
+## Visibility and sharing
+
+| Setting | Direct link | Public profile and source listings |
+| --- | --- | --- |
+| Private | Existing members and explicitly admitted collaborators | Hidden from visitors |
+| Unlisted | Anyone with the link can read | Hidden from visitors |
+| Public | Anyone can read | Listed for visitors |
+
+Changing visibility requires Source settings permission. It does not change
+signed-in share links, editors, or Project grants. Link readers cannot upload,
+edit settings, or delete data. Sharing covers the whole Source, including its
+external read layer; connection settings and credentials remain restricted.
+Disabled Sources cannot be read by public or unlisted links. Previously
+created Sources remain Private.
+
+Read `GET /namespaces/:namespace/sources/:id` for visibility, capabilities, and
+settingsRevision. Change visibility with
+`PATCH /namespaces/:namespace/sources/:id/metadata`:
+
+```json
+{"visibility":"unlisted","expectedSettingsRevision":1}
+```
+
+Use the current returned revision, not the example value. A stale revision is
+rejected. If the response is lost, read the Source again before retrying.
+Creation and external import accept visibility; omission means private.
+The namespace list accepts visibility=private|unlisted|public. For visitors,
+filtering, pagination and counts include only active Public Sources. Signed-in
+nonmembers request `visibility=public` for that catalog; their default namespace
+listing retains its existing access-denied response so older clients can resolve
+shared Sources directly by name. Anonymous catalog reads need no query flag.
+
+The built-in resource API tools discover these schemas through
+`dreamlake_resource_api_discover` (family sources). The repository's source-only
+[local MCP adapter](https://docs.dreamlake.ai/lakeshore/agents/mcp#source-visibility) exposes `source_get`
+and `source_visibility_set`; pass the settings revision from `source_get`.
+Use a checkout containing those tools and a backend supporting this contract.
+There is no hosted MCP endpoint or published adapter package.
 
 ## Connect your data
 

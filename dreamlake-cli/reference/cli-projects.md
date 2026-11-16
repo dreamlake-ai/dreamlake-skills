@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.125.2 8bb64db; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.128.0 596f7b6; do not edit -->
 
 # Projects & data
 
@@ -385,3 +385,37 @@ await client.projects('my-team').update(projectId, { name: 'Research Results' })
 await client.projects('my-team').update(projectId, { slug: 'stable-research' });
 await client.projects('my-team').update(projectId, { slugMode: 'auto' });
 ```
+
+## Folder and Bindr visibility
+
+`Private` limits access to existing Project collaborators. `Unlisted` allows a
+direct link while hiding the item from public discovery. `Public` appears in
+accessible project listings. Existing unset visibility retains inherited behavior.
+Changing visibility requires Project ADMIN.
+
+```bash cli-help="folders visibility"
+# Read the current folder visibility and version.
+dl folders visibility FOLDER_ID --json
+# Share this folder by link without listing it publicly.
+dl folders visibility FOLDER_ID unlisted
+```
+
+```bash cli-help="bindrs visibility"
+dl bindrs visibility BINDR_ID --json
+dl bindrs visibility BINDR_ID unlisted
+```
+
+```bash cli-help="update bindr"
+dl update bindr research --project my-robots --visibility unlisted
+```
+
+Creation also accepts `dl create bindr research --project my-robots --visibility
+unlisted`. The CLI reads the current timestamp before visibility updates and
+sends one guarded write. `--expected-updated-at` on the direct-ID commands adds
+a caller-supplied version check. If a response cannot be confirmed, read the
+current visibility before deciding whether to retry.
+
+Ordinary files inherit their folder's visibility; explicitly private subfolders
+and independently private resources remain private. A Bindr shares its grouping
+and grants no new access to its members or its Project. Native runs still require
+a signed-in Project reader. See the [folder visibility contract](https://docs.dreamlake.ai/workspaces/folder-visibility/).

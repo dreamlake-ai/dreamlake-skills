@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sources.md at 0.125.2 8bb64db; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sources.md at 0.128.0 596f7b6; do not edit -->
 
 # Sources
 
@@ -25,6 +25,36 @@ dl source upload ./run-01 -r --source my-bucket --to uploads/run-01
 Sources are declared like any other head collection —
 `dl declare source.yaml --collection sources` — see
 [Declaration collections](https://cli.dreamlake.ai/collections).
+
+## Visibility
+
+Private Sources are available to existing members and collaborators. Unlisted
+Sources can be read by anyone with the link, but stay out of public profiles
+and source listings. Public Sources appear in those listings. Visibility never
+grants uploads, editing, or settings access, and does not change signed-in
+sharing links or Project grants. Sharing covers the whole Source, including its
+external layer; connection credentials remain restricted.
+
+```bash cli-help="source visibility"
+dl source visibility unlisted --source research-data
+dl source visibility private --source research-data
+```
+
+```bash cli-help="source create"
+dl source create research-data --visibility unlisted
+```
+
+```bash cli-help="source list"
+dl source list --visibility unlisted --json
+```
+
+`source import` and `source metadata` also accept `--visibility`.
+A visibility update reads the current settings revision and sends one guarded
+PATCH. If acknowledgment is lost, read the Source before retrying.
+
+TypeScript callers can use `client.sources(namespace).get(id)` followed by
+`client.sources(namespace).setVisibility(id, "unlisted", settingsRevision)`.
+The metadata and create inputs also accept `visibility`.
 
 ### How a path resolves
 

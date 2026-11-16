@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.161 786eaab4; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.166 f4636e0f; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -277,6 +277,25 @@ Unknown/unverified inventory remains null. Network observations carry
 `observedAt` and freshness (`fresh` for at most 60 seconds, otherwise `stale`).
 IPs are validated observed addresses, not inferred from hostname spelling.
 Online or fresh inventory does not prove SSH or workload readiness.
+
+## Host connection grants
+
+`dreamlake_host_access_grants`, `dreamlake_host_access_grant` and
+`dreamlake_host_access_revoke` manage who may connect to a host you
+own, using [the same owner-only grant](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#share-a-machine-with-a-teammate)
+as Compute. Listing needs only the default host read scope. Granting and
+revoking need **Tool changes** for the message, and run only when you name the
+person and the machine. A grant takes an exact `hostId` and `enrollmentId`, so
+the agent asks which Unix account when a host has several, and says that the
+member will act as that account. The generic resource API tools refuse the
+`access-grants` routes and point to these tools. Background (durable) turns
+cannot use them.
+
+An unconfirmed grant or revoke is reported as uncertain, and the agent lists
+grants before doing anything else rather than repeating the call. A revoke
+reports `closedConnections` and `unconfirmedConnections`; while
+`closeConfirmed` is false, the agent reports the connections as possibly open
+until `unconfirmedUntil`, not as closed.
 
 ## Recovering from tool errors
 
