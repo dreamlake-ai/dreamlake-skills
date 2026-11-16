@@ -47,9 +47,11 @@ documented minimum version; do not fall back to shell commands or raw HTTP.
 - Grants are for named people only. Service accounts, machine identities,
   teams and wildcards are not grant recipients; `service-accounts host-grants`
   is a different, machine-identity feature (see [machines](machines.md)).
-- A grant covers connecting only. It never shares host management, metrics,
-  lifecycle, launches, saved sessions or credentials; do not use it as a
-  workaround for those.
+- A grant covers connecting only. Inside the shell, everything the shared Unix
+  account can reach is exposed: its files, tmux sessions and credentials
+  stored in it. What stays with the owner is DreamLake authority: host
+  management, metrics, lifecycle, launches, the owner's DreamLake sign-in and
+  saved agent sessions. Do not use a grant as a workaround for those.
 - A listed active grant can still be inert (the person left the organization,
   the host moved). Verify a connection only when the user asks, and only as
   that person.
