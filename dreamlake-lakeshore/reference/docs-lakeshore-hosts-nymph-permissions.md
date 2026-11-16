@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions.md at 0.1.164 44b27201; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions.md at 0.1.166 f4636e0f; do not edit -->
 
 # Nymph permissions and commands
 
@@ -26,7 +26,7 @@ The following inventory reflects `access.rs`, `drain.rs`, `ssh_runtime.rs`, and 
 |---|---|---|---|
 | `nymph access` | Inspect policy and redacted settings | Local file read; no daemon launch | No remote execution grant |
 | SSH usage GET | Read aggregate capacity | No local process start or config edit | Host ownership and namespace use in DreamLake; exact worker grant/admin on the control plane |
-| SSH connection / forwarding tunnel | Start backend process and serve a bounded session | `[ssh].enabled`, `command_execution`, local capacity, allowed Unix user, backend probe | Exact enrollment/worker binding, SSH grant/delegation, signed daemon identity, current boot, key and ticket, expiry/revocation |
+| SSH connection / forwarding tunnel | Start backend process and serve a bounded session | `[ssh].enabled`, `command_execution`, local capacity, allowed Unix user, backend probe | In DreamLake, the enrollment's owner or a current [owner connection grant](docs-lakeshore-hosts-browser-terminal.md#share-a-machine-with-a-teammate) for that exact enrollment; exact enrollment/worker binding, SSH grant/delegation, signed daemon identity, current boot, key and ticket, expiry/revocation |
 | `run` | Execute a queued invocation | `command_execution` plus configured runner/profile/resources | Authorized worker queue/claim and bound run |
 | `exec` | Execute a remote command | `command_execution` plus exec/tracked/private-run constraints | Authorized worker command and applicable delivery/claim checks |
 | `setup` and startup host setup | Execute host preparation | `command_execution`; denial clears startup host setup | Applicable server setup/launch authority; not implied by usage access |

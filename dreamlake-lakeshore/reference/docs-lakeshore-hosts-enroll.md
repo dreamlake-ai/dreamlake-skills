@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.164 44b27201; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.166 f4636e0f; do not edit -->
 
 # Enroll a host
 
@@ -163,7 +163,9 @@ consult the CLI release notes for package availability.
 A host has both a namespace and a personal owner. Moving it to an organization
 namespace changes where it is filed; it retains its `ownerUserId` and remains
 private to that user. Organization membership does not give another member
-access to that host. Compute displays the server-provided private state with a
+access to that host. To let a member connect, the owner grants that member an
+enrollment explicitly; see
+[Share a machine with a teammate](docs-lakeshore-hosts-browser-terminal.md#share-a-machine-with-a-teammate). Compute displays the server-provided private state with a
 lock and **Private** badge. A namespace name or a badge by itself is not an
 access grant.
 

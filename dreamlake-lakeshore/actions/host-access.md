@@ -11,12 +11,14 @@ dl hosts status <namespace/group/host>
 Product facts — who may grant, what a grant covers, revoke and pending-close
 behaviour, the Compute UI flow — are in the
 [product guide](../reference/docs-lakeshore-hosts-browser-terminal.md#share-a-machine-with-a-teammate).
-Command syntax and output are in the [CLI host reference](../reference/cli-host-enrollment.md)
+Command syntax and output are in the
+[CLI host reference](../reference/cli-host-enrollment.md#share-connection-access)
 and `dl hosts access <list|grant|revoke> --help`. If `dl hosts access` is
 missing, the installed CLI predates it; update the CLI or use the Compute UI.
-For an SDK-only request, use the requested language's documented methods
-(Python `client.hosts`, TypeScript `hosts(ns)` from the CLI's `./api`) and their
-documented minimum version; do not fall back to shell commands or raw HTTP.
+For an SDK-only request, use the requested language's methods and minimum
+version from [Manage grants without Compute](../reference/docs-lakeshore-hosts-browser-terminal.md#manage-grants-without-compute),
+and check the installed package version first; do not fall back to shell
+commands or raw HTTP.
 
 1. Resolve the exact host, the exact enrollment (one Unix account) and the
    person's DreamLake username with the user. Do not pick an enrollment,

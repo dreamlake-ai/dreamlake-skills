@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.126.1 c1c4500; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.128.0 596f7b6; do not edit -->
 
 # Host enrollment
 
@@ -774,7 +774,7 @@ dl ssh HOST_ID --namespace geyang --enrollment ENROLLMENT_ID
 ```
 
 ```bash cli-help="hosts ssh"
-dl hosts ssh geyang/dev/worker --duration 1800
+dl hosts ssh geyang/dev/worker --duration 900
 ```
 
 Select an exact host by ID or full name. A single ready SSH enrollment is selected
@@ -782,7 +782,60 @@ automatically. With CLI 0.96.0+, when several are ready, an interactive terminal
 showing each Unix user, UID, readiness and enrollment ID. Without a terminal, the
 CLI prints those choices with copyable commands and exits without connecting.
 `--enrollment` selects an exact enrollment directly; scripts can use it to avoid
-prompts. Cancelling the chooser opens no session. Session lifetime is 120–1800 seconds (`--duration`, default 1800).
+prompts. Cancelling the chooser opens no session.
+
+### Keyboard-idle disconnect
+
+**CLI 0.127.0+.** An interactive `dl ssh` or `dl tmux` session ends 30 minutes
+after the last keystroke or paste (or, before the first one, after the session
+was requested), not at a fixed time. It is disconnected at
+once, with no warning, and the CLI prints
+`dl: disconnected after 30 minutes without keyboard input.` and exits 124. A
+session in which you keep typing stays on the same connection, shell and
+foreground program for as long as you work: renewing it never reconnects.
+
+Only keystrokes and pastes count. Remote output (a log you are watching, a
+progress bar, a tmux status line), mouse movement and clicks, focus changes,
+terminal replies to the remote program's queries, window resizes and SSH
+keepalives never postpone the disconnect, even when the terminal delivers a
+report in several pieces. Some encodings are byte-for-byte identical, so they
+are read the way terminal programs read them: a modified F3 key that some
+terminals send exactly like a cursor-position reply (`ESC[1;5R`) does not
+count, and an Escape key followed within 50 ms by `[`, `]`, `O`, `P`, `_`, `^`
+or `X` is read as the start of one sequence. The CLI reads keyboard input only
+from its own terminal.
+
+How it works: the native `dl` build runs OpenSSH inside a pseudo-terminal it
+owns, so it can see keystrokes before they are encrypted; OpenSSH still sets its
+own terminal mode, follows window resizes and handles Ctrl-C and the `~` escape
+as before. While you type, the CLI reports activity to the DreamLake backend at
+most about once a minute. The backend rechecks your current access to that host
+enrollment, exactly as for a new connection, and the control plane extends the
+session and its credential to 30 minutes 10 seconds from that report. If your
+access is revoked, renewals stop and the session ends within that window;
+revoking a host access grant closes it at once.
+
+The CLI falls back to a fixed 30-minute session, and says so, when keyboard
+observation or renewal is not available:
+
+- `dl: keyboard-idle sessions need the native dl build; this session ends after 30 minutes.`
+  The npm package runs on Node, which has no pseudo-terminal support.
+- `dl: this host does not support keyboard-idle sessions yet; this session ends after 30 minutes.`
+  The host's Nymph does not yet follow renewed deadlines (or the backend is older).
+
+Without a terminal on stdin and stdout (input piped in), `dl ssh` keeps the
+fixed lifetime. `--duration SECONDS` (120–1800) asks for that fixed lifetime
+explicitly instead of the keyboard rule. `--timeout SECONDS` is an absolute,
+opt-in limit in either mode (up to 604800 seconds with the keyboard rule, up to
+the duration otherwise) and returns 124. `dl exec` is unchanged: a fixed
+lifetime of 120–1800 seconds (`--duration`, default 1800).
+
+When a session ends, the CLI restores the local terminal and switches off modes
+a remote program may have left on (mouse reporting, focus events, bracketed
+paste, application keys, a hidden cursor and, when one was entered, the
+alternate screen), so an abrupt disconnect no longer leaves mouse movement
+printing as text such as `35;1;36M`. A session the server already ended is
+cleaned up without a warning.
 
 With CLI 0.100.0+, when the selector names no host (a keyword such as
 `dl ssh gpu`, a misspelled or missing `namespace/group/host[/user]`, or an
@@ -874,7 +927,8 @@ same authenticated, host-key-pinned SSH relay as `dl ssh`. tmux is looked up in
 the enrolled account's login PATH. If it is missing, the command exits 127 and
 explains how to install it or open a plain shell with `dl ssh HOST`.
 
-Each connection has its own SSH lifetime (default 1800 seconds). Reconnecting
+Each connection ends after 30 minutes without keyboard input (see
+[Keyboard-idle disconnect](#keyboard-idle-disconnect)), or at a fixed `--duration`. Reconnecting
 requires fresh authorization; it does not replay input. Detaching or losing the
 connection leaves tmux running, but reboot survival is not provided. When a user
 systemd manager is available, newly started tmux servers use a separate scope.
@@ -1017,7 +1071,8 @@ reported as `current`, and a still-due restart is verified rather than repeated.
 **CLI 0.102.0+:** requires the matching host-move server.
 The move changes the namespace and name prefix while preserving the Host ID,
 personal owner, enrollments and machine keys. Organization membership does not
-give another member access to the computer. Existing execution connections stay
+give another member access to the computer, and [connection grants](#share-connection-access)
+stop working once the Host leaves the namespace they were made in. Existing execution connections stay
 bound to their original owner namespace and remain independently authorized.
 
 Preview first with the exact Host ID from inventory:
@@ -1095,6 +1150,86 @@ TypeScript: `client.hosts('fortyfive').rename(hostId, { name, expectedName })`.
 Python: `client.hosts.rename('fortyfive', host_id, name=name, expected_name=expected_name)`.
 HTTP: `POST /namespaces/:slug/hosts/:id/rename` with `{ "name": "...", "expectedName": "..." }`.
 Read the new name back and verify SSH independently.
+
+## Share connection access
+
+**CLI 0.128.0+.** The owner of a Host in an
+organization namespace can let one named member connect to one enrollment.
+Organization membership alone grants nothing; personal namespaces have no grants.
+
+A grant shares that enrollment's Unix account. The person connects as that
+user, with its files, processes, tmux sessions, agent logins, credentials and
+OS permissions on the machine; DreamLake creates no OS user and cannot isolate
+them. To give someone their own account, enroll a separate Unix user on the
+machine and grant that enrollment.
+
+```bash cli-help="hosts access"
+dl hosts access list fortyfive/bos14/bos14-ctrl
+dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --user alice
+dl hosts access revoke fortyfive/bos14/bos14-ctrl GRANT_ID
+```
+
+```bash cli-help="hosts access list"
+dl hosts access list fortyfive/bos14/bos14-ctrl
+dl hosts access list HOST_ID --namespace fortyfive --json
+```
+
+`list` shows each grant's ID, person, Unix account, enrollment, machine and
+state. A revoked grant stays listed with `state: "revoked"`,
+`pendingConnections` and `pendingUntil` while connections opened through it
+are not yet confirmed closed and not yet expired.
+
+```bash cli-help="hosts access grant"
+dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --user alice
+dl hosts access grant HOST_ID --namespace fortyfive --enrollment ENROLLMENT_ID --user @alice --json
+```
+
+`grant` needs the exact enrollment ID (from `dl hosts enrollments`) and the
+member's DreamLake username; the CLI never picks an enrollment, Unix account or
+person for you. Granting the same person the same enrollment again returns the
+existing grant. If a grant or revoke gets no clear answer (the server cannot be
+reached, a server error, or an unreadable response), its outcome is unknown and
+the CLI does not retry it: check `dl hosts access list` before doing anything
+else. Refusals name the reason: `grantee_not_found`,
+`grantee_not_member`, `grantee_is_owner`, `host_access_grant_org_only`,
+`enrollment_not_found` or `host_not_found` (you do not own that Host).
+
+```bash cli-help="hosts access revoke"
+dl hosts access revoke fortyfive/bos14/bos14-ctrl GRANT_ID
+dl hosts access revoke HOST_ID GRANT_ID --namespace fortyfive --json
+```
+
+Revoking denies new connections at once and closes the person's open
+connections through the control plane. The receipt reports
+`closedConnections` and `unconfirmedConnections`; any unconfirmed ones also
+carry `unconfirmedUntil`, the latest time they end on their own. While any
+close is unconfirmed the command exits 1. Running the same revoke again tries
+to close them again; the CLI never does this on its own. Revoking is idempotent.
+
+The grantee runs the ordinary commands: the Host appears in their
+`dl hosts list` and `dl hosts status` with only the granted enrollments, and
+`dl ssh`, `dl exec` and `dl tmux` connect to it. `hosts list` then adds an
+ACCESS column (`owner` or `shared`, also the `{access}` format field) and
+`hosts status` adds an `Access: shared` line; both come from the server's
+`access.kind: "grant"` marker, and `--json` keeps the backend `access` object.
+Management, metrics, checks, saved sessions, moves and grant management stay
+with the owner. A grant also stops working without revocation when the person
+leaves the organization, the owner loses access, the enrollment is revoked or
+the Host moves; open `dl ssh` sessions then end at their own expiry.
+
+TypeScript: `client.hosts('fortyfive').accessGrants(hostId)`,
+`grantAccess(hostId, { enrollmentId, grantee })` and
+`revokeAccess(hostId, grantId)`.
+Python: `client.hosts.access_grants('fortyfive', host_id)`,
+`grant_access('fortyfive', host_id, enrollment_id=..., grantee=...)` and
+`revoke_access('fortyfive', host_id, grant_id)`.
+HTTP: `GET`/`POST /namespaces/:slug/hosts/:id/access-grants` with
+`{ "enrollmentId": "...", "grantee": "alice" }`, and
+`DELETE /namespaces/:slug/hosts/:id/access-grants/:grantId`.
+
+These person-to-enrollment grants are separate from
+[service account host grants](cli-service-accounts.md), which give a machine
+identity `read`/`use` permission on a Host.
 
 ## SSH usage and capacity
 
