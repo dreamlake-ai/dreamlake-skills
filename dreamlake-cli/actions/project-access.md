@@ -78,8 +78,10 @@ it only when `dl project attach --help` lists it. It records placement only.
    A partial result means the host is filed but not tagged: run the same
    command again, which re-files the same node and tags it. Never file a
    second copy, and report a tag that still did not succeed instead of
-   dropping it. A client without `--bindr` files first and tags the
-   returned node as a separate step, with the same retry rule.
+   dropping it. If the installed `dl project attach --help` does not list
+   `--bindr` (or `host`), stop and update the CLI; do not tag through
+   another command or raw HTTP. For an explicit SDK request, use only the
+   documented SDK Project and Bindr methods.
 4. If the user wants Project members to connect, that is a separate explicit
    grant: the `host-access` action of `dreamlake-lakeshore`. Do not file a host
    to share it, and do not grant connection access because it is filed.
