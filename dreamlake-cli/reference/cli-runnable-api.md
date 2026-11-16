@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/runnable-api.md at 0.128.2 e02e5fb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/runnable-api.md at 0.130.0 78c835a; do not edit -->
 
 # Runnable registry API
 
@@ -39,12 +39,64 @@ Agent example:
  "context":[{"kind":"repo","repo":"udf-recipes","snapshot":"SNAPSHOT_ID","mode":"ro"}]}}}
 ```
 
-Agent prompts/parameters are mutable head metadata; a source version does not
-atomically version that mutable head. PATCH currently has no atomic compare-and-swap
-precondition. Editor readback detects observed concurrent changes but cannot
-eliminate the race between its preflight read and PATCH. A save is neither a run
-nor publication. Context references do not grant access; runtime authorization
-and materialization remain separate from storing these declarations.
+Agent prompts, README templates (`metadata.readme`), and runtime configuration
+are editable draft fields. PATCH accepts `expectedUpdatedAt` and rejects stale
+updates. Publishing captures the complete definition separately from executable
+source versions. Context references never grant access.
+
+## Whole-agent versions
+
+Available in CLI and TypeScript SDK 0.130.0+ with the definition-version backend.
+
+```bash cli-help="runnable definition publish"
+dl runnable show Reviewer --namespace team --json
+# Use updatedAt from the draft you reviewed:
+dl runnable definition publish Reviewer --namespace team --expected-updated-at 2026-11-16T12:00:00.000Z --label v1
+```
+
+```bash cli-help="runnable definition list"
+dl runnable definition list Reviewer --namespace team --page 1 --page-size 20
+```
+
+```bash cli-help="runnable definition show"
+dl runnable definition show Reviewer DEFINITION_SHA256 --namespace team
+```
+
+```bash cli-help="runnable definition activate"
+dl runnable definition activate Reviewer DEFINITION_SHA256 --namespace team --expected-updated-at 2026-11-16T12:00:00.000Z
+```
+
+Replace the example timestamp and hash with current returned values. Every command
+emits JSON. Publish captures and activates the saved draft. Activate selects a
+previous immutable release and preserves the draft. Stale writes return 409;
+read current state before retrying. Optional labels are display names; hashes
+identify content. Identical definitions reuse the original release and label.
+
+```typescript
+const agents = client.runnables('team');
+const draft = await agents.get('Reviewer');
+const release = await agents.publishDefinition(draft.id, {
+  expectedUpdatedAt: draft.updatedAt, label: 'v1',
+});
+const history = await agents.definitionVersions(draft.id, {page: 1, pageSize: 20});
+const frozen = await agents.definitionVersion(draft.id, release.version);
+const current = await agents.get(draft.id);
+await agents.activateDefinition(draft.id, release.version, {expectedUpdatedAt: current.updatedAt});
+```
+
+These wrap `/runnables/{id}/definition-versions` (GET history, POST publish),
+`/definition-versions/{hash}` (GET detail), and
+`/definition-versions/{hash}/activate` (POST). `publishedDefinitionVersion` points
+to the active release. Existing `/versions` and `latestVersion` still refer to
+executable source. Release bodies include frozen prompts and source revisions;
+current source permissions are checked on every detail read and execution.
+
+For built-in execution, `client.agent.definitions(namespace, {view: 'draft'})`
+selects drafts explicitly; omission prefers published releases and supports
+unpublished legacy agents. Pass a catalog selection's `id`, `revision`, and
+`version` as `agentDefinition` to `client.agent.chat`. See
+[agent authoring](https://docs.dreamlake.ai/agents/authoring) for snapshot scope,
+limits and access behavior.
 
 ## Execution vocabulary
 
