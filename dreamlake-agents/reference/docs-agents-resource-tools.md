@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.167 a6ccd3cb; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.170 41a5fa06; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -48,6 +48,53 @@ Memo filing has a separate caller-permission path. Inspect the Memo's current
 filing permissions before concluding that a Project tree denial blocks filing.
 Keep the requested namespace and verified IDs; never silently create or search in
 a personal workspace as a workaround for denied organization access.
+
+The diagnostic accepts `operation: "readProject"` or `"createFolder"` (the
+default). Its `accessAction` is null when that operation is available, or one
+scoped action identifying the Project and required capability or delegation.
+For example, a human administrator with an agent READ grant receives a WRITE
+delegation action for folder creation. A caller who also lacks human write
+access receives an administrator action instead. The diagnostic never grants
+access, and a successful read of it does not imply the requested write is allowed.
+
+## Moving Memos and artifacts
+
+`dreamlake_move_preflight` checks explicit source and destination endpoints.
+Each endpoint contains a `namespace` and optional verified `projectId`;
+`kinds` contains `note`, `artifact`, or both. Set `createDestinationFolder` when
+the requested placement needs a new folder or Bindr. The tool is read-only and
+checks the caller's own agent delegation, without enumerating other agents.
+Its result is advisory: each mutation still checks current authorization.
+
+Project-only moves do not require namespace ownership authority. Filing a
+Memo in another Project retains its owner and existing filings. A missing
+folder grant does not establish that caller-authorized Memo filing is denied.
+Individual Memo filing/location previews use `dreamlake_notes_move` with
+`dryRun: true`; artifact filing uses its discovered canonical API.
+
+For cross-namespace ownership changes, preflight reads both namespaces'
+advertised capabilities. Disabled artifact transfer is reported as unsupported,
+with `accessGrantWillFix: false`. Memo metadata transfer and preserving transfer
+are separate capabilities: the exact per-Memo `dreamlake_notes_transfer_preview`
+determines whether its access and filings can be preserved. Preflight never
+authorizes a transfer or relaxes that policy. Unknown or inaccessible capability
+responses are inspection failures, not proof that a feature is disabled.
+
+Transfer previews carry the ownership and sharing consequences for review.
+Submission retains that exact review and idempotency key. Recipient acceptance
+remains separate; a pending request is not a completed move. Blocked previews
+and pending transfers have distinct tool outcomes even when the HTTP request
+succeeds. Readback verifies stable resource IDs, owner, filing/location and
+transfer completion; partial results retain their completed steps.
+
+Within a turn, an unchanged request that already received a deterministic
+access or unsupported-transfer denial is suppressed before another execution.
+A changed request still undergoes normal checks. A relevant successful Project access or transfer capability observation permits
+one new attempt when no earlier observation exists. If execution still fails,
+rereading the same snapshot does not permit another attempt: relevant access or
+capability values must change. Unrelated diagnostics do not reset suppression.
+Every permitted attempt still checks authorization at execution. No grant, content or session is changed
+by preflight or retry suppression.
 
 ## Sending and steering
 

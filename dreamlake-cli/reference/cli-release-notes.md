@@ -1,6 +1,20 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.128.2 e02e5fb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.130.0 78c835a; do not edit -->
 
 # Release notes
+
+## 0.130.0 — Whole-agent releases
+
+`dl runnable definition list|show|publish|activate` and the matching TypeScript
+SDK methods publish the saved agent draft as an immutable complete definition,
+inspect its README and prompt, and activate an earlier release while preserving
+the draft. Writes require the reviewed `updatedAt`; stale writes fail without
+automatic retries. Built-in agent selection supports published and draft views
+and carries an explicit definition version into execution. Requires the
+definition-version backend. See [Whole-agent versions](cli-runnable-api.md#whole-agent-versions).
+
+## 0.129.0 — Independent SSH timeout policies
+
+`dl ssh` and `dl tmux` honor the host’s negotiated inactivity limit and adapt keyboard-activity reports for shorter limits. Nymph 0.1.42+ uses `max_duration_s` for total lifetime and `idle_timeout_s` for inactivity; protocol grace stays internal. See [Keyboard-idle disconnect](https://cli.dreamlake.ai/host-enrollment#keyboard-idle-disconnect).
 
 ## 0.128.2 — Bundled skills v2026.11.16
 
