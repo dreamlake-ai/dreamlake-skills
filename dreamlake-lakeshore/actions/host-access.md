@@ -49,9 +49,10 @@ documented minimum version; do not fall back to shell commands or raw HTTP.
   is a different, machine-identity feature (see [machines](machines.md)).
 - A grant covers connecting only. Inside the shell, everything the shared Unix
   account can reach is exposed: its files, tmux sessions and credentials
-  stored in it. What stays with the owner is DreamLake authority: host
-  management, metrics, lifecycle, launches, the owner's DreamLake sign-in and
-  saved agent sessions. Do not use a grant as a workaround for those.
+  stored in it, including any DreamLake sign-in stored there; sharing gives no
+  OS credential isolation. The grant itself confers no DreamLake authority:
+  host management, metrics, lifecycle, launches and saved agent sessions stay
+  with the owner. Do not use a grant as a workaround for those.
 - A listed active grant can still be inert (the person left the organization,
   the host moved). Verify a connection only when the user asks, and only as
   that person.
