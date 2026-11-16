@@ -33,9 +33,9 @@ exception below.
    and do not read "share my machines" as authorization for every host.
 2. When you grant, state the consequence once, in the same reply: the
    recipient acts as that Unix account with its existing OS permissions, and
-   a team grant reaches every current and future member the
-   [product guide](../reference/docs-lakeshore-hosts-browser-terminal.md#share-a-machine-with-a-teammate)
-   describes, all as that same Unix user. This is information, not a second
+   a team grant reaches the team's current and future direct members, all as
+   that same Unix user, while they stay members (details in the
+   [product guide](../reference/docs-lakeshore-hosts-browser-terminal.md#share-a-machine-with-a-teammate)). This is information, not a second
    gate. If the user asks for isolation, stop: a separate Unix account must
    be created and enrolled first (the enrollment steps in [hosts](hosts.md)),
    then shared.
