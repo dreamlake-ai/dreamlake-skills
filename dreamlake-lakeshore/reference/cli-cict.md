@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/cict.md at 0.126.0 6516530; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/cict.md at 0.126.1 c1c4500; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -193,10 +193,13 @@ dl cict platform source my-team --source 1123456789abcdef01234567
 ```bash cli-help="cict usage"
 dl cict usage my-team
 dl cict usage my-team --month 2026-10 --json
+dl cict usage my-team --jobs --sender octocat --limit 20
 ```
 
-`usage` reports DreamLake GPU time, from each job's start to its end, by
-repository and workflow.
+`usage` reports a month of DreamLake GPU time, from each job's start to its
+end, by the GitHub user who triggered each job and by repository and
+workflow. `--jobs` lists the jobs newest first instead; `--sender LOGIN`
+keeps one person's and `--limit` caps how many (1–500).
 
 ### Administer DreamLake GPU
 

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/skills.md at 0.126.0 6516530; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/skills.md at 0.126.1 c1c4500; do not edit -->
 
 # Agent skills
 

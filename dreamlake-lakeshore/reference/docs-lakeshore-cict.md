@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.164 f4b0b6da; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.164 44b27201; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -160,10 +160,15 @@ free node of the cluster partition behind it.
 `dl cict status` (or `GET /namespaces/:ns/cict/onboarding`) reports every
 step above, whether it is done, and the next one with the page, CLI command
 and API call that does it. It is the same for people and agents: an agent can
-take a namespace from nothing to running jobs by repeating it, except for
-installing the GitHub App, which a person does in a browser, and enrolling a
-login node and binding its service account, which need SSH access and a
-namespace owner.
+take a namespace from nothing to running jobs by repeating it and doing
+`next`. Only these need a person: installing the GitHub App (in a browser),
+enabling DreamLake GPU (the DreamLake team), enrolling a login node (a terminal
+with SSH to it; an agent with such a shell can run the command) and binding
+its service account (a namespace owner; DreamLake's built-in agent cannot).
+`alsoNeeded` lists person-only steps that can happen alongside `next`.
+`route` is the path being followed (DreamLake GPU once it is enabled or
+nothing else has started, otherwise your own machines); `readyVia` says which
+one is ready.
 
 ```bash
 dl cict status my-team          # ready / next step
