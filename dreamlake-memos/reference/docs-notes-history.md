@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.166 f4636e0f; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.167 a6ccd3cb; do not edit -->
 
 # History and saved versions
 
@@ -405,7 +405,7 @@ intended retained content. The CLI does not yet expose this extension.
   A successful `201` returns `id`, `tag`, `summary`, `hash`, `createdAt`,
   `createdBy`, `author`, `number`, and `parentId`. The optional nullable
   `parentId` must identify a version in this memo; a missing/foreign parent
-  returns `404 parent_not_found`. With the pending automatic-ancestry update,
+  returns `404 parent_not_found`. On the matching automatic-ancestry backend release,
   omitting `parentId` selects the newest saved causal ancestor proven by the RTC
   clock in the same room and generation. Explicit `parentId: null` creates an
   independent root; an explicit ID preserves that branch choice. No proven

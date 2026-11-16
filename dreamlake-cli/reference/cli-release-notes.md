@@ -1,6 +1,20 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.128.0 596f7b6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.128.2 e02e5fb; do not edit -->
 
 # Release notes
+
+## 0.128.2 — Bundled skills v2026.11.16
+
+The embedded `dreamlake-cli` skill and bundled catalog now pin
+[v2026.11.16](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.16).
+This release adds the host connection-sharing procedure: the `dreamlake-cli` skill routes
+sharing a host's connection access to `dreamlake-lakeshore`, which covers
+`dl hosts access list|grant|revoke` (CLI 0.128.0+). References are refreshed from CLI docs 0.128.0
+and product docs 0.1.166. Existing skill installation, update and local-edit conflict handling
+remain unchanged.
+
+## 0.128.1 — Backend-owned memo ancestry and dotted tags
+
+- The matching backend update selects causal ancestry when a checkpoint omits its parent, including before checkpoints from existing `memos revise` clients. Explicit roots and parent choices remain supported; existing saved versions are unchanged. Dotted numeric tags retain any number of parts and leading zeros, with UI support for using the tag as the displayed version label.
 
 ## 0.128.0 — Share connection access to a host
 

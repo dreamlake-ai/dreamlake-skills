@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.128.0 596f7b6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.128.2 e02e5fb; do not edit -->
 
 # Editing with patches
 
@@ -15,6 +15,19 @@ content editing; matching text alone does not establish exact revision identity.
 `memos revise` combines a reviewed source snapshot, concrete presence intent,
 pending redlines and verified immutable before/after checkpoints. Existing
 low-level edits remain available for targeted operations and recovery.
+
+With the matching backend automatic-ancestry update, the before checkpoint
+inherits the newest saved causal ancestor in the same
+RTC room and generation, including a previous after checkpoint of the same
+unchanged baseline. The after checkpoint names that before checkpoint as its
+parent. When ancestry cannot be established, the before checkpoint remains a
+root; content hashes alone do not establish lineage. Existing saved versions
+are unchanged.
+
+Numeric dotted tags may contain any number of parts, with an optional `v`
+prefix: `v0.5`, `1.2.03.04.005`, or `v1.2.03.04.005`. Segments and leading
+zeros are preserved. The updated history UI displays that tag as the version
+label; the immutable version ID and server save number remain independent.
 
 ```bash cli-help="memos revise"
 dl memos read MEMO_ID --json > baseline.json
