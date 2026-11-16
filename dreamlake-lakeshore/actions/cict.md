@@ -6,9 +6,32 @@ what each run did. Authenticate and select the intended environment first (the
 evidence contract and every limit are in the
 [product guide](../reference/docs-lakeshore-cict.md); commands and flags are in
 the [CLI reference](../reference/cli-cict.md). These commands need CLI
-0.123.0 or later; check `dl cict --help` before using them. A `github_runners_disabled`
+0.123.0 or later (`dl cict status` needs 0.126.0); check `dl cict --help`
+before using them. A `github_runners_disabled`
 answer means the server has the integration off: stop and report that; there
 is no other route.
+
+## Set up end to end (start here)
+
+`dl cict status NS --json` reports every setup step (GitHub, DreamLake GPU,
+and the six own-machine steps), whether each is `done`, and `next`: the first
+open step with `how.cli`, `how.api`, `how.ui` and, when a person must act,
+`how.human`. To set a namespace up, repeat:
+
+1. Run `dl cict status NS --json`. If `ready` is true, hand the developer the
+   `workflow` line (the `runs-on` label and the evidence contract) and stop.
+2. Do `next`: run its `how.cli` after filling every `<placeholder>` from the
+   user or from earlier output. When `how.human` is set, do the part you can
+   (for GitHub, create the install link) and give the user exactly what they
+   must do; then wait for them and run status again.
+3. Run status again and confirm the step is now `done` before moving on. If it
+   is not, read its `detail`; do not repeat the same command in a loop.
+
+What only a person can do: install the GitHub App in a browser; ask the
+DreamLake team to enable DreamLake GPU; enroll a cluster login node (needs an
+SSH-capable terminal; you may run it if you have one and the user agrees);
+bind the machine's service account (a namespace owner). Everything else has a
+command. Confirm before any step that grants access or spends shared GPUs.
 
 There are two kinds of machines. Ask which the user wants if it is not clear:
 **DreamLake GPU** (machines DreamLake provides, chosen by label, nothing to
@@ -44,14 +67,28 @@ namespace registered).
    `runs-on: dreamlake-gpu-rtx5090`) and point them to
    [Write the workflow](../reference/docs-lakeshore-cict.md#write-the-workflow-developers)
    and [Declare evidence](../reference/docs-lakeshore-cict.md#declare-evidence).
-3. `dl cict usage NS` reports this month's GPU time.
+3. `dl cict usage NS` reports the month's GPU time by who triggered each job
+   and by workflow; `--jobs [--sender LOGIN]` lists the jobs.
+4. If `platform show` says the authorizer can no longer write, jobs wait in
+   the queue. A namespace admin re-authorizes with `dl cict platform source NS
+   --source <current Source>`; say who can do it rather than retrying.
 
 ## Use their own machines
+
+Only Slurm clusters are supported. The six steps, in order (`dl cict status`
+shows which are done): enroll the login node (`hosts` action), bind its
+service account (`dl service-accounts create` and `bind`, a namespace owner),
+register a Slurm provider, associate the login node with it, set its launch
+layer (all three in the `machines` action), create a runner pool (below).
+Check the cluster's real nodes (`sinfo -o '%P %G %c %m'` on the login node)
+before writing a launch layer: ask only for resources one node has.
 
 1. `dl cict pools targets NS` lists the Slurm providers and whether a pool can
    start runners on each. If none is usable, the reason says what is missing
    (no bound host, no launch layer); that is the provider setup in the
-   `machines` action, not something to work around here.
+   `machines` action, not something to work around here. `evidenceReady:
+   false` means the host has no service account, so runs could not save
+   evidence: bind one first.
 2. Pick or create the evidence Source (the `sources` action of
    `dreamlake-cli`) and keep its ID.
 3. `dl cict pools list NS`. Reuse a pool whose label fits; otherwise create one
@@ -86,9 +123,11 @@ namespace registered).
 ## Administer DreamLake GPU
 
 Only for admins of the platform namespace, and only when the user asks.
-`dl cict platform admin list` shows namespaces and machine types.
-`allow NS [--limit N]`, `pause NS`, `limit NS N` and `machine ID ...` change
-them. Each changes who can run on shared GPUs: confirm the exact change with
+`dl cict platform admin list [--month YYYY-MM]` shows namespaces, machine
+types and the platform total. `providers` lists the platform's Slurm
+providers and what one job gets on each. `allow NS [--limit N]`, `pause NS`,
+`limit NS N` and `machine ID --label ... --provider ... --limit N --enable`
+change them; a machine type's spec comes from the provider's launch layer. Each changes who can run on shared GPUs: confirm the exact change with
 the user before running it.
 
 ## Exceptions
