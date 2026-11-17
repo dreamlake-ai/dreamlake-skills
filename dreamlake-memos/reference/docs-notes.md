@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.171 a11ed1d8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.172 161c8644; do not edit -->
 
 # Memos
 
@@ -63,6 +63,29 @@ available cursor locations support the existing jump action.
 History timeline previews return to the current working draft when the pointer
 leaves the timeline. An explicitly placed edit marker or selected change range
 keeps its historical view open; clicking a version label alone does not pin it.
+
+## Catalog person filters
+
+**Availability:** These person filters are pending the matching app rollout.
+The corresponding backend support is included in this release.
+
+The matching app and server add **Everyone**, **Owned by me**, **Created by me**,
+and **Edited by me** filters to the Memo, Project, and Artifact catalogs. Memos
+and Projects start at **Owned by me**; Artifacts starts at **Everyone**. Everyone
+includes the readable catalog entries in the selected scope; it does not grant access.
+
+The selected person filter is a chip in the search bar. Click its × or press
+Backspace with the caret at the start of the search to remove it and return to
+Everyone. Text after the caret is preserved. With several chips, Backspace
+removes the chip nearest the input first. Person filters combine with the
+catalog's visibility or artifact-kind filters.
+
+Ownership follows the current namespace owner; creation follows the original
+creator, including after a transfer. Edited by me uses recorded contributions,
+not edit permission or the last-updated timestamp. Edit attribution starts with
+the matching server and app release; older editing history and legacy artifact
+creators are not inferred. Browser Memo edits are recorded after a local text
+operation is acknowledged, not when another collaborator's edit arrives.
 
 ## In this section
 

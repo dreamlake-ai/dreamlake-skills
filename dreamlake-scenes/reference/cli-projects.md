@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.131.0 b5bedbf; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.132.0 c1903de; do not edit -->
 
 # Projects & data
 
@@ -291,7 +291,8 @@ is enabled by granting project access.
 Independent resource share links remain available. Explicit Project user/team
 READ grants add read access to all current and future attached resources; WRITE
 and ADMIN add supported content editing. They do not grant resource sharing
-management, deletion, ownership transfer or infrastructure credentials. Public Project visibility
+management, deletion, ownership transfer, infrastructure credentials or any
+access to a filed Host (see [Hosts in Projects](#hosts-in-projects)). Public Project visibility
 alone never exposes private attached resources. Resource-own access and all live
 Project grants are combined at the canonical resource URL.
 
@@ -310,14 +311,27 @@ Attach by database ID (Artifact uses its database ID, not its artifactId):
 
 ```bash cli-help="project attach"
 dl project attach research --namespace acme --type note --resource "$MEMO_ID"
+dl project attach research --namespace acme --type host --resource "$HOST_ID" --bindr robots
 ```
+
+`--bindr <name-or-id>` (CLI 0.132.0+) also adds the filed node to one Bindr in the
+same Project. It applies to every type except `source`, whose Project reference
+is not a tree node. The CLI resolves the Bindr before filing, so an unknown or
+ambiguous name changes nothing. It then files the resource and adds the
+returned `nodeId` with the same request as `POST /bindrs/:id/members`. If that
+add fails, the filing is kept: the command exits 1 and prints (or, with
+`--json`, emits `status: "partial"` with) the `nodeId`, the Bindr and the
+reason. Run the same command again to finish. Filing is idempotent and returns
+the same node, and adding a node that is already a member is idempotent (the
+server still answers `added: true` with an unchanged `memberCount`). Nothing is
+unfiled automatically.
 
 ```bash cli-help="project detach"
 dl project detach research --namespace acme --type note --resource "$MEMO_ID"
 ```
 
-Supported types are `note`, `artifact`, `annotation`, `workflow`, `env` and
-`source`. Source uses the existing whole-Source Project reference. A Source name
+Supported types are `note` (Memo), `artifact`, `annotation`, `workflow`, `env`,
+`source` and (CLI 0.132.0+) `host`. Source uses the existing whole-Source Project reference. A Source name
 can be read through a Project grant without namespace listing authority; the
 client resolves its exact name with current authorization rather than enumerating
 other Sources. A denial is a failure, never an empty list or successful mutation.
@@ -328,6 +342,41 @@ and an unscoped STS fallback are never issued through Project-only authority;
 these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
 exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
+
+### Hosts in Projects
+
+**CLI 0.132.0+; requires a server that supports Host filing.** A Host's owner can file it in
+a Project in the same namespace where they have content-create (WRITE)
+permission:
+
+```bash
+dl project attach research --namespace acme --type host --resource "$HOST_ID"
+dl project attach research --namespace acme --type host --resource "$HOST_ID" --bindr robots
+dl project detach research --namespace acme --type host --resource "$HOST_ID"
+```
+
+To tag an already filed Host into a Bindr, run the attach again with `--bindr`
+(it returns the same node), or use the returned `nodeId` with
+`bindrs(ns, project).addMember(bindr, nodeId)` in TypeScript. A Bindr tag is
+placement too and grants no host access.
+
+Filing is placement only. Organization members who can read the Project, now
+and later, see the Host's name, ID and who filed it; public-Project viewers,
+external grantees and service accounts do not. They see no enrollments, Unix
+users, machine IDs or status. No Project role, Project share or bindr tag
+confers SSH, terminals, lifecycle, metrics, checks or jobs on a Host: connecting
+still needs an explicit [host connection grant](https://cli.dreamlake.ai/host-enrollment#share-connection-access)
+from its owner. Unfiling needs Project content-delete permission, or being the
+Host's owner; the CLI then leaves the decision to the server. Unfiling and
+revoking Project grants leave host connection grants unchanged.
+
+Moving the Host to another namespace removes its Project placements:
+`dl hosts move --dry-run` shows `Project placements: N will be removed`
+(`projectPlacements` in `--json`). A whole-Project move to another namespace is
+refused while a Host is filed in the Project, through the existing move
+blockers (`PROJECT_RESOURCE_TRANSFER_UNSUPPORTED`, `UNSUPPORTED_PROJECT_CONTENT`
+or `PROJECT_STREAM_RESOURCE_UNSUPPORTED`, "remove this attachment"). Unfile the
+Hosts first with `dl project detach --type host`, then move the Project.
 
 `--accept-if-owner` remains a compatibility alias for `--accept-if-authorized`.
 Both use current server action capabilities; neither bypasses source or destination

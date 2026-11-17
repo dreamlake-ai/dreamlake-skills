@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.171 a11ed1d8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.172 161c8644; do not edit -->
 
 # Project and Memo queries
 
@@ -400,6 +400,8 @@ Public Project metadata access never opens a private attachment. Explicit
 Project user/team grants contribute READ or supported content WRITE to current
 and future attachments. Resource-own permissions and other live Project grants
 remain valid; removal affects only its corresponding contribution.
+A filed Host (`resourceType: "host"`) is placement only and receives no Project
+contribution; see [Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects).
 
 In the compatibility project-choice response, `canBind` requires Project WRITE
 or ADMIN plus independent resource sharing-management authority for a new

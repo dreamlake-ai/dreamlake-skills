@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.171 a11ed1d8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.172 161c8644; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -330,19 +330,34 @@ Online or fresh inventory does not prove SSH or workload readiness.
 `dreamlake_host_access_grants`, `dreamlake_host_access_grant` and
 `dreamlake_host_access_revoke` manage who may connect to a host you
 own, using [the same owner-only grant](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#share-a-machine-with-a-teammate)
-as Compute. Listing needs only the default host read scope. Granting and
+as Compute. Listing needs only the default host read scope and returns
+`grants` (people) and `teamGrants` (organization teams). Granting and
 revoking need **Tool changes** for the message, and run only when you name the
-person and the machine. A grant takes an exact `hostId` and `enrollmentId`, so
+person or team and the machine. `dreamlake_host_access_grant` takes exactly one
+of `grantee` (a username) or `team` (a team slug). A grant takes an exact `hostId` and `enrollmentId`, so
 the agent asks which Unix account when a host has several, and says that the
-member will act as that account. The generic resource API tools refuse the
+member will act as that account; for a team, that this applies to every
+current direct member and to anyone added later (parent teams are not
+included). The generic resource API tools refuse the
 `access-grants` routes and point to these tools. Background (durable) turns
 cannot use them.
 
 An unconfirmed grant or revoke is reported as uncertain, and the agent lists
 grants before doing anything else rather than repeating the call. A revoke
-reports `closedConnections` and `unconfirmedConnections`; while
+reports `closedConnections`, `stillAuthorizedConnections` (kept because the
+same person holds another current grant to that enrollment) and
+`unconfirmedConnections`; while
 `closeConfirmed` is false, the agent reports the connections as possibly open
 until `unconfirmedUntil`, not as closed.
+
+The agent files a host you own in a Project of the same namespace with
+`dreamlake_resource_project_api_write` (`resourceType: "host"`), which needs an
+explicit service-account grant on that Project. Filing is placement only and
+gives Project members no host access; see
+[Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects).
+`dreamlake_host_move_preview` reports `projectPlacements` when the host is
+filed; applying the move unfiles it from that many Projects without deleting
+the host, and the agent says so before applying.
 
 ## Recovering from tool errors
 
