@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.131.0 b5bedbf; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.132.0 c1903de; do not edit -->
 
 # Host enrollment
 
@@ -815,7 +815,8 @@ most about once a minute. The backend rechecks your current access to that host
 enrollment, exactly as for a new connection, and the control plane extends the
 session and its credential to 30 minutes 10 seconds from that report. If your
 access is revoked, renewals stop and the session ends within that window;
-revoking a host access grant closes it at once.
+revoking a host access grant closes it at once unless another current grant
+(person or team) still authorizes you.
 
 The CLI falls back to a fixed 30-minute session, and says so, when keyboard
 observation or renewal is not available:
@@ -1111,6 +1112,13 @@ namespaces, IDs, targets, output, statuses, execution IDs and cancellation inten
 A move does not cancel, restart or relaunch active work. Pending delivery,
 private/reporting runs and other unsupported run dependencies remain blockers.
 
+CLI 0.132.0+: when the Host is filed in Projects, the optional
+`projectPlacements` preview/receipt field reports `count` and policy `unfile`,
+and the human preview adds `Project placements: N will be removed`. The move
+removes those filings and their Bindr tags in the same operation; it changes no
+host connection grants. The field is absent when the Host is filed nowhere and
+from older servers. See [Hosts in Projects](https://cli.dreamlake.ai/projects#hosts-in-projects).
+
 The server preview is authoritative; never detach dependencies or re-enroll a
 machine to bypass a blocker. The operation makes no control-plane writes and
 does not restart Nymph.
@@ -1157,7 +1165,11 @@ Read the new name back and verify SSH independently.
 
 **CLI 0.128.0+.** The owner of a Host in an
 organization namespace can let one named member connect to one enrollment.
+**CLI 0.132.0+,** with a server that supports team grants: the owner can instead grant one
+enrollment to a team (see [Team grants](#team-grants)).
 Organization membership alone grants nothing; personal namespaces have no grants.
+Filing a Host in a Project grants nothing either (see
+[Hosts in Projects](https://cli.dreamlake.ai/projects#hosts-in-projects)).
 
 A grant shares that enrollment's Unix account. The person connects as that
 user, with its files, processes, tmux sessions, agent logins, credentials and
@@ -1168,6 +1180,7 @@ machine and grant that enrollment.
 ```bash cli-help="hosts access"
 dl hosts access list fortyfive/bos14/bos14-ctrl
 dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --user alice
+dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --team robotics
 dl hosts access revoke fortyfive/bos14/bos14-ctrl GRANT_ID
 ```
 
@@ -1176,25 +1189,38 @@ dl hosts access list fortyfive/bos14/bos14-ctrl
 dl hosts access list HOST_ID --namespace fortyfive --json
 ```
 
-`list` shows each grant's ID, person, Unix account, enrollment, machine and
-state. A revoked grant stays listed with `state: "revoked"`,
-`pendingConnections` and `pendingUntil` while connections opened through it
-are not yet confirmed closed and not yet expired.
+`list` shows each grant's ID, kind (`user` or `team`), person or team, Unix
+account, enrollment, machine and state. A revoked grant stays listed with
+`state: "revoked"`, `pendingConnections` and `pendingUntil` while connections
+opened through it are not yet confirmed closed and not yet expired.
+
+CLI 0.132.0+: `list` asks the server for every grantee kind
+(`?grantees=all`). `--json` keeps person grants in `grants`, adds team grants
+in `teamGrants` and the organization's teams in `teams`, and sets
+`teamGrantsSupported`. A server without team grants answers person grants
+only; the CLI then says the server does not support team grants instead of
+"Only you can connect", and `teamGrantsSupported` is `false`. Older clients
+that list a Host with team grants get
+`host_access_grant_client_upgrade_required` (HTTP 409) rather than an
+incomplete list: update the client.
 
 ```bash cli-help="hosts access grant"
 dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --user alice
 dl hosts access grant HOST_ID --namespace fortyfive --enrollment ENROLLMENT_ID --user @alice --json
+dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --team robotics
 ```
 
-`grant` needs the exact enrollment ID (from `dl hosts enrollments`) and the
-member's DreamLake username; the CLI never picks an enrollment, Unix account or
-person for you. Granting the same person the same enrollment again returns the
+`grant` needs the exact enrollment ID (from `dl hosts enrollments`) and exactly
+one of the member's DreamLake username (`--user`) or a team slug (`--team`,
+CLI 0.132.0+); the CLI never picks an enrollment, Unix account, person or team for you. Granting the same person the same enrollment again returns the
 existing grant. If a grant or revoke gets no clear answer (the server cannot be
 reached, a server error, or an unreadable response), its outcome is unknown and
 the CLI does not retry it: check `dl hosts access list` before doing anything
 else. Refusals name the reason: `grantee_not_found`,
 `grantee_not_member`, `grantee_is_owner`, `host_access_grant_org_only`,
-`enrollment_not_found` or `host_not_found` (you do not own that Host).
+`enrollment_not_found`, `team_not_found`, `invalid_host_access_grant` (also
+what a server without team grants answers to `--team`),
+`host_access_grant_limit` or `host_not_found` (you do not own that Host).
 
 ```bash cli-help="hosts access revoke"
 dl hosts access revoke fortyfive/bos14/bos14-ctrl GRANT_ID
@@ -1204,7 +1230,11 @@ dl hosts access revoke HOST_ID GRANT_ID --namespace fortyfive --json
 Revoking denies new connections at once and closes the person's open
 connections through the control plane. The receipt reports
 `closedConnections` and `unconfirmedConnections`; any unconfirmed ones also
-carry `unconfirmedUntil`, the latest time they end on their own. While any
+carry `unconfirmedUntil`, the latest time they end on their own. Revoking takes
+a person or team grant ID. A connection whose user still holds another current
+grant to the same enrollment (their own person grant, or another team's) stays
+open and is counted in `stillAuthorizedConnections` (CLI 0.132.0+; older servers
+omit it). While any
 close is unconfirmed the command exits 1. Running the same revoke again tries
 to close them again; the CLI never does this on its own. Revoking is idempotent.
 
@@ -1219,14 +1249,39 @@ with the owner. A grant also stops working without revocation when the person
 leaves the organization, the owner loses access, the enrollment is revoked or
 the Host moves; open `dl ssh` sessions then end at their own expiry.
 
+### Team grants
+
+**CLI 0.132.0+; requires a server that supports team grants.** A team grant lets every
+current direct member of one live team in the Host's organization connect to
+one enrollment. Members of parent or child teams are not included. Team
+maintainers decide who that is: adding someone to the team lets them connect
+(and adds them to the organization), and every member connects as the same
+Unix account, with its files, processes and credentials. Grant a team only an
+enrollment you would grant each of its members.
+
+Access is the union of a person's own grant and the grants of their teams for
+that enrollment. Losing one path never closes a connection another current
+path still authorizes. When a person leaves or is removed from the team, the
+team is deleted, or they leave the organization, new connections through the
+team are denied at once and their open team-path connections close: browser
+terminals within a few seconds; `dl ssh` sessions when the control plane is
+reachable, otherwise at their deadline (30 minutes after opening for a fixed
+session, 30 minutes 10 seconds after the last renewal for keyboard-idle), since
+renewal is refused once access is gone. Removal does not report close counts.
+A grantee's `dl hosts status` names the teams their access comes through.
+
 TypeScript: `client.hosts('fortyfive').accessGrants(hostId)`,
 `grantAccess(hostId, { enrollmentId, grantee })` and
-`revokeAccess(hostId, grantId)`.
+`revokeAccess(hostId, grantId)`. CLI 0.132.0+: `allAccessGrants(hostId)` lists
+person and team grants (`HostAccessGrantsAll`) and throws
+`HostTeamGrantsUnsupportedError` when the server lacks team grants;
+`grantAccess(hostId, { enrollmentId, team })` returns `{ teamGrant }`.
 Python: `client.hosts.access_grants('fortyfive', host_id)`,
 `grant_access('fortyfive', host_id, enrollment_id=..., grantee=...)` and
 `revoke_access('fortyfive', host_id, grant_id)`.
 HTTP: `GET`/`POST /namespaces/:slug/hosts/:id/access-grants` with
-`{ "enrollmentId": "...", "grantee": "alice" }`, and
+`{ "enrollmentId": "...", "grantee": "alice" }` or, with team grants,
+`{ "enrollmentId": "...", "team": "robotics" }` and `GET …?grantees=all`, and
 `DELETE /namespaces/:slug/hosts/:id/access-grants/:grantId`.
 
 These person-to-enrollment grants are separate from

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.171 a11ed1d8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.172 161c8644; do not edit -->
 
 # Browser terminal
 
@@ -16,12 +16,15 @@ anyone else's machines.
 
 ## Share a machine with a teammate
 
-In an organization namespace, the owner of a machine can let one named member
-connect to it with their own DreamLake account:
+In an organization namespace, the owner of a machine can let one named member,
+or one team of the organization, connect to it with their own DreamLake account:
 
 1. Open **Compute** in the organization namespace and select the machine.
 2. Under **Access**, choose the Unix account, enter the member's username, and
    choose **Grant**.
+
+A team grant names the team's slug instead of a username; see
+[Manage grants without Compute](#manage-grants-without-compute).
 
 The member then sees the machine in Compute, marked **Shared with you**, and
 can open the terminal there or with `dl ssh <namespace>/<group>/<machine>`.
@@ -32,11 +35,22 @@ itself are a different matter (see below). The grant covers connecting only. Mac
 jobs, the agent list and sharing stay with the owner.
 
 - Only the machine's owner can grant or revoke, and only to a current member
-  of the organization. Personal namespaces cannot share machines.
+  of the organization or a team of that organization. Personal namespaces
+  cannot share machines.
 - A grant covers one enrollment, that is one Unix account on that machine.
-- **Revoke** stops new connections at once and asks the control plane to
-  close every connection opened through the grant, browser or `dl ssh`; they
-  usually end within a few seconds. If the control plane cannot confirm a
+- **A team grant follows the team's membership.** It reaches each person who,
+  at the time of each connection, is a direct member of that team and a
+  current organization member. Members of parent or child teams are not
+  included. People the team's maintainers add later get access too, without
+  the owner being asked, so grant a team only when you accept everyone its
+  maintainers may add.
+- A person's access is the union of their current grants: they can reach the
+  same enrollment directly and through one or more teams.
+- **Revoke** stops new connections through that grant at once and asks the
+  control plane to close every connection opened through it, browser or
+  `dl ssh`; they usually end within a few seconds. A connection whose person
+  still holds another current grant to that enrollment is kept instead. If the
+  control plane cannot confirm a
   close, Compute says so and keeps the revoked member listed with a
   **Retry close** button until those connections close or reach their current
   deadline. That is at most 30 minutes after a connection opened or, for a
@@ -47,12 +61,22 @@ jobs, the agent list and sharing stay with the owner.
   machine moves to another namespace. Then new connections are refused and
   browser terminals close, but a `dl ssh` session that is already open runs
   until its current deadline (the same bounds; renewals are refused meanwhile).
+- When a person is removed from a team or leaves it, or is removed from the
+  organization, the connections they opened through that team's grants are
+  closed like a revoke, unless another current grant of theirs covers the
+  enrollment. Deleting a team revokes its machine grants and closes their
+  connections. Other people's connections are never touched. This is best
+  effort: a connection the control plane cannot confirm closed runs until its
+  current deadline (the same bounds as above), while its renewals and any new
+  connection are refused at once. Membership changes do not report how many
+  connections were closed.
 - A member's tmux sessions get their own names, so the default `web-ssh`
   does not attach the owner's session. Their shell can still reach everything
   the Unix account can.
 
 The shell runs as the enrolled Unix user. If you share your own account, the
-member can read its files, attach its tmux sessions, and use any credentials
+member (for a team grant, every member of the team) can read its files, attach
+its tmux sessions, and use any credentials
 stored in it on that machine, including agent logins and the machine's
 DreamLake daemon identity. To keep people apart, create a separate Unix
 account for the member, [enroll](docs-lakeshore-hosts-enroll.md) that account, and
@@ -72,31 +96,95 @@ organization-member requirement or the one-enrollment scope.
 | Python (0.54.0 or later) | `client.hosts.access_grants(ns, host_id)` | `client.hosts.grant_access(ns, host_id, enrollment_id=…, grantee=…)` | `client.hosts.revoke_access(ns, host_id, grant_id)` |
 | Built-in agent | `dreamlake_host_access_grants` | `dreamlake_host_access_grant` | `dreamlake_host_access_revoke` |
 
+To grant a team, send exactly one of `grantee` or `team`, where `team` is the
+slug of a team in the namespace's organization:
+`{"enrollmentId": "ENROLLMENT_ID", "team": "TEAM_SLUG"}`, which returns
+`teamGrant`. The CLI takes `--team TEAM_SLUG` in place of `--user`, Python
+`client.hosts.grant_access(ns, host_id, enrollment_id=…, team="TEAM_SLUG")`,
+and the built-in agent's grant tool a `team` argument. Revoke a team grant by
+its ID like any other grant. The version minimums in the table cover person
+grants; team grants need a client that supports them.
+
+To list team grants, the API call adds `?grantees=all` and returns `grants`
+(people), `teamGrants` and `teams`, the organization's live teams that can be
+granted. Python `access_grants()` returns the same three lists, and the
+built-in agent lists `teamGrants` alongside `grants`. Without `?grantees=all`
+the response lists people only, so once a machine has any team grant that
+request is refused with `409 host_access_grant_client_upgrade_required`
+rather than showing an incomplete list. Update the client if you see it. More
+than 100 grants in any listed set fails closed with `503 host_access_grant_limit`.
+
 For CLI flags and output, see [Share connection access](https://cli.dreamlake.ai/host-enrollment#share-connection-access)
 in the CLI guide. A grant always names an exact enrollment, so choose the Unix account first;
 host and enrollment IDs come from `dl hosts enrollments HOST_ID` or the host
-details. Granting the same person the same enrollment again while the grant is
-active returns it unchanged (`201` when created, `200` when already active). After
+details. Granting the same person or team the same enrollment again while the
+grant is active returns it unchanged (`201` when created, `200` when already
+active). After
 a revoke, the same request grants access again, so do not repeat a grant whose
 outcome is unknown. List the grants first, and grant again only as a new decision.
 Errors keep their
-API codes: `grantee_not_found`, `grantee_not_member`, `grantee_is_owner`,
-`host_access_grant_org_only`, `enrollment_not_found` and `host_not_found`.
+API codes: `grantee_not_found`, `team_not_found`, `grantee_not_member`,
+`grantee_is_owner`, `host_access_grant_org_only`, `enrollment_not_found`,
+`host_not_found`, and `invalid_host_access_grant` (including neither or both of
+`grantee` and `team`).
 
 Each grant lists `id`, `enrollmentId`, `unixUser`, `machineId`, `grantee`
-(`username`, `name`), `grantedAt` and `state`. A revoke returns
-`closedConnections` and `unconfirmedConnections`, plus `unconfirmedUntil` when
+(`username`, `name`), `grantedAt` and `state`; a team grant lists `team`
+(`slug`, `name`) instead of `grantee`, plus `inactive` when the team was
+deleted. A revoke returns
+`closedConnections`, `stillAuthorizedConnections` (connections kept because
+their person holds another current grant to that enrollment) and
+`unconfirmedConnections`, plus `unconfirmedUntil` when
 some closes were not confirmed. Those connections may stay open until that
 time. The grant then stays listed with `state: "revoked"`, `pendingConnections`
 and `pendingUntil`, and repeating the revoke retries the close.
 
 The built-in agent's mutating grant tools need **Tool changes** turned on for
-the message, and act only when you name the person and the machine. They use
+the message, and act only when you name the person or team and the machine.
+Before a team grant, the agent says it applies to every current direct member
+and to anyone added later. They use
 your own sign-in, not a service account, and the agent's generic API tools
 cannot reach these routes. Machine service-account host grants
 (`dl service-accounts host-grants`) are a different permission for a machine's
 own identity. They neither share a machine with a person nor make a service
 account a grantee.
+
+## Hosts in Projects
+
+The owner can file a machine in a Project of the same namespace, by default in
+its `hosts` folder. Filing is placement only. No Project role, Project grant or
+Project membership gives anyone access to the machine: it opens no terminal or
+`dl ssh` session and exposes no lifecycle controls, metrics or jobs. Connection
+access stays the person and team grants above.
+
+- Only the machine's exact owner can file it; anyone else is refused as if it
+  did not exist (404). Filing also needs Project content-create permission,
+  which the owner always holds there, so the owner can always unfile too.
+  Filing again returns the same entry.
+- A machine is filed only in its own namespace. A cross-namespace mount is
+  refused with `400 host_placement_same_namespace_only`.
+- Signed-in members of the namespace who can read the Project see the
+  machine's name, its owner and their own relation to it (owner, grant or
+  none). Public and anonymous readers, external Project grantees and service
+  accounts see nothing. No enrollment, Unix account, status or credential is
+  shown. Where a machine is filed is visible to its owner only.
+- Changing the Project's grants does not involve filed machines.
+- Moving the machine to another namespace unfiles it from every Project in the
+  same step. The move preview reports this as `projectPlacements` (count, policy
+  `unfile`); filing after the preview makes it stale (`move_preview_conflict`).
+- A whole Project cannot be moved while a machine is filed in it. The move is
+  refused with `PROJECT_RESOURCE_TRANSFER_UNSUPPORTED`,
+  `UNSUPPORTED_PROJECT_CONTENT` or `PROJECT_STREAM_RESOURCE_UNSUPPORTED`;
+  unfile the machines first.
+- Unfiling, deleting the Project or moving it never deletes or changes the
+  machine.
+
+File through the Project resource routes with `resourceType: "host"`,
+`dl project attach PROJECT --namespace NAMESPACE --type host --resource HOST_ID` (and
+`dl project detach PROJECT --namespace NAMESPACE --type host --resource HOST_ID`), Python
+`client.projects.attach(namespace, project, "host", host_id)`, or the built-in
+agent's `dreamlake_resource_project_api_write`, which also needs an explicit
+service-account grant on that Project.
 
 ## Connection command
 
@@ -338,10 +426,11 @@ Use the controls beside search to choose a view of the same saved sessions:
 
 - **Machine** groups sessions by their enrolled machine. Each row keeps its
   machine and Unix user visible.
-- **Recent** shows one flat list, newest observed conversation activity first.
-  The time comes from the exact Codex conversation's activity metadata on its
-  machine. Sessions without that observation show **Activity unknown** at the
-  end; their registration time is never substituted.
+- **Recent** shows one flat list, newest conversation activity first. The time
+  comes from the exact conversation's activity metadata on its machine, from
+  agent hooks, or from the newest message time in an uploaded conversation
+  archive, whichever is latest. Sessions with no known activity come last;
+  their registration or upload time is never substituted.
 - **Repo** groups sessions by the actual Git repository resolved on their
   machine. A verified, sanitized remote identity can join the same repository
   across machines. Repositories without a safe remote stay grouped by their
@@ -640,8 +729,12 @@ than being reported as a successful complete scan.
 `GET /namespaces/:namespace/terminal-sessions` now returns one page with
 `sessions`, `hasMore` and `nextCursor`. `pageSize` defaults to 100 and may be
 1–100; pass `cursor` for the next page. This is a response page size, not a
-bookmark count limit. `sort=created` is the default; `sort=recent` orders known
-activity first and leaves missing activity at the bottom. `q` searches saved
+bookmark count limit. `sort=created` is the default; `sort=recent` orders by
+`lastActivityAt`, newest first, and leaves missing activity at the bottom.
+`lastActivityAt` can be known while `activityStatus` and `metadataObservedAt`
+are `null`: those two describe a host metadata observation, and activity can
+also come from hooks or an uploaded archive (see
+[Optional conversation archives](#optional-conversation-archives)). `q` searches saved
 metadata; repeated `machineId` values restrict machines. Clients that also
 match their displayed machine names can pass repeated `matchMachineId` values
 alongside `q`. Change the search or sort by starting a new cursor sequence.
@@ -822,6 +915,43 @@ without truncation. Catalog responses never include these bytes. The archive is
 a snapshot, not live transcript synchronization or a portable provider resume
 file. It does not restore missing native state on another host.
 
+A successful `PUT` also records the archive's newest message `timestamp` as the
+session's `lastActivityAt`, so the session takes its place in `sort=recent`. It
+only moves activity forward: an older archive never replaces newer activity
+observed on the host or reported by hooks. Messages without a timestamp, before
+2000, or more than five minutes ahead of the server clock are ignored. An
+archive with none left, including an empty one, does not supply or advance
+activity: the session keeps any activity it already has, and a previously
+unknown session remains unknown. The upload time itself is never used, and
+`activityStatus` and `metadataObservedAt` are not changed. Re-sending identical
+content records the activity for an archive uploaded before this was recorded.
+The archive's messages and `revision` stay the same; its `updatedAt` can
+change.
+
+### Abstract and Full sessions
+
+Session lists and the session view label each session by whether a readable
+conversation archive exists:
+
+| Label | Meaning |
+| --- | --- |
+| **Abstract** | DreamLake holds only the session's metadata (name, provider, binding, observed activity). No conversation archive was uploaded. |
+| **Full session** | A conversation archive exists and can be read, including a verified empty one. |
+
+The label depends only on the archive. It is independent of whether a terminal
+is bound (`archiveOnly`), of run state, of provider and of whether search text
+was indexed. A Full session holds the snapshot from its last upload; it is not
+kept in sync with the machine and does not make the session runnable. Built-in
+DreamLake agent sessions are labelled by the same rule.
+
+Session list routes (`GET /namespaces/:namespace/terminal-sessions`,
+`/terminal-sessions/available` and a resource's linked sessions) and the
+single-session reads (`/:id/metadata` and `/:id`) return
+`hasConversationArchive: true | false`. List routes look the archives up in one
+read of their ids for the sessions already shown to the reader; no archive text
+is read or returned. Responses from older servers omit the field, and clients
+show no label rather than **Abstract**.
+
 Clicking a saved Codex or Claude row in a Memo's **Contributing sessions** opens
 its terminal in the panel to the right. It does not open the archive first or
 require an upload. Current host, enrollment and session execution authorization
@@ -918,7 +1048,7 @@ Use the existing private state directory and SSH host key for an enrolled servic
 
 `dl ssh` and `dl tmux` request a 30-minute keyboard inactivity limit, shortened by the host’s `idle_timeout_s` policy. With Nymph 0.1.42+, `max_duration_s` independently caps total lifetime. Set `max_duration_s = 0` and `idle_timeout_s = 1800` to keep active sessions open and close them after 30 minutes idle. The CLI observes keystrokes and pastes before encryption and reports them, at most about once a minute, to the DreamLake backend. The backend rechecks the user's current access to that exact enrollment, exactly as for a new session, and asks the control plane to renew. The control plane accepts a renewal only from the backend that issued the session, for the same worker binding and with that session's credential, and advances the inactivity deadline, with an internal ten-second grace for clean client shutdown. The total lifetime limit is never extended by this grace. The session credential's expiry moves with it in place. Nymph applies the new deadline from its next 15-second lease reply. The relay connection, `sshd` and the remote shell are not touched by a renewal.
 
-Remote output, mouse and focus reports, terminal replies, window resizes and SSH keepalives never renew a session. A host needs Nymph that advertises renewable expiry. Nymph 0.1.42+ advertises the two independent timeout policies; no extra margin is required in configuration. Older daemons retain their renewal-window behavior. A daemon or control plane without support falls back to a fixed session, with a CLI notice. Revoking the user's access, the grant, the enrollment or the issuing connection stops renewals; revoking a grant or connection also closes the session at once.
+Remote output, mouse and focus reports, terminal replies, window resizes and SSH keepalives never renew a session. A host needs Nymph that advertises renewable expiry. Nymph 0.1.42+ advertises the two independent timeout policies; no extra margin is required in configuration. Older daemons retain their renewal-window behavior. A daemon or control plane without support falls back to a fixed session, with a CLI notice. Revoking the user's access, the grant, the enrollment or the issuing connection stops renewals; revoking a grant or connection also closes the session at once. A session whose person still holds another current grant to that enrollment is kept and renews under that grant.
 
 There is no new Nymph environment-variable or CLI-flag override for `max_sessions`. It belongs in the config selected by `--config` or the existing service configuration. Omitted options use defaults; unknown options are rejected. Nymph reads this file at startup, not on every poll. `nymph access --config /absolute/path/to/udf-daemon.toml` inspects the file plus local policy without starting a worker; its `settings.sshEnabled`, `sshMaxSessions`, `sshMaxDurationSeconds`, `sshIdleTimeoutSeconds` and (newer daemons) `sshRenewableExpiry` describe that inspected startup configuration, not proof that an already-running daemon has reloaded it.
 

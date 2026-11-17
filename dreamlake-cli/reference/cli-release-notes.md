@@ -1,6 +1,19 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.131.0 b5bedbf; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.132.0 c1903de; do not edit -->
 
 # Release notes
+
+## 0.132.0 — Team host connection grants and Hosts in Projects
+
+Requires a DreamLake server with team host grants and Host filing. Against an older server, `--team` and `--type host` are refused and `hosts access list` reports team grants as unsupported; existing `--user` grants and other attach types are unchanged.
+
+- `dl hosts access grant HOST --enrollment ID --team SLUG` lets every current direct member of one team in the Host's organization connect to one enrollment, all as its Unix account; team maintainers decide who that is, and members of parent or child teams are not included. Exactly one of `--user` or `--team` is required. Requires the team-grant backend; an older server rejects `--team` with `invalid_host_access_grant`. See [Team grants](https://cli.dreamlake.ai/host-enrollment#team-grants).
+- `dl hosts access list` asks for every grantee kind and shows a KIND column (`user` or `team`). `--json` adds `teamGrants`, `teams` and `teamGrantsSupported`. Against a server without team grants it says so rather than claiming only you can connect.
+- `dl hosts access revoke` takes person or team grant IDs and reports connections that stayed open because their user still holds another current grant (`stillAuthorizedConnections`). A grantee's `dl hosts status` names the teams their access comes through.
+- `dl project attach|detach --type host` files a Host you own in a Project, or unfiles it. Filing is placement only: organization members who can read the Project see the Host's name and owner, and no Project role grants SSH or any other host access. Attach help no longer says every attached resource's access is inherited by Project grantees. See [Hosts in Projects](cli-projects.md#hosts-in-projects).
+- `dl project attach --bindr NAME_OR_ID` also adds the filed node to a Bindr in the same Project, for every type except `source`. If adding it fails, the filing is kept and the command exits 1 with the `nodeId`; run the same command again to finish.
+- `dl hosts move` previews and receipts show `Project placements: N will be removed` when the Host is filed in Projects (optional `projectPlacements: {count, policy: "unfile"}`; TypeScript `HostMoveProjectPlacements`). A whole-Project move is refused while a Host is filed in it; unfile Hosts first.
+- `dl hosts access grant --team` treats a receipt naming a different team as an unknown outcome. The TypeScript `grantAccess` refuses a non-string `grantee` or `team` beside the other instead of ignoring it.
+- TypeScript: `hosts(ns).allAccessGrants(id)` (`HostAccessGrantsAll`, `HostTeamGrantsUnsupportedError`), `grantAccess(id, { enrollmentId, team })` (`HostTeamAccessGrantResult`), `HostAccessRevokeResult.stillAuthorizedConnections`, `HostSharedAccess` grant `via`/`team`, and `ProjectAttachmentType` including `host`. Existing `accessGrants`, `grantAccess(id, { enrollmentId, grantee })` and their types are unchanged.
 
 ## 0.131.0 — Memo and Bindr workflows
 
