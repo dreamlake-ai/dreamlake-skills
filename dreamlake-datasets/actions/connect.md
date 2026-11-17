@@ -39,9 +39,10 @@ verification. Otherwise create a Connection, then import a Source through it.
 
    Flags and inputs: `dl connection <command> --help`.
 
-4. `dl connection check <id>`. If it reports a reason, fix that before
-   importing; reconnect with a corrected credential rather than creating a
-   second Connection.
+4. `dl connection check <id>`. If `unavailable`, follow its reason and repair or
+   reconnect with a corrected credential before importing, rather than creating
+   a second Connection. If `unverified` with `target-required`, proceed to the
+   import; do not loop Check to try to turn it `available`.
 
 5. Import through it:
 
@@ -54,9 +55,10 @@ verification. Otherwise create a Connection, then import a Source through it.
 
 Exceptions:
 
-- "not found" from any `dl connection` command: the user does not manage
-  Connections in that namespace. Stop and say so; do not try another identity,
-  a service-account grant or a Project grant to get around it.
+- "not found" from any `dl connection` command: confirm the namespace and id
+  with the user. If it still fails, report it as not found or no access without
+  claiming which; do not try another identity, a service-account grant or a
+  Project grant to get around it.
 - A refused credential or role: report the server's message and ask the user to
   fix it on their side; never guess identities or widen permissions.
 - The user prefers the web app, or asks the in-app assistant: point them to
