@@ -73,8 +73,8 @@ it only when `dl project attach --help` lists it. It records placement only.
    dl project attach research --namespace acme --type host --resource "$HOST_ID" --bindr "Lab machines" --json
    ```
 
-   Output and exit codes are in
-   [Project attachment access](../reference/cli-projects.md#project-attachment-access-cli-0620).
+   Output, exit codes and version floors are in
+   [Hosts in Projects](../reference/cli-projects.md#hosts-in-projects).
    A partial result means the host is filed but not tagged: run the same
    command again, which re-files the same node and tags it. Never file a
    second copy, and report a tag that still did not succeed instead of

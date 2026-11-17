@@ -23,7 +23,7 @@ commands or raw HTTP.
 Team grants are newer than person grants. Use one only when the installed
 client's `dl hosts access grant --help` (or the SDK method) offers a team
 recipient and the server accepts it; otherwise follow the unsupported-team
-exception below.
+exception below. Team syntax and output: [Team grants](../reference/cli-host-enrollment.md#team-grants).
 
 1. Establish the exact host, the exact enrollment (one Unix account) and
    exactly one recipient: a person's DreamLake username or a team's slug.
@@ -78,8 +78,9 @@ exception below.
   host; that is a team-membership decision for its maintainers and the user.
 - Filing a host in a Project or a Bindr is placement only: Project members may
   see its name and owner but never connect through the Project. Never file a
-  host as a way to share it; grant explicitly instead. Filing itself is in the
-  `project-access` action of `dreamlake-cli`.
+  host as a way to share it; grant explicitly instead
+  ([Hosts in Projects](../reference/docs-lakeshore-hosts-browser-terminal.md#hosts-in-projects)).
+  Filing itself is in the `project-access` action of `dreamlake-cli`.
 - A grant covers connecting only; what the shared Unix account exposes and
   what stays with the owner are in the product guide. Do not use a grant as a
   workaround for host management, metrics, lifecycle, launches or saved agent
