@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/snapshot-launch.md at 0.130.0 78c835a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/snapshot-launch.md at 0.131.0 b5bedbf; do not edit -->
 
 # Snapshot & launch
 
@@ -10,7 +10,10 @@ dl launch train.py --queue cpu # snapshot, queue it, wait for the result
 ```
 
 Both submit control requests to the **lakeshore control plane**. Neither needs
-`dl login`; they need `--server` (or `$LAKESHORE_URL`). This transport does
+`dl login`; they need `--server` (or `$LAKESHORE_URL`) and the control-plane
+token in `$LAKESHORE_CLIENT_TOKEN`. `launch --mount` is the exception: it goes
+through DreamLake with your login and a mount's stored credential
+([below](#launch-through-a-mount)). This transport does
 not grant the control plane cloud-launch authority. Workload execution must use
 an explicitly user-configured launch server with its appropriate IAM role; verify
 the selected queue's execution route before submitting. No control-plane/service
@@ -178,6 +181,46 @@ available, the launch stops before it spawns anything:
 > they are the `stdout` / `stderr` fields and the real number is `exitCode` —
 > read that, not `$?`, if you need to tell "the script failed" apart from "the
 > launch failed".
+
+### Launch through a mount
+
+`--mount` submits the same launch to a Lakeshore you mounted in DreamLake
+(`dl queues mounts`), using your DreamLake login. The mount's stored
+control-plane credential stays on the DreamLake server: this command never
+reads, sends or prints a control-plane URL or token, and ignores
+`$LAKESHORE_URL`, `$LAKESHORE_NAMESPACE` and `$LAKESHORE_CLIENT_TOKEN`.
+
+```bash file="terminal"
+dl launch hello.py --mount acme/lab --queue default --no-wait
+dl launch hello.py --mount acme/lab --queue default --invocation-id 01KZCBY5MWQ7X8N2V4T6R9P0AB
+```
+
+| Flag | Meaning |
+| --- | --- |
+| `--mount <[namespace/]prefix>` | the mount, in your default namespace unless one is given. Excludes `--server` and `--namespace`: the mount names both |
+| `--invocation-id <id>` | repeat a launch whose response was lost; returns that invocation instead of launching again |
+| `--timeout-seconds <s>` | how long this command waits for the result (default 3600). A client wait only: reaching it does not cancel or kill the run |
+
+- **Code.** The snapshot is the `.dreamrc` `code:` block, built locally. It must
+  be at most 128 KiB; DreamLake checks it, stores it in the mount's
+  `code-staging` storage and registers it before submitting. The legacy
+  `git archive` snapshot and `--snapshot` are not accepted with `--mount`.
+- **Authority.** Launching needs `lakeshore:use` in the mount's namespace and
+  reading a result needs `lakeshore:read`. Only mounts created with
+  management access can launch; a queue-only mount is refused
+  (`queue_mount_execution_unsupported`).
+- **Placement.** Unchanged: the queue's scheduler picks a worker serving it.
+- **Identity.** The invocation id is printed before anything is submitted
+  (under `--json`, as `Invocation: <id>` on stderr; stdout stays one JSON
+  object). If the response is lost, repeat the command with
+  `--invocation-id`, not without it. The repeat must be identical: the same
+  queue, script and arguments, and an unchanged local `code:` tree, because
+  the snapshot is rebuilt from it. Then the existing invocation is returned.
+  The same id with anything changed is refused (`invocation_conflict`) and
+  nothing new runs.
+
+The result is read back through DreamLake, so the JSON record also carries the
+`mount` and the `workerId` that ran it.
 
 ## Which provider ran it
 

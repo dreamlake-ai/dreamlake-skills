@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/collections.md at 0.130.0 78c835a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/collections.md at 0.131.0 b5bedbf; do not edit -->
 
 # Declaration collections
 

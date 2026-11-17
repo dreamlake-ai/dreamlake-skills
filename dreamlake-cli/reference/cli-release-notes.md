@@ -1,6 +1,31 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.130.0 78c835a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.131.0 b5bedbf; do not edit -->
 
 # Release notes
+
+## 0.131.0 — Memo and Bindr workflows
+
+Bindrs support child creation and reparenting with `--parent`, returning to the
+root with `--top-level`, and exact folder membership with `--add-folder` or
+`--add`. Memo selectors resolve existing readable filings in other projects and
+authorized retained filings owned by another workspace; ambiguous source
+filings require `--from-project`. `list bindr --json` now emits JSON with the
+flag before or after the subcommand. See [Bindrs](cli-projects.md#bindrs).
+
+Transfer errors retain structured blocker details. Matching servers identify
+blocking service-account grants and include those grants in admin project
+inspection. A blocked legacy `memos move` preview gives the separate transfer
+preview command. Existing transfer capability and recipient-acceptance gates
+still apply; no access grants are removed to force a transfer.
+
+The bundled skill and catalog pin the published
+[v2026.11.16.2 skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.16.2),
+including whole-agent release guidance and references from CLI 0.130.0 and
+product docs 0.1.170.
+
+This release also includes `dl launch SCRIPT --mount [namespace/]prefix` from
+the merged mounted-launch work. It submits through a management connection's
+stored credential, with a stable invocation ID for recovery. Requires the
+matching backend. See [Launch through a mount](cli-snapshot-launch.md#launch-through-a-mount).
 
 ## 0.130.0 — Whole-agent releases
 

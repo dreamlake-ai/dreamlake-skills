@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/dev/notes/project-resource-sharing.md at 0.1.170 41a5fa06; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/dev/notes/project-resource-sharing.md at 0.1.171 a11ed1d8; do not edit -->
 
 # Project resource access inheritance
 
@@ -39,6 +39,14 @@ current attached resources. New cross-namespace attachments remain unsupported. 
 [whole-Project transfer](https://docs.dreamlake.ai/dev/notes/project-note-transfer) has a narrow
 exception for existing filings explicitly approved in completed transfer history;
 it does not permit arbitrary new foreign mounts or Project grant expansion.
+
+Bindr tagging can reference an existing Memo filing approved by completed
+transfer history. The caller needs current read authority for the Memo and its
+filing, plus content-create authority in the Bindr's Project. The server rechecks
+these inside the transaction and fences the Memo, Project and filing. Invalid
+transfer proof, removed filings and revoked access are refused, including repeats
+of an existing tag. A tag adds no attachment or sharing grant. Grant-admitted
+external mounts retain their separate tagging restriction.
 
 Making a Project public never republishes its private attachments. No public
 confirmation or sharing-time snapshot is necessary for publication. The public
