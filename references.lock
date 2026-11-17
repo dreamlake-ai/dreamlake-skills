@@ -594,16 +594,16 @@
       {
         "url": "https://docs.dreamlake.ai/agents/workspace-files",
         "file": "reference/docs-agents-workspace-files.md",
-        "version": "0.1.172 161c8644",
-        "source_sha256": "7413ced9ce2e45352a68aace7c4fbdc642e05f5b1c45457fe047481025587120",
-        "sha256": "5e8a022e50b8ed256059680764f0b60f76dbadf0f4137b62ce8a2d0dc12974de"
+        "version": "0.1.174 fea0a98d",
+        "source_sha256": "4bda5687daab970ec779f88448abffae4d6c61bf951e73122d43fe425811a05e",
+        "sha256": "4e4730012a4e84423966d216b7e0b07705684a67835c63d48976de2ec4907aca"
       },
       {
         "url": "https://docs.dreamlake.ai/workspaces/project-access",
         "file": "reference/docs-workspaces-project-access.md",
-        "version": "0.1.172 161c8644",
-        "source_sha256": "f28ee9df6a3787482e0c4fa5c0622b94eee7fab721f46085d10e902f50972901",
-        "sha256": "36f018681979465c472a79a96639814f9874609b5c0df7d78ff7dcbea6c86749"
+        "version": "0.1.174 fea0a98d",
+        "source_sha256": "46bcd4e06e5c953a70f85514c532e280f664f79011ae329286ab4c53ab576bb5",
+        "sha256": "000a104592caad3d41e6e0a17a661cb1c2cedd07cb8cf8fd4750f63d0f9469af"
       }
     ],
     "dreamlake-datasets": [
@@ -838,37 +838,37 @@
       {
         "url": "https://docs.dreamlake.ai/lakeshore/hosts/enroll",
         "file": "reference/docs-lakeshore-hosts-enroll.md",
-        "version": "0.1.172 161c8644",
-        "source_sha256": "eb30847bb690e31278b1298749f110d1ac4d7d2f18703f36e751c9b4920940df",
-        "sha256": "6e6aec67c641eb53c2d3f9ae76b2178a587fd796a433b7256eb5848933372d9f"
+        "version": "0.1.174 fea0a98d",
+        "source_sha256": "47efc0554096b29850a5902a24feb4367203526808499753e4822fac49b7d4cd",
+        "sha256": "b54a8a582ae3c6a92cd8923a104dccf4b71357910399f49b1ed4471c3c4a7877"
       },
       {
         "url": "https://docs.dreamlake.ai/infrastructure-stacks",
         "file": "reference/docs-infrastructure-stacks.md",
-        "version": "0.1.172 161c8644",
-        "source_sha256": "ded3af460079527e25e155d876d1efe4502eb5804096ee7497003476c470b945",
-        "sha256": "1a73dbb45b7dd6b0507a1d7d9c01d557a1cb5ebbaaaee942ccad8d0e523e8df3"
+        "version": "0.1.174 fea0a98d",
+        "source_sha256": "154d36f3088f5d796ffae3cfaf170d7aa784dfaacae080a5a372e867a940f4d2",
+        "sha256": "d8b8947c4605d87556385e17676a223d692e7af09ece3c51200b8996909a347f"
       },
       {
         "url": "https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal",
         "file": "reference/docs-lakeshore-hosts-browser-terminal.md",
-        "version": "0.1.172 161c8644",
-        "source_sha256": "1e2ebb6dcc23edd08fe9f9853dd1497aaef37427480dde3133df7589f03b574c",
-        "sha256": "434470c5af5af150807e1e16508c67a630e6d25466f82598897aa6d58657a3fa"
+        "version": "0.1.174 fea0a98d",
+        "source_sha256": "4473bf3b2fddb668c4d3b7fb102333999d5325b18c7da895eb7c5d8d02de3508",
+        "sha256": "873352a1b9d710754316150ff032aaee1dc2cba6486e8ee961de448ff61064ce"
       },
       {
         "url": "https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions",
         "file": "reference/docs-lakeshore-hosts-nymph-permissions.md",
-        "version": "0.1.172 161c8644",
-        "source_sha256": "7d5acba56238e1c0b49e87871e5fdf6e39cd92d3c1285c2d42ca7775aed79d5b",
-        "sha256": "90d442fb2f53314ec6f4a869dfd29ab93abddd6c8ad1ac8d9cc53a27163b7256"
+        "version": "0.1.174 fea0a98d",
+        "source_sha256": "b7e99c431e6c71ca01a0fa22fcd90f3c30f526a642e4fec9a6aff67fd6049579",
+        "sha256": "2e5f38436a578f131c992c6389e69402e092cf28963de75d5b31e3026c06ab14"
       },
       {
         "url": "https://docs.dreamlake.ai/lakeshore/cict",
         "file": "reference/docs-lakeshore-cict.md",
-        "version": "0.1.172 161c8644",
-        "source_sha256": "dade9882644e836c7fc5c48de05dc32c089275907a5bf136bf86d4e5d994a932",
-        "sha256": "600949837b38879354308d9dcdede14a17a17b42dcda0c9d6eabf8b8eddfbbe9"
+        "version": "0.1.174 fea0a98d",
+        "source_sha256": "a3a6b5d2a709b6d52361dc49612dd24b176c70688a6a2008ed3a6a27f8ca60ab",
+        "sha256": "70fb9a533666d64c541c43cae2b90858d9b5b09588e12b9388030ca3b233a787"
       }
     ],
     "dreamlake-libraries": [
