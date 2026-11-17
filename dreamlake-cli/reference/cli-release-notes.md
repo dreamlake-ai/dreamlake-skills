@@ -1,6 +1,17 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.132.0 c1903de; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.132.1 e959ebd; do not edit -->
 
 # Release notes
+
+## 0.132.1 — Bundled skills v2026.11.17.2
+
+The embedded `dreamlake-cli` skill and bundled catalog now pin
+[v2026.11.17.2](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.17.2).
+It adds the host-sharing procedures for CLI 0.132.0: granting a team connection
+access to a host enrollment, and filing a Host in a Project, optionally tagged into a Bindr
+(`dl project attach --type host --bindr`), as placement only. References are
+refreshed from CLI docs 0.132.0 and product docs 0.1.174. The skill's minimum
+CLI is 0.132.0. Existing skill installation, update and local-edit conflict
+handling are unchanged.
 
 ## 0.132.0 — Team host connection grants and Hosts in Projects
 

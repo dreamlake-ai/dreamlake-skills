@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/embeds.md at 0.1.174 fea0a98d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/embeds.md at 0.1.175 726d023e; do not edit -->
 
 # Embeds and query arguments
 

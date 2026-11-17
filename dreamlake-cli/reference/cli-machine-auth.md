@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/machine-auth.md at 0.132.0 c1903de; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/machine-auth.md at 0.132.1 e959ebd; do not edit -->
 
 # Machine authentication
 

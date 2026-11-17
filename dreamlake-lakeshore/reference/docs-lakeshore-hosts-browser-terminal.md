@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.174 fea0a98d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.175 726d023e; do not edit -->
 
 # Browser terminal
 
@@ -149,7 +149,7 @@ some closes were not confirmed. Those connections may stay open until that
 time. The grant then stays listed with `state: "revoked"`, `pendingConnections`
 and `pendingUntil`, and repeating the revoke retries the close.
 
-The built-in agent's mutating grant tools need **Tool changes** turned on for
+The built-in agent's mutating grant tools need **Full access** turned on for
 the message, and act only when you name the person or team and the machine.
 Before a team grant, the agent says it applies to every current direct member
 and to anyone added later. They use

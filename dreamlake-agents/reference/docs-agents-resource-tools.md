@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.174 fea0a98d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.175 726d023e; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -27,6 +27,23 @@ and its Agents editor link; creation does not launch a session.
   "tools": ["dreamlake_notes_read", "dreamlake_resource_api_discover", "dreamlake_resource_api_read"]
 }
 ```
+
+## Choose tool permissions
+
+Open the **Permissions** popover in agent chat, or the matching control in
+**Built-in agent** settings. Choose **Read only** to inspect resources without
+changing them (connected apps may still prepare actions for review), or **Full access**, the last option, to enable changes and administrative tools
+within your existing permissions. The Eye and ShieldAlert icons identify the two levels;
+a checkmark identifies the selected level. Opening or dismissing the popover does
+not change permission. Arrow keys move focus; Enter, Space or a click selects the level.
+
+The choice applies to the next message; it does not cancel or revoke an already
+admitted turn. Connected apps have a separate switch. The choice is saved for your signed-in account in this browser and is shared by
+chat and settings. It does not create a Project delegation, connect an app, apply
+a host policy, or remove an action's existing confirmation requirement. Agent
+definition tool restrictions and current resource permissions still apply. This
+selector does not yet provide persistent per-agent or per-session permission
+overlays.
 
 ## Diagnose Project access
 
@@ -332,7 +349,7 @@ Online or fresh inventory does not prove SSH or workload readiness.
 own, using [the same owner-only grant](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#share-a-machine-with-a-teammate)
 as Compute. Listing needs only the default host read scope and returns
 `grants` (people) and `teamGrants` (organization teams). Granting and
-revoking need **Tool changes** for the message, and run only when you name the
+revoking need **Full access** for the message, and run only when you name the
 person or team and the machine. `dreamlake_host_access_grant` takes exactly one
 of `grantee` (a username) or `team` (a team slug). A grant takes an exact `hostId` and `enrollmentId`, so
 the agent asks which Unix account when a host has several, and says that the
