@@ -61,6 +61,9 @@ Exceptions:
   Project grant to get around it.
 - A refused credential or role: report the server's message and ask the user to
   fix it on their side; never guess identities or widen permissions.
+- A request to grant an agent service account access to a Connection: decline
+  this unsupported operation. Do not invent a Connection grant command or API,
+  or use a Project or host grant as a workaround.
 - The user prefers the web app, or asks the in-app assistant: point them to
   **Connections** in their namespace; the procedure is the same.
 
