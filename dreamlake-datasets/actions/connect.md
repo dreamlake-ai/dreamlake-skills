@@ -1,67 +1,66 @@
 # Connect storage as a Source and verify it
 
 If the source already exists, find it with `dl source list` and skip to
-verification. Otherwise linking is two steps: a **Connection** holds the
-credential, and a **Source** reads through it. Sources keep data in place; they
-do not convert an unsupported container.
+verification. Otherwise create a Connection, then import a Source through it.
 
-1. Ask the server what it accepts — connector kinds, auth kinds and their mode,
-   inputs and storage profiles differ per deployment; never assume S3 profiles,
-   regions or auth kinds:
+> `dl connection connectors` and `dl connection entry` need a CLI release that
+> includes them (pending). Until then, use the web app's **Connections** page
+> for discovery and browser entry; `dl connection create`, `check` and
+> `oauth` are available now.
+
+1. Discover and reuse. Read what this server accepts; never assume a connector,
+   auth kind, profile or region:
 
    ```bash
-   dl connection connectors            # --json for options and conditional fields
-   dl connection list                  # reuse an existing Connection when one fits
+   dl connection connectors --json
+   dl connection list
    ```
 
-2. Create the Connection the way its mode requires:
-   - `fields` (S3 access key or role, Hugging Face token): the user writes the
-     credential to a JSON file or pipes it on stdin; you run
-     `dl connection create --label <label> --connector <kind> --auth-kind <kind>
-     --credential-file <file>` (or `--credential-stdin`) with non-secret inputs
-     in `--private-config-file`. Never put a secret on the command line, in a
-     prompt, in chat or in a file you leave behind; delete the credential file
-     after.
-   - When the secret should not pass through this machine:
-     `dl connection entry create --connector <kind> --auth-kind <kind>`, give
-     the user the printed link to finish in the browser — signed in as the same
-     user who ran the command; nobody else can complete it — then
-     `dl connection entry status <operation-id>` until `succeeded` and read the
-     Connection id from it.
+   Reuse a matching Connection and go to step 4.
+
+2. Pick the connector and auth kind from that output, by its `mode`. Ask the
+   user only for a choice the output leaves open.
+
+3. Obtain the credential without it passing through you:
+   - `fields`, user can put the secret in a file or pipe it:
+     `dl connection create --label <label> --connector <kind> --auth-kind <kind>`
+     with `--credential-file <file>` or `--credential-stdin`, and non-secret
+     inputs in `--private-config-file`. The user writes the file; delete it
+     afterwards. Never put a secret on a command line, in chat or in a prompt.
+   - `fields`, secret should not touch this machine:
+     `dl connection entry create --connector <kind> --auth-kind <kind>`; give the
+     user the printed link and tell them to finish it signed in as themselves,
+     then `dl connection entry status <operation-id>` until `succeeded` and take
+     the Connection id from it. `cancelled` or `expired`: start a new entry
+     only if the user still wants it.
    - `oauth`: `dl connection oauth create --connector <kind> --label <label>`;
      the user signs in at the provider.
    - `none`: `dl connection create ... --no-credential`.
 
-   S3 `role` works only with the `aws` profile, and its trust policy must
-   already allow DreamLake's AWS identity (ask the deployment operator for it;
-   never guess one or widen IAM to make it work).
+   Flags and inputs: `dl connection <command> --help`.
 
-   Then `dl connection check <id>`. `available` proves the credential, not a
-   bucket; `unverified` (`target-required`) means that way in cannot be checked
-   without a target; `unavailable` names a reason to fix before importing.
-   Bucket and prefix access is decided by the import in step 3.
+4. `dl connection check <id>`. If it reports a reason, fix that before
+   importing; reconnect with a corrected credential rather than creating a
+   second Connection.
 
-3. Import the Source through it:
+5. Import through it:
 
    ```bash
    dl source import --connector <kind> --connection <connection-id> --target '<json>'
    ```
 
-   For S3 the target names only the bucket and prefix; the Connection picks the
-   endpoint. Use `dl source import --help` for the other connectors' targets.
+   Targets per connector: `dl source import --help` and
+   [Managing a source](../reference/cli-sources.md#managing-a-source).
 
-Only the namespace's credential managers (personal owner, organization owners)
-can do step 1 or 2; anyone else gets "not found". Service accounts and
-background agent runs cannot manage Connections, and Connections cannot be
-granted to an agent service account — do not try to work around it with a
-grant. Registering a machine with Nymph needs no Connection. Every command and
-flag: <https://cli.dreamlake.ai/connections>; concepts:
-<https://docs.dreamlake.ai/connections>.
+Exceptions:
 
-The web app does the same in **Connections** (`/<namespace>/connections`, then
-**+ new connection**) and **Sources**; the DreamLake assistant in the web app
-hands secret entry to that form and reads back the Connection id. Python SDK
-users have `client.connections` and `client.sources.import_external`.
+- "not found" from any `dl connection` command: the user does not manage
+  Connections in that namespace. Stop and say so; do not try another identity,
+  a service-account grant or a Project grant to get around it.
+- A refused credential or role: report the server's message and ask the user to
+  fix it on their side; never guess identities or widen permissions.
+- The user prefers the web app, or asks the in-app assistant: point them to
+  **Connections** in their namespace; the procedure is the same.
 
 Then verify from a shell that the source exposes the expected paths —
 the DreamLake CLI reads connected sources:
