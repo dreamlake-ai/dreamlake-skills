@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.172 161c8644; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.174 fea0a98d; do not edit -->
 
 # Browser terminal
 
@@ -97,13 +97,23 @@ organization-member requirement or the one-enrollment scope.
 | Built-in agent | `dreamlake_host_access_grants` | `dreamlake_host_access_grant` | `dreamlake_host_access_revoke` |
 
 To grant a team, send exactly one of `grantee` or `team`, where `team` is the
-slug of a team in the namespace's organization:
-`{"enrollmentId": "ENROLLMENT_ID", "team": "TEAM_SLUG"}`, which returns
-`teamGrant`. The CLI takes `--team TEAM_SLUG` in place of `--user`, Python
-`client.hosts.grant_access(ns, host_id, enrollment_id=…, team="TEAM_SLUG")`,
-and the built-in agent's grant tool a `team` argument. Revoke a team grant by
-its ID like any other grant. The version minimums in the table cover person
-grants; team grants need a client that supports them.
+slug of a team in the namespace's organization. Revoke a team grant by its ID
+like any other grant. The version minimums in the table above cover person
+grants only. Team grants need the API released on 2026-11-17, CLI 0.132.0 or
+later, Python 0.56.0 or later, and the current Compute.
+
+| Surface | List people and teams | Grant a team | Revoke receipt |
+|---|---|---|---|
+| Compute | **Brief › Access › Terminal access** lists Person and Team rows | Choose **Organization team**, read the warning under **Grant** and grant | Says how many connections stay open through another grant |
+| API | `GET …/access-grants?grantees=all` | `POST` with `{"enrollmentId": "ENROLLMENT_ID", "team": "TEAM_SLUG"}`, returns `teamGrant` | adds `stillAuthorizedConnections` |
+| CLI (0.132.0 or later) | `dl hosts access list HOST_ID` | `dl hosts access grant HOST_ID --enrollment ENROLLMENT_ID --team TEAM_SLUG` | `dl hosts access revoke HOST_ID GRANT_ID` |
+| TypeScript (same release) | `hosts(ns).allAccessGrants(hostId)` | `hosts(ns).grantAccess(hostId, { enrollmentId, team })` | `hosts(ns).revokeAccess(hostId, grantId)` |
+| Python (0.56.0 or later) | `client.hosts.access_grants(ns, host_id)` | `client.hosts.grant_access(ns, host_id, enrollment_id=…, team="TEAM_SLUG")` | `client.hosts.revoke_access(ns, host_id, grant_id)` |
+| Built-in agent | `dreamlake_host_access_grants` (`teamGrants`) | `dreamlake_host_access_grant` with `team` | `dreamlake_host_access_revoke` |
+
+TypeScript `allAccessGrants` and Python `access_grants()` report a server that
+predates team grants as unsupported (TypeScript `HostTeamGrantsUnsupportedError`),
+never as an empty team list.
 
 To list team grants, the API call adds `?grantees=all` and returns `grants`
 (people), `teamGrants` and `teams`, the organization's live teams that can be
@@ -158,8 +168,10 @@ Project membership gives anyone access to the machine: it opens no terminal or
 access stays the person and team grants above.
 
 - Only the machine's exact owner can file it; anyone else is refused as if it
-  did not exist (404). Filing also needs Project content-create permission,
-  which the owner always holds there, so the owner can always unfile too.
+  did not exist (404). Filing also needs Project content-create permission.
+  Only an organization owner holds the machine-use permission an owner needs,
+  and organization owners administer every Project in the namespace, so the
+  owner can file and unfile there; other Project writers can also unfile.
   Filing again returns the same entry.
 - A machine is filed only in its own namespace. A cross-namespace mount is
   refused with `400 host_placement_same_namespace_only`.
@@ -179,12 +191,18 @@ access stays the person and team grants above.
 - Unfiling, deleting the Project or moving it never deletes or changes the
   machine.
 
-File through the Project resource routes with `resourceType: "host"`,
-`dl project attach PROJECT --namespace NAMESPACE --type host --resource HOST_ID` (and
-`dl project detach PROJECT --namespace NAMESPACE --type host --resource HOST_ID`), Python
-`client.projects.attach(namespace, project, "host", host_id)`, or the built-in
-agent's `dreamlake_resource_project_api_write`, which also needs an explicit
-service-account grant on that Project.
+Filing needs the same releases as team grants: CLI 0.132.0 or later, Python
+0.56.0 or later, and the current Compute. The CLI can also tag the filing with
+`--bindr NAME_OR_ID`.
+
+| Surface | File | Unfile |
+|---|---|---|
+| Compute | **Brief › Access › Projects › File**: choose a Project you can write to and, optionally, a Bindr. In the Project, the machine opens as a reference card. | Remove it from the Projects row |
+| API | `POST /namespaces/:namespace/projects/:project/resources` with `{"resourceType": "host", "resourceId": "HOST_ID"}` | `DELETE` the same path and body |
+| CLI (0.132.0 or later) | `dl project attach PROJECT --namespace NAMESPACE --type host --resource HOST_ID` | `dl project detach PROJECT --namespace NAMESPACE --type host --resource HOST_ID` |
+| TypeScript (same release) | `projects(ns).attach(project, { type: "host", resourceId: hostId })` | `projects(ns).detach(project, { type: "host", resourceId: hostId })` |
+| Python (0.56.0 or later) | `client.projects.attach(namespace, project, "host", host_id)` | `client.projects.detach(namespace, project, "host", host_id)` |
+| Built-in agent | `dreamlake_resource_project_api_write`, which also needs an explicit service-account grant on that Project | the same tool |
 
 ## Connection command
 

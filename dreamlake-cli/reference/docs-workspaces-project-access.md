@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.172 161c8644; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.174 fea0a98d; do not edit -->
 
 # Project access
 
@@ -428,7 +428,7 @@ use a weaker legacy endpoint to make a refusal pass.
 | Built-in agent tools | `dreamlake_project_access`, `dreamlake_project_access_set`, `dreamlake_project_grants`, `dreamlake_project_grant` and `dreamlake_project_revoke` are registered with declared scopes, explicit machine grants and current human authority. No whole-audience tool; retain the namespace/provisioning limits above. |
 | Local MCP adapter | Source-only adapter; no direct Project policy, grant or audience tools. `assistant_invoke` does not bypass the built-in assistant's restrictions and is not an organization-admin permission API. See [MCP](https://docs.dreamlake.ai/lakeshore/agents/mcp). |
 | Skills API | Authenticated `/skills` and file reads serve the backend's separately pinned bundle. Check tag/commit headers and bytes; reading guidance grants no Project authority. |
-| Host filing | The Host owner files with REST `resourceType: "host"`, `dl project attach PROJECT --namespace NAMESPACE --type host --resource HOST_ID` (`dl project detach` to unfile), Python `client.projects.attach(namespace, project, "host", host_id)` or the built-in `dreamlake_resource_project_api_write` (explicit service-account Project grant). Placement only: Project grantees get no Host access. See [Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects). |
+| Host filing | The Host owner files from Compute (**Brief › Access › Projects › File**), REST `resourceType: "host"`, CLI 0.132.0 `dl project attach PROJECT --namespace NAMESPACE --type host --resource HOST_ID`, TypeScript `projects(ns).attach(project, { type: "host", resourceId })`, Python 0.56.0 `client.projects.attach(namespace, project, "host", host_id)` or the built-in `dreamlake_resource_project_api_write` (explicit service-account Project grant). Placement only: Project grantees get no Host access. See [Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects). |
 
 The public skill is guidance, not an authority or a server API. Installed help,
 package versions and deployed capability determine what can be called; a new
