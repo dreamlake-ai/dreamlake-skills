@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.130.0 78c835a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.131.0 b5bedbf; do not edit -->
 
 # Projects & data
 
@@ -91,8 +91,22 @@ execution. Individual resource and same-workspace filing commands are unchanged.
 ## Bindrs
 
 A **bindr** tags nodes in a project's file tree. Episode selectors match a glob
-over their name or node path. Update and delete accept a Bindr name or stable ID;
+over their name or node path. An exact folder path also works with `--add`;
+`--add-folder` selects a folder explicitly, even when its name matches an episode.
+Folder tagging tags that node, without moving its children.
+Update and delete accept a Bindr name or stable ID;
 ambiguous names are refused before writing. Listing the project reveals the IDs.
+
+Create a child with `--parent <name-or-ID>`. Update with `--parent` to reparent,
+or `--top-level` to remove its parent. Parent resolution stays inside `--project`;
+the server rejects cycles and invalid nesting.
+
+`--add-note` prefers an existing filing in the destination project. Otherwise it
+can reference a readable source node in another project in the same workspace;
+use `--from-project <slug>` when several source filings match. A retained memo
+owned elsewhere is resolved through its canonical owner and can be tagged only
+through a currently authorized filing. Tagging never moves or copies the memo,
+creates a project filing, or grants access to its readers.
 
 Creating with `--episode` asks for confirmation (`--yes` skips it). Episode tags
 are applied one at a time after creation. If a tag request fails, the command
@@ -105,7 +119,11 @@ dl create bindr front-cam --project my-robots --episode "camera/front/*"
 dl update bindr front-cam --project my-robots --add "2026/04/*"
 dl update bindr front-cam --project my-robots --remove "run-bad"
 dl update bindr front-cam --project my-robots --add-note MEMO_ID   # CLI 0.87.0+
-dl list bindr --project my-robots
+dl create bindr planning --project my-robots --parent front-cam
+dl update bindr planning --project my-robots --top-level
+dl update bindr front-cam --project my-robots --add-folder reports/2026
+dl update bindr front-cam --project my-robots --add-note MEMO_ID --from-project research
+dl list bindr --project my-robots --json
 dl delete bindr front-cam --project my-robots
 ```
 
@@ -138,8 +156,8 @@ dl delete file /camera/front/clip.mp4 --episode my-robots:run-001
 ## Inspect access (CLI 0.45.1)
 
 `project inspect` shows the project's server-computed `permissions`, including
-its effective role and `manageGrants`. `project grants` lists direct user/team
-grants and requires the server's current grant-management authority. Grant rows
+its effective role and `manageGrants`. `project grants` lists direct user/team grants and, on matching servers,
+service-account grant IDs, account IDs and roles. It requires the server's current grant-management authority. Grant rows
 alone do not describe effective access: organization members retain baseline
 Read on organization projects. Project ADMIN is not ownership-transfer authority.
 Neither command changes membership or grants.

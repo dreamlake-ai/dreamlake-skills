@@ -17,7 +17,8 @@
     "https://viz.dreamlake.ai/dataset-viz/overview",
     "https://viz.dreamlake.ai/dataset-viz/gallery",
     "https://viz.dreamlake.ai/dataset-viz/spec",
-    "https://viz.dreamlake.ai/dataset-viz/reference"
+    "https://viz.dreamlake.ai/dataset-viz/reference",
+    "https://viz.dreamlake.ai/components/staging"
   ],
   "tools": null
 }

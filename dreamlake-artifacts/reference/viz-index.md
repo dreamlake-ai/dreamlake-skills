@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/index.md at 0.31.5 0739ab83; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/index.md at 0.32.0 3e82499c; do not edit -->
 
 <span id="overview" />
 <span id="visualizing-an-episode" />
@@ -101,7 +101,7 @@ Dataset readers support specific layouts and encodings. Check the
 Install the public npm release into a React application:
 
 ```bash
-npm install --save-exact @dreamlake/viz@0.29.0
+npm install --save-exact @dreamlake/viz@0.31.5
 ```
 
 The package includes ESM and TypeScript declarations. React and React DOM are
