@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.175 726d023e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.178 5e975a19; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -375,6 +375,39 @@ gives Project members no host access; see
 `dreamlake_host_move_preview` reports `projectPlacements` when the host is
 filed; applying the move unfiles it from that many Projects without deleting
 the host, and the agent says so before applying.
+
+## Connections and credential entry
+
+Use the credential-entry tools below when the deployed assistant offers them.
+If they are not offered, create or reconnect through the signed-in Connections
+page instead; this reference does not establish their availability in every deployment.
+
+Connection reads — `GET /namespaces/:ns/connection-connectors`, the list,
+detail, Check and affected Sources — and credential-free create (an auth kind
+whose mode is `none`) are discovered canonical operations, available to the
+namespace's credential managers. The gateway refuses any tool call that carries
+a credential, so a Connection that needs a secret is created or reconnected by
+**browser credential entry**:
+
+- `dreamlake_connection_entry_begin` (`resources:write`) starts an entry in the
+  turn's namespace for one connector and `fields` auth kind (create), or for one
+  Connection at its current settings revision (reconnect). It returns an
+  operation id and a link to the Connections page; the label is only a
+  suggestion the user may edit.
+- The user opens the link, signed in, and enters the secret in the existing
+  form. The entry is bound to that user and namespace, single use, and expires
+  after 30 minutes; the connector, auth kind, target and revision cannot be
+  changed there.
+- `dreamlake_connection_entry_status` (`resources:read`) returns `pending`,
+  `succeeded` (with the Connection id and masked metadata), `cancelled` or
+  `expired`. It works after a reload or a later turn.
+- `dreamlake_connection_entry_cancel` (`resources:write`) closes a pending
+  entry.
+
+Neither the arguments, the results nor the receipts of these tools contain a
+credential. The entry routes are not reachable through the generic gateway.
+Background and delegated runs, and service accounts, cannot manage Connections,
+and Connections cannot be granted to an agent service account.
 
 ## Recovering from tool errors
 

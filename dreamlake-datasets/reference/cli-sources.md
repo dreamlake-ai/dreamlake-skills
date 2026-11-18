@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sources.md at 0.132.1 e959ebd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sources.md at 0.132.2 643f18a; do not edit -->
 
 # Sources
 
@@ -106,7 +106,8 @@ dl source create <name> [--description <text>] [--namespace <slug>] [--idempoten
 ```
 
 Creates an empty, managed-only source. Owner only. To attach an external store,
-use `dl source import` (see `dl source import --help`).
+use `dl source import` (see `dl source import --help`) with a
+[Connection](https://cli.dreamlake.ai/connections) that holds the credential.
 
 ## `browse`
 

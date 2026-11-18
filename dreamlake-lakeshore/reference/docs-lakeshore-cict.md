@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.175 726d023e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.178 5e975a19; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -137,9 +137,16 @@ for every flag.
 Each machine type is what **one job** gets, not one machine: jobs land on any
 free node of the cluster partition behind it.
 
-| Label | Per job: GPU | CPU | Memory | Time limit |
-| --- | --- | --- | --- | --- |
-| `dreamlake-gpu-rtx5090` | 1 × RTX 5090 | 8 | 32 GB | 2 h |
+Machine labels, limits and prices are deployment configuration. The table below
+describes the documented profiles; use Setup’s currently offered catalog for
+your namespace before choosing a label. A listed profile does not establish
+that it is enabled for your namespace.
+
+| Label | Per job: GPU | CPU | Memory | Time limit | Price |
+| --- | --- | --- | --- | --- | --- |
+| `dreamlake-gpu-rtx5090` | 1 × RTX 5090 | 8 | 32 GB | 2 h | $1.20 / GPU-hour |
+| `dreamlake-gpu-rtx5090-8h` | 1 × RTX 5090 | 8 | 32 GB | 8 h | $1.20 / GPU-hour |
+| `dreamlake-gpu-rtxpro6000` | 1 × RTX PRO 6000 | 8 | 32 GB | 2 h | $2.40 / GPU-hour |
 
 - **Concurrency.** Each namespace runs a limited number of DreamLake GPU jobs
   at once (2 by default), and each machine type has a limit across all
@@ -149,9 +156,31 @@ free node of the cluster partition behind it.
   you choose another in Setup), under the same folder layout as pools.
 - **Cache.** `DREAMLAKE_CACHE_DIR` is private to your namespace; other
   namespaces cannot read or change it.
-- **Usage.** Setup shows a month's GPU time, from each job's start to its
-  end: by the GitHub user who triggered each job, by repository and workflow,
-  and job by job with a link to each run. `dl cict usage` prints the same.
+- **Usage.** Setup shows a month's GPU time and what it is worth: by the
+  GitHub user who triggered each job, by repository and workflow, and job by
+  job with a link to each run. `dl cict usage` prints the same.
+- **How GPU time is measured.** From the moment Slurm gives the job its node
+  until it lets go, times the job's GPUs. Waiting in DreamLake's queue or in
+  Slurm's queue is not counted. Right after a job ends its time is an estimate
+  from GitHub's job times; within a few minutes Slurm's accounting replaces it.
+  A job the infrastructure failed (Slurm `NODE_FAIL` or `BOOT_FAIL`) is not
+  priced.
+- **Prices (not charged yet).** Each machine type has a price per GPU-hour, in
+  credits (one credit = $0.005). A job keeps the price it ran at, so a later
+  price change does not change past jobs. **Nothing is charged today**: the
+  price shows what DreamLake GPU usage is worth until it joins prepaid
+  billing.
+- **Prepaid credits (sandbox validation).** When DreamLake turns billing on, a
+  job is paid from the namespace's prepaid credits (Settings → Billing):
+  before Slurm is asked for a node, the most the job can cost — its time
+  limit, on every GPU it holds, at its price — is held from the balance. When
+  the job ends, the GPU time Slurm measured is charged (capped at the time
+  limit; GitHub's estimate if Slurm never reports) and the rest is given back.
+  A job that never got a GPU, was cancelled before it started, or that the
+  infrastructure failed is not charged. Without enough credit, or without a
+  billing account, a job waits in DreamLake's queue — the run page says why —
+  and starts once credit is added. Billing currently runs against Stripe and
+  Metronome sandboxes only: no real money moves.
 - **Availability.** DreamLake GPU is enabled per namespace by the DreamLake
   team. A paused namespace starts no new jobs; running ones finish.
 
@@ -319,7 +348,7 @@ Two ways are supported by design:
 | GET | `/namespaces/:ns/cict/platform` | read: DreamLake GPU catalog, access, occupancy, month GPU time |
 | POST | `/namespaces/:ns/cict/platform/activate` | execution admin + namespace admin: start using DreamLake GPU |
 | PATCH | `/namespaces/:ns/cict/platform` | execution admin: change the evidence Source, or re-authorize with the same one (the caller becomes the authorizer) |
-| GET | `/namespaces/:ns/cict/usage?month=YYYY-MM&sender=&limit=` | read: totals, by repository and workflow, by the GitHub user who triggered each job, and the jobs (newest first) |
+| GET | `/namespaces/:ns/cict/usage?month=YYYY-MM&sender=&limit=` | read: totals, by repository and workflow, by the GitHub user who triggered each job, and the jobs (newest first); each with `credits` (not charged), and per job `source` (`github` estimate or `slurm`) |
 | GET | `/namespaces/:ns/github/jobs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs/:run` | read |

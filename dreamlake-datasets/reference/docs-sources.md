@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.175 726d023e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.178 5e975a19; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -54,14 +54,18 @@ There is no hosted MCP endpoint or published adapter package.
 
 ## Connect your data
 
-Linking happens in the dashboard: open **Sources** in your namespace
-(`/source/<namespace>`) and connect the storage. Credentials stay
-server-side, encrypted — never in files or URLs.
+Linking takes two steps: a [Connection](https://docs.dreamlake.ai/connections) holds the credential,
+and a Source reads through it. Create the Connection in the web app
+(**Connections**, `/<namespace>/connections`), with `dl connection create`, from
+the Python or TypeScript SDK, or by asking the assistant, which hands secret
+entry to the web form. Then import the Source in **Sources**
+(`/source/<namespace>`) or with `dl source import --connection <id>`.
+Credentials stay server-side, encrypted — never in files or URLs.
 
 | Storage | Connect with | Get bytes in today |
 | --- | --- | --- |
-| S3 bucket | bucket credentials | `aws s3 cp --recursive ./my-dataset s3://bucket/prefix` |
-| Hugging Face repo | OAuth | `hf upload you/dataset ./my-dataset --repo-type dataset` |
+| S3 bucket | Connection: access key or role | `aws s3 cp --recursive ./my-dataset s3://bucket/prefix` |
+| Hugging Face repo | Connection: OAuth, token or public | `hf upload you/dataset ./my-dataset --repo-type dataset` |
 | Any source (managed files) | `dl source create` (namespace owner) | `dl source upload ./my-dataset -r --source <name> --to <prefix>` |
 
 Uploads land in the source's managed layer, never in your bucket or repo. An

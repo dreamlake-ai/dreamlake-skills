@@ -1,10 +1,14 @@
-<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.132.1 e959ebd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.132.2 643f18a; do not edit -->
 
 # Reading and changes
 
-Set `MEMO_ID` to an ID or slug from `dl memos list`. Add `--namespace`
-(or its alias `--ns`) when the memo belongs to an organization: the CLI looks an
-ID or slug up in that namespace or your configured one. The shell examples use `jq`.
+Set `MEMO_ID` to an ID or slug from `dl memos list`. Reads start in your configured
+namespace. If an ID is not found there and you omitted `--namespace` (or `--ns`),
+the CLI resolves that ID's current owner and reads it there, subject to your access.
+An explicit namespace is always respected; slugs and names still require the
+correct namespace. This recovery applies to v2 `memos read` and `memos diff`,
+before any output; legacy reads, saved-version reads and writes keep their existing
+namespace selection. The shell examples use `jq`.
 
 ## Save a snapshot
 
