@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/annotations.md at 0.132.3 db69b9d; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/annotations.md at 0.132.4 0a3ff66; do not edit -->
 
 # Annotations
 
@@ -52,6 +52,8 @@ The SDK uses explicit credentials and sends supplied fields exactly. `get` and
 [canonical REST contract](https://docs.dreamlake.ai/annotations/reference).
 
 ## Share and visibility
+
+These sharing commands and SDK methods require CLI 0.132.4 or later and the companion annotation-sharing API release.
 
 Visibility and the signed-in collaboration link are independent. Private permits
 workspace members and people already given access. Unlisted permits anonymous

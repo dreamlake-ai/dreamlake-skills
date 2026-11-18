@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-api-keys.md at 0.132.2 643f18a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-api-keys.md at 0.132.4 0a3ff66; do not edit -->
 
 # Third-party API keys in pass and Vault
 

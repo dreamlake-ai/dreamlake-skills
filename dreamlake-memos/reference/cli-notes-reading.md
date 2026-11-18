@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.132.2 643f18a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.132.4 0a3ff66; do not edit -->
 
 # Reading and changes
 
@@ -6,9 +6,14 @@ Set `MEMO_ID` to an ID or slug from `dl memos list`. Reads start in your configu
 namespace. If an ID is not found there and you omitted `--namespace` (or `--ns`),
 the CLI resolves that ID's current owner and reads it there, subject to your access.
 An explicit namespace is always respected; slugs and names still require the
-correct namespace. This recovery applies to v2 `memos read` and `memos diff`,
-before any output; legacy reads, saved-version reads and writes keep their existing
-namespace selection. The shell examples use `jq`.
+correct namespace. The recovery happens before any output, at most once, and only
+after a 404. It applies to every read-only command addressed by memo ID: `memos read`
+(including `--legacy` and `--version`), `diff`, `toc`, `find`, `sections`, `select`
+with a CSS selector, `hist`, `presence`, `contributors`, `command-status`, and
+`files list`, `cat`, `download` and `preview` without `--share` or `--revoke`.
+Commands that change anything keep the namespace they were given, so a write to a memo
+outside your configured namespace needs `--namespace` (or `--ns`); `read --linger`,
+`visit` and `select --text`, which publish presence, do too. The shell examples use `jq`.
 
 ## Save a snapshot
 

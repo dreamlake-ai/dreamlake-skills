@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.132.2 643f18a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.132.4 0a3ff66; do not edit -->
 
 # Create and find memos
 
@@ -43,8 +43,10 @@ dl memos list --include-archived
 `--ns` is an alias of `--namespace` on every Memos command; both are the source
 namespace to look in, never a destination. `--offset N` pages by rows
 (`--limit 20 --offset 20` is the second page). The CLI looks a memo ID up in
-`--ns` or your configured namespace, so pass `--ns` for another workspace's
-memo; the TypeScript facade (`dl.notes(noteId)`) discovers the owner itself.
+`--ns` or your configured namespace. Without `--ns`, read-only commands follow an
+ID to its owner when it is not found there ([Reading](cli-notes-reading.md)); writes do
+not, so pass `--ns` to change another workspace's memo. The TypeScript facade
+(`dl.notes(noteId)`) discovers the owner itself.
 
 ```bash cli-help="memos search"
 dl memos search "release plan"
