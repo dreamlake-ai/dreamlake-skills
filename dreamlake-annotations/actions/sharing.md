@@ -11,8 +11,8 @@ settings and manager permission. Identify the requested audience and role from
 the user's instructions before selecting a write. A copied URL, a title edit or
 a document-link update alone does not authorize changing access.
 
-Use the [sharing contract](https://docs.dreamlake.ai/annotations/reference#sharing-and-access)
-and [installed CLI reference](https://cli.dreamlake.ai/annotations) to choose the
+Use the [sharing contract](../reference/docs-annotations-reference.md#sharing-and-access)
+and [installed CLI reference](../reference/cli-annotations.md) to choose the
 smallest requested change. Keep visibility and signed-in link access separate.
 For an SDK-only integration, use the documented Python or TypeScript metadata
 methods; do not require a CLI subprocess or rewrite annotation content.
