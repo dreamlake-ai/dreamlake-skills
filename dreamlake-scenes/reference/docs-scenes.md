@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.178 5e975a19; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.179 e8fc81a2; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -225,14 +225,17 @@ dl scene push ./taku-robot --namespace my-team --name taku-robot \
   Omit the camera to use the normal authored MJCF framing.
 - AO radius is 0.001–2 world units; intensity is 0–3. Shadow intensity is 0–8,
   azimuth −360–360°, elevation 1–89° and softness 0–10.
-- Quality is `raster` (default) or `progressive`. Progressive rendering refines
-  a stationary scene; unsupported devices fall back to real-time rendering.
+- Scene pages use real-time raster rendering for still views and interaction;
+  they do not run path tracing. Use `"quality": "raster"`. Legacy profiles with
+  `"quality": "progressive"` still load, but Scene pages render them in raster
+  mode. The HDR, PBR materials, tone mapping, AO and shadows still apply.
 
 Viewer lighting controls may override the profile. Invalid profiles, missing
 HDR files or failed HDR loads show an error and fall back to default lighting.
-Authored MJCF lights remain additive: avoid duplicating strong rigs in the model
-and profile. This is a web presentation contract; other engines need to map its
-settings and may produce different images.
+With an active profile, its HDR and key light replace authored MJCF lights in
+the web preview. Keep MJCF lights as a fallback for local MuJoCo rendering. This
+is a web presentation contract; other engines need to map its settings and may
+produce different images.
 
 ### Download and reuse
 
