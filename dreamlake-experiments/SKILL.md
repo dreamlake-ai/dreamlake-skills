@@ -1,6 +1,6 @@
 ---
 name: dreamlake-experiments
-description: Log ML experiments with the DreamLake Python SDK and configure per-run Dash dashboards; use for RL logging, inspecting recorded data and missing charts, not implementing training algorithms or provisioning compute.
+description: Log ML experiments with the DreamLake Python SDK, run planned config × seed sweeps with fresh/resume/reconnect attempts, and configure per-run Dash dashboards; not implementing training algorithms or provisioning compute.
 ---
 
 # DreamLake experiments
@@ -13,6 +13,7 @@ training algorithm or provision compute. Pick the action that matches the task.
 | --- | --- |
 | Record parameters, metrics, logs, Tracks and artifacts through Python; prepare an RL logging fixture | [Record an experiment](actions/record.md) |
 | Missing curves, partial overview, images/video or a per-run `.dashrc` | [Configure the dashboard](actions/dashboard.md) |
+| A planned sweep (configs × seeds) with retries, resumes or reconnects, and comparing seeds | [Plan and run a sweep](actions/sweep.md) |
 
 Use the setup action of `dreamlake-cli` for installation and login. Instrumentation
 is an SDK task; ordinary resource operations use the CLI where it supports them.

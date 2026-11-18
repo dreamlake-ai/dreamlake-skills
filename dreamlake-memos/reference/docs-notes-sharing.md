@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.180 0459c3e3; do not edit -->
 
 # Sharing, access and transfer
 
@@ -216,6 +216,9 @@ Project's content-create permission and the resource's own sharing-management
 permission; readable content cannot be redistributed by a reader.
 A resource owned by another namespace attaches only through its owner's
 [cross-namespace mount grant](https://docs.dreamlake.ai/api/external-mounts).
+Hosts are the exception: only the Host's owner can file it, only in its own
+namespace, and filing gives Project grantees no Host access. See
+[Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects).
 
 The Project-sharing backend and Web update are released. CLI attachment
 commands require 0.62.0 or later; Python Project support requires SDK 0.29.0

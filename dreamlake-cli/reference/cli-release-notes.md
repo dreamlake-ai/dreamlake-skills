@@ -1,10 +1,160 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.121.1 361dc74; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.132.2 643f18a; do not edit -->
 
 # Release notes
 
-## Unreleased
+## 0.132.1 — Bundled skills v2026.11.17.2
 
+The embedded `dreamlake-cli` skill and bundled catalog now pin
+[v2026.11.17.2](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.17.2).
+It adds the host-sharing procedures for CLI 0.132.0: granting a team connection
+access to a host enrollment, and filing a Host in a Project, optionally tagged into a Bindr
+(`dl project attach --type host --bindr`), as placement only. References are
+refreshed from CLI docs 0.132.0 and product docs 0.1.174. The skill's minimum
+CLI is 0.132.0. Existing skill installation, update and local-edit conflict
+handling are unchanged.
+
+## 0.132.0 — Team host connection grants and Hosts in Projects
+
+Requires a DreamLake server with team host grants and Host filing. Against an older server, `--team` and `--type host` are refused and `hosts access list` reports team grants as unsupported; existing `--user` grants and other attach types are unchanged.
+
+- `dl hosts access grant HOST --enrollment ID --team SLUG` lets every current direct member of one team in the Host's organization connect to one enrollment, all as its Unix account; team maintainers decide who that is, and members of parent or child teams are not included. Exactly one of `--user` or `--team` is required. Requires the team-grant backend; an older server rejects `--team` with `invalid_host_access_grant`. See [Team grants](https://cli.dreamlake.ai/host-enrollment#team-grants).
+- `dl hosts access list` asks for every grantee kind and shows a KIND column (`user` or `team`). `--json` adds `teamGrants`, `teams` and `teamGrantsSupported`. Against a server without team grants it says so rather than claiming only you can connect.
+- `dl hosts access revoke` takes person or team grant IDs and reports connections that stayed open because their user still holds another current grant (`stillAuthorizedConnections`). A grantee's `dl hosts status` names the teams their access comes through.
+- `dl project attach|detach --type host` files a Host you own in a Project, or unfiles it. Filing is placement only: organization members who can read the Project see the Host's name and owner, and no Project role grants SSH or any other host access. Attach help no longer says every attached resource's access is inherited by Project grantees. See [Hosts in Projects](cli-projects.md#hosts-in-projects).
+- `dl project attach --bindr NAME_OR_ID` also adds the filed node to a Bindr in the same Project, for every type except `source`. If adding it fails, the filing is kept and the command exits 1 with the `nodeId`; run the same command again to finish.
+- `dl hosts move` previews and receipts show `Project placements: N will be removed` when the Host is filed in Projects (optional `projectPlacements: {count, policy: "unfile"}`; TypeScript `HostMoveProjectPlacements`). A whole-Project move is refused while a Host is filed in it; unfile Hosts first.
+- `dl hosts access grant --team` treats a receipt naming a different team as an unknown outcome. The TypeScript `grantAccess` refuses a non-string `grantee` or `team` beside the other instead of ignoring it.
+- TypeScript: `hosts(ns).allAccessGrants(id)` (`HostAccessGrantsAll`, `HostTeamGrantsUnsupportedError`), `grantAccess(id, { enrollmentId, team })` (`HostTeamAccessGrantResult`), `HostAccessRevokeResult.stillAuthorizedConnections`, `HostSharedAccess` grant `via`/`team`, and `ProjectAttachmentType` including `host`. Existing `accessGrants`, `grantAccess(id, { enrollmentId, grantee })` and their types are unchanged.
+
+## 0.131.0 — Memo and Bindr workflows
+
+Bindrs support child creation and reparenting with `--parent`, returning to the
+root with `--top-level`, and exact folder membership with `--add-folder` or
+`--add`. Memo selectors resolve existing readable filings in other projects and
+authorized retained filings owned by another workspace; ambiguous source
+filings require `--from-project`. `list bindr --json` now emits JSON with the
+flag before or after the subcommand. See [Bindrs](cli-projects.md#bindrs).
+
+Transfer errors retain structured blocker details. Matching servers identify
+blocking service-account grants and include those grants in admin project
+inspection. A blocked legacy `memos move` preview gives the separate transfer
+preview command. Existing transfer capability and recipient-acceptance gates
+still apply; no access grants are removed to force a transfer.
+
+The bundled skill and catalog pin the published
+[v2026.11.16.2 skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.16.2),
+including whole-agent release guidance and references from CLI 0.130.0 and
+product docs 0.1.170.
+
+This release also includes `dl launch SCRIPT --mount [namespace/]prefix` from
+the merged mounted-launch work. It submits through a management connection's
+stored credential, with a stable invocation ID for recovery. Requires the
+matching backend. See [Launch through a mount](cli-snapshot-launch.md#launch-through-a-mount).
+
+## 0.130.0 — Whole-agent releases
+
+`dl runnable definition list|show|publish|activate` and the matching TypeScript
+SDK methods publish the saved agent draft as an immutable complete definition,
+inspect its README and prompt, and activate an earlier release while preserving
+the draft. Writes require the reviewed `updatedAt`; stale writes fail without
+automatic retries. Built-in agent selection supports published and draft views
+and carries an explicit definition version into execution. Requires the
+definition-version backend. See [Whole-agent versions](cli-runnable-api.md#whole-agent-versions).
+
+## 0.129.0 — Independent SSH timeout policies
+
+`dl ssh` and `dl tmux` honor the host’s negotiated inactivity limit and adapt keyboard-activity reports for shorter limits. Nymph 0.1.42+ uses `max_duration_s` for total lifetime and `idle_timeout_s` for inactivity; protocol grace stays internal. See [Keyboard-idle disconnect](https://cli.dreamlake.ai/host-enrollment#keyboard-idle-disconnect).
+
+## 0.128.2 — Bundled skills v2026.11.16
+
+The embedded `dreamlake-cli` skill and bundled catalog now pin
+[v2026.11.16](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.16).
+This release adds the host connection-sharing procedure: the `dreamlake-cli` skill routes
+sharing a host's connection access to `dreamlake-lakeshore`, which covers
+`dl hosts access list|grant|revoke` (CLI 0.128.0+). References are refreshed from CLI docs 0.128.0
+and product docs 0.1.166. Existing skill installation, update and local-edit conflict handling
+remain unchanged.
+
+## 0.128.1 — Backend-owned memo ancestry and dotted tags
+
+- The matching backend update selects causal ancestry when a checkpoint omits its parent, including before checkpoints from existing `memos revise` clients. Explicit roots and parent choices remain supported; existing saved versions are unchanged. Dotted numeric tags retain any number of parts and leading zeros, with UI support for using the tag as the displayed version label.
+
+## 0.128.0 — Share connection access to a host
+
+- `dl hosts access grant HOST --enrollment ID --user USERNAME` lets one member of an organization namespace connect to one enrollment of a Host you own. They connect as that enrollment's Unix user and share its files, processes, credentials and OS permissions; DreamLake creates no OS user. Both flags are required; nothing is guessed. `dl hosts access list HOST` shows grants, and `dl hosts access revoke HOST GRANT` revokes one. Revoking denies new connections at once and reports how many open connections it closed. Any it could not confirm closed are reported with the time they end on their own; the command then exits 1, and running it again tries to close them again. A grant or revoke without a clear answer is reported as unknown and is never retried automatically. See [Share connection access](https://cli.dreamlake.ai/host-enrollment#share-connection-access).
+- A Host reached through a grant shows `shared` in an ACCESS column of `dl hosts list` (also `{access}`) and an `Access:` line in `dl hosts status`, taken from the server's `access.kind` marker. Owner output is unchanged.
+- TypeScript: `hosts(ns).accessGrants(id)`, `grantAccess(id, { enrollmentId, grantee })` and `revokeAccess(id, grantId)`, with exported `HostAccessGrantList`, `HostAccessGrantResult`, `HostAccessRevokeResult` and `HostSharedAccess`.
+
+## 0.127.0 — SSH sessions end after 30 minutes without keyboard input
+
+- `dl ssh` and `dl tmux` disconnect 30 minutes after the last keystroke or paste, print `dl: disconnected after 30 minutes without keyboard input.` and exit 124. Remote output, mouse, focus, terminal replies, resizes and keepalives never keep a session open; while you type, it renews on the same connection without reconnecting. Hosts, backends or installs that cannot do this keep a fixed 30-minute session and say so. `--duration` asks for a fixed lifetime; `--timeout` stays an absolute limit; `dl exec` is unchanged. See [Keyboard-idle disconnect](https://cli.dreamlake.ai/host-enrollment#keyboard-idle-disconnect).
+- After any SSH session ends, the terminal is restored and modes a remote program left on are switched off, so an abrupt disconnect no longer prints mouse movement as text such as `35;1;36M`. A session the server already ended no longer warns that cleanup could not be confirmed.
+- `dl hosts upgrade` now reaches Nymph running under a lingering systemd user manager on Linux; it previously stopped with `systemd_user_unavailable` because relay sessions have no `XDG_RUNTIME_DIR`.
+
+## 0.126.1 — CI/CT status names person-only steps
+
+- `dl cict status` also lists person-only steps that can happen alongside the next one (for example asking for DreamLake GPU while the GitHub App is installed), and the ready line names every runs-on label.
+
+## 0.126.0 — CI/CT setup status
+
+- `dl cict status NS` shows where a namespace stands on CI/CT (GitHub, DreamLake GPU, your own machines), which steps are done and the next one with its page, command and API call; `--json` for agents. TypeScript: `dl.cict(ns).onboarding()`.
+
+## 0.125.4 — Source, Folder and Bindr visibility
+
+Sources, Folders and Bindrs support Private, Unlisted and Public visibility.
+Unlisted items remain readable through their direct links and are excluded
+from public discovery. Visibility commands and TypeScript methods use the
+observed revision to reject stale changes. Existing unset Folder and Bindr
+settings retain inherited visibility; their parent Project and independent
+resource permissions remain separate.
+
+## 0.125.3 — Bundled skills v2026.11.14.1
+
+The embedded `dreamlake-cli` skill and bundled catalog now pin
+[v2026.11.14.1](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.14.1).
+This includes the Project address procedure and refreshed references from CLI
+docs 0.125.2 and product docs 0.1.161. Existing skill installation, update and
+local-edit conflict handling remain unchanged.
+
+## 0.125.2 — Canonical Memo references
+
+Memo creation JSON and TypeScript handles include `directive` with the returned
+immutable ID. Text output includes the same ready-to-insert `:memo[full-id]`.
+An unconfirmed ID stops before a body write; inspect existing Memos before
+retrying. Titles and slugs never replace reference IDs. Saved legacy references
+remain readable.
+
+## 0.125.1 — Bundled skills v2026.11.13.1
+
+- The embedded `dreamlake-cli` skill and the bundled skills catalog are pinned to dreamlake-skills [v2026.11.13.1](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.13.1). Its `dreamlake-experiments` skill covers experiment evaluation and analysis (Python SDK `dreamlake` 0.51.0); `dl skill install dreamlake-experiments` or `dl skill update` installs it.
+- Docs: the experiment guide names the tested Python 3.13 environment for planned sweeps.
+
+## 0.125.0 — CI/CT usage by person, per-job machine specs
+
+- `dl cict usage` adds GPU time by the GitHub user who triggered each job; `--jobs` lists the jobs newest first, `--sender LOGIN` narrows them and `--limit` caps them. The TypeScript `usage(month, { sender, limit })` returns `bySender`, `runs` and `runsTotal`.
+- `dl cict platform admin list --month YYYY-MM` shows that month and the platform total.
+- Machine types are what one job gets: `platform show`, `admin list` and `admin machine` print `per job: 1x RTX 5090 · 8 CPU · 32 GB · 02:00:00`. That spec is read from the provider's launch layer, so `admin machine` drops `--gpus`, `--gpu`, `--cpus`, `--mem-gib` and `--time-limit`. The new `dl cict platform admin providers` lists the platform namespace's Slurm providers and what one job gets on each.
+
+## 0.124.0 — DreamLake GPU authorizer
+
+- `dl cict platform show` names who authorizes DreamLake GPU result writes and says when they can no longer write; jobs then wait, shown as `held: re-authorize` in `runs list` and "waiting for re-authorization" in `runs show`. `dl cict platform source NS --source <current Source>` re-authorizes. `platform admin list` flags namespaces that need it.
+
+## 0.123.0 — CI/CT commands
+
+- `dl cict` manages CI/CT through GitHub Actions:
+  - `github connect/installations`;
+  - `pools list/create/update/delete/targets`;
+  - `runs list/show/compare`, where `compare` gives case-by-case regressions against the default-branch baseline;
+  - DreamLake GPU: `platform show/start/source` and `usage`;
+  - `platform admin list/allow/pause/limit/machine` for platform namespace admins.
+- The TypeScript API adds `dl.cict(namespace)` and `dl.cictPlatformAdmin`. See [CI/CT with GitHub Actions](https://cli.dreamlake.ai/cict).
 - `memos revise` preserves authored wording as pending redlines, protects native resource references, publishes edit intent, and verifies reviewed before/after versions with durable recovery receipts.
+
+## 0.122.0 — Annotation URL rename
+
+- `dl annotation list/get/update/rename` and the TypeScript `client.annotations(namespace)` client read metadata and change titles or canonical URL slugs.
+- Slug updates preserve immutable identity, data/history and old links. Namespace management permission and observed ID/slug/revision guards prevent collisions and stale concurrent writes.
+- Servers without the new capability reject a rename before any write. See [Annotations](https://cli.dreamlake.ai/annotations).
 
 ## 0.119.2 — Exact host terminal targets
 

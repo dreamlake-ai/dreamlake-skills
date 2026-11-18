@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/teams.md at 0.121.1 361dc74; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/teams.md at 0.132.2 643f18a; do not edit -->
 
 # Teams
 
@@ -33,6 +33,13 @@ dl team member remove my-org backend alice@example.com
 
 Adding a user who isn't yet in the organization adds them to the org (as a
 MEMBER) automatically.
+
+**CLI 0.132.0+; requires a server that supports team grants.** A Host owner can grant a
+team connection access to one host enrollment (see
+[Team grants](https://cli.dreamlake.ai/host-enrollment#team-grants)). Every current direct member of
+the team can then connect as that enrollment's Unix account, so adding a
+member also lets them connect, and removing them closes their connections
+through the team. Members of parent or child teams are not included.
 
 > **Warning:** The server prevents removing the last MAINTAINER of a team and deleting a
 > team that still has child teams — delete or re-parent the children first.

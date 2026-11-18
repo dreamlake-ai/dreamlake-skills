@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/dev/notes/project-resource-sharing.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/dev/notes/project-resource-sharing.md at 0.1.180 0459c3e3; do not edit -->
 
 # Project resource access inheritance
 
@@ -40,6 +40,19 @@ current attached resources. New cross-namespace attachments remain unsupported. 
 exception for existing filings explicitly approved in completed transfer history;
 it does not permit arbitrary new foreign mounts or Project grant expansion.
 
+Bindr tagging can reference an existing Memo filing approved by completed
+transfer history. The caller needs current read authority for the Memo and its
+filing, plus content-create authority in the Bindr's Project. The server rechecks
+these inside the transaction and fences the Memo, Project and filing. Invalid
+transfer proof, removed filings and revoked access are refused, including repeats
+of an existing tag. A tag adds no attachment or sharing grant. An existing
+grant-admitted Memo filing can be tagged only within its admitted Project,
+while the grant and current read authority remain valid. The grant's audience,
+role ceiling, expiry and ownership stay unchanged. Revocation removes its
+filing and tags; expired or invalid grants reject new tags and repeated tags.
+Other grant-admitted resource types and cross-Project grant tagging remain
+unsupported.
+
 Making a Project public never republishes its private attachments. No public
 confirmation or sharing-time snapshot is necessary for publication. The public
 Project's implicit READ is not a grant to its private resources. Existing
@@ -52,7 +65,10 @@ BindrMember is a future optimization that requires its own migration, not a
 prerequisite for this access contract. Live Source references contribute USE/EDIT
 for content under this contract, never Source ADMIN or Connection credentials. Env attachments use live resource nodes,
 like Memo, Artifact, Annotation and Workflow. Infrastructure state, Vault secrets
-and Host credentials are not published by a content grant.
+and Host credentials are not published by a content grant. A Host filed in a
+Project (`resourceType: "host"`) is placement only: `resolveProjectResourceAccessMany`
+returns no role for it, so Project grants confer no Host access and Project
+grant changes ignore it. See [Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects).
 
 Issued read URLs and resource-scoped upload credentials retain their existing
 finite lifetime after revocation. Storage operations already in progress cannot

@@ -68,3 +68,23 @@ exact missing path. Do not push an incomplete scene.
 For a prepare-only request, return the staged directory and the validation
 result; do not upload it. Continue to [push](push.md) only when publishing
 was requested.
+
+## Package a polished preview and a reusable model
+
+When a user needs both, keep the model-only entry independent from the showcase.
+Put stage geometry, lights and rendering assets behind the presentation entry;
+keep the robot's mesh/material dependencies resolvable from its own entry.
+Document both entry points and the source/version in the package README.
+
+Author the appearance file beside the intended presentation entry using the
+[rendering-profile contract](https://docs.dreamlake.ai/scenes#rendering-profiles-and-reusable-robots).
+Check viewer support before choosing a format. Keep all rendering dependencies
+in the package and distinguish portable model materials from viewer settings.
+Do not promise identical rendering across engines.
+
+Before pushing, open both entries independently: inspect the showcase's initial
+pose, framing, materials and shadows, then load the model-only entry without the
+stage. Verify moving joints do not carry fixed parts with them. Publish with the
+explicit presentation entry; pull the receipt version into a clean directory
+and repeat both dependency checks. Confirm the default Scene page actually uses
+the profile, including its error state, rather than judging only a thumbnail.

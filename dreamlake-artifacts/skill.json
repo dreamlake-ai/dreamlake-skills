@@ -13,7 +13,8 @@
     "https://viz.dreamlake.ai/",
     "https://viz.dreamlake.ai/components/episode-line-chart",
     "https://viz.dreamlake.ai/components/parallel-coordinates",
-    "https://viz.dreamlake.ai/components/episode-timeline"
+    "https://viz.dreamlake.ai/components/episode-timeline",
+    "https://viz.dreamlake.ai/components/staging"
   ],
   "tools": null
 }

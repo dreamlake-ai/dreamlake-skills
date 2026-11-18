@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/parallel-coordinates.md at 0.31.3 545152ca; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/parallel-coordinates.md at 0.32.3 db004281; do not edit -->
 
 # Parallel coordinates
 
@@ -8,8 +8,8 @@ as optimizer.
 
 ## Experiment selection and table linkage
 
-Select a line, button, or table checkbox below. They share selected experiment
-IDs, which also survive hiding an axis.
+Select a trace, experiment-list row, or table checkbox below. They share
+selected experiment IDs, which also survive hiding an axis.
 
 ```tsx file="ExperimentComparisonSpec.tsx"
 
@@ -279,12 +279,29 @@ export function ExperimentComparisonSpec() {
 The example implements “Select top 2” and table filtering outside the chart.
 Reuse the reported IDs for your own table or detail view.
 
+The experiment list uses `@dreamlake/uikit/list` (UIKit 0.2.11 or newer in the
+0.2 release line) for virtualization and the shared selection controller
+used by DreamLake's Experiments list. Click or tap selects one row. Cmd/Ctrl-click
+toggles a row; Shift-click replaces the selection with the range from its anchor.
+Drag with a mouse or pen to select a contiguous range. Cmd/Ctrl-drag adds the
+range to the selection present when the drag started. A press without movement
+is handled as a normal click. The list scrolls near the edges while dragging;
+touch keeps native vertical scrolling.
+
+Tab into the list, then use Up/Down, Home/End or Page Up/Page Down to navigate
+and preview values. Space or Enter toggles the active row. Shift plus navigation
+selects an anchored range; Ctrl/Cmd+A selects the current list. Escape clears the
+selection and dismisses the preview. The list uses 24px rows, grows to 288px high,
+and renders a window of rows while keeping its active accessible option mounted.
+
 ## Smooth exploration of a larger comparison
 
 Hovering or focusing a run raises its trace without moving the pointer targets.
-Selection remains controlled by stable IDs. The background fades briefly when a
-preview opens; reduced-motion preferences disable this fade. Recorded positions
-and missing-value gaps update immediately, without interpolating research data.
+Selection remains controlled by stable IDs. Every trace stays fully opaque at
+rest, during hover or keyboard preview, and during selection. Width and a
+contrast halo emphasize the active trace without dimming other lines or fading.
+Recorded positions and
+missing-value gaps update immediately, without interpolating research data.
 
 ```tsx file="DenseComparisonSpec.tsx"
 
@@ -349,14 +366,16 @@ export function DenseComparisonSpec() {
 }
 ```
 
-Use Tab to focus a run, Space or Enter to toggle it, and Escape to dismiss its
-preview. Touch users can tap experiment controls and axis labels. Set `minAxisSpacing`
+Use Tab to focus the experiment list, arrow keys to preview a run, Space or
+Enter to toggle it, and Escape to clear selection and dismiss its preview. Moving the pointer onto a different trace previews that trace even
+when the experiment list retains focus; moving away restores the focused run. A new
+keyboard focus takes over from a previous pointer preview. Touch users can tap experiment controls and axis labels. Set `minAxisSpacing`
 when you want a horizontally scrollable plot. Hovering never selects a run. Keep `axes` and `series` references
 stable when their contents have not changed so cached geometry can be reused.
 
 This example uses 100 synthetic records. For larger studies, filter the comparison
-set in the host table: every run still has a native control and an SVG trace.
-This is not a virtualized plot or a data-smoothing operation.
+set in the host table: the experiment list is virtualized, but every run still
+has an SVG trace. Plot geometry is not virtualized or numerically smoothed.
 
 ## Line width and active emphasis
 
@@ -496,9 +515,28 @@ recorded positions or missing-value gaps.
 
 ## Curves, padding and axis values
 
-Smooth cubic connectors pass through each recorded axis position, stay within
-adjacent endpoint bounds, and split at missing values. They do not create new
-observations or smooth research data. Set `curve="linear"` for straight segments.
+Smooth connectors (`curve="smooth"`) use the original Vuer parallel-axis
+Catmull–Rom curve with tension **0.5**. Two connected points use a straight
+segment; three or more use cubic Bézier segments through the exact recorded
+axis positions. Missing values split the trace into separate connected runs.
+The curve can overshoot between axes; those connectors are not additional
+measurements. Set `curve="linear"` for straight segments. Hover and focus update immediately
+without fades or animated geometry. Neither style creates observations or
+numerically smooths research data.
+
+The control points match Vuer's [`generateSmoothPath`](https://github.com/vuer-ai/vuer-viz/blob/8a8b988f6763d079743a4e4733214900428c1b07/vuer-viz/src/charts/parallel-axis/ParallelAxis.tsx):
+for a segment from `p1` to `p2`, use `c1 = p1 + (p2 - p0) / 6 * 0.5`
+and `c2 = p2 - (p3 - p1) / 6 * 0.5`, duplicating the nearest endpoint
+when `p0` or `p3` is absent. The formula operates on screen coordinates; it
+does not alter the stored observations, domains or ticks.
+
+```tsx
+// Default: original Vuer curve and immediate hover feedback.
+<ParallelCoordinates axes={axes} series={series} />
+// Optional straight connectors, with independent explicit insets.
+<ParallelCoordinates axes={axes} series={series} curve="linear" paddingLeft={17} paddingRight={39} />
+```
+
 Normal strokes default to 2px and highlights retain the proportional width contract above. The active trace
 has a wider surface-colored halo; `activeHaloColor` matches a custom host surface
 without adding a chart background.
@@ -518,10 +556,20 @@ plot explains missing, nonnumeric, nonpositive-log and out-of-domain values.
 
 ## Axis modes and custom functions
 
-Open an axis label with a click, tap or Enter. Its settings provide numeric or
-categorical positioning, linear or logarithmic scale, exact explicit limits,
-automatic limits for that axis, and uniform automatic limits across visible
-numeric axes. The dialog supports Escape and returns focus to its label.
+Click or tap an axis line or its label to advance to the next axis mode.
+Focus its label and press Enter or Space for the same action. Hold Shift while
+clicking or pressing Enter/Space to cycle backward. Custom functions
+and exact limits are supplied by the caller through axis definitions or
+`axisModes`.
+
+From the default linear mode, the cycle is **linear automatic → categorical →
+log automatic → linear uniform automatic → repeat**. A distinct configured/default
+mode (for example, explicit limits) starts its cycle, followed by categories,
+linear automatic, log automatic and linear uniform automatic. A categorical
+default starts with categories followed by those numeric modes. Named
+`axisModeOptions` follow the built-ins; duplicate effective modes are skipped. Log is skipped when there are no positive numeric values;
+wholly nonnumeric axes omit numeric modes unless a caller's `numericValue`
+accessor supplies numeric positions.
 
 ```tsx file="AxisModesSpec.tsx"
 
@@ -644,7 +692,9 @@ const strategies: ParallelAxisModeOption[] = [
 ];
 
 export function AxisModesSpec() {
-  const [modes, setModes] = useState<ParallelAxisModes>({});
+  const [modes, setModes] = useState<ParallelAxisModes>({
+    score: { domain: [60, 100] },
+  });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [padding, setPadding] = useState(false);
   const [below, setBelow] = useState(false);
@@ -652,9 +702,9 @@ export function AxisModesSpec() {
   return (
     <div data-testid="parallel-modes-demo" className="min-w-0 space-y-3">
       <p className="text-xs opacity-65">
-        Synthetic records. Open any axis label to change its type, scale or
-        limits. Caller strategies below demonstrate real category, domain and
-        transform functions.
+        Synthetic records. Click an axis or its label to cycle modes. Caller
+        strategies demonstrate category, domain and transform functions; exact
+        limits are configured in the host.
       </p>
       <div className="flex flex-wrap gap-3 text-xs">
         <label>
@@ -684,7 +734,7 @@ export function AxisModesSpec() {
         <button
           type="button"
           onClick={() => {
-            setModes({});
+            setModes({ score: { domain: [60, 100] } });
             setSelectedIds([]);
           }}
           className="rounded border border-black/15 px-2 dark:border-white/15"
@@ -712,13 +762,12 @@ export function AxisModesSpec() {
 }
 ```
 
-Settings keep local component state by default. To control them, pass
+Axis modes keep local component state by default. To control them, pass
 `axisModes` and `onAxisModesChange`; the callback receives the next complete
 map keyed by axis ID. A controlled map without a callback is read-only.
-`defaultAxisModes` seeds uncontrolled settings. If the host changes the resolved
-limits while the dialog is open, those authoritative limits replace any draft;
-ordinary renders with unchanged limits preserve the draft. Modes survive hiding an axis
+`defaultAxisModes` seeds uncontrolled settings. Modes survive hiding an axis
 and are scoped to this component instance; they do not write browser storage.
+Caller updates to limits or strategies take effect directly.
 
 ```tsx
 const [axisModes, setAxisModes] = useState<ParallelAxisModes>({
@@ -782,8 +831,7 @@ const ordered: ParallelAxisMode = {
 />;
 ```
 
-These options apply the supplied functions to rendering; they are not just
-menu notifications. `categories` receives the original axis and raw values.
+These caller options apply the supplied functions to geometry and ticks. `categories` receives the original axis and raw values.
 `domain` and custom `ticks` receive the axis, finite numeric values, their
 `extent`, and the pooled `uniformExtent`; `ticks` also receives the resolved
 domain. A transform must be finite and strictly increasing throughout that
@@ -827,8 +875,8 @@ Set a finite, increasing `domain` for a fixed scale. Invalid domains fall back
 to automatic fitting; constant and empty data still receive a finite range.
 
 Missing or non-finite values, unknown categories, and values outside a fixed
-domain break the trace. A lone valid value appears as a point. Experiment
-buttons retain the values in accessible text.
+domain break the trace. A lone valid value appears as a point. Experiment-list
+options retain the values in accessible text.
 
 Wire both `selectedIds` and `onSelectionChange` to apply selection changes.
 Without the callback, selection is read-only. `visibleAxisIds` filters the axes
@@ -843,10 +891,10 @@ without changing their declared order.
 | `visibleAxisIds`                   | all                       | Visible subset, in declared axis order.                                  |
 | `axisModes`, `onAxisModesChange`   | uncontrolled              | Controlled mode map and next-map callback.                               |
 | `defaultAxisModes`                 | `{}`                      | Initial uncontrolled mode map.                                           |
-| `axisModeOptions`                  | `[]`                      | Named caller strategies available in each axis dialog.                   |
+| `axisModeOptions`                  | `[]`                      | Named caller strategies included in direct axis cycling.                 |
 | `paddingLeft`, `paddingRight`      | `0`, `0`                  | Independent horizontal pixel insets.                                     |
 | `minAxisSpacing`                   | `0`                       | Optional minimum pixel gap; enables horizontal scrolling when necessary. |
-| `curve`                            | `"smooth"`                | `"smooth"` or `"linear"`.                                                |
+| `curve`                            | `"smooth"`                | Original Vuer Catmull–Rom connectors; `"linear"` uses straight segments. |
 | `lineWidth`, `activeLineWidth`     | `2`, base × 1.65          | Normal and highlighted stroke widths in pixels.                          |
 | `activeHaloWidth`                  | active width + 4          | Full active halo stroke width, at least the active stroke width.         |
 | `activeHaloColor`                  | white / dark surface      | CSS color override for a custom host surface.                            |
@@ -877,4 +925,4 @@ included. For dense studies, filter the comparison set in the host table.
 
 ## Related API comparison
 
-See the [versioned Vuer API comparison](https://viz.dreamlake.ai/guides/api-comparison) for migration mappings, intentional differences, and remaining capabilities.
+See the [current two-site API comparison](https://viz.dreamlake.ai/guides/api-comparison) for source-linked contracts, migration examples, intentional differences, and remaining capabilities.

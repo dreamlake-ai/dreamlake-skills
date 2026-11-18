@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.180 0459c3e3; do not edit -->
 
 # Files and attachments
 
@@ -512,6 +512,13 @@ The response contains `url`, `contentType` and `sizeBytes`. The URL has the form
 `https://api.dreamlake.ai/notes/media/<media-id>`. Keep that returned URL rather
 than the temporary storage URL it redirects to. Do not construct it from the
 attachment path or ID.
+
+A plain `<img>` or `<video>` load is redirected to temporary storage. A
+cross-origin request that carries an `Origin` header, such as `fetch()` or an
+element with `crossorigin="anonymous"`, receives the bytes directly from the
+media URL with CORS headers, so canvas reads and image processing work.
+Single byte ranges (`Range: bytes=…`) return `206`. Use the media URL itself
+for these reads; the temporary storage URL does not allow every origin.
 
 Insert the Markdown snippet into your existing memo with the append helper:
 

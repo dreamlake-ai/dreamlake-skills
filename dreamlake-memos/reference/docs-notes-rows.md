@@ -1,6 +1,10 @@
-<!-- generated from https://docs.dreamlake.ai/notes/rows.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/rows.md at 0.1.180 0459c3e3; do not edit -->
 
-# Images, rows and video
+# Images, rows, grids and video
+
+For equal-width cells across several rows, use `:::grid{columns=2}`. See
+[Lists, numbered checklists and grids](docs-notes-markdown.md#lists-numbered-checklists-and-grids)
+for a complete evaluation brief, supported column counts and grouped cells.
 
 ## Rows and video
 

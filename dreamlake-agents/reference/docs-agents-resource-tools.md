@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.180 0459c3e3; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -27,6 +27,91 @@ and its Agents editor link; creation does not launch a session.
   "tools": ["dreamlake_notes_read", "dreamlake_resource_api_discover", "dreamlake_resource_api_read"]
 }
 ```
+
+## Choose tool permissions
+
+Open the **Permissions** popover in agent chat, or the matching control in
+**Built-in agent** settings. Choose **Read only** to inspect resources without
+changing them (connected apps may still prepare actions for review), or **Full access**, the last option, to enable changes and administrative tools
+within your existing permissions. The Eye and ShieldAlert icons identify the two levels;
+a checkmark identifies the selected level. Opening or dismissing the popover does
+not change permission. Arrow keys move focus; Enter, Space or a click selects the level.
+
+The choice applies to the next message; it does not cancel or revoke an already
+admitted turn. Connected apps have a separate switch. The choice is saved for your signed-in account in this browser and is shared by
+chat and settings. It does not create a Project delegation, connect an app, apply
+a host policy, or remove an action's existing confirmation requirement. Agent
+definition tool restrictions and current resource permissions still apply. This
+selector does not yet provide persistent per-agent or per-session permission
+overlays.
+
+## Diagnose Project access
+
+Human Project ADMIN, the built-in agent's persistent Project delegation, and the
+turn's enabled tools are separate permissions. A folder write can be denied even
+when the human is an administrator. Use `dreamlake_agent_project_access` with the
+verified `namespace` and full `projectId` to inspect these layers. The read-only
+diagnostic requires human read access, works without an agent Project grant, and
+reports only the caller's own agent. It cannot change access.
+
+A human administrator can explicitly save READ or WRITE delegation for one Project
+through the [personal-agent delegation API](https://docs.dreamlake.ai/dev/builtin-agent-harness#explicit-personal-agent-project-delegation).
+The model cannot invoke that API's mutations. Enabling write tools alone does not
+save a delegation. Organization-scoped turns can use exact delegated Projects in
+that organization, subject to current human access; personal or other-organization
+grants are not inherited. A diagnostic is a snapshot: execution checks access again.
+
+Memo filing has a separate caller-permission path. Inspect the Memo's current
+filing permissions before concluding that a Project tree denial blocks filing.
+Keep the requested namespace and verified IDs; never silently create or search in
+a personal workspace as a workaround for denied organization access.
+
+The diagnostic accepts `operation: "readProject"` or `"createFolder"` (the
+default). Its `accessAction` is null when that operation is available, or one
+scoped action identifying the Project and required capability or delegation.
+For example, a human administrator with an agent READ grant receives a WRITE
+delegation action for folder creation. A caller who also lacks human write
+access receives an administrator action instead. The diagnostic never grants
+access, and a successful read of it does not imply the requested write is allowed.
+
+## Moving Memos and artifacts
+
+`dreamlake_move_preflight` checks explicit source and destination endpoints.
+Each endpoint contains a `namespace` and optional verified `projectId`;
+`kinds` contains `note`, `artifact`, or both. Set `createDestinationFolder` when
+the requested placement needs a new folder or Bindr. The tool is read-only and
+checks the caller's own agent delegation, without enumerating other agents.
+Its result is advisory: each mutation still checks current authorization.
+
+Project-only moves do not require namespace ownership authority. Filing a
+Memo in another Project retains its owner and existing filings. A missing
+folder grant does not establish that caller-authorized Memo filing is denied.
+Individual Memo filing/location previews use `dreamlake_notes_move` with
+`dryRun: true`; artifact filing uses its discovered canonical API.
+
+For cross-namespace ownership changes, preflight reads both namespaces'
+advertised capabilities. Disabled artifact transfer is reported as unsupported,
+with `accessGrantWillFix: false`. Memo metadata transfer and preserving transfer
+are separate capabilities: the exact per-Memo `dreamlake_notes_transfer_preview`
+determines whether its access and filings can be preserved. Preflight never
+authorizes a transfer or relaxes that policy. Unknown or inaccessible capability
+responses are inspection failures, not proof that a feature is disabled.
+
+Transfer previews carry the ownership and sharing consequences for review.
+Submission retains that exact review and idempotency key. Recipient acceptance
+remains separate; a pending request is not a completed move. Blocked previews
+and pending transfers have distinct tool outcomes even when the HTTP request
+succeeds. Readback verifies stable resource IDs, owner, filing/location and
+transfer completion; partial results retain their completed steps.
+
+Within a turn, an unchanged request that already received a deterministic
+access or unsupported-transfer denial is suppressed before another execution.
+A changed request still undergoes normal checks. A relevant successful Project access or transfer capability observation permits
+one new attempt when no earlier observation exists. If execution still fails,
+rereading the same snapshot does not permit another attempt: relevant access or
+capability values must change. Unrelated diagnostics do not reset suppression.
+Every permitted attempt still checks authorization at execution. No grant, content or session is changed
+by preflight or retry suppression.
 
 ## Sending and steering
 
@@ -256,6 +341,73 @@ Unknown/unverified inventory remains null. Network observations carry
 `observedAt` and freshness (`fresh` for at most 60 seconds, otherwise `stale`).
 IPs are validated observed addresses, not inferred from hostname spelling.
 Online or fresh inventory does not prove SSH or workload readiness.
+
+## Host connection grants
+
+`dreamlake_host_access_grants`, `dreamlake_host_access_grant` and
+`dreamlake_host_access_revoke` manage who may connect to a host you
+own, using [the same owner-only grant](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#share-a-machine-with-a-teammate)
+as Compute. Listing needs only the default host read scope and returns
+`grants` (people) and `teamGrants` (organization teams). Granting and
+revoking need **Full access** for the message, and run only when you name the
+person or team and the machine. `dreamlake_host_access_grant` takes exactly one
+of `grantee` (a username) or `team` (a team slug). A grant takes an exact `hostId` and `enrollmentId`, so
+the agent asks which Unix account when a host has several, and says that the
+member will act as that account; for a team, that this applies to every
+current direct member and to anyone added later (parent teams are not
+included). The generic resource API tools refuse the
+`access-grants` routes and point to these tools. Background (durable) turns
+cannot use them.
+
+An unconfirmed grant or revoke is reported as uncertain, and the agent lists
+grants before doing anything else rather than repeating the call. A revoke
+reports `closedConnections`, `stillAuthorizedConnections` (kept because the
+same person holds another current grant to that enrollment) and
+`unconfirmedConnections`; while
+`closeConfirmed` is false, the agent reports the connections as possibly open
+until `unconfirmedUntil`, not as closed.
+
+The agent files a host you own in a Project of the same namespace with
+`dreamlake_resource_project_api_write` (`resourceType: "host"`), which needs an
+explicit service-account grant on that Project. Filing is placement only and
+gives Project members no host access; see
+[Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects).
+`dreamlake_host_move_preview` reports `projectPlacements` when the host is
+filed; applying the move unfiles it from that many Projects without deleting
+the host, and the agent says so before applying.
+
+## Connections and credential entry
+
+Use the credential-entry tools below when the deployed assistant offers them.
+If they are not offered, create or reconnect through the signed-in Connections
+page instead; this reference does not establish their availability in every deployment.
+
+Connection reads — `GET /namespaces/:ns/connection-connectors`, the list,
+detail, Check and affected Sources — and credential-free create (an auth kind
+whose mode is `none`) are discovered canonical operations, available to the
+namespace's credential managers. The gateway refuses any tool call that carries
+a credential, so a Connection that needs a secret is created or reconnected by
+**browser credential entry**:
+
+- `dreamlake_connection_entry_begin` (`resources:write`) starts an entry in the
+  turn's namespace for one connector and `fields` auth kind (create), or for one
+  Connection at its current settings revision (reconnect). It returns an
+  operation id and a link to the Connections page; the label is only a
+  suggestion the user may edit.
+- The user opens the link, signed in, and enters the secret in the existing
+  form. The entry is bound to that user and namespace, single use, and expires
+  after 30 minutes; the connector, auth kind, target and revision cannot be
+  changed there.
+- `dreamlake_connection_entry_status` (`resources:read`) returns `pending`,
+  `succeeded` (with the Connection id and masked metadata), `cancelled` or
+  `expired`. It works after a reload or a later turn.
+- `dreamlake_connection_entry_cancel` (`resources:write`) closes a pending
+  entry.
+
+Neither the arguments, the results nor the receipts of these tools contain a
+credential. The entry routes are not reachable through the generic gateway.
+Background and delegated runs, and service accounts, cannot manage Connections,
+and Connections cannot be granted to an agent service account.
 
 ## Recovering from tool errors
 

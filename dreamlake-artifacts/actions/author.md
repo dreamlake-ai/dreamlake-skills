@@ -14,6 +14,12 @@ Pick the kind, make the file self-contained for the sandbox, style it deliberate
 run the checklist, then hand it to [publish](publish.md). Start from the matching
 template in `assets/templates/` when one exists.
 
+For a built 3D environment preview, consult the installed
+[staging reference](../reference/viz-components-staging.md) and check the package
+version before using its shared controls. Verify placement on the actual model
+and keep any renderer-specific approximations explicit. Follow the packaging
+rules below for the artifact kind you selected.
+
 ## The rendering environment (read this first — it drives every choice)
 
 Artifacts render on a dedicated frame origin with **bundled** libraries and a

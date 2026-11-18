@@ -2,7 +2,12 @@
 
 First complete [task identity setup](identity.md); reuse it in every shell call.
 
-For a prompt edit or meaningful document revision, inspect installed
+Use this workflow for every requested body edit, including a small correction,
+appending a reference, or updating a prompt. Named before/after checkpoints and
+presence intent are part of the edit workflow; do not wait for a separate request
+to make the work visible. A read-only review creates no checkpoints.
+
+Inspect installed
 `dl memos revise --help` first. Review a complete source snapshot, prepare the
 proposed text, then use the guarded revision path when available:
 
@@ -14,6 +19,11 @@ dl memos revise "$MEMO_ID" --baseline baseline.json --file proposed.md \
   --receipt revision-receipt.json
 ```
 
+Completion requires the concrete intent, immutable before/after version IDs and
+acknowledged source readback, not just a successful patch or an opaque revision.
+Use the receipt to report completed and incomplete stages separately. A no-op
+needs no duplicate checkpoints. Preserve namespace and the same task identity.
+
 Preserve human-authored wording and propose pending native redlines. Use direct
 replacement only when the current instruction authorizes it; a review request
 is not permission to rewrite. Honor existing authorization without asking
@@ -22,13 +32,21 @@ repeatedly. Retain native resource directives and use the
 
 The command's safeguards and receipt recovery are documented in
 [reviewed revisions](../reference/cli-notes-editing.md).
-If unavailable, use the steps below plus [versions](versions.md): save and verify
+For a targeted patch or when `revise` is unavailable, use the steps below plus
+[versions](versions.md): save and verify
 a reviewed baseline before editing, generate native suggestions with installed
 `memos suggest-diff --help`, then save and verify the result with meaningful
 labels/summaries and immutable IDs. Publish concrete edit intent using installed
 `memos visit --help` (or the supported lingering read) before editing. Identity,
 presence intent, version summary and session linkage serve different purposes.
 Never invent an edit flag or repeat an accepted body edit to recover metadata.
+
+The lower-level patch example below is only the content-write step, not a shortcut
+around that workflow. With built-in tools or an explicitly requested SDK, use the
+same sequence through documented available presence/version operations; do not
+silently switch interfaces or invent unsupported methods. If a required operation
+is unavailable or fails, preserve the proposal and explain the incomplete stage.
+After an accepted body write, recover metadata only; never replay the body.
 
 Prefer a targeted edit that uses source text and its retained revision. First
 check the installed client, then retain the complete structured snapshot and

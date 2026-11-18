@@ -25,3 +25,16 @@ Discovery and enablement are not resource permissions. Read the
 for supported transports, scopes and recovery guarantees. If this deployed
 version has no resource-discovery tools, use documented existing adapters and
 report the remaining capability gap.
+
+For Library questions about the user's current results, use the offered
+Library view tools to read the structured frontend snapshot before resolving
+ordinal or selected-asset references. Backend search is a separate operation.
+Keep the snapshot version with any follow-up selection and wait for the
+frontend acknowledgement. When the Library integration has not been released
+on the target server, report the missing capability instead of inferring page
+results from a new search. Image inspection needs the offered image tool's
+actual multimodal result, not a text URL. Discover the deployed contracts first.
+
+For Library display or page-context work, choose a specific Library before
+opening or reading its view. Do not use the draft global search page as
+current-result context; backend searches may still span multiple Libraries.

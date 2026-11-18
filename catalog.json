@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.11.7",
+  "version": "v2026.11.11.8-1-gff4487f",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -8,7 +8,7 @@
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 4
+      "files": 5
     },
     "dreamlake-annotations": {
       "description": "Create, extend, revise and read DreamLake annotations with the Python SDK; manage titles, URL slugs, visibility and signed-in sharing through the metadata API or CLI while preserving resource identity.",
@@ -34,7 +34,7 @@
       "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows; routes compute and domain work elsewhere.",
       "requires": [],
       "tools": null,
-      "files": 14
+      "files": 15
     },
     "dreamlake-datasets": {
       "description": "Visualize data on DreamLake: inspect and upload or link a Source, verify workflow paths, configure preset .dreamrc views, or publish custom Source-owned static applications with the CLI or SDK.",
@@ -45,20 +45,20 @@
       "files": 15
     },
     "dreamlake-experiments": {
-      "description": "Log ML experiments with the DreamLake Python SDK and configure per-run Dash dashboards; use for RL logging, inspecting recorded data and missing charts, not implementing training algorithms or provisioning compute.",
+      "description": "Log ML experiments with the DreamLake Python SDK, run planned config × seed sweeps with fresh/resume/reconnect attempts, and configure per-run Dash dashboards; not implementing training algorithms or provisioning compute.",
       "requires": [
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 4
+      "files": 5
     },
     "dreamlake-lakeshore": {
-      "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and terminal sessions, read Slurm and external jobs, provision machines through a user-configured launch server, collaborate on Infrastructure Stacks, and connect AWS.",
+      "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and sessions, read Slurm and external jobs, provision machines via a user-configured launch server, Infrastructure Stacks, AWS, and CI/CT GitHub Actions runners.",
       "requires": [
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 11
+      "files": 13
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",

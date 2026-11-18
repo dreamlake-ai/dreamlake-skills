@@ -1,6 +1,9 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.180 0459c3e3; do not edit -->
 
 # Profiles and workspaces
+
+See [Folder and Bindr visibility](https://docs.dreamlake.ai/workspaces/folder-visibility) for Private,
+Unlisted and Public organization within projects.
 
 ## One namespace, two layouts
 
@@ -17,7 +20,7 @@ being able to browse a catalog does not grant permission to modify every item.
 
 Signed-out visitors and signed-in visitors browsing someone else's namespace see
 public catalogs only. Projects, Memos, Annotations, Scenes and Artifacts support
-public browsing in either layout. Private catalogs such as Sources, Connections
+public browsing in either layout. Sources expose public entries to visitors. Private catalogs such as Connections
 and Vault are not advertised to visitors. A directly shared resource can still be
 opened according to its existing server permissions; a share does not turn its
 owner's private catalog into a public list.
@@ -256,3 +259,8 @@ Organizations load in batches of six, with at most three simultaneous catalog
 requests. A failed organization can be retried without reloading your personal
 resources. Memos requests are bounded by the existing API; Scenes currently reads
 the organization's full catalog and displays the six most recent entries.
+
+## Project addresses
+
+[Project names and addresses](https://docs.dreamlake.ai/workspaces/project-addresses) explains automatic
+slugs, separate custom settings, preserved old links, and rename conflicts.

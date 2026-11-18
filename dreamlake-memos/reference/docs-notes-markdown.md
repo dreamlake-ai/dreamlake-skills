@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.180 0459c3e3; do not edit -->
 
 # Markdown authoring
 
@@ -233,15 +233,15 @@ they do not automatically gain the app’s color renderer.
 
 ## Link resources
 
-Use an ordinary Markdown link to another Memo. Artifacts use resource directives:
+Use `:memo[id]` to reference another Memo. Existing Markdown links remain supported:
 
 ```markdown
-[Memo](https://dreamlake.ai/geyang/notes?note=6ab5aaeed3b4339ea2f4c162)
+:memo[6ab5aaeed3b4339ea2f4c162]
 :artifact[namespace/artifact-id]
 ```
 
-Existing saved `:note` forms remain readable. Do not author new `:note` or
-`:memo` directives.
+Both `:memo` and legacy `:note` forms remain readable, including named attributes
+and fragments. Prefer `:memo[id]` for new references; never rewrite saved content.
 
 See [Memos](docs-notes.md) for resource attributes and API editing, and
 [Linked memo items](docs-notes-linked-items.md) for extracting a list item into a Memo.
@@ -268,7 +268,7 @@ remain literal. Invalid or incomplete directives do not activate resources.
 | `insert`, `delete` | Text; `user`, `reason`, `comment` | Display a suggested change only |
 | `replace` | Old text; `with`, `user`, `reason`, `comment` | Display old/new text only |
 | `comment` | Comment text; `user` | Display comment; no implicit Memo write |
-| `note` | Existing Memo ID; `fragment` | Compatibility rendering; new authoring uses ordinary Memo links |
+| `memo` / `note` | Memo ID; `fragment` | New authoring uses `:memo[id]`; `:note` remains compatible |
 | `session` | `namespace/24-character-session-id` | Open session; permissions checked by destination |
 | `artifact` | `namespace/id`; `fragment`, `embed`, `inline`, `width`, `height`, `zoom`, `border` | Permission-checked metadata; open or inline frame |
 | `preview` | HTTPS URL; `title` and the same embed options | Safe external preview; does not carry application credentials |
@@ -281,6 +281,7 @@ remain literal. Invalid or incomplete directives do not activate resources.
 | `folder` | `namespace/project/folder` | Open folder |
 | `chatgpt-content-reference` | Imported citation index | Unresolved marker; does not invent a citation target |
 | `video` | HTTPS URL or Memo `files/path`; required nonempty `title`, optional paired `width`/`height` | Standalone `:video` or `::video`; attachment media needs its explicit owner |
+| `grid` | `:::grid{columns=2}`; 1–6 columns, default 2 | Equal-width cells wrap into rows; stack below 480px |
 | `row`, `col` | Balanced fences of three or more colons | Row container; grouped columns require a shorter fence than their row |
 
 Legacy brace-attribute rich tokens, `#artifact:namespace/id`, imported ChatGPT
@@ -288,7 +289,7 @@ private-use citation markers and `:contentReference[oaicite:…]{index=…}` rem
 readable. Existing Memo `#note:…` references, placeholders, `<Lead>`, template
 variables and `<Columns>` are compatibility features, not new colon directives.
 Ordinary Markdown, math and footnotes retain their existing surface-specific
-behavior. New Chat menus preserve the retirement of new `:note` authoring.
+behavior. New Chat menus generate `:memo[id]`; legacy `:note` remains readable.
 
 ```markdown
 ::highlight[Needs review]{color="yellow"}
@@ -315,3 +316,79 @@ in a message never accepts or rejects edits in a document.
 The built-in agent receives a compact capability hint and can retrieve this
 reference through `dreamlake_web_read` when available. It should use only known
 resource IDs, look up exact syntax when needed, and keep ordinary answers plain.
+
+## Lists, numbered checklists and grids
+
+Use `- item` for bullets, `1. item` for numbered steps, `- [ ] item` for
+checks, and `1. [ ] item` for a numbered checklist. Use `[x]` for a completed
+check. **Numbered checklist** in the `/` menu inserts the combined form.
+The number stays visible when you check the item.
+
+Consecutive items form a tight list. A blank line between items or between
+blocks within an item makes that list loose, with extra space between its
+items. Indent continuation paragraphs and child lists to the parent's text
+column (three spaces for `1. `; two for `- `). Their text remains aligned,
+including under a checkbox. The last block has no extra trailing margin.
+
+Collapse an item with its chevron to keep its first line. Expand it to recover
+its paragraphs and nested lists; sibling items and nested fold states are
+independent. Folding is a local view state and does not rewrite Markdown.
+
+```markdown
+1. [x] Freeze the evaluation set.
+
+   Keep the scene manifest and random seed with the report.
+2. [ ] Review failures before approving the release.
+
+   Separate collisions, timeouts and slow responses.
+3. [ ] Record the rollout owner and rollback trigger.
+```
+
+A grid distributes cells into equal-width columns across as many rows as needed.
+Use **Grid** in `/`, or type `:::grid`. Omit the attribute for two columns;
+`columns=1` through `columns=6` are supported, including quoted values such as
+`columns="3"`. The grid stacks into one column when its memo is narrower than
+480px. Each top-level block is a cell; `:::col` groups several blocks into one
+cell, inside an outer fence with more colons. Rows, grids and grouped columns
+cannot be nested inside one another. As with rows, grids are top-level only;
+unsupported attributes or malformed/unclosed fences remain visible source.
+
+[Download the complete example memo](https://docs.dreamlake.ai/examples/evaluation-release-brief)
+and paste it into a disposable Memo to try folding and checkbox changes.
+
+This fictional evaluation brief keeps the result, remaining work and rollback
+plan together; the numbers illustrate the format rather than a real benchmark.
+
+```markdown
+::::grid{columns=2}
+:::col
+### Baseline
+
+92% success over 500 held-out episodes; 84 ms median response.
+:::
+:::col
+### Candidate
+
+95% success on the same episodes; 89 ms median response.
+:::
+:::col
+### Go criteria
+
+1. [x] No training-scene overlap
+2. [ ] Review collision clips
+3. [ ] Meet the response budget
+:::
+:::col
+### Rollback
+
+Owner: release engineer. Restore the baseline if collisions increase or
+latency exceeds the response budget in two consecutive windows.
+:::
+::::
+```
+
+Click the space around a grid's cells or move the caret onto it to edit its
+source. Images keep their captions and open in the memo image viewer. Markdown
+exports preserve the fences; other Markdown viewers may show them as text.
+The built-in agents can author these forms in Memos and Chat using the same
+syntax. Checkboxes in read-only output display status; they do not update a memo.

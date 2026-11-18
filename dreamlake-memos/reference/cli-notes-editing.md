@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.121.1 361dc74; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.132.2 643f18a; do not edit -->
 
 # Editing with patches
 
@@ -15,6 +15,19 @@ content editing; matching text alone does not establish exact revision identity.
 `memos revise` combines a reviewed source snapshot, concrete presence intent,
 pending redlines and verified immutable before/after checkpoints. Existing
 low-level edits remain available for targeted operations and recovery.
+
+With the matching backend automatic-ancestry update, the before checkpoint
+inherits the newest saved causal ancestor in the same
+RTC room and generation, including a previous after checkpoint of the same
+unchanged baseline. The after checkpoint names that before checkpoint as its
+parent. When ancestry cannot be established, the before checkpoint remains a
+root; content hashes alone do not establish lineage. Existing saved versions
+are unchanged.
+
+Numeric dotted tags may contain any number of parts, with an optional `v`
+prefix: `v0.5`, `1.2.03.04.005`, or `v1.2.03.04.005`. Segments and leading
+zeros are preserved. The updated history UI displays that tag as the version
+label; the immutable version ID and server save number remain independent.
 
 ```bash cli-help="memos revise"
 dl memos read MEMO_ID --json > baseline.json
@@ -37,7 +50,9 @@ fragments and repeated references. Do not flatten them into links or IDs.
 Use `--allow-reference-changes` only for an intentional reference change;
 this check is conservative, including code examples. Use each resource's
 supported authoring syntax: native artifact/experiment/project/folder directives,
-ordinary links for new Memos, and preserved saved `:note[...]` references.
+canonical `:memo[full-id]` references for new Memos, and preserved saved legacy references.
+The guarded revision preserves canonical Memo atoms as well as saved legacy atoms;
+changing a title in surrounding prose does not authorize replacing their IDs or syntax.
 
 The command requires a stable `DREAMLAKE_AGENT_ID`, validates intent before
 requests, and publishes it with the existing presence API. Identity, presence
@@ -580,3 +595,15 @@ the prior whole-body replacement path. `--section` explicitly selects its
 retained section-write API; section migration remains unshipped. These choices
 cannot combine with `--base-revision` or `--exact`. `add-section` and `rm-section`
 keep their existing contracts; no legacy route or compatibility option is retired.
+
+## Insert a created Memo
+
+`dl memos create --json` returns `id` and `directive` separately from the
+name/slug. Copy `directive` into new Memo or Chat content. With the JavaScript
+API, use `const created = await dl.memos.create({ namespace: "team", name: "Review" })`
+and insert `created.directive`. It is `:memo[<full-24-hex-id>]`, never the title,
+slug or URL. Display labels can change without changing the reference.
+
+If creation did not confirm an ID, inspect Memos before creating again. Never
+fall back to `:note`, even when saved content or historical tool names use it.
+Existing legacy source remains readable and is not rewritten by this operation.

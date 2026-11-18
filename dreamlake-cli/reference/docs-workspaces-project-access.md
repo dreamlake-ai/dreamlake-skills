@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.180 0459c3e3; do not edit -->
 
 # Project access
 
@@ -375,6 +375,15 @@ resource contract even when its Project is restricted. The page must not promise
 Moving or restricting a Project does not automatically grant SSH, host execution,
 provider credentials or cloud access. Those are separate resource contracts.
 
+**Hosts filed in a Project.** A machine's owner can file it in a Project of the
+same namespace (default folder `hosts`). Unlike other attached resources, a
+filed Host gives Project grantees **no** access: no Project role or grant opens
+its terminal or SSH, lifecycle, metrics or jobs, and Project grant changes ignore
+it. Namespace members who can read the Project see only its name, owner and
+their own relation to it; public readers, external grantees and service
+accounts see nothing. A Project with a filed Host cannot be moved until the Host
+is unfiled. See [Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects).
+
 ## Agent authority and revocation
 
 The built-in tools use `projects:read` / `projects:write` turn scopes and explicit
@@ -419,6 +428,7 @@ use a weaker legacy endpoint to make a refusal pass.
 | Built-in agent tools | `dreamlake_project_access`, `dreamlake_project_access_set`, `dreamlake_project_grants`, `dreamlake_project_grant` and `dreamlake_project_revoke` are registered with declared scopes, explicit machine grants and current human authority. No whole-audience tool; retain the namespace/provisioning limits above. |
 | Local MCP adapter | Source-only adapter; no direct Project policy, grant or audience tools. `assistant_invoke` does not bypass the built-in assistant's restrictions and is not an organization-admin permission API. See [MCP](https://docs.dreamlake.ai/lakeshore/agents/mcp). |
 | Skills API | Authenticated `/skills` and file reads serve the backend's separately pinned bundle. Check tag/commit headers and bytes; reading guidance grants no Project authority. |
+| Host filing | The Host owner files from Compute (**Brief › Access › Projects › File**), REST `resourceType: "host"`, CLI 0.132.0 `dl project attach PROJECT --namespace NAMESPACE --type host --resource HOST_ID`, TypeScript `projects(ns).attach(project, { type: "host", resourceId })`, Python 0.56.0 `client.projects.attach(namespace, project, "host", host_id)` or the built-in `dreamlake_resource_project_api_write` (explicit service-account Project grant). Placement only: Project grantees get no Host access. See [Hosts in Projects](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#hosts-in-projects). |
 
 The public skill is guidance, not an authority or a server API. Installed help,
 package versions and deployed capability determine what can be called; a new

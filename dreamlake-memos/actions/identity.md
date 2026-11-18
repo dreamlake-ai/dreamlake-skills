@@ -17,9 +17,23 @@ independent shell tool calls. Retain the generated value in task context and
 inject those same literal values into every later Memos command environment.
 Do not generate a new UUID for each command or change global shell configuration.
 
-No separate join is needed. After the first intended live read, inspect
+Before the first purposeful Memo read or edit, inspect `dl memos visit --help`
+and publish a concrete one-sentence intent with this identity. For example:
+
+```bash
+dl memos visit "$MEMO_ID" --intent "I'm clarifying the evaluation criteria."
+```
+
+Preserve the resolved namespace on this call and all later calls. A readable
+agent name, session link or version summary does not publish presence intent.
+Reuse a relevant purpose; update it when the task changes. For ongoing work use
+the supported lingering-read intent, not an idle polling loop. If the client or
+offered tool lacks intent, report the gap instead of inventing a flag or claiming
+the GUI shows a purpose. See [live collaboration](../reference/cli-notes-collaboration.md).
+
+After the first intended live read, inspect
 `dl memos presence "$MEMO_ID"` (CLI 0.31.0+) and match the task ID and
-name. The roster command does not join. If attribution is missing, check the
+name and published intent. The roster command does not join or set intent. If attribution is missing, check the
 variables in the process doing the read or edit before treating it as a UI
 regression. Never replay a successful edit just to produce a highlight, and do
 not replay saved edits to test attribution.
@@ -33,14 +47,6 @@ verification after observing the highlight. See
 For a question about human presence, a selected passage or recent changes, use
 [inspect current collaboration](observe.md) rather than treating task attribution
 as evidence of what the user is doing.
-
-For purposeful reads or edits, inspect `dl memos visit --help` and publish a
-concrete one-sentence intent with the same task identity before reading/editing.
-Use the supported lingering-read intent when following a collaboration session.
-A readable agent name, session link or version summary does not publish presence
-intent. Reuse an existing relevant purpose; update it when the task changes,
-without adding approval questions. If the installed client lacks the feature,
-report that gap instead of inventing a read/write flag.
 
 ## Contributing sessions
 

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/projects.md at 0.121.1 361dc74; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/projects.md at 0.132.2 643f18a; do not edit -->
 
 # Project filing
 
@@ -44,7 +44,9 @@ This section describes standalone `memos move`, available starting with CLI
 0.45.1; CLI 0.45.0 and earlier lack it. Same-namespace Project filing is supported.
 `memos move` does not submit recipient-accepted cross-namespace ownership requests.
 Use [`memos transfer`](cli-notes-transfers.md#transfer-a-standalone-note) for that workflow. Its own
-cross-namespace preview remains blocked.
+cross-namespace preview remains blocked and prints a concrete `memos transfer`
+preview command. Recipient acceptance and transfer capabilities are checked by
+that separate workflow; `--project` is not silently treated as a transfer filing.
 For a whole Project and all its owned Memos, use
 [`project move`](cli-projects.md#move-a-whole-project-and-its-supported-resources)
 with an enabled whole-Project server adapter. CLI 0.64.0+ and its matching
@@ -55,7 +57,7 @@ moved Project always detach. That Project path does not replace standalone
 `memos transfer`; unsupported Source/Workflow/Annotation attachments still block it.
 
 ```bash cli-help="memos move"
-# Standalone cross-namespace Memo transfer is unavailable (exit 3).
+# This filing command cannot change ownership (exit 3); its receipt gives the transfer preview command.
 dl memos move MEMO_ID --to-namespace my-org --project shared-research --dry-run
 # Add a project association within the note's CURRENT workspace.
 dl memos move MEMO_ID --to-namespace current-workspace --project research --dry-run

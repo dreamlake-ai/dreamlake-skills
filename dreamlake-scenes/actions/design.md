@@ -86,6 +86,25 @@ fixtures (exact dimensions, clean collision). Rules that pay off later:
 - Add `<statistic center extent>` and `<visual><global azimuth elevation>`
   so free-camera views frame the scene.
 
+## Stage the preview
+
+Read the installed [staging parameter reference](../reference/viz-components-staging.md)
+before adjusting a viewer or building a custom preview. Check its release status
+against the installed Viz Kit and the viewer you will actually use.
+
+1. Record the scene version, camera, pose and renderer before comparing looks.
+2. Measure the visible subject; fit the rig to its coordinates and scale. Keep
+   the authored fixtures and the added display rig identifiable when tuning.
+3. Compare the default and edited view at the same camera. Check floor shadows,
+   reflective materials and multiple poses; repeat on another scene before
+   proposing a shared default.
+4. Verify save/reload using the host's implemented save action. Consult
+   [saving settings](../reference/viz-components-staging.md#saving-settings)
+   before writing configuration; distinguish a preview edit from saved content.
+5. For a native deliverable, use the
+   [native rendering guidance](../reference/viz-components-staging.md#native-rendering-and-export)
+   and the scene's native render check below. Record approximations separately.
+
 ## Look at it
 
 Physics checks never judge appearance:

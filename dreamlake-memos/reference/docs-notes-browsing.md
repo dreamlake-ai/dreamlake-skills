@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.157 93913542; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.180 0459c3e3; do not edit -->
 
 # Browse, create and organize
 
@@ -22,6 +22,29 @@ The guest agent entry offers sign-in to start a conversation.
 
 Signed-in Memo details retain resource navigation. Details opened inside a
 project retain their return-to-project action. See [Profiles and workspaces](https://docs.dreamlake.ai/workspaces).
+
+### Pin memos to the top
+
+Signed in, any memo you can read offers **Pin to top** among its row actions in
+the Memos catalog, in grid and list views, and in the list beside an open memo.
+Pinned memos come first. Within the pinned group and within the rest, the order
+you chose is kept, and search, the filter chips and **Show archived** still
+decide which memos appear. **Unpin from top** returns a memo to its place. In
+the list beside an open memo, a pinned memo shows a tilted pin in place of its
+memo icon.
+
+Pins belong to you and follow the memo, including memos shared with you. They
+are not shared with anyone else, do not change the memo, and are not the left
+panel's saved items. You can pin up to 100 memos. A pinned memo you can no
+longer read stops appearing.
+
+- `GET /me/memo-pins?namespace=<slug>` returns `ids`, the pinned memos you can
+  read now, and `notes`, the pinned memos that namespace's catalog lists, so a
+  pin on a page not yet loaded still shows first. Archived memos are included
+  only with `includeArchived=true`.
+- `PUT /me/memo-pins/:noteId` pins a memo you can read (`404` otherwise, `409`
+  at the limit). `DELETE /me/memo-pins/:noteId` unpins it. Repeating either is
+  harmless.
 
 ### Returning to a project folder
 
@@ -294,21 +317,19 @@ routes. List search includes ordering; default status/category chips are omitted
 from the compact panes. Project and Bindr member ordering is applied before
 pagination so it covers the entire result set.
 
-Inside another DreamLake Memo, insert an ordinary Markdown link using the
-returned or copied full URL. Do not add new `:note` directives; existing saved
-directives remain readable, and no `:memo` directive is defined. A browser link does not change visibility or grant access to a
+Inside another DreamLake Memo, use `:memo[id]` with the full resource ID. Existing Markdown
+links and legacy `:note` directives remain readable. Copy URL still returns a URL. A browser link does not change visibility or grant access to a
 private memo.
 
-Hovering a project folder's title reveals a link
-icon that copies the folder's URL. Keyboard focus also reveals the icon.
-Use **Copy folder path** in a folder's right-click menu to copy its full
-`namespace/project-slug/folder/path`, including the namespace and project even
-when the breadcrumb shows a display name. Paste this path into an AI request
-to identify the folder whose Memos you want read.
-Project list items and folder grid cards offer **Copy URL** in their right-click
-menu; folders also offer **Copy folder path**. A copied URL opens the selected
-item without carrying unrelated open Memos or panel layouts. Copying a path or
-URL does not grant access to the folder or its Memos.
+Project items expose a **More actions** (`…`) button on desktop hover or keyboard
+focus. Click it, right-click an item, or use the existing touch long-press menu
+and choose **Copy URL**. Panel titles have no copy action.
+There is no separate folder-path copy action. Menu actions do not open the item.
+
+The copied URL includes the namespace, project slug and folder path, so you can
+paste it into an AI request to identify the folder whose Memos you want read.
+It opens the selected item without carrying unrelated open Memos or panel
+layouts. Copying a URL does not grant access to the folder or its Memos.
 
 ## Profile introduction
 
@@ -401,17 +422,27 @@ missing Memos return 404, including when audio was previously cached. Access is
 checked again before the recording is returned.
 
 The server reads the saved article and sends its complete prose to ElevenLabs
-using Eleven v3 (`eleven_v3`) and **Chris — Charming, Down-to-Earth**
+using Eleven v4 (`eleven_v4`) and **Chris — Charming, Down-to-Earth**
 (`iP95p4xoKVk53GoZ742B`), with natural stability (`0.5`). Browser-supplied
 text and voice settings are ignored. Markdown and inline HTML become plain text;
 code, media and citation markers are excluded. Narration is never silently
-truncated. Up to 5,000 characters use one provider request; longer prose is
+truncated. Up to 10,000 characters use one provider request; longer prose is
 split within that limit, preferring paragraph, sentence or word boundaries, and
-generated sequentially with the same voice. The server joins those MP3 sections into one
+generated sequentially with the same voice and adjacent text context. Completed
+request IDs connect up to three preceding sections for voice continuity. The server joins those MP3 sections into one
 complete recording without re-encoding. Pause, resume and replay reuse the recording. The browser prepares the full recording before playback starts.
 
+The public player's speed button cycles through 0.75×, 1×, 1.25×, 1.5×, 1.75×
+and 2× without changing the speaking pitch. Inline and sticky-header controls
+share the same playback and speed. The selected speed is saved in this browser
+and reused across public articles and reloads; changing it does not regenerate
+narration. If browser storage is unavailable, speed still works for the open
+page. If the pitch-preserving audio engine is unavailable, playback returns to
+1× and displays an explanation. The reading-time estimate remains based on
+1.25×; actual playback uses the selected speed.
+
 The server caches audio by Memo, text sections, voice, model, voice settings and
-output format; earlier Flash recordings are not reused. Responses
+output format; earlier Flash and v3 recordings are not reused. Responses
 use `Cache-Control: private, no-store`; `X-Speech-Cache` identifies a cache hit or
 miss. Simultaneous requests for the same recording share generation within a
 server process. New generation is bounded to two concurrent requests and 60,000
@@ -425,3 +456,9 @@ bounded to 16 MB across all sections and the joined recording, with a shared
 audio preparation failures return 502. The ElevenLabs API key remains on the
 server. This endpoint does not grant access to the separate signed-in Notes
 speech API or activate a live editing session.
+
+The editor’s Read Aloud player also starts with v4 and Chris unless you have
+saved speaker or model preferences. Explicit favorites remain available. Its
+speed button saves a separate browser-local setting across reloads, from
+0.75× through 2×. Closing the editor player releases its local passage audio
+and text-render caches; reopening can reuse the authorized server cache.
