@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.182 27cc72c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.185 5da3057a; do not edit -->
 
 # Browser terminal
 
@@ -423,7 +423,7 @@ seconds. `unknown` is an honest absence of current evidence, not a stopped claim
 Use **Sessions** in the main left sidebar for your saved sessions, including
 while browsing an organization. In Memos, the session-library tab at the left of
 the chat tab row opens a picker without moving the memo editor. Its available
-list includes your sessions and sessions shared with a team you belong to. The dedicated `/:namespace/sessions`
+list includes your sessions and sessions shared with an organization you belong to. The dedicated `/:namespace/sessions`
 page saves a machine, its enrolled Unix user, an absolute working directory and
 an agent conversation UUID. Click a saved session to open it immediately in the
 browser terminal. A session link selects its saved configuration; visiting or
@@ -510,11 +510,14 @@ access and connection limits below still apply.
 
 ### Share a session with a team
 
-Sessions are private by default. The owner can change **Private** to **Team**
-and choose one organization they belong to. The interface names that team;
-this setting does not publish the session to the internet or every organization
-on the account. Both the owner and teammate must remain active members of the
-selected team.
+Sessions are private by default. The owner can change **Private** to
+**Organization** and choose one organization they belong to. This shares the
+session with every current member of that organization, not with an organization
+team. The API keeps the legacy visibility value `team` for this setting
+(`visibility: "team"` with `organizationId`); it still means the whole
+organization. It does not publish the session to the internet or to the owner's other
+organizations. Both the owner and the viewer must remain active members of the
+selected organization.
 
 Team access is interactive: teammates can see terminal output and type through
 the owner's running session. Share only sessions intended for that team. Memo
@@ -523,7 +526,7 @@ access. Only the owner can change sharing or use the managed start/stop controls
 A teammate attaches to an existing runtime; if it is absent, the owner must open
 it first. Closing any terminal tab disconnects only that viewer.
 
-Changing back to **Private**, losing membership or revoking the machine enrollment
+Changing back to **Private**, losing organization membership or revoking the machine enrollment
 removes access. The gateway rechecks active connections and disconnects viewers
 whose access has been revoked. Saved descriptors are resolved on the server;
 the shared-session route does not accept arbitrary machines, directories or SSH
