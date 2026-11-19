@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.188 98b843adc; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.191 cd6123c2; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -360,8 +360,13 @@ cannot load; it does not render the artifact body to make a project thumbnail.
 ## Push one
 
 ```bash
-dl artifact push ./report.html
+dl artifact push ./report.html --cover ./report-cover.jpg
 ```
+
+Prefer creating and inspecting a thumbnail yourself, then explicitly uploading it
+with `--cover`. Cloud-generated previews are a fallback when no user cover is
+available; they do not replace a user-selected cover. Later content versions
+retain the explicit cover until you change or clear it.
 
 That's it. The CLI prints an **open link** — click it to see your artifact
 rendered at `dreamlake.ai/<you>/artifacts`.
@@ -479,8 +484,9 @@ three unless it passes `--title`, `--description` or `--cover` again, and
 `meta set --clear-…` returns a field to automatic. Without a description the
 card shows a one-line summary built from the title and kind. Without a cover,
 DreamLake renders one for you — a screenshot of the artifact as the viewer
-shows it, within about fifteen minutes of a push, refreshed for every new
-version — and the default DreamLake card stands in until then. The gallery
+shows it as a fallback, refreshed for every new version. Generation is
+asynchronous; scheduling and rendering time are not a completion guarantee.
+The default DreamLake card stands in until a cover is available. The gallery
 and your artifacts list use the same cover and description, so a published
 artifact appears there as a picture rather than a live frame.
 
@@ -810,3 +816,27 @@ Open the collapsed context panel for **Related** resources and **History**.
 Explicit links, accessible saved sessions, and recent recorded activity remain
 separate. Links can also be recorded from the Memo editor and through the API or
 CLI. See [relationships, permissions and API identities](https://docs.dreamlake.ai/notes/activity).
+
+## Shared preview generation
+
+The shared preview worker runs separately from the API. A successful content publication records a
+persistent task in the same database transaction; pushing does not wait for a
+screenshot. Tasks bind the content and renderer versions and use expiring claims
+and bounded retries. An expired claim cannot publish over a newer result.
+
+Automatic previews and user covers are stored separately. A user cover remains
+preferred while an automatic preview follows the current content version. Lists
+load static images. Failed generation does not prevent authorized content reads.
+
+The browser renderer waits for the real preview frame, nested documents, fonts
+and images. Applications with asynchronous scene initialization can declare
+`window.dreamlakePreviewReady = false` before starting and set it to `true` once
+the scene is drawable. Endless live streams do not need to become network-idle.
+A timeout is a failed preview, not permission to save a blank loading screen.
+Generated JPEG images are limited to 256 KiB. This limit does not change the
+existing user-cover upload limits.
+
+Publication events are the normal trigger. Periodic recovery scans only fill
+missing tasks; neither a scan interval nor successful publication guarantees a
+thumbnail completion time. Prefer generating and inspecting an explicit cover
+with `--cover`; cloud generation is the fallback.
