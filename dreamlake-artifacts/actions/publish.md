@@ -93,11 +93,13 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
 - `--description`: the sentence the card shows in Slack, Twitter/X, LinkedIn
   or a chat tool. Give every new artifact one; update it when the content
   meaningfully changes.
-- `--cover` is optional: without one DreamLake generates a cover from a
-  screenshot of the artifact shortly after each push, with the default card
-  standing in until then. Pass `--cover` only when the user wants a specific
-  image. Accepted formats, size bounds, the recommended shape and the CLI
-  version both flags need: [Link previews](../reference/cli-artifacts.md#link-previews).
+- Prefer generating a thumbnail yourself, inspecting it, and explicitly uploading
+  it with `--cover`. Make this the default recommendation for every new Artifact;
+  respect an explicit user choice to omit a cover. Cloud-generated screenshots
+  are a fallback, never the primary publishing workflow or a substitute for
+  checking the intended composition. If local generation is unavailable, explain
+  that fallback and verify its eventual result separately. Accepted formats and
+  bounds: [Link previews](../reference/cli-artifacts.md#link-previews).
 - A title, description or cover the user set **survives later pushes**: a
   push without the flag keeps the stored value, so do not restate them on
   every re-push. Change or clear them later with
@@ -131,9 +133,9 @@ link, never the push. Selection, opt-out and manual link/unlink are the
 ## Examples
 
 ```bash
-# Dashboard (kind auto-detected as html) with its link-card description
+# Dashboard with an inspected, locally generated cover
 dl artifact push ./dashboard.html --title "Q1 Dashboard" \
-    --description "Revenue, churn and pipeline for the quarter"
+    --description "Revenue, churn and pipeline for the quarter" --cover dashboard-cover.jpg
 
 # React component with a stable id, then a new version of the same artifact
 dl artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart"
