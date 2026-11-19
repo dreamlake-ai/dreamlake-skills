@@ -1,8 +1,9 @@
-<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.133.0 f2a214f; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.133.1 82925b5; do not edit -->
 
 # Task operation examples
 
-Examples match the #301 implementation. Verify the installed CLI version and target service before use. Paths, IDs, revisions and timestamps are illustrative; use observed values.
+Verify the installed CLI version and target service before use. Replace the
+example paths, IDs, revisions and timestamps with values from your own tasks.
 
 ## Set scope once per session
 
@@ -18,8 +19,9 @@ dl tasks show vault/entries/write-recovery
 
 For each argument, an explicit flag overrides its environment variable. Namespace
 falls back to the authenticated user's namespace when neither is set. Project
-must be supplied by `--project` or `DREAMLAKE_PROJECT`; an empty environment value
-counts as unset. Existing namespace/project syntax and order are unchanged:
+must be supplied by `--project` or `DREAMLAKE_PROJECT`. An empty environment value
+counts as unset. If the project is missing, the command fails before making an API
+request.
 
 ```shell
 dl tasks list --namespace another-team --project another-project
