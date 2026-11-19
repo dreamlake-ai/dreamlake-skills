@@ -6,8 +6,7 @@
   ],
   "docs": [
     "https://cli.dreamlake.ai/tasks",
-    "https://cli.dreamlake.ai/projects",
-    "https://cli.dreamlake.ai/dev/notes/task-session-scope"
+    "https://cli.dreamlake.ai/projects"
   ],
   "tools": null
 }

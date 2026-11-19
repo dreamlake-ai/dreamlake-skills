@@ -1,6 +1,16 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.133.0 f2a214f; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.133.1 82925b5; do not edit -->
 
 # Release notes
+
+## 0.133.1 — Relationship skill procedures
+
+The bundled `dreamlake-cli` skill now uses DreamLake skills `v2026.11.19`,
+including procedures for resource relationships, activity history and saved-session
+associations. The matching Memo, Artifact and Annotation skills route related-work
+requests to their existing actions. References use published CLI 0.133.0 and
+product docs 0.1.185; session privacy, registration and opt-in export recovery
+procedures are preserved. See [Skills](cli-skills.md) and
+[Resource relationships and history](cli-sessions.md#resource-relationships-and-history).
 
 ## 0.133.0 — Resource relationships and history
 
@@ -1273,17 +1283,10 @@ Adds a fixed recovery warning to human tracked-run output when the API reports a
 
 ## 0.21.1 — 2026-09-15
 
-Combines the queue-mount commands from 0.21.0 with the Vault uncertain-write transport fix released in 0.20.2. The pinned artifact source is `96ebe5b`; [release preparation #84](https://github.com/dreamlake-ai/dreamlake-cli/pull/84) is merged.
-
-All eight native downloads match the manifest. npm accepted all nine uploads, and the wrapper matches the reviewed bytes. A fresh macOS registry installation passed the binary checksum, version, 34 SSH/import HTTP/PTY checks and detached HTTP queue mount/list checks. All eight npm platform binaries match the native manifest. Native and npm `latest` read back as 0.21.1. [Release and manifest](https://github.com/dreamlake-ai/dreamlake-cli/releases/tag/v0.21.1).
-
-The public native macOS binary also passed queue, job and worker reads through the existing development mount, without mutations. Staging API acceptance is recorded in [#274](https://github.com/dreamlake-ai/dreamlake-workspace/issues/274#issuecomment-5677911911); production CLI/UI and Ge testing remain separate. [Delivery memo](cli-dev-notes-queue-mount-release.md).
+Published to native downloads and npm. Combines the [queue-mount commands](https://cli.dreamlake.ai/queues)
+from 0.21.0 with the Vault uncertain-write transport fix released in 0.20.2.
 
 ## Unreleased
-
-- Guarded npm staging records child return separately from unresolved registry readback, with bounded read-only visibility checks and allowlisted diagnostics. No automatic upload retry or channel change. [Evidence and limits](cli-dev-notes-npm-publication.md).
-
-- Require every npm platform tarball to match generated package bytes before publishing the wrapper; verify the wrapper before promoting native pointers. Delayed registry visibility retries within a bounded window and fails closed. No published versions or channels change with this source fix.
 
 - Record independent closure of the literal OTP/pass/SSH apply criteria from combined scoped receipts and tests; source progress56/72. No runtime or package release. [Criterion matrix and limits](https://cli.dreamlake.ai/dev/notes/vault-otp-source-audit).
 
@@ -1301,7 +1304,7 @@ CLI **0.20.2** disables pooled connection reuse in the native Vault transport so
 
 Introduced `dl queues mount`, `mounts`, `inspect`, `list`, `jobs`, `workers`, `token` and `unmount`, with explicit namespaces, hidden token input and Vault storage. Native artifacts and npm packages were uploaded, but this pinned source predates the Vault transport fix in 0.20.2. Native channel promotion was held. Use the combined 0.21.1 release to retain the Vault fix. Existing 0.21.0 artifacts remain unchanged.
 
-[Queue commands](https://cli.dreamlake.ai/queues) · [Validation and publication history](cli-dev-notes-queue-mount-release.md).
+[Queue commands](https://cli.dreamlake.ai/queues).
 
 ## 0.20.1 — 2026-09-15
 
@@ -1326,9 +1329,7 @@ checksum and size verification. At this historical release checkpoint native `la
 packages, but macOS arm64 was still processing, so npm `latest` remained
 at 0.19.0. Version 0.20.0 above is now published and verified on both channels.
 
-- Task commands accept `DREAMLAKE_NAMESPACE` and `DREAMLAKE_PROJECT` session
-  defaults. Explicit flags take precedence; namespace still falls back to login,
-  and project is required when no default is set. No shared context is persisted.
+- Task commands accept [session scope defaults](cli-tasks.md#set-scope-once-per-session).
 - CLI docs link to the DreamLake and Lakeshore documentation tabs.
 
 ## Password APIs — release status reconciliation
