@@ -1,6 +1,17 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.133.1 82925b5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.134.0 f383ec3; do not edit -->
 
 # Release notes
+
+## 0.134.0 — Optional Nymph install
+
+Native installs accept an explicit `--with-nymph` flag, through both
+`install.sh` and `dl install`. It installs the Nymph binary into
+`~/.local/bin` with Nymph's official installer, or reuses an existing one
+without upgrading it. Nymph is not configured, started or enrolled, and no
+login is needed. Without the flag, only the CLI is installed. Supported on
+Apple Silicon macOS and glibc Linux, including WSL; Intel macOS, musl Linux and
+native Windows get a clear error. npm installs never install Nymph. See
+[Installing Nymph with the CLI](cli-installation.md#installing-nymph-with-the-cli).
 
 ## 0.133.1 — Relationship skill procedures
 

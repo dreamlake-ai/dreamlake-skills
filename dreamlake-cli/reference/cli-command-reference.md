@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.133.1 82925b5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.134.0 f383ec3; do not edit -->
 
 # Command reference
 
@@ -342,14 +342,19 @@ See [Agent skills](cli-skills.md).
 
 | Command | What it does |
 | --- | --- |
-| `team list [<org>]` | Teams in an org, or all your teams |
-| `team show <org> <team>` | Show a team (members, sub-teams) |
-| `team create <org> <team> [--visibility] [--parent]` | Create a team (nested via `--parent`) |
-| `team update <org> <team>` / `team delete <org> <team>` / `team leave <org> <team>` | Manage a team |
-| `team member list <org> <team>` | List members |
-| `team member add <org> <team> <user> [--role]` | Add a member |
+| `team list [<org>] [--archived]` | Teams in an org, or all your teams including guest teams; `--archived` for archived teams |
+| `team show <org> <team>` | Show a team (your role and permissions, members, sub-teams) |
+| `team create <org> <team> [--visibility] [--parent]` | Create a team (you become OWNER; nested via `--parent`) |
+| `team update <org> <team> [--name] [--slug] [--description] [--visibility]` / `team leave <org> <team>` | Edit (including renaming the slug) or leave a team |
+| `team archive <org> <team>` / `team restore <org> <team>` | Archive a team (reversible; grants nothing while archived) or restore it |
+| `team delete <org> <team>` | Permanently delete a team (owner authority) |
+| `team member list <org> <team>` | List members, including guests |
+| `team member add <org> <team> <user> [--role]` | Add a member (`owner\|admin\|maintainer\|member`); an org owner adding an outsider also adds them to the org |
 | `team member role <org> <team> <user> --role <r>` | Change a role |
-| `team member remove <org> <team> <user>` | Remove a member |
+| `team member remove <org> <team> <user>` | Remove a member or guest |
+| `team guest invite <org> <team> <email>` | Invite an outside collaborator to one team without org membership (never host/SSH access through team grants) |
+| `team guest list <org> <team> [--status]` / `team guest revoke <org> <team> <id\|email>` | Manage a team's guest invitations |
+| `team guest inbox` / `team guest accept <id>` / `team guest decline <id>` | Your guest invitations |
 
 ## Terminal sessions
 

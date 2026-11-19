@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.133.1 82925b5; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.134.0 f383ec3; do not edit -->
 
 # Host enrollment
 
@@ -1253,10 +1253,22 @@ the Host moves; open `dl ssh` sessions then end at their own expiry.
 
 **CLI 0.132.0+; requires a server that supports team grants.** A team grant lets every
 current direct member of one live team in the Host's organization connect to
-one enrollment. Members of parent or child teams are not included. Team
-maintainers decide who that is: adding someone to the team lets them connect
-(and adds them to the organization), and every member connects as the same
-Unix account, with its files, processes and credentials. Grant a team only an
+one enrollment. Members of parent or child teams are not included. The team's
+owners, admins and maintainers decide who that is: adding an organization
+member to the team lets them connect, and every member connects as the same
+Unix account, with its files, processes and credentials. An archived team's
+grant lets no one connect until the team is restored.
+
+Team grants never apply to the team's [guests](https://cli.dreamlake.ai/teams#guests). Connecting
+through a team grant requires organization membership, and a member whose role
+in that team is `GUEST` gets no SSH, web-terminal or host session through any
+team grant, even after they join the organization separately. Changing their
+team role from `GUEST` to `MEMBER` or higher, which is possible once they are
+an organization member, is what lets the team's grants apply to them. Access
+they hold another way is unchanged: a direct grant to them, their own hosts, or
+a grant through another team where they are not a `GUEST`.
+
+Grant a team only an
 enrollment you would grant each of its members.
 
 Access is the union of a person's own grant and the grants of their teams for
