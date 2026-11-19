@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.182 27cc72c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.185 5da3057a; do not edit -->
 
 # Profiles and workspaces
 
@@ -124,18 +124,67 @@ the directory is visible to members. Governance remains permission-controlled.
 ### Inviting members
 
 Organization owners add people from **Members → + invite**. Search finds an
-existing DreamLake user by name, username or email. For someone without an
-account yet, type their full email address and choose **Invite by email**,
-optionally with a role and teams. The invitation appears in the members list as
-*invited · not signed up yet*, under the **invited** filter, and only owners can
-see it. The first time that person signs in to DreamLake with the invited email,
-they join with the chosen role and teams and the row becomes a normal member.
-Owners can revoke a pending invitation from its row.
+existing DreamLake user by name, username or email; choosing that account adds
+them immediately. Otherwise type a full email address and choose **Invite by
+email**, optionally with a role and teams. An email invitation never adds anyone
+immediately, even when the address belongs to an existing account: it appears in
+the members list as *invited · pending sign-in*, under the **invited** filter, and
+only owners can see it. The person joins with the invitation's role and teams the
+next time they sign in to DreamLake, when that sign-in's identity provider
+confirms the exact invited email as verified; the row then becomes a normal
+member. Being signed in already is not enough: someone with an open session joins
+after signing out and back in, or an owner adds their account directly. Until a
+verified sign-in, the invitation stays pending.
+Owners can revoke a pending invitation from its row. Inviting a pending email
+again updates its role and teams; when the invitation is accepted it uses its most
+current role and teams, skipping teams deleted in the meantime. An invitation
+counts only while the owner who sent it is still an owner: demoting or removing
+that owner, or that owner leaving, revokes their pending invitations at once.
 
 Signing in is a separate gate. DreamLake uses Vuer accounts, and new accounts
 may wait for approval before they can sign in at all. If the invited person sees
 a waiting-list page, a Vuer auth administrator adds their email to DreamLake's
 allowed emails. The organization invitation is kept until they get through.
+
+### Teams
+
+Teams group organization members, for example to grant a Project or share a
+machine with them. Only organization owners create teams; the creator becomes the
+team's first **maintainer**. A team slug is 3–40 lowercase letters, digits and
+hyphens, cannot start or end with a hyphen, and is unique in the organization. A
+deleted team keeps its slug reserved, so it cannot be reused.
+
+| Who | Can |
+| --- | --- |
+| Organization owner | Create, edit and delete any team; manage any team's members and maintainers; add a DreamLake user who is not yet an organization member to a team, which also makes them an organization **member** |
+| Team maintainer | Edit and delete their team; add **existing organization members** to it; change roles and remove members |
+| Team member | See the team (as any member sees visible teams) and leave it |
+
+A maintainer cannot bring someone new into the organization: ask an owner to add
+them, or to invite them by email, first. A maintainer who leaves the organization
+loses all team authority.
+
+**Leaving and removal.** Anyone can leave a team except its last maintainer, who
+must first make another member a maintainer. Leaving or being removed from the
+organization removes every team membership in it and the Project grants that
+person issued in the organization's Projects. Direct Project grants **to** a
+removed person are kept by default, so deliberate external-collaborator access
+survives; an owner can opt in to deleting them as part of the removal (see
+[Project access](https://docs.dreamlake.ai/workspaces/project-access)). A removed or departed person
+immediately stops receiving access through the team's Project grants and machine
+grants; connections they opened through a team machine grant are closed
+(best effort, usually within seconds).
+
+**Nesting.** A team can be created inside a parent team of the same organization.
+Nesting is organizational only: members, Project grants and machine access are
+never inherited between parent and child teams. A team's parent cannot be changed
+after creation, and a team with child teams cannot be deleted until its child
+teams are deleted.
+
+**Deleting a team** removes its memberships, its Project grants and its place in
+pending invitations, and revokes its machine grants. A team that still holds Vault
+state (secrets, including retired ones awaiting purge, access keys, Host
+credential bindings or pending transfers) is refused until that state is cleared.
 
 ## Your Dashboard
 

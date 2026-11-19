@@ -27,7 +27,7 @@ Several commands below carry minimum CLI versions; check `dl --version`.
 | see what is published in a namespace | [list](actions/list.md) |
 | share only the latest version with customers, change visibility or links, understand Project-derived access | [share](actions/share.md) |
 | delete, restore, or permanently purge | [restore](actions/restore.md) |
-| mention an artifact inside a Memo (`:artifact[ns/id]`) | [notes-references](actions/notes-references.md) |
+| mention an artifact inside a Memo (`:artifact[ns/id]`); record related resources or sessions; inspect history | [notes-references](actions/notes-references.md) |
 
 Order for a new artifact: author → publish → (optionally) share. Re-publishing
 with the same `--id` adds a version; a new id creates a separate artifact.

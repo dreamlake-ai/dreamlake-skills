@@ -26,3 +26,27 @@ capability release separately from the actual rename and document outcome.
 Do not start data ingestion, replace annotation content, broaden sharing or launch
 paid work to perform a metadata change. Unsupported installed commands or server
 fields require a compatible release, not a guessed endpoint or delete/recreate.
+
+## Record and inspect related work
+
+```bash
+dl annotation get "$ANNOTATION" --namespace "$NAMESPACE"
+dl resources --help
+dl resources link note MEMO_ID annotation ANNOTATION_CATALOG_ID --json
+dl resources relationships annotation ANNOTATION_CATALOG_ID --json
+dl resources history annotation ANNOTATION_CATALOG_ID --json
+dl resources sessions annotation "$ANNOTATION" --namespace "$NAMESPACE" --json
+```
+
+Resolve the intended Memo and Annotation first, then use the identities required
+by the [relationships and sessions contract](../reference/cli-annotations.md#related-resources-sessions-and-history).
+Check the installed CLI/API support before writing. Read back the saved
+relationship; retain its ID for a requested `resources unlink`. When attaching a
+saved session, verify its exact identity before using `sessions link` with
+`--annotation`, then read back the resource's sessions.
+
+Do not ingest annotation data, replay an upload or change sharing to create an
+association. Do not fabricate history events or treat partial recorded activity
+as a complete audit log. An explicit SDK integration should follow the linked
+product contract; unsupported commands or server fields require a compatible
+release, not guessed endpoints.

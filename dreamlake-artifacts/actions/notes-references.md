@@ -54,3 +54,19 @@ Owning pages:
 [Artifact panels in Memos](../reference/docs-artifacts.md#artifact-panels-in-notes-development-preview)
 and the
 [Memos grammar](https://docs.dreamlake.ai/notes/writing/#artifact-references-development-preview).
+
+## Record a related Memo without changing its body
+
+```bash
+dl resources --help
+dl resources link note MEMO_ID artifact ARTIFACT_CATALOG_ID --json
+dl resources relationships artifact ARTIFACT_CATALOG_ID --json
+```
+
+Resolve both resources from current metadata, record only the requested
+association, then read it back. Follow the [relationship contract](../reference/cli-sessions.md#resource-relationships-and-history)
+for the required identities; do not substitute the publication ID for the
+catalog identity. Use `dreamlake-cli`'s session-links action to remove a
+relationship or inspect saved sessions and recorded activity. If the command or
+server is unavailable, report the limitation. Do not republish content, edit a
+Memo or broaden sharing to repair a missing association.

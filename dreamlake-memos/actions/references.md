@@ -136,3 +136,22 @@ Re-read the returned revision to verify. On a conflict or uncertain outcome,
 retain the original baseline and proposed patch; reconcile before another write.
 Preserve checkbox state, list indentation, nested content and adjacent prose.
 Report the new Memo ID and what moved. Never force an overwrite or invent a target.
+
+## Record a relationship in the Memo side panel
+
+```bash
+dl resources --help
+dl resources link note MEMO_ID artifact ARTIFACT_CATALOG_ID --json
+dl resources relationships note MEMO_ID --json
+```
+
+Resolve the Memo and target from current metadata before recording the requested
+relationship. Read back the saved association and verify the intended target.
+Use the `dreamlake-cli` session-links action for relationship removal, related
+sessions and activity. Follow the [activity contract](../reference/docs-notes-activity.md)
+for identities and permissions. If the installed command or server lacks this
+capability, report the gap instead of editing the Memo body as a workaround.
+
+Keep explicit relationships separate from native references in prose. When the
+user requests a body reference too, use the revision-guarded edit workflow above.
+Repair a missing relationship independently; never replay a successful body edit.

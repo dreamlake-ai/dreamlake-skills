@@ -1,4 +1,4 @@
-# Link Memo and Artifact writes to an agent session
+# Link resources and agent sessions
 
 CLI 0.78.0+ with the matching API affiliates a successful Memo write or Artifact
 push with one exact owned registered session, resolved from `CODEX_THREAD_ID`,
@@ -13,13 +13,14 @@ Retry only the link, never the content write:
 ```bash
 dl sessions link SESSION_ID --namespace SESSION_NAMESPACE --resource-namespace NOTE_NAMESPACE --note NOTE_ID --json
 dl sessions link SESSION_ID --namespace SESSION_NAMESPACE --resource-namespace ARTIFACT_NAMESPACE --artifact ARTIFACT_ID --json
-dl sessions resources SESSION_ID --namespace SESSION_NAMESPACE --json   # readable linked notes and artifacts
+dl sessions link SESSION_ID --namespace SESSION_NAMESPACE --resource-namespace ANNOTATION_NAMESPACE --annotation ANNOTATION_NAME --json
+dl sessions resources SESSION_ID --namespace SESSION_NAMESPACE --json   # readable linked Memos, Artifacts and Annotations
 ```
 
 Do not repush an artifact or replay a successful edit to produce a link, and do
 not infer historical authorship or contributors from titles. Read-only work adds
 no affiliation; resource sharing and linking never grant terminal access. See
-[link memos and artifacts](../reference/cli-sessions.md#link-notes-and-artifacts-0780).
+[link memos and artifacts](../reference/cli-sessions.md#link-memos-and-artifacts-0780).
 
 ## Register a missing native session (CLI 0.82.0+)
 
@@ -53,3 +54,38 @@ without requiring an archive; when the descriptor has no verified host binding
 the panel explains it and **Check connection again** reloads the descriptor
 without selecting a host. Identity, size and access limits:
 [optional conversation upload](../reference/cli-sessions.md#optional-conversation-upload-0790).
+
+## Record relationships and inspect related work
+
+```bash
+dl resources --help
+dl resources link note MEMO_ID annotation ANNOTATION_CATALOG_ID --json
+dl resources relationships note MEMO_ID --json
+dl resources history annotation ANNOTATION_CATALOG_ID --json
+dl resources sessions annotation ANNOTATION_NAME --namespace ANNOTATION_NAMESPACE --json
+```
+
+1. Check the installed command surface and the matching API release. If either
+   lacks the operation, report that limitation; do not invent an endpoint or
+   create a replacement resource.
+2. Resolve both exact resources from current metadata. Follow the
+   [identity and permission contract](../reference/cli-sessions.md#resource-relationships-and-history)
+   before selecting identifiers. Keep catalog identities separate from
+   publication IDs or URL slugs, and distinguish a saved terminal session from
+   an attribution context. Never infer identity or authorship from similar titles.
+3. Record only the requested relationship or session association. A Memo body
+   reference is a separate content edit owned by `dreamlake-memos`; do not
+   rewrite content just to populate the relationship panel.
+4. Read the relationship or session list back and retain its returned identity.
+   Follow returned cursors when more context is needed, including after an empty
+   filtered page. Preserve access boundaries when reporting the result.
+5. To undo a confirmed association, use `dl resources unlink RELATIONSHIP_ID`
+   or `dl sessions unlink` with the original resource options, then read back.
+   Never delete content or change sharing as a shortcut.
+
+After an uncertain response, read back before retrying. Repair metadata without
+replaying successful content writes. Do not present a manual association or a
+partial activity feed as proof of authorship or a complete audit trail. Never
+append invented events or import terminal output into activity. For an explicit
+TypeScript integration, follow the [SDK operations](../reference/cli-sessions.md#typescript-resource-relationships)
+using the same confirmed identities and readback.
