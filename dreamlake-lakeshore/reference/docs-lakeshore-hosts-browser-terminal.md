@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.185 5da3057a; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.187 acc4f38ff; do not edit -->
 
 # Browser terminal
 
@@ -39,11 +39,13 @@ jobs, the agent list and sharing stay with the owner.
   cannot share machines.
 - A grant covers one enrollment, that is one Unix account on that machine.
 - **A team grant follows the team's membership.** It reaches each person who,
-  at the time of each connection, is a direct member of that team and a
-  current organization member. Members of parent or child teams are not
-  included. People the team's maintainers add later get access too, without
-  the owner being asked, so grant a team only when you accept everyone its
-  maintainers may add.
+  at the time of each connection, is a direct member of that team, is not a team
+  **guest**, and is a current organization member. Members of parent or child
+  teams are not included. A guest never connects through a team grant, even after
+  joining the organization, until their team role is changed. People the team's
+  owners and admins add later get access too, without the machine owner being
+  asked, so grant a team only when you accept everyone its managers may add. An
+  archived team's grants give no access until it is restored.
 - A person's access is the union of their current grants: they can reach the
   same enrollment directly and through one or more teams.
 - **Revoke** stops new connections through that grant at once and asks the
