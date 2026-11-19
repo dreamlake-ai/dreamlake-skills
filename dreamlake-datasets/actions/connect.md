@@ -1,12 +1,71 @@
 # Connect storage as a Source and verify it
 
-Linking happens in the **DreamLake dashboard**, not the CLI: open the
-**Sources** page of the namespace (`/source/<namespace>` in the app) and
-connect the storage — Hugging Face and Dropbox via OAuth, S3 with bucket
-credentials. Secrets are held server-side (AES-256-GCM); nothing sensitive
-lands in files or schemas. If a source already exists, discover its name with
-`dl source list`. Sources retain data in place; they do not convert an
-unsupported container.
+If the source already exists, find it with `dl source list` and skip to
+verification. Otherwise create a Connection, then import a Source through it.
+
+> `dl connection connectors` and `dl connection entry` need a CLI release that
+> includes them (pending). Until then, use the web app's **Connections** page
+> for discovery and browser entry; `dl connection create`, `check` and
+> `oauth` are available now.
+
+1. Discover and reuse. Read what this server accepts; never assume a connector,
+   auth kind, profile or region:
+
+   ```bash
+   dl connection connectors --json
+   dl connection list
+   ```
+
+   Reuse a matching Connection and go to step 4.
+
+2. Pick the connector and auth kind from that output, by its `mode`. Ask the
+   user only for a choice the output leaves open.
+
+3. Obtain the credential without it passing through you:
+   - `fields`, user can put the secret in a file or pipe it:
+     `dl connection create --label <label> --connector <kind> --auth-kind <kind>`
+     with `--credential-file <file>` or `--credential-stdin`, and non-secret
+     inputs in `--private-config-file`. The user writes the file; delete it
+     afterwards. Never put a secret on a command line, in chat or in a prompt.
+   - `fields`, secret should not touch this machine:
+     `dl connection entry create --connector <kind> --auth-kind <kind>`; give the
+     user the printed link and tell them to finish it signed in as themselves,
+     then `dl connection entry status <operation-id>` until `succeeded` and take
+     the Connection id from it. `cancelled` or `expired`: start a new entry
+     only if the user still wants it.
+   - `oauth`: `dl connection oauth create --connector <kind> --label <label>`;
+     the user signs in at the provider.
+   - `none`: `dl connection create ... --no-credential`.
+
+   Flags and inputs: `dl connection <command> --help`.
+
+4. `dl connection check <id>`. If `unavailable`, follow its reason and repair or
+   reconnect with a corrected credential before importing, rather than creating
+   a second Connection. If `unverified` with `target-required`, proceed to the
+   import; do not loop Check to try to turn it `available`.
+
+5. Import through it:
+
+   ```bash
+   dl source import --connector <kind> --connection <connection-id> --target '<json>'
+   ```
+
+   Targets per connector: `dl source import --help` and
+   [Managing a source](../reference/cli-sources.md#managing-a-source).
+
+Exceptions:
+
+- "not found" from any `dl connection` command: confirm the namespace and id
+  with the user. If it still fails, report it as not found or no access without
+  claiming which; do not try another identity, a service-account grant or a
+  Project grant to get around it.
+- A refused credential or role: report the server's message and ask the user to
+  fix it on their side; never guess identities or widen permissions.
+- A request to grant an agent service account access to a Connection: decline
+  this unsupported operation. Do not invent a Connection grant command or API,
+  or use a Project or host grant as a workaround.
+- The user prefers the web app, or asks the in-app assistant: point them to
+  **Connections** in their namespace; the procedure is the same.
 
 Then verify from a shell that the source exposes the expected paths —
 the DreamLake CLI reads connected sources:

@@ -24,6 +24,7 @@ relative to this skill's directory.
 | find or download models, check an asset is usable, record provenance and licence | [source-assets](actions/source-assets.md) |
 | measure geometry, place objects without floating or clipping, wrap an OBJ/STL, author floor/lights/cameras, render previews | [design](actions/design.md) |
 | turn a scene living in a repo into one self-contained directory and check every include/mesh resolves (MJCF or URDF) | [package](actions/package.md) |
+| package a showcase with rendering settings and a separately reusable robot | [package](actions/package.md) |
 | control the gallery cover / thumbnail | [thumbnail](actions/thumbnail.md) |
 | combine scenes, mount a robot, place N copies, retune one element — `dreamlake.layers.json` | [compose](actions/compose.md) |
 | prove props rest, robots are supported, nothing penetrates; keyframes and initial state | [validate](actions/validate.md) |

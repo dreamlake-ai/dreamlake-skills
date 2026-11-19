@@ -1,13 +1,14 @@
 {
   "name": "dreamlake-annotations",
-  "description": "Create, extend, revise and read DreamLake annotations with the Python SDK; change annotation display titles and URL slugs through the metadata API or CLI while preserving identity and links.",
+  "description": "Create, extend, revise and read DreamLake annotations with the Python SDK; manage titles, URL slugs, visibility and signed-in sharing through the metadata API or CLI while preserving resource identity.",
   "requires": [],
   "docs": [
     "https://docs.dreamlake.ai/annotations",
     "https://docs.dreamlake.ai/annotations/reference",
     "https://docs.dreamlake.ai/workspaces",
     "https://docs.dreamlake.ai/dev/notes/project-resource-sharing",
-    "https://docs.dreamlake.ai/api/project-queries"
+    "https://docs.dreamlake.ai/api/project-queries",
+    "https://cli.dreamlake.ai/annotations"
   ],
   "tools": {
     "python": ">=3.10",

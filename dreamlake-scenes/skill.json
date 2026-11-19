@@ -10,7 +10,8 @@
     "https://docs.dreamlake.ai/scenes",
     "https://docs.dreamlake.ai/scenes/layers",
     "https://cli.dreamlake.ai/scenes",
-    "https://cli.dreamlake.ai/projects"
+    "https://cli.dreamlake.ai/projects",
+    "https://viz.dreamlake.ai/components/staging"
   ],
   "tools": {
     "python": ">=3.10",

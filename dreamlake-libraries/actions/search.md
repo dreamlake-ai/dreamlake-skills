@@ -61,6 +61,11 @@ fetch (exit 1), transferring nothing — script it as `stat … || pull …`.
 the library's `revision`, so repeated reads against an unchanged library
 cost one small catalog request and no manifest download.
 
+When judging an asset's appearance, compare the default and staged preview at
+one fixed camera. Use the [staging reference](../reference/viz-components-staging.md)
+to distinguish lighting changes from material problems, and check whether an edit
+was saved before reporting it as part of the library asset.
+
 ## Pull
 
 Pulls verify every file's sha256 and are incremental: files already correct

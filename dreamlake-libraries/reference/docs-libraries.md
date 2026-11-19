@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.158 c8ea58c6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.188 98b843adc; do not edit -->
 
 # Asset Libraries
 
@@ -383,6 +383,58 @@ Entry points render as a switcher — flip between `scene.xml` and the bare
 robot without leaving the panel. Files load through short-lived presigned
 URLs and are cached per content hash, so assets sharing files download them
 once.
+
+### MJCF appearance profiles
+
+An MJCF library asset can carry a `viewer.render.json` beside its selected
+entry file. This optional profile controls the library preview's materials,
+HDR environment, tone mapping and initial camera. Include its `.hdr` file in
+the same asset; paths are relative to the profile and cannot escape its
+directory or refer to an external URL.
+
+```json file="viewer.render.json"
+{
+  "schema": 1,
+  "quality": "progressive",
+  "environment": { "file": "studio.hdr", "intensity": 1, "rotation": 0 },
+  "tone": { "map": "AgX", "exposure": 1 },
+  "background": "environment",
+  "materials": {
+    "shell": { "roughness": 0.28, "metalness": 0, "ior": 1.5 },
+    "rubber": { "roughness": 0.78, "metalness": 0, "ior": 1.5,
+                "color": [0.15, 0.15, 0.15] }
+  },
+  "ao": { "radius": 0.09, "intensity": 0.5 },
+  "shadow": { "intensity": 0.15, "azimuth": -50, "elevation": 55, "softness": 4 },
+  "camera": { "position": [3.1, -2.5, 1.85], "target": [0, 0, 0.84], "fov": 32 }
+}
+```
+
+Material keys are the MJCF material names; `$default` selects geoms with no
+named material. Unlisted materials retain their source appearance. The
+optional RGB `color` is sRGB in the range 0–1 and replaces the base-color
+texture. Without it, the source texture is retained. Mesh faces retain their
+individual UV and normal indices. Camera coordinates use the source's Z-up
+frame and meters; `fov` is the vertical field of view in degrees. Environment
+rotation, shadow azimuth and elevation are degrees.
+
+`quality` defaults to `raster`, which uses HDR reflections, a shadowed key
+light and ambient occlusion. `progressive` refines a paused view with HDR-lit
+path tracing and denoising, up to 512 samples. Playback uses the raster path;
+pausing or resetting rebuilds the still preview for the current pose. The
+AO and shadow controls apply to raster rendering. These preview settings
+are designed for robot-sized assets. Tone mapping supports `AgX`, `ACES`
+and `Neutral`; the background may be `environment` or a six-digit hex color.
+
+Assets with a profile initially pause for inspection. A manual staging
+override takes precedence. A missing or invalid profile/environment falls
+back to the standard viewer with a status message; unavailable progressive
+rendering falls back to the profile's raster lighting. Profiles affect only
+the MJCF library preview: they do not alter model physics, URDF files,
+simulation recordings, or native renderer settings. Matching Blender or
+Isaac requires a separate adapter that applies the same materials,
+environment and camera; different display transforms and denoisers can
+still produce different pixels.
 
 ### USD preview reuse
 

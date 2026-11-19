@@ -23,3 +23,7 @@ slug and add `--public` only when the user asked for it to be shown publicly.
 Confirm the returned slug equals the namespace slug; an existing memo with that
 slug makes the new one receive a suffix, so make that memo public instead. See
 [profile introduction](../reference/docs-notes-browsing.md#profile-introduction).
+
+When linking the result into a Memo or Chat, retain the returned ID and use the
+[reference action](references.md). Do not substitute the title or retry an
+uncertain creation to obtain a link. Read back both identity and inserted source.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.158 c8ea58c6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.188 98b843adc; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -152,6 +152,102 @@ slider with its real limits, **dragging a link in the scene rotates its
 joint directly** (orbit pauses while you hold it), and **reset** returns the
 pose to zero. Meshes referenced as relative paths or `package://` URIs
 resolve against the pushed directory.
+
+**USD preview.** A version whose entry
+ends in `.usd`, `.usda`, `.usdc`, or `.usdz` opens in the USD viewer, including
+scenes labeled `isaaclab`. Drag to orbit, scroll to zoom, or use **Reset view**
+to restore the framing. The viewer reads referenced layers and textures on
+demand from that version's uploaded files; include those dependencies with
+the scene and preserve their relative paths. Dependencies outside the version
+are not fetched. Loading failures offer a retry and the file listing, and
+unsupported content is reported in the preview.
+
+This is a visual preview; it does not run Isaac/PhysX simulation, cloth solvers,
+or robot drives. USD previews do not capture gallery covers automatically;
+supply a thumbnail when pushing. **Reload the scene** refreshes the version's
+download URLs as well as restarting the viewer.
+
+## Rendering profiles and reusable robots
+
+A MuJoCo Scene can carry a `viewer.render.json` beside its selected MJCF entry.
+The Scene page and library preview read it automatically. It controls bundled
+HDR illumination, named PBR materials, tone mapping, exposure, background,
+ambient occlusion, shadows and optional camera framing without changing the
+simulation model. Scenes without a profile retain their defaults. Scenes with
+a profile open paused to show the initial pose; **Play** starts simulation.
+
+Profiles currently apply to the **MuJoCo viewer**, not URDF or USD previews.
+For a polished showcase and a reusable robot, package two explicit entries:
+
+```text
+taku-robot/
+  showcase.xml              # default MJCF, pose and stage
+  viewer.render.json        # sibling of the selected entry
+  robot-display.xml         # articulated robot included by showcase.xml
+  robot.urdf                # independent robot-only entry
+  meshes/                   # geometry and embedded GLB materials
+  presentation/studio.hdr   # bundled environment
+  README.md                 # entry points, dependencies and provenance
+```
+
+```bash
+dl scene push ./taku-robot --namespace my-team --name taku-robot \
+  --entry showcase.xml --type mujoco
+```
+
+### Profile example
+
+```json
+{
+  "schema": 1,
+  "quality": "raster",
+  "environment": { "file": "presentation/studio.hdr", "intensity": 0.65, "rotation": 0 },
+  "tone": { "map": "AgX", "exposure": 1 },
+  "background": "#e7e8ea",
+  "materials": {
+    "shell": { "roughness": 0.38, "metalness": 0, "ior": 1.46, "color": [0.8, 0.77, 0.7] }
+  },
+  "ao": { "radius": 0.15, "intensity": 0.65 },
+  "shadow": { "intensity": 2, "azimuth": -50, "elevation": 55, "softness": 3 },
+  "camera": { "position": [2.6, -3.3, 1.9], "target": [0, 0, 0.85], "fov": 32 }
+}
+```
+
+- The `.hdr` path is relative to the profile directory and must resolve within
+  the uploaded version. External URLs, absolute paths and `..` are rejected.
+  Environment intensity is 0–8; rotation is in degrees.
+- Tone maps: `AgX`, `ACES`, `Neutral`; exposure: 0.01–8. Background is a six-digit
+  hex colour or `environment`.
+- Material keys match **MJCF material names**. Roughness is 0.02–1, metalness
+  0–1 and IOR 1–2.5. Optional `color` is an sRGB RGB triplet in 0–1; it replaces
+  the material's texture in the preview. Unlisted materials keep their appearance.
+- Camera position and target use **MuJoCo Z-up coordinates**; FOV is 5–100°.
+  Omit the camera to use the normal authored MJCF framing.
+- AO radius is 0.001–2 world units; intensity is 0–3. Shadow intensity is 0–8,
+  azimuth −360–360°, elevation 1–89° and softness 0–10.
+- Scene pages use real-time raster rendering for still views and interaction;
+  they do not run path tracing. Use `"quality": "raster"`. Legacy profiles with
+  `"quality": "progressive"` still load, but Scene pages render them in raster
+  mode. The HDR, PBR materials, tone mapping, AO and shadows still apply.
+
+Viewer lighting controls may override the profile. Invalid profiles, missing
+HDR files or failed HDR loads show an error and fall back to default lighting.
+With an active profile, its HDR and key light replace authored MJCF lights in
+the web preview. Keep MJCF lights as a fallback for local MuJoCo rendering. This
+is a web presentation contract; other engines need to map its settings and may
+produce different images.
+
+### Download and reuse
+
+```bash
+dl scene pull taku-robot@2 --namespace my-team -o ./taku-robot
+```
+
+The pull downloads the complete pinned version and verifies file hashes. Load
+`robot.urdf` with its referenced meshes to reuse only the robot; preserve relative
+paths. Use the showcase and profile as a rendering reference. Document both
+entry points and any physics limitations in the README: a good preview does not
+certify a manipulation task or calibrated dynamics.
 
 ## Thumbnails
 

@@ -6,7 +6,8 @@
   ],
   "docs": [
     "https://docs.dreamlake.ai/libraries",
-    "https://docs.dreamlake.ai/libraries/reference"
+    "https://docs.dreamlake.ai/libraries/reference",
+    "https://viz.dreamlake.ai/components/staging"
   ],
   "tools": null
 }

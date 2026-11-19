@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations/reference.md at 0.1.158 c8ea58c6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations/reference.md at 0.1.188 98b843adc; do not edit -->
 
 # Annotations Reference
 
@@ -86,7 +86,7 @@ accepts, and `t.read()` exactly what `t.append_range()` accepts —
 | `ann.anchors(start=None, end=None) -> list[int]` | every item anchor, ascending — count (`len`), span (ends), upload verification |
 | `ann.reload() -> ann` | refresh in place: catalog row, fields mirror, credential lease. Track handles survive. The fix for both documented stalenesses (cross-process `add_track`; the 12 h lease) |
 | `ann.schema_type` / `ann.namespace` / `ann.name` | identity |
-| `ann.visibility` / `ann.set_visibility("public")` | public annotations get anonymous presigned reads |
+| `ann.visibility` / `ann.set_visibility("public")` | public and unlisted annotations get anonymous presigned reads |
 | `ann.db` | the live `dreamdb.Dataset` — the escape hatch. The meta keys `dreamdb.schema_type` / `dreamdb.dataset.*` are the SDK's; overwriting them breaks the handle |
 
 ### Anchors
@@ -196,7 +196,7 @@ The preset subclasses the generic `Annotation` and registers its schemaType:
 | --- | --- |
 | `name` | platform mode: catalog entry + managed bucket (needs `dl login` / `DREAMLAKE_API_KEY`). Accepts `namespace/name` |
 | `backend` | self-hosted mode: `file:///abs/path` or `https://…` S3 URL — no platform involved |
-| `visibility` | `"private"` (default) / `"public"`; public annotations omit absolute source paths from metadata |
+| `visibility` | `"private"` (default) / `"unlisted"` / `"public"`; public and unlisted annotations omit absolute source paths from metadata |
 | `preview_height` / `preview_fps` / `frag_seconds` | the **encoding profile** — playback resolution, frame rate, and fragment length. Chosen once, for the annotation's lifetime, stored in the space meta. Per-episode calls never pass encoding |
 
 Creation is never idempotent: an existing name/path errors instead of
@@ -565,3 +565,87 @@ The tool's scope and current server permissions still apply. The source-only loc
 `annotation_update` over the same REST route. It requires explicit namespace and
 observed rename guards, strips share tokens from results and never retries writes.
 It is not a separately published npm service.
+
+## Sharing and access
+
+Annotations use the same independent visibility and signed-in invitation controls
+as Notes. Private permits workspace members and people already given access.
+Unlisted permits anonymous direct-link reading without public profile/catalog
+discovery. Public also appears in those listings. Changing visibility does not
+change invitation tokens or edit permissions.
+
+The Share menu offers a plain canonical link and a separate signed-in invitation:
+can view, can edit, or no access. A read recipient can read metadata and content.
+A write recipient can also change the title and obtain scoped content-write
+credentials. Neither role grants sharing management, visibility changes, URL
+renames, deletion or namespace administration.
+
+All API paths below start with
+`/namespaces/:namespace/annotations/:name`. URL aliases resolve under current ACLs;
+content upload credentials still require the immutable storage name.
+
+| Method and suffix | Operation |
+| --- | --- |
+| `PATCH` | Set `visibility` to `private`, `unlisted` or `public`. |
+| `GET /share` | Read current invitation settings; managers only. |
+| `PUT /share` | Set `role` to `read` or `write`; reuse an enabled token. |
+| `DELETE /share` | Disable the invitation and link-derived access. |
+| `DELETE /share?revokeAccepted=true` | Also delete retained acceptance records. |
+| `GET /share/access` | List recipients; current `role` is null while disabled. |
+| `DELETE /share/access/:userId` | Remove one acceptance, not a durable block. |
+
+An active signed-in request with `?share=<token>` accepts the invitation.
+Subsequent requests can omit the token: the immutable annotation/user identity is
+retained, but the current link status and role are checked on every admission.
+Accepted annotations appear in that signed-in user's namespace catalog while
+sharing remains enabled, without becoming publicly discoverable.
+
+Disabling the link withdraws access. Re-enabling creates a new token and restores
+retained recipients at the current role unless their records were deleted.
+Removing one acceptance does not prevent re-entry through a still-valid link.
+The UI therefore does not label removal as blocking a person.
+
+Fresh content credentials recheck the current actor, resource and role inside the
+existing ownership/storage transaction. Non-members receive prefix-scoped
+credentials only; unsupported static/unscoped delegation is rejected. Revocation
+blocks fresh admission, but issued object URLs and upload credentials remain valid
+until expiry. Previously downloaded bytes cannot be withdrawn.
+
+Sharing preserves resource ID, storage, data/history and old URLs. Ownership
+transfer follows its accepted sharing policy; disabling sharing clears the
+invitation. Deletion clears invitations and acceptances, so restoring a catalog
+row does not restore recipients.
+
+### Python metadata client
+
+No DreamDB import or content lease is needed:
+
+```python
+from dreamlake import DreamLakeClient
+
+client = DreamLakeClient()
+api = client.annotations
+api.update("team", "original-name", visibility="unlisted")
+settings = api.set_share("team", "original-name", "write")
+api.get_share("team", "original-name")
+api.share_access("team", "original-name")
+api.revoke_share("team", "original-name", revoke_accepted=True)
+```
+
+A recipient calls `api.get("team", "original-name", share=invitation_token)`
+before opening the annotation through the content SDK. Use the returned immutable
+`name` for writes. `remove_share_access(namespace, name, user_id)` removes an
+acceptance with the re-entry semantics above. Uncertain writes are never retried
+automatically.
+
+Registered built-in REST tools expose the same schemas and permissions.
+Source-only MCP `annotation_get` and `annotation_update` accept an optional
+invitation token and unlisted metadata, while stripping tokens from results.
+Sharing management uses registered REST tools or the clients.
+
+### Search boundaries
+
+Sharing one annotation does not grant access to its separate search companion.
+Tokened companion URLs retain the in-browser search/presign path. The remote
+search service keeps its anonymous-access checks and allowlist; sharing does not
+forward credentials there or bypass companion authorization.

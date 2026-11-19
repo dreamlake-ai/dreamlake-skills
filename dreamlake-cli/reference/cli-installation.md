@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/installation.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/installation.md at 0.134.0 f794277; do not edit -->
 
 # Installation
 
@@ -24,6 +24,37 @@ Open a new terminal and confirm:
 ```bash file="terminal"
 dl --version
 ```
+
+## Installing Nymph with the CLI
+
+> **Note:** `--with-nymph` requires CLI 0.134.0 or later. Earlier releases reject the flag.
+
+By default the installer places only the CLI. Add `--with-nymph` to also
+install the Nymph binary into `~/.local/bin` as the current user:
+
+```bash file="terminal"
+curl -fsSL https://dl.dreamlake.ai/install.sh | bash -s -- --with-nymph
+curl -fsSL https://dl.dreamlake.ai/install.sh | bash -s -- 0.130.0 --with-nymph
+```
+
+An installed or downloaded binary accepts the same flag: `dl install --with-nymph`.
+
+- If a `nymph` executable is already on PATH or in `~/.local/bin`, it is reused
+  as-is and not upgraded.
+- Otherwise the CLI runs Nymph's official installer
+  (`https://dreamlake.ai/dreamlake/nymph/install.sh`) in a temporary directory
+  under `~/.local/bin`, then adds `nymph` without replacing a file another
+  process created in the meantime. It never uses `sudo`.
+- Nymph is not configured, started, or enrolled, and no login is required. To
+  enable the background service later, run `dl login`, then `dl nymph setup`.
+- The CLI version, channel, pin, and update behavior are the same as without
+  the flag. `dl self-update` never installs or upgrades Nymph.
+- Supported: macOS on Apple Silicon and glibc Linux x86-64 / arm64, including
+  WSL. Intel macOS, musl Linux (such as Alpine), and native Windows report an
+  error before anything is installed; install without the flag to get the CLI
+  only.
+- If the CLI installs but Nymph fails, the command exits non-zero with the
+  reason. Re-run the same command to retry.
 
 ## The `dl` command
 
@@ -88,6 +119,11 @@ npm owns conflict handling: an unrelated file at the same bin path normally
 causes `EEXIST`; resolve that conflict instead of using `--force`. Commands
 elsewhere on PATH and shell aliases/functions still follow shell precedence.
 No npm install scripts or shell startup edits are needed for `dl`.
+
+The npm package never installs Nymph and has no install lifecycle scripts.
+`dl install --with-nymph` run from an npm copy creates a separate native CLI
+install under `~/.local` and installs Nymph there too. Run it only when you want
+that native install.
 
 ## Product analytics
 
@@ -169,6 +205,8 @@ An installed or downloaded binary accepts the same flag:
 dl install
 # Install a channel without editing shell startup files or user PATH.
 dl install stable --no-modify-path
+# Also install the Nymph binary when missing; Nymph is not configured or started.
+dl install --with-nymph
 ```
 
 The installer cannot change its parent shell's environment. Open a new terminal
@@ -306,6 +344,10 @@ blocks from the startup files listed above, or remove Fish's
 `conf.d/dreamlake-path.fish` if it contains only the installer block. Keep any
 user additions and other tools' PATH setup. On Windows remove the installer
 entry from your user PATH if no other program uses it.
+
+Removing the CLI leaves Nymph alone. A `~/.local/bin/nymph` placed by
+`--with-nymph` is a separate program. Remove it yourself only if no Nymph
+service you set up still uses it.
 
 ## Next
 

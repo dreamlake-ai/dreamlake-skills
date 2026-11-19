@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.134.0 f794277; do not edit -->
 
 # Artifacts
 
@@ -561,3 +561,22 @@ await api.artifacts("my-team").share("report").latestOnly(false);
 `false` disables the policy; omission preserves it. `latestOnly` verifies
 management permission and resolves a renamed slug to its immutable artifact ID
 before writing. It neither creates a share token nor uploads a version.
+
+## Related resources and history
+
+CLI 0.133.0+ with the companion resource-relationships API release records explicit links
+between a Memo and an Artifact without changing their content or sharing:
+
+```bash
+dl resources link note MEMO_ID artifact ARTIFACT_CATALOG_ID --json
+dl resources relationships artifact ARTIFACT_CATALOG_ID --json
+dl resources history artifact ARTIFACT_CATALOG_ID --json
+dl resources sessions artifact loss-plot --namespace team --json
+```
+
+Relationship/history commands use the stable 24-hex catalog `resourceId`, not the
+namespace-scoped `artifactId` used by publication and saved-session links. Read
+back relationships after writing; remove a record with `resources unlink
+RELATIONSHIP_ID`. History is best-effort activity with 90-day retention, not a
+complete audit log. See [resource relationships and history](https://cli.dreamlake.ai/sessions#resource-relationships-and-history)
+for identity lookup, permission rules, pagination and SDK methods.

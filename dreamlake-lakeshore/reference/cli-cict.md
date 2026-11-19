@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/cict.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/cict.md at 0.134.0 f794277; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -13,6 +13,21 @@ These commands need a server with the GitHub runner integration enabled;
 otherwise every command returns HTTP 404 `github_runners_disabled`. The same
 operations are available in TypeScript as `dl.cict(namespace)` and in Python
 as `client.cict`.
+
+## Where a namespace stands
+
+```bash cli-help="cict status"
+dl cict status my-team
+dl cict status my-team --json
+```
+
+`status` lists every setup step (GitHub, DreamLake GPU, and the six steps for
+your own Slurm cluster), marks which are done and prints the next one with the
+page, command and API call that does it. Once ready it prints the `runs-on`
+line to use. It is the starting point for an agent setting up CI/CT: repeat it
+and do the next step. Only installing the GitHub App needs a person in a
+browser; enrolling a login node needs SSH, and binding its service account
+needs a namespace owner. TypeScript: `dl.cict(ns).onboarding()`.
 
 ## Connect GitHub
 
@@ -178,10 +193,13 @@ dl cict platform source my-team --source 1123456789abcdef01234567
 ```bash cli-help="cict usage"
 dl cict usage my-team
 dl cict usage my-team --month 2026-10 --json
+dl cict usage my-team --jobs --sender octocat --limit 20
 ```
 
-`usage` reports DreamLake GPU time, from each job's start to its end, by
-repository and workflow.
+`usage` reports a month of DreamLake GPU time, from each job's start to its
+end, by the GitHub user who triggered each job and by repository and
+workflow. `--jobs` lists the jobs newest first instead; `--sender LOGIN`
+keeps one person's and `--limit` caps how many (1–500).
 
 ### Administer DreamLake GPU
 

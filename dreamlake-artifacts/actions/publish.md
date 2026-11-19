@@ -10,6 +10,9 @@ Flag semantics and the kind/extension table:
 [Pushing](../reference/cli-artifacts.md#pushing) or `dl artifact push --help`.
 After a successful push the CLI prints an **open link** (the dashboard URL,
 with `?share=` appended when `--share` was used) — hand it to the user.
+For every content update, complete the [thumbnail check](#thumbnail-check-on-every-update)
+before reporting the artifact as fully verified, including static builds and
+self-contained HTML pages.
 
 For customer-facing latest-only sharing, follow [share](share.md#external-customers-latest-version-only)
 and inspect the saved policy after pushing.
@@ -93,7 +96,8 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
 - `--description`: the sentence the card shows in Slack, Twitter/X, LinkedIn
   or a chat tool. Give every new artifact one; update it when the content
   meaningfully changes.
-- Prefer generating a thumbnail yourself, inspecting it, and explicitly uploading
+- Preserve an intentional custom image while it accurately represents the
+  content. Prefer generating a thumbnail yourself, inspecting it, and explicitly uploading
   it with `--cover`. Make this the default recommendation for every new Artifact;
   respect an explicit user choice to omit a cover. Cloud-generated screenshots
   are a fallback, never the primary publishing workflow or a substitute for
@@ -109,6 +113,39 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
   [Make the link card yours](../reference/docs-artifacts.md#make-the-link-card-yours).
 - What the card reveals depends on visibility — see [share](share.md) before
   pasting a share link anywhere.
+
+## Thumbnail check on every update
+
+```bash
+# Inspect before the content update and again after publishing it.
+dl artifact meta show <id> --namespace <slug>
+# If the uploaded thumbnail is outdated, replace it on the same artifact.
+dl artifact meta set <id> --namespace <slug> --cover ./current-cover.png
+dl artifact meta show <id> --namespace <slug>
+```
+
+1. Before each update, inspect the existing cover and latest artifact content.
+   Record the cover source and the intended artifact ID and namespace. Compare
+   the image with the proposed content, including visible titles, charts and
+   layout; do not assume a successful content push refreshes an uploaded image.
+2. If an uploaded cover will be stale, prepare a representative screenshot of
+   the updated artifact or revise the supplied image. Inspect it before using
+   `--cover` on the content push, or replace it afterward with `meta set` above.
+   Keep the same artifact ID and namespace and preserve unrelated metadata and
+   sharing settings. Retain a still-accurate custom cover; do not clear it merely
+   to trigger automatic generation.
+3. If the cover is missing or generated, check the automatic result after the
+   documented generation interval, or supply an accurate screenshot when needed.
+   Consult [Link previews](../reference/cli-artifacts.md#link-previews) for timing
+   and image requirements. Do not repeatedly push content to retry a cover check.
+4. After publishing, read metadata back, open the latest artifact and visually
+   compare its thumbnail in the DreamLake gallery/list with the rendered content.
+   Check the actual image, not just the cover URL or a successful upload receipt.
+   Treat third-party link-card caching separately using the same reference.
+5. Report whether the thumbnail was retained, replaced, or is still pending,
+   with the artifact link and what was actually checked. If generation or visual
+   inspection is unavailable, report the content update separately and leave
+   thumbnail verification explicitly unresolved.
 
 ## Upload transport
 

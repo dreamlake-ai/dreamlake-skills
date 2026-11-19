@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/organizations.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/organizations.md at 0.134.0 f794277; do not edit -->
 
 # Organizations
 
@@ -28,6 +28,42 @@ dl org member add    my-org alice@example.com --role member
 dl org member role   my-org alice@example.com --role owner
 dl org member remove my-org alice@example.com
 ```
+
+### Remove a member
+
+Only an org OWNER can remove a member; a team MAINTAINER manages team
+membership, not organization membership. The server refuses to remove the last
+OWNER. Removal ends the person's organization membership: org-wide
+(workspace-member) access, any OWNER authority over the organization's
+namespace, and their memberships in its teams, so Project access shared with
+those teams ends too. Project grants they issued on Projects owned by the
+organization are deleted.
+
+By default their **direct personal grants** on Projects owned by the
+organization are kept, as before. Add `--revoke-direct-project-grants` to delete
+those grants in the same removal. Independent resource shares and public
+access are not changed either way. The confirmation states which applies;
+`--yes` skips it.
+
+```bash cli-help="org member remove"
+# Remove a member; their direct Project grants are kept.
+dl org member remove my-org alice@example.com
+# Also delete their direct personal grants on Projects owned by my-org.
+dl org member remove my-org alice@example.com --revoke-direct-project-grants
+```
+
+`--revoke-direct-project-grants` needs a server that supports it. An older
+server rejects the request and nobody is removed; the CLI reports this and
+never retries without the option. Without the option, the CLI sends the same
+request as earlier versions.
+
+In TypeScript, the same opt-in is an optional third argument:
+
+```typescript
+await client.organizations.removeMember(orgId, userId, { revokeDirectProjectGrants: true })
+```
+
+An older server makes this throw `OrganizationMemberRemoveRevokeUnsupportedError`.
 
 ## Permissions
 

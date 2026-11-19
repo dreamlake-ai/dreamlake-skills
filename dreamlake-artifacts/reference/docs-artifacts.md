@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.158 c8ea58c6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.188 98b843adc; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -803,3 +803,10 @@ Built-in agents discover the canonical artifact operation using
 `dreamlake_resource_api_write` with write permission enabled. The route schema
 includes all three values. [Local MCP](https://docs.dreamlake.ai/lakeshore/agents/mcp) provides
 `artifact_get` and `artifact_visibility_set` directly.
+
+## Related resources and activity
+
+Open the collapsed context panel for **Related** resources and **History**.
+Explicit links, accessible saved sessions, and recent recorded activity remain
+separate. Links can also be recorded from the Memo editor and through the API or
+CLI. See [relationships, permissions and API identities](https://docs.dreamlake.ai/notes/activity).

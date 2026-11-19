@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.134.0 f794277; do not edit -->
 
 # Projects & data
 
@@ -91,8 +91,22 @@ execution. Individual resource and same-workspace filing commands are unchanged.
 ## Bindrs
 
 A **bindr** tags nodes in a project's file tree. Episode selectors match a glob
-over their name or node path. Update and delete accept a Bindr name or stable ID;
+over their name or node path. An exact folder path also works with `--add`;
+`--add-folder` selects a folder explicitly, even when its name matches an episode.
+Folder tagging tags that node, without moving its children.
+Update and delete accept a Bindr name or stable ID;
 ambiguous names are refused before writing. Listing the project reveals the IDs.
+
+Create a child with `--parent <name-or-ID>`. Update with `--parent` to reparent,
+or `--top-level` to remove its parent. Parent resolution stays inside `--project`;
+the server rejects cycles and invalid nesting.
+
+`--add-note` prefers an existing filing in the destination project. Otherwise it
+can reference a readable source node in another project in the same workspace;
+use `--from-project <slug>` when several source filings match. A retained memo
+owned elsewhere is resolved through its canonical owner and can be tagged only
+through a currently authorized filing. Tagging never moves or copies the memo,
+creates a project filing, or grants access to its readers.
 
 Creating with `--episode` asks for confirmation (`--yes` skips it). Episode tags
 are applied one at a time after creation. If a tag request fails, the command
@@ -105,7 +119,11 @@ dl create bindr front-cam --project my-robots --episode "camera/front/*"
 dl update bindr front-cam --project my-robots --add "2026/04/*"
 dl update bindr front-cam --project my-robots --remove "run-bad"
 dl update bindr front-cam --project my-robots --add-note MEMO_ID   # CLI 0.87.0+
-dl list bindr --project my-robots
+dl create bindr planning --project my-robots --parent front-cam
+dl update bindr planning --project my-robots --top-level
+dl update bindr front-cam --project my-robots --add-folder reports/2026
+dl update bindr front-cam --project my-robots --add-note MEMO_ID --from-project research
+dl list bindr --project my-robots --json
 dl delete bindr front-cam --project my-robots
 ```
 
@@ -138,8 +156,8 @@ dl delete file /camera/front/clip.mp4 --episode my-robots:run-001
 ## Inspect access (CLI 0.45.1)
 
 `project inspect` shows the project's server-computed `permissions`, including
-its effective role and `manageGrants`. `project grants` lists direct user/team
-grants and requires the server's current grant-management authority. Grant rows
+its effective role and `manageGrants`. `project grants` lists direct user/team grants and, on matching servers,
+service-account grant IDs, account IDs and roles. It requires the server's current grant-management authority. Grant rows
 alone do not describe effective access: organization members retain baseline
 Read on organization projects. Project ADMIN is not ownership-transfer authority.
 Neither command changes membership or grants.
@@ -273,7 +291,8 @@ is enabled by granting project access.
 Independent resource share links remain available. Explicit Project user/team
 READ grants add read access to all current and future attached resources; WRITE
 and ADMIN add supported content editing. They do not grant resource sharing
-management, deletion, ownership transfer or infrastructure credentials. Public Project visibility
+management, deletion, ownership transfer, infrastructure credentials or any
+access to a filed Host (see [Hosts in Projects](#hosts-in-projects)). Public Project visibility
 alone never exposes private attached resources. Resource-own access and all live
 Project grants are combined at the canonical resource URL.
 
@@ -292,14 +311,27 @@ Attach by database ID (Artifact uses its database ID, not its artifactId):
 
 ```bash cli-help="project attach"
 dl project attach research --namespace acme --type note --resource "$MEMO_ID"
+dl project attach research --namespace acme --type host --resource "$HOST_ID" --bindr robots
 ```
+
+`--bindr <name-or-id>` (CLI 0.132.0+) also adds the filed node to one Bindr in the
+same Project. It applies to every type except `source`, whose Project reference
+is not a tree node. The CLI resolves the Bindr before filing, so an unknown or
+ambiguous name changes nothing. It then files the resource and adds the
+returned `nodeId` with the same request as `POST /bindrs/:id/members`. If that
+add fails, the filing is kept: the command exits 1 and prints (or, with
+`--json`, emits `status: "partial"` with) the `nodeId`, the Bindr and the
+reason. Run the same command again to finish. Filing is idempotent and returns
+the same node, and adding a node that is already a member is idempotent (the
+server still answers `added: true` with an unchanged `memberCount`). Nothing is
+unfiled automatically.
 
 ```bash cli-help="project detach"
 dl project detach research --namespace acme --type note --resource "$MEMO_ID"
 ```
 
-Supported types are `note`, `artifact`, `annotation`, `workflow`, `env` and
-`source`. Source uses the existing whole-Source Project reference. A Source name
+Supported types are `note` (Memo), `artifact`, `annotation`, `workflow`, `env`,
+`source` and (CLI 0.132.0+) `host`. Source uses the existing whole-Source Project reference. A Source name
 can be read through a Project grant without namespace listing authority; the
 client resolves its exact name with current authorization rather than enumerating
 other Sources. A denial is a failure, never an empty list or successful mutation.
@@ -310,6 +342,41 @@ and an unscoped STS fallback are never issued through Project-only authority;
 these configurations return `DELEGATED_UPLOAD_UNSUPPORTED` (403) rather than
 exposing the server identity. Existing namespace-member upload behavior remains
 separate from Project inheritance.
+
+### Hosts in Projects
+
+**CLI 0.132.0+; requires a server that supports Host filing.** A Host's owner can file it in
+a Project in the same namespace where they have content-create (WRITE)
+permission:
+
+```bash
+dl project attach research --namespace acme --type host --resource "$HOST_ID"
+dl project attach research --namespace acme --type host --resource "$HOST_ID" --bindr robots
+dl project detach research --namespace acme --type host --resource "$HOST_ID"
+```
+
+To tag an already filed Host into a Bindr, run the attach again with `--bindr`
+(it returns the same node), or use the returned `nodeId` with
+`bindrs(ns, project).addMember(bindr, nodeId)` in TypeScript. A Bindr tag is
+placement too and grants no host access.
+
+Filing is placement only. Organization members who can read the Project, now
+and later, see the Host's name, ID and who filed it; public-Project viewers,
+external grantees and service accounts do not. They see no enrollments, Unix
+users, machine IDs or status. No Project role, Project share or bindr tag
+confers SSH, terminals, lifecycle, metrics, checks or jobs on a Host: connecting
+still needs an explicit [host connection grant](https://cli.dreamlake.ai/host-enrollment#share-connection-access)
+from its owner. Unfiling needs Project content-delete permission, or being the
+Host's owner; the CLI then leaves the decision to the server. Unfiling and
+revoking Project grants leave host connection grants unchanged.
+
+Moving the Host to another namespace removes its Project placements:
+`dl hosts move --dry-run` shows `Project placements: N will be removed`
+(`projectPlacements` in `--json`). A whole-Project move to another namespace is
+refused while a Host is filed in the Project, through the existing move
+blockers (`PROJECT_RESOURCE_TRANSFER_UNSUPPORTED`, `UNSUPPORTED_PROJECT_CONTENT`
+or `PROJECT_STREAM_RESOURCE_UNSUPPORTED`, "remove this attachment"). Unfile the
+Hosts first with `dl project detach --type host`, then move the Project.
 
 `--accept-if-owner` remains a compatibility alias for `--accept-if-authorized`.
 Both use current server action capabilities; neither bypasses source or destination
@@ -353,3 +420,69 @@ rows in a grant/member source or 1,000 candidate users with
 `PROJECT_AUDIENCE_TOO_LARGE`, rather than pretending a partial list is complete.
 The established `grant`, `grants`, `revoke`, `inspect` and JSON commands remain
 available for scripts. Independent attached-resource shares remain separate.
+
+## Rename and project addresses
+
+New projects created without an explicit slug follow their display name. A
+custom slug remains fixed on later name changes. Older projects preserve their
+existing address until you explicitly enable automatic updates.
+
+```bash cli-help="project rename"
+dl project rename research "Research Results" --namespace my-team
+dl project rename research --namespace my-team --slug stable-research
+dl project rename stable-research --namespace my-team --auto-slug
+```
+
+The command reads the project, then submits its stable ID and observed address
+revision. It requires Project ADMIN. A stale edit or occupied address fails
+without changing the name or slug; it never chooses a numbered fallback.
+`--slug` and `--auto-slug` cannot be combined. The JSON result contains the
+canonical `slug`, `slugMode`, `slugRevision`, and stable project `id`.
+
+Previous browser links still locate the project under its current permissions.
+Historical slugs are reserved for that project and cannot be claimed by another
+project. Use stable IDs in integrations; the canonical-location API resolves old
+browser addresses without redirecting a write. After a timeout, inspect the
+project ID before retrying.
+
+The TypeScript API follows the same contract:
+
+```ts
+await client.projects('my-team').update(projectId, { name: 'Research Results' });
+await client.projects('my-team').update(projectId, { slug: 'stable-research' });
+await client.projects('my-team').update(projectId, { slugMode: 'auto' });
+```
+
+## Folder and Bindr visibility
+
+`Private` limits access to existing Project collaborators. `Unlisted` allows a
+direct link while hiding the item from public discovery. `Public` appears in
+accessible project listings. Existing unset visibility retains inherited behavior.
+Changing visibility requires Project ADMIN.
+
+```bash cli-help="folders visibility"
+# Read the current folder visibility and version.
+dl folders visibility FOLDER_ID --json
+# Share this folder by link without listing it publicly.
+dl folders visibility FOLDER_ID unlisted
+```
+
+```bash cli-help="bindrs visibility"
+dl bindrs visibility BINDR_ID --json
+dl bindrs visibility BINDR_ID unlisted
+```
+
+```bash cli-help="update bindr"
+dl update bindr research --project my-robots --visibility unlisted
+```
+
+Creation also accepts `dl create bindr research --project my-robots --visibility
+unlisted`. The CLI reads the current timestamp before visibility updates and
+sends one guarded write. `--expected-updated-at` on the direct-ID commands adds
+a caller-supplied version check. If a response cannot be confirmed, read the
+current visibility before deciding whether to retry.
+
+Ordinary files inherit their folder's visibility; explicitly private subfolders
+and independently private resources remain private. A Bindr shares its grouping
+and grants no new access to its members or its Project. Native runs still require
+a signed-in Project reader. See the [folder visibility contract](https://docs.dreamlake.ai/workspaces/folder-visibility/).

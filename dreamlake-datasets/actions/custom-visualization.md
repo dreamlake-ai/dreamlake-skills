@@ -38,3 +38,9 @@ standalone Artifact code, copy a static build as a starting point and adapt its
 data access to the Source bridge. Do not alter Artifact permissions or retain a
 live cross-resource dependency. Do not change Source sharing merely to make a
 failing visualization load; inspect the current authority and error instead.
+
+For a custom 3D environment view, consult the installed
+[staging reference](../reference/viz-components-staging.md) and verify the API is
+available in the installed Viz Kit. Reuse its controls and measured placement;
+keep the Source's existing configuration and revision guard when publishing.
+Test reload to distinguish temporary controls from settings the app saves.
