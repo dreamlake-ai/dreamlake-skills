@@ -96,10 +96,14 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
 - `--description`: the sentence the card shows in Slack, Twitter/X, LinkedIn
   or a chat tool. Give every new artifact one; update it when the content
   meaningfully changes.
-- Choose a cover that represents the current content; preserve an intentional
-  custom image while it remains accurate. Cover sources, automatic generation,
-  formats, size bounds and CLI compatibility:
-  [Link previews](../reference/cli-artifacts.md#link-previews).
+- Preserve an intentional custom image while it accurately represents the
+  content. Prefer generating a thumbnail yourself, inspecting it, and explicitly uploading
+  it with `--cover`. Make this the default recommendation for every new Artifact;
+  respect an explicit user choice to omit a cover. Cloud-generated screenshots
+  are a fallback, never the primary publishing workflow or a substitute for
+  checking the intended composition. If local generation is unavailable, explain
+  that fallback and verify its eventual result separately. Accepted formats and
+  bounds: [Link previews](../reference/cli-artifacts.md#link-previews).
 - A title, description or cover the user set **survives later pushes**: a
   push without the flag keeps the stored value, so do not restate them on
   every re-push. Change or clear them later with
@@ -166,18 +170,30 @@ link, never the push. Selection, opt-out and manual link/unlink are the
 ## Examples
 
 ```bash
-# Dashboard (kind auto-detected as html) with its link-card description
+# Dashboard with an inspected, locally generated cover
 dl artifact push ./dashboard.html --title "Q1 Dashboard" \
-    --description "Revenue, churn and pipeline for the quarter"
+    --description "Revenue, churn and pipeline for the quarter" --cover dashboard-cover.jpg
 
 # React component with a stable id, then a new version of the same artifact
-dl artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart"
+dl artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart" --cover chart-cover.jpg
 dl artifact push ./chart.jsx --id sales-chart
 
 # Public (viewable without login); private with a share link in one step
-dl artifact push ./report.html --visibility public --title "Public Report"
-dl artifact push ./draft.md --share
+dl artifact push ./report.html --visibility public --title "Public Report" --cover report-cover.jpg
+dl artifact push ./draft.md --share --cover draft-cover.jpg
 ```
 
 An owned artifact moves with its whole Project; see the `projects` action of
 `dreamlake-cli`.
+
+## Verify generated previews
+
+After publishing, inspect the artifact's current version and open its card and
+full preview separately. A successful push proves content publication, not that
+a screenshot was generated. When investigating a missing preview, record the
+resource/version, any configured user cover, and generation evidence. Distinguish
+waiting for generation from rendering failure; a successful batch can contain
+individual failures. Do not repeatedly repush unchanged content to force retries.
+Consult the product documentation's release status before relying on a new
+preview-worker path or readiness contract. Report unverified deployment support
+explicitly, and preserve private resource permissions while collecting evidence.

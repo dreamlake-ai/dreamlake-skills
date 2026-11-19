@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.188 98b843adc; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.191 cd6123c2; do not edit -->
 
 # Files and attachments
 
@@ -573,3 +573,16 @@ permission. Sharing an attachment does not publish the Memo body or other files.
 Uploaded HTML renders in a separate origin, never the dashboard's. Markdown,
 SVG, code and images render too; anything else offers a download. A file with
 no rendered form is refused rather than linked.
+
+## Attachment thumbnails
+
+HTML attachment publication records a durable, version-bound generation
+task for the shared preview worker; the uploaded file remains readable while that task is pending or failed.
+The file list exposes `thumbnailUrl` and `thumbnailStatus` (`pending`, `ready`,
+`failed`, or `unsupported`). A ready image inherits the Memo's read authorization;
+listing it never creates a public share link. Signed image URLs retain their
+bounded expiry and are not an immediate revocation mechanism.
+
+The initial renderer covers HTML attachments. It uses the existing isolated
+preview frame and produces a compressed static image for the attachment list.
+PDF, video and Scene adapters are future extensions, not newly supported formats.
