@@ -10,7 +10,7 @@ anchor constraints. Read back metadata and content writes before relying on them
 
 | Data | Action |
 |---|---|
-| Change an annotation display title or URL; update a document that links it | [metadata](actions/metadata.md) |
+| Change an annotation display title or URL; record related resources or sessions; inspect history; update a document that links it | [metadata](actions/metadata.md) |
 | Share an annotation, set visibility or link roles, inspect or remove accepted recipients | [sharing](actions/sharing.md) |
 | Robot video with joints / subtasks / reconstruction, one or many cameras | [video-episodes](actions/video-episodes.md) — `VideoAnnotation.ensure`, `add_episode`, `add_cameras`, `revise`, `x_` custom tracks, search |
 | Sensor logs, tabular / time-series, embeddings, image sets — a schema you define | [custom-schema](actions/custom-schema.md) — `Schema`, `Annotation.ensure`, `append_rows` / `append_range`, video `ingest`, read-back, the rules behind most errors |
