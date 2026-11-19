@@ -20,7 +20,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Rename a Project or correct its URL slug | [project-address](actions/project-address.md) |
 | Move a whole Project and its owned resources to another namespace | [projects](actions/projects.md) |
 | Transfer one Artifact, Env/Scene, Annotation, Pipeline or Source | [ownership](actions/ownership.md) |
-| Change team roles; archive, restore or delete a team; invite an external guest or answer a guest invitation | [teams](actions/teams.md) |
+| Show or change a team slug; change team roles; archive, restore or delete a team; invite an external guest or answer a guest invitation | [teams](actions/teams.md) |
 | Link a Memo or Artifact write to the agent's session; upload a conversation | [session-links](actions/session-links.md) |
 | Import or restore cloud configuration; Terraform state snapshots in Vault | [cloud-vault](actions/cloud-vault.md) |
 | Store a third-party API key in `pass` and Vault; load it into the variable a tool reads | [api-keys](actions/api-keys.md) |
