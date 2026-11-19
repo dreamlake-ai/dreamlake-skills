@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.191 cd6123c2; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.192 b2f973b1; do not edit -->
 
 {/* FigWf* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}

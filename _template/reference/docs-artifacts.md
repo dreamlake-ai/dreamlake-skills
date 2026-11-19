@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.191 cd6123c2; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.192 b2f973b1; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -836,7 +836,8 @@ A timeout is a failed preview, not permission to save a blank loading screen.
 Generated JPEG images are limited to 256 KiB. This limit does not change the
 existing user-cover upload limits.
 
-Publication events are the normal trigger. Periodic recovery scans only fill
-missing tasks; neither a scan interval nor successful publication guarantees a
+Publication events are the normal trigger. New publication tasks take priority
+over periodic recovery tasks without interrupting an active render. Recovery
+scans only fill missing tasks; neither a scan interval nor successful publication guarantees a
 thumbnail completion time. Prefer generating and inspecting an explicit cover
 with `--cover`; cloud generation is the fallback.

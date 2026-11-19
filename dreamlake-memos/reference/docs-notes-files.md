@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.191 cd6123c2; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.192 b2f973b1; do not edit -->
 
 # Files and attachments
 
@@ -582,6 +582,10 @@ The file list exposes `thumbnailUrl` and `thumbnailStatus` (`pending`, `ready`,
 `failed`, or `unsupported`). A ready image inherits the Memo's read authorization;
 listing it never creates a public share link. Signed image URLs retain their
 bounded expiry and are not an immediate revocation mechanism.
+
+New publications take priority over historical recovery work; an active render
+keeps its lease. Queueing and retries still mean there is no fixed completion
+time guarantee.
 
 The initial renderer covers HTML attachments. It uses the existing isolated
 preview frame and produces a compressed static image for the attachment list.
