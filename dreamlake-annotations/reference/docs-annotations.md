@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.182 27cc72c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.185 5da3057a; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -269,3 +269,10 @@ released Project-derived content access remain available.
 > client version supports this yet; the
 > [whole-Project contract](https://docs.dreamlake.ai/dev/notes/project-note-transfer) is authoritative
 > for scope and current blockers.
+
+## Related resources and activity
+
+Open the collapsed context panel for **Related** resources and **History**.
+Explicit links, accessible saved sessions, and recent recorded activity remain
+separate. Links can also be recorded from the Memo editor and through the API or
+CLI. See [relationships, permissions and API identities](https://docs.dreamlake.ai/notes/activity).

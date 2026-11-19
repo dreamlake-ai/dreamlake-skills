@@ -1,6 +1,26 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.132.4 0a3ff66; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.133.0 f2a214f; do not edit -->
 
 # Release notes
+
+## 0.133.0 — Resource relationships and history
+
+`dl resources link|unlink|relationships` records and reads explicit links between
+Memos, artifacts and annotations using stable catalog IDs. `resources history`
+reads best-effort server activity, and `resources sessions` lists saved sessions.
+Relationship and history cursors are explicit; commands do not automatically page.
+`sessions link|unlink --annotation` records saved-session associations. The
+TypeScript client exposes the same operations through `client.resources`.
+Requires the matching resource-relationships API. See [Resource relationships
+and history](cli-sessions.md#resource-relationships-and-history).
+
+Ordinary Artifact and Annotation CLI requests now forward available optional
+session context for activity attribution. Context does not authenticate requests,
+grant access or upload terminal output. Activity retains 90 days of observed
+read/view/edit events; links do not fabricate events or constitute a complete audit.
+
+The embedded skill remains pinned to the published
+[v2026.11.18.1 skills release](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.18.1).
+The updated relationship task guides follow separately after these docs publish.
 
 ## 0.132.1 — Bundled skills v2026.11.17.2
 

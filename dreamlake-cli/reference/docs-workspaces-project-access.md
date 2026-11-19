@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.182 27cc72c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.185 5da3057a; do not edit -->
 
 # Project access
 
@@ -24,6 +24,24 @@ Use the existing Teams UI at `/<namespace>/teams` to create/manage teams and ope
 a team to manage its membership. Project grants select an active team belonging
 to the Project's organization. This feature does not introduce a new external
 invite, guest identity or team administration system.
+
+Team grants follow current direct membership (parent and child teams are not
+included). Who may add team members, and what leaving, removal and team deletion
+do, is described in [Teams](https://docs.dreamlake.ai/workspaces#teams). Offboarding is immediate: a
+person removed from a team stops receiving its grants, and a person who leaves
+or is removed from the organization also loses every team membership in it and
+the Project grants they issued in its Projects.
+
+Direct user grants **to** that person are kept by default, so deliberate
+external-collaborator access survives offboarding. To revoke them as part of the
+removal, an organization owner passes the opt-in
+`revokeDirectProjectGrants: true` to the GraphQL `organizationMemberRemove`
+mutation: the person's direct grants on that organization's Projects are deleted
+in the same transaction as the membership. A Project in the middle of an ownership
+transfer refuses the removal instead of interleaving; retry after it settles. Team
+grants, and grants on other organizations' or personal Projects, are never
+touched. Leaving the organization voluntarily does not revoke direct grants to
+the person; remove them individually with [Revoke one grant](#revoke-one-grant).
 
 There is **no namespace-wide default Project access setting** in this feature.
 Existing Projects with no stored mode retain Workspace behavior. New creation
