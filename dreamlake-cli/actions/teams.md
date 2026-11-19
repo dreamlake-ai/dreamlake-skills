@@ -8,6 +8,13 @@ dl team show "$ORG" "$TEAM" --json
 Syntax, roles and what each state grants are on the [Teams](../reference/cli-teams.md)
 page and in `dl team <command> --help`.
 
+A request that names the team and the action, with the person and role or
+the recipient email when one applies, already authorizes it: act without
+asking again, and mention an impact the user may not expect in one sentence.
+Ask only when the team, person, role, email or authority is missing or
+ambiguous. An explicit request also covers the CLI's own confirmation prompt
+(`--help` names the flag that skips it).
+
 1. Confirm the installed client offers what is asked: `dl team --help` lists
    `archive`, `restore` and `guest`, and `dl team member add --help` accepts
    the role asked for. If not, update the CLI (the [setup](setup.md) action); no other
@@ -17,26 +24,34 @@ page and in `dl team <command> --help`.
    server's permissions in that output, not from a role you worked out. When
    the caller lacks the permission, name who holds it; do not look for
    another path.
-3. Roles: change one named person to the role the user stated. Granting or
-   removing an owner, admin or maintainer needs the user's explicit
-   instruction for that person.
-4. Archive, restore, delete: archiving suspends everything the team grants
-   to every member until restore. State that, ask, then archive; read the
-   team back as archived. Prefer archive when the user wants access to stop;
-   delete is permanent, so do it only on an explicit request to delete.
-5. Guests are outside collaborators, not organization members. Before
-   inviting, confirm the exact email address, the one team, and that the user
-   accepts the guest receiving the Projects shared with that team. Invite,
-   then read back the pending invitation from `dl team guest list`. Tell the
-   user the recipient accepts from their own account by signing in with that
-   email; do not accept, or sign in, on their behalf.
-6. Recipient side: list with `dl team guest inbox`, then accept or decline
+3. Roles: set the named person to the stated role, then read the member list
+   back.
+4. Archive, restore (`dl team archive`, `dl team restore`): archiving
+   suspends everything the team grants to every member until restore; read
+   the team back as archived or active. When the user wants access to stop
+   without naming an operation, archive.
+5. Delete (`dl team delete`) is permanent. Delete only when the user
+   explicitly asked to delete that named team; a request to stop access,
+   clean up or archive is not one. If that is unclear, ask whether to archive
+   instead.
+6. Guests are outside collaborators, not organization members. Invite the
+   stated email to the stated team with `dl team guest invite`, then read
+   back the pending invitation from `dl team guest list`. Once accepted, the
+   guest receives the Projects shared with that team, at each grant's role.
+   Tell the user the recipient accepts from their own account by signing in with that email;
+   do not accept, or sign in, on their behalf.
+7. Recipient side: list with `dl team guest inbox`, then accept or decline
    the one invitation the user names.
 
 ## Exceptions
 
-- Someone who should belong to the organization is an organization member
-  added with `dl team member add`, not a guest. `guest` is never a `--role`.
+- `dl team member add` takes existing organization members. Only an
+  organization owner can use it to bring in someone outside the organization,
+  who then joins it as a member. A team owner, admin or maintainer cannot
+  enroll anyone into the organization; for an outsider they invite a guest.
+  When the user asked to add an outsider as a member and the caller is not
+  an organization owner, say so and ask whether a guest invitation fits; do
+  not send one in its place. `guest` is never a `--role`.
 - Revoke a pending invitation with `dl team guest revoke`; remove an accepted
   guest with `dl team member remove`. Revoking does not remove a member.
 - An invitation missing from the recipient's inbox usually needs a fresh sign-in
