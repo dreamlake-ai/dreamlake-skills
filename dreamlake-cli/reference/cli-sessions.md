@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.132.4 0a3ff66; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.133.1 82925b5; do not edit -->
 
 # Terminal sessions
 
@@ -180,7 +180,8 @@ These additions require matching provider-aware API, gateway and collector relea
 ## Link memos and artifacts (0.78.0+)
 
 With the matching resource-session API deployed, a saved session can be linked
-to multiple memos and artifacts, including resources in another namespace.
+to multiple memos, artifacts and annotations, including resources in another namespace.
+Annotation links require CLI 0.133.0+ and the companion resource-relationships API release.
 Linking requires resource write access and session read access. Every list checks
 both permissions again; sharing a resource does not share its terminal.
 
@@ -189,6 +190,8 @@ dl sessions link SESSION_ID --namespace geyang \
   --resource-namespace fortyfive --note MEMO_ID --json
 dl sessions link SESSION_ID --namespace geyang \
   --resource-namespace fortyfive --artifact loss-plot --json
+dl sessions link SESSION_ID --namespace geyang \
+  --resource-namespace fortyfive --annotation training-run --json
 ```
 
 ```bash cli-help="sessions unlink"
@@ -202,7 +205,12 @@ dl sessions resources SESSION_ID --namespace geyang --page-size 25 --json
 
 `resources` returns bounded pages (maximum 50); continue with its `nextCursor`.
 These commands only change or read affiliations. They never open, start or stop
-terminals and never modify memo or artifact content.
+terminals and never modify Memo, Artifact or Annotation content. A manual link
+is an association, not proof that the session authored the resource.
+
+For an annotation, use its current/old slug or immutable storage name. For an
+artifact, use its logical ID. `--note` uses the stable 24-hex Memo ID. The saved
+terminal session ID is 24 hex characters and is scoped by `--namespace`.
 
 Memo creation and confirmed body/section changes are attributed by the Memo server,
 using the same optional identity as [Memo presence](cli-notes-collaboration.md).
@@ -225,6 +233,94 @@ result. Retry only metadata operations, never the content write.
 `DREAMLAKE_SESSION_AFFILIATION=0` disables automatic attribution and affiliation.
 Historical resources require exact evidence or an explicit link; they are not
 assigned by guessing authorship.
+
+## Resource relationships and history
+
+These commands require CLI 0.133.0+ and the companion resource-relationships API release.
+The Memo editor and Artifact/Annotation side panels read the same records.
+They keep content edits, relationships and saved-session associations separate.
+
+```bash cli-help="resources relationships"
+dl resources relationships note MEMO_ID --json
+dl resources relationships artifact ARTIFACT_CATALOG_ID --json
+dl resources relationships annotation ANNOTATION_CATALOG_ID --json
+dl resources relationships annotation ANNOTATION_CATALOG_ID --cursor NEXT_CURSOR --json
+```
+
+```bash cli-help="resources link"
+dl resources link note MEMO_ID artifact ARTIFACT_CATALOG_ID --description "Supporting chart" --json
+dl resources link note MEMO_ID annotation ANNOTATION_CATALOG_ID --json
+```
+
+```bash cli-help="resources unlink"
+dl resources unlink RELATIONSHIP_ID --json
+```
+
+```bash cli-help="resources history"
+dl resources history annotation ANNOTATION_CATALOG_ID --json
+dl resources history artifact ARTIFACT_CATALOG_ID --before NEXT_CURSOR --json
+```
+
+`relationships`, `link` and `history` use stable resource catalog IDs: 24 hex
+characters for `note`, `artifact`, `annotation` and `repo`, a UUID for
+`infra_stack`, or a 64-hex attribution context ID for `session`. An artifact's
+logical ID, annotation slug, title or native session UUID is not a catalog ID.
+Use `id` from `dl annotation get NAME --namespace NAMESPACE`.
+`dl artifact list --namespace NAMESPACE --json` returns artifact catalog rows
+containing `resourceId`; the logical
+`artifactId` remains the identifier for artifact publication and saved-session links.
+
+`link` records `related_to`, requires write access to the source and read access
+to the target, and is idempotent for the same source, target and relation.
+Its optional description has a 1,000-character limit. Re-linking replaces the
+relationship properties; omitting the description clears the previous one.
+Read back `relationships`
+to verify the saved record and its returned 64-hex ID. `unlink` uses that ID,
+requires source write access and succeeds if already absent. It removes only
+the relationship. Neither operation grants access, changes sharing or edits
+content. On an uncertain response, read back before retrying; never repeat a
+content write to repair a relationship.
+
+Relationships are filtered by current access to both ends. Each page scans up
+to 100 records; pass its exact `nextCursor` as `--cursor` to continue. History
+reads at most 50 scanned events per page; use its `nextCursor` as `--before`.
+Continue even if a permission-filtered page is empty but has a cursor. No command
+automatically follows pages.
+Activity is best-effort server-recorded `read`, `view` and `edit` evidence with
+90-day retention, not a complete audit log. Relationship creation/removal does
+not create an activity event. There is no command to fabricate events.
+
+```bash cli-help="resources sessions"
+dl resources sessions annotation training-run --namespace fortyfive --page-size 25 --json
+dl resources sessions artifact loss-plot --namespace fortyfive --json
+```
+
+`sessions` uses the namespace plus Memo ID, artifact logical ID or annotation
+name/slug, just like `sessions link`. It returns at most 50 saved sessions and
+accepts `--cursor NEXT_CURSOR`. Use `sessions resources SESSION_ID --namespace
+SESSION_NAMESPACE` for the reverse lookup. A saved terminal session (24 hex)
+is separate from a self-reported attribution context (`session`, 64 hex).
+Attribution context is not authentication, a conversation archive or permission
+to open a terminal.
+
+### TypeScript resource relationships
+
+```ts
+import {createClient} from '@dreamlake/dreamlake-cli/api'
+const client = createClient({remote: 'https://api.dreamlake.ai', token})
+const memo = {kind: 'note' as const, id: memoId}
+const annotation = {kind: 'annotation' as const, id: annotationCatalogId}
+const receipt = await client.resources.link(memo, annotation, 'Training evidence')
+await client.resources.relationships(annotation) // optional nextCursor as second argument
+await client.resources.history(annotation) // optional nextCursor as second argument
+await client.resources.unlink(receipt.id)
+await client.resources.sessions({namespace: 'team', type: 'annotation', id: 'training-run'})
+await client.sessions('owner').link(savedSessionId, {namespace: 'team', type: 'annotation', id: 'training-run'})
+```
+
+The SDK uses the same paths and permissions with explicit credentials. Link and
+history operations do not upload transcripts or run terminal commands. See the
+[product activity contract](https://docs.dreamlake.ai/notes/activity).
 
 ## Select the host
 

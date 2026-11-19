@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.132.4 0a3ff66; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.133.1 82925b5; do not edit -->
 
 # Command reference
 
@@ -336,7 +336,7 @@ See [Agent skills](cli-skills.md).
 | `org member list <org>` | List members |
 | `org member add <org> <user> [--role]` | Add a member (by email/name) |
 | `org member role <org> <user> --role <r>` | Change a member's role |
-| `org member remove <org> <user>` | Remove a member |
+| `org member remove <org> <user> [--revoke-direct-project-grants]` | Remove a member (org OWNER only); optionally delete their direct grants on the org's Projects |
 
 ## Teams
 

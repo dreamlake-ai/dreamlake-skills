@@ -1,9 +1,9 @@
-<!-- generated from https://docs.dreamlake.ai/notes/activity.md at 0.1.182 27cc72c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/activity.md at 0.1.187 acc4f38ff; do not edit -->
 
 # Related resources and activity
 
-Session and resource activity connects work across Memos, infrastructure stacks,
-repositories and agent conversations. A memo can be linked to several sessions,
+Session and resource activity connects work across Memos, artifacts, annotations,
+infrastructure stacks, repositories and agent conversations. A memo can be linked to several sessions,
 and each session can work on several resources. Explicit relationships are shown
 separately from observed access. Opening a memo does not automatically declare it
 the session's documentation.
@@ -79,6 +79,14 @@ It grants no access. Invalid, expired or mismatched cursors return
 source-body download occurs during this lookup. This is a REST endpoint; no new
 CLI, SDK or agent-tool command is implied.
 
+## Artifact and annotation context
+
+Artifact and annotation viewers have a collapsed side panel with **Related** and
+**History** tabs. Open it to inspect linked resources, accessible saved sessions,
+and recent recorded activity without replacing the content. The Memo editor can
+also record explicit links to artifacts and annotations. Links do not edit content
+or change access; unavailable context leaves the editor or viewer usable.
+
 ## Optional context
 
 Memos continue to read and save when activity is unavailable or session metadata
@@ -100,7 +108,7 @@ Register a conversation with `POST /resource-sessions`:
 ```
 
 Use its returned `session.id` as a resource reference. Supported kinds are `note`,
-`session`, `repo`, and `infra_stack`. Create an idempotent relationship with
+`artifact`, `annotation`, `session`, `repo`, and `infra_stack`. Create an idempotent relationship with
 `POST /resource-relationships`:
 
 ```json
@@ -115,16 +123,66 @@ Use its returned `session.id` as a resource reference. Supported kinds are `note
 |---|---|---|---|
 | `defined_by` | InfraStack | Repo | `directory`, `ref`, `description` |
 | `works_on` | Session | InfraStack or Repo | `description` |
-| `documents_in` | Session | Memo | `description` |
+| `documents_in` | Session | Memo, Artifact or Annotation | `description` |
 | `documented_by` | InfraStack | Memo | `description` |
 | `related_to` | Any supported resource | Another supported resource | `description` |
 
 `GET /resources/:kind/:id/relationships` returns authorized links in both
-directions. `DELETE /resource-relationships/:id` removes the association only.
+directions and a `nextCursor`. Pass it as `cursor` to continue. Each page examines
+at most 100 candidate links; hidden resources can yield an empty page with a
+continuation. Other owners' private session links are excluded before paging. `DELETE /resource-relationships/:id` removes the association only.
 Creation requires write access to the source and read access to the target;
 removal requires write access to the source. A link does not share either resource.
+When an artifact or annotation is the source, relationship management requires
+namespace membership or inherited project write access. Read access suffices when
+it is the target of a relationship from a source the caller can manage. A shared annotation's content edit
+permission alone does not grant link management. Artifact and annotation detail
+responses expose this separate capability as `canManageLinks`. An incoming Memo link remains
+removable only by a writer of that source Memo.
+
 Links use stable IDs and survive namespace moves. Inaccessible or deleted targets
-are omitted. Session details are private to their authenticated owner.
+are omitted. Session details are private to their authenticated owner. Restoring
+a soft-deleted annotation revives its existing catalog identity and therefore
+restores still-authorized relationships and retained activity; it is not a new
+resource with the same name.
+
+### Catalog identities
+
+Memo, artifact and annotation references use stable 24-character catalog IDs,
+not titles, slugs or storage names. Get an artifact's `resourceId` from
+`GET /namespaces/:slug/artifacts/:artifactId` (also present in catalog list entries),
+or an annotation's `id` from
+`GET /namespaces/:slug/annotations/:name`. Both endpoints apply current read
+permissions. For example, link a Memo to an annotation:
+
+```json
+{
+  "source": {"kind": "note", "id": "MEMO_CATALOG_ID"},
+  "relation": "related_to",
+  "target": {"kind": "annotation", "id": "ANNOTATION_CATALOG_ID"}
+}
+```
+
+### Saved terminal sessions
+
+Saved terminal sessions are separate from the owner-private conversation context
+registered by `/resource-sessions`. Their saved IDs are 24-character IDs;
+conversation context IDs are 64-character hashes. Neither can substitute for the
+other, and neither is a credential.
+
+`GET /namespaces/:slug/resources/:resourceType/:resourceId/sessions` lists
+currently readable saved sessions and returns `canManageLinks`, `hasMore`, and
+`nextCursor`. Types are `note`, `artifact`, and `annotation`; use the Memo catalog
+ID, artifact logical ID/current slug, or annotation immutable name/current slug,
+respectively. Optional `pageSize` is 1–50 (default 25); send `cursor` to continue.
+Permission filtering can produce an empty page with a continuation.
+
+`PUT` or `DELETE` at the same path plus `/:sessionId` links or unlinks a saved
+session. Both require a JSON body with `sessionNamespaceSlug`. The caller must
+be able to manage resource links and read the saved session. Repeating the same
+operation is idempotent. `GET /namespaces/:slug/terminal-sessions/:id/resources`
+returns authorized links in the reverse direction. These affiliations grant no
+new resource permissions or artifact/annotation execution authority.
 
 ## Activity
 
@@ -133,12 +191,20 @@ are omitted. Session details are private to their authenticated owner.
 activity on that session's resources, filtered by the viewer's current access.
 `GET /resource-sessions` lists up to 100 of the caller's recent sessions.
 
-Successful authenticated Memo metadata/body/content, InfraStack metadata/state and
-Repo ID reads/edits generate metadata after the response. Opening an existing Memo
+Successful authenticated Memo metadata/body, InfraStack metadata/state and
+Repo ID reads/edits generate metadata after the response. Artifact catalog detail,
+preview metadata reads, catalog registration/apply, slug and preview metadata writes,
+plus annotation catalog creation/detail/title/visibility/slug changes, also
+record activity against their stable catalog IDs. Upload credentials and read-token
+grants do not prove content was read or changed and generate no such event. Opening an existing Memo
 editor records a view, not an edit. Repeated reads and views are coalesced
 per minute. Failed or anonymous requests and presence/feed polling do not appear.
 Direct RTC edits are not yet observed by this API mechanism; this feed is not a
-complete edit audit. Activity is retained for 90 days. Explicit relationships and
+complete edit audit. The standalone `GET /notes/:noteId/content` endpoint is not
+currently recorded. Relationship changes are represented by the current explicit
+links, not additional activity events. Edits retain request identity, so a repeated
+HTTP request can produce another event even when its relationship write is
+idempotent. Activity is retained for 90 days. Explicit relationships and
 session identities persist independently of activity retention.
 
 A repository relationship identifies relevant source; it does not prove which

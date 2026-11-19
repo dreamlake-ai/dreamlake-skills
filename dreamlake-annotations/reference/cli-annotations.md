@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/annotations.md at 0.132.4 0a3ff66; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/annotations.md at 0.133.1 82925b5; do not edit -->
 
 # Annotations
 
@@ -100,3 +100,28 @@ await sharing.revoke(true)
 These methods reuse the SDK's sharing contract. They change catalog authorization,
 never upload annotation content or rewrite its data/history. Content writers use
 the immutable storage name and receive resource-scoped credentials.
+
+## Related resources, sessions and history
+
+With CLI 0.133.0+ and the companion resource-relationships API release, use the `id` returned
+by `annotation get` for resource relationships and activity. These operations
+preserve annotation content and sharing.
+
+```bash
+dl annotation get training-run --namespace team
+dl resources link note MEMO_ID annotation ANNOTATION_CATALOG_ID --json
+dl resources relationships annotation ANNOTATION_CATALOG_ID --json
+dl resources history annotation ANNOTATION_CATALOG_ID --json
+dl sessions link SESSION_ID --namespace owner --resource-namespace team --annotation training-run --json
+dl resources sessions annotation training-run --namespace team --json
+```
+
+Verify relationship writes by reading the relationship list. To remove one, use
+`dl resources unlink RELATIONSHIP_ID`; to remove a saved-session association, use
+`sessions unlink` with the same options as `sessions link`. Resource relationship
+commands use the 24-hex catalog ID; saved-session commands use the namespace and
+annotation name or slug. A manual association does not prove authorship. Activity
+is best-effort with 90-day retention, not a complete audit log. See
+[resource relationships and history](https://cli.dreamlake.ai/sessions#resource-relationships-and-history)
+for pagination, SDK methods and the distinction between saved sessions and
+attribution contexts.

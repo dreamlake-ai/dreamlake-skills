@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.182 27cc72c8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.187 acc4f38ff; do not edit -->
 
 # Panels and agent control
 
@@ -123,8 +123,8 @@ Restoring a terminal tab from an address shows **Open session**; restoring a
 layout never starts a command. The address contains the saved session ID, not
 terminal output or connection credentials.
 
-The library includes your private sessions and sessions shared with a team you
-belong to. Sharing a memo or its layout does not share a terminal. Session access
+The library includes your private sessions and sessions shared with an
+organization you belong to. Sharing a memo or its layout does not share a terminal. Session access
 is checked separately each time it is opened or reconnected. See
 [Browser terminal](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal) for sharing, machine
 requirements, discovery and managed-session behavior.
