@@ -146,3 +146,15 @@ dl artifact push ./draft.md --share
 
 An owned artifact moves with its whole Project; see the `projects` action of
 `dreamlake-cli`.
+
+## Verify generated previews
+
+After publishing, inspect the artifact's current version and open its card and
+full preview separately. A successful push proves content publication, not that
+a screenshot was generated. When investigating a missing preview, record the
+resource/version, any configured user cover, and generation evidence. Distinguish
+waiting for generation from rendering failure; a successful batch can contain
+individual failures. Do not repeatedly repush unchanged content to force retries.
+Consult the product documentation's release status before relying on a new
+preview-worker path or readiness contract. Report unverified deployment support
+explicitly, and preserve private resource permissions while collecting evidence.
