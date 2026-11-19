@@ -175,12 +175,12 @@ dl artifact push ./dashboard.html --title "Q1 Dashboard" \
     --description "Revenue, churn and pipeline for the quarter" --cover dashboard-cover.jpg
 
 # React component with a stable id, then a new version of the same artifact
-dl artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart"
+dl artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart" --cover chart-cover.jpg
 dl artifact push ./chart.jsx --id sales-chart
 
 # Public (viewable without login); private with a share link in one step
-dl artifact push ./report.html --visibility public --title "Public Report"
-dl artifact push ./draft.md --share
+dl artifact push ./report.html --visibility public --title "Public Report" --cover report-cover.jpg
+dl artifact push ./draft.md --share --cover draft-cover.jpg
 ```
 
 An owned artifact moves with its whole Project; see the `projects` action of
