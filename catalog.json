@@ -34,7 +34,7 @@
       "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows; routes compute and domain work elsewhere.",
       "requires": [],
       "tools": null,
-      "files": 15
+      "files": 16
     },
     "dreamlake-datasets": {
       "description": "Visualize data on DreamLake: inspect and upload or link a Source, verify workflow paths, configure preset .dreamrc views, or publish custom Source-owned static applications with the CLI or SDK.",
