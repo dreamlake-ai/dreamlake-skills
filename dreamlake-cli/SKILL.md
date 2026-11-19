@@ -1,6 +1,6 @@
 ---
 name: dreamlake-cli
-description: Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows. Routes compute (hosts, machines, Lakeshore, Stacks, AWS) to dreamlake-lakeshore and artifact, memo, task, scene, dataset, workflow-authoring and annotation work to their own skills.
+description: Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, administer teams and guests, link writes to agent sessions, manage Vault, register UDFs, push workflows. Routes compute (hosts, machines, Lakeshore, Stacks, AWS) to dreamlake-lakeshore and artifact, memo, task, scene, dataset, workflow-authoring and annotation work to their own skills.
 ---
 
 # DreamLake CLI
@@ -20,6 +20,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Rename a Project or correct its URL slug | [project-address](actions/project-address.md) |
 | Move a whole Project and its owned resources to another namespace | [projects](actions/projects.md) |
 | Transfer one Artifact, Env/Scene, Annotation, Pipeline or Source | [ownership](actions/ownership.md) |
+| Show or change a team slug; change team roles; archive, restore or delete a team; invite an external guest or answer a guest invitation | [teams](actions/teams.md) |
 | Record relationships between Memos, Artifacts and Annotations; inspect activity or link saved sessions; upload a conversation | [session-links](actions/session-links.md) |
 | Import or restore cloud configuration; Terraform state snapshots in Vault | [cloud-vault](actions/cloud-vault.md) |
 | Store a third-party API key in `pass` and Vault; load it into the variable a tool reads | [api-keys](actions/api-keys.md) |
