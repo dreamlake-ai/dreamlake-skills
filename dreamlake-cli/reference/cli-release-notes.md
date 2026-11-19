@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.134.0 f383ec3; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.134.0 f794277; do not edit -->
 
 # Release notes
 
@@ -12,6 +12,33 @@ login is needed. Without the flag, only the CLI is installed. Supported on
 Apple Silicon macOS and glibc Linux, including WSL; Intel macOS, musl Linux and
 native Windows get a clear error. npm installs never install Nymph. See
 [Installing Nymph with the CLI](cli-installation.md#installing-nymph-with-the-cli).
+
+### Team roles, archive, guests and slug renames
+
+- **Roles:** `dl team member add|role --role` accepts `owner`, `admin`, `maintainer`
+  and `member`. A new team's creator becomes its `OWNER`. Teams with only
+  maintainers keep working as before.
+- **Archive:** `dl team archive` and `dl team restore` archive a team without
+  losing its members, grants or invitations; while archived it grants no
+  access. `dl team list --archived` lists archived teams.
+- **Renames:** `dl team update --slug` renames a team. The old slug stays
+  reserved for that team and still finds it in `dl team` commands.
+- **Your permissions:** `dl team show` prints the current slug, earlier slugs,
+  your role and what you can do on the team.
+- **Guests:** `dl team guest invite|list|revoke` invites an outside
+  collaborator to one team without organization membership.
+  - DreamLake sends no email; `invite` prints the join link the server
+    returns (`/teams/invitations/<invitation id>`) for you to share.
+  - Only the invited, verified email's account can accept, through that link
+    or `dl team guest inbox`, `accept` and `decline`.
+  - Guests get the team and the Projects shared with it, never SSH, web
+    terminal or host sessions through team grants. This holds even if they
+    later join the organization while still a guest; other access they hold
+    is unchanged.
+- **TypeScript:** `client.teams` has the same operations, and
+  `TeamFeatureUnsupportedError` reports a server without them.
+
+Requires the matching team API. See [Teams](cli-teams.md).
 
 ## 0.133.1 — Relationship skill procedures
 

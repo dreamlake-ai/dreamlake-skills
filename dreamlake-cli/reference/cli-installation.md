@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/installation.md at 0.134.0 f383ec3; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/installation.md at 0.134.0 f794277; do not edit -->
 
 # Installation
 
