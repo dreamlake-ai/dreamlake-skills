@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.188 98b843adc; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.191 cd6123c2; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -176,10 +176,11 @@ that it is enabled for your namespace.
   limit, on every GPU it holds, at its price — is held from the balance. When
   the job ends, the GPU time Slurm measured is charged (capped at the time
   limit; GitHub's estimate if Slurm never reports) and the rest is given back.
-  A job that never got a GPU, was cancelled before it started, or that the
-  infrastructure failed is not charged. Without enough credit, or without a
-  billing account, a job waits in DreamLake's queue — the run page says why —
-  and starts once credit is added. Billing currently runs against Stripe and
+  Not charged: a job that never got a node, a job cancelled before its runner
+  picked it up (even if Slurm had already given the runner a node), and a job
+  the infrastructure failed. A machine type priced at 0 is free. Without
+  enough credit, or without a billing account, a job waits in DreamLake's
+  queue — the run page says why — and starts once credit is added. Billing currently runs against Stripe and
   Metronome sandboxes only: no real money moves.
 - **Availability.** DreamLake GPU is enabled per namespace by the DreamLake
   team. A paused namespace starts no new jobs; running ones finish.

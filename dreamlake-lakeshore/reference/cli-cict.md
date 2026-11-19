@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/cict.md at 0.134.0 f794277; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/cict.md at 0.134.0 99837ab; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -173,9 +173,16 @@ dl cict usage my-team
 dl cict platform show my-team --json
 ```
 
-`show` prints the machine catalog, whether the namespace may use it (not
-enabled, enabled but not started, in use, or paused), its concurrency limit,
-running and queued jobs, where results go and this month's GPU time.
+`show` prints the machine catalog with each machine type's price per GPU-hour,
+whether the namespace may use it (not enabled, enabled but not started, in
+use, or paused), its concurrency limit, running and queued jobs, where results
+go and this month's GPU time. With prepaid billing on it adds what this month
+was charged; otherwise what the GPU time is worth (not charged).
+
+`dl cict runs show` adds a `cost` line for a DreamLake GPU job: the credit it
+holds while it runs (its time limit at its price), then what it was charged
+(the GPU time Slurm measured), or why it was not charged. Billing runs on
+sandboxes for now: no real money moves.
 
 ```bash cli-help="cict platform start"
 dl cict platform start my-team
@@ -199,7 +206,9 @@ dl cict usage my-team --jobs --sender octocat --limit 20
 `usage` reports a month of DreamLake GPU time, from each job's start to its
 end, by the GitHub user who triggered each job and by repository and
 workflow. `--jobs` lists the jobs newest first instead; `--sender LOGIN`
-keeps one person's and `--limit` caps how many (1–500).
+keeps one person's and `--limit` caps how many (1–500). The month line and
+each job show what was charged (or `charge pending` until Slurm reports), or
+what the GPU time is worth when DreamLake GPU is not billed.
 
 ### Administer DreamLake GPU
 
@@ -243,13 +252,18 @@ dl cict platform admin machine gpu-rtx5090 --label dreamlake-gpu-rtx5090 \
   --provider 0123456789abcdef01234567 --limit 6 --enable \
   --env DREAMLAKE_ROBOT_ASSETS_CACHE=/work/shared/robot-assets
 dl cict platform admin machine gpu-rtx5090 --disable
+dl cict platform admin machine gpu-rtx5090 --price 240
 ```
 
 `machine` creates or changes a machine type. A machine type is what one job
 gets, not one machine: jobs land on any free node of the provider's partition.
 The GPUs, CPUs, memory and time limit come from the provider's launch layer,
 so they always match what Slurm allocates; `--limit` caps jobs at once across
-all namespaces. Runners start with the provider's association.
+all namespaces. Runners start with the provider's association. `--price`
+sets the price in credits per GPU-hour (one credit is $0.005, so `240` is
+$1.20); `--price 0` makes it free and `--price none` clears it. A job keeps the price it started at, so a
+change applies to later jobs only. A machine type without a price cannot run
+jobs while billing is on.
 
 ## Troubleshooting
 
@@ -258,6 +272,11 @@ all namespaces. Runners start with the provider's association.
 | routing `unbound` | The repository's App installation is not bound to a namespace; run `dl cict github connect`. |
 | routing `unmatched` | No pool or DreamLake GPU label covers every label in `runs-on`; check `dl cict pools list` and `dl cict platform show`. |
 | `queued #N` | A DreamLake GPU job waiting for a slot in the namespace or on the machine type. |
+| `held: insufficient_credit` | The namespace's credit cannot cover what the job holds while it runs; add credit in Settings → Billing and it starts within a minute. |
+| `held: billing_budget_exceeded` | The namespace's spending limit is reached (a new account's limit is zero); a namespace owner raises it in Settings → Billing. |
+| `held: billing_setup_required` | The namespace has no billing account yet; a namespace owner sets it up in Settings → Billing. |
+| `held: machine_unpriced` | The machine type has no price; a platform admin sets one with `--price`. |
+| `held: evidence_authorizer_invalid` | The person who authorized result writes can no longer write; run `dl cict platform source`. |
 | routing `refused:platform_not_activated` | DreamLake GPU is enabled but not started; run `dl cict platform start`. |
 | routing `refused:platform_not_allowed` | DreamLake GPU is not enabled for the namespace. |
 | routing `rejected:public_repository` | Public repositories are refused unless the server allows them. |
