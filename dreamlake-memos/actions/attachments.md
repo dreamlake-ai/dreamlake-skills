@@ -120,3 +120,7 @@ generation status, distinguish pending from failed and unsupported; consult the
 product docs for deployed support. Check the same reader's permissions rather
 than minting a share link to make a private preview load. Report generation,
 image display and original-file access as separate observations.
+Reject a thumbnail that still shows a loading state. For asynchronous HTML,
+follow the shared readiness guidance linked from the
+[attachment thumbnail contract](../reference/docs-notes-files.md#attachment-thumbnails)
+and check the rendered image again before declaring the preview verified.
