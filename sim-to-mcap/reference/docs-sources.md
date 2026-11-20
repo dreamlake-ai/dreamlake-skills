@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.204 f98ed513; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -690,3 +690,12 @@ An enrolled device reconciles a lost start acknowledgment through signed
 an empty payload. The response includes the current Source and policy revisions,
 original approval timestamp and capture summary. It rechecks current enrollment
 and Source access, remains readable for stopped captures, and never mints an upload grant.
+
+Local session rows can open their existing Source consent and archive view even
+when an automatic observation has no saved terminal-record association. The
+server requires a single matching native session under the same owner,
+enrollment and provider, with the occurrence root matching the explicitly
+configured Source. Child components and ambiguous destinations are excluded.
+Both the terminal row and Source must remain readable. The Source namespace
+stays explicit; working-directory names never select it. This association
+neither starts a terminal nor grants upload permission.

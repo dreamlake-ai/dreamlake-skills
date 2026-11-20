@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.136.0 b20eddb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.137.0 02c2b75; do not edit -->
 
 # Projects & data
 
@@ -235,7 +235,7 @@ existing creation payload and default workspace behavior unchanged.
 `restricted` with final public visibility is refused. `--visibility private`
 explicitly authorizes the atomic public-to-private change; omitting it must not
 silently hide a public Project. The command does not change recipients, team
-membership, resource ownership, or file/Note content. Use the existing grant and
+membership, resource ownership, or file/Memo content. Use the existing grant and
 revoke commands below for recipient access.
 
 Inspect requires Project read access; changes require current Project Admin.

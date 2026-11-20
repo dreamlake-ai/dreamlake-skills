@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.204 f98ed513; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -201,7 +201,7 @@ feature-disabled routes are absent rather than promised.
 | Project files/folders/tree nodes | `dreamlake_resource_project_api_read` / `dreamlake_resource_project_api_write` / `dreamlake_resource_project_api_control` support JSON tree operations with an explicit project grant and caller ACL; binary content uses the existing transport |
 | Sessions and commands | Existing `dreamlake_session_*` / `dreamlake_sessions_*` adapters preserve durable command identity and bounded transcript reads |
 | Memory | Dedicated memory adapters retain per-operation explicit-intent gates |
-| Task creation, updates, moves, deletion/restoration, progress events and Note links | Project-granted resource gateway with canonical body schemas and revision checks; task progress events are bounded JSON |
+| Task creation, updates, moves, deletion/restoration, progress events and Memo links | Project-granted resource gateway with canonical body schemas and revision checks; task progress events are bounded JSON |
 | Skills, activity, search, social, billing and namespace metadata | Discovered canonical operations where the registered route has a JSON contract |
 | Binary upload/download, streaming watch/events, interactive terminals, wildcard proxy routes | Discoverable with CLI/SDK workflow guidance; no raw binary or live-stream transport in model tools |
 | Authentication, credentials, OAuth callbacks, Vault, service-account identity, daemon/internal APIs and recursive agent turns | Not executable through the resource gateway |
@@ -300,7 +300,7 @@ are required; destination and grant checks also protect rename/delete operations
 
 Find Task operations with `search: "tasks"`, because their routes are nested
 under the `projects` family. Creation, update, move, delete, restore, progress
-events and Note links expose their canonical JSON body schemas. Use the
+events and Memo links expose their canonical JSON body schemas. Use the
 operation's project gateway and exact schema, including required revisions.
 Read the current Task before an update; a stale revision requires a new read.
 Task events are paginated JSON records. Note SSE events and other live streams

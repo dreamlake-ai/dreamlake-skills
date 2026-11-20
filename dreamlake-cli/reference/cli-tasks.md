@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.136.0 b20eddb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.137.0 02c2b75; do not edit -->
 
 # Task operation examples
 
@@ -107,7 +107,7 @@ A message event never changes completion/acceptance state. Events should carry e
 
 ## Link memo items: prompt, comments and details
 
-These are references to existing Notes/sections. Linking does not create or edit Memo content. Use IDs returned by existing Memos APIs and resolve section anchors against the actual document.
+These are references to existing Memos/sections. Linking does not create or edit Memo content. Use IDs returned by existing Memos APIs and resolve section anchors against the actual document.
 
 ```shell
 dl tasks notes add vault/entries/write-recovery --role agent_prompt --note-id MEMO_ID_PROMPT --section recovery-agent
@@ -120,7 +120,7 @@ The detail panel groups links by role and opens the linked memo item. Comments u
 
 ## Soft-delete, restore and deprecate
 
-Deletion hides the record, preserves ID/events/Note links, and never deletes Memo content. Under the proposed first-version rule, deletion with live children fails. These are independent examples, not one mandatory sequence.
+Deletion hides the record, preserves ID/events/Memo links, and never deletes Memo content. Under the proposed first-version rule, deletion with live children fails. These are independent examples, not one mandatory sequence.
 
 ```shell
 dl tasks delete vault/entries/write-recovery --if-match REV_BEFORE_DELETE

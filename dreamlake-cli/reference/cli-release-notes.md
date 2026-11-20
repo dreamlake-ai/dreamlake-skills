@@ -1,6 +1,29 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.136.0 b20eddb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.137.0 02c2b75; do not edit -->
 
 # Release notes
+
+## 0.137.0 — Named tmux terminals
+
+`dl tmux new [name] --host HOST` explicitly creates a fresh session;
+`open REFERENCE` attaches only, while `list --host HOST` and `resolve REFERENCE`
+read cached metadata. The command palette and `:tmux[new ...]` action directives
+share the same action grammar. Durable references bind the exact enrollment,
+tmux server and session name. A conflicting name never attaches, and uncertain
+creation is recovered with the same lowercase request UUID.
+
+The TypeScript API exposes `tmux.create`, `operation`, `resolve`, `list` and
+`attachTicket`. Requires a compatible backend, terminal gateway and enrolled
+Nymph; a CLI upgrade alone does not provide the host capability. Existing
+`dl tmux HOST` SSH behavior remains available. See
+[Named tmux references and creation](https://cli.dreamlake.ai/host-enrollment#named-tmux-references-and-creation).
+
+Memo implementation locals, table headings and user guidance now use canonical
+Memo terminology. Existing Note compatibility APIs, aliases, flags, payload keys
+and routes remain supported.
+
+The embedded skill is pinned to
+[v2026.11.20.6](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.20.6).
+A subsequent skills release will fetch these published CLI docs.
 
 ## 0.136.0 — CI/CT without baseline comparisons
 

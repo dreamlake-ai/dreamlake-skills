@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/staging.md at 0.33.2 5f406fd1; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/staging.md at 0.33.4 216166b7; do not edit -->
 
 # Staging parameters
 
@@ -123,6 +123,35 @@ No shared-preset save action or staging-file discovery contract is supplied by
 these primitives. Do not add `lighting`, a preset path or another staging key
 to `.dreamrc` and assume a viewer will read it. Host persistence and override
 precedence must be implemented and validated together.
+
+## Demand rendering with visibility
+
+`useVisibleFrame` is available in source API 0.33.4.
+
+Use `useVisibleFrame` inside a Fiber `Canvas` with `frameloop="demand"` when a
+scene has bounded transitions instead of perpetual animation. It delegates frame
+scheduling to Fiber, skips its callback while offscreen, hidden or context-lost,
+and invalidates when the canvas becomes visible again. Call the returned function
+after imperative scene changes; return `true` only while another frame is needed.
+
+```tsx
+
+function SceneDriver({ transition, compositor }) {
+  const { gl, scene, camera } = useThree()
+  const invalidate = useVisibleFrame((time) => {
+    const moving = transition.update(time)
+    compositor.render(gl, scene, camera)
+    return moving
+  }, { priority: 1, dpr: [1, 2] })
+  // Subscribe imperative controls to invalidate and unsubscribe on unmount.
+  return null
+}
+```
+
+Positive priority gives the callback responsibility for rendering, as required
+by a compositor. With priority zero, Fiber renders normally after the callback.
+Fiber retains ownership of renderer creation, resizing and disposal. The optional
+`dpr` reapplies the same Canvas pixel-ratio bounds when the display's DPR changes.
 
 ## Native rendering and export
 

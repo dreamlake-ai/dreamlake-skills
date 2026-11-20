@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.136.0 b20eddb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.137.0 02c2b75; do not edit -->
 
 # Create and find memos
 
@@ -12,7 +12,7 @@ Before an agent's first live read or edit, [set its task identity](cli-notes-col
 Set both `DREAMLAKE_AGENT_ID` and `DREAMLAKE_AGENT_NAME` and reuse them for the task.
 
 ```bash cli-help="memos"
-# Find a note and read it directly.
+# Find a memo and read it directly.
 dl memos search "release plan"
 dl memos read release-plan
 
@@ -21,7 +21,7 @@ dl memos replace "Draft checklist" --text "Ready for review" --note release-plan
 dl memos replace "Draft checklist" --text "Ready for review" --note release-plan
 dl memos read release-plan
 
-# Create a private note from a Markdown file.
+# Create a private memo from a Markdown file.
 dl memos create "Release plan" --file release-plan.md
 
 # Cross-interface design (unreleased target APIs; verify installed --help):

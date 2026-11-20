@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.136.0 b20eddb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.137.0 02c2b75; do not edit -->
 
 # Command reference
 
@@ -36,6 +36,21 @@ options and validation. Existing scripts using explicit `list` continue to work.
 
 This convention is available in CLI 0.76.0 and later. Earlier releases require
 explicit `list`.
+
+## Named tmux terminals
+
+| Command | What it does |
+| --- | --- |
+| `tmux new [name] --host <selector>` | Create a new named tmux session; never attach on a name conflict |
+| `tmux open <reference>` | Attach only to the exact existing named reference |
+| `tmux list --host <selector>` | Read cached enrolled-host tmux metadata |
+| `tmux resolve <reference>` | Resolve cached metadata without creating or attaching |
+
+These actions also exist under `hosts tmux`. See
+[Named tmux references and creation](https://cli.dreamlake.ai/host-enrollment#named-tmux-references-and-creation)
+for capability requirements, request UUID retries, the matching command palette
+syntax and `:tmux[...]` directives. The compatibility command `tmux HOST
+--session NAME` retains its original create-or-attach behavior.
 
 ## Auth & environments
 
