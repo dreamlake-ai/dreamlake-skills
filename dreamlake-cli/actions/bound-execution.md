@@ -11,17 +11,27 @@ in advance, as the docs describe. Check `dl --version` and
    (the runnable-register action). The code must be a configured snapshot whose
    project carries `pyproject.toml`, `uv.lock` and an exact `.python-version`:
    [prepare the snapshot and the runtime](../reference/cli-bound-execution.md#prepare-the-snapshot-and-the-runtime).
+   For `--target`, keep the project in a subdirectory of the snapshot and pass
+   it as `--project` (the layout example is under
+   [`--target`](../reference/cli-bound-execution.md#run-through-dreamlake-on-an-owned-host---target)).
    The worker installs nothing; the runtime for that lock must already exist on
-   it. Do not prepare a worker runtime yourself unless the user owns that host
-   and asked for it.
+   it, under the runtime root the worker daemon itself sees. Do not prepare a
+   worker runtime, or change a worker daemon's environment or restart it,
+   unless the user owns that host and asked for it; restart only while it is
+   idle.
 2. Choose the route. `--target namespace/group/host` runs through DreamLake on a
    host the user owns: the submitting CLI and the UDF need no control-plane
    token, while the DreamLake server and the worker daemon keep their normal
    enrollment credentials. Do not report the host as credential-free. Its
-   worker must already be pinned to the queue you name (pinning is the Runtime
-   action of `dreamlake-lakeshore`). Without `--target`, pass the trusted
-   control plane with `--server` or `LAKESHORE_URL`; never take it from the
-   binding.
+   worker must already claim the queue you name; read the worker's queues,
+   pin and claim state first and choose a queue the
+   [`--target` rules](../reference/cli-bound-execution.md#run-through-dreamlake-on-an-owned-host---target)
+   accept. Do not pin a worker that serves other queues just to run a bound
+   UDF: a pin is exclusive and moves the worker off them (pinning is the
+   Runtime action of `dreamlake-lakeshore`). If no queue is eligible, stop and
+   report the worker's state rather than changing it. Without `--target`, pass
+   the trusted control plane with `--server` or `LAKESHORE_URL`; never take it
+   from the binding.
 3. Bind with `--dry-run` first, then without it. Retain the printed
    `exec/NAMESPACE/NAME@EXECUTION_DIGEST`. Repeating `bind` returns the existing
    binding; a changed module, lock or Python version is a new binding, never an
@@ -36,8 +46,10 @@ in advance, as the docs describe. Check `dl --version` and
    [execute and recover](../reference/cli-bound-execution.md#execute-and-recover).
 
 Report binding, submission and receipt separately. Request acceptance is not
-completion. A `rejected` receipt stopped before user code; fix the snapshot,
-lock or runtime rather than retrying. A `409` means that invocation ID already
+completion. If `bind` stored the archive in a DreamLake Source, only the user
+who bound it can execute that binding; report that to anyone else rather than
+working around it. A `rejected` receipt stopped before user code; fix the
+snapshot, lock or runtime rather than retrying. A `409` means that invocation ID already
 carries different bytes: do not change the ID to force a run. The receipt checks
 distribution versions, not full environment identity.
 
