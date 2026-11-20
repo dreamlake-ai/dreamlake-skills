@@ -15,7 +15,7 @@ before applying the folder recipe below.
 |---|---|---|
 | `meta/info.json` with `features` (LeRobot v2.0/v2.1/v3.0) | `lerobot` | nothing — reads as-is; cameras must be `dtype: video`/`image` in `info.json` |
 | `*.zarr.zip` or a `.zarr/` directory (UMI / ReplayBuffer) | `umi` | nothing; camera arrays need an image codec (JPEG/PNG) so one chunk = one frame |
-| `*.mcap` files, one per episode | `mcap` | channels with Foxglove or JSON schemas (`cdr`/`ros2msg` has no decoder yet) |
+| `*.mcap` files, one per episode | `mcap` | check the index and encoding against the [MCAP reader reference](../reference/viz-dataset-viz-reference.md#mcap) |
 | `model/` + `episodes/*/frames.parquet` + `episode.json` (a DreamLake sim-playback dataset — MuJoCo teleop recording, or a URDF motion clip) | `folder` | nothing — the writer made the layout (usually the `.dreamrc` too); `episodes: "episodes/*/"`, bind the `mujoco` or `urdf` view per `episode.json.sim` ([sim-playback](sim-playback.md)) |
 | anything else — videos, image folders, CSVs, parquet | `folder` | one directory per episode, enumerated by a glob (recipe below) |
 
@@ -30,6 +30,12 @@ LeRobot export, or extract to the folder layout.
 one scrubbable track (declare `dataset.fps` or clocks drift). Full recipe
 and per-payload shape rules:
 [reference/viz-dataset-viz-requirements.md](../reference/viz-dataset-viz-requirements.md).
+
+For a Source containing several MCAPs, decide whether the requested layout
+belongs to the dataset or one recording. Keep episode discovery for the shared
+layout. For an exception, follow the lookup order in
+[Single MCAP files](../reference/docs-sources.md#single-mcap-files).
+Inspect existing sibling and folder configs before editing the root.
 
 ## 2. Drop in a minimal `.dreamrc`
 
@@ -64,6 +70,14 @@ npx tsx scripts/check-dreamrc.mts https://bucket/my-dataset   # any object stora
 This listing is what you write bindings against. The viewer never guesses
 what a column means — you know `[21,3]` is a hand skeleton; the next step
 is where you write that down.
+
+For an MCAP camera, inspect the packet format as well as the schema name.
+For a repeated joint array, inspect the joint identifiers and map each desired
+joint to its dimension separately in the command and feedback topics. For a
+hand or base path, select the two coordinate dimensions from the recorded pose
+topic. Use the [MCAP bindings](../reference/viz-dataset-viz-reference.md#mcap)
+and [trajectory view](../reference/viz-dataset-viz-views.md#trajectory2d)
+when writing these entries.
 
 ## 4. Bind views
 
