@@ -134,13 +134,19 @@ dl artifact meta show <id> --namespace <slug>
    Keep the same artifact ID and namespace and preserve unrelated metadata and
    sharing settings. Retain a still-accurate custom cover; do not clear it merely
    to trigger automatic generation.
-3. If the cover is missing or generated, check the automatic result after the
-   documented generation interval, or supply an accurate screenshot when needed.
-   Consult [Link previews](../reference/cli-artifacts.md#link-previews) for timing
-   and image requirements. Do not repeatedly push content to retry a cover check.
+3. If the current-version cover is missing, open the authorized Artifact list
+   or detail once, then check the automatic result separately. Follow the
+   [shared preview guidance](../reference/docs-artifacts.md#shared-preview-generation)
+   for access-triggered recovery and its retry cooldown; repeated refreshes are
+   not a way to bypass backoff. A static placeholder does not prove the original
+   Artifact is broken: open the content to distinguish a generation failure
+   from a content failure. Prefer supplying an inspected explicit cover when
+   needed. Do not repeatedly push content just to retry a thumbnail check.
 4. After publishing, read metadata back, open the latest artifact and visually
    compare its thumbnail in the DreamLake gallery/list with the rendered content.
    Check the actual image, not just the cover URL or a successful upload receipt.
+   Reject a thumbnail that still shows a loading state. Follow the shared preview
+   guidance for asynchronous application readiness before calling it verified.
    Treat third-party link-card caching separately using the same reference.
 5. Report whether the thumbnail was retained, replaced, or is still pending,
    with the artifact link and what was actually checked. If generation or visual
