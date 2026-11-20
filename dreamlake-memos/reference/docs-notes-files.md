@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.193 4d8f60536; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.195 859cf167; do not edit -->
 
 # Files and attachments
 
@@ -589,4 +589,9 @@ time guarantee.
 
 The initial renderer covers HTML attachments. It uses the existing isolated
 preview frame and produces a compressed static image for the attachment list.
+HTML attachments use the same [readiness and compression contract](https://docs.dreamlake.ai/artifacts#shared-preview-generation)
+as Artifacts. Visible loading states must clear before capture; asynchronous
+applications without a marked loading state should provide the explicit
+readiness signal. A thumbnail still showing a loading screen is not a verified
+preview, even when an image URL exists.
 PDF, video and Scene adapters are future extensions, not newly supported formats.
