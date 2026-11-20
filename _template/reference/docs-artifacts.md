@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.193 4d8f60536; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.195 859cf167; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -833,11 +833,33 @@ and images. Applications with asynchronous scene initialization can declare
 `window.dreamlakePreviewReady = false` before starting and set it to `true` once
 the scene is drawable. Endless live streams do not need to become network-idle.
 A timeout is a failed preview, not permission to save a blank loading screen.
+Visible busy/indeterminate-progress indicators and conventional `loading` elements must clear
+before capture, including inside nested frames. Hidden loading templates do not
+block capture. DOM completion alone does not prove that arbitrary asynchronous
+application work has finished: authors should provide the explicit readiness
+signal above, especially for WebGL scenes without a marked loading state.
 Generated JPEG images are limited to 256 KiB. This limit does not change the
 existing user-cover upload limits.
 
 Publication events are the normal trigger. New publication tasks take priority
 over periodic recovery tasks without interrupting an active render. Recovery
-scans only fill missing tasks; neither a scan interval nor successful publication guarantees a
+scans only fill missing tasks. Opening an authorized Artifact catalog list or
+Artifact detail also admits a missing current-version thumbnail. Existing user
+covers and current generated covers are kept; pending tasks are deduplicated and
+running leases are not interrupted. An access can retry a terminal task after a
+one-hour cooldown, with the same bounded attempts for that retry. Repeated reads
+during the cooldown do not restart it. Admission failures do not prevent opening
+the original Artifact.
+
+Opening an Artifact detail also refreshes a legacy automatic cover made by an
+older renderer. The old image remains readable until its replacement commits;
+user covers are never replaced. Catalog lists do not mass-refresh existing
+covers solely for a renderer upgrade.
+
+Artifact list cards, Feed previews and Gallery cards use static covers or a
+placeholder, not a live iframe. Visible missing covers refresh metadata with a
+bounded polling window; an expired image URL is refreshed without downloading
+the Artifact body. Opening the Artifact itself still uses its interactive viewer.
+Neither a scan interval, a view nor successful publication guarantees a
 thumbnail completion time. Prefer generating and inspecting an explicit cover
 with `--cover`; cloud generation is the fallback.

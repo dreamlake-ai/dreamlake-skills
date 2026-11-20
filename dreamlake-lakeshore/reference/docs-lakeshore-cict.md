@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.193 4d8f60536; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.195 859cf167; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -249,7 +249,7 @@ Only files listed in the manifest are copied to the Source. Write them under
 `$DREAMLAKE_RUN_DIR`, then write the manifest last:
 
 ```json
-[".dreamrc", "result.json", "metrics.json", "replays/walk_01/episode.json", "replays/walk_01/frames.parquet"]
+[".dreamrc", "metrics.json", "render.png", "replays/walk_01/episode.json", "replays/walk_01/frames.parquet"]
 ```
 
 - `results.json` is a JSON array of paths relative to `$DREAMLAKE_RUN_DIR`.
@@ -258,8 +258,9 @@ Only files listed in the manifest are copied to the Source. Write them under
 - `metrics.json` (optional) is an array of points,
   `[{"step": 0, "values": {"pass_rate": 1.0}}]`: at most 128 points of at most
   16 finite numbers each.
-- `result.json` is the suite verdict the CI/CT page shows: a `verdict`,
-  `passed`/`total` counts and a `cases` array with per-case checks.
+- Any other file is yours: logs your job writes, renders, checkpoints, a
+  suite result in whatever format you use. The run page lists them and opens
+  each one beside the run.
 - `.dreamrc` makes the run folder open as a visualization in the Source viewer,
   for example a MuJoCo replay with a timeline and line charts. A `.dreamrc`
   in a run sub-folder applies to that folder.
@@ -271,26 +272,24 @@ and date.
 
 ## See results
 
-Every finished run is compared case by case with its **baseline**: the latest
-earlier finished run of the same repository, workflow and job on the
-repository's default branch whose evidence was written. A case that passed in
-the baseline and fails now is a regression; the reverse is a fix. Add
-`push: branches: [main]` (your default branch) to the workflow's triggers so
-baselines exist.
+CI/CT shows every job the same way, whatever it runs: how it ended, how long
+it took, where it ran, what it cost on DreamLake GPU and the files it declared.
+It does not read or compare a result format; your job's own steps decide pass
+or fail.
 
 - **GitHub:** a `DreamLake CI/CT` check on the commit, opened when the runner
-  starts and completed with `N/M cases passed · K regressions vs main@sha`;
-  its Details link opens the run in DreamLake. The job log and step summary
-  are there too; `DREAMLAKE_RUN_URL` holds the run's DreamLake link for the
-  summary.
-- **CI/CT page** (`/<namespace>/cict`): runs grouped by repository with their
-  regressions against the baseline; open a run for its progress, the case
-  comparison (changed cases first, each check's observed values in both runs)
-  and its evidence. **Setup** on the same page connects GitHub and manages
-  runner pools.
+  starts and completed with how the job ended (`Passed on DreamLake · 4m`),
+  where it ran and where its evidence is; its Details link opens the run in
+  DreamLake. The job log and step summary are there too; `DREAMLAKE_RUN_URL`
+  holds the run's DreamLake link for the summary.
+- **CI/CT page** (`/<namespace>/cict`): one row per job, with its status,
+  branch and commit, machine, duration, GPU time and cost, who triggered it
+  and when; re-runs fold into the job's row. Open a run for its progress, run
+  details and evidence; each evidence file opens in a tab beside it. **Setup**
+  on the same page connects GitHub and manages runner pools.
 - **Source:** the run folder, with replays and charts from its `.dreamrc`.
 - **CLI and SDKs:** `dl cict runs list my-team` and
-  `dl cict runs show my-team/<run-id> --result`.
+  `dl cict runs show my-team/<run-id>`.
 
 ## Report metrics
 
@@ -353,7 +352,7 @@ Two ways are supported by design:
 | GET | `/namespaces/:ns/github/jobs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs/:run` | read |
-| GET | `/namespaces/:ns/cict/runs/:run/comparison` | read (and Source use) |
+| GET | `/namespaces/:ns/cict/runs/:run/comparison` | removed: always `410 comparison_removed` |
 
 The built-in agent can call these through its resource API tools. Creating or
 deleting a pool is a control operation. Completing a GitHub binding is not
