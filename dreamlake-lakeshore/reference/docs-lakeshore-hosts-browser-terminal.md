@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.195 859cf167; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.196 754a09c9; do not edit -->
 
 # Browser terminal
 
@@ -750,6 +750,19 @@ the absence of an error does **not** prove there is no other writer. The guard
 does not provide an exclusive-writer lock or adopt native app sessions. CLI
 0.84.1+ preserves the error and recovery guidance; older clients may show only
 HTTP 409. Client updates alone do not deploy the gateway guard.
+
+When the Sessions page shows this refusal for a Codex session you own, it offers
+**View read-only**. Nothing is read until you choose it. The view shows the newest
+user and assistant messages, follows new ones while it is open, and loads older
+messages when you ask; reading far back pauses following until you choose
+**Jump to latest**. It cannot type, send input, start, stop or control the
+conversation, and closing it stops reading. Reasoning, tool calls and outputs,
+instructions and system context are not shown; messages appear as plain text and
+long ones are cut at 4000 characters. Each read rechecks your access to that exact machine, Unix account and
+saved session. The conversation file is read in place on your machine; DreamLake
+does not store or upload it. Each read is bounded, whatever the file's size.
+Claude sessions and shared (team) viewers are not supported. This requires the matching terminal
+gateway and browser release.
 
 Older daemons still require explicit discovery and saving. That discovery reads the enrolled user's
 default `~/.codex` SQLite index for recent, unarchived root conversations from

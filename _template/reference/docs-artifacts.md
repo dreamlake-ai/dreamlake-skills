@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.195 859cf167; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.196 754a09c9; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -829,12 +829,14 @@ preferred while an automatic preview follows the current content version. Lists
 load static images. Failed generation does not prevent authorized content reads.
 
 The browser renderer waits for the real preview frame, nested documents, fonts
-and images. Applications with asynchronous scene initialization can declare
+and images in view; offscreen lazy images do not block capture. Frame replacement
+or navigation invalidates earlier readiness checks. Applications with asynchronous scene initialization can declare
 `window.dreamlakePreviewReady = false` before starting and set it to `true` once
 the scene is drawable. Endless live streams do not need to become network-idle.
 A timeout is a failed preview, not permission to save a blank loading screen.
 Visible busy/indeterminate-progress indicators and conventional `loading` elements must clear
-before capture, including inside nested frames. Hidden loading templates do not
+before capture, including inside nested frames. Short visible loading messages
+ending in an ellipsis are also treated as busy. Hidden loading templates do not
 block capture. DOM completion alone does not prove that arbitrary asynchronous
 application work has finished: authors should provide the explicit readiness
 signal above, especially for WebGL scenes without a marked loading state.

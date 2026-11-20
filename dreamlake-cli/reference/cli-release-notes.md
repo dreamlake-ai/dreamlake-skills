@@ -1,6 +1,15 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.135.1 9021997; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.135.2 8eb7eba; do not edit -->
 
 # Release notes
+
+## 0.135.2 — Bundled skills v2026.11.20.2
+
+The embedded `dreamlake-cli` skill and `dl init` now ship skills
+[v2026.11.20.2](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.20.2).
+Its bound-execution procedure targets a worker that already claims the queue
+and never pins a multi-queue worker just to run a bound UDF; its references
+come from these 0.135.1 docs. It also includes v2026.11.20.1's shared-preview
+references. No command changes.
 
 ## 0.135.1 — Bound executions on Source-staged snapshots and unpinned workers
 
