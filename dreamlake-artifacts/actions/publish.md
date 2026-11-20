@@ -145,6 +145,8 @@ dl artifact meta show <id> --namespace <slug>
 4. After publishing, read metadata back, open the latest artifact and visually
    compare its thumbnail in the DreamLake gallery/list with the rendered content.
    Check the actual image, not just the cover URL or a successful upload receipt.
+   Reject a thumbnail that still shows a loading state. Follow the shared preview
+   guidance for asynchronous application readiness before calling it verified.
    Treat third-party link-card caching separately using the same reference.
 5. Report whether the thumbnail was retained, replaced, or is still pending,
    with the artifact link and what was actually checked. If generation or visual
