@@ -21,8 +21,9 @@ open step with `how.cli`, `how.api`, `how.ui` and, when a person must act,
 1. Run `dl cict status NS --json`. If `ready` is true, hand the developer the
    `workflow` line and stop: it names every usable `runs-on` label (ask which
    fits the job, or match the spec in `platform show`) and the evidence
-   contract. `results.json` is the manifest of files to keep; `result.json`
-   is the verdict the CI/CT page compares. `route` is the path being followed
+   contract. `results.json` is the manifest of files to keep; CI/CT does not
+   read a result format or compare runs, so the job's own steps decide whether
+   it passes. `route` is the path being followed
    (DreamLake GPU once enabled or when nothing else has started); `readyVia`
    says which one is ready.
 2. Do `next`: run its `how.cli` after filling every `<placeholder>` from the
@@ -120,13 +121,12 @@ before writing a launch layer: ask only for resources one node has.
    commit. The text output has no branch; use `--json` and its `headBranch`
    field to find a pull request's runs.
 2. `dl cict runs show NS/RUN_ID` for routing, runner, Slurm job, evidence
-   state, who triggered it and GPU time; add `--result` for the suite's
-   `result.json`.
-3. `dl cict runs compare NS/RUN_ID` shows which cases regressed or were fixed
-   against the baseline: the latest earlier run of the same repository,
-   workflow and job on the default branch whose evidence was written (`--all`
-   for every case).
-4. Explain the state with the guide's
+   state, who triggered it, GPU time and cost; add `--file <path>` (relative to
+   the evidence folder, such as `metrics.json`) to print one JSON evidence
+   file. To see whether a change regressed, read the job's own verdict
+   (its GitHub check) and compare its evidence files yourself; there is no
+   `runs compare`.
+3. Explain the state with the guide's
    [Troubleshooting](../reference/docs-lakeshore-cict.md#troubleshooting)
    table. `queued #N` is a DreamLake GPU job waiting for a slot, not a fault.
    `refused:<reason>` (shown as `not started: <reason>` in `runs show`) is
