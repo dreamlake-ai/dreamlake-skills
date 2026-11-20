@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.197 7b72e2b8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.201 70f12bef; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -274,12 +274,13 @@ and component. Device dispatch requires `session_archive_components: 1` and v2
 work negotiation; older claims receive a retry without acquiring a lease. These
 contracts do not grant remote execution or enable future automatic uploads.
 
-Component admission initially remains disabled in code. Deploy these readers to
-every API and history/dispatch worker and verify older replicas have drained
-before a separate activation release. After the first component record exists,
-rollback must retain this version-aware catalog and history reader floor; older
-builders would incorrectly include children in legacy previews. The device's
-component opt-in remains off until the activated fleet is verified.
+Component admission is enabled after the compatibility deployment
+[`44750784681`](https://github.com/dreamlake-ai/dreamlake-workspace/actions/runs/44750784681)
+and independent API/history-worker and search drain verification on November 20,
+2026. Rollback must retain reader floor `dc36ef830a5758c7c0a9774e79ca5b455d5cb498`
+or newer: older builders would incorrectly include children in legacy previews.
+Each device's component opt-in remains off until its compatible producer and the
+activated fleet are verified. Existing root-only approvals never include children.
 
 ## Shape the dataset
 
@@ -622,3 +623,23 @@ application under `.dreamlake/visualization/` and select it in `.dreamrc`.
 the read-only Source bridge, permissions and SDK examples.
 
 The archive pilot admits only the configured shared `SOURCE_ASSETS_BUCKET`, whose versioning must remain disabled. Recheck this deployment assumption before release. Arbitrary or versioned archive bindings remain unavailable until lifecycle deletion and Terraform-managed IAM support them. Cleanup refuses versioned objects rather than claiming they were purged.
+
+Older session archive registrations are repaired lazily when their Source catalog is read.
+Each request examines at most 25 rows and materializes the native ID only when the
+current stored observation matches the existing session and configured provider/root.
+This repair does not upload bytes, change consent, or move a session between namespaces.
+
+Historical archive jobs yield between bounded device work quanta. Only a new verified commit since the current claim receives a short scheduling retry; zero-progress resource pressure and transport failures retain exponential backoff. The server continues to admit at most one archive upload job per enrolled machine.
+### Captured new activity (admission disabled)
+
+The separate capture protocol records only bytes after an explicitly inspected local boundary. It does not include the earlier prefix, certify the current file, or reuse snapshot approval. Each approval has a new capture ID, consent ID, and consent revision; device application is acknowledged separately. Replacement, truncation, or uncertain local journals pause the capture. Stopping upload permission preserves prior captured history under current Source read authorization.
+
+Captured ranges use their own immutable revision chain and read routes. The decoder never joins an excluded prefix or another stream epoch. Reads are bounded to eight chunks and 8 MiB per page, with signed actor-bound cursors and explicit partial coverage. The default-off application gate keeps preparation, new approval, grants, and commits unavailable until compatible device production and fleet verification pass. Readers, revocation, and cancellation remain available after admission is disabled. Legacy automatic-session and automatic-source capabilities remain false.
+
+A signed capture observation may attest that the inspected offset starts a native record by checking the preceding byte on the same owned file handle. This evidence is pinned to the capture and its manifests. Without it, decoding conservatively omits the initial partial record; retained raw bytes always start at the exact approved offset. This boundary evidence does not establish historical file continuity.
+
+An enrolled device reconciles a lost start acknowledgment through signed
+`POST /daemon/session-archive-sources/:sourceId/captures/:captureId/status` with
+an empty payload. The response includes the current Source and policy revisions,
+original approval timestamp and capture summary. It rechecks current enrollment
+and Source access, remains readable for stopped captures, and never mints an upload grant.

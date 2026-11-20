@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.197 7b72e2b8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.201 70f12bef; do not edit -->
 
 # Files and attachments
 
@@ -589,6 +589,12 @@ time guarantee.
 
 The initial renderer covers HTML attachments. It uses the existing isolated
 preview frame and produces a compressed static image for the attachment list.
+The compact attachment panel displays these images in its Documents rows, with
+pending and failed placeholders; opening a document still opens the original.
+Historical HTML attachments are included in background recovery, so a ready
+thumbnail is not limited to files uploaded after this feature was introduced.
+Markdown, CSV, JSON, PDF and archives do not currently receive generated
+attachment thumbnails; an `unsupported` status is not a pending generation job.
 HTML attachments use the same [readiness and compression contract](https://docs.dreamlake.ai/artifacts#shared-preview-generation)
 as Artifacts. Visible loading states must clear before capture; asynchronous
 applications without a marked loading state should provide the explicit

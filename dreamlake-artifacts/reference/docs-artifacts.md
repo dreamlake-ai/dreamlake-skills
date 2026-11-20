@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.197 7b72e2b8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.201 70f12bef; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -829,7 +829,10 @@ preferred while an automatic preview follows the current content version. Lists
 load static images. Failed generation does not prevent authorized content reads.
 
 The browser renderer waits for the real preview frame, nested documents, fonts
-and images in view; offscreen lazy images do not block capture. Frame replacement
+and images in view; offscreen lazy images do not block capture. Images in closed
+dialogs or hidden templates do not block capture either, including empty image
+placeholders populated only when a dialog opens. Visible broken images still
+prevent a successful capture. Frame replacement
 or navigation invalidates earlier readiness checks. Applications with asynchronous scene initialization can declare
 `window.dreamlakePreviewReady = false` before starting and set it to `true` once
 the scene is drawable. Endless live streams do not need to become network-idle.
