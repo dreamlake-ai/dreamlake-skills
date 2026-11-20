@@ -26,7 +26,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | Store a third-party API key in `pass` and Vault; load it into the variable a tool reads | [api-keys](actions/api-keys.md) |
 | Register UDF or agent definitions from `.dreamrc` | [runnable-register](actions/runnable-register.md) |
 | Execute one registered Python UDF on an owned host | [registered-udf](actions/registered-udf.md) |
-| Bind a registered UDF to a snapshot and locked runtime; execute it on a queue or pinned worker | [bound-execution](actions/bound-execution.md) |
+| Bind a registered UDF to a snapshot and locked runtime; execute it on a queue or an owned host's worker | [bound-execution](actions/bound-execution.md) |
 | Push or list a workflow spec | [workflows](actions/workflows.md) |
 
 ## Domain skills (install by name)
