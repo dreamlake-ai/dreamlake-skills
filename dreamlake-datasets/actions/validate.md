@@ -19,6 +19,15 @@ entry closest to the dataset, edit the YAML in the left pane, and the
 render follows every valid edit — point its `storage:` at your data to
 tune against the real thing.
 
+For a multi-MCAP Source, open **Visualize** and check that each expected
+episode appears. Then select two different recordings in **Files** and
+verify that each preview uses its own duration, frames and signal traces.
+If only one file differs, check for a sibling override before changing the
+shared layout. For a large recording that fails to open, inspect the actual
+Range response, MCAP index and chunk sizes against the
+[reader limits](../reference/viz-dataset-viz-reference.md#mcap). Keep signed
+URLs out of screenshots and diagnostics.
+
 ## Reference
 
 Fetch these when you need option-level detail — never invent keys:

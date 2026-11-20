@@ -32,7 +32,8 @@ MCAP comes back here as `format: mcap`.
 
 Two preparation rules that bite people:
 
-- **Videos must be H.264/AAC with `+faststart`.** The viewer trusts the
+- **For camera packets inside an indexed MCAP**, inspect the schema and codec against the [MCAP reader reference](../reference/viz-dataset-viz-reference.md#mcap) before proposing conversion. Test a supported stream in the Source viewer.
+- **For standalone MP4 clips**, prepare H.264/AAC with `+faststart`. The viewer trusts the
   `.mp4` extension; MPEG-4 Part 2 / HEVC / AV1 won't decode in most
   browsers. Transcode raw lab clips first:
   `ffmpeg -i in.mp4 -c:v libx264 -pix_fmt yuv420p -movflags +faststart out.mp4`

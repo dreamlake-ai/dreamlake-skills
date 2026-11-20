@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.196 754a09c9; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.197 7b72e2b8; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -86,6 +86,201 @@ dl source download <path> --source <name> -o ./out # spot-check a file
 Public GitHub repository support is an [implementation preview](./github/),
 with commit-pinned reads and explicit pilot limits.
 
+## Namespace, audience, and storage
+
+A Source belongs to one namespace and can be referenced by multiple Projects.
+Projects organize Sources; a Source can outlive a Project. An ordinary Source
+uses `accessMode: "namespace"`: active namespace members can read it, and
+Editors can write. `visibility: "private"` does not hide it from those members.
+
+Deployments advertising `owner_admin` in the Sources list's
+`capabilities.supportedAccessModes` also accept it when creating an empty
+Source. This immutable audience admits only the active Source creator and
+namespace administrators. The creator must remain a member. The current
+organization role model gives administrator authority to organization owners.
+Share links, public visibility, team Editor grants, and Project grants cannot
+expand this audience. Restricted Sources must remain private. Project and
+Bindr references are shown only to people who can access the Source. Moving a
+Project with a restricted Source requires detaching that Source first;
+restricted Source namespace transfers are not supported.
+
+Source creation still requires namespace administrator authority. The create
+API accepts, for example:
+
+```json
+{"name":"session-archives","accessMode":"owner_admin","visibility":"private"}
+```
+
+Managed Sources share platform storage, with a separate server-controlled
+prefix for each Source ID. There is no per-folder or arbitrary prefix ACL
+inside a Source: use separate Sources for different audiences. Upload and
+read capabilities target objects within the selected Source; they do not
+expose bucket credentials. A Project reference does not relocate stored bytes.
+
+Operator-configured, namespace-allowlisted storage profiles can select a
+managed bucket when a Source is created. Importing an external S3 connection
+adds a read layer; it does not change the managed upload destination. An
+organization-admin storage binding screen is a separate capability. Session
+archives use the consent-gated service described below, rather than generic
+Source upload permissions.
+
+## Session archive sources
+
+The session archive API binds an explicitly reported machine, provider root and
+account to one namespace and restricted storage Source. A working directory or
+Project never changes the destination. Each root/account currently has one
+binding; directory routing across multiple namespaces is not yet supported.
+
+`GET /namespaces/:namespace/session-archive-source-candidates` returns the caller's
+reported roots. `GET /namespaces/:namespace/session-archive-sources` returns
+configurations, permitted storage choices and creation capabilities. Creating a
+configuration with `{candidateId,storageSourceId:null}` provisions a dedicated
+creator-and-admin Source in shared platform storage when
+`capabilities.createDefaultStorage` is true. An explicit eligible Source ID uses
+that existing binding instead. Creating a configuration does not approve uploads.
+
+An authenticated observation records a native session identity and a frozen byte
+boundary without transcript text, titles or working directories. A user approves
+that exact observation and representation before the enrolled machine can request
+short-lived, exact-object grants. Namespace administrators can read permitted
+archives; that authority cannot approve another user's local uploads. Each grant
+pins the checksum, length and immutable object, expires within two minutes, and
+requires a current-authority commit before the bytes become readable. Interrupted
+uploads recover through status and commit; a successful PUT is not a commit.
+
+The upload path supports explicit native JSONL snapshots and gzip/zstd snapshots
+preserved as encoded bytes. Compressed snapshots require an explicit
+`native-compressed` source policy and consent; they are not decompressed on the
+device or presented as a decoded conversation. Automatic session and source-wide
+upload capabilities remain false. Upload consent never
+authorizes remote execution. Local signed requests reuse the existing enrolled
+machine key authority; DreamLake owns source, consent and archive permissions.
+Current signing-key verification still depends on Lakeshore rotation/revocation
+state, and work notifications use its existing connection. Independent DreamLake
+device pairing and disconnected transport recovery are not yet available.
+
+S3 holds immutable content. The application database owns identity, permissions,
+consent and committed manifests; a durable outbox publishes namespace-scoped
+manifest indexes to DreamDB. Index delay never grants access. Archive objects use
+a private storage area outside generic Source browsing; only committed manifests
+allow reads. Uncommitted expired objects remain private and are reclaimed after a one-hour
+safety window by a bounded server worker with retry backoff. Committed objects
+are excluded. Versioned storage needs a separately configured version-purge
+policy; a delete marker is never reported as a payload purge. Generic deletion
+of a Source bound to archival is refused.
+
+A source owner or namespace administrator can stop future uploads with
+`POST /namespaces/:namespace/session-archive-sources/:sourceId/disable`; only the
+owner can re-enable with `/enable`. Both commands require an `Idempotency-Key`
+and `{expectedSourceRevision,expectedPolicyRevision}`. Stopping clears current
+consents and pending uploads, while preserving access to committed archives.
+Re-enabling never restores previous consent. Disabled configurations remain listed.
+Stopping uploads preserves configured metadata discovery, observations, and inventory
+reporting under the current source revision. Configuration delivery still refreshes
+the device binding and schedules metadata observation; upload grants remain blocked.
+
+`GET` on the same source's `/policy` returns the current epochs, permitted
+representations, `managedBy: null`, and the hard 4 MiB per-chunk limit.
+`POST /policy` accepts the two expected revisions and `allowedRepresentations`
+(`native-jsonl`, `native-compressed`, or an empty list to permit neither).
+Owner/admin policy changes invalidate existing consents; they do not approve
+another person's local upload. These controls are not enterprise forced-upload
+policy: managed-root enrollment is a separate requirement.
+
+The read-only message projection accepts Codex event-message JSONL, Claude
+user/assistant JSONL, explicit DeepSeek role/content JSONL exports, and DreamLake
+schema-version-1 messages. Tool output and reasoning are omitted. Unknown or
+malformed records produce an incomplete preview, never a fabricated transcript.
+Each page returns at most 200 messages, reads at most 8 MiB of native chunks and
+uses an actor-bound cursor. A complete native snapshot does not imply complete
+decoded coverage. Cross-namespace session links are optional and disappear when
+the viewer cannot read either side.
+
+### Configuration delivery and the private catalog
+
+Configuration creation queues a durable, enrollment-bound notification. The
+machine fetches configuration from DreamLake using its existing signed identity;
+the notification carries no paths, credentials or upload permission. Installation
+requires an explicitly configured local root/account, owner identity and an
+independent destination allowlist. The browser exposes `deviceConfiguration` as
+`pending`, `applied`, or `blocked`; server configuration alone is not proof that a
+machine applied it. Stop and policy changes create a new configuration revision.
+
+`GET /namespaces/:namespace/session-archive-sources/:sourceId/sessions` returns
+source-authorized metadata with `query` (literal native-ID prefix), `limit`
+(default 50, maximum 100), and an opaque `cursor`. It does not search transcript
+text. Each entry identifies its machine, native session, observation, format and
+explicit archive binding. An origin-session link is returned only within the
+same namespace when separately readable. Stopped sources remain readable.
+
+### Explicit historical import
+
+`GET` on a source's `/history` returns bounded, resumable lists of previews and
+grants plus `capabilities.createPreview`. The owner creates a preview through
+`POST /history/previews` with expected source/policy revisions and permitted
+representations. The server freezes the latest observed snapshot per session at
+its cutoff, builds metadata in bounded pages, and returns counts, encoded bytes,
+exclusions, expiry and a manifest SHA-256. Zero-byte or disallowed observations
+are excluded. This step neither reads local content nor approves upload.
+
+A preview may include a frozen, revision-matched `inventory` summary reported by
+the configured device. It separately lists recognized native session IDs,
+physical variants, stat-known encoded bytes, excluded files/bytes and safe reason
+codes. An incomplete or missing scan is explicit. Unclassified child components
+are not assigned fabricated session IDs. These device-reported counts do not
+prove all files were registered or uploaded; server eligible snapshot counts
+remain a separate denominator. Signed reports use
+`POST /daemon/session-archive-sources/:sourceId/inventory`; source-authorized
+readers can inspect the latest revision-matched report at the browser source's
+`/inventory` route. Reports contain no paths, filenames or transcript text.
+
+After inspecting a ready preview, the owner approves its exact hash and revisions
+through `POST /history/previews/:id/approve`. Grants expire after 48 hours and
+cannot silently extend. Historical approval does not enable future sessions.
+The server dispatches at most one active snapshot per enrollment, rechecks each
+frozen observation, and retains existing automatic-session approval instead of
+overwriting it. Changed observations are blocked. Completed counts mean verified,
+committed native bytes, not complete decoded transcripts.
+
+`GET /history/grants/:id` reports progress; an owner or namespace administrator
+can stop the import with `POST /history/grants/:id/revoke` and `expectedRevision`.
+All history writes require `Idempotency-Key`. Revocation is checked again by
+already-issued child upload grants and commits. Pauses and reconnects recover
+through durable work leases and bounded retries; a notification acknowledgment
+alone never marks an archive complete.
+
+### Claude subagent components
+
+Servers advertising `history.capabilities.includeComponents` accept explicit
+`apiVersion: 2, includeComponents: true` history previews. Approval also requires
+`apiVersion: 2`; an older preview or parent snapshot approval never includes child
+logs. Each child retains the real parent's native session ID, an explicit
+`claude-subagent` component ID, and its own observation, generation, consent and
+immutable archive chain. The initial classifier accepts IDs matching
+`a[0-9a-f]{16}` only after bounded canonical-directory and native-header checks
+against an existing parent. Ambiguous or unsupported children stay excluded.
+
+Version 2 counts distinguish root sessions from components. `entryCount` is
+`sessionCount + componentCount`; `totalBytes` includes both, with `componentBytes`
+as a subset. Completed and blocked component counts remain separate from root
+session counts. A nonempty component-only preview can be approved. Signed v2
+inventory reports add a separate `components` count block; existing root-file
+counts keep their meaning, and recognized children no longer count as exclusions.
+
+Root catalogs remain lists of native sessions. The authorized parent's
+`/components` endpoint lists child metadata without fetching transcripts.
+Selecting a child uses an explicitly versioned passive reader tied to that parent
+and component. Device dispatch requires `session_archive_components: 1` and v2
+work negotiation; older claims receive a retry without acquiring a lease. These
+contracts do not grant remote execution or enable future automatic uploads.
+
+Component admission initially remains disabled in code. Deploy these readers to
+every API and history/dispatch worker and verify older replicas have drained
+before a separate activation release. After the first component record exists,
+rollback must retain this version-aware catalog and history reader floor; older
+builders would incorrectly include children in legacy previews. The device's
+component opt-in remains off until the activated fleet is verified.
+
 ## Shape the dataset
 
 Most robot-learning exports work **as-is** — a published dataset renders
@@ -125,9 +320,14 @@ its options, a live gallery of finished files —
 
 ## Single MCAP files
 
-Selecting one `.mcap` file in the browser renders it as a one-episode
-dataset. Which config drives the render is a fixed chain — the first hit
-wins:
+In **Visualize**, a root `.dreamrc` with `format: mcap` and `episodes: auto`
+lists each root MCAP as an episode. In **Files**, selecting a recording
+reuses the configured panels and pins the dataset to that one file for the
+preview. This leaves the saved configuration and episode list intact.
+The **Views** menu switches Source panels. The `views:` entries in a
+`.dreamrc` describe what to draw inside an episode.
+
+DreamLake chooses the first applicable layout in this order:
 
 1. **`<filename>.dreamrc`** beside the file — `test.mcap` looks for
    `test.mcap.dreamrc`. A config written *for this file*: its views render
@@ -141,6 +341,12 @@ wins:
    robot or skeleton (below), numeric channels charts. The header marks it
    as generated, and **copy .dreamrc** hands you the exact YAML — save it
    as `<filename>.dreamrc` (step 1) and the layout is yours to edit.
+
+The file preview reads indexed, chunked MCAP over HTTP Range. A recording can
+exceed the generic 50 MiB Source file-preview limit. The reader bounds
+individual transfers and decoded chunks, and cancels a whole-object response.
+See the [MCAP reader reference](https://viz.dreamlake.ai/dataset-viz/reference#mcap)
+for limits, supported video codecs and repeated numeric fields.
 
 The more standard the recording, the more the no-config default shows;
 channels outside the Foxglove / JSON / ROS schema set fall back to the
@@ -301,7 +507,7 @@ A Source reference attaches the **whole Source**, using its existing reference
 `ProjectSourceBinding` relation and existing Bindr references. This release does
 not migrate Source mounts or create another association table. Unifying them
 with ordinary resource Nodes is a separate future optimization. Explicit user/team
-Project READ grants Source USE; WRITE and ADMIN grant Source EDIT for supported managed content. These grants do not confer
+Project READ grants Source USE; WRITE and ADMIN grant Source EDIT for supported managed content on namespace-mode Sources. Restricted `owner_admin` Sources keep their independent audience and receive no Project-derived access. These grants do not confer
 Source ADMIN, settings/sharing management, Source deletion, or Connection/Vault
 credentials, and do not bypass Source lifecycle restrictions.
 
@@ -414,3 +620,5 @@ For a visualization that needs its own UI and interaction, publish a static
 application under `.dreamlake/visualization/` and select it in `.dreamrc`.
 [Custom Source visualization](docs-sources-custom-visualization.md) covers publishing,
 the read-only Source bridge, permissions and SDK examples.
+
+The archive pilot admits only the configured shared `SOURCE_ASSETS_BUCKET`, whose versioning must remain disabled. Recheck this deployment assumption before release. Arbitrary or versioned archive bindings remain unavailable until lifecycle deletion and Terraform-managed IAM support them. Cleanup refuses versioned objects rather than claiming they were purged.

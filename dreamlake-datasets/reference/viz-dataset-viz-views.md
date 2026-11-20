@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.32.5 74e6877e; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.33.2 5f406fd1; do not edit -->
 
 <span id="view-components" />
 
@@ -42,7 +42,13 @@ Keep reference traces readable with `dash` and `opacity` instead of hairline wid
 
 ## trajectory2d
 
-An xy path shows where the target moved. The view uses columns named `x` and
+To draw a particular path from a multi-column pose topic, set both `xDim`
+and `yDim` on the series entry. For example,
+`{ field: /poses, xDim: left.position.x, yDim: left.position.y, label: Left hand }`
+selects the two named columns. Additional entries can select the other hand
+and base from the same topic.
+
+Without explicit axes, an xy path shows where the target moved. The view uses columns named `x` and
 `y`, or the first two columns. `invertY` defaults to image coordinates; set it
 to `false` for upward-positive y. A `window` limits the displayed path to seconds
 around the cursor.
