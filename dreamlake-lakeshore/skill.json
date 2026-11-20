@@ -2,7 +2,8 @@
   "name": "dreamlake-lakeshore",
   "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and sessions, read Slurm and external jobs, provision machines via a user-configured launch server, Infrastructure Stacks, AWS, and CI/CT GitHub Actions runners.",
   "requires": [
-    "dreamlake-cli"
+    "dreamlake-cli",
+    "dreamlake-memos"
   ],
   "docs": [
     "https://cli.dreamlake.ai/lakeshore",

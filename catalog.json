@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.19-34-g34ddd91d",
+  "version": "v2026.11.19-37-g5155f554",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -55,10 +55,11 @@
     "dreamlake-lakeshore": {
       "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and sessions, read Slurm and external jobs, provision machines via a user-configured launch server, Infrastructure Stacks, AWS, and CI/CT GitHub Actions runners.",
       "requires": [
-        "dreamlake-cli"
+        "dreamlake-cli",
+        "dreamlake-memos"
       ],
       "tools": null,
-      "files": 13
+      "files": 14
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
