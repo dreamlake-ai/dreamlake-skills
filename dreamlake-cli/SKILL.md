@@ -35,6 +35,7 @@ work has its own skill (second table) and this skill does not repeat its steps.
 | --- | --- |
 | Lakeshore, hosts (including sharing a host's connection access), terminal sessions, Slurm and external jobs, machines, Infrastructure Stacks, AWS | `dreamlake-lakeshore` |
 | Publish, version, share, restore artifacts | `dreamlake-artifacts` |
+| Configure local session Sources, archive destinations, upload consent and historical coverage | `dreamlake-session-archives` |
 | Read, edit, version, attach, inline images, references, transfer a Memo | `dreamlake-memos` |
 | Task folders, subtasks, progress, events, linked Memos | `dreamlake-tasks` |
 | Scenes, MJCF/URDF packaging, asset libraries | `dreamlake-scenes` |
