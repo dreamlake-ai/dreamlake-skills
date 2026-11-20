@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.204 f98ed513; do not edit -->
 
 # Read, edit and search from the CLI
 
@@ -464,7 +464,7 @@ remote_diff = note.diff(since=original.hash)  # string, not a write receipt
 Default `note.diff()` returns a unified source-diff string and uses this handle's
 cached content hash when `since` is omitted. `since` accepts `sha256:<hex>`, quoted
 ETag-shaped SHA-256, or bare SHA-256; RTC revisions are rejected. The v2 diff's
-Note/base/format/receipt metadata and acknowledged retained source hash are
+Memo/base/format/receipt metadata and acknowledged retained source hash are
 validated. Inspection does not adopt returned source or advance any cache/draft
 baseline; a display diff is not a write precondition or proof of peer convergence.
 

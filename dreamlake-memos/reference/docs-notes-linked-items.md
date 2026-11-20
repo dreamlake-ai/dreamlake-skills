@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.204 f98ed513; do not edit -->
 
 # Linked memo items
 
@@ -84,6 +84,31 @@ Badges show titles only after your access is checked. Otherwise they read
 clicked. A reference grants no access. Invalid paths stay literal text. Use
 `:experiment`, not `:run`: in DreamLake, runs are Lakeshore function
 invocations.
+
+## Terminal references and actions
+
+A confirmed tmux session can be copied as
+`:tmux[<enrollment-id>/<server-id>/<percent-encoded-exact-session-name>]`.
+Pasting it into a Memo or Chat preserves the exact session identity. Opening it
+checks current access and attaches to that name; it never creates a replacement
+for a missing session. A reference grants no machine access.
+
+For an action, use the same command grammar as the CLI and palette:
+
+```text
+:tmux[new research --host alice/dev/my-computer]
+```
+
+The directive shows **Run**. It creates a new session only when explicitly run;
+viewing, editing, previewing or importing the Memo does not execute it. An
+existing name produces a conflict. To open a session that already exists, use
+its copied reference instead. Code examples and escaped directives remain
+literal text.
+
+See [named tmux sessions and release prerequisites](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#create-a-named-tmux-session-and-copy-its-reference)
+for the shared CLI, palette and API contract. Transient shell handles and saved
+agent conversations are separate from tmux references; terminal output is not
+automatically saved or indexed.
 
 ## Create and link a memo
 

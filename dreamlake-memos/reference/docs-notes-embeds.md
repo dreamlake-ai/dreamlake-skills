@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/embeds.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/embeds.md at 0.1.204 f98ed513; do not edit -->
 
 # Embeds and query arguments
 
@@ -161,7 +161,7 @@ own URL parameters or credentials. References and queries do not grant access.
 
 ## Video, storyboard, and contact-sheet contracts
 
-A video artifact can define these query arguments without changing Notes:
+A video artifact can define these query arguments without changing Memos:
 
 | Argument | Suggested renderer meaning |
 | --- | --- |

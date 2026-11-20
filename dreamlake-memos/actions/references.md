@@ -63,6 +63,20 @@ for a DreamLake project or folder.
 Syntax and badge behavior:
 [experiments, projects and folders](../reference/docs-notes-linked-items.md#experiments-projects-and-folders).
 
+## Terminal references and explicit actions
+
+When the user supplies a confirmed tmux reference, preserve it exactly through
+revision-guarded editing and read it back. Use the current
+[linked-items reference](../reference/docs-notes-linked-items.md) for its syntax
+and availability. Never synthesize a session reference from a display name or a
+transient browser tab handle.
+
+If the requested deliverable is a creation directive, author the documented
+action grammar. Do not execute it merely to insert, preview or verify the Memo.
+Keep authoring and execution distinct in the result. If the user separately
+asks to run the action, follow the published terminal procedure and retain the
+operation receipt before linking its returned reference.
+
 ## Create a Memo and link it
 
 Prefer an existing match over creating a duplicate. Create the Memo first with

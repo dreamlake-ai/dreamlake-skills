@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.204 f98ed513; do not edit -->
 
 # Browser terminal
 
@@ -13,6 +13,138 @@ A machine is listed only when its daemon is online, reports native SSH
 support, and is bound to an enrollment you own in that namespace or one
 shared with you. In an organization namespace, membership alone does not list
 anyone else's machines.
+
+## Create a named tmux session and copy its reference
+
+**Compatibility:** CLI 0.137.0 and Python 0.56.1 include the named-tmux client
+operations. The host needs Nymph 0.1.59 or later, plus a reference-capable API
+and terminal gateway. Check the enrollment's advertised capability before
+using it; installing a client alone does not enable an older daemon or server.
+
+Use the same action words in the CLI, command palette and Markdown directive:
+
+| Surface | Create a new session |
+|---|---|
+| CLI | `dl tmux new research --host alice/dev/my-computer` |
+| Command palette | `/tmux new research --host alice/dev/my-computer` |
+| Memo or Chat directive | `:tmux[new research --host alice/dev/my-computer]` |
+
+The action creates a new session. If that name already exists, it reports a
+conflict; it never attaches to the existing session as a side effect. Omit the
+name for an automatically generated unique name. New names use 1–64 ASCII
+letters, digits, hyphens or underscores. Choose the exact enrolled Unix account
+when a machine has more than one. Shared-host grants retain their server-assigned
+name prefix; the returned reference contains the actual name.
+
+The CLI creates detached by default and prints the confirmed reference. Add
+`--open` to attach interactively. The palette opens the newly created session
+in the originating view. A directive displays an explicit **Run** action.
+Rendering, editing, previewing, importing, indexing or reopening a document
+never executes its action. Opening an action link in another tab shows the
+Run screen; it does not create a session merely by loading the URL.
+
+Keep the request UUID printed by the CLI. After an interrupted request, repeat
+it with the same `--request-id` and the same name/host, or inspect that operation.
+Clients poll an existing operation; they do not submit another create while
+waiting. A changed request with the same ID conflicts. An expired or interrupted
+operation does not authorize a fresh creation under that ID.
+
+### Open an existing session
+
+Copy Reference from a confirmed tmux terminal returns:
+
+```text
+:tmux[<enrollment-id>/<server-id>/<percent-encoded-exact-session-name>]
+```
+
+The enrollment ID has 24 lowercase hexadecimal characters; the server ID has
+16. Copy the returned reference unchanged. The exact name, rather than tmux's
+reusable numeric session ID, identifies the session within that enrollment and
+server. A replacement with the same exact name in that server can be opened;
+a different session that inherits an old numeric ID cannot. A missing session
+is unavailable: opening its reference never creates it and never falls back to
+a login shell, another server or another Unix account.
+
+`dl tmux open REFERENCE` attaches to the referenced session.
+`dl tmux list --host alice/dev/my-computer` and `dl tmux resolve REFERENCE`
+read the authorized inventory; inventory is an observation, not proof of a live
+attachment. The gateway performs a fresh exact lookup before attaching.
+References confer no access: ownership or the current host grant is checked on
+every open. Private socket paths and connection credentials are never embedded
+in the reference.
+
+You can paste the reference into Memos or Chat, or drag its terminal tab into
+Context and reopen it there. A transient shell's browser handle is not a durable
+reference. Copying a saved agent conversation is a separate action; it does not
+turn terminal output into a saved conversation or an archive. Neither copying
+nor creating a tmux reference indexes program or terminal output.
+
+### API and client parity
+
+Creation, operation polling and reference resolution are enrollment-scoped,
+without a namespace in the route:
+
+| Operation | API |
+|---|---|
+| Create | `POST /terminal-references/:enrollment/tmux/sessions`, body `{requestId, name?}` |
+| Read creation result | `GET /terminal-references/:enrollment/tmux/operations/:requestId` |
+| Resolve an existing reference | `GET /terminal-references/:enrollment/tmux/:server?name=EXACT_NAME` |
+
+Inventory uses `GET /namespaces/:namespace/hosts/:host/enrollments/:enrollment/multiplexer-sessions`.
+It reads cached metadata without requesting a scan. Attachment uses the terminal
+gateway's `POST /namespaces/:namespace/terminal/tickets`, with
+`targetId: "enrollment-ENROLLMENT_ID"`, terminal `cols` and `rows`, and
+`launch: {kind: "tmux-reference", enrollmentId, serverId, session}`. Use a
+gateway-configured client transport and its allowed Origin for this call; the
+API transport alone does not open a terminal.
+
+The creation envelope carries the original `requestId`, nullable `requestedName`,
+and `pending`, `succeeded` or `failed` status. A success includes the canonical
+`reference` and `directive`; callers should use that result rather than inventing
+an identity from a host label. Keep original request IDs through retries and
+check the returned enrollment/name binding before opening.
+
+Pending operations return HTTP 202. A completed create returns 201 on success,
+and reading a completed operation returns 200. A completed failure, including
+`name_exists`, is a 200 response with `status: failed`; inspect the envelope even
+when HTTP succeeds. Reusing a request ID with a different name and an unsupported
+enrollment return 409. Request UUIDs use lowercase hexadecimal characters.
+
+The TypeScript `@dreamlake/dreamlake-cli/api` client exposes `tmux.create`,
+`tmux.operation`, `tmux.resolve`, `tmux.list` and `tmux.attachTicket`.
+See the [CLI command and SDK guide](https://cli.dreamlake.ai/host-enrollment#named-tmux-references-and-creation)
+for signatures, flags and compatibility. The Python `client.tmux` client exposes `create`, `operation`, `resolve`,
+`list` and `attach_ticket`; consult the [Python SDK tmux guide](https://py.dreamlake.ai/tmux) for its typed
+receipts and explicit gateway transport. The existing `hosts tmux` command
+family exposes the same named operations.
+
+### Python SDK
+
+Python 0.56.1 includes the synchronous methods below. Configure
+`DreamLakeClient(dl_url="https://api.dreamlake.ai", token=token)` for metadata
+and creation. Each call makes one HTTP request; it does not retry or poll
+automatically.
+
+| Operation | Call |
+|---|---|
+| Create | `client.tmux.create(enrollment, request_id=request_id, name="work")` |
+| Read result | `client.tmux.operation(enrollment, request_id, expected_name="work", timeout=30)` |
+| Resolve | `client.tmux.resolve(reference)` |
+| List | `client.tmux.list(namespace, host_id, enrollment)` |
+| Attach ticket | `gateway.tmux.attach_ticket(namespace, reference, origin="https://dreamlake.ai", cols=80, rows=24)` |
+
+Generate a lowercase request UUID with `str(uuid4())` and retain it before
+creation. Check the returned dictionary's `status`; a pending receipt needs
+another operation read, while a failed receipt carries `error`. The operation
+read's `expected_name=None` binds an omitted name; omitting that parameter
+skips its optional name comparison. Its `timeout` applies to that HTTP request.
+
+Use `parse_tmux_reference` from `dreamlake.api` to parse a confirmed directive.
+For attachment, configure a separate
+`DreamLakeClient(dl_url="https://term.dreamlake.ai", token=token)`. Use the
+successful receipt's authorized target and exact reference. The returned
+ticket is a short-lived credential for the terminal stream, not an attached
+local terminal; do not print or save it in a Memo.
 
 ## Share a machine with a teammate
 
@@ -207,6 +339,10 @@ Filing needs the same releases as team grants: CLI 0.132.0 or later, Python
 | Built-in agent | `dreamlake_resource_project_api_write`, which also needs an explicit service-account grant on that Project | the same tool |
 
 ## Connection command
+
+These connection defaults apply to ordinary host terminals. A copied named-tmux
+reference uses the exact attachment flow above and never creates a replacement
+session or falls back to a login shell.
 
 The terminal button in the session header (**Connection command**) selects
 the program a new session starts with:
@@ -1171,16 +1307,41 @@ Close only a connection/tunnel you intend to release, then refresh and retry. Cl
 
 For the authority model and proposed live-configuration boundary, see [Nymph permissions and commands](docs-lakeshore-hosts-nymph-permissions.md).
 
-### Cleanup after a managed agent exits
+### Target-list diagnostics
 
-New managed tmux sessions retain running agents when a browser disconnects or
-becomes idle. Once tmux confirms the agent process has exited and no viewer is
-attached, the gateway's default cleanup policy removes the exited pane after a
-full 30-minute grace interval, normally within 30–60 minutes. Reattaching resets
-the grace period. Unknown exit state or changed ownership leaves the pane intact.
-Saved session metadata and native conversation history remain available.
+The gateway's authenticated `GET /namespaces/:slug/terminal/targets` and
+`GET /namespaces/:slug/terminal/aliases` responses include `Server-Timing` for
+discovery, authorization and total request duration. Authority-read entries
+report the maximum completed read duration and bounded completion, denial and
+unavailability counts. Concurrent reads may still be pending when a failed
+request returns; these counts are not a complete inventory or a request-rate
+measurement.
 
-Administrators can set `exitedCleanupSeconds` in the protected terminal gateway
-configuration (0 disables installation; maximum seven days). The policy applies
-to newly created managed generations. Cleanup performs one small local command
-per interval while detached; it does not upload content or poll the network.
+On failure, `X-Terminal-Discovery-Failure` distinguishes discovery failure from
+authorization failure. For an unavailable authority read, it identifies only the
+fixed operation and failure category: capacity, deadline, transport, invalid
+response or upstream HTTP status. It contains no host identifiers, request URLs,
+credentials, upstream error messages or terminal content. These headers do not
+change authorization, retries or timeouts, and do not grant access to a target.
+
+### Cleanup after closing a saved agent session
+
+New DreamLake-created saved-agent-session wrappers are retired after their last
+tmux viewer disconnects for a full 30-minute grace period, normally within
+30–31 minutes. Reopening resets the grace period. This policy can terminate a
+still-running agent in that wrapper; quiet background work does not extend it.
+Saved session metadata and native conversation history remain available for
+explicit resume.
+
+Only the exact newly created wrapper generation qualifies. Existing attach-only
+sessions and explicitly named `dl tmux new NAME` sessions are excluded. Changed
+ownership, a replacement pane or a reused tmux name leaves the replacement
+untouched. Existing generations retain their previously installed cleanup policy.
+
+Administrators can set `detachedCleanupSeconds` in the protected terminal gateway
+configuration (0 disables installation; maximum seven days). The legacy
+`exitedCleanupSeconds` setting is used as a fallback when the new field is absent.
+The default policy uses one small local tmux callback per minute while
+detached, with no network polling or content upload. Browser and daemon restarts
+do not reset its timer. Older tmux versions without deferred callbacks retain
+sessions rather than claiming cleanup succeeded.

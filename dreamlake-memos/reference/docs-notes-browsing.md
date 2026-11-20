@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.204 f98ed513; do not edit -->
 
 # Browse, create and organize
 
@@ -454,7 +454,7 @@ also bounded to 1 MB of recorded size and 250,000 source characters; output is
 bounded to 16 MB across all sections and the joined recording, with a shared
 180-second generation deadline. Missing provider API-key configuration returns 503, and provider or
 audio preparation failures return 502. The ElevenLabs API key remains on the
-server. This endpoint does not grant access to the separate signed-in Notes
+server. This endpoint does not grant access to the separate signed-in Memos
 speech API or activate a live editing session.
 
 The editor’s Read Aloud player also starts with v4 and Chris unless you have
