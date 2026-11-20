@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.201 70f12bef; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.202 667f246d; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -126,6 +126,11 @@ Source upload permissions.
 
 ## Session archive sources
 
+Source setup requires an `Idempotency-Key` that pins the exact candidate and
+storage choice. Reusing it with a different request returns a conflict. An
+unchanged retry checks current access and returns the current configuration;
+it does not restart a stopped Source or create upload consent.
+
 The session archive API binds an explicitly reported machine, provider root and
 account to one namespace and restricted storage Source. A working directory or
 Project never changes the destination. Each root/account currently has one
@@ -137,7 +142,13 @@ configurations, permitted storage choices and creation capabilities. Creating a
 configuration with `{candidateId,storageSourceId:null}` provisions a dedicated
 creator-and-admin Source in shared platform storage when
 `capabilities.createDefaultStorage` is true. An explicit eligible Source ID uses
-that existing binding instead. Creating a configuration does not approve uploads.
+that existing binding instead. Any current human namespace member may use this
+archive-only default. The server fixes its canonical name, owner, private
+`owner_admin` audience and shared-storage location; retries reuse the same
+owner/namespace binding. General Source creation and external storage setup
+retain their existing administrator requirements. Leaving the namespace removes
+access, and administrators cannot configure another person's root through this
+path. Creating a configuration does not approve uploads.
 
 An authenticated observation records a native session identity and a frozen byte
 boundary without transcript text, titles or working directories. A user approves
@@ -251,10 +262,46 @@ alone never marks an archive complete.
 
 ### Claude subagent components
 
-Servers advertising `history.capabilities.includeComponents` accept explicit
-`apiVersion: 2, includeComponents: true` history previews. Approval also requires
-`apiVersion: 2`; an older preview or parent snapshot approval never includes child
-logs. Each child retains the real parent's native session ID, an explicit
+Servers advertising `history.capabilities.includeComponents` accept version 2
+previews that explicitly include Claude child logs. Preview creation and approval
+have different request bodies. Both require an `Idempotency-Key` header; use a
+separate key for each action and retain it when retrying that same request.
+
+Create the preview with `POST /history/previews`. Replace the revision
+placeholders with the source's current revisions:
+
+```json
+{
+  "apiVersion": 2,
+  "includeComponents": true,
+  "expectedSourceRevision": "<current source revision>",
+  "expectedPolicyRevision": "<current policy revision>",
+  "allowedRepresentations": ["native-jsonl"]
+}
+```
+
+Read `GET /history/previews/:previewId`. Once it is ready, inspect its frozen
+entries, counts and byte total. Approve that exact preview with
+`POST /history/previews/:previewId/approve`, using its returned revisions and
+manifest SHA-256:
+
+```json
+{
+  "apiVersion": 2,
+  "expectedSourceRevision": "<preview.sourceRevision>",
+  "expectedPolicyRevision": "<preview.policyRevision>",
+  "manifestSha256": "<preview.manifestSha256>"
+}
+```
+
+`includeComponents` and `allowedRepresentations` belong only to preview creation.
+Do not send them in approval: the approval endpoint rejects extra fields and
+uses the already frozen preview to determine which files and representations are
+approved. For root-only version 1 imports, omit both `apiVersion` and
+`includeComponents` from preview creation, and omit `apiVersion` from approval.
+An older preview or parent snapshot approval never includes child logs.
+
+Each child retains the real parent's native session ID, an explicit
 `claude-subagent` component ID, and its own observation, generation, consent and
 immutable archive chain. The initial classifier accepts IDs matching
 `a[0-9a-f]{16}` only after bounded canonical-directory and native-header checks
