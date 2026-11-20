@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.192 b2f973b1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.193 4d8f60536; do not edit -->
 
 # Browser terminal
 
@@ -614,6 +614,42 @@ discovering sessions after upgrading. Nymph does not rewrite configuration
 files, and an explicit `enabled = true` keeps discovery on. See
 [host testing](https://docs.dreamlake.ai/lakeshore/hosts/testing) for the related job output setting.
 
+**New enrollments (CLI 0.135.0 or later):** a fresh `dl hosts enroll`
+(`--local` or `--ssh`) and a fresh `dl nymph setup` write
+`[sessions] enabled = true` into the daemon configuration they create, when
+the installed Nymph is 0.1.32 or later. Older Nymph gets no default. Existing
+machines keep their settings: re-enrolling or re-running setup preserves an
+explicit `enabled = false`, a missing `[sessions]` table (discovery stays off)
+and any session options already configured. When a `[sessions]` table cannot be
+kept exactly, or the installed Nymph rejects it, enrollment stops before
+rewriting the service configuration. It also stops rather than replace a local
+access policy: `dl hosts enroll` does not re-enroll a machine set up with
+`dl nymph setup`, and `dl nymph setup` does not re-enroll one whose
+`access_file` points anywhere other than that enrollment's own `access.json`.
+See [Agent session metadata](https://cli.dreamlake.ai/host-enrollment#agent-session-metadata)
+in the CLI guide. To turn discovery on for an existing machine, add the setting
+yourself and restart the daemon.
+
+**New AWS machines with automatic registration:** an EC2 instance launched
+with `--host-name`, which registers itself through cloud-init (see
+[service accounts](https://docs.dreamlake.ai/lakeshore/service-accounts)), installs the Nymph release
+pinned by the DreamLake installation (v0.1.43 in production). With v0.1.43 or
+later it writes `[sessions] enabled = true`, with `api_origin` set to that
+installation's API, when it first creates its configuration. A bootstrap retry
+reuses the existing configuration instead of rewriting it, so owner changes to
+`[sessions]` or `access_file` survive, and a configuration bound to another
+server, namespace or machine stops the bootstrap. Instances that are already
+running, and machines installed any other way, are never changed automatically.
+
+The setting turns on automatic session discovery, which sends session metadata
+and never uploads transcripts automatically. No Nymph code change is involved.
+Without `api_origin`, only the production control plane has a default
+destination. Where a local [upload policy](docs-lakeshore-hosts-nymph-permissions.md)
+exists, it still wins: while its `upload` is `false`, which is how
+`dl nymph setup` creates it, no session metadata is sent. Sessions are
+registered only after the daemon confirms its enrollment through the signed
+handshake. Updating the CLI does not change machines that are already enrolled.
+
 With **nymph 0.1.29 or later**, session discovery enabled and the matching
 product API on an enrolled machine, new local Codex
 sessions are registered automatically from the local SQLite metadata index.
@@ -892,10 +928,15 @@ older uploads must be re-uploaded once to populate it. A verified empty snapshot
 contains zero messages and is displayed as empty, not as a missing upload. Catalog responses never
 include conversation text. No new search service or index is required.
 
-In the standalone Sessions page, clicking a saved Claude session opens its
-**Conversation** view without starting
-or attaching to a terminal. Choose **Terminal** explicitly to use the existing
-terminal workflow. A missing archive is shown as missing, not an empty conversation.
+In the standalone Sessions page, clicking a saved Claude Code session that is
+bound to Compute (or selecting it and pressing Enter) opens its **Terminal**,
+as it does for Codex. Its **Conversation** tab stays one click away. A Claude
+session without a Compute binding, or one you can only read
+(**Compute · read only**), opens its **Conversation** view. Reloading or
+visiting a session link (`?session=`) only selects the session: a Claude
+session shows its Conversation, and other sessions usually show their saved
+details. Nothing connects until you open the session. A missing archive is
+shown as missing, not an empty conversation.
 Reading works independently of host liveness; it does not fetch local transcripts
 or trigger an upload. The S3 backup collector remains separate: a backup must be
 explicitly imported/uploaded into the conversation API to be readable here.
@@ -951,21 +992,38 @@ content records the activity for an archive uploaded before this was recorded.
 The archive's messages and `revision` stay the same; its `updatedAt` can
 change.
 
-### Abstract and Full sessions
+### Session labels: stored content and Compute
 
-Session lists and the session view label each session by whether a readable
-conversation archive exists:
+Session lists and the session view show two independent labels. The first says
+what DreamLake stores:
 
 | Label | Meaning |
 | --- | --- |
-| **Abstract** | DreamLake holds only the session's metadata (name, provider, binding, observed activity). No conversation archive was uploaded. |
+| **Metadata only** | DreamLake holds only the session's metadata (name, provider, binding, observed activity). No conversation archive is stored. |
 | **Full session** | A conversation archive exists and can be read, including a verified empty one. |
 
 The label depends only on the archive. It is independent of whether a terminal
 is bound (`archiveOnly`), of run state, of provider and of whether search text
-was indexed. A Full session holds the snapshot from its last upload; it is not
-kept in sync with the machine and does not make the session runnable. Built-in
-DreamLake agent sessions are labelled by the same rule.
+was indexed. A Codex or Claude Code session becomes Full only when someone
+explicitly uploads a conversation snapshot (see
+[Optional conversation archives](#optional-conversation-archives)). Automatic
+Nymph discovery sends metadata and never uploads transcripts, so a discovered
+session stays Metadata only until such an upload. That snapshot is not kept in
+sync with the machine and does not make the session runnable. Built-in
+DreamLake agent conversations use the same archive and are stored by DreamLake
+itself, so they are labelled by the same rule without an upload. Earlier
+releases showed **Abstract** for Metadata only.
+
+The second label says where the session runs:
+
+| Label | Meaning |
+| --- | --- |
+| **Compute** | The session is bound to an enrolled Compute machine. Opening it connects its terminal. Whether the machine is online, and whether you can sign in, is checked only when you open it. |
+| **Compute · read only** | The session is bound to Compute and you can read it as a public session, but you cannot use its terminal. Terminal use still needs the owner's sharing or a connection grant. |
+| **Not on Compute** | No Compute machine is bound, for example an uploaded archive without a host binding or a built-in DreamLake agent conversation. It has no terminal; any stored conversation stays readable. |
+
+A session whose response carries neither a binding nor an archive-only marker
+shows no Compute label. Neither label grants access or changes it.
 
 Session list routes (`GET /namespaces/:namespace/terminal-sessions`,
 `/terminal-sessions/available` and a resource's linked sessions) and the
@@ -973,7 +1031,7 @@ single-session reads (`/:id/metadata` and `/:id`) return
 `hasConversationArchive: true | false`. List routes look the archives up in one
 read of their ids for the sessions already shown to the reader; no archive text
 is read or returned. Responses from older servers omit the field, and clients
-show no label rather than **Abstract**.
+show no label rather than **Metadata only**.
 
 Clicking a saved Codex or Claude row in a Memo's **Contributing sessions** opens
 its terminal in the panel to the right. It does not open the archive first or

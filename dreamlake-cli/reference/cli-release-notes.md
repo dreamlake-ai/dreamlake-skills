@@ -1,6 +1,44 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.134.0 99837ab; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.135.0 23b298e; do not edit -->
 
 # Release notes
+
+## 0.135.0 — Agent session metadata on new enrollments
+
+A brand-new `dl hosts enroll` (`--local` or `--ssh`) or `dl nymph setup` now
+writes `[sessions] enabled = true`, so Nymph lists your local agent sessions in
+DreamLake. It sends metadata only, never transcripts or prompt text. Managed
+setups send no session metadata until `dl nymph access grant upload`. Only the production
+control plane has a default destination, and only a signed, confirmed enrollment
+sends anything. Existing enrollments keep their current `[sessions]` choice when
+re-enrolled. When enrollment cannot preserve those settings exactly, or would
+replace a local access policy, it stops without changing anything. See
+[Agent session metadata](https://cli.dreamlake.ai/host-enrollment#agent-session-metadata).
+
+### DreamLake GPU prices, holds and charges
+
+- `dl cict show` prints each machine type's price per GPU-hour and, with
+  prepaid billing on, what this month was charged; otherwise what the GPU time
+  is worth (not charged). `dl cict usage` shows the same for the month and
+  each job, or `charge pending` until Slurm reports.
+- `dl cict runs show` adds a `cost` line for a DreamLake GPU job: the credit it
+  holds while it runs, then what it was charged, or why it was not charged.
+  Billing runs on sandboxes for now: no real money moves.
+- Held jobs name the reason, such as `insufficient_credit`,
+  `billing_budget_exceeded`, `billing_setup_required` or `machine_unpriced`,
+  with what to do. See [CI/CT](https://cli.dreamlake.ai/cict).
+- `dl cict platform admin machine <type> --price <credits>` sets a machine
+  type's price per GPU-hour (one credit is $0.005). It accepts only a plain
+  number; `--price 0` makes it free and `--price none` clears it. A job keeps
+  the price it started at.
+
+### Bundled skills
+
+The embedded `dreamlake-cli` skill and the bundled catalog are pinned to
+dreamlake-skills
+[v2026.11.19.5](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.19.5).
+It adds team administration and guest invitations, and Artifact guidance now
+prefers explicit authored covers and verifies shared previews. The Artifacts
+page likewise prefers uploaded covers, with the cloud cover as a fallback.
 
 ## 0.134.0 — Optional Nymph install
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions.md at 0.1.192 b2f973b1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions.md at 0.1.193 4d8f60536; do not edit -->
 
 # Nymph permissions and commands
 
@@ -8,7 +8,9 @@ This is the permission-boundary record for Nymph. It distinguishes implemented b
 
 An authenticated control-plane response is not permission to execute every operation. The server authorizes an operation for a namespace, worker and credential; the daemon also applies local owner policy and the operation's own capability checks. The process's Unix account and OS permissions remain the final host boundary.
 
-For a managed daemon, `access_file` names a separate local policy with version 1, a scope (`server`, `namespace`, `machine_id`), and explicit `upload` and `command_execution` booleans. Nymph checks that the path is absolute, is not a symlink (including parents), is a bounded regular file owned by the effective user, and has private permissions. Its scope must match the configured server/namespace/machine. Policy is loaded at startup; changes require restart. Without `access_file`, compatibility defaults permit both categories, but upload channels still require their own opt-ins. Omission is not deny-by-default.
+For a managed daemon, `access_file` names a separate local policy with version 1, a scope (`server`, `namespace`, `machine_id`), and explicit `upload` and `command_execution` booleans. Nymph checks that the path is absolute, is not a symlink (including parents), is a bounded regular file owned by the effective user, and has private permissions. Its scope must match the configured server/namespace/machine. Policy is loaded at startup; changes require restart. Without `access_file`, compatibility defaults permit both categories, and each upload channel sends only when its own setting enables it (for example `[sessions] enabled` or `[runtime] job_output_upload`). Omission is not deny-by-default.
+
+A fresh enrollment from CLI **0.135.0**, and a new AWS machine with automatic registration on Nymph v0.1.43 or later, enables the session-metadata upload channel; existing machines keep their settings, or enrollment stops before rewriting the service configuration (see [new enrollments](docs-lakeshore-hosts-browser-terminal.md#discovering-machine-sessions-and-registry-paging)). Enabling an upload channel never overrides local policy. Fresh managed setup creates `access.json` with `upload` set to `false`, so no upload channel, including session metadata, sends data until the owner allows uploads on that machine (`dl nymph access grant upload`) and restarts the daemon. Enrollment, heartbeats and control traffic continue meanwhile, as described below.
 
 Example structure for a managed host, using its actual existing scope:
 
@@ -35,7 +37,7 @@ The following inventory reflects `access.rs`, `drain.rs`, `ssh_runtime.rs`, and 
 | `drain` | Stop admitting work and run the shutdown/drain path | Explicitly allowed even with `command_execution=false` | Existing authenticated command channel |
 | `reset_backoff` | Reset retry backoff | Explicitly allowed even with `command_execution=false` | Existing authenticated command channel |
 | `rotate_key` | Rotate daemon signing identity, register under the old key and retain recovery behavior | Explicitly allowed even with `command_execution=false` | Existing daemon identity/key lifecycle |
-| Session discovery, metrics, metrics objects, experiment reporting, job-output uploads | Send configured data | `upload` plus each channel's opt-in; denial disables them | Applicable authenticated upload destination and scope |
+| Session discovery, metrics, metrics objects, experiment reporting, job-output uploads | Send configured data | `upload` plus the channel's own enablement; `upload=false` disables all of them, whatever the channel settings | Applicable authenticated upload destination and scope |
 | Completion/control acknowledgments | Report control outcome, potentially without output | Control status can continue with uploads disabled | Bound command/run result channel |
 | Unknown remote command | No supported operation | Ignored/rejected; never interpreted as config or shell | Does not gain authority from authentication alone |
 

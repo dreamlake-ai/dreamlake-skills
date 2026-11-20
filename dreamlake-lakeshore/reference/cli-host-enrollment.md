@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.134.0 99837ab; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.135.0 23b298e; do not edit -->
 
 # Host enrollment
 
@@ -388,6 +388,55 @@ dl hosts enroll --local --name geyang/dev/my-mac --web-terminal
 # Enroll without browser shell access.
 dl hosts enroll --local --name geyang/dev/my-mac --no-web-terminal
 ```
+
+## Agent session metadata
+
+A new enrollment turns on Nymph's agent-session metadata channel by writing
+`[sessions] enabled = true` to its `nymph.toml`. This covers the standard
+`dl hosts enroll` (`--local` or `--ssh`, as shown in the web Compute guide) and
+`dl nymph setup`. Nymph then lists your local Codex and Claude sessions in
+DreamLake as private entries. It sends only metadata: provider, session ID,
+working directory, title, activity times, run state and repository root/status.
+The title is the one the agent app records (a name you set, or a title or summary
+the app generated), so it can describe the conversation. Nymph never sends
+transcripts, prompt or message text, tool output or Git remote URLs, and it never
+changes a session's visibility. Uploading a full transcript remains a separate
+action that you start yourself.
+
+The channel is still gated by Nymph at startup:
+
+- **Local consent:** `dl nymph setup` starts with uploads denied in its
+  `access.json`, so no session metadata is sent until
+  `dl nymph access grant upload` and a restart. A local policy with `upload = false` always wins.
+- **Destination:** only the production control plane
+  (`https://api.lakeshore.dreamlake.ai`) has a default destination. Other
+  control planes stay silent unless `api_origin` is set.
+- **Enrollment:** each request is signed by the enrolled identity. A daemon
+  without a confirmed enrollment binding sends nothing, and the API rejects
+  revoked enrollments.
+
+Other automatic uploads (metrics, experiment reporting, job output) are not
+turned on.
+
+Existing enrollments keep their settings. Repeating enrollment preserves the
+current `[sessions]` table exactly: absent stays off, `enabled = false` stays
+off, and `enabled = true` keeps its roots and options. Existing settings must
+also pass the installed Nymph's own check (Nymph 0.1.32 or newer). Enrollment
+cannot preserve them in some cases: multi-line values, quoted or dotted keys,
+duplicates or unknown keys. It then stops without changing anything; simplify
+`[sessions]` and retry. A brand-new enrollment on an installed Nymph older than
+0.1.32 gets no default.
+
+Enrollment also stops, before changing anything, rather than replace a local
+access policy:
+
+- `dl hosts enroll` does not re-enroll a computer that has a policy from
+  `dl nymph setup`; use `dl nymph setup` for that enrollment.
+- `dl nymph setup` does not re-enroll a computer whose `nymph.toml` points
+  `access_file` anywhere other than that enrollment's own `access.json`.
+
+To opt out, set `enabled = false` under `[sessions]` and restart the service.
+Later enrollments keep that choice.
 
 ## Output format
 

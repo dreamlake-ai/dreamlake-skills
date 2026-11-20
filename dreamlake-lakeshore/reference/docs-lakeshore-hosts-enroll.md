@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.192 b2f973b1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.193 4d8f60536; do not edit -->
 
 # Enroll a host
 
@@ -298,6 +298,15 @@ the original identity key. After repair, verify the generated idle setting, then
 restore only required custom sections such as `private_tracked` and any reviewed
 service overrides. Reload the user manager and restart the same unit if you edit
 it, then wait for a fresh verified host status.
+
+From CLI **0.135.0**, the regenerated `nymph.toml` keeps the machine's
+existing `[sessions]` choice: an explicit `enabled = false`, an absent table
+and configured session options are preserved, and only a fresh enrollment
+turns session metadata discovery on. When it cannot keep a `[sessions]` table
+exactly, or would have to replace a local access policy, enrollment stops
+before rewriting the service configuration. New AWS machines with automatic
+registration follow their own first-configuration rule. See
+[Discovering machine sessions](docs-lakeshore-hosts-browser-terminal.md#discovering-machine-sessions-and-registry-paging).
 
 For an unresolved response, reuse the original request ID to reconcile it. A
 confirmed `request_expired` receipt requires a new explicit repair operation ID;
