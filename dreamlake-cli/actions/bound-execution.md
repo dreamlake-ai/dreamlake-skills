@@ -35,7 +35,13 @@ in advance, as the docs describe. Check `dl --version` and
 3. Bind with `--dry-run` first, then without it. Retain the printed
    `exec/NAMESPACE/NAME@EXECUTION_DIGEST`. Repeating `bind` returns the existing
    binding; a changed module, lock or Python version is a new binding, never an
-   edit. See [bind](../reference/cli-bound-execution.md#bind).
+   edit. See [bind](../reference/cli-bound-execution.md#bind). If `bind`
+   refuses the archive as too large, take data files out of the snapshot (read
+   them from a Source) instead of splitting the project. *Awaiting release:*
+   once the docs describe archives above the inline size, such a `--target`
+   binding also needs the newer `dreamlake-lakeshore` the docs name on the
+   target worker; check the worker's version before executing, and do not
+   upgrade a worker the user did not ask you to change.
 4. Execute with explicit `--queue`, `--inputs` and `--timeout-seconds` (and the
    same `--target`). Record the invocation ID printed before submission.
 5. After a lost response or interrupted wait, repeat the identical command; it
@@ -49,7 +55,9 @@ Report binding, submission and receipt separately. Request acceptance is not
 completion. If `bind` stored the archive in a DreamLake Source, only the user
 who bound it can execute that binding; report that to anyone else rather than
 working around it. A `rejected` receipt stopped before user code; fix the
-snapshot, lock or runtime rather than retrying. A `409` means that invocation ID already
+snapshot, lock or runtime rather than retrying; if the receipt output carries a
+`hint` about an older worker, report that upgrade to the user rather than
+retrying. A `409` means that invocation ID already
 carries different bytes: do not change the ID to force a run. The receipt checks
 distribution versions, not full environment identity.
 
