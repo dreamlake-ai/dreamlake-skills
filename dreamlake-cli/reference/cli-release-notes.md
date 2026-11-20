@@ -1,6 +1,21 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.135.0 23b298e; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.135.1 9021997; do not edit -->
 
 # Release notes
+
+## 0.135.1 — Bound executions on Source-staged snapshots and unpinned workers
+
+- `dl runnable execute --target` and `execution-receipt --target` now stop
+  waiting when the control plane reports an attempt `killed` or `timeout`
+  (as well as the older `cancelled`/`timed_out`), and report that state with
+  the stored receipt, or none. Before, such an attempt was reported only when
+  the wait ran out, as still running.
+- [Bound execution](cli-bound-execution.md) documents what the DreamLake server now
+  accepts, with no CLI or SDK upgrade needed: a `--target` worker that is
+  unpinned, claims jobs and declares the queue (never `default`); snapshots
+  staged in your private DreamLake Source in namespaces that stage launch code
+  there (only the binder can execute them); keeping the project in a snapshot
+  subdirectory with `--project`; and preparing the locked runtime under the
+  root the worker daemon sees.
 
 ## 0.135.0 — Agent session metadata on new enrollments
 
