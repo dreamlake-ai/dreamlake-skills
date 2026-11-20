@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/sharing.md at 0.1.204 f98ed513; do not edit -->
 
 # Sharing, access and transfer
 
@@ -256,7 +256,7 @@ include this command; a matching server endpoint is also required:
 ```bash
 # Inspect an organization destination; currently blocked, with exit status 3.
 dl memos move NOTE_ID --to-namespace my-org --project shared-research --dry-run
-# Preview an additive filing in the Note's current workspace.
+# Preview an additive filing in the Memo's current workspace.
 dl memos move NOTE_ID --to-namespace current-workspace --project research --dry-run
 # Apply only an executable same-workspace preview authorized by the user.
 dl memos move NOTE_ID --to-namespace current-workspace --project research
@@ -288,7 +288,7 @@ server's `projectTransferStream.enabled`, the streaming plan's `executable` and
 its complete resource/access blockers independently of the installed client.
 CLI **0.74.2** streams new `project move` requests by default; older compatible
 clients require explicit `--stream`. Do not fall back to a fixed manifest or
-replace a Project move with per-Note copy/delete.
+replace a Project move with per-Memo copy/delete.
 
 The current stream preserves the provably eligible existing read/write audience
 and external Memo Project filings. Unsupported resources or access policies block
@@ -392,7 +392,7 @@ only its supported subset.
 
 Moved Project/resources become private. Other-Project mounts and their Bindr tags are
 removed by default, ending access inherited through those filings. This does not
-delete Notes: the whole Project and all included Memos retain their IDs and
+delete Memos: the whole Project and all included Memos retain their IDs and
 data. Only Memo placements can be preserved; Artifact/Env outside placements
 always detach. Independent shares/grants follow the separate preserve-access
 choice, which also defaults off; current namespace permissions still apply.

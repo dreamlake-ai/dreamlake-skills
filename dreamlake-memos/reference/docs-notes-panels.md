@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.204 f98ed513; do not edit -->
 
 # Panels and agent control
 
@@ -55,7 +55,7 @@ Dragging a preview out preserves its named association and role, so subsequent
 requests can target the original destination, the last one, or a spatial match.
 The UI default is the last destination for that source instance.
 
-Pinned tabs can still be moved or explicitly closed. Notes that are still syncing
+Pinned tabs can still be moved or explicitly closed. Memos that are still syncing
 retain their disposal guard. A failed replacement or stale layout leaves the
 existing view intact. Ordinary web links keep browser navigation.
 
@@ -65,7 +65,7 @@ Memo tags and `:preview[https://example.com/#section]` open new targets as tabs
 in the existing panel on the right, creating a right-hand panel only when one
 is absent. Clicking an already-open target activates it. Different preview URL
 fragments are separate tab targets. Opening either kind of reference from a
-side Note adds a tab in that same side panel. Existing tabs stay mounted and
+side Memo adds a tab in that same side panel. Existing tabs stay mounted and
 retain editor and preview state; these reference clicks do not replace content.
 
 ## Sessions beside a memo

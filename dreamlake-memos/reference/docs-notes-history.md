@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.204 f98ed513; do not edit -->
 
 # History and saved versions
 
@@ -198,7 +198,7 @@ mechanism; do not paste it into memos, shell history, or receipts. Explicitly se
 `DREAMLAKE_AGENT_NAME` from identity setup. Review the pinned source first:
 
 ```bash
-# These variables must already identify the intended account, Note and baseline.
+# These variables must already identify the intended account, Memo and baseline.
 dl note read "$NOTE_ID" --namespace "$NOTE_NAMESPACE" \
   --view source --at "$OLD_REVISION"
 ```
@@ -232,7 +232,7 @@ if urllib.parse.urlsplit(remote).scheme != "https":
     raise SystemExit("Use the intended HTTPS API")
 ns, note, revision = (os.environ[k] for k in ("NOTE_NAMESPACE", "NOTE_ID", "OLD_REVISION"))
 if not re.fullmatch(r"[a-f0-9]{24}", note):
-    raise SystemExit("Use the resolved stable Note ID")
+    raise SystemExit("Use the resolved stable Memo ID")
 os.umask(0o077)
 evidence = Path("recovery-evidence")
 evidence.mkdir(mode=0o700)  # Existing evidence stops a second submission.

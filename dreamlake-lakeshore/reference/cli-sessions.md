@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.136.0 b20eddb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.137.0 02c2b75; do not edit -->
 
 # Terminal sessions
 
@@ -25,7 +25,7 @@ With the matching API release, **all newly registered sessions default to public
 UI creation, API creation, CLI creation, metadata-only imports and machine sync.
 Public uses DreamLake PUBLIC read semantics: anyone can read session metadata and
 an uploaded, redacted conversation. It does not grant terminal execution, resource
-editing, or access to linked private Notes/artifacts. Private and team sessions
+editing, or access to linked private Memos/artifacts. Private and team sessions
 retain their existing access rules. Existing records without a visibility field
 remain private/team; synchronization never resets an existing sharing choice.
 
@@ -68,7 +68,7 @@ binding. It can be linked and read but cannot open a terminal. A later verified
 host registration with the same owner/provider/UUID and exact cwd can bind the
 same descriptor, preserving privacy and resource links.
 
-CLI 0.82.0+ automatically registers metadata after an acknowledged Note/artifact
+CLI 0.82.0+ automatically registers metadata after an acknowledged Memo/artifact
 content write when `CODEX_THREAD_ID` or `CLAUDE_SESSION_ID` supplies an exact native
 UUID. `CLAUDE_CODE_SESSION_ID`, which Claude Code exports to every command it
 runs, is accepted as the Claude fallback, so writes made from inside a Claude

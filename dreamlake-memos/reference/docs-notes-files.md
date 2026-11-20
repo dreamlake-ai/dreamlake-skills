@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.204 f98ed513; do not edit -->
 
 # Files and attachments
 
@@ -109,7 +109,7 @@ A stale content ETag returns 412; a destination conflict returns 409 unless you
 explicitly choose `--overwrite`. Inspect the current file/path and permissions
 before retrying. An ETag is a content check, not a promise that the path or sharing
 metadata has remained unchanged. This workflow moves a path within one Memo; it
-does not change Note/project ownership or perform a FortyFive transfer.
+does not change Memo/project ownership or perform a FortyFive transfer.
 
 ### Copy an attachment within a Memo
 
@@ -158,7 +158,7 @@ text/copy requests and these operation routes with
 `503 file_publication_unavailable`; that refusal does not enable recovery.
 
 The journal covers JSON text creation/replacement at
-`POST /namespaces/:slug/notes/:noteId/files` and same-Note copy at
+`POST /namespaces/:slug/notes/:noteId/files` and same-Memo copy at
 `POST /namespaces/:slug/notes/:noteId/files/:fileId/copy`. It does not cover the
 raw binary/streaming upload route, inline media, Memo bodies or saved versions.
 The existing File response and HTTP 200/201 remain unchanged. Raw-upload inventory
@@ -192,7 +192,7 @@ CLI keys are printable ASCII, 1–256 bytes without surrounding spaces. Preserve
 the key and exact request; the CLI never automatically retries.
 
 ```bash
-: "${NOTE_ID:?set a disposable Note ID}"
+: "${NOTE_ID:?set a disposable Memo ID}"
 : "${NAMESPACE:?set its namespace}"
 dl --version
 # Choose only the intended write or copy.
@@ -344,8 +344,8 @@ they do not change Memo ownership or project filing.
 
 ```bash
 set -euo pipefail
-: "${NOTE_ID:?Set NOTE_ID to your disposable Note ID}"
-: "${NAMESPACE:?Set NAMESPACE to that Note namespace}"
+: "${NOTE_ID:?Set NOTE_ID to your disposable Memo ID}"
+: "${NAMESPACE:?Set NAMESPACE to that Memo namespace}"
 dl memos files write access-check.txt --text before \
   --note "$NOTE_ID" --namespace "$NAMESPACE"
 ETAG=$(dl memos files cat access-check.txt --json \

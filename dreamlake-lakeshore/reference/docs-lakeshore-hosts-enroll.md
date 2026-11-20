@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.202 667f246d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.204 f98ed513; do not edit -->
 
 # Enroll a host
 
@@ -145,6 +145,15 @@ even for an already archived/restored entry. After an ambiguous failure, retry
 the exact original tuple. A reused ID with changed input or a stale revision
 returns 409. A replay returns the historical receipt (`replayed:true`); read
 lifecycle again for current state. Authorization is checked again on every retry.
+
+## Named terminal sessions
+
+After enrollment, use `dl tmux new research --host alice/dev/my-computer`
+to create a named tmux session on a compatible host. The command palette and
+`:tmux[new research --host alice/dev/my-computer]` action directive use the
+same grammar. See [Browser terminal](docs-lakeshore-hosts-browser-terminal.md#create-a-named-tmux-session-and-copy-its-reference)
+for capability prerequisites, explicit Run behavior, creation conflicts and
+portable references to existing sessions.
 
 ## Inspect in Compute
 
@@ -463,3 +472,59 @@ for the HTTP, TypeScript and Python APIs.
 For usage counts, namespace-versus-worker limits, complete SSH configuration options, validation and mixed-version rollout, see [SSH capacity and usage](docs-lakeshore-hosts-browser-terminal.md#ssh-capacity-and-usage). Verify the guide’s component version requirements and deployed versions before use.
 
 The [Nymph permissions and commands record](docs-lakeshore-hosts-nymph-permissions.md) distinguishes local policy, authenticated commands, read-only inspection, startup-only configuration, existing lifecycle exceptions and the requirements for a future dynamic-configuration feature. Capacity is not authority: increasing a quota must not enable SSH, upload data or bypass local execution denial.
+
+## tmux and GNU Screen metadata
+
+The host inventory API supports a bounded, current Unix-account view of tmux and
+GNU Screen sessions. It requires compatible Nymph and control-plane releases;
+an unavailable or older producer returns an unknown state, not an empty session
+list. This is metadata only: it never reads panes, scrollback, working directories,
+process arguments, environment variables, or terminal output. Session names can
+contain private project information and follow the host's access boundary.
+
+Read the exact enrollment with
+`GET /namespaces/:slug/hosts/:hostId/enrollments/:enrollmentId/multiplexer-sessions`.
+Only its current owner or a current, explicit user/team host-access grantee can
+read it. Namespace membership alone grants no access. The response identifies
+`hostId`, `enrollmentId`, `machineId`, and `unixUser`; `status` and `reason`
+distinguish reported, missing, stale, inactive, disabled, and unavailable states.
+Stale and disabled responses contain `snapshot: null`, so cached names should
+not remain visible. Responses are private and must not be cached.
+
+A reported snapshot has `version`, `reportId`, `configRevision`, `collectedAt`,
+and exactly two provider results. Each provider identifies `kind`, `scope`,
+`checkedSockets`, `status`, `truncated`, and up to 128 sessions. A session has an
+opaque `id`, `name`, `attached`, and optional `windowCount`/`createdAt`.
+A failed provider has no session rows; `truncated` can still indicate an
+incomplete scan. tmux covers at most 16 servers in its configured current-user
+socket directories; Screen uses its default current-user directory. This does
+not discover arbitrary custom sockets elsewhere on the filesystem.
+
+The collector uses bounded local scans at most once per minute and publishes
+changed reports through the existing signed heartbeat. Successful unchanged
+scans send a small report-ID heartbeat, renewing collection freshness without
+resending names. `observedAt` is the server receipt time and differs from
+`collectedAt`. Both must be no older than 180 seconds; an active worker must
+have been seen within 60 seconds. A five-second future-clock allowance applies.
+This has small, nonzero local process and I/O overhead.
+
+The owner can set the desired configuration with
+`PUT /namespaces/:slug/hosts/:hostId/enrollments/:enrollmentId/multiplexer-sessions/configuration`:
+
+```json
+{"enabled":false,"expectedRevision":null}
+```
+
+Use the exact current `configuration.revision` instead of `null` after the first
+configuration change. A stale revision returns `409 configuration_changed`;
+read the current state before deciding whether to retry. The response is the
+same full inventory envelope as GET. Disable clears stored names immediately;
+`configuration.applied` becomes true only after a matching fresh daemon report.
+`canManage` is false for host-access grantees. `configuration: null` means the
+control plane did not provide a verified desired configuration.
+
+Collection defaults on for a compatible configured collector. Remote enable
+never overrides explicit local `enabled=false` or a local/managed
+`session_metadata` denial. In that case the desired configuration may remain
+enabled while providers report disabled and `applied` is false. Collection and
+this toggle grant no archive upload, terminal connection, or execution rights.

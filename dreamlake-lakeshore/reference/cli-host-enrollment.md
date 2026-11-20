@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.136.0 b20eddb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.137.0 02c2b75; do not edit -->
 
 # Host enrollment
 
@@ -950,7 +950,142 @@ session and returns 124; it does not guarantee termination of detached remote
 processes. SSH session cleanup removes temporary local keys and closes the
 session. File copy and forwarding remain outside these commands.
 
-## Persistent tmux shells
+## Named tmux references and creation
+
+**CLI 0.137.0+.** The explicit tmux commands share their action syntax with the command palette
+and tmux action directives. They require a server, terminal gateway and enrolled
+Nymph that advertise the named-tmux capability. An older deployment returns
+`terminal_reference_unsupported`; local CLI support does not prove that a host
+has received this capability.
+
+```bash cli-help="tmux new"
+# Create only; a pre-existing name is a conflict, never an attachment
+dl tmux new work --host geyang/dev/worker
+# Omit the name to request a fresh generated name
+dl tmux new --host geyang/dev/worker
+# Explicitly attach to the result once creation succeeds
+dl tmux new work-2 --host geyang/dev/worker --open
+```
+
+`new` creates a detached named session and prints its durable directive when
+successful. `--host` is required and accepts an exact Host ID or
+`namespace/group/host[/user]`. For a Host ID, use the configured namespace or
+`--namespace`. If multiple enrolled accounts match, select `--enrollment`;
+the command never chooses an arbitrary account. A requested name collision
+returns a conflict without attaching, replacing, or sending input to it. New
+names contain 1–64 letters, digits, underscores or hyphens. A connection grant
+may add a server-controlled ownership prefix; use the exact name and directive
+returned by the operation.
+
+The CLI prints a lowercase request UUID before submitting creation. If a response is lost,
+retry the identical name and host with `--request-id UUID`. Reusing the UUID
+observes the same creation operation; changing arguments with that UUID is a
+conflict. `--wait 0` returns a pending receipt immediately; the default waits up
+to 30 seconds, and the maximum is 60. `--json` prints the operation receipt,
+including its request ID, original `requestedName` (null if omitted), and
+pending, succeeded or failed status. The created reference contains the actual
+server-issued name. A pending
+receipt is not confirmation that the session was created. `--open` requires
+interactive stdin and stdout before any creation request is sent.
+
+```bash cli-help="tmux open"
+# Attach only to the named session in this exact enrollment and tmux server
+dl tmux open ':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]'
+```
+
+```bash cli-help="tmux list"
+# Read the last collected metadata; this does not trigger a scan
+dl tmux list --host geyang/dev/worker
+```
+
+```bash cli-help="tmux resolve"
+# Inspect cached resolution without creating or attaching
+dl tmux resolve ':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]' --json
+```
+
+A durable reference has the form
+`:tmux[ENROLLMENT_ID/SERVER_ID/PERCENT_ENCODED_EXACT_NAME]`. Its enrollment is a
+24-character lowercase hexadecimal ID and its server is a 16-character lowercase
+hexadecimal ID issued by the enrolled host. The name is percent encoded once.
+Do not infer the server from a numeric tmux row ID, machine name, default socket,
+or a browser terminal. The directive contains no private socket path.
+
+`open` requires an interactive terminal and fresh authorization. It attaches
+only to the exact name in the referenced server; a missing, stale, inaccessible
+or unsupported reference never creates a session and never falls back to a
+plain shell. Press **Ctrl-]** to detach. A replacement with the same name in the
+same server scope is the same named destination. Renaming a session does not
+redirect its old name through a reused numeric tmux ID. These references identify
+live terminals; `:session[ID]` identifies a separately saved agent conversation.
+Ephemeral browser shells do not receive durable tmux references.
+
+The command palette uses `/tmux new work --host geyang/dev/worker`. In notes and
+chat, `:tmux[new work --host geyang/dev/worker]` is an explicit creation action;
+rendering or previewing it does not execute it. Activating it requests a new
+session. `:tmux[...enrollment/server/name...]` instead opens an existing named
+reference. The shared actions are `new`, `open`, `list` and `resolve`.
+
+Action arguments support single or double quote grouping and backslash escapes;
+there is no shell expansion, variable substitution, command substitution, pipe or
+redirect execution. For example, `new "work-item" --host geyang/dev/worker`
+requests the literal name `work-item`. Quoting does not expand the allowed new-name
+character set; existing reference names retain their exact percent-encoded text. Unknown or repeated options and ambiguous
+host selections fail explicitly. CLI output and retry flags (`--json`, `--wait`,
+`--request-id`, `--open`) are CLI options, not directive action arguments.
+
+```bash cli-help="hosts tmux new"
+dl hosts tmux new work --host geyang/dev/worker
+```
+
+```bash cli-help="hosts tmux open"
+dl hosts tmux open ':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]'
+```
+
+```bash cli-help="hosts tmux list"
+dl hosts tmux list --host geyang/dev/worker
+```
+
+```bash cli-help="hosts tmux resolve"
+dl hosts tmux resolve ':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]' --json
+```
+
+### TypeScript API
+
+For integrations, `createClient` exposes the same metadata and creation contract:
+
+```typescript
+import { createClient, parseTmuxReference } from '@dreamlake/dreamlake-cli/api';
+const dl = createClient({ remote: 'https://api.dreamlake.ai', token });
+const enrollment = 'aaaaaaaaaaaaaaaaaaaaaaaa';
+const requestId = crypto.randomUUID(); // Persist before the write; reuse on retry.
+const result = await dl.tmux.create(enrollment, { requestId, name: 'work' });
+const operation = await dl.tmux.operation(enrollment, requestId);
+const reference = parseTmuxReference(':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]');
+const resolved = await dl.tmux.resolve(reference);
+const inventory = await dl.tmux.list('geyang', hostId, enrollment);
+```
+
+Creation calls `POST /terminal-references/:enrollment/tmux/sessions` with
+`{ requestId, name? }`. Operation reads use
+`GET /terminal-references/:enrollment/tmux/operations/:requestId`. Resolution uses
+`GET /terminal-references/:enrollment/tmux/:server?name=EXACT_NAME`. Listing uses
+the existing enrolled-host `multiplexer-sessions` metadata endpoint. A pending
+creation returns HTTP 202. A completed operation read returns HTTP 200 with
+`succeeded` or `failed`; an existing name reports `failed` with `name_exists`.
+Reusing a request UUID with changed arguments returns HTTP 409. All metadata
+and operation reads are read-only; listing and resolution never enqueue a
+daemon scan.
+
+`tmux.attachTicket(namespace, reference, { cols, rows })` requires a separately
+configured gateway transport with its allowed `Origin` header. It sends only a
+`tmux-reference` launch with exact enrollment, server and name. The gateway
+reauthorizes and resolves the owned server privately before attachment. It
+cannot launch a shell or create a missing session. The SDK does not read local
+login credentials or allocate a local terminal.
+
+<a id="persistent-tmux-shells" />
+
+### Compatibility: persistent SSH tmux shells
 
 **CLI 0.116.0+.** `dl tmux HOST` creates or attaches to the remote tmux session `dl-session`.
 `dl hosts tmux HOST` is the same command. Linux/macOS, local OpenSSH, an interactive
@@ -958,13 +1093,19 @@ terminal on stdin and stdout, and remote tmux are required. The host is always
 explicit; `dl-session` is a tmux name, not a default machine or saved agent session.
 
 ```bash cli-help="tmux"
-# Create or return to dl-session on this host
+# Explicit create-only operation
+dl tmux new work --host geyang/dev/worker
+# Read cached session metadata
+dl tmux list --host geyang/dev/worker
+# Compatibility: create or return to dl-session on this host
 dl tmux geyang/dev/worker
 # A separate named terminal; --sess and --session are interchangeable
 dl tmux geyang/dev/worker --sess work
 ```
 
 ```bash cli-help="hosts tmux"
+dl hosts tmux new work --host geyang/dev/worker
+# Compatibility: create or attach
 dl hosts tmux geyang/dev/worker --session work
 ```
 
