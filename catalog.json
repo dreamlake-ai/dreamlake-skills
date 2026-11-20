@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.19",
+  "version": "v2026.11.19-34-g34ddd91d",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -90,6 +90,15 @@
         ]
       },
       "files": 17
+    },
+    "dreamlake-session-archives": {
+      "description": "Configure namespace-bound local session discovery and restricted archive storage, inspect upload consent and historical coverage, and recover interrupted archival without granting remote execution.",
+      "requires": [
+        "dreamlake-cli",
+        "dreamlake-lakeshore"
+      ],
+      "tools": null,
+      "files": 4
     },
     "dreamlake-tasks": {
       "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Memos for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",

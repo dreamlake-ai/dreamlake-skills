@@ -1164,6 +1164,22 @@
         "sha256": "119a004889838a7fc0dfe71c8d6e9296474dce5d8abbd700c1ff9bdb25e89240"
       }
     ],
+    "dreamlake-session-archives": [
+      {
+        "url": "https://docs.dreamlake.ai/sources",
+        "file": "reference/docs-sources.md",
+        "version": "0.1.202 667f246d",
+        "source_sha256": "b14847319c0585d15eab1ee44cd87bbb264f08d6fcb8ad46b258e94c41d39de8",
+        "sha256": "15d5ede6be6efc2f87e375ac9ae7c494645f2ff3458fa5a8a50fd4845a913ffc"
+      },
+      {
+        "url": "https://cli.dreamlake.ai/sessions",
+        "file": "reference/cli-sessions.md",
+        "version": "0.136.0 b20eddb",
+        "source_sha256": "097c12235757148cef0551e8ecc394010d3fe2e39510a5fef72ed6d08d425d93",
+        "sha256": "19f2a9a35e936933e45fd5891d0ade96cc089486439914f340147881f4d0b354"
+      }
+    ],
     "dreamlake-tasks": [
       {
         "url": "https://cli.dreamlake.ai/tasks",
