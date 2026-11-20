@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.196 754a09c9; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.197 7b72e2b8; do not edit -->
 
 # Browser terminal
 
@@ -545,10 +545,10 @@ Status is refreshed on explicit actions, not by polling every row or hidden tab.
 
 The gateway exposes authenticated, origin-checked `POST` endpoints at
 `/namespaces/:namespace/terminal/sessions/:savedId/status`, `/start` and `/stop`.
-Status accepts `{}`. Start accepts `{}` (automatic selection) or
+Status accepts `{}`. Start accepts `{}` (tmux) or
 `{ runtime: 'auto' | 'tmux' | 'direct' }`. Automatic selection prefers tmux, including
 common user-local and Homebrew installations; otherwise it prepares direct mode
-for the owner. An explicit tmux request never silently switches modes. Direct
+for the owner. The default and explicit tmux requests never silently switch modes. Direct
 preparation checks executable, directory and provider config without starting a
 process. Stop requires the exact fresh observation's
 `{ generation, paneId, panePid }`; it is an explicit process-ending operation,
@@ -566,6 +566,11 @@ Each successful response is `{ runtime }` with:
 | `clients` | Number of attached tmux viewers, or `null` when unknown |
 | `dependencies` | `{ tmux, codex }`; `codex: null` means not checked during this action |
 | `reason`, `created` | Optional fixed failure reason and whether start created or resumed this runtime |
+
+Managed tmux attachment pins the owner, generation and exact pane before final
+authorization, then rechecks them before enabling input. A changed saved binding
+or owner closes an existing viewer at its next access lease. Archive read access
+does not grant machine execution permission.
 
 New managed sessions retain an exited pane so its exit status can be observed.
 Start can resume that same owned runtime with a new generation. Concurrent starts
@@ -1165,3 +1170,17 @@ HTTP `429` with `session_limit` means an admission quota was reached. The new re
 Close only a connection/tunnel you intend to release, then refresh and retry. Closing an SSH viewer need not stop the underlying agent or tmux workload. A full namespace can block a host with free local slots. If counts appear stale, allow cleanup/connection deadlines to pass and inspect the lifecycle; do not delete session records to bypass the counter. `503 ssh_busy` / `controlplane_busy` indicates the bounded write queue, not the concurrent-session quota. `daemon_unavailable`, `terminal_not_ready` and permission errors require their own readiness/authorization checks.
 
 For the authority model and proposed live-configuration boundary, see [Nymph permissions and commands](docs-lakeshore-hosts-nymph-permissions.md).
+
+### Cleanup after a managed agent exits
+
+New managed tmux sessions retain running agents when a browser disconnects or
+becomes idle. Once tmux confirms the agent process has exited and no viewer is
+attached, the gateway's default cleanup policy removes the exited pane after a
+full 30-minute grace interval, normally within 30–60 minutes. Reattaching resets
+the grace period. Unknown exit state or changed ownership leaves the pane intact.
+Saved session metadata and native conversation history remain available.
+
+Administrators can set `exitedCleanupSeconds` in the protected terminal gateway
+configuration (0 disables installation; maximum seven days). The policy applies
+to newly created managed generations. Cleanup performs one small local command
+per interval while detached; it does not upload content or poll the network.

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/cict.md at 0.135.2 8eb7eba; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/cict.md at 0.136.0 b20eddb; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -126,7 +126,7 @@ the runner that served it. Its ID is `<installationId>-<jobId>`.
 
 ```bash cli-help="cict runs"
 dl cict runs list my-team --limit 20
-dl cict runs show my-team/91234567-48812345678 --result
+dl cict runs show my-team/91234567-48812345678 --file metrics.json
 ```
 
 ```bash cli-help="cict runs list"
@@ -135,28 +135,20 @@ dl cict runs list my-team --limit 20 --json
 
 Each line shows the run ID, status or conclusion, repository, job, commit,
 routing (pool name, `unmatched`, `unbound` or `rejected:<reason>`) and the
-evidence state (`pending`, `written`, `failed` or `none`).
+evidence state (`pending`, `written`, `failed` or `none`). CI/CT does not
+compare runs or read a result format: a job's own steps decide whether it
+passes.
 
 ```bash cli-help="cict runs show"
 dl cict runs show my-team/91234567-48812345678
-dl cict runs show my-team/91234567-48812345678 --result --json
+dl cict runs show my-team/91234567-48812345678 --file metrics.json --json
 ```
 
 `show` adds the GitHub job link, the runner and its Slurm job, a runner error
-code when start failed, and the evidence location. `--result` also reads the
-run's `result.json` from the evidence Source; it is `null` when the run wrote
-none or evidence is not written yet.
-
-```bash cli-help="cict runs compare"
-dl cict runs compare my-team/91234567-48812345678
-dl cict runs compare my-team/91234567-48812345678 --all --json
-```
-
-`compare` lists the cases that changed against the baseline: the latest
-earlier run of the same repository, workflow and job on the default branch
-whose evidence was written. Each case is `regressed`, `fixed`,
-`still_failing`, `unchanged`, `added` or `removed`, with the change in its
-score (such as normalized return) when both runs report one.
+code when start failed, and the evidence location. `--file <path>` also reads
+one JSON file the run declared as evidence, relative to its evidence folder;
+it is `null` when the run did not write it or evidence is not written yet.
+`dl cict runs compare` was removed with baseline comparisons.
 
 ## DreamLake GPU
 

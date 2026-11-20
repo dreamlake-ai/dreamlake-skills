@@ -1,6 +1,26 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.135.2 8eb7eba; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.136.0 b20eddb; do not edit -->
 
 # Release notes
+
+## 0.136.0 — CI/CT without baseline comparisons
+
+CI/CT now shows every job the same way — status, machine, duration, cost and
+evidence — and no longer compares runs or reads a result format. The embedded
+`dreamlake-cli` skill and `dl init` ship skills
+[v2026.11.20.3](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.20.3).
+
+- **Removed:** `dl cict runs compare`, the SDK's `cict().runs.comparison` and
+  the `CictComparison` / `CictBaseline` types, and the `baseline` line of
+  `dl cict runs show`. On an older CLI, `dl cict runs compare` now fails with
+  `CI/CT request failed (HTTP 410): comparison_removed`; update the CLI. This
+  CLI also prints the server's explanation after the error code.
+- **Changed:** `dl cict runs show --result` (always `result.json`) is now
+  `--file <path>`: any JSON file the run declared as evidence, such as
+  `--file metrics.json`; there is no `--result` alias. With `--json` the output
+  is `{ run, file, content }` (was `{ run, result }`). Non-JSON or oversized
+  (over 8 MiB, counted as the file is read) files fail with a message naming
+  the file, and a bad path fails before any request. SDK
+  `runs.result(id, { file })` is unchanged.
 
 ## 0.135.2 — Bundled skills v2026.11.20.2
 
