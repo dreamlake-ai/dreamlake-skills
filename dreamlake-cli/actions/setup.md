@@ -58,7 +58,8 @@ DreamLake login authenticates GitHub or authorizes changes to Git credentials.
 
 For an SDK-only request, use that SDK's documented profile or namespace API
 and check its installed version; do not silently change the CLI's active profile.
-For details, follow [environments](../reference/cli-environments.md) and the
+For details, follow [authentication](../reference/cli-auth.md),
+[environments](../reference/cli-environments.md) and the
 installed command help. Before using bundled authentication or namespace
 reference text, check its recorded source version. If it predates CLI 0.139.0,
 do not apply its reset-on-switch or SDK-default guidance to the new commands;

@@ -1,6 +1,16 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.137.1 72ac2de; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.139.0 9cde214; do not edit -->
 
 # Release notes
+
+## 0.138.0 — Worker downloads for targeted UDFs
+
+`dl runnable bind --target` uploads its code archive directly to a private
+DreamLake Source. The server sends a ticket with the job. The assigned worker
+redeems it for a short-lived download URL and verifies the archive SHA-256
+before execution. Compressed archives up to and including 64 MiB are supported.
+
+Use this CLI with worker SDK `dreamlake-lakeshore>=0.5.3` and a backend serving
+the configured-snapshot upload route.
 
 ## 0.137.1 — Refreshed tmux skill references
 

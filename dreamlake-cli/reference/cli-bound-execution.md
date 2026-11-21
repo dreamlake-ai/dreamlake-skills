@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.137.1 72ac2de; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.139.0 9cde214; do not edit -->
 
 # Execute a bound UDF on a queue
 
@@ -143,11 +143,7 @@ dl runnable bind udf/acme/recipes.process@FULL_SHA256 \
   --target acme/compute/worker --project recipes
 ```
 
-`bind --target` builds this checkout's configured archive locally, then uploads
-it through DreamLake. The archive must be at most 128 KiB. The server checks its
-layout and digest, stores it at a key derived from the sha256 in the host's
-control plane, and registers the RepoSnapshot. `bind` then registers the binding
-with the server-derived control-plane block.
+With direct Source delivery (pending release), `bind --target` builds the checkout locally, requests a scoped PUT for the content digest, uploads the code archive directly to storage, and registers its metadata with DreamLake. The compressed code limit is 64 MiB inclusive.
 
 Keep the project in a subdirectory of the snapshot and name it with
 `--project`: put `.dreamrc` beside the project files, mount them under a
@@ -168,17 +164,9 @@ code:
 and bind with `--project app`. Sibling modules of the entrypoint's package
 import from the snapshot; third-party packages come from the locked runtime.
 
-**Source-staged snapshots.** No CLI or SDK upgrade is needed. In a namespace where
-the DreamLake deployment stages launch code in DreamLake Sources, `bind
---target` stores the archive in your private `launch-code-<user id>` Source
-instead of control-plane storage, and the binding's control-plane block points
-at it (`storageName` `dreamlake-source`, archive key
-`source/<source id>/dreamrc-mounts/<sha256>.tar.gz`). The commands and output
-are the same. At `execute --target`, DreamLake reads the archive as you, checks
-its full SHA-256 and submits it inline. Only the user who bound a Source-staged
-binding can execute it; another member gets `409 launch_code_source_conflict`.
-The same archive already registered for the repository at another location
-(control-plane storage, or another user's Source) is `409 snapshot_mismatch`.
+The worker receives a job ticket for every targeted code snapshot. It redeems the ticket for a short-lived read after claiming the invocation. It verifies the downloaded bytes against the binding and checks the configured archive before importing the entrypoint. Code archives allow up to 64 MiB decompressed, 10,000 entries and 16 MiB per file. Keep large simulation dependencies in separate resources.
+
+For a historical control-plane storage binding, use the same checkout and bind again to stage that digest in your private Source. A worker without ticket support returns a rejected receipt and needs an upgrade before a new attempt.
 
 ```bash
 dl runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
@@ -188,8 +176,8 @@ dl runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
 The task request becomes `dreamlake-bound-task-v2`: the target host,
 enrollment and worker are part of the task key and invocation ID, so the same
 inputs on another worker are a different task. The server checks that the worker claims the queue,
-re-reads the control-plane CodeRepo and the stored archive bytes against the
-binding, and submits with the archive inline. Only the target worker can
+checks the control-plane CodeRepo and managed object's metadata,
+and submits the binding, task request and ticket to the target worker. Only that worker can
 claim the attempt, and the UDF run needs no control-plane token. Inputs are at
 most 16 KiB. Repeating the identical command returns the same invocation. Changed
 inputs (or queue, timeout or target) are a different task, with a new task key and
@@ -205,8 +193,7 @@ The queued function is `dreamlake.lakeshore.bound.run_bound_udf`, resolved
 from the worker's installed SDK; the user's code comes from the snapshot. In
 order, before any user module is imported, the worker:
 
-1. takes the archive (inline with `--target`, otherwise downloaded) and
-   requires its full SHA-256;
+1. downloads the archive, using the job ticket for a targeted execution, and verifies its full SHA-256;
 2. unpacks it with the configured-snapshot runner into a fresh directory;
 3. re-hashes the registered source, `pyproject.toml` and `uv.lock`;
 4. selects `$DREAMLAKE_RUNTIME_ROOT/<uv.lock sha256>` and starts
