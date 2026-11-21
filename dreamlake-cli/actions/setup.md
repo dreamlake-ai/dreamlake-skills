@@ -21,7 +21,7 @@ production. See [installation](../reference/cli-installation.md) and
 
 For saved accounts, refresh, logout, token retrieval or default namespace work,
 check the installed version and open the relevant help first. These procedures
-require CLI **0.139.0+**; an updated skill alone does not upgrade the binary.
+require CLI **0.140.0+**; an updated skill alone does not upgrade the binary.
 
 ```bash
 dl --version
@@ -33,19 +33,27 @@ dl namespace list
 ```
 
 Use the user's profile and namespace names. Choose the saved login before
-selecting its resource scope, then read the resulting status:
+selecting its resource scope. For repository work, inspect namespace status from
+the working directory and choose local or global scope to match the request:
 
 ```bash
 dl auth switch work
-dl namespace use fortyfive
+dl namespace use fortyfive --local
 dl auth status
 dl namespace status
 ```
 
-For another organization, use `dl namespace use dyna-robotics`; to return to
-the account's personal default, inspect and run `dl namespace reset`. Confirm
-with a read-only operation from the intended task before continuing. Preserve
-explicit namespace arguments the user supplied. If a selection is denied, inspect
+For a global account preference, inspect and use
+`dl namespace use dyna-robotics --global`. For automatic scope, omit the scope
+flag and inspect the resulting
+source path. In scripts and agents, supply the namespace name; leave the
+interactive picker to a user in a terminal. To remove a selection, inspect
+`dl namespace reset --help` and reset the requested scope. Confirm the resulting
+namespace and source with status and a read-only operation from the intended task.
+When the user opens a repository that already selects a namespace, use that
+configuration within the requested task; do not add an enrollment step or a
+separate approval gate for each write. Preserve explicit namespace arguments
+the user supplied. If a selection is denied, inspect
 membership and the effective identity; do not substitute another account or
 namespace to make the operation succeed.
 
@@ -59,15 +67,18 @@ DreamLake login authenticates GitHub or authorizes changes to Git credentials.
 For an SDK-only request, use that SDK's documented profile or namespace API
 and check its installed version; do not silently change the CLI's active profile.
 For details, follow [authentication](../reference/cli-auth.md),
+[repository configuration](../reference/cli-dreamrc.md),
 [environments](../reference/cli-environments.md) and the
 installed command help. Before using bundled authentication or namespace
-reference text, check its recorded source version. If it predates CLI 0.139.0,
-do not apply its reset-on-switch or SDK-default guidance to the new commands;
+reference text, check its recorded source version. If it predates CLI 0.140.0,
+do not use its global-only defaults or reset guidance for repository scope;
 use installed help and the published docs for the installed version. Reference
 pages update only after docs publication and the next reference sync.
 Handle resource moves, identity changes or GUI session changes only when
 requested. If a command is missing, use the documented upgrade path; do not
-substitute direct configuration edits.
+invent hidden binding files or substitute unrelated credential changes. For a
+requested `.dreamrc` edit, preserve its other fields and comments and verify the
+effective source afterward; keep credentials out of repository configuration.
 
 For scripts, use `dl init --agent codex` or
 `dl skill install --agent claude --global`. Skills are bundled with the
