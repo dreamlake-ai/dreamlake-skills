@@ -37,11 +37,11 @@ in advance, as the docs describe. Check `dl --version` and
    binding; a changed module, lock or Python version is a new binding, never an
    edit. See [bind](../reference/cli-bound-execution.md#bind). If `bind`
    refuses the archive as too large, take data files out of the snapshot (read
-   them from a Source) instead of splitting the project. *Awaiting release:*
-   once the docs describe archives above the inline size, such a `--target`
-   binding also needs the newer `dreamlake-lakeshore` the docs name on the
-   target worker; check the worker's version before executing, and do not
-   upgrade a worker the user did not ask you to change.
+   them from a Source) instead of splitting the project. For Source-ticket delivery, check the worker's installed version
+   against the target execution docs before submitting. If the binding predates
+   Source delivery, repeat the bind from the original checkout and confirm the
+   archive digest matches the historical binding. Record the worker's receipt
+   and verified archive digest, and keep tickets and signed URLs out of notes.
 4. Execute with explicit `--queue`, `--inputs` and `--timeout-seconds` (and the
    same `--target`). Record the invocation ID printed before submission.
 5. After a lost response or interrupted wait, repeat the identical command; it
