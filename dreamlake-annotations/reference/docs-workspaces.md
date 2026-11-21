@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.204 f98ed513; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.208 d4991f749; do not edit -->
 
 # Profiles and workspaces
 
@@ -280,6 +280,25 @@ Pagination totals use the same visibility filter. Supplied invalid or expired
 credentials return 401. Anonymous project summaries omit internal bindr/dataset
 counts. Anonymous Memos searches do not activate or flush collaborative rooms.
 Creating, modifying, sharing and deleting remain authenticated operations.
+
+## Browsing resources in a Project
+
+Click a filed Scene, Annotation, Workflow, Agent, or infrastructure Stack to
+open it in a tab to the right of the Project tree. Clicking the same resource
+again focuses its existing tab. You can switch between these tabs, bound
+Sources, Memos, and Artifacts while keeping your place in the Project.
+
+Dash entries in the Project inventory and Bindrs open at the linked run,
+metric, file, or folder. For example, select a training run’s reward metric,
+open the Scene in a second tab, then select the reward tab to return to it.
+
+Each resource row shows its type and location inline. In **#all** and in a
+single Bindr, a row is indented only when its own Run is also listed and the
+row follows that Run without interruption in the current sort order.
+The **BINDRS** aggregate and search results are flat and keep each row's path,
+so a file filed on its own, or several files with the same name, can still be
+told apart. Within a group, files in deeper folders keep their folder path
+relative to the Run.
 
 ## Project workspace search (development preview)
 

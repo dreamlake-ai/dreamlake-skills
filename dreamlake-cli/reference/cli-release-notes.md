@@ -1,6 +1,17 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.137.0 02c2b75; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.137.1 72ac2de; do not edit -->
 
 # Release notes
+
+## 0.137.1 — Refreshed tmux skill references
+
+The embedded `dreamlake-cli` skill now includes the published `tmux new`,
+`open`, `list` and `resolve` command reference from CLI 0.137.0. The pinned
+public skill release
+[v2026.11.20.7](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.20.7)
+also provides the named-tmux task procedure in `dreamlake-lakeshore` and the
+Memo directive guidance in `dreamlake-memos`. Installing Lakeshore includes
+both of its required skills. The CLI embeds `dreamlake-cli`; the other skills
+are installed from the public release. The pin requires CLI 0.137.0 or later.
 
 ## 0.137.0 — Named tmux terminals
 

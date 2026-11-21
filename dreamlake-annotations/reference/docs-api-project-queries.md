@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.204 f98ed513; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/api/project-queries.md at 0.1.208 d4991f749; do not edit -->
 
 # Project and Memo queries
 
@@ -70,10 +70,13 @@ query; native folders retain their existing native destination.
 
 The existing Project kind chips use `filter=memos` or `filter=bindrs` with
 `scope=all`. Their predicates apply to the same complete authorized inventory
-before totals and page boundaries: Memo content or content with an existing live
-Project Bindr membership, respectively. Navigation containers remain available,
-as in the existing root filters. Native memberships use their immutable target
-identities; no new membership kinds are created. Calls without a filter show all.
+before totals and page boundaries. `filter=memos` returns only mounted Memos,
+whatever their names; an ordinary file is never a Memo, even one named `.md`.
+`filter=bindrs` returns only targets with a live membership in a readable Project
+Bindr, including a tree folder or file filed there. Neither filter keeps
+navigation rows: a folder, run, or episode appears only when it matches itself.
+Native memberships use their immutable target identities; no new membership kinds
+are created. Calls without a filter show all.
 
 `search` matches names and paths across the complete readable union before
 paging. `sort` accepts `recent` (default), `oldest`, `name-az`, `name-za`,

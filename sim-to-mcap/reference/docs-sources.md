@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.204 f98ed513; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.208 d4991f749; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -198,9 +198,11 @@ Owner/admin policy changes invalidate existing consents; they do not approve
 another person's local upload. These controls are not enterprise forced-upload
 policy: managed-root enrollment is a separate requirement.
 
-The read-only message projection accepts Codex event-message JSONL, Claude
+The read-only message projection accepts Codex event-message JSONL (legacy
+user/agent events and completed `UserMessage`/`AgentMessage` text items), Claude
 user/assistant JSONL, explicit DeepSeek role/content JSONL exports, and DreamLake
-schema-version-1 messages. Tool output and reasoning are omitted. Unknown or
+schema-version-1 messages. Duplicate Codex response items, developer context,
+tool output and reasoning are omitted. Unknown or
 malformed records produce an incomplete preview, never a fabricated transcript.
 Each page returns at most 200 messages, reads at most 8 MiB of native chunks and
 uses an actor-bound cursor. A complete native snapshot does not imply complete
@@ -218,7 +220,7 @@ independent destination allowlist. The browser exposes `deviceConfiguration` as
 machine applied it. Stop and policy changes create a new configuration revision.
 
 `GET /namespaces/:namespace/session-archive-sources/:sourceId/sessions` returns
-source-authorized metadata with `query` (literal native-ID prefix), `limit`
+source-authorized metadata with `query` (literal native-ID or normalized explicit-provider-title prefix), `limit`
 (default 50, maximum 100), and an opaque `cursor`. It does not search transcript
 text. Each entry identifies its machine, native session, observation, format and
 explicit archive binding. An origin-session link is returned only within the
@@ -549,6 +551,14 @@ directory.
     A separate kind — structured collections with schemas, pushed with the
     Python SDK.
 
+## Browse a Source in a Project
+
+In the Project column, select a row marked **Source** to browse its directories
+and preview files in a tab on the right. Selecting the same Source again brings
+its existing tab forward, with the selected directory and file still open.
+Projects with a top-level folder named `sources` also show their bound Sources
+inside that folder. These rows represent Project-wide bindings.
+
 ## Project reference access
 
 A Source reference attaches the **whole Source**, using its existing reference
@@ -671,6 +681,36 @@ the read-only Source bridge, permissions and SDK examples.
 
 The archive pilot admits only the configured shared `SOURCE_ASSETS_BUCKET`, whose versioning must remain disabled. Recheck this deployment assumption before release. Arbitrary or versioned archive bindings remain unavailable until lifecycle deletion and Terraform-managed IAM support them. Cleanup refuses versioned objects rather than claiming they were purged.
 
+Explicit provider titles can be refreshed independently of uploaded conversation bytes.
+New daemons negotiate `metadataProtocolVersion: 1` in the signed Source configuration
+request and send title changes only when `capabilities.providerTitleMetadata` is true.
+Older empty configuration requests retain their existing response shape.
+
+The signed `POST /daemon/session-archive-sources/:sourceId/sessions/:sessionId/metadata`
+request contains `sourceRevision`, the exact provider/native-session/root `occurrence`,
+and `providerTitle: { value, observedAt }`. Titles are limited to 128 Unicode codepoints
+without control characters; timestamps use UTC ISO milliseconds and cannot be more
+than five minutes ahead of the server. Only a newer timestamp replaces a provider title.
+The response reports `applied` and the current title, so delayed requests cannot revert it.
+Catalog title search uses an indexed, Unicode-normalized, case-insensitive prefix;
+native-ID matching remains literal. Search never reads transcript bytes. An unfiltered
+root catalog can request `order=newest` to show newly registered sessions first,
+ordered by archive registration time and ID. This opt-in order uses its own
+actor/Source-bound cursor and cannot be combined with a search prefix or a
+component listing; omitting it preserves native-ID ordering. Each page remains
+bounded to 100 entries. Refresh the newest page for recent registrations and
+retain pagination for older entries; a first-page refresh alone does not certify
+that every session in a larger burst has been loaded.
+This endpoint accepts explicit provider title metadata, not conversation or terminal
+output. It preserves byte observations, upload consent, capture boundaries, namespace
+ownership, and manually assigned session names. Current Source permissions govern
+both updates and title reads; a title is never copied into another namespace's legacy
+session record. Provider-title support requires a compatible daemon; publication of the
+backend alone does not update installed devices.
+Authorized registered-session responses expose `nameIsAutomatic`. A UI may prefer a newer
+provider title only for an exact authorized archive binding whose flag is true; false
+or absent preserves the manually assigned name. Previous automatic names remain private.
+
 Older session archive registrations are repaired lazily when their Source catalog is read.
 Each request examines at most 25 rows and materializes the native ID only when the
 current stored observation matches the existing session and configured provider/root.
@@ -699,3 +739,168 @@ configured Source. Child components and ambiguous destinations are excluded.
 Both the terminal row and Source must remain readable. The Source namespace
 stays explicit; working-directory names never select it. This association
 neither starts a terminal nor grants upload permission.
+
+### Registering an observed native session for explicit terminal access
+
+This additive protocol requires a compatible API and daemon; its deployment does
+not retroactively turn existing catalog rows into executable sessions. The daemon
+negotiates `{ "metadataProtocolVersion": 2 }` in signed Source configuration and
+calls the registration endpoint only when `capabilities.nativeSessionRegistration`
+is true. Empty and version-1 configuration requests keep their prior shapes.
+
+`POST /daemon/session-archive-sources/:sourceId/sessions/:sessionId/registration`
+accepts a signed metadata payload with `apiVersion: 1`, `idempotencyKey`, current
+`sourceRevision`, `accountFingerprint`, logical `occurrence`
+(`provider`, `nativeSessionId`, `localRootId`), `launch` (`cwd`, `providerRoot`),
+and `metadata` (`name`, `observedAt`, `titleKind: "provider" | "fallback"`,
+optional provider-derived `lastActivityAt`).
+Only root Codex and Claude sessions are supported. The daemon must obtain the
+canonical provider root from its exact applied local Source pin and the working
+directory from explicit provider metadata. An archive path never supplies a
+launch directory. Names are limited to 128 Unicode characters; observations may
+be at most five minutes ahead of server time.
+
+The server derives the namespace, owner, host, account and enrollment. It checks
+current Source and execution eligibility even on a replay, pins the provider
+root, and associates one exact private terminal descriptor with the root archive.
+The namespace remains part of terminal identity: an existing descriptor in a
+different namespace is left untouched. Ambiguous or conflicting bindings fail
+with `ARCHIVE_REGISTRATION_CONFLICT`; unsupported providers return
+`ARCHIVE_REGISTRATION_UNSUPPORTED`. Neither error changes archive upload consent.
+
+The receipt echoes the complete Source identity, current revision, enrollment,
+machine, Unix user, account, logical occurrence and immutable launch binding,
+plus `terminalSessionId`, `archiveSessionId`, `archiveBinding` and `bindingDigest`.
+The digest is lower-case SHA-256 over the UTF-8 JSON array of, in order:
+`"archive-native-registration-v1"`, Source ID, archive ID, namespace ID, owner ID,
+enrollment ID, machine ID, Unix user, provider, native ID, local root ID, account
+fingerprint, working directory, provider root and terminal ID. Display names and
+append-changing byte generations are excluded from that stable binding.
+
+Registration starts no process and grants no upload permission. Uploads may be
+stopped while metadata registration remains authorized. Subsequent explicit
+provider titles update only a proven automatic name, in timestamp order; manual
+aliases and launch bindings remain fixed. Provider activity advances monotonically;
+collection time never substitutes for unknown activity in a Source-registered
+descriptor. Daemons may coalesce activity-only registration updates by provider
+activity minute; an unchanged activity report causes no idle request.
+The catalog exposes the registered ID
+through its existing `originSessionId` field only when both sides are readable
+and the reciprocal mapping still agrees. That link is not execution authority:
+an explicit terminal action must resolve and authorize the exact descriptor.
+
+### Reconciling a lost snapshot grant response
+
+An enrolled daemon that retained its original grant request but lost the response
+can send the same descriptor and `idempotencyKey` to
+`POST /daemon/session-archive-sources/:sourceId/uploads/by-request/status`.
+The signed request returns `{ apiVersion: 1, idempotencyKey, descriptor, status }`
+only when the stored descriptor matches exactly and the enrollment and Source
+owner still have access. `status` is the existing upload status or committed
+receipt. The response contains no storage URL and neither renews nor cancels an
+upload. Upload-consent revocation does not prevent this restricted reconciliation;
+current Source and enrollment access are still required.
+
+A missing request returns `404`, and a reused key with a different descriptor
+returns `409`. Neither response authorizes a replacement upload. An expired or
+cancelled result identifies only that original attempt; any later upload still
+requires fresh status, current consent and a new authorized grant.
+
+### Retrying an unchanged historical snapshot
+
+A history owner can inspect
+`GET /namespaces/:ns/session-archive-sources/:sourceId/history/grants/:grantId/recovery`.
+It returns at most 25 blocked entries with an archive-ID
+`nextCursor`. This read schedules nothing. `canRecover` is advisory: current
+Source, enrollment, storage, consent, frozen generation and competing work are
+checked again when requesting and dispatching a retry.
+
+The first supported recovery is a terminal `transport-unavailable` failure.
+`policy-denied` entries remain unavailable because a purged upload does not, by
+itself, prove whether expiration or cancellation caused its cleanup. A changed
+local generation, revoked or expired grant, or changed consent cannot be widened
+into a new approval by recovery.
+
+An owner sends one entry to
+`POST /namespaces/:ns/session-archive-sources/:sourceId/history/grants/:grantId/entries/:sessionId/recover`
+with an `Idempotency-Key` and these exact body fields:
+
+```json
+{
+  "expectedGrantRevision": "reviewed-grant-revision",
+  "expectedSourceRevision": "reviewed-source-revision",
+  "expectedPolicyRevision": "reviewed-policy-revision",
+  "entrySha256": "reviewed-64-character-entry-hash",
+  "expectedWorkId": "reviewed-terminal-work-id",
+  "consentId": "existing-snapshot-consent-id",
+  "consentRevision": "existing-snapshot-consent-revision"
+}
+```
+
+Acceptance atomically creates one ordinary pending snapshot work item and
+reports `queued`, only while no other snapshot work is active on that enrollment.
+This excludes retry-delayed and leased snapshots, but makes no claim that the
+machine has no other workloads. The new work reuses the original immutable
+snapshot payload, child consent and grant expiration. Existing dispatch and
+claim paths recheck current authority before device execution. The old terminal work and device block remain
+unchanged. Repeating the same request returns the same receipt after current
+authority checks; a different key cannot create a second pending successor.
+At most three explicit recoveries are accepted per entry.
+
+`retainedSnapshotBytes` reports previously verified committed bytes, separately
+from `frozenSnapshotBytes`. Neither is newly transferred by the recovery command,
+and `localFileVerified: false` explicitly means the device must still validate
+its current root and frozen file before transfer. Recovery starts no terminal,
+extends no grant, and changes no upload approval.
+
+### Canonical session metadata
+
+A daemon may separately opt into observed session metadata with the signed configuration
+request `{ "metadataProtocolVersion": 2, "sessionMetadataProtocolVersion": 1 }`. Only this
+request receives `capabilities.sessionMetadata`; existing protocol 1/2 configuration
+responses and native-registration bodies remain unchanged. When supported, use signed
+`POST /daemon/session-archive-sources/:sourceId/sessions/:archiveSessionId/session-metadata`.
+
+The strict payload contains `apiVersion: 1`, a persisted UUID `idempotencyKey`, current
+`sourceRevision` and `accountFingerprint`, exact logical `occurrence`, and `metadata`.
+Metadata contains `kind`, `parentArchiveSessionId`, `observedAt`, `workingDirectories`,
+`primaryWorkingDirectory`, `directoryCoverage`, and optional `lastActivityAt`. Root kind
+is `session`; the initial child implementation accepts only persisted Claude subagents
+with their exact same-Source parent and component identity. Unsupported Codex children
+and sidecars are not relabeled as roots. Ownership, namespace and enrollment come from
+current server authority, never from the body.
+
+Each directory has a normalized absolute POSIX `path`, `firstObservedAt` and
+`lastObservedAt`. At most16 paths,4096 UTF-8 bytes per path, and80KiB of serialized JSON
+(including escapes) are accepted per report. UTC timestamps include milliseconds, are
+ordered first≤last≤observed, and observation time is at most five minutes ahead. The
+primary path must appear in that report. `unknown` carries no paths or primary. The
+server unions directories retained during verified reciprocal joins with later reports,
+retains at most32 recently observed paths, keeps the current primary, and marks
+overflow permanently `truncated`. `observed` never claims complete historical coverage.
+Paths are metadata, not filesystem, launch or upload authority. Immutable launch cwd is
+unchanged.
+
+The receipt binds source, archive and canonical session IDs, Source revision, exact
+occurrence, original key and request observation time. `metadataObservedAt` is the
+durable high-water time; `disposition` is `applied`, `replayed` or `stale`. An older report
+cannot overwrite newer metadata; contradictory values at the same timestamp conflict.
+A newer unchanged report still advances the durable fence. A receipt may clear only its
+exact queued request, not a newer desired value. The canonical ID always names the
+deterministic retained archive address, even if a later verified reciprocal registration
+redirects it to a terminal representative. Both addresses require current access checks.
+The existing command receipt is retained for 24 hours. Within that window an exact replay
+returns it unchanged; after expiry the response may report current disposition and
+high-water, but its request tuple and canonical address remain stable.
+
+This metadata updates the additive canonical Session identity store, physically stored
+in `CanonicalSession` so the retained legacy experiment `Session` collection and its
+constraints remain untouched. Byte observations,
+frozen snapshots, consent, upload state, provider-title metadata and manual aliases are
+not changed. Legacy IDs and records are retained during migration; this endpoint does
+not itself switch existing list or open routes. Source observations, provider-title
+updates and native registration also synchronize their canonical identity within the
+original authority transaction. A joined provider title reaches the representative only
+after current reciprocal, owner, enrollment, host and execution-namespace checks; manual
+labels remain authoritative. An inaccessible terminal does not authorize following its
+redirect or changing its label.

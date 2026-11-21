@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/providers.md at 0.137.0 02c2b75; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/providers.md at 0.137.1 72ac2de; do not edit -->
 
 # Provider registrations
 

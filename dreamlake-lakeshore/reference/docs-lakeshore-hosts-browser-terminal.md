@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.204 f98ed513; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.208 d4991f749; do not edit -->
 
 # Browser terminal
 
@@ -418,6 +418,17 @@ SSH target. Resolve the caller-selected host/session explicitly; refuse ambiguit
 | GraphQL | No session-registry query or mutation is exposed | Use REST; unrelated GraphQL resource queries do not imply session parity |
 | External MCP | No standalone session-registry MCP server is exposed by these repositories | Built-in tool plugins are not an MCP publishing endpoint; external MCP projection is deferred |
 
+The session lists accept `scope=mine|available`. `mine` requires authentication
+and filters the authenticated owner's records before search and pagination,
+including in organization namespaces. Admin authority does not widen it.
+`available` retains the endpoint's existing visibility rules; omitting `scope`
+preserves legacy callers. Scoped responses echo `scope`; clients using Mine
+must reject a missing or different echo from an older API. Scoped cursors bind
+the actor, namespace, scope and query; start a fresh page when those change.
+The archive-source catalog accepts the same scope, so an admin can choose Mine
+without listing other owners' archive sources. Source settings may explicitly
+choose available or retain their existing unscoped admin view.
+
 `searchIn=title` matches saved titles case-insensitively before pagination;
 `all`/omission preserves broad metadata/body search under existing visibility
 rules. Change filters by starting a new cursor sequence. Client releases that
@@ -485,11 +496,12 @@ Title filtering happens before pagination and retains the existing read permissi
 It does not search transcript bodies or grant terminal access. Use Python SDK 0.45.0 or later for `client.sessions.search(..., search_in="title")`.
 CLI 0.114.0 adds `dl sessions search --search-in title` and the `sess`/`session` aliases.
 
-Opening reuses the existing managed tmux path and explicit foreground fallback
-when tmux is unavailable. Resuming saved app history is distinct from attaching
-an arbitrary running process; an existing native writer remains protected.
-Transport retries attach only. A foreground session is nonpersistent and cannot
-be shared; disconnecting may end its process.
+Opening attaches the exact saved tmux session when it is running and otherwise
+opens a Direct terminal (see [reopening a running session](#reopening-a-running-session)).
+Resuming saved app history is distinct from attaching an arbitrary running
+process; an existing native writer remains protected. Transport retries attach
+only. A Direct terminal cannot be shared with the organization and has no Stop
+action; closing it may end its process.
 
 Nymph 0.1.39 registers valid Codex names/titles and Claude
 explicit log/index titles, using summaries only where applicable. Blank names
@@ -563,15 +575,21 @@ while browsing an organization. In Memos, the session-library tab at the left of
 the chat tab row opens a picker without moving the memo editor. Its available
 list includes your sessions and sessions shared with an organization you belong to. The dedicated `/:namespace/sessions`
 page saves a machine, its enrolled Unix user, an absolute working directory and
-an agent conversation UUID. Click a saved session to open it immediately in the
-browser terminal. A session link selects its saved configuration; visiting or
-refreshing the link alone executes no command.
+an agent conversation UUID. Clicking a saved session shows its conversation
+without connecting to the machine. Choose **Terminal** in the session header to
+open the browser terminal, and **Conversation** to switch back while keeping that
+terminal. A session link selects its saved configuration; visiting or refreshing
+the link alone executes no command.
 
 Opening a saved session adds a closable terminal tab. Use **+** in the terminal
 tab strip to choose another saved session. Choosing an already-open session
-focuses its existing tab. Switching tabs keeps their terminal connections open;
-closing a tab detaches that viewer while the agent keeps running on the host.
-Refreshing still only selects the saved session in the link; click to reconnect.
+focuses its existing tab; choosing a tab whose open failed checks the session
+again. Switching tabs keeps their terminal connections open. Closing a tmux tab,
+or a Direct tab that joined a running provider session, detaches that viewer
+while the agent keeps running on the host; closing any other Direct tab may end
+its process.
+Refreshing still only selects the saved session in the link; choose **Terminal**
+to reconnect.
 
 With focus on a session row, **Up/Down** moves through visible entries and
 scrolls the focused row into view. It does not open or start a terminal. Press
@@ -629,13 +647,45 @@ attaches to the running process. Closing its browser viewer detaches from it.
 
 The machine needs its selected provider (Codex or Claude Code), the saved
 conversation and the usual provider login. Authentication and workspace trust
-prompts remain interactive. With the matching direct-runtime gateway and client,
-an owner opening a session on a machine without tmux uses a **direct foreground
-terminal**. No package installation is required. Direct mode may stop on disconnect;
-it has no detached process, managed Stop action or shared attachment. Reopening is
-an explicit new foreground resume, never an automatic reconnect loop. A host reboot
-or exiting the provider ends its process; opening again
-resumes the conversation in a new process. Bookmarks persist in DreamLake, while
+prompts remain interactive. Opening never creates a tmux session, background
+session or fork by itself, and no package installation is required.
+
+#### Reopening a running session
+
+When an owner chooses **Terminal** for a saved session, DreamLake checks the
+machine in this order:
+
+1. **Exact tmux.** If that exact session's tmux terminal is still running, the
+   tab attaches to it. This applies to Codex and Claude.
+2. **Direct.** Otherwise, including on a machine without tmux, the tab shows
+   **Direct** and runs the provider on the machine:
+   - **Codex** rejoins the conversation when its only writer is the Codex home's
+     own managed app-server daemon, joining the same running turn. Output
+     produced while no viewer was attached appears when the turn completes or
+     from history. Any other or unverifiable writer is refused with
+     `native_session_active`, and the owner can choose
+     [Fork and open in terminal](#fork-a-busy-codex-conversation). With no
+     writer, Direct resumes the conversation from its saved history.
+   - **Claude Code** attaches when the conversation is running in exactly one
+     Claude background session, identified by `claude agents` in the saved
+     working directory. When the conversation is known to be open in another
+     Claude terminal, or the check is ambiguous, opening is refused with
+     `native_session_active`: continue it in that terminal, or reopen here
+     after it ends. There is no Claude fork. Otherwise Direct runs
+     `claude --resume` from saved history. That is not proof that no other
+     terminal has the conversation open, and if one does, the two can continue
+     as independent conversations.
+
+The terminal says it rejoined a running session only after the gateway verified
+the Codex daemon or Claude background session; that session keeps running when
+you close the tab.
+A freshly resumed Direct terminal may end when you close or disconnect, and a
+Codex reply that is still running may then finish in its daemon. Reopening is
+explicit, never an automatic reconnect loop; each open is checked again after
+final authorization. Direct terminals have no Stop action and cannot be shared
+with the organization; a joined session keeps its own lifetime, permissions and
+stop. A host reboot or exiting the provider ends its process. Bookmarks persist
+in DreamLake, while
 Codex history and running processes stay on the selected machine and Unix account.
 Changing machines does not transfer either one.
 
@@ -880,30 +930,47 @@ it does not capture or take over the original local TTY.
 With the Codex native-writer guard deployed, a positive observation of a writable
 handle to the exact conversation's local rollout file blocks creating or
 restarting a managed process, or launching a new direct process, with
-`native_session_active`. Continue in the existing Codex chat rather than retrying
-automatically or terminating it to clear the error. An already-running managed
-tmux session remains attachable without starting another writer.
+`native_session_active`, unless Direct verifies that the writer is the Codex
+home's own managed daemon and joins it. Continue in the existing Codex chat
+rather than retrying automatically or terminating it to clear the error. An
+already-running managed tmux session remains attachable without starting another
+writer.
 
 This check reads file/process metadata, not conversation contents, and does not
-stop the observed process. It applies to Codex only. Missing tools, unsupported
+stop the observed process. This file check applies to Codex; Claude uses the
+`claude agents` check above. Missing tools, unsupported
 layouts, timeouts and inconclusive observations retain the previous behavior;
 the absence of an error does **not** prove there is no other writer. The guard
 does not provide an exclusive-writer lock or adopt native app sessions. CLI
 0.84.1+ preserves the error and recovery guidance; older clients may show only
 HTTP 409. Client updates alone do not deploy the gateway guard.
 
-When the Sessions page shows this refusal for a Codex session you own, it offers
-**View read-only**. Nothing is read until you choose it. The view shows the newest
-user and assistant messages, follows new ones while it is open, and loads older
-messages when you ask; reading far back pauses following until you choose
-**Jump to latest**. It cannot type, send input, start, stop or control the
-conversation, and closing it stops reading. Reasoning, tool calls and outputs,
-instructions and system context are not shown; messages appear as plain text and
-long ones are cut at 4000 characters. Each read rechecks your access to that exact machine, Unix account and
-saved session. The conversation file is read in place on your machine; DreamLake
-does not store or upload it. Each read is bounded, whatever the file's size.
-Claude sessions and shared (team) viewers are not supported. This requires the matching terminal
-gateway and browser release.
+#### Fork a busy Codex conversation
+
+A running exact tmux terminal or a joinable managed daemon is opened directly;
+no fork is offered then. If a Direct open is refused because another writer
+holds the conversation (`native_session_active`), the Sessions page offers
+**Fork and open in terminal** for a Codex session you own. Nothing happens on the
+machine until you choose it.
+
+Forking creates a new Codex conversation that starts from the saved
+conversation's history, on the same machine and Unix account, in the same
+working directory and Codex home. DreamLake saves it as a new **private** session
+named `Fork of <name>` and opens it in a direct foreground terminal. The fork is
+a child of the saved session but has its own, independent history: messages in
+the fork do not appear in the original, and the original keeps running
+untouched. Forking does not resume, write to or stop the original conversation,
+does not send a message or start a turn, and does not create a new tmux session.
+
+One choice creates one fork, even if the request is repeated or the connection
+drops while it runs; choosing **Fork and open in terminal** again later creates
+another fork. Only the owner can fork; shared (team) viewers and connection
+grants cannot. Claude sessions are not supported. The machine needs Python 3 and
+a Codex CLI whose `codex app-server` supports forking. If they are missing, or
+the saved conversation is no longer found at its working directory, the action
+reports that forking is unavailable or unsupported; it never falls back to
+resuming the original.
+This requires the matching terminal gateway and browser release.
 
 Older daemons still require explicit discovery and saving. That discovery reads the enrolled user's
 default `~/.codex` SQLite index for recent, unarchived root conversations from

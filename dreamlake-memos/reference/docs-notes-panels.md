@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.204 f98ed513; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.208 d4991f749; do not edit -->
 
 # Panels and agent control
 
@@ -107,7 +107,9 @@ sessions available to your account. Select a session to open a terminal in that
 same panel, beside the memo you are editing. Selecting an already-open session
 activates its tab. The memo and inactive chats and terminals keep their mounted
 state while you switch tabs. A tmux terminal keeps running when its viewer closes.
-On a machine without tmux, an owner can use **direct** mode; closing or losing that
+An owner reopening a session reattaches its tmux terminal if that exact terminal is
+still running; otherwise it opens in **direct** mode, also on machines without tmux,
+and the tab shows **Direct**. Closing or losing a direct
 connection may stop its foreground process. Direct terminals show this limitation,
 require an explicit reopen to resume, and have no managed Stop or shared attachment.
 They do not reconnect automatically. This requires the matching runtime gateway
