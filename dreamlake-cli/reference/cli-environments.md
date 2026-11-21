@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.139.0 9cde214; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.140.0 14b9b01; do not edit -->
 
 # Environments
 
@@ -68,56 +68,59 @@ disappears and a memo explains why.
 
 ## Select the default CLI namespace
 
-**CLI 0.139.0+:** inspect available namespaces, then save a default for the
-current login profile:
+**CLI 0.140.0+:** save a repository default in `.dreamrc`, or a global default for
+the current login profile:
 
 ```bash file="terminal"
 dl namespace list
-dl namespace use fortyfive
+dl namespace use fortyfive --local
 dl namespace status
 dl hosts list
 dl hosts list --namespace dyna-robotics
-dl namespace use dyna-robotics
-dl namespace reset
+dl namespace use dyna-robotics --global
+dl namespace reset --local
 ```
 
-`dl su <namespace>` remains the short form of `dl namespace use <namespace>`
-(introduced in CLI 0.102.0):
+`dl su` remains the short form of `dl namespace use`:
 
 ```bash cli-help="su"
-dl su fortyfive
-dl su dyna-robotics
+dl su fortyfive --local
+dl su dyna-robotics --global
 ```
 
-Use the actual namespace name; `personal` is not a special alias. Selection
-requires your personal namespace or an organization you belong to, checked with
-the current authenticated account. It changes local CLI scope and does not
-change login identity, grant permissions, move resources, or switch the GUI.
-An explicit `--namespace` or namespace-qualified target wins for that invocation
-and leaves the stored default unchanged. Otherwise commands using the shared
-namespace resolver use the selected scope, then the signed-in personal
-namespace when no selection exists. Existing commands that require an explicit
-namespace still require it.
+Omitting the name opens a picker in an interactive terminal; scripts and agents
+supply the name. Use the actual namespace name; `personal` is not a special
+alias. Selection verifies membership using the current account, without changing
+identity, permissions, resources or the GUI workspace.
 
-The default is saved with the profile and restored when you switch back.
-`namespace reset` removes the selected profile's default, restoring personal
-namespace fallback. In `~/.dreamlake/config.json`, the active selection remains
-separate from cached personal identity and bound to the remote and a credential
-fingerprint. A different remote/token cannot inherit it. Access is still enforced
-by every resource route, so revoked membership causes an access error rather
-than a silent switch to another namespace.
+An explicit `--namespace` or namespace-qualified target wins for that invocation.
+Otherwise the shared resolver uses the nearest project `.dreamrc` root
+`namespace`, the profile's global default, then the personal namespace. Existing
+commands that require an explicit namespace still require one.
 
-**Python SDK 0.57.0+:** reads the selected default when resolving an
-implicit namespace from the shared connection files. `Auth` also exposes saved
-profile and namespace operations. Explicit namespace arguments still win.
+Without scope flags, selection writes to an existing project `.dreamrc`, or the
+global profile when no project file exists. `--local` creates the file at the
+nearest Git root/current directory when needed. `--global` ignores local scope.
+A local file without `namespace` inherits the global default on reads; automatic
+writes still target that file. See [`.dreamrc`](cli-dreamrc.md#repository-namespace) for
+discovery boundaries and reset behavior. Status reports the effective source, selected config file and profile default
+separately.
 
-The browser-compatible TypeScript client never reads local CLI files: pass a
-namespace to `createClient`, or select one through the client's verified
-namespace API. That default belongs to the client instance. See
-[Authentication](cli-auth.md) for API examples and version requirements. Explicit
-namespace arguments remain the best choice for automation that must always
-target one organization. Built-in agent `/su <namespace>` remains a separate,
-conversation-scoped selection.
+Switching profiles restores each profile's global default but leaves repository
+configuration unchanged. The global default is bound to the saved connection;
+a repository's YAML selection is intentionally portable. Access is enforced by
+every resource route, so revoked membership causes an access error rather than
+a silent switch to another namespace. Credentials remain global.
+
+**Python SDK 0.58.0+:** implicit namespace resolution reads the same project
+`.dreamrc` and shared global defaults. Explicit namespace arguments still win.
+
+The browser-compatible TypeScript client never reads local files: pass a namespace
+to `createClient`, or select one through its verified namespace API. That default
+belongs to the client instance. Node programs can explicitly use the separate
+`/auth` module for local/global shared state. See [Authentication](cli-auth.md) for API
+examples. Built-in agent `/su <namespace>` remains a separate conversation-scoped
+selection.
 
 ## Custom / self-hosted environments
 
@@ -154,7 +157,8 @@ The effective connection lives in two files shared with the Python SDK
 | `~/.dreamlake/config.json` | `remote_url`, cached personal `namespace`, optional connection-bound `default_namespace`, `device_secret` |
 
 `login`, `auth switch` and `auth env use` rewrite the active token, server and
-namespace selection from the same saved profile.
+global namespace selection from the same saved profile; they do not rewrite
+repository `.dreamrc` files.
 
 `~/.dreamlake/auth.yml` additionally caches saved profiles. The legacy `envs`
 key is retained for compatibility; each entry can name its deployment and
