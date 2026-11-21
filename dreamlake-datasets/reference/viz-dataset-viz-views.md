@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.33.4 216166b7; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.33.6 9f5c6486; do not edit -->
 
 <span id="view-components" />
 
@@ -51,7 +51,13 @@ and base from the same topic.
 Without explicit axes, an xy path shows where the target moved. The view uses columns named `x` and
 `y`, or the first two columns. `invertY` defaults to image coordinates; set it
 to `false` for upward-positive y. A `window` limits the displayed path to seconds
-around the cursor.
+around the cursor. The faint background path provides context. The last 1.5 seconds
+of motion fade from bright at the current position to dim at the oldest end.
+An outlined 8-pixel dot marks the current position at any panel size.
+
+Hover anywhere in the plot to preview the episode. The left edge is the start,
+the center is halfway through, and the right edge is the end. Click to seek
+to that time.
 
 Set `lineWidth` for the whole view (default 2 CSS pixels), and `width` on a
 `series` entry to override one path. `activeLineWidth` sets the recent trail's

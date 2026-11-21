@@ -137,37 +137,37 @@
       {
         "url": "https://viz.dreamlake.ai/",
         "file": "reference/viz-index.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "e2ab32235020e9dba32d19cb91b026d3a854097ead971f5ef701c5647d21eb97",
-        "sha256": "4f04f74bf81f392ee9b29743d8c0479172aef22acc061dc3504c6ce09668a6cc"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "7c58b68479681ce4754a9dfe047449fbf6d4449cb3d6924f238ea1917e18e5f6",
+        "sha256": "38d698a67ca519e585093af6bd47a7b66fefb3a952e2b07b078129d8ba9a9993"
       },
       {
         "url": "https://viz.dreamlake.ai/components/episode-line-chart",
         "file": "reference/viz-components-episode-line-chart.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "6a4da759094779adabeb98073592d405b2b75919c63ab29f8c4df725fac315e2",
-        "sha256": "5388fcbd85bd08b44a3bed5c267f1c57d03e1ae5a99aad2268a75a3cc4cee6c2"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "0d8e751b227beedec44006d21454f2ddf11d812bc293426631d9970702e12aa1",
+        "sha256": "bf8d07b8d851901a975a0a95717f8294c377c93908c5c9744a7f072f47a388ca"
       },
       {
         "url": "https://viz.dreamlake.ai/components/parallel-coordinates",
         "file": "reference/viz-components-parallel-coordinates.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "c2052eb81ca788a0f57264308bc15be954b198959816a9120172a3ad9f8bb5b5",
-        "sha256": "bf07823f29e9dc03957c1eef25c701236a3f59207daf5955eebb00c4d38234d5"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "a57cbc55469ee6410ff881bf27f32ee3cb3a2189587a2b092447b3004e39f5e3",
+        "sha256": "792d2dcacd53d51c68cb65ec3ee76cfdf09dc434dbae0dc58879f02ee1fcf8aa"
       },
       {
         "url": "https://viz.dreamlake.ai/components/episode-timeline",
         "file": "reference/viz-components-episode-timeline.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "40ef2beb8eac1559334ebacd3cd89e42f73b5f00c55bf73893c7d6a3c3494bb2",
-        "sha256": "365ef780f0a101e8109279fbf4fc9d159adb36a6d0329c2aa0db71554487e4db"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "adb22c26eb2062943f762136f0a3662690958a5e1c2f7995d2ad79cd5530879a",
+        "sha256": "64dc9234f6365d2881fd8f03aa572749811e66f749918796a4f1c7954581a8f9"
       },
       {
         "url": "https://viz.dreamlake.ai/components/staging",
         "file": "reference/viz-components-staging.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "c6551ee1ce224118b8cb4f1fc454d2a789493bf139182ae39bb9fefb6b828d0c",
-        "sha256": "4f315efaf7dafc7b07c367e94579e39b99ff80561ebe00a5d004eaf054b50cd2"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "6d773612f3faff4c8b41a016e4937f851d018bda0f05f2ed254ec91a222799c0",
+        "sha256": "f50cc6c2ef5d3a15a67975ada07e1a201b83bb779670cf3e7e55c8cea6df4e96"
       }
     ],
     "dreamlake-cli": [
@@ -617,79 +617,79 @@
       {
         "url": "https://viz.dreamlake.ai/",
         "file": "reference/viz-index.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "e2ab32235020e9dba32d19cb91b026d3a854097ead971f5ef701c5647d21eb97",
-        "sha256": "6da7c03a702e08fb5bf22b5076ea1b45e60f34c71b0a6dd1a04b6f4a4a1fd5b4"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "7c58b68479681ce4754a9dfe047449fbf6d4449cb3d6924f238ea1917e18e5f6",
+        "sha256": "372115db11e8e5331c0f0da1ee6aec0e102df3c498d6910c189e9008a02cafcb"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/start",
         "file": "reference/viz-dataset-viz-start.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "e884e94bc9b7a58338d91f4b4239efbf5752b5be2bdba23ece4b439c59434ba1",
-        "sha256": "01c56d1ee57c5113689097e927f7f35b9f8456162a639876b47bb9b62c99cc15"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "75934f9bb045a4fd1b245b8858e6e81c182e845de4ab385a00a63d13331a71d3",
+        "sha256": "5972f149865e3f5913d75f73e7a00711d13fbdf728b8638d8b8990e207639c57"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/requirements",
         "file": "reference/viz-dataset-viz-requirements.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "f22f80c021fab98cdbd885ea2610290ddd04a5009cf09c1c08f22c099b9225a7",
-        "sha256": "6edc3d8ac88a68c1f347f3dbc4ea4571e79376d7ce4ad6948be5c3ef5246b541"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "2125c19b1346427cbb9ab70fcda33f50b967659f7b0e95d8d30350ecca2a4b03",
+        "sha256": "2485c4b13e305f49298e50242879cf1b41b976156fb95a8013b9da041e82241c"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/views",
         "file": "reference/viz-dataset-viz-views.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "542011c6bf30289663d72591bbc1a551dd42c4936baa68d0d1142899183f4fc7",
-        "sha256": "7e741ffd0a386b47ee44fde7d65517b4bcc9a683d8be19e05e01417db05094b4"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "6dae20884bd5899eca0204657eceb17b11853de2de66b6a12170e1b8ebcd76b4",
+        "sha256": "b38f5459508c3cc4c3f92a47655473250402b6a673817f9cfc79695353fccb43"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/robots",
         "file": "reference/viz-dataset-viz-robots.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "2f9f7e144e0edf0d47872ba22ef440a7db4611af924f834e012609d7f4059439",
-        "sha256": "ed7ae4ecfa1f064c3eb19098562ac69b173c7ec162089f30f66f260051fda1b8"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "22ab725a51cf2dc144701a0fe3ba39fc5bd47930d6a4f16c74ffdbcd3bddc30f",
+        "sha256": "7daec2a5e3f867f01e96b9500425f04b7aa2bfcba0af92d0dd184a7fff3e57a2"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/templates",
         "file": "reference/viz-dataset-viz-templates.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "287330392cb1fc2f0365c6eb2b166441b4aec133414090736672e177d85e1425",
-        "sha256": "dd3a458c0b5b868ce3a15d36a4f62047dda62c6a573e31d1153a2c565ef92a82"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "01462eff65f018137620833aa50504e7045085c9455f9c4d11222b2b0fd961c8",
+        "sha256": "1060a6a89ee9952abfb54c7882166c7f3377d5cf1b19fb10cdd4505edfebb0dd"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/overview",
         "file": "reference/viz-dataset-viz-overview.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "3dfd83252b1d21fae7bf6b54ca63dec1daceefbc7443149b97c3c0775c36f02a",
-        "sha256": "e3fe4fd2262ae5c8fb5ac080b7ff8e4295904cb8e8fdb59f55726905c4c2a054"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "12b70ff448550b8d34d3394eb99e80a7c8f11602fb86629194032b24c898348c",
+        "sha256": "163c9069d69bde0a6d0d052c61aedbb545efe0af49c44e109d4e27181d429460"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/gallery",
         "file": "reference/viz-dataset-viz-gallery.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "d6ddfd8e43be99c76664f6617ed03d96217541d2b3f6fcaea6789b7f3b7e407a",
-        "sha256": "59d378f72a5ecba77f6ae8990fc4c305f3025fd4ef0d15da5bb38519b458f63e"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "df48fde87d02ea22d148c680e8b4a3fd6f0fbc952e84cdf65e12581f5c3c4c45",
+        "sha256": "2fc5c86c40ca0d94cac739e98fb209f968a29a8d1bd66ed88f6f2205fe29604c"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/spec",
         "file": "reference/viz-dataset-viz-spec.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "81f347744a6cc30bd092c1d0c24b4975c1011eea1c6ed294dd0b6f06ff545274",
-        "sha256": "03650f0cec22b6c96f19f2a909da4f66852d4e722f20d4c4404c92aea4c704d1"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "e8751d5c192dd19fb499a309b120ef81c73abdccbbea4a6841b5cca8242f0689",
+        "sha256": "d643be84cbfd2bc67919d691e1d767206e5d3d8da2e71f7c91b9def8c6933b7d"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/reference",
         "file": "reference/viz-dataset-viz-reference.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "d9a23ccdfd3b1fb42eacc3082c16f97f1a6a0e856db6a49a84388db072898749",
-        "sha256": "bf135f978632fae231e78951fa46739fc0abb810b575e59e7a3c45c6eed10547"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "6e628307433c72ff072d90abee7aecbece38cd6de8c34ef71afd165c51acdc8e",
+        "sha256": "f011215376657fe764d321c3282af9c4a6fafd4791f9bdd3849b503c640df362"
       },
       {
         "url": "https://viz.dreamlake.ai/components/staging",
         "file": "reference/viz-components-staging.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "c6551ee1ce224118b8cb4f1fc454d2a789493bf139182ae39bb9fefb6b828d0c",
-        "sha256": "4f315efaf7dafc7b07c367e94579e39b99ff80561ebe00a5d004eaf054b50cd2"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "6d773612f3faff4c8b41a016e4937f851d018bda0f05f2ed254ec91a222799c0",
+        "sha256": "f50cc6c2ef5d3a15a67975ada07e1a201b83bb779670cf3e7e55c8cea6df4e96"
       }
     ],
     "dreamlake-experiments": [
@@ -875,9 +875,9 @@
       {
         "url": "https://viz.dreamlake.ai/components/staging",
         "file": "reference/viz-components-staging.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "c6551ee1ce224118b8cb4f1fc454d2a789493bf139182ae39bb9fefb6b828d0c",
-        "sha256": "4f315efaf7dafc7b07c367e94579e39b99ff80561ebe00a5d004eaf054b50cd2"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "6d773612f3faff4c8b41a016e4937f851d018bda0f05f2ed254ec91a222799c0",
+        "sha256": "f50cc6c2ef5d3a15a67975ada07e1a201b83bb779670cf3e7e55c8cea6df4e96"
       }
     ],
     "dreamlake-memos": [
@@ -1159,9 +1159,9 @@
       {
         "url": "https://viz.dreamlake.ai/components/staging",
         "file": "reference/viz-components-staging.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "c6551ee1ce224118b8cb4f1fc454d2a789493bf139182ae39bb9fefb6b828d0c",
-        "sha256": "4f315efaf7dafc7b07c367e94579e39b99ff80561ebe00a5d004eaf054b50cd2"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "6d773612f3faff4c8b41a016e4937f851d018bda0f05f2ed254ec91a222799c0",
+        "sha256": "f50cc6c2ef5d3a15a67975ada07e1a201b83bb779670cf3e7e55c8cea6df4e96"
       }
     ],
     "dreamlake-session-archives": [
@@ -1260,30 +1260,30 @@
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/reference",
         "file": "reference/viz-dataset-viz-reference.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "d9a23ccdfd3b1fb42eacc3082c16f97f1a6a0e856db6a49a84388db072898749",
-        "sha256": "bf135f978632fae231e78951fa46739fc0abb810b575e59e7a3c45c6eed10547"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "6e628307433c72ff072d90abee7aecbece38cd6de8c34ef71afd165c51acdc8e",
+        "sha256": "f011215376657fe764d321c3282af9c4a6fafd4791f9bdd3849b503c640df362"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/spec",
         "file": "reference/viz-dataset-viz-spec.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "81f347744a6cc30bd092c1d0c24b4975c1011eea1c6ed294dd0b6f06ff545274",
-        "sha256": "a23c229c2f7b69375bef604ff8f5bcf8fe4fc3386fbc8351a21c0f37a2148d9d"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "e8751d5c192dd19fb499a309b120ef81c73abdccbbea4a6841b5cca8242f0689",
+        "sha256": "ddde7e74f289566f436fae3c62e6fabc2345633f7f6fb2ec384e4d467c651890"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/views",
         "file": "reference/viz-dataset-viz-views.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "542011c6bf30289663d72591bbc1a551dd42c4936baa68d0d1142899183f4fc7",
-        "sha256": "7e741ffd0a386b47ee44fde7d65517b4bcc9a683d8be19e05e01417db05094b4"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "6dae20884bd5899eca0204657eceb17b11853de2de66b6a12170e1b8ebcd76b4",
+        "sha256": "b38f5459508c3cc4c3f92a47655473250402b6a673817f9cfc79695353fccb43"
       },
       {
         "url": "https://viz.dreamlake.ai/dataset-viz/robots",
         "file": "reference/viz-dataset-viz-robots.md",
-        "version": "0.33.4 216166b7",
-        "source_sha256": "2f9f7e144e0edf0d47872ba22ef440a7db4611af924f834e012609d7f4059439",
-        "sha256": "ed7ae4ecfa1f064c3eb19098562ac69b173c7ec162089f30f66f260051fda1b8"
+        "version": "0.33.6 9f5c6486",
+        "source_sha256": "22ab725a51cf2dc144701a0fe3ba39fc5bd47930d6a4f16c74ffdbcd3bddc30f",
+        "sha256": "7daec2a5e3f867f01e96b9500425f04b7aa2bfcba0af92d0dd184a7fff3e57a2"
       }
     ],
     "video-labeling-workflow": [
