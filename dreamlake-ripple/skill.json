@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-ripple",
-  "description": "Install the Ripple CPU and memory collector (formerly lakeshore-host-metrics) on Linux or macOS, read local samples without an account, run it as a systemd service or launchd agent reporting an operator-enabled enrolled host, and check or remove it. Not for enrolling hosts.",
+  "description": "Install the Ripple CPU and memory collector (formerly lakeshore-host-metrics) on Linux or macOS by hand, read local samples without an account, report an enrolled host through the manual operator-token service, and check or remove it. Not for enrolling hosts or Ripple set up by dl hosts enroll.",
   "requires": [],
   "docs": [
     "https://docs.dreamlake.ai/lakeshore/hosts/metrics",

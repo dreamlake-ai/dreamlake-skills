@@ -5,6 +5,9 @@ of local samples. No DreamLake account, login or token is involved.
 
 ## Before you start
 
+- A host being enrolled with a `dl` whose `hosts enroll --help` lists
+  `--ripple` gets Ripple from enrollment (`dreamlake-lakeshore`); do not
+  install it by hand there unless the user asks.
 - Confirm the target machine is the one the user means, and run every
   command there (over SSH if it is remote), not on your own machine.
 - Check the platform against the support table in
