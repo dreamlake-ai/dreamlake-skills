@@ -1,15 +1,15 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.213 e321c4cd6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.214 98a81329b; do not edit -->
 
 # Machine metrics
 
-**Nymph machine metrics: implementation in progress; not yet released.** This
-applies to the Nymph sections of this page. The existing Compute Brief shows
-missing readings and an explicitly labeled example. Installing a current
-released CLI does not install Nymph collection or connect the page to real
-metrics. Local Nymph collection, control-plane storage, backend access and UI
-rollout must be verified separately before treating readings as live. The
-standalone [Ripple collector](#ripple-collector) is released; its section
-states which version each feature needs.
+Machine readings are live. Nymph 0.1.9 through 0.1.33 collect resource
+readings by default, and 0.1.34 and later collect only when configured to
+(see [Local collection](#local-collection)). DreamLake serves those readings
+through the Lakeshore control plane. **Compute → host → Brief → Resources**
+shows the recorded readings with the time of the last sample, or "No telemetry
+received" when there are none; it never shows example data. The standalone
+[Ripple collector](#ripple-collector) is a separately released CPU and memory
+collector; its section states which version each feature needs.
 
 Nymph collects resource readings on the machine, including machines outside AWS.
 CloudWatch is not required. Linux readings cover CPU utilization, memory,
@@ -20,6 +20,23 @@ produce missing readings. macOS currently provides filesystem and supported
 NVIDIA readings only. This feature does not collect or index process arguments,
 program output, tool output or terminal contents.
 
+## Where readings come from
+
+Each enrollment has one source of readings, chosen on every read in this
+order:
+
+1. A metrics Source configured for the enrollment
+   ([Direct Source snapshots](#direct-source-snapshots-operator-configured)).
+   The response has `mode: "source"`.
+2. Otherwise, Ripple, if the DreamLake operator has enabled the enrollment
+   for Ripple ([Ripple collector](#ripple-collector)). Ripple provides CPU and
+   memory only: `cpu_percent`, `memory_total_bytes` and `memory_used_bytes`.
+3. Otherwise, the readings Nymph reports to the Lakeshore control plane.
+
+A read uses only that source. If the source is unavailable the request fails
+(see [Read through DreamLake](#read-through-dreamlake)); it does not fall back
+to another source, and readings from different sources are never combined.
+
 ## Local collection
 
 **Since [Nymph 0.1.34](https://github.com/dreamlake-ai/nymph/releases/tag/v0.1.34):** Nymph collects and reports readings only when the daemon
@@ -28,7 +45,7 @@ key stop collecting after upgrading. Nymph does not rewrite configuration
 files, and an explicit `enabled = true` keeps collection on. See
 [host testing](https://docs.dreamlake.ai/lakeshore/hosts/testing) for the related job output setting.
 
-### Direct Source snapshots (implementation in progress)
+### Direct Source snapshots (operator-configured)
 
 An owner can enable a managed metrics Source for an enrollment with
 `POST /namespaces/:slug/hosts/:hostId/enrollments/:enrollmentId/metrics/source`
@@ -457,7 +474,7 @@ series use `disk/<device>/read_bytes_per_second` and `write_bytes_per_second`.
 GPU series use `gpu/<GPU-uuid>/utilization_percent`, `memory_used_bytes`,
 `memory_total_bytes`, `temperature_celsius`, and `power_watts`.
 
-### Numeric extensions (source contract; rollout pending)
+### Numeric extensions
 
 New numeric metric names can be collected and retained without a backend
 allowlist release. Add `extensions=1` to the metrics URL to return extensions
