@@ -136,6 +136,7 @@ and when an update happens:
 | `--auto-update` refused: staged delivery, `https://` or a v0.5.0+ binary needed | Opt-in prerequisites | Meet them, then rerun setup (still as root on Linux) |
 | `auto-update refuses to run as root` | `ripple run` started as root by hand | Use the setup script's service; never run `ripple run` as root or with `sudo` |
 | `executable … is not owned by this account` | Service points at a root-owned binary | Rerun setup with `--auto-update`; never `chown` or loosen `/usr/local/bin` |
+| Target GET/PUT: `403 forbidden` | No `lakeshore:use` in that namespace | Stop; tell the user. Do not switch namespaces or accounts |
 | Target PUT: `404 host_not_found` | The user is not the Host's owner, or wrong IDs | Stop; only the owner sets it. Never try other hosts |
 | Target PUT: `400 invalid_target_version` | Not a stable `vX.Y.Z` | Use a published stable version, never `latest` |
 | Opted in, target set, nothing updates | Target not newer, not published, or set on another enrollment | Read back the target and `ripple status`; do not force an update |
