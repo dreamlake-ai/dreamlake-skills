@@ -95,9 +95,8 @@ Ripple metrics at enrollment. Use the automatic path only when the installed
 `dl hosts enroll --help` lists both `--ripple` and `--no-ripple`; CLI 0.142.0
 and earlier do not, and an updated docs page or merged change does not prove
 the installed CLI has them. Behaviour, receipt statuses and server
-requirements are in the Ripple metrics collector section of the host enrollment
-page (`--help`, or the [enrollment reference](../reference/cli-host-enrollment.md#enrollment)
-once the nightly sync carries that section). When the flags are present:
+requirements are in the [enrollment reference](../reference/cli-host-enrollment.md#enrollment).
+When the flags are present:
 
 - A new local, SSH or web-generated enrollment installs Ripple after the core
   enrollment is online, signed with the enrollment's own identity, as the
@@ -109,20 +108,23 @@ once the nightly sync carries that section). When the flags are present:
   when the user asks to add Ripple there and none reports it yet; never
   re-enroll, rename or change the request to turn it on.
 - Report the `Ripple metrics:` line (`ripple` in JSON) separately from the core
-  result, as printed. `awaiting_data` and `pending` mean installed or bound but
-  not yet confirmed: report them with the receipt's `action`, never as failed,
-  and do not re-enroll. Only `ready` shows that DreamLake received a fresh
-  Ripple sample. For `failed` (for example `server_unsupported` when the
+  result, as printed. `pending` means the binding is set but the collector's
+  supervisor is not running yet; `awaiting_data` means the collector is
+  installed but the server has yet to confirm a fresh sample. Report either
+  with the receipt's `action`, never as failed, and do not re-enroll. Only
+  `ready` shows that DreamLake received a fresh Ripple sample. For `failed` (for example `server_unsupported` when the
   deployed server does not accept the binding), keep the host enrolled and the
   request ID, follow `action`, and retry only with the receipt's same command.
   Never claim metrics for `failed`, `skipped`, `disabled` or `not_requested`.
 - Without the flags (older CLI), enrollment sets up no Ripple and the receipt
   has no Ripple line. If the user wants host metrics anyway, use the manual
   operator-issued binding in the `service` action of `dreamlake-ripple`;
-  otherwise update the CLI once a release lists the flags.
-- Later readiness needs fresh Ripple CPU and memory for that exact enrollment,
-  read with `hosts metrics` as described in [hosts](hosts.md). Older Nymph
-  readings are a separate source and do not show that Ripple works.
+  otherwise update to a CLI whose `dl hosts enroll --help` lists the flags.
+- `dl hosts metrics` shows the enrollment's default Resources source. For a
+  host with an explicit legacy Metrics Source, that default can still show
+  Nymph history; only the origin-qualified server read used by the enrollment
+  receipt verifies actual Ripple. Never infer Ripple from generic readings, and
+  leave the old Source in place ([hosts](hosts.md)).
 
 Check `hosts status` and the intended workload separately: launched, enrolled,
 online, and workload-ready are distinct states. Never index terminal or workload
