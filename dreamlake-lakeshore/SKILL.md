@@ -50,6 +50,9 @@ Each action is one task: commands first, exceptions after. Flag detail is in
 - Infrastructure Stacks move with a whole Project through the `projects`
   action of `dreamlake-cli`; `infra move` / `infra transfer` here cover a
   single Stack.
+- Installing, running or removing the Ripple CPU and memory collector on a
+  machine (including making an enrolled host report through it) is
+  `dreamlake-ripple`; reading the readings back is `hosts metrics` here.
 
 ## Conventions
 

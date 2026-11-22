@@ -56,7 +56,8 @@
       "description": "Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and sessions, read Slurm and external jobs, provision machines via a user-configured launch server, Infrastructure Stacks, AWS, and CI/CT GitHub Actions runners.",
       "requires": [
         "dreamlake-cli",
-        "dreamlake-memos"
+        "dreamlake-memos",
+        "dreamlake-ripple"
       ],
       "tools": null,
       "files": 14
@@ -76,6 +77,12 @@
       ],
       "tools": null,
       "files": 15
+    },
+    "dreamlake-ripple": {
+      "description": "Install the Ripple CPU and memory collector (formerly lakeshore-host-metrics) on Linux or macOS, read local samples without an account, run it as a systemd service or launchd agent reporting an operator-enabled enrolled host, and check or remove it. Not for enrolling hosts.",
+      "requires": [],
+      "tools": null,
+      "files": 5
     },
     "dreamlake-scenes": {
       "description": "Build, validate and publish MuJoCo (MJCF) and URDF scenes on DreamLake: source and measure assets, derive placements, author the base scene, compose layered stacks, validate physics per body, package, push, preview, pull back byte-identical, version, delete and restore.",
