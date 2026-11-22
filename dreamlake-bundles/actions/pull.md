@@ -20,9 +20,13 @@ Flags: `dl bundle pull --help`,
      closure.
    - The user wants to edit the bundle: pull the full version (no `#entry`,
      or `--full`).
+   - The entry is large and the program reads only part of it: add
+     `--lazy`. Only the manifests and the file index are written; files load
+     on first use.
 2. Pin the version. Give a version number. If the user wrote `@latest`, run
-   `dl bundle lock` and commit `dreamlake.lock` with the user's code. The lock
-   file records the displayed version, the effective hash and the root hash.
+   `dl bundle lock` and commit `dreamlake.lock` with the user's code. Read the
+   `resolved` field of each item to tell the user the pinned version
+   ([Lock file](../reference/docs-bundles-reference.md#lock-file)).
 3. From Python, use `dreamlake.bundles.fetch(ref)` with the same ref. It
    materializes the declared prefixes only and caches by effective hash.
 4. In a scene stack, use `bundle:ns/name@v#entry` as a `src`.

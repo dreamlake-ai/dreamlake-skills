@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles/reference.md at 0.1.211 c256e9d3; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles/reference.md at 0.1.211 e1df52a6; do not edit -->
 
 # Bundles Reference
 
@@ -55,8 +55,8 @@ Tools for source manifests:
 - `dl bundle fmt <dir>` normalizes whitespace (2-space indent, LF, one final
   newline). It keeps comments and key order. It does not sort keys. It does
   not change the stored form.
-- `dl bundle cat <ref> --strip-comments` prints a local source manifest as
-  plain JSON, for tools such as `jq`.
+- `dl bundle cat <dir#entry> --strip-comments` prints a local source
+  manifest as plain JSON, for tools such as `jq`.
 - `dreamlake.bundles.jsonc` (Python SDK) removes comments to read local
   source manifests, for example for `check` on a directory. Publish only
   with the CLI.
@@ -129,9 +129,10 @@ string. Items of `refs` must also be strings.
 All implementations produce the same bytes. They test against the shared
 test vectors in `fixtures/bundles/hash-vectors.json`.
 
-- A hash is lowercase hexadecimal SHA-256. APIs and lock files write it as
-  `sha256:<hex>`. Readers also accept the bare hex.
-- `H(x)` below is the hex SHA-256 of the bytes `x`. `\0` is a zero byte and
+- A hash is lowercase hexadecimal BLAKE3-256 (32 bytes, 64 hex characters).
+  APIs and lock files write it as `blake3:<hex>`. Readers also accept the
+  bare hex.
+- `H(x)` below is the hex BLAKE3-256 of the bytes `x`. `\0` is a zero byte and
   `\n` is a line feed. Text is UTF-8.
 
 ### File hash
@@ -186,10 +187,10 @@ Only a change of a value changes it. Array order is part of the value.
 ### Reference implementation
 
 ```python
-import hashlib
+from blake3 import blake3  # pip install blake3
 
 def h(b: bytes) -> str:
-    return hashlib.sha256(b).hexdigest()
+    return blake3(b).hexdigest()
 
 def dir_hash(children):  # children: [(name, "f" | "d", hex)]
     body = b"".join(
@@ -218,15 +219,35 @@ each version from `W` to `V`. A reference `@V#e` normalizes to `@W#e`.
 
 ## Lock file
 
-`dl bundle lock <refs...>` writes `dreamlake.lock`, a plain JSON file. For
-each reference it records:
+`dl bundle lock <refs...>` writes `dreamlake.lock`, a plain JSON file:
+
+```json
+{
+  "schema": "dreamlake.lock/v1",
+  "bundles": [
+    {
+      "ref": "fortyfive/astribot-s1@latest#s1-dual-wuji",
+      "resolved": "fortyfive/astribot-s1@7#s1-dual-wuji",
+      "bundle": "fortyfive/astribot-s1",
+      "entry": "s1-dual-wuji",
+      "version": 7,
+      "effectiveHash": "blake3:<hex>",
+      "rootHash": "blake3:<hex>"
+    }
+  ]
+}
+```
 
 | Field | Meaning |
 |---|---|
-| ref | The reference as written. |
-| version | The normalized (displayed) version. |
-| effective hash | The effective hash of the entry, `sha256:<hex>`. |
-| root hash | The root hash of the bundle version, `sha256:<hex>`. |
+| `ref` | The reference as written. |
+| `resolved` | The reference with the normalized (displayed) version. |
+| `bundle` | `ns/name` of the bundle. |
+| `entry` | The entry name. |
+| `version` | The normalized (displayed) version. |
+| `effectiveHash` | The effective hash of the entry, `blake3:<hex>`. |
+| `rootHash` | The root hash of the bundle version, `blake3:<hex>`. |
+| `objects` | Optional. |
 
 ## REST API
 
@@ -242,8 +263,8 @@ tokens, delete and restore operate as for scenes. The Swagger tag is
 | `GET /namespaces/:ns/bundles/:name` | Detail: `latestVersion` and the entries at the latest version. 404 when the bundle does not exist. |
 | `GET /namespaces/:ns/bundles/:name/versions` | `[{version, rootHash, message, createdBy, createdAt, changedEntries}]` |
 | `GET /namespaces/:ns/bundles/:name/versions/:v` | `{version, rootHash, entries: [{name, kind, effectiveHash, displayedVersion, uses, refs}]}` |
-| `GET /namespaces/:ns/bundles/:name/versions/:v/tree?prefix=&cursor=` | `{items: [{path, sha256, size}], nextCursor?}` |
-| `POST /namespaces/:ns/bundles/:name/versions/:v/presign` | Body `{paths?: [], prefixes?: []}`. Returns `{urls: [{path, sha256, url}]}`: signed GET URLs, in one batch. |
+| `GET /namespaces/:ns/bundles/:name/versions/:v/tree?prefix=&cursor=` | `{items: [{path, hash, size}], nextCursor?}` |
+| `POST /namespaces/:ns/bundles/:name/versions/:v/presign` | Body `{paths?: [], prefixes?: []}`. Returns `{urls: [{path, hash, url}]}`: signed GET URLs, in one batch. |
 | `GET /namespaces/:ns/bundles/:name/entries/:entry?version=` | `{name, kind, manifest, effectiveHash, displayedVersion, version, uses, refs: [{ref, bundle, version, entry, effectiveHash}]}` |
 | `GET /namespaces/:ns/bundles/:name/entries/:entry/versions` | `[{version, effectiveHash, changedPaths}]`. `version` is the displayed version. |
 | `GET /bundle-search?q=&kind=&ns=` | Search results, one for each entry. |
@@ -258,15 +279,15 @@ A client gets the closure of an entry like this: read the entry, presign its
 A push has three steps.
 
 1. **`POST /namespaces/:ns/bundles/:name/upload-credentials`** — body
-   `{sha256s: [...]}`. Returns
-   `{missing: ["sha256:..."], uploads: [{sha256, size?, transfer}]}`.
+   `{hashes: [...]}`. Returns
+   `{missing: ["blake3:..."], uploads: [{hash, size?, transfer}]}`.
    Blobs that the server has already are not in `missing`. `transfer` is
    `{kind: "single-put", put: {url, headers}}` or an `s3-multipart` transfer
    with the same shape as the library upload authorizations. Clients also
-   accept the simple form `{sha256, url, headers?}`.
+   accept the simple form `{hash, url, headers?}`.
 2. Upload each missing blob to its target.
 3. **`POST /namespaces/:ns/bundles/:name/versions`** — body
-   `{parentVersion, tree: [{path, sha256, size}], message}`. Use
+   `{parentVersion, tree: [{path, hash, size}], message}`. Use
    `parentVersion: null` for the first version. The server:
    - reads `bundle.json` and `entries/*.json` from the blobs,
    - validates them against the schema,
@@ -279,8 +300,20 @@ A push has three steps.
    version, it returns 409 with `{error, latestVersion?}`. Pull the latest
    version, merge, and push again.
 
-The server stores each file one time by its SHA-256, across all bundles and
-versions.
+## Storage
+
+Each bundle has one storage prefix, `bundles/<ns>/<name>`, in DreamDB. The
+prefix holds:
+
+- `blobs`: one row for each unique file, keyed by its BLAKE3 file hash.
+- `manifests`: one row for each version: version number, parent, root hash,
+  file tree, entry index, message, author and time.
+
+The server stores each file one time in a bundle, across all versions of that
+bundle. It does not share files across bundles or namespaces. A version write
+uses a compare-and-swap on the bundle and the `parentVersion` check (409). A
+catalog index of versions serves list and search; the server can rebuild it
+from storage. Downloads use presigned URLs.
 
 ## CLI
 
@@ -288,8 +321,8 @@ versions.
 |---|---|
 | `dl bundle push <dir> [--message] [--dry-run]` | Convert manifests to the stored form and push a new version. `--dry-run` shows the effective hashes and uploads nothing. |
 | `dl bundle fmt <dir>` | Normalize source manifest whitespace. Keeps comments and key order. |
-| `dl bundle cat <ref> --strip-comments` | Print a local source manifest as plain JSON. |
-| `dl bundle pull <ns/name[@v]>[#entry] [-o dir] [--full] [--lazy]` | Get a bundle version, or one entry and its closure. |
+| `dl bundle cat <ref\|dir#entry\|dir\|file> [--strip-comments]` | Print a manifest: the source as written for a local path, the stored form for a remote reference. `--strip-comments` prints plain JSON. |
+| `dl bundle pull <ns/name[@v]>[#entry] [-o dir] [--full] [--lazy]` | Get a bundle version, or one entry and its closure. `--lazy` writes only the manifests and `.dreamlake/bundle-index.json`; files load on first use. |
 | `dl bundle info <ref>` | Show a bundle or an entry. |
 | `dl bundle versions <ns/name>` | List versions. |
 | `dl bundle entries <ns/name[@v]>` | List entries. |
@@ -313,5 +346,5 @@ Use `--help` for all flags.
 | `dreamlake.bundles.check(ref)` | Does the same check as `dl bundle check`. |
 
 `fetch` keeps a content-addressed cache in
-`~/.cache/dreamlake/bundles/blobs/<sha>` and one materialized view for each
+`~/.cache/dreamlake/bundles/blobs/<hash>` and one materialized view for each
 effective hash. `dreamlake.envlayer` accepts `bundle:` sources.

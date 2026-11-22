@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.211 c256e9d3; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.211 e1df52a6; do not edit -->
 
 # Bundles
 
@@ -38,8 +38,35 @@ fortyfive/astribot-s1@7
 │   ├── s1-base.json           kind: robot
 │   ├── s1-dual-wuji.json      kind: robot   (s1-base + 2 x wuji-right)
 │   └── wuji-right.json        kind: part
-└── shared/s1-meshes/ ...      large files, stored one time by sha256
+└── shared/s1-meshes/ ...      large files, stored one time in the bundle
 ```
+
+### A bundle is a unit of release
+
+Put entries in one bundle when they must change together. Example: a robot
+base and its variants, which share meshes. Put each product that has its own
+releases in its own bundle. Example: each robot, each hand, each object set.
+
+Use pinned refs between bundles. Then a new release of one product goes into
+another product only when you change its pin.
+
+Bundles for one physical unit (calibration) or for one task (scene and env)
+refer to the product bundles. Example:
+
+| Bundle | Holds |
+|---|---|
+| `fortyfive/astribot-s1` | The S1 base and its grippers. |
+| `fortyfive/wuji` | The hands. |
+| `fortyfive/flexiv` | The Rizon 4s arm and the claw. |
+| `fortyfive/rizon4s-bench` | The calibrated units of the lab. It refers to `fortyfive/flexiv`. |
+
+### Storage
+
+Each bundle has its own storage. DreamLake stores each file one time in a
+bundle, across all versions of that bundle. Files are not shared across
+bundles or namespaces. Hashes are BLAKE3-256, written `blake3:<hex>`.
+
+### Code
 
 Bundles do not contain code. Register UDF and env code with `dl runnable`
 (kind `udf`). An env entry refers to its code with a `code` field. Keep LLM
@@ -102,11 +129,14 @@ dl bundle fmt ./my-bundle
 `fmt` changes only whitespace. It keeps comments and key order. It does not
 change the stored form, thus it does not change entry versions.
 
-To give a local source manifest to a tool that reads only plain JSON, such as
-`jq`, remove the comments:
+`dl bundle cat` prints a manifest. For a local `dir#entry`, a bundle
+directory or a manifest file, it prints the source as written. For a remote
+reference, it prints the stored form. To give a local source manifest to a
+tool that reads only plain JSON, such as `jq`, remove the comments:
 
 ```bash
 dl bundle cat ./my-bundle#s1-dual-wuji --strip-comments | jq .uses
+dl bundle cat fortyfive/astribot-s1@7#s1-dual-wuji | jq .uses
 ```
 
 ## Versions
@@ -202,9 +232,10 @@ To pin the entries that a program uses, write a **lock file**:
 dl bundle lock fortyfive/astribot-s1@latest#s1-dual-wuji fortyfive/kitchen@4#pick-mug-v1
 ```
 
-The command writes `dreamlake.lock`. For each reference, the lock file
-records the reference, the normalized (displayed) version, the effective hash
-of the entry and the root hash of the bundle version. Commit the lock file
+The command writes `dreamlake.lock`, a JSON file. For each reference, the
+lock file records the reference, the normalized (displayed) version, the
+effective hash of the entry and the root hash of the bundle version. Refer to
+[Lock file](docs-bundles-reference.md#lock-file) for the format. Commit the lock file
 with your code.
 
 ## Delivery by prefix
@@ -228,9 +259,13 @@ dl bundle pull fortyfive/astribot-s1@7 -o ./astribot-s1
 # Get the full bundle version, also when you give an entry
 dl bundle pull fortyfive/astribot-s1@7#s1-dual-wuji --full -o ./astribot-s1
 
-# Get files on first use instead of at pull time
+# Write only the manifests and the file index; get files on first use
 dl bundle pull fortyfive/astribot-s1@7#s1-dual-wuji --lazy -o ./s1
 ```
+
+With `--lazy`, `pull` writes only `bundle.json`, `entries/*.json` and
+`.dreamlake/bundle-index.json` (path, hash and size of each file). Files load
+on first use.
 
 From Python, use `dreamlake.bundles.fetch(ref, dest=None, lazy=False)`. It
 uses a content-addressed cache and returns the path of the materialized entry.

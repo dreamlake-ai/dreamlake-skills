@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles/migration.md at 0.1.211 c256e9d3; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles/migration.md at 0.1.211 e1df52a6; do not edit -->
 
 # Migrate to Bundles
 
@@ -12,11 +12,25 @@
 
 - Libraries and scenes continue to operate without change. Their pages,
   URLs, share links, `dl library` and `dl scene` commands and REST APIs stay.
-- The server does not migrate content. Migration occurs in the client. An
-  import makes a new bundle and does not change or delete the source.
+- Migration occurs in the client, with the import commands. An import makes
+  a new bundle and does not change or delete the source.
 - `dl scene compose` continues to accept scene sources. It also accepts
   bundle entries: `bundle:ns/name@v#entry`.
 - `dl env` stays an alias of `dl scene`. It shows a deprecation warning.
+
+## Plan
+
+DreamLake migrates all libraries and scenes to bundles, in batches. Batch 1 is
+the DreamLake team's own content. Later batches follow. Until a
+library or a scene is in a batch, you can import it yourself with the
+commands below.
+
+- **Scene versions are replayed.** Each scene version becomes one bundle
+  version, in order. The history stays.
+- **Renamed bundles keep the old name as an alias.** When a library or a
+  scene gets a new bundle name, references to the old name continue to
+  resolve.
+- The source library or scene is not changed or deleted.
 
 ## Map
 
@@ -27,7 +41,7 @@
 | Asset files | Files under one directory for each entry, for example `objects/<category>-<id>/` |
 | Library `dreamlake.yml` metadata | `bundle.json` and the entry manifests |
 | Scene `ns/scene` | Bundle `ns/scene` with one `scene` entry |
-| Scene version | Bundle version |
+| Scene version | Bundle version (replayed in order) |
 | Scene layer stack (`dreamlake.layers.json`) | `ops` of the entry, or a stack with `bundle:` sources |
 
 ## Import a library
@@ -49,7 +63,8 @@ the asset names.
 dl bundle import-scene fortyfive/kitchen
 ```
 
-The command reads the scene and pushes a bundle with one `scene` entry.
+The command reads the scene and pushes a bundle with one `scene` entry. It
+replays each scene version as one bundle version, in order.
 
 ## After the import
 

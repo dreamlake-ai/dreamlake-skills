@@ -12,9 +12,15 @@ Flags: `dl bundle import-library --help`.
 
 ## Steps
 
-1. Confirm with the user which library or scene to import, and the target
-   bundle name. An import does not change or delete the source.
-2. Run the import. Record the new bundle version.
+1. Check whether the library or scene is already in a migration batch
+   ([Plan](../reference/docs-bundles-migration.md#plan)): run
+   `dl bundle info <ns>/<name>`. If the bundle exists, do not import again;
+   use it. Otherwise confirm with the user which library or scene to import,
+   and the target bundle name. An import does not change or delete the
+   source.
+2. Run the import. Record the new bundle version. `import-scene` replays
+   each scene version as one bundle version; check the count with
+   `dl bundle versions`.
 3. Pull the bundle (the pull action, full version) and read the manifests.
 4. Narrow `uses` for each entry with the check-and-deps action.
 5. Push the result (the publish action).
@@ -29,4 +35,5 @@ Flags: `dl bundle import-library --help`.
 |---|---|---|
 | The user asks to delete the library or scene after import | Consumers may still use it | Delete only on an explicit request, with `dreamlake-libraries` or `dreamlake-scenes` |
 | A scene used `dl env` | `dl env` is a deprecated alias of `dl scene` | Use `dl scene` names; the import is unchanged |
+| A ref uses an old library or scene name | The bundle was renamed | Expected: the old name is an alias and still resolves. Write the new name in new refs |
 | Imported entries have `"uses": ["/"]` | The importer cannot know the exact files | Expected; run the check-and-deps action |

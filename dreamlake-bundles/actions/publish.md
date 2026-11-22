@@ -19,22 +19,26 @@ Flags: `dl bundle push --help` and
 
 ## Steps
 
-1. Lay out the directory with the
+1. Choose the bundle. A bundle is a unit of release: put entries in one
+   bundle only when they must change together. Give each product with its own
+   releases its own bundle, and connect bundles with pinned `refs`
+   ([A bundle is a unit of release](../reference/docs-bundles.md#a-bundle-is-a-unit-of-release)).
+2. Lay out the directory with the
    [layout guidelines](../reference/docs-bundles.md#layout-guidelines): one
    directory for each entry, shared files in `shared/`, objects in
    `objects/<category>-<id>/`.
-2. Write each entry manifest. Set `kind`. If you do not know the exact files
+3. Write each entry manifest. Set `kind`. If you do not know the exact files
    that the entry reads, start with `"uses": ["/"]`. Check each `uses` item
    against the [uses grammar](../reference/docs-bundles-reference.md#uses-grammar).
-3. Write cross-bundle references in `refs` as `ns/bundle@N#entry`. You can
+4. Write cross-bundle references in `refs` as `ns/bundle@N#entry`. You can
    write `@latest`; push pins it.
-4. Run `dl bundle check ./my-bundle#<entry>` for each entry (the
+5. Run `dl bundle check ./my-bundle#<entry>` for each entry (the
    check-and-deps action). Do not push an entry that fails `check`.
-5. Run `dl bundle fmt`, then `push --dry-run`. Read the effective hashes. An
+6. Run `dl bundle fmt`, then `push --dry-run`. Read the effective hashes. An
    entry that you did not change must keep its hash.
-6. Run `push` with a `--message`. Report the new version and the changed
+7. Run `push` with a `--message`. Report the new version and the changed
    entries to the user.
-7. Narrow `"uses": ["/"]` later with the check-and-deps action, then push
+8. Narrow `"uses": ["/"]` later with the check-and-deps action, then push
    again.
 
 ## Exceptions
