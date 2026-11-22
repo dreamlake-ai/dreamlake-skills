@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.215 0b319922b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.216 8dc669b28; do not edit -->
 
 # Machine metrics
 
@@ -380,7 +380,11 @@ v0.5.0 with `install.sh --version v0.5.0` and rerun setup with
 The target belongs to one enrollment of one Host. Only the Host's owner, who
 still has `lakeshore:use` in the namespace, can read or change it; people
 the Host is shared with cannot. It takes effect without any change on the
-host, within about 30 seconds. With the DreamLake CLI 0.142.0 or later
+host, within about 30 seconds. In the app, open **Compute**, select a host
+you own, and under **Brief** choose **Manage** next to **Collector update
+target**: it shows the desired version, the running version when it is known,
+and lets you set or clear the target. Only owners see this row. With the
+DreamLake CLI 0.142.0 or later
 ([install](https://cli.dreamlake.ai/installation); command reference:
 [Set a Ripple upgrade target](https://cli.dreamlake.ai/host-enrollment#set-a-ripple-upgrade-target)):
 
@@ -486,10 +490,12 @@ can leave gaps in remote fine history; local history remains authoritative.
 
 ## Read through DreamLake
 
-The new read-only endpoint is scoped to the authenticated owner, namespace,
-host and enrollment. It verifies the worker's exact enrollment binding and an
-active matching daemon key before reading the control-plane metrics. Queue-only
-mounts do not grant this access. It never executes a command to obtain readings.
+The read-only endpoint is scoped to one namespace, host and enrollment, and
+answers the Host's owner and the people it is
+[shared with](#shared-hosts). It verifies the worker's exact enrollment binding
+and an active matching daemon key before reading the control-plane metrics.
+Queue-only mounts do not grant this access. It never executes a command to
+obtain readings.
 
 ```shell
 curl --fail --silent --show-error \
@@ -500,7 +506,8 @@ curl --fail --silent --show-error \
 Allowed resolutions are `10`, `60`, `900` and `3600` seconds; the default is `60`.
 The response contains `latest`, `tiers` and `stale`. `latest` is null when no
 readings exist. All timestamps are Unix seconds. A reading older than 90 seconds
-is stale. HTTP 401/403 indicates missing access, 404 a missing owned binding,
+is stale. HTTP 401/403 indicates missing access, 404 a missing or no longer
+shared binding,
 409 an unverified worker identity, and 502/503 unavailable upstream readings.
 Do not replace an error with zero utilization.
 
@@ -511,6 +518,29 @@ Do not replace an error with zero utilization.
 series use `disk/<device>/read_bytes_per_second` and `write_bytes_per_second`.
 GPU series use `gpu/<GPU-uuid>/utilization_percent`, `memory_used_bytes`,
 `memory_total_bytes`, `temperature_celsius`, and `power_watts`.
+
+### Shared hosts
+
+When the owner [shares a machine](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#share-a-machine-with-a-teammate)
+with a person or a team, each recipient with a current grant for an enrollment
+can read that enrollment's readings and history: in **Compute → host → Brief →
+Resources**, and through the endpoint above with the host and enrollment IDs
+listed for the shared machine. Recipients read only the enrollments shared
+with them.
+
+- The readings come from the enrollment's [source](#where-readings-come-from),
+  as for the owner, but recipients always receive the plain readings: never
+  `mode: "source"`, Source details, storage paths or capabilities.
+- A grant does not start collection. Until the enrollment's collector reports,
+  `latest` is `null` and there is no history; Compute shows that no readings
+  have been received yet.
+- Access is checked on every read, also after the readings are fetched.
+  Revoking the grant, leaving the team or organization, revoking the
+  enrollment or moving the machine ends access with `404`.
+- Everything else stays with the owner: the
+  [Ripple upgrade target](#set-the-upgrade-target), the
+  [metrics Source](#direct-source-snapshots-operator-configured), checks,
+  lifecycle and sharing.
 
 ### Numeric extensions
 

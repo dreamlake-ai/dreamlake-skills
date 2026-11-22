@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.215 0b319922b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.216 8dc669b28; do not edit -->
 
 # Browser terminal
 
@@ -163,7 +163,9 @@ can open the terminal there or with `dl ssh <namespace>/<group>/<machine>`.
 Each person signs in as themselves, and their DreamLake sessions and saved
 sessions stay their own. DreamLake never passes the owner's DreamLake sign-in
 or connection credentials to the member; credentials stored on the machine
-itself are a different matter (see below). The grant covers connecting only. Machine settings, metrics,
+itself are a different matter (see below). The grant covers connecting and
+reading that enrollment's [machine readings](https://docs.dreamlake.ai/lakeshore/hosts/metrics#shared-hosts).
+Machine settings, metrics management (Ripple upgrade target and metrics Source),
 jobs, the agent list and sharing stay with the owner.
 
 - Only the machine's owner can grant or revoke, and only to a current member

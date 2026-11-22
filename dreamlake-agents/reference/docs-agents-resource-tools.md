@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.215 0b319922b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.216 8dc669b28; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -346,7 +346,7 @@ Online or fresh inventory does not prove SSH or workload readiness.
 
 `dreamlake_host_access_grants`, `dreamlake_host_access_grant` and
 `dreamlake_host_access_revoke` manage who may connect to a host you
-own, using [the same owner-only grant](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#share-a-machine-with-a-teammate)
+own and read its [machine readings](https://docs.dreamlake.ai/lakeshore/hosts/metrics#shared-hosts), using [the same owner-only grant](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#share-a-machine-with-a-teammate)
 as Compute. Listing needs only the default host read scope and returns
 `grants` (people) and `teamGrants` (organization teams). Granting and
 revoking need **Full access** for the message, and run only when you name the
