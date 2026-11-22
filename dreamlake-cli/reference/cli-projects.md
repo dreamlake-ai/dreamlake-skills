@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.141.0 b6fad46; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.142.0 17a9c92; do not edit -->
 
 # Projects & data
 
@@ -307,7 +307,18 @@ Available in CLI 0.62.0 with the companion Project-sharing backend release.
 Ownership transfer remains separately execution-gated. Check installed help
 and server support before relying on attachment commands.
 
-Attach by database ID (Artifact uses its database ID, not its artifactId):
+**CLI 0.142.0+:** the `dash` attachment files the current Project’s live experiment browser under
+`experiments/Dash`. Click the node to browse folders, runs and their data in the
+Project’s right panel. The Project ID is resolved automatically. Pass `--parent`
+with a folder node ID to choose another location on the first attach. Repeating an
+attach keeps the original placement. Detaching removes only the tree entry.
+
+```bash
+dl project attach research --namespace acme --type dash
+dl project detach research --namespace acme --type dash
+```
+
+Attach other resources by database ID (Artifact uses its database ID, not its artifactId):
 
 ```bash cli-help="project attach"
 dl project attach research --namespace acme --type note --resource "$MEMO_ID"

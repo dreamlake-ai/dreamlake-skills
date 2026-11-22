@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.141.0 b6fad46; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.142.0 17a9c92; do not edit -->
 
 # Host enrollment
 
@@ -307,6 +307,55 @@ remain `unknown`; a fresh explicit lack of capability is `not_ready`.
 JSON preserves this verdict and its identity/timestamp fields. Exit status is
 zero only for `ready`; `not_ready`, `unknown`, and request failures exit one.
 No grant, handshake, job, enrollment change, or machine lifecycle action occurs.
+
+## Set a Ripple upgrade target
+
+**CLI and TypeScript 0.142.0+:** requires the matching server Ripple target API.
+
+A Ripple host-metrics collector that was started with automatic updates turned
+on installs the version its enrollment's target names. `hosts ripple-target`
+reads, sets, or clears that target for one exact enrollment, with no
+redeployment. Only the Host owner who holds `lakeshore:use` in the namespace
+can read or change it. Callers without `lakeshore:use`, including connection
+grantees, get `forbidden`; other members who hold it but do not own the Host
+get `host_not_found`. Setting the target on one enrollment never changes any
+other.
+
+```bash cli-help="hosts ripple-target get"
+dl hosts ripple-target get geyang/workstations/worker --enrollment ENROLLMENT_ID
+dl hosts ripple-target get HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --json
+```
+
+```bash cli-help="hosts ripple-target set"
+dl hosts ripple-target set geyang/workstations/worker --enrollment ENROLLMENT_ID --version v0.5.0
+```
+
+```bash cli-help="hosts ripple-target clear"
+dl hosts ripple-target clear geyang/workstations/worker --enrollment ENROLLMENT_ID
+```
+
+The host selector and `--namespace` follow `hosts metrics`; `--enrollment` is
+required and the CLI never picks or fans out to other enrollments. `--version`
+accepts only a stable release tag, `vMAJOR.MINOR.PATCH` without leading zeros,
+of at most 32 characters. `latest`, pre-release and build suffixes are refused
+before any request is sent. Neither the CLI nor the server checks that the
+version is published, so set only a released Ripple version.
+
+Text output shows `Ripple target:` with the version or `none`, the Host ID, the
+enrollment ID, and when the target last changed. JSON returns `hostId`,
+`enrollmentId`, `targetVersion` (null when there is no target), and `updatedAt`
+(null when it was never set). `set` and `clear` are idempotent: after an
+uncertain outcome, rerun the same command or read the target with `get`.
+Refusals exit 1 and name the server's code, such as `invalid_target_version`,
+`forbidden`, `host_not_found`, or `enrollment_not_found`.
+
+The collector sees a change on its next accepted delivery, within about 30
+seconds. A collector without automatic updates ignores the target. A collector
+with automatic updates installs only a version strictly newer than the version
+it is running, so clearing a target or setting an older version never rolls a
+host back. The TypeScript API exposes the same operations as
+`hosts(namespace).rippleTarget(hostId, enrollmentId)` and
+`hosts(namespace).setRippleTarget(hostId, enrollmentId, version | null)`.
 
 ## Enrollment
 

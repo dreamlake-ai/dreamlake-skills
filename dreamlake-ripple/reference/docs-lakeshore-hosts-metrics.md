@@ -1,17 +1,19 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.214 98a81329b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.215 0b319922b; do not edit -->
 
 # Machine metrics
 
 Machine readings are live. Nymph 0.1.9 through 0.1.33 collect resource
-readings by default, and 0.1.34 and later collect only when configured to
-(see [Local collection](#local-collection)). DreamLake serves those readings
-through the Lakeshore control plane. **Compute → host → Brief → Resources**
+readings by default, 0.1.34 through 0.1.68 only when configured to, and
+0.1.69 and later never (see [Local collection](#local-collection)).
+DreamLake serves Nymph's readings through the Lakeshore control plane. For new
+CPU and memory readings from a host on Nymph 0.1.69 or later, use the
+[Ripple collector](#ripple-collector). **Compute → host → Brief → Resources**
 shows the recorded readings with the time of the last sample, or "No telemetry
 received" when there are none; it never shows example data. The standalone
 [Ripple collector](#ripple-collector) is a separately released CPU and memory
 collector; its section states which version each feature needs.
 
-Nymph collects resource readings on the machine, including machines outside AWS.
+Nymph 0.1.68 and earlier collect resource readings on the machine, including machines outside AWS.
 CloudWatch is not required. Linux readings cover CPU utilization, memory,
 filesystem capacity for the worker directory, network rates and block-device
 I/O. NVIDIA GPUs additionally report utilization, VRAM, temperature and power
@@ -31,13 +33,33 @@ order:
 2. Otherwise, Ripple, if the DreamLake operator has enabled the enrollment
    for Ripple ([Ripple collector](#ripple-collector)). Ripple provides CPU and
    memory only: `cpu_percent`, `memory_total_bytes` and `memory_used_bytes`.
-3. Otherwise, the readings Nymph reports to the Lakeshore control plane.
+3. Otherwise, the readings Nymph reports to the Lakeshore control plane
+   (Nymph 0.1.68 and earlier; see [Local collection](#local-collection)).
 
 A read uses only that source. If the source is unavailable the request fails
 (see [Read through DreamLake](#read-through-dreamlake)); it does not fall back
 to another source, and readings from different sources are never combined.
 
 ## Local collection
+
+| Nymph version | Collects and reports readings |
+| --- | --- |
+| 0.1.9 – 0.1.33 | by default, unless `[metrics] enabled = false` |
+| 0.1.34 – 0.1.68 | only with `[metrics] enabled = true` |
+| 0.1.69 and later | never |
+
+**Since Nymph 0.1.69** no collection runs, whatever the configuration says:
+no sampler, no history file updates, no readings in polls and no
+[Source snapshot](#direct-source-snapshots-operator-configured) uploads. The
+`[metrics]` keys still parse, so older configuration keeps loading;
+`enabled = true` or `object_upload = true` only logs one startup warning.
+Nothing is deleted: an existing history file stays on disk, and the control
+plane keeps the readings it already stored, which stay readable (marked stale)
+through [Read through DreamLake](#read-through-dreamlake). A binary upgraded on
+disk keeps its old behavior until the daemon restarts, so check the running
+executable (`"$(readlink -f /proc/<pid>/exe)" --version`) rather than the
+version reported to the control plane. For new readings use the
+[Ripple collector](#ripple-collector).
 
 **Since [Nymph 0.1.34](https://github.com/dreamlake-ai/nymph/releases/tag/v0.1.34):** Nymph collects and reports readings only when the daemon
 configuration sets `[metrics] enabled = true`. Configurations that omit the
@@ -105,7 +127,8 @@ history_file = "/var/lib/dreamlake/machine.metrics.json"
 enabled = true
 ```
 
-With a binary built from the matching source:
+The configuration above applies to Nymph 0.1.68 and earlier. With such a
+binary:
 
 ```shell
 nymph metrics --once
@@ -115,7 +138,9 @@ curl http://127.0.0.1:9876/metrics
 
 `--once` reads the current host without starting/registering a worker or writing
 history. The other commands read the running daemon's loopback API. Do not expose
-that unauthenticated endpoint on the network.
+that unauthenticated endpoint on the network. In Nymph 0.1.69 and later,
+`nymph metrics --once` still prints the current readings locally (nothing is
+uploaded or saved), and the loopback `/metrics` route returns an empty history.
 
 ## Ripple collector
 
@@ -355,7 +380,17 @@ v0.5.0 with `install.sh --version v0.5.0` and rerun setup with
 The target belongs to one enrollment of one Host. Only the Host's owner, who
 still has `lakeshore:use` in the namespace, can read or change it; people
 the Host is shared with cannot. It takes effect without any change on the
-host, within about 30 seconds:
+host, within about 30 seconds. With the DreamLake CLI 0.142.0 or later
+([install](https://cli.dreamlake.ai/installation); command reference:
+[Set a Ripple upgrade target](https://cli.dreamlake.ai/host-enrollment#set-a-ripple-upgrade-target)):
+
+```shell
+dl hosts ripple-target get <host> --enrollment <enrollment-id>
+dl hosts ripple-target set <host> --enrollment <enrollment-id> --version v0.5.0
+dl hosts ripple-target clear <host> --enrollment <enrollment-id>
+```
+
+The same through the HTTP API:
 
 ```shell
 TARGET_URL="$DREAMLAKE_API_URL/namespaces/$NAMESPACE/hosts/$HOST_ID/enrollments/$ENROLLMENT_ID/ripple-target"
@@ -425,6 +460,9 @@ the binary, `/etc/systemd/system/ripple.service`,
 ask the operator to revoke it when the machine stops reporting.
 
 ## Bounded history
+
+This is the history Nymph 0.1.68 and earlier keep and report; 0.1.69 and later
+add nothing to it.
 
 | Resolution | Maximum retention |
 | --- | --- |
