@@ -118,7 +118,7 @@ and when an update happens:
 3. Verify the **running process**, not the files:
    [Check which binary runs](../reference/docs-lakeshore-hosts-metrics.md#check-which-binary-runs).
    An update is proven only when the running process reports the new
-   version; until then report what `ripple status` shows.
+   version; until then report what `ripple status --process` shows.
 
 ## Exceptions
 
@@ -139,5 +139,5 @@ and when an update happens:
 | Target GET/PUT: `403 forbidden` | No `lakeshore:use` in that namespace | Stop; tell the user. Do not switch namespaces or accounts |
 | Target PUT: `404 host_not_found` | The user is not the Host's owner, or wrong IDs | Stop; only the owner sets it. Never try other hosts |
 | Target PUT: `400 invalid_target_version` | Not a stable `vX.Y.Z` | Use a published stable version, never `latest` |
-| Opted in, target set, nothing updates | Target not newer, not published, or set on another enrollment | Read back the target and `ripple status`; do not force an update |
+| Opted in, target set, nothing updates | Target not newer, not published, or set on another enrollment | Read back the target and `ripple status --process` (`last_result`); do not force an update |
 | `auto-update failed …` in the log | Download or verification failed; still on the old version | Report the logged error; it retries by itself |
