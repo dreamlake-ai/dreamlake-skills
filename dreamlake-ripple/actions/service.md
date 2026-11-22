@@ -109,12 +109,14 @@ and when an update happens:
 2. Set the target only if the user owns the Host and names the version.
    Use a version published on the release base (check
    `$RIPPLE_BASE/<version>/VERSION`), never `latest`, and only the one
-   enrollment the user named: the GET/PUT in
-   [Set the upgrade target](../reference/docs-lakeshore-hosts-metrics.md#set-the-upgrade-target),
-   with `DREAMLAKE_TOKEN=$(dl auth token)` (never print it). Host and
-   enrollment IDs: ask the user, or list them with the `dreamlake-lakeshore`
-   skill. Read the target back with the GET. Clearing it
-   (`{"targetVersion": null}`) stops further updates; it never rolls back.
+   enrollment the user named, as in
+   [Set the upgrade target](../reference/docs-lakeshore-hosts-metrics.md#set-the-upgrade-target):
+   with `dl --version` 0.142.0 or later use `dl hosts ripple-target set`
+   (then `get` to read it back, `clear` to remove it); with an older CLI
+   use the GET/PUT there with `DREAMLAKE_TOKEN=$(dl auth token)` (never
+   print it), or update the CLI. Host and enrollment IDs: ask the user, or
+   list them with the `dreamlake-lakeshore` skill. Clearing the target stops
+   further updates; it never rolls back.
 3. Verify the **running process**, not the files:
    [Check which binary runs](../reference/docs-lakeshore-hosts-metrics.md#check-which-binary-runs).
    An update is proven only when the running process reports the new
@@ -136,8 +138,8 @@ and when an update happens:
 | `--auto-update` refused: staged delivery, `https://` or a v0.5.0+ binary needed | Opt-in prerequisites | Meet them, then rerun setup (still as root on Linux) |
 | `auto-update refuses to run as root` | `ripple run` started as root by hand | Use the setup script's service; never run `ripple run` as root or with `sudo` |
 | `executable … is not owned by this account` | Service points at a root-owned binary | Rerun setup with `--auto-update`; never `chown` or loosen `/usr/local/bin` |
-| Target GET/PUT: `403 forbidden` | No `lakeshore:use` in that namespace | Stop; tell the user. Do not switch namespaces or accounts |
-| Target PUT: `404 host_not_found` | The user is not the Host's owner, or wrong IDs | Stop; only the owner sets it. Never try other hosts |
-| Target PUT: `400 invalid_target_version` | Not a stable `vX.Y.Z` | Use a published stable version, never `latest` |
+| Target (CLI or API): `403 forbidden` | No `lakeshore:use` in that namespace | Stop; tell the user. Do not switch namespaces or accounts |
+| Setting the target: `404 host_not_found` | The user is not the Host's owner, or wrong IDs | Stop; only the owner sets it. Never try other hosts |
+| Setting the target: `400 invalid_target_version` (the CLI refuses it before sending) | Not a stable `vX.Y.Z` | Use a published stable version, never `latest` |
 | Opted in, target set, nothing updates | Target not newer, not published, or set on another enrollment | Read back the target and `ripple status --process` (`last_result`); do not force an update |
 | `auto-update failed …` in the log | Download or verification failed; still on the old version | Report the logged error; it retries by itself |

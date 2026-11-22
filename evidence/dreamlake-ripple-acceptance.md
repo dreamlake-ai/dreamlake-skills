@@ -565,3 +565,251 @@ I ran no shell commands and changed no hosts. The installed service guide links 
 ```
 
 </details>
+
+## Target via the published CLI (dl 0.142.0)
+
+The target step now prefers `dl hosts ripple-target set|get|clear` (CLI 0.142.0+, published; verified with a
+scratch install of `@dreamlake/dreamlake-cli@0.142.0`), keeping the HTTP route for older CLIs. The exception rows
+name the CLI and the API. Same method as above: branch copy in a fresh temporary project, `diff -r` identical, read-only
+Claude Code (`claude -p --allowedTools Read,Glob,Grep,Skill`) and Codex (`codex exec --sandbox read-only`), no
+shell commands, no host or target changed.
+
+Known gap, by design: until the companion docs change deploys and CI re-syncs `reference/`, the fetched page does not show
+the CLI syntax. Claude noticed this and told the user to read `--help` rather than trust a guess.
+
+| Agent | Request | Result |
+| --- | --- | --- |
+| Claude Code | Owner, dl 0.142.0: set the target to v0.5.1 on an opted-in Linux host | Passed: service action step 2; checks `v0.5.1/VERSION` and `dl --version`; `ripple-target set` then `get`; running-process verification; stop rules for 403/404. |
+| Claude Code | Python SDK only | Passed: declined; no SDK method invented. |
+| Claude Code | All hosts plus a colleague's, follow `latest` | Passed: refused `latest`, other owners and fan-out; per-enrollment CLI steps. |
+| Codex | Same as request 1 | Passed: exact `--enrollment`/`--version` usage, `get --json` read-back, `status --process`. |
+| Codex | Python SDK only | Passed: declined. |
+| Codex | All hosts plus a colleague's, follow `latest` | Passed: no `latest`; owner-only; CLI per enrollment. |
+
+<details><summary>claude-1 (CLI revision): full output</summary>
+
+```text
+I'd use the **`dreamlake-ripple`** skill, action **`actions/service.md` → "Automatic updates (opt-in)"**, steps 2 (set the upgrade target) and 3 (check the running process). You already have v0.5.0 running with `--auto-update`, so you can skip the opt-in step. Your `dl` 0.142.0 meets the skill's minimum, so the skill says to use `dl hosts ripple-target set` / `get` rather than the raw GET/PUT API.
+
+One gap: none of the installed skills give the argument syntax for `dl hosts ripple-target`. They name the subcommands but not how the host, enrollment and version are passed, and the `dreamlake-lakeshore` skill they refer to isn't installed. So step 3 below reads the CLI's own help first. Steps 4–5 use the `--namespace`/positional style that other `dl hosts` commands use, which is my guess; check it against `--help`.
+
+**What I need from you:** your namespace, the Host ID and the enrollment ID for this host. The skill only allows setting the target on the one enrollment you name, and only if you own the Host.
+
+**Commands, in order:**
+
+1. Check that v0.5.1 is published (the skill never allows `latest`). It should print `v0.5.1`:
+   ```bash
+   RIPPLE_BASE=https://pub-c0109e197b4a4d1abe5884ac4dd3a023.r2.dev/dreamlake/ripple
+   curl -fsSL "$RIPPLE_BASE/v0.5.1/VERSION"
+   ```
+2. Check the CLI version (0.142.0 or later):
+   ```bash
+   dl --version
+   ```
+3. Read the real syntax:
+   ```bash
+   dl hosts ripple-target --help
+   dl hosts ripple-target set --help
+   ```
+   If you need the Host ID: `dl hosts list --all --namespace "$NAMESPACE"`
+4. Set the target. These are placeholders; use whatever form step 3 shows:
+   ```bash
+   dl hosts ripple-target set "$HOST_ID" --enrollment "$ENROLLMENT_ID" --namespace "$NAMESPACE" v0.5.1
+   ```
+5. Read it back. Expect `targetVersion: "v0.5.1"` with this `hostId`/`enrollmentId`:
+   ```bash
+   dl hosts ripple-target get "$HOST_ID" --enrollment "$ENROLLMENT_ID" --namespace "$NAMESPACE"
+   ```
+6. Check the running process, as root on the Linux host. The target takes effect within about 30 seconds, and the update happens on a later accepted delivery:
+   ```bash
+   ripple status --process --spool-dir=/var/lib/lakeshore-host-metrics
+   PID=$(systemctl show -p MainPID --value ripple.service)
+   sha256sum /proc/$PID/exe     # should equal the sha256= that status printed
+   journalctl -u ripple.service | grep -E 'auto-update|starting'
+   ```
+   The update is proven only when `status --process` reports `v0.5.1` with `updated_from=v0.5.0`. The log should also show `auto-update: installed; re-executing`, then `auto-update complete` and `starting version=v0.5.1 updated_from=v0.5.0` under the same PID. Until then, I'd report what `status --process` shows (`last_result`) and not force anything.
+
+**Stop conditions from the skill:**
+- **`403 forbidden`:** you lack `lakeshore:use` in that namespace. Stop; don't switch namespaces or accounts.
+- **`404 host_not_found`:** you're not the owner, or an ID is wrong. Stop; don't try other hosts.
+- **`404 enrollment_not_found`:** it isn't an active enrollment of this Host.
+- **`auto-update failed …` in the log:** it's still on v0.5.0. Report the error; it retries by itself after about 5 minutes.
+- **To undo:** `ripple-target clear` stops further updates but never rolls back.
+```
+
+</details>
+
+<details><summary>claude-2 (CLI revision): full output</summary>
+
+```text
+I can't do this with the Python SDK alone, because the installed skills don't document a Python SDK method for the Ripple upgrade target. I didn't run anything, as you asked.
+
+**What the skills say:**
+- `dreamlake-ripple/actions/service.md` (step 2 of "Automatic updates") gives exactly two ways to set the target:
+  1. The CLI: `dl hosts ripple-target set` (needs `dl` 0.142.0 or later), then `get` to read it back and `clear` to remove it.
+  2. The HTTP API (used with an older CLI): `GET`/`PUT` on `…/namespaces/$NAMESPACE/hosts/$HOST_ID/enrollments/$ENROLLMENT_ID/ripple-target` with the body `{"targetVersion": "vX.Y.Z"}`. The reference shows this with `curl`.
+- I searched every installed skill for "ripple-target" and "upgrade target" and found only those two. The Python host API mentioned in the enrollment docs covers enrolling hosts. It has no Ripple target method.
+
+I'm not going to guess an SDK method name. A made-up call would fail at best, and at worst it would look like it worked when it hadn't.
+
+**Your options:**
+1. **Use the CLI** (`dl hosts ripple-target set`). This is the supported path.
+2. **Call the documented HTTP endpoint from Python** with a plain HTTP client instead of `curl`. That uses the same API but isn't the SDK, so tell me if it's acceptable.
+3. **Check the SDK itself.** If your installed `dreamlake` package has a method for this that the skills don't mention, point me to it and I'll use it.
+
+**What I need from you whichever you pick:**
+- **Namespace, Host ID and enrollment ID.** The target applies to one enrollment of one Host.
+- **The version.** It must be a stable `vX.Y.Z` that is actually published on the release base. `latest` is refused.
+- **Confirmation that you own the Host.** Only the owner can set the target; anyone else gets `404 host_not_found`.
+
+Two more things to know:
+- The target only matters if the host's service was set up with `--auto-update`, which needs Ripple v0.5.0 or later.
+- Setting the target doesn't prove the update happened. That's shown only when `ripple status --process` reports the new version for the running process.
+```
+
+</details>
+
+<details><summary>claude-3 (CLI revision): full output</summary>
+
+```text
+I read the `dreamlake-ripple` skill (`actions/service.md` and the Automatic updates section of its reference doc). I wouldn't do what you asked as stated: Ripple can't do part of it, and the skill forbids another part. Here's what I can do instead.
+
+## What can't be done
+
+1. **Following "latest" isn't possible.** The docs say Ripple "never downgrades, never follows `latest/`". A host updates only when its owner has set an upgrade target, which must be one specific stable version like `v0.5.0`. Setting the target to `latest` is refused with `400 invalid_target_version`. So no setting makes a host track new releases by itself. Publishing a release doesn't update any host; someone has to move the target to each new version.
+2. **I can't act on Sam's host.** Only a Host's owner can read or change its target. People it's shared with can't, and the API answers with `404 host_not_found`. The skill also says never to touch a machine you didn't name or to try other hosts. Sam has to opt in their own host and set their own target. I can send you the steps for them.
+3. **I won't do "every host" in one sweep.** The skill sets a target only for "the one enrollment the user named." I'd need you to name each host.
+
+## What I'd do for each host you name
+
+**On the host (opt in):**
+1. Say which user I'm acting as: root on Linux, or the user being measured on macOS (never root there).
+2. Check that `ripple version` is a stable v0.5.0 or later. If it's older, upgrade it once by hand with `install.sh --version v0.5.0`.
+3. Download that version's `setup-systemd.sh` (Linux) or `setup-launchd.sh` (macOS) and verify its SHA-256.
+4. Run setup with your usual machine ID, the `https://api.dreamlake.ai/...` URL and `--delivery-mode staged`, plus `--auto-update`. I'd run it with `--dry-run` first and show you the plan.
+   - For `--token-file`, I'd use the service's own copy: `/etc/lakeshore-host-metrics/token` on Linux, `~/Library/Application Support/ripple/token` on macOS. You wouldn't need a new token from the operator.
+5. After you approve, run the same command without `--dry-run`.
+
+**In DreamLake (set the target, owner only):**
+
+6. Pick a version you name and confirm it's published by checking `$RIPPLE_BASE/<version>/VERSION`.
+7. With `dl` 0.142.0 or later, run `dl hosts ripple-target set` for that host's enrollment, then `get` to read it back. With an older CLI, I'd use the GET/PUT API call in the doc, without ever printing the token. It takes effect within about 30 seconds.
+
+**Verify:**
+
+8. Run `ripple status --process` and compare it with the running service's process: on Linux, the SHA-256 of `/proc/<pid>/exe`; on macOS, the file's inode via `lsof` and `stat`. An update counts only when the running process reports the new version.
+9. Look for `auto-update complete` in the log.
+
+On macOS the agent runs only while that user is logged in, so updates and readings pause when they're logged out.
+
+## What I need from you
+
+- The list of your hosts, with OS, Host ID and enrollment ID for each. I can also look these up with the `dreamlake-lakeshore` skill.
+- The exact version to target. To keep hosts current, you'd re-run `ripple-target set` with each new version; a scheduled job you own could do that.
+- Whether you want me to write up the steps for Sam to run on their own host.
+```
+
+</details>
+
+<details><summary>codex-1 (CLI revision): full output</summary>
+
+```text
+I’d use the installed **`dreamlake-ripple` skill**, `service` action, under **Automatic updates → Set the target**. Your `dl` 0.142.0 supports `ripple-target set` and `get`. I ran no shell commands and made no change. [Service action]($TMP/.agents/skills/dreamlake-ripple/actions/service.md)
+
+1. From your signed-in owner CLI, substitute your fully qualified host name and list its enrollments.
+
+   ```sh
+   HOST='<fully qualified host name>'
+   dl hosts enrollments "$HOST"
+   ```
+
+2. Substitute the active enrollment ID for this Linux host. The commands below check that the published `VERSION` is exactly `v0.5.1`, then set the target and read it back. Each `&&` makes the next command conditional on success.
+
+   ```sh
+   ENROLLMENT_ID='<active enrollment ID>'
+   RIPPLE_BASE='https://pub-c0109e197b4a4d1abe5884ac4dd3a023.r2.dev/dreamlake/ripple'
+
+   PUBLISHED=$(curl -fsSL "$RIPPLE_BASE/v0.5.1/VERSION") &&
+     test "$PUBLISHED" = 'v0.5.1' &&
+     dl hosts ripple-target set "$HOST" --enrollment "$ENROLLMENT_ID" --version v0.5.1 &&
+     dl hosts ripple-target get "$HOST" --enrollment "$ENROLLMENT_ID" --json
+   ```
+
+   **Target confirmation:** the final `get` should return the intended `hostId` and `enrollmentId` with `"targetVersion": "v0.5.1"`.
+
+3. To confirm the **running upgrade** as well, run this on the Linux host as root after the updater picks up the target. Look for `version=v0.5.1` in the process record.
+
+   ```sh
+   ripple status --process --spool-dir=/var/lib/lakeshore-host-metrics
+   ```
+I’d use the installed **`dreamlake-ripple` skill**, `service` action, under **Automatic updates → Set the target**. Your `dl` 0.142.0 supports `ripple-target set` and `get`. I ran no shell commands and made no change. [Service action]($TMP/.agents/skills/dreamlake-ripple/actions/service.md)
+
+1. From your signed-in owner CLI, substitute your fully qualified host name and list its enrollments.
+
+   ```sh
+   HOST='<fully qualified host name>'
+   dl hosts enrollments "$HOST"
+   ```
+
+2. Substitute the active enrollment ID for this Linux host. The commands below check that the published `VERSION` is exactly `v0.5.1`, then set the target and read it back. Each `&&` makes the next command conditional on success.
+
+   ```sh
+   ENROLLMENT_ID='<active enrollment ID>'
+   RIPPLE_BASE='https://pub-c0109e197b4a4d1abe5884ac4dd3a023.r2.dev/dreamlake/ripple'
+
+   PUBLISHED=$(curl -fsSL "$RIPPLE_BASE/v0.5.1/VERSION") &&
+     test "$PUBLISHED" = 'v0.5.1' &&
+     dl hosts ripple-target set "$HOST" --enrollment "$ENROLLMENT_ID" --version v0.5.1 &&
+     dl hosts ripple-target get "$HOST" --enrollment "$ENROLLMENT_ID" --json
+   ```
+
+   **Target confirmation:** the final `get` should return the intended `hostId` and `enrollmentId` with `"targetVersion": "v0.5.1"`.
+
+3. To confirm the **running upgrade** as well, run this on the Linux host as root after the updater picks up the target. Look for `version=v0.5.1` in the process record.
+
+   ```sh
+   ripple status --process --spool-dir=/var/lib/lakeshore-host-metrics
+   ```
+```
+
+</details>
+
+<details><summary>codex-2 (CLI revision): full output</summary>
+
+```text
+I couldn’t set the Ripple upgrade target using only the DreamLake Python SDK. The installed skills document CLI and REST operations for this setting, but give no Python SDK method. I ran no shell commands and made no change. [Ripple service guide]($TMP/.agents/skills/dreamlake-ripple/actions/service.md)
+
+The target applies to one active enrollment. Setting it requires the namespace, Host ID, enrollment ID, and a specific published stable version such as `vX.Y.Z`. Only the Host owner with `lakeshore:use` in that namespace can set it. [Upgrade target reference]($TMP/.agents/skills/dreamlake-ripple/reference/docs-lakeshore-hosts-metrics.md)
+I couldn’t set the Ripple upgrade target using only the DreamLake Python SDK. The installed skills document CLI and REST operations for this setting, but give no Python SDK method. I ran no shell commands and made no change. [Ripple service guide]($TMP/.agents/skills/dreamlake-ripple/actions/service.md)
+
+The target applies to one active enrollment. Setting it requires the namespace, Host ID, enrollment ID, and a specific published stable version such as `vX.Y.Z`. Only the Host owner with `lakeshore:use` in that namespace can set it. [Upgrade target reference]($TMP/.agents/skills/dreamlake-ripple/reference/docs-lakeshore-hosts-metrics.md)
+```
+
+</details>
+
+<details><summary>codex-3 (CLI revision): full output</summary>
+
+```text
+**Ripple cannot be configured to always follow `latest`.** Publishing a release does not trigger an update. Ripple can automatically install a specific, newer stable release after the host owner sets that version as the target for one enrollment. Only Sam can set the target for Sam’s host, even if the host is shared with you. Each owner also needs `lakeshore:use` in the host’s namespace.
+
+For each of your hosts, I would use this procedure:
+
+1. **Identify the enrollment and release.** Confirm the namespace, host ID, active enrollment ID, and exact `vX.Y.Z` you want. Verify that the tag is published by checking its `VERSION` file on the Ripple release server.
+2. **Opt in once on that host.** Check `ripple version`. If the collector predates stable v0.5.0, upgrade it manually first. Verify the setup script matching the installed version, then preview it with `--dry-run --auto-update`, staged delivery over HTTPS, and the host’s existing machine-token file. After reviewing the preview, apply the same setup without `--dry-run`. On Linux, run `setup-systemd.sh` as root. On macOS, run `setup-launchd.sh` as the measured user. The macOS agent runs only while that user is logged in.
+3. **Set and read back the target.** With DreamLake CLI 0.142.0 or later, use `dl hosts ripple-target set` for that enrollment and exact tag, then `dl hosts ripple-target get` to confirm the stored value. Sam would perform this owner step for Sam’s enrollment.
+4. **Verify the running version.** After Ripple learns the target from an accepted metrics delivery, check `ripple status --process` against the service PID and confirm the running version matches the target. For each future release you choose, repeat the target and verification steps. The service opt-in only needs to happen once.
+
+I read the [installed Ripple service instructions]($TMP/.agents/skills/dreamlake-ripple/actions/service.md) and their [machine metrics reference]($TMP/.agents/skills/dreamlake-ripple/reference/docs-lakeshore-hosts-metrics.md). I ran no shell commands, changed no hosts, and created no temporary files.
+**Ripple cannot be configured to always follow `latest`.** Publishing a release does not trigger an update. Ripple can automatically install a specific, newer stable release after the host owner sets that version as the target for one enrollment. Only Sam can set the target for Sam’s host, even if the host is shared with you. Each owner also needs `lakeshore:use` in the host’s namespace.
+
+For each of your hosts, I would use this procedure:
+
+1. **Identify the enrollment and release.** Confirm the namespace, host ID, active enrollment ID, and exact `vX.Y.Z` you want. Verify that the tag is published by checking its `VERSION` file on the Ripple release server.
+2. **Opt in once on that host.** Check `ripple version`. If the collector predates stable v0.5.0, upgrade it manually first. Verify the setup script matching the installed version, then preview it with `--dry-run --auto-update`, staged delivery over HTTPS, and the host’s existing machine-token file. After reviewing the preview, apply the same setup without `--dry-run`. On Linux, run `setup-systemd.sh` as root. On macOS, run `setup-launchd.sh` as the measured user. The macOS agent runs only while that user is logged in.
+3. **Set and read back the target.** With DreamLake CLI 0.142.0 or later, use `dl hosts ripple-target set` for that enrollment and exact tag, then `dl hosts ripple-target get` to confirm the stored value. Sam would perform this owner step for Sam’s enrollment.
+4. **Verify the running version.** After Ripple learns the target from an accepted metrics delivery, check `ripple status --process` against the service PID and confirm the running version matches the target. For each future release you choose, repeat the target and verification steps. The service opt-in only needs to happen once.
+
+I read the [installed Ripple service instructions]($TMP/.agents/skills/dreamlake-ripple/actions/service.md) and their [machine metrics reference]($TMP/.agents/skills/dreamlake-ripple/reference/docs-lakeshore-hosts-metrics.md). I ran no shell commands, changed no hosts, and created no temporary files.
+```
+
+</details>
