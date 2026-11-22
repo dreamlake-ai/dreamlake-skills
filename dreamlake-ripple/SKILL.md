@@ -1,15 +1,16 @@
 ---
 name: dreamlake-ripple
-description: Install the Ripple CPU and memory collector (formerly lakeshore-host-metrics) from its verified public installer, read local samples without an account, run it as a service reporting an operator-enabled enrolled host, and check or remove it. Not for enrolling hosts or reading metrics.
+description: Install the Ripple CPU and memory collector (formerly lakeshore-host-metrics) on Linux or macOS, read local samples without an account, run it as a systemd service or launchd agent reporting an operator-enabled enrolled host, and check or remove it. Not for enrolling hosts.
 ---
 
 # Ripple collector
 
-Ripple is a small standalone collector that samples CPU and memory. It works
-on its own (print local samples, no account) or reports an enrolled host to
-DreamLake once the DreamLake operator has enabled that host and issued it a
-machine token. Use the release that is actually published; the supported
-operating systems, architectures and service managers are listed in
+Ripple is a small standalone collector that samples CPU and memory on Linux
+and macOS. It works on its own (print local samples, no account) or reports
+an enrolled host to DreamLake once the DreamLake operator has enabled that
+host and issued it a machine token: as a systemd service on Linux (root) or a
+per-user launchd agent on macOS (never root). Use the release that is
+actually published; supported systems and versions are listed in
 [reference/docs-lakeshore-hosts-metrics.md](reference/docs-lakeshore-hosts-metrics.md#ripple-collector).
 
 ## When to use
@@ -27,7 +28,7 @@ operating systems, architectures and service managers are listed in
 | Request looks like | Open |
 |---|---|
 | Install or upgrade the binary; print local samples; verify a download | [actions/install.md](actions/install.md) |
-| Report an enrolled host to DreamLake as a service; check, inspect backlog, rotate token | [actions/service.md](actions/service.md) |
+| Report an enrolled host to DreamLake (systemd or launchd); check, inspect backlog, upgrade, rotate token | [actions/service.md](actions/service.md) |
 | Stop reporting or uninstall | [actions/remove.md](actions/remove.md) |
 
 ## Rules
@@ -40,6 +41,9 @@ operating systems, architectures and service managers are listed in
 - Never print, echo, paste or commit a token; keep it in a `0600` file.
 - A container measures the kernel it runs on: on a Mac, a Docker container
   reports Docker Desktop's Linux virtual machine, not the Mac.
+- On macOS, install only with `install.sh`; never remove a quarantine
+  attribute or override Gatekeeper. The launchd agent runs only while its
+  user is logged in; do not suggest auto-login to work around that.
 - Claim only what a command showed: an installed binary is not a running
   service, and a running service is not proof DreamLake received samples.
 

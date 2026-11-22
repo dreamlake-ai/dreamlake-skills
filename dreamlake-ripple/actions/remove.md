@@ -1,39 +1,44 @@
 # Stop reporting or remove Ripple
 
-Stop the service, then remove only what the user asks for. The released
-version has no uninstaller; the list of what the installer and setup script
-leave behind is in
-[reference/docs-lakeshore-hosts-metrics.md](../reference/docs-lakeshore-hosts-metrics.md#stop-or-remove-linux).
+Stop the service, then remove only what the user asks for. What each
+platform leaves behind is in
+[reference/docs-lakeshore-hosts-metrics.md](../reference/docs-lakeshore-hosts-metrics.md#stop-or-remove).
 
-## Steps (Linux, systemd)
+## Steps
 
-1. Show the backlog first; samples still in the spool may not be delivered
-   yet:
+1. Show the backlog first; deleting the spool loses samples the API has not
+   acknowledged:
 
    ```bash
-   ripple status --spool-dir=/var/lib/lakeshore-host-metrics
+   ripple status --spool-dir=/var/lib/lakeshore-host-metrics                 # Linux
+   ripple status --spool-dir "$HOME/Library/Application Support/ripple/spool" # macOS
    ```
 
-2. Stop and disable the service:
+2. Stop the service:
 
    ```bash
+   # Linux (root)
    systemctl disable --now ripple.service
-   systemctl is-active ripple.service    # inactive
+   systemctl is-active ripple.service          # inactive
+   # macOS (as the user; setup-launchd.sh of the installed version)
+   bash setup-launchd.sh --uninstall --dry-run # review
+   bash setup-launchd.sh --uninstall
    ```
 
-3. Only if the user wants the files gone, list each path from the reference
-   and confirm before deleting it. Keep the spool if the backlog was not
-   empty and the user may restart reporting.
+3. Only if the user wants the files gone, list each remaining path from the
+   reference and confirm before deleting it. Keep the spool if the backlog
+   was not empty and reporting may resume.
 
-4. Tell the user to ask the DreamLake operator to revoke the machine token.
-   Stopping the service does not revoke it.
+4. Tell the user to ask the DreamLake operator to revoke the machine token;
+   stopping does not revoke it.
 
-A user-only install (`$HOME/.local/bin/ripple`) has no service: delete the
+A binary installed only for local samples has no service: delete the
 binary.
 
 ## Exceptions
 
 | Symptom | Likely cause | Do |
 |---|---|---|
-| `lakeshore-host-metrics.service` also exists | Pre-rename unit | Leave it unless the user asks to remove it too |
-| Unit file without the "Managed by" marker | Not written by the setup script | Do not remove it; ask the user |
+| `setup-launchd.sh` not at hand | Deleted after setup | Fetch and verify the installed version's copy as in [service.md](service.md) step 3 |
+| `refusing to overwrite …: not created by this script` | The plist was not written by setup | Leave it; ask the user |
+| Linux: `lakeshore-host-metrics.service` also exists | Pre-rename unit | Leave it unless the user asks to remove it too |

@@ -1,101 +1,106 @@
 # Report an enrolled host to DreamLake as a service
 
-Run Ripple as a system service that sends CPU and memory samples for one
-enrolled host. Today the released service setup is systemd on Linux; check the
-service-manager row of the support table in
-[reference/docs-lakeshore-hosts-metrics.md](../reference/docs-lakeshore-hosts-metrics.md#ripple-collector)
-before anything else. If the user's platform has no released service setup,
-stop and say so.
+Run Ripple as a service that sends CPU and memory samples for one enrolled
+host: a systemd system service on Linux (as root) or a per-user launchd
+agent on macOS (as the user, never root). Facts and file lists:
+[reference/docs-lakeshore-hosts-metrics.md](../reference/docs-lakeshore-hosts-metrics.md#report-an-enrolled-host-to-dreamlake).
 
 ## Before you start
 
 - The host is already enrolled in DreamLake
-  ([reference/docs-lakeshore-hosts-enroll.md](../reference/docs-lakeshore-hosts-enroll.md)).
-  Enrolling is not part of this skill.
+  ([reference](../reference/docs-lakeshore-hosts-enroll.md)); enrolling is
+  not part of this skill.
 - The user has, **from the DreamLake operator**, the enrollment's machine ID
   (`host-…`) and a machine token issued for that ID. If either is missing,
-  stop and tell the user to ask the operator; there is no self-service token
-  and no command in this skill creates one. A user sign-in token does not
-  work.
-- The binary is installed system-wide (`/usr/local/bin/ripple`) by the
-  `install` action of this skill.
-- You are acting as root on the host to be measured (systemd system scope).
-  Say so to the user before running anything as root.
+  stop and tell the user to ask the operator. There is no self-service
+  token, nothing here creates one, and a user sign-in token does not work.
+- The binary is installed (the `install` action): Linux `/usr/local/bin`,
+  macOS `~/.local/bin`.
+- Say which user you act as before running anything: root on Linux, the
+  user to be measured on macOS.
+- macOS: the agent runs only while that user is logged in. Tell the user;
+  do not suggest auto-login or other login changes to work around it.
 
-## Steps (Linux, systemd)
+## Steps
 
-1. Put the token in a root-owned `0600` file without it passing through the
-   command line, shell history or this conversation. Ask the user to paste it
-   into the terminal themselves:
+1. Have the user put the token in a `0600` file themselves; it must not pass
+   through a command line, shell history or this conversation:
 
    ```bash
-   install -m 0600 /dev/stdin /root/ripple-token   # user pastes, then Ctrl-D
+   TOKEN_FILE=/root/ripple-token        # Linux; macOS: TOKEN_FILE="$HOME/ripple-token"
+   (umask 077; cat > "$TOKEN_FILE")     # user pastes, then Ctrl-D
    ```
 
-2. Validate the configuration. This sends nothing:
+2. Validate (sends nothing). Expect `ok: … delivery_mode=staged token_file=readable`:
 
    ```bash
+   MACHINE_ID=host-…                    # from the operator
    ripple check --delivery-mode=staged \
      --url=https://api.dreamlake.ai/host-metrics/ripple/v1/samples \
-     --machine-id="$MACHINE_ID" --token-file=/root/ripple-token \
-     --spool-dir=/var/lib/lakeshore-host-metrics
+     --machine-id="$MACHINE_ID" --token-file="$TOKEN_FILE"
    ```
 
-   Expect `ok: endpoint=… machine_id=… delivery_mode=staged token_file=readable`.
-
 3. Fetch the setup script of the **same version** as the installed binary,
-   verify it, preview, then apply:
+   verify it, and preview:
 
    ```bash
    RIPPLE_BASE=https://pub-c0109e197b4a4d1abe5884ac4dd3a023.r2.dev/dreamlake/ripple
    V=$(ripple version)
-   curl -fsSLo setup-systemd.sh "$RIPPLE_BASE/$V/setup-systemd.sh"
+   # Linux
+   curl -fsSLO "$RIPPLE_BASE/$V/setup-systemd.sh"
    curl -fsSL "$RIPPLE_BASE/$V/setup-systemd.sh.sha256" | sha256sum -c -
-   bash setup-systemd.sh --machine-id "$MACHINE_ID" \
+   SETUP=setup-systemd.sh
+   # macOS
+   curl -fsSLO "$RIPPLE_BASE/$V/setup-launchd.sh"
+   curl -fsSLO "$RIPPLE_BASE/$V/setup-launchd.sh.sha256"
+   shasum -a 256 -c setup-launchd.sh.sha256
+   SETUP=setup-launchd.sh
+
+   bash "$SETUP" --machine-id "$MACHINE_ID" \
      --url https://api.dreamlake.ai/host-metrics/ripple/v1/samples \
-     --token-file /root/ripple-token --delivery-mode staged --dry-run
+     --token-file "$TOKEN_FILE" --delivery-mode staged --dry-run
    ```
 
-   Show the user the `--- would …` lines, then run the same command without
-   `--dry-run`. The preview does not check the token file's owner or mode;
-   the real run can still refuse. What the script writes, refuses and
-   reruns: [reference](../reference/docs-lakeshore-hosts-metrics.md#run-as-a-systemd-service-linux).
+   Show the user the `--- would …` plan, then run the same command without
+   `--dry-run`. On Linux the preview does not check the token file's owner
+   or mode, so the real run can still refuse.
 
 4. Read back:
 
    ```bash
+   # Linux
    systemctl is-active ripple.service
    journalctl -u ripple.service -n 50 --no-pager
    ripple status --spool-dir=/var/lib/lakeshore-host-metrics
+   # macOS
+   launchctl print "gui/$(id -u)/ai.dreamlake.ripple" | grep state
+   tail -n 50 "$HOME/Library/Logs/ripple/ripple.log"
+   ripple status --spool-dir "$HOME/Library/Application Support/ripple/spool"
    ```
 
-   `active` means the process runs. Delivery is shown only by the journal and
-   the spool: samples stay in the spool until the API confirms they are
-   archived (meaning of `202`/`204`:
-   [reference](../reference/docs-lakeshore-hosts-metrics.md#report-an-enrolled-host-to-dreamlake)).
-   Report what you saw; do not claim the readings appear in DreamLake unless
-   the user (or `dl hosts metrics` from the `dreamlake-lakeshore` skill)
-   confirmed it.
+   A running service only proves the process runs. Report what the log and
+   the spool show; claim readings reached DreamLake only if the user (or
+   `dl hosts metrics` from `dreamlake-lakeshore`) confirmed it.
 
-5. Delete the source token file once setup succeeded if the user agrees; the
-   service uses its own copy.
+5. If the user agrees, delete `$TOKEN_FILE`; the service keeps its own copy.
 
 ## Upgrade or rotate
 
-- Upgrade: the `install` action with the new version, then rerun step 3 with
-  that version's `setup-systemd.sh`.
-- Rotate the token: the user gets a new token from the operator; repeat
-  steps 1 and 3. Reruns are idempotent.
+- Upgrade: the `install` action with the new version, then restart: Linux
+  rerun step 3 with that version's script; macOS
+  `launchctl kickstart -k "gui/$(id -u)/ai.dreamlake.ripple"`.
+- Rotate: the user gets a new token from the operator; repeat steps 1 and 3.
 
 ## Exceptions
 
 | Symptom | Likely cause | Do |
 |---|---|---|
-| `401` / `invalid_machine_token` in the journal | Token wrong, revoked, or not issued for this machine ID | Ask the operator; do not try other IDs or tokens |
-| Samples refused for the machine ID | Label differs from the enrollment the token is bound to | Use the exact `host-…` ID from the operator |
-| `--token-file must be an absolute path` | Relative path | Use `/root/ripple-token` |
-| `must not be accessible by group or others` or `must be owned by root` | Token file mode or owner | `chown root: …; chmod 600 …` and rerun |
-| Refuses: file lacks the marker, account or state directory exists | Something else owns those paths | Stop and show the user; never delete or overwrite them to proceed |
-| Refuses while `lakeshore-host-metrics.service` is enabled | Pre-rename unit still in use | Stop and show the user; pass `--replace-legacy-unit` (listed by `bash setup-systemd.sh --help`) only with their explicit approval |
-| `systemctl not found` | Not a systemd host, or inside a container | Stop; a container does not measure the host |
-| Backlog in `ripple status` keeps growing | Delivery failing | Read the journal; report the error text |
+| `401` / `invalid_machine_token` in the log | Token wrong, revoked, or for another machine ID | Ask the operator; never try other IDs or tokens |
+| `--token-file must be an absolute path` | Relative path | Use an absolute path |
+| `must not be accessible by group or others`, `must be owned by root` (Linux) or `owned by you` (macOS) | Token file mode or owner | Fix the owner, `chmod 600`, rerun |
+| macOS: refuses to run as root | Agent is per-user | Rerun as the user to be measured |
+| Refuses: file not created by this script, account or directory exists | Something else owns those paths | Stop and show the user; never delete or overwrite to proceed |
+| Linux: refuses while `lakeshore-host-metrics.service` is enabled | Pre-rename unit in use | Stop; pass `--replace-legacy-unit` (see `--help`) only with explicit approval |
+| `systemctl not found` | Not a systemd host, or a container | Stop; a container does not measure the host |
+| macOS: readings stop overnight or after logout | Agent runs only while logged in | Expected; report it, no workaround |
+| Backlog in `ripple status` keeps growing | Delivery failing | Read the log; report the error text |
