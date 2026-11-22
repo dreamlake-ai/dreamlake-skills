@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles/reference.md at 0.1.211 e1df52a6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles/reference.md at 0.1.211 2da6636b; do not edit -->
 
 # Bundles Reference
 
@@ -247,7 +247,7 @@ each version from `W` to `V`. A reference `@V#e` normalizes to `@W#e`.
 | `version` | The normalized (displayed) version. |
 | `effectiveHash` | The effective hash of the entry, `blake3:<hex>`. |
 | `rootHash` | The root hash of the bundle version, `blake3:<hex>`. |
-| `objects` | Optional. |
+| `objects` | Optional. Present only for an `env-set` generator that selects objects from another bundle: `{bundle, version, prefix, rootHash}`. It records the pinned bundle version, the object prefix and the root hash of that version, so that the selection is reproducible. |
 
 ## REST API
 
