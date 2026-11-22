@@ -1120,6 +1120,22 @@
         "sha256": "471a8476f66d7bc963bf6b0c34e4f9f570b4a5ea5b4b21323926ba0d92651bc2"
       }
     ],
+    "dreamlake-ripple": [
+      {
+        "url": "https://docs.dreamlake.ai/lakeshore/hosts/metrics",
+        "file": "reference/docs-lakeshore-hosts-metrics.md",
+        "version": "0.1.210 4edff8b47",
+        "source_sha256": "28ea68be47a6d880d7b5bbcd2cc64e4a1db362e569e747f1a7e0044c743c4399",
+        "sha256": "635e1904328f09962f83e2e54bf03d2ac01fe212f293dbe0f3ebbbdfb447913d"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/lakeshore/hosts/enroll",
+        "file": "reference/docs-lakeshore-hosts-enroll.md",
+        "version": "0.1.210 4edff8b47",
+        "source_sha256": "619a76e7f220533dcabaf2ec5a196e7682259a86c15f8efe715d3c78e3a67965",
+        "sha256": "79c8b8d958bc7c232640bc2ba8362b084c561f010d80b8461834a0f124c825ba"
+      }
+    ],
     "dreamlake-scenes": [
       {
         "url": "https://docs.dreamlake.ai/scene-generation",

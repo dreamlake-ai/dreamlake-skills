@@ -1,0 +1,10 @@
+{
+  "name": "dreamlake-ripple",
+  "description": "Install the Ripple CPU and memory collector (formerly lakeshore-host-metrics) from its verified public installer, read local samples without an account, run it as a service reporting an operator-enabled enrolled host, and check or remove it. Not for enrolling hosts or reading metrics.",
+  "requires": [],
+  "docs": [
+    "https://docs.dreamlake.ai/lakeshore/hosts/metrics",
+    "https://docs.dreamlake.ai/lakeshore/hosts/enroll"
+  ],
+  "tools": null
+}
