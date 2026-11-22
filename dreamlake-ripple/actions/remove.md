@@ -4,6 +4,11 @@ Stop the service, then remove only what the user asks for. What each
 platform leaves behind is in
 [reference/docs-lakeshore-hosts-metrics.md](../reference/docs-lakeshore-hosts-metrics.md#stop-or-remove).
 
+These steps remove a collector set up by hand with the `service` action. For
+one set up by `dl hosts enroll`, there is no operator token to revoke; use only
+what the enrollment reference documents for turning it off, and say so if it
+documents nothing for the case.
+
 ## Steps
 
 1. Show the backlog first; deleting the spool loses samples the API has not

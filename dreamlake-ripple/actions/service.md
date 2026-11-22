@@ -5,8 +5,17 @@ host: a systemd system service on Linux (as root) or a per-user launchd
 agent on macOS (as the user, never root). Facts and file lists:
 [reference/docs-lakeshore-hosts-metrics.md](../reference/docs-lakeshore-hosts-metrics.md#report-an-enrolled-host-to-dreamlake).
 
+This is the manual, operator-token path. When the installed
+`dl hosts enroll --help` lists `--ripple` and `--no-ripple`, enrollment sets
+Ripple up without a token or root; use the `machines` action of
+`dreamlake-lakeshore` instead, unless the user asks for this path.
+
 ## Before you start
 
+- Ripple does not already report this enrollment. If enrollment set it up, or
+  its receipt said `awaiting_data` or `pending`, do not run this setup over it;
+  check it with `dl hosts metrics` or the receipt's `action`
+  (`dreamlake-lakeshore`).
 - The host is already enrolled in DreamLake
   ([reference](../reference/docs-lakeshore-hosts-enroll.md)); enrolling is
   not part of this skill.

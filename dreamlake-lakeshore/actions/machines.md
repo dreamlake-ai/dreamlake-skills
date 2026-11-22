@@ -91,31 +91,38 @@ and system OpenSSH. Report terminal readiness separately. A pending terminal
 setup retains the launch receipt; retry the same request ID without creating
 another instance. No personal login or SSH credentials go onto the host.
 
-Ripple by default on new enrollment (forthcoming; not in CLI 0.142.0 or with
-Ripple v0.5.0). Treat it as available only when the installed `dl hosts enroll
---help` lists `--no-ripple` and the [enrollment reference](../reference/cli-host-enrollment.md#enrollment)
-documents it. Until then, a new host reports CPU and memory only after the
-manual operator-issued binding in the `service` action of `dreamlake-ripple`.
-When it is available:
+Ripple metrics at enrollment. Use the automatic path only when the installed
+`dl hosts enroll --help` lists both `--ripple` and `--no-ripple`; CLI 0.142.0
+and earlier do not, and an updated docs page or merged change does not prove
+the installed CLI has them. Behaviour, receipt statuses and server
+requirements are in the Ripple metrics collector section of the host enrollment
+page (`--help`, or the [enrollment reference](../reference/cli-host-enrollment.md#enrollment)
+once the nightly sync carries that section). When the flags are present:
 
-- It applies to new local, SSH and web-generated enrollments. Ripple installs
-  as a separate step after registration succeeds, and the enrolled host
-  identity binds automatically. Do not ask the operator for a token, copy one
-  in, or hand-edit receiver configuration. Pass `--no-ripple` only when the
-  user opts out. Web Add Host generates the command, and the user runs it. A
-  shared viewer who only views a host cannot enroll it.
-- Existing enrollments, their Ripple preferences and hosts already monitored
-  stay as they are. Do not re-enroll or rerun setup on them to turn on the
-  default.
-- Registration and Ripple report separately. If the installer is unavailable
-  or Ripple setup fails, the host stays enrolled. Report Ripple as not
-  installed and keep the request ID. Retry with the same inputs, which is
-  safe, or install later with the `dreamlake-ripple` skill. Never claim
-  metrics for a failed or skipped install.
-- Resources readiness needs fresh Ripple CPU and memory samples for that
-  exact enrollment, read with `hosts metrics` as described in [hosts](hosts.md).
-  Older Nymph readings, stale or not, are a separate source and do not show
-  that Ripple works.
+- A new local, SSH or web-generated enrollment installs Ripple after the core
+  enrollment is online, signed with the enrollment's own identity, as the
+  enrolled user. Do not ask the operator for a token, copy one in, use sudo or
+  hand-edit receiver configuration. Pass `--no-ripple` only when the user opts
+  out; the web Enroll dialog adds it when metrics are turned off.
+- An existing enrollment is left as it is, including any Ripple already
+  monitoring it. Pass `--ripple` on a rerun of its same enrollment command only
+  when the user asks to add Ripple there and none reports it yet; never
+  re-enroll, rename or change the request to turn it on.
+- Report the `Ripple metrics:` line (`ripple` in JSON) separately from the core
+  result, as printed. `awaiting_data` and `pending` mean installed or bound but
+  not yet confirmed: report them with the receipt's `action`, never as failed,
+  and do not re-enroll. Only `ready` shows that DreamLake received a fresh
+  Ripple sample. For `failed` (for example `server_unsupported` when the
+  deployed server does not accept the binding), keep the host enrolled and the
+  request ID, follow `action`, and retry only with the receipt's same command.
+  Never claim metrics for `failed`, `skipped`, `disabled` or `not_requested`.
+- Without the flags (older CLI), enrollment sets up no Ripple and the receipt
+  has no Ripple line. If the user wants host metrics anyway, use the manual
+  operator-issued binding in the `service` action of `dreamlake-ripple`;
+  otherwise update the CLI once a release lists the flags.
+- Later readiness needs fresh Ripple CPU and memory for that exact enrollment,
+  read with `hosts metrics` as described in [hosts](hosts.md). Older Nymph
+  readings are a separate source and do not show that Ripple works.
 
 Check `hosts status` and the intended workload separately: launched, enrolled,
 online, and workload-ready are distinct states. Never index terminal or workload
