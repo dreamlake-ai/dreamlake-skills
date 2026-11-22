@@ -1,12 +1,15 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.212 ba8f7d140; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.213 e321c4cd6; do not edit -->
 
 # Machine metrics
 
-**Implementation in progress; not yet released.** The existing Compute Brief
-shows missing readings and an explicitly labeled example. Installing a current
-released CLI does not install this collector or connect the page to real metrics.
-Local Nymph collection, control-plane storage, backend access and UI rollout
-must be verified separately before treating readings as live.
+**Nymph machine metrics: implementation in progress; not yet released.** This
+applies to the Nymph sections of this page. The existing Compute Brief shows
+missing readings and an explicitly labeled example. Installing a current
+released CLI does not install Nymph collection or connect the page to real
+metrics. Local Nymph collection, control-plane storage, backend access and UI
+rollout must be verified separately before treating readings as live. The
+standalone [Ripple collector](#ripple-collector) is released; its section
+states which version each feature needs.
 
 Nymph collects resource readings on the machine, including machines outside AWS.
 CloudWatch is not required. Linux readings cover CPU utilization, memory,
@@ -281,6 +284,108 @@ macOS service, and readings stop while nobody is logged in to that account.
 To upgrade, rerun `install.sh`, then
 `launchctl kickstart -k "gui/$(id -u)/ai.dreamlake.ripple"`. To rotate the
 token, rerun `setup-launchd.sh` with the new token file.
+
+### Automatic updates
+
+Since v0.5.0, opt-in. By default Ripple never updates itself: you pin a
+version with `install.sh --version` and upgrade by hand as above. A reporting
+host can opt in instead. It then updates only when all of these hold:
+
+- its service was set up with `--auto-update`;
+- the Host's owner has set an upgrade target for that enrollment in
+  DreamLake (see [Set the upgrade target](#set-the-upgrade-target)). Without
+  a target nothing updates, and clearing the target stops further updates;
+- the target is a published stable release (`vX.Y.Z`) newer than the running
+  version. Ripple never downgrades, never follows `latest/`, and pre-release
+  or development builds never update. Publishing a release updates no host
+  by itself.
+
+Ripple learns the target only from its own accepted deliveries (staged mode
+over `https://`), so opting in adds no requests. Before updating it downloads
+that version's `manifest.json` and archive from the release base, checks the
+archive's size and SHA-256 against the manifest, and checks that the new
+binary reports the target version. It then writes buffered samples to the
+spool, replaces its executable by an atomic rename and restarts itself in the
+same process. Spooled samples are kept and sent as after any restart. If any
+step fails, Ripple keeps running the current version and retries after a
+cooldown (5 minutes by default).
+
+The service never runs as root to update itself and never uses `sudo`.
+Updating needs an executable the service's own account can replace, so the
+setup scripts keep a separate copy for the service:
+
+| | Linux | macOS |
+| --- | --- | --- |
+| Opt in | as root: `setup-systemd.sh … --delivery-mode staged --auto-update` | as yourself: `setup-launchd.sh … --delivery-mode staged --auto-update` |
+| Service runs | `/var/lib/ripple-bin/ripple`, owned by the `lakeshore-host-metrics` account | `~/Library/Application Support/ripple/bin/ripple`, owned by you |
+| Unchanged | `/usr/local/bin/ripple` stays root-owned | `~/.local/bin/ripple` |
+
+Use the other flags exactly as in the setup sections above; `--dry-run`
+shows the plan first. For a service that is already set up, `--token-file`
+can be the service's own copy (`/etc/lakeshore-host-metrics/token` on Linux,
+`~/Library/Application Support/ripple/token` on macOS); setup then keeps it
+in place. `--auto-update` needs staged delivery, an `https://`
+URL and a stable v0.5.0 or later `--binary`. Setup never replaces a newer
+service copy (the result of an update) with an older `--binary`, and refuses
+a copy of the same version with different bytes. Rerunning
+setup without `--auto-update` opts out; the service then runs `--binary`
+again and the copy is kept. Versions before v0.5.0 have no updater: install
+v0.5.0 with `install.sh --version v0.5.0` and rerun setup with
+`--auto-update` once, by hand.
+
+#### Set the upgrade target
+
+The target belongs to one enrollment of one Host. Only the Host's owner, who
+still has `lakeshore:use` in the namespace, can read or change it; people
+the Host is shared with cannot. It takes effect without any change on the
+host, within about 30 seconds:
+
+```shell
+TARGET_URL="$DREAMLAKE_API_URL/namespaces/$NAMESPACE/hosts/$HOST_ID/enrollments/$ENROLLMENT_ID/ripple-target"
+
+curl --fail-with-body -H "Authorization: Bearer $DREAMLAKE_TOKEN" "$TARGET_URL"
+curl --fail-with-body -X PUT "$TARGET_URL" \
+  -H "Authorization: Bearer $DREAMLAKE_TOKEN" -H 'Content-Type: application/json' \
+  --data '{"targetVersion": "v0.5.0"}'
+# clear it: --data '{"targetVersion": null}'
+```
+
+Both return `{"enrollmentId", "hostId", "targetVersion", "updatedAt"}`;
+`targetVersion` is `null` when no target is set. The value must be a stable
+release tag `vX.Y.Z` without leading zeros, at most 32 characters; anything
+else, including `latest`, is refused with `400 invalid_target_version`.
+`403 forbidden` means you lack `lakeshore:use` in the namespace;
+`404 host_not_found` also means you are not the Host's owner, and
+`404 enrollment_not_found` that the enrollment is not an active one of this
+Host. Setting the current value again changes nothing. DreamLake does
+not check that the version is published: set only a version listed on the
+release base. Collectors without `--auto-update` ignore the target.
+
+#### Check which binary runs
+
+A changed file or setting does not prove which binary runs. Since v0.5.0,
+`ripple status --process` prints the running process as it recorded itself:
+PID, version, executable path, the SHA-256 of the running image,
+`auto_update`, and after an update `updated_from` and the last attempt's
+target and result (plain `ripple status` output is unchanged). Compare it
+with the service's process:
+
+```shell
+# Linux (root)
+ripple status --process --spool-dir=/var/lib/lakeshore-host-metrics
+PID=$(systemctl show -p MainPID --value ripple.service)
+sha256sum /proc/$PID/exe                 # equals sha256= above
+journalctl -u ripple.service | grep -E 'auto-update|starting'
+# macOS (as yourself)
+ripple status --process --spool-dir "$HOME/Library/Application Support/ripple/spool"
+launchctl print "gui/$(id -u)/ai.dreamlake.ripple" | grep -E 'pid|state'
+lsof -a -p <pid> -d txt -Fi | head -2   # inode of the running image
+stat -f %i "$HOME/Library/Application Support/ripple/bin/ripple"
+```
+
+After an update the log shows `auto-update: installed; re-executing`, then
+`auto-update complete` and `starting version=… updated_from=…` under the
+same PID. Neither the log nor the status record contains the token.
 
 ### Stop or remove
 
