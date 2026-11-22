@@ -166,7 +166,10 @@ checks require an explicit enrollment from that result; never choose one
 implicitly or combine multiple enrollments' observations. Metrics older than
 90 seconds or marked stale remain historical; missing/invalid/future timestamps
 and missing values remain unknown, not zero. Read the source sample time and
-stale flag alongside client freshness.
+stale flag alongside client freshness. To claim Resources readiness after a
+Ripple install, require fresh CPU and memory from Ripple for that exact
+enrollment. Readings left over from older Nymph collection can be stale and
+are unrelated to Ripple ([machines](machines.md)).
 
 `hosts check` reads advertised capability with a 30-second SSH or 60-second
 tracked-run observation window. Exit zero means observed `ready`; `not_ready`,

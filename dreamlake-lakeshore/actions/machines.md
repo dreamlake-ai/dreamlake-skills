@@ -91,6 +91,32 @@ and system OpenSSH. Report terminal readiness separately. A pending terminal
 setup retains the launch receipt; retry the same request ID without creating
 another instance. No personal login or SSH credentials go onto the host.
 
+Ripple by default on new enrollment (forthcoming; not in CLI 0.142.0 or with
+Ripple v0.5.0). Treat it as available only when the installed `dl hosts enroll
+--help` lists `--no-ripple` and the [enrollment reference](../reference/cli-host-enrollment.md#enrollment)
+documents it. Until then, a new host reports CPU and memory only after the
+manual operator-issued binding in the `service` action of `dreamlake-ripple`.
+When it is available:
+
+- It applies to new local, SSH and web-generated enrollments. Ripple installs
+  as a separate step after registration succeeds, and the enrolled host
+  identity binds automatically. Do not ask the operator for a token, copy one
+  in, or hand-edit receiver configuration. Pass `--no-ripple` only when the
+  user opts out. Web Add Host generates the command, and the user runs it. A
+  shared viewer who only views a host cannot enroll it.
+- Existing enrollments, their Ripple preferences and hosts already monitored
+  stay as they are. Do not re-enroll or rerun setup on them to turn on the
+  default.
+- Registration and Ripple report separately. If the installer is unavailable
+  or Ripple setup fails, the host stays enrolled. Report Ripple as not
+  installed and keep the request ID. Retry with the same inputs, which is
+  safe, or install later with the `dreamlake-ripple` skill. Never claim
+  metrics for a failed or skipped install.
+- Resources readiness needs fresh Ripple CPU and memory samples for that
+  exact enrollment, read with `hosts metrics` as described in [hosts](hosts.md).
+  Older Nymph readings, stale or not, are a separate source and do not show
+  that Ripple works.
+
 Check `hosts status` and the intended workload separately: launched, enrolled,
 online, and workload-ready are distinct states. Never index terminal or workload
 output automatically. Account revocation does not stop or terminate an instance;
