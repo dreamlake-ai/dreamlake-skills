@@ -28,7 +28,7 @@ actually published; supported systems and versions are listed in
 | Request looks like | Open |
 |---|---|
 | Install or upgrade the binary; print local samples; verify a download | [actions/install.md](actions/install.md) |
-| Report an enrolled host to DreamLake (systemd or launchd); check, inspect backlog, upgrade, rotate token | [actions/service.md](actions/service.md) |
+| Report an enrolled host to DreamLake (systemd or launchd); check, inspect backlog, upgrade, rotate token; opt in to or out of automatic updates; set its upgrade target | [actions/service.md](actions/service.md) |
 | Stop reporting or uninstall | [actions/remove.md](actions/remove.md) |
 
 ## Rules

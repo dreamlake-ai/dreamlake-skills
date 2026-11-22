@@ -91,6 +91,35 @@ agent on macOS (as the user, never root). Facts and file lists:
   `launchctl kickstart -k "gui/$(id -u)/ai.dreamlake.ripple"`.
 - Rotate: the user gets a new token from the operator; repeat steps 1 and 3.
 
+## Automatic updates (opt-in)
+
+Only when the user explicitly asks; pinned manual upgrades above stay the
+default. What opting in changes, which copy of the binary the service runs,
+and when an update happens:
+[reference](../reference/docs-lakeshore-hosts-metrics.md#automatic-updates).
+
+1. Opt the host in. `ripple version` must be a stable v0.5.0 or later; an
+   older binary has no updater, so upgrade it by hand first (the `install`
+   action). Rerun step 3 with `--auto-update` added, as the same user (root
+   on Linux, the measured user on macOS), `--dry-run` first. If the user no
+   longer has the token file, pass the service's own copy as `--token-file`
+   ([reference](../reference/docs-lakeshore-hosts-metrics.md#automatic-updates));
+   never ask the operator for a new token just to opt in. To opt out, rerun
+   it without `--auto-update`.
+2. Set the target only if the user owns the Host and names the version.
+   Use a version published on the release base (check
+   `$RIPPLE_BASE/<version>/VERSION`), never `latest`, and only the one
+   enrollment the user named: the GET/PUT in
+   [Set the upgrade target](../reference/docs-lakeshore-hosts-metrics.md#set-the-upgrade-target),
+   with `DREAMLAKE_TOKEN=$(dl auth token)` (never print it). Host and
+   enrollment IDs: ask the user, or list them with the `dreamlake-lakeshore`
+   skill. Read the target back with the GET. Clearing it
+   (`{"targetVersion": null}`) stops further updates; it never rolls back.
+3. Verify the **running process**, not the files:
+   [Check which binary runs](../reference/docs-lakeshore-hosts-metrics.md#check-which-binary-runs).
+   An update is proven only when the running process reports the new
+   version; until then report what `ripple status --process` shows.
+
 ## Exceptions
 
 | Symptom | Likely cause | Do |
@@ -104,3 +133,11 @@ agent on macOS (as the user, never root). Facts and file lists:
 | `systemctl not found` | Not a systemd host, or a container | Stop; a container does not measure the host |
 | macOS: readings stop overnight or after logout | Agent runs only while logged in | Expected; report it, no workaround |
 | Backlog in `ripple status` keeps growing | Delivery failing | Read the log; report the error text |
+| `--auto-update` refused: staged delivery, `https://` or a v0.5.0+ binary needed | Opt-in prerequisites | Meet them, then rerun setup (still as root on Linux) |
+| `auto-update refuses to run as root` | `ripple run` started as root by hand | Use the setup script's service; never run `ripple run` as root or with `sudo` |
+| `executable … is not owned by this account` | Service points at a root-owned binary | Rerun setup with `--auto-update`; never `chown` or loosen `/usr/local/bin` |
+| Target GET/PUT: `403 forbidden` | No `lakeshore:use` in that namespace | Stop; tell the user. Do not switch namespaces or accounts |
+| Target PUT: `404 host_not_found` | The user is not the Host's owner, or wrong IDs | Stop; only the owner sets it. Never try other hosts |
+| Target PUT: `400 invalid_target_version` | Not a stable `vX.Y.Z` | Use a published stable version, never `latest` |
+| Opted in, target set, nothing updates | Target not newer, not published, or set on another enrollment | Read back the target and `ripple status --process` (`last_result`); do not force an update |
+| `auto-update failed …` in the log | Download or verification failed; still on the old version | Report the logged error; it retries by itself |
