@@ -1124,16 +1124,16 @@
       {
         "url": "https://docs.dreamlake.ai/lakeshore/hosts/metrics",
         "file": "reference/docs-lakeshore-hosts-metrics.md",
-        "version": "0.1.210 4edff8b47",
-        "source_sha256": "28ea68be47a6d880d7b5bbcd2cc64e4a1db362e569e747f1a7e0044c743c4399",
-        "sha256": "635e1904328f09962f83e2e54bf03d2ac01fe212f293dbe0f3ebbbdfb447913d"
+        "version": "0.1.212 ba8f7d140",
+        "source_sha256": "c31e629777551f506cbc5535b00ff5d4a189273e2f0cacd4ab683ff2bef6fc7f",
+        "sha256": "602f6c57eb1f4d5ec43d0ae7af81576b8b6e5d6c1f36a6a7836edf6b7bddff00"
       },
       {
         "url": "https://docs.dreamlake.ai/lakeshore/hosts/enroll",
         "file": "reference/docs-lakeshore-hosts-enroll.md",
-        "version": "0.1.210 4edff8b47",
-        "source_sha256": "619a76e7f220533dcabaf2ec5a196e7682259a86c15f8efe715d3c78e3a67965",
-        "sha256": "79c8b8d958bc7c232640bc2ba8362b084c561f010d80b8461834a0f124c825ba"
+        "version": "0.1.212 ba8f7d140",
+        "source_sha256": "76d7ebcfcef1e6d730ff2df1ecc85d67a6347e81a10f659f4753923e10fbf4f8",
+        "sha256": "bf4ff9a86cba34873cf49a7e1e658cddf86ebc0548b6f042d74092b589d04ddc"
       }
     ],
     "dreamlake-scenes": [

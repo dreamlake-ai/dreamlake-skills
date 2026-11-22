@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.210 4edff8b47; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.212 ba8f7d140; do not edit -->
 
 # Machine metrics
 
@@ -96,6 +96,211 @@ curl http://127.0.0.1:9876/metrics
 `--once` reads the current host without starting/registering a worker or writing
 history. The other commands read the running daemon's loopback API. Do not expose
 that unauthenticated endpoint on the network.
+
+## Ripple collector
+
+Ripple is a small standalone CPU and memory collector. It can print local
+readings with no DreamLake account, or report an enrolled host to DreamLake
+once the DreamLake operator has enabled that host for Ripple.
+
+| | Linux | macOS (since v0.4.0) |
+| --- | --- | --- |
+| Architectures | `amd64`, `arm64` | Apple silicon (`arm64`), Intel (`amd64`); macOS 12 or later |
+| Default install location | `/usr/local/bin` (uses `sudo` only if not writable) | `~/.local/bin` (created if missing; no `sudo`) |
+| Service | systemd system service, run as root | per-user launchd agent, run as yourself, never as root |
+| Reads | `/proc` | Mach host and VM statistics |
+
+Releases are published at
+`https://pub-c0109e197b4a4d1abe5884ac4dd3a023.r2.dev/dreamlake/ripple`:
+`install.sh` at the root, `latest/<file>` (moves forward with each release)
+and `vX.Y.Z/<file>` (immutable). Each version holds one
+`ripple-<os>-<arch>.tar.gz` per platform, `install.sh`, `setup-systemd.sh`,
+`setup-launchd.sh` (v0.4.0+), a `.sha256` file beside each, `SHA256SUMS`,
+`VERSION` and `manifest.json`.
+
+### Install the binary
+
+```shell
+RIPPLE_BASE=https://pub-c0109e197b4a4d1abe5884ac4dd3a023.r2.dev/dreamlake/ripple
+RIPPLE_VERSION=v0.4.0
+
+curl -fsSL "$RIPPLE_BASE/install.sh" | bash -s -- --version "$RIPPLE_VERSION"
+# Linux without sudo: install into a directory you own (it must exist)
+mkdir -p "$HOME/.local/bin"
+curl -fsSL "$RIPPLE_BASE/install.sh" | bash -s -- --version "$RIPPLE_VERSION" --dest "$HOME/.local/bin"
+```
+
+`install.sh` detects the OS and architecture (on Apple silicon it installs
+`arm64` even from a Rosetta shell), checks the archive's SHA-256 against its
+`.sha256` file before extracting, and refuses a binary that does not report
+the requested version. It replaces an existing binary by an atomic rename;
+a running service keeps the old binary until it restarts. The `.sha256` file
+comes from the same origin as the archive, so it detects corruption, not
+tampering: for authenticity, take the hash from that version's `SHA256SUMS`
+through a separate channel and pass `--sha256 <hash>`.
+
+The Apple silicon binary is ad-hoc signed by the linker; the Intel binary is
+unsigned. Neither is Developer ID signed or notarized. Install them with
+`install.sh`, which runs them as downloaded. Do not download the archive
+through a browser and do not remove its quarantine attribute or override
+Gatekeeper to run it.
+
+### Local readings
+
+No account, token or endpoint is involved, and nothing is sent:
+
+```shell
+ripple once                         # one set of samples, labeled host_id="local"
+ripple once --machine-id=my-laptop  # choose the label
+ripple help                         # commands; `ripple <command> -h` lists flags
+```
+
+On macOS use `~/.local/bin/ripple` if that directory is not on your `PATH`.
+`ripple once` prints Prometheus text: `lakeshore_host_cpu_usage_ratio`,
+`lakeshore_host_memory_total_bytes` and
+`lakeshore_host_memory_available_bytes`.
+
+### What the readings mean
+
+CPU is the share of non-idle time between two readings. On Linux, available
+memory is the kernel's `MemAvailable`. On macOS it is an **estimate**: free
+pages (which already include speculative pages; they are not added again),
+plus file-backed and purgeable pages, times the page size. Wired, compressed
+and other app memory are not counted, so total minus available approximates
+Activity Monitor's "Memory Used". Ripple measures the kernel it runs on: in
+a container on a Mac (for example Docker Desktop) it reports Docker's Linux
+virtual machine, not the Mac.
+
+### Report an enrolled host to DreamLake
+
+Reporting is enabled per enrollment by the DreamLake operator; there is no
+self-service token. Ask the operator for:
+
+- the enrollment's machine ID (`host-…`); samples labeled with any other ID
+  are refused;
+- a machine token issued for that machine ID. It can only submit samples for
+  that enrollment; it cannot read metrics or call any other API, and a user
+  sign-in token cannot submit samples.
+
+Save the token in a file only you can read (mode `0600`), without putting it
+on a command line, then check the configuration. `check` validates the
+flags, the token file and access to the counters and sends nothing:
+
+```shell
+MACHINE_ID=host-…                            # from the operator
+TOKEN_FILE=/root/ripple-token                # Linux service; on macOS e.g. "$HOME/ripple-token"
+(umask 077; cat > "$TOKEN_FILE")           # paste the token, then Ctrl-D
+
+ripple check --delivery-mode=staged \
+  --url=https://api.dreamlake.ai/host-metrics/ripple/v1/samples \
+  --machine-id="$MACHINE_ID" --token-file="$TOKEN_FILE"
+```
+
+The endpoint answers `401` without a valid machine token, `202` while
+samples are only staged and `204` once every submitted sample is in the
+hourly archive; the collector keeps its local spool (up to 7 days) until
+then. Samples older than 8 days are refused. Readings appear through the
+same [read endpoint](#read-through-dreamlake) and history windows, as
+`cpu_percent`, `memory_total_bytes` and `memory_used_bytes` (total minus
+available at the same sample time).
+
+### Run as a systemd service (Linux)
+
+As root on the machine to be measured, with the binary in `/usr/local/bin`:
+
+```shell
+curl -fsSLO "$RIPPLE_BASE/$RIPPLE_VERSION/setup-systemd.sh"
+curl -fsSL "$RIPPLE_BASE/$RIPPLE_VERSION/setup-systemd.sh.sha256" | sha256sum -c -
+
+bash setup-systemd.sh --machine-id "$MACHINE_ID" \
+  --url https://api.dreamlake.ai/host-metrics/ripple/v1/samples \
+  --token-file /root/ripple-token --delivery-mode staged --dry-run
+# review the plan, then run the same command without --dry-run
+
+systemctl status ripple.service
+journalctl -u ripple.service
+ripple status --spool-dir=/var/lib/lakeshore-host-metrics   # spool backlog
+```
+
+`--token-file` must be an absolute path to a root-owned regular file with
+mode `0600` or `0400`. `--dry-run` prints the files it would write and
+changes nothing; it does not check the token file's owner or mode, so the
+real run can still refuse. `--no-start` enables the service without starting
+it; `--help` lists every option. The script creates the no-login system user
+`lakeshore-host-metrics`, copies the token to
+`/etc/lakeshore-host-metrics/token` (owned by that user, mode `0400`),
+writes `/etc/lakeshore-host-metrics/config.env` and
+`/etc/systemd/system/ripple.service`, keeps its spool in
+`/var/lib/lakeshore-host-metrics`, and runs `ripple check` as the service
+user before enabling and restarting the service. It refuses before writing
+anything if a target was not written by it, if an unrelated account or
+state directory with the same name exists, or if the token is not
+root-owned with mode `0600` or `0400`. The unit runs without capabilities,
+under `ProtectSystem=strict`, with `MemoryMax=64M`, at lower CPU and I/O
+priority than the host's own services.
+
+To upgrade, rerun `install.sh` and then `setup-systemd.sh`. To rotate the
+token, rerun `setup-systemd.sh` with the new token file.
+
+### Run as a launchd agent (macOS)
+
+As yourself (not root) on the Mac to be measured, with the binary in
+`~/.local/bin`:
+
+```shell
+curl -fsSLO "$RIPPLE_BASE/$RIPPLE_VERSION/setup-launchd.sh"
+curl -fsSLO "$RIPPLE_BASE/$RIPPLE_VERSION/setup-launchd.sh.sha256"
+shasum -a 256 -c setup-launchd.sh.sha256
+
+bash setup-launchd.sh --machine-id "$MACHINE_ID" \
+  --url https://api.dreamlake.ai/host-metrics/ripple/v1/samples \
+  --token-file "$HOME/ripple-token" --delivery-mode staged --dry-run
+# review the plan, then run the same command without --dry-run
+
+launchctl print "gui/$(id -u)/ai.dreamlake.ripple" | grep state
+ripple status --spool-dir "$HOME/Library/Application Support/ripple/spool"
+```
+
+`--token-file` must be an absolute path to a regular file you own with mode
+`0600` or `0400`. The script runs `ripple check` before writing anything, so
+`--dry-run` already rejects a wrong token file; it prints the agent plist it
+would write. `--binary` selects another binary; `--no-start` writes the
+agent without loading it (it starts at your next login); `--help` lists every
+option. The script writes only:
+
+- `~/Library/LaunchAgents/ai.dreamlake.ripple.plist` (label `ai.dreamlake.ripple`);
+- `~/Library/Application Support/ripple/token`, a `0600` copy of the token;
+- `~/Library/Application Support/ripple/spool/` (`0700`);
+- `~/Library/Logs/ripple/ripple.log`.
+
+A plist it did not write is never overwritten or removed. The agent starts
+at login, restarts after a failure, and runs at background priority.
+**It runs only while you are logged in**: Ripple provides no system-wide
+macOS service, and readings stop while nobody is logged in to that account.
+
+To upgrade, rerun `install.sh`, then
+`launchctl kickstart -k "gui/$(id -u)/ai.dreamlake.ripple"`. To rotate the
+token, rerun `setup-launchd.sh` with the new token file.
+
+### Stop or remove
+
+Check the spool backlog first: deleting the spool loses samples the API has
+not acknowledged yet.
+
+```shell
+# Linux (root)
+systemctl disable --now ripple.service
+# macOS (as yourself)
+bash setup-launchd.sh --uninstall
+```
+
+`setup-launchd.sh --uninstall` stops the agent and removes its plist; it
+keeps `~/Library/Application Support/ripple` (token and spool) and
+`~/Library/Logs/ripple` for you to delete. On Linux there is no uninstaller:
+the binary, `/etc/systemd/system/ripple.service`,
+`/etc/lakeshore-host-metrics/`, `/var/lib/lakeshore-host-metrics/` and the
+`lakeshore-host-metrics` user remain. Stopping does not revoke the token;
+ask the operator to revoke it when the machine stops reporting.
 
 ## Bounded history
 
