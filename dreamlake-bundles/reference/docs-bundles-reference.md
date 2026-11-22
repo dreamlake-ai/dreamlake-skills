@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles/reference.md at 0.1.211 2da6636b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles/reference.md at 0.1.211 4d40cfa8; do not edit -->
 
 # Bundles Reference
 
@@ -70,6 +70,8 @@ Tools for source manifests:
 | `tags` | string[] | Search tags. |
 | `license` | string | License of the bundle content. |
 | `attribution` | string | Attribution text. |
+| `name` | string | Optional bundle name for `dl bundle push`. Default: the directory name. |
+| `old_name` | string | Written by an import that gives the bundle a new name. References to the old name continue to resolve. |
 
 ## Entry manifest
 
@@ -86,10 +88,11 @@ and ignore them.
 | `tags` | string[] | Search tags. |
 | `license` | string | License of the entry, when it is not the bundle license. |
 | `attribution` | string | Attribution text. |
-| `uses` | string[] | Path prefixes that the entry uses. Default `["/"]`. Refer to [Uses grammar](#uses-grammar). |
-| `refs` | string[] | Entries in other bundles, as `ns/bundle@N#entry`. `@latest` is permitted only before push; push resolves it. |
+| `uses` | string[] | Path prefixes that the entry uses. Default `["/"]`. `[]` means no files. Refer to [Uses grammar](#uses-grammar). |
+| `refs` | string[] | Other entries: `#entry` for an entry of the same bundle version, `ns/bundle@N#entry` for an entry of another bundle. `@latest` is permitted only in source manifests; push pins it. |
 | `model` | string | Path in the bundle of the entry file of an authored robot, part, object or scene (for example an MJCF or URDF file). |
 | `ops` | object[] | Composition operations: `Merge`, `Attach`, `Update`, `Remove`, `Replace`, `Vary`. |
+| `importedFrom` | object | Written by the import commands: the source library asset or scene version. |
 
 ### Kind fields
 
@@ -104,7 +107,7 @@ and ignore them.
 | `env` | `limits` | Time limits, in seconds. |
 | `env` | `code` | Env code: `runnable://ns/name@hash` or `git+url@commit`. Bundles do not contain code. |
 | `env` | `pair` | The paired entry (for example the real or the simulated counterpart). |
-| `env-set` | `generator` | `{env, objects, distribution, count, seed}`: `env` is the env entry, `objects` is an object prefix, `distribution` is the variation distribution. |
+| `env-set` | `generator` | `{env, objects, distribution, count, seed}`: `env` is the env entry; `objects` is `{prefix, ref?}`, an object prefix and, for objects of another bundle, a bundle ref (`ns/bundle@N`); `distribution` is the variation distribution. An env-set has `generator` or `envs`, not both. |
 | `env-set` | `envs` | A list of fixed envs. Use it to freeze an evaluation set. |
 
 The server validates manifests against the JSON Schema only. It does not
@@ -265,11 +268,12 @@ tokens, delete and restore operate as for scenes. The Swagger tag is
 | `GET /namespaces/:ns/bundles/:name/versions/:v` | `{version, rootHash, entries: [{name, kind, effectiveHash, displayedVersion, uses, refs}]}` |
 | `GET /namespaces/:ns/bundles/:name/versions/:v/tree?prefix=&cursor=` | `{items: [{path, hash, size}], nextCursor?}` |
 | `POST /namespaces/:ns/bundles/:name/versions/:v/presign` | Body `{paths?: [], prefixes?: []}`. Returns `{urls: [{path, hash, url}]}`: signed GET URLs, in one batch. |
-| `GET /namespaces/:ns/bundles/:name/entries/:entry?version=` | `{name, kind, manifest, effectiveHash, displayedVersion, version, uses, refs: [{ref, bundle, version, entry, effectiveHash}]}` |
+| `GET /namespaces/:ns/bundles/:name/entries/:entry?version=` | `{name, kind, manifest, effectiveHash, displayedVersion, version, uses, refs: [{ref, bundle, version, entry, effectiveHash}], thumbnailUrl, previews: [{role, url, mime, width, height}]}` |
 | `GET /namespaces/:ns/bundles/:name/entries/:entry/versions` | `[{version, effectiveHash, changedPaths}]`. `version` is the displayed version. |
 | `GET /bundle-search?q=&kind=&ns=` | Search results, one for each entry. |
 
 Search uses keywords over title, description and tags, with a `kind` facet.
+List and search rows also return `thumbnailUrl` (a signed URL, or `null`).
 
 A client gets the closure of an entry like this: read the entry, presign its
 `uses` prefixes, then do the same for each item of `refs`.
@@ -300,6 +304,17 @@ A push has three steps.
    version, it returns 409 with `{error, latestVersion?}`. Pull the latest
    version, merge, and push again.
 
+### Previews
+
+**`POST /namespaces/:ns/bundles/:name/previews`** — body
+`{effectiveHash, files: [{role, hash, size, mime}]}`. Owners and editors
+only. Returns the upload targets. `role` is `thumbnail` or `gallery`. `mime`
+is `image/png`, `image/jpeg`, `image/webp` or `video/mp4`. For a bundle
+preview, give the root hash of the version as `effectiveHash`.
+
+Previews are not part of the version tree and not part of a hash. A new or a
+changed preview does not make a version.
+
 ## Storage
 
 Each bundle has one storage prefix, `bundles/<ns>/<name>`, in DreamDB. The
@@ -308,6 +323,9 @@ prefix holds:
 - `blobs`: one row for each unique file, keyed by its BLAKE3 file hash.
 - `manifests`: one row for each version: version number, parent, root hash,
   file tree, entry index, message, author and time.
+- `previews`: one row for each preview: effective hash, kind (`image` or
+  `video`), role (`thumbnail` or `gallery`), hash, MIME type, width and
+  height.
 
 The server stores each file one time in a bundle, across all versions of that
 bundle. It does not share files across bundles or namespaces. A version write
@@ -317,24 +335,34 @@ from storage. Downloads use presigned URLs.
 
 ## CLI
 
+The [CLI reference](https://cli.dreamlake.ai/bundles) gives all flags. Summary:
+
 | Command | Use |
 |---|---|
-| `dl bundle push <dir> [--message] [--dry-run]` | Convert manifests to the stored form and push a new version. `--dry-run` shows the effective hashes and uploads nothing. |
-| `dl bundle fmt <dir>` | Normalize source manifest whitespace. Keeps comments and key order. |
+| `dl bundle push <dir> [-m] [--dry-run] [--no-previews]` | Convert manifests to the stored form and push a new version. `--dry-run` shows the effective hashes and uploads nothing. A push without a change prints `unchanged @N`. |
+| `dl bundle fmt <dir> [--check]` | Normalize source manifest whitespace. Keeps comments and key order. |
 | `dl bundle cat <ref\|dir#entry\|dir\|file> [--strip-comments]` | Print a manifest: the source as written for a local path, the stored form for a remote reference. `--strip-comments` prints plain JSON. |
-| `dl bundle pull <ns/name[@v]>[#entry] [-o dir] [--full] [--lazy]` | Get a bundle version, or one entry and its closure. `--lazy` writes only the manifests and `.dreamlake/bundle-index.json`; files load on first use. |
+| `dl bundle pull <ns/name[@v]>[#entry] [-o dir] [--full] [--lazy]` | Get a bundle version, or one entry and its closure. `--full` gets the full bundle plus the refs of the entry. `--lazy` writes only the manifests and `.dreamlake/bundle-index.json`; files load on first use. The client verifies each file by its BLAKE3 hash. |
+| `dl bundle preview <ref> --render \| --file <img> [--gallery] [--video <clip.mp4>]` | Add a preview to an entry or a bundle. |
 | `dl bundle info <ref>` | Show a bundle or an entry. |
+| `dl bundle list` | List bundles. |
 | `dl bundle versions <ns/name>` | List versions. |
-| `dl bundle entries <ns/name[@v]>` | List entries. |
+| `dl bundle entries <ns/name[@v]> [--kind]` | List entries. |
 | `dl bundle entry <ref> --versions` | List the displayed versions of an entry. |
 | `dl bundle search <q> [--kind]` | Search entries. |
 | `dl bundle lock <refs...>` | Write `dreamlake.lock`. |
 | `dl bundle check <ref\|dir#entry> [-- smoke cmd]` | Materialize the declared prefixes only and do a smoke load. |
 | `dl bundle deps --suggest <ref\|dir#entry> -- <cmd>` | Trace opened files and suggest `uses`. |
-| `dl bundle import-library <ns/lib> [--map migration/map.yml]` | Import a library. |
-| `dl bundle import-scene <ns/scene>` | Import a scene. |
+| `dl bundle import-library <ns/lib> \| --batch <n> [--map migration/map.yml] [--dry-run]` | Import libraries. Resumable; one status line for each item. |
+| `dl bundle import-scene <ns/scene> [--to <ns/bundle#entry>] \| --batch <n> [--map migration/map.yml]` | Import scenes; replays each scene version. Resumable; one status line for each item. |
 
-Use `--help` for all flags.
+## Built-in agent tools
+
+The built-in agent has read-only bundle tools: `dreamlake_bundles_list`,
+`dreamlake_bundle_search`, `dreamlake_bundle_get`,
+`dreamlake_bundle_get_entry`, `dreamlake_bundle_tree` and
+`dreamlake_bundle_view_images` (views the preview images). The agent cannot
+write bundles. Writes go through `dl bundle push`.
 
 ## Python SDK
 
@@ -346,5 +374,6 @@ Use `--help` for all flags.
 | `dreamlake.bundles.check(ref)` | Does the same check as `dl bundle check`. |
 
 `fetch` keeps a content-addressed cache in
-`~/.cache/dreamlake/bundles/blobs/<hash>` and one materialized view for each
-effective hash. `dreamlake.envlayer` accepts `bundle:` sources.
+`~/.cache/dreamlake/bundles/blobs/blake3/` (or under `$XDG_CACHE_HOME`;
+`DREAMLAKE_BUNDLE_CACHE` changes it) and one materialized view for each
+effective hash. The CLI uses the same cache. `dreamlake.envlayer` accepts `bundle:` sources.

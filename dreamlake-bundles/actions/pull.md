@@ -38,4 +38,5 @@ Flags: `dl bundle pull --help`,
 | "file not found" at the first load after an entry pull | The entry `uses` does not declare a file | Do not switch to a full pull to hide it. Tell the bundle owner, or fix `uses` with the check-and-deps action |
 | A ref to `@8` returns `@7` | `@7` is the displayed version: the entry did not change in `@8` | Expected; see [Displayed version](../reference/docs-bundles.md#displayed-version) |
 | Lock hash differs from a new pull | The ref floats (`@latest`) and the entry changed | Keep the locked version, or run `dl bundle lock` again on purpose |
+| A pulled file fails its BLAKE3 check | The download or a cache file is damaged | The client downloads it again; if it fails again, report the bundle ref and the path to the owner |
 | 404 on a private bundle | No access, or wrong environment | `dl login`; ask the owner for access |

@@ -33,7 +33,7 @@ Commands need the `dl` CLI logged in (`dreamlake-cli` skill).
 
 | The user wants to… | Action |
 | --- | --- |
-| lay out a bundle, write manifests, push a new version | [publish](actions/publish.md) |
+| lay out a bundle, write manifests, push a new version, add or change a preview image | [publish](actions/publish.md) |
 | get one entry (or the full bundle) for a program, pin versions in `dreamlake.lock` | [pull](actions/pull.md) |
 | prove `uses` declarations are complete, find suggested `uses`, set up CI | [check-and-deps](actions/check-and-deps.md) |
 | import an asset library or a scene into a bundle | [migrate](actions/migrate.md) |
@@ -48,6 +48,7 @@ A new bundle runs: publish (with `"uses": ["/"]`) → check-and-deps (narrow
   from memory. A wrong fact is fixed on the docs site.
 - Do not put code in a bundle. Refer to it with the env `code` field.
 - Run CI with declared prefixes only (`dl bundle check`), never on a full pull.
+- Write bundles only with `dl bundle`. The built-in agent tools for bundles are read-only.
 
 ## Canonical source
 

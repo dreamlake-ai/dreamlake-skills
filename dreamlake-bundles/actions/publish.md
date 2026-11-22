@@ -5,6 +5,7 @@ dl bundle fmt ./my-bundle                            # normalize source manifest
 dl bundle push ./my-bundle --dry-run                 # show effective hashes; upload nothing
 dl bundle push ./my-bundle --message "Add mug-0002"  # make the new version
 dl bundle entries <ns>/my-bundle                     # read back the entries at the latest version
+dl bundle preview <ns>/my-bundle#<entry> --file thumb.png   # add or replace a preview later
 ```
 
 Flags: `dl bundle push --help` and
@@ -41,10 +42,20 @@ Flags: `dl bundle push --help` and
 8. Narrow `"uses": ["/"]` later with the check-and-deps action, then push
    again.
 
+## Previews
+
+Push renders a thumbnail for each changed entry that has a `model`, when a
+renderer is available. Previews never make a version
+([Previews](../reference/docs-bundles.md#previews)). If push printed that no
+renderer is available, or the user gives an image, add it with
+`dl bundle preview` (`--render`, or `--file` with `--gallery` and `--video`
+for more media). Use `--no-previews` on push only when the user asks.
+
 ## Exceptions
 
 | Symptom | Likely cause | Do |
 |---|---|---|
+| Push prints `unchanged @N` | The tree is equal to the latest version | Expected; no version was made |
 | 409 on push | Another person pushed a new version first | Pull the latest version, merge your change, push again |
 | 400 `manifest not in stored form` | A client other than `dl bundle push` uploaded the manifest | Push with `dl bundle push`; it writes the stored form ([Manifest format](../reference/docs-bundles-reference.md#manifest-format)) |
 | Push warns about the format | Whitespace is not in the standard format | `dl bundle fmt ./my-bundle`; the warning does not stop the push |

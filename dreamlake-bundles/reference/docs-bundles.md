@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.211 2da6636b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.211 4d40cfa8; do not edit -->
 
 # Bundles
 
@@ -202,6 +202,8 @@ Each item is one of these:
   `*`.
 - `/`: the full bundle. This is the default.
 
+An empty list, `"uses": []`, means no files: only the manifest and the refs.
+
 These forms are not permitted: `**`, a `*` that is not at the end, `?`, `[`,
 an absolute path and `..`. For recursive or suffix patterns, change the
 directory layout instead.
@@ -212,8 +214,9 @@ in the next version.
 
 ## Refs and the lock file
 
-Inside one bundle, manifests refer to paths and entries with relative names.
-One push changes all entries of the bundle together.
+Inside one bundle, an entry refers to another entry of the same bundle
+version as `#entry`, for example `"refs": ["#table"]`. One push changes all
+entries of the bundle together.
 
 Across bundles, an entry refers to another entry with a pinned reference in
 `refs`:
@@ -256,7 +259,7 @@ dl bundle pull fortyfive/astribot-s1@7#s1-dual-wuji -o ./s1
 # Get the full bundle version
 dl bundle pull fortyfive/astribot-s1@7 -o ./astribot-s1
 
-# Get the full bundle version, also when you give an entry
+# Get the full bundle version plus the refs of the entry
 dl bundle pull fortyfive/astribot-s1@7#s1-dual-wuji --full -o ./astribot-s1
 
 # Write only the manifests and the file index; get files on first use
@@ -267,8 +270,13 @@ With `--lazy`, `pull` writes only `bundle.json`, `entries/*.json` and
 `.dreamlake/bundle-index.json` (path, hash and size of each file). Files load
 on first use.
 
+The client verifies each file that it puts on disk by its BLAKE3 hash. This
+includes files from the local cache. The client downloads a damaged cache
+file again.
+
 From Python, use `dreamlake.bundles.fetch(ref, dest=None, lazy=False)`. It
-uses a content-addressed cache and returns the path of the materialized entry.
+uses the same content-addressed cache as the CLI and returns the path of the
+materialized entry.
 
 Because the client gets only the declared prefixes, a missing declaration
 causes a "file not found" error at the first load. A missing declaration
@@ -285,7 +293,7 @@ a generator:
     "count": 10000,
     "distribution": { "...": "the pose distribution" },
     "env": "pick-mug-v1",
-    "objects": "objects/mug-*",
+    "objects": { "prefix": "objects/mug-*", "ref": "fortyfive/objects@3" },
     "seed": 0
   },
   "kind": "env-set",
@@ -293,8 +301,10 @@ a generator:
 }
 ```
 
-`env` is the env entry. `objects` is the object prefix. `distribution` is
-the pose distribution.
+`env` is the env entry. `objects` selects objects: a `prefix`, and a `ref` when
+the objects are in another bundle. `distribution` is the pose distribution.
+The lock file records the pinned object bundle, so the selection is
+reproducible.
 
 The client makes variation `i` from the generator, the index and the seed.
 The server does not store the variations.
@@ -393,8 +403,61 @@ dl bundle entry fortyfive/my-bundle#mug-0002 --versions
 dl bundle search "red mug" --kind object
 ```
 
+A push whose tree is equal to the latest version makes no version. It prints
+`unchanged @N`.
+
 Visibility, sharing, delete and restore operate as for
-[scenes](https://docs.dreamlake.ai/scenes).
+[scenes](https://docs.dreamlake.ai/scenes). The [CLI reference](https://cli.dreamlake.ai/bundles) gives
+all commands and flags.
+
+## Previews
+
+An entry can have a thumbnail, gallery images (PNG, JPEG or WebP) and a
+turntable video (MP4). A bundle can have a preview too.
+
+- DreamLake keys an entry preview by the effective hash of the entry, and a
+  bundle preview by the root hash of the bundle version.
+- Previews are not part of the version tree or of a hash. Thus a new or a
+  changed preview never makes a new version. All displayed versions of an
+  entry with the same effective hash show the same preview.
+- After a new version, `dl bundle push` renders a thumbnail for each changed
+  entry that has a `model`, when a renderer is available. If no renderer is
+  available, the push shows a note and continues. Use `--no-previews` to skip
+  this step.
+- Imports copy the thumbnails of libraries and scenes.
+
+Add or change a preview later:
+
+```bash
+dl bundle preview fortyfive/kitchen#mug-red --render          # render the model
+dl bundle preview fortyfive/kitchen#mug-red --file mug.png    # use an image as the thumbnail
+dl bundle preview fortyfive/kitchen#mug-red --file side.webp --gallery --video turntable.mp4
+dl bundle preview fortyfive/kitchen --file cover.png          # the bundle preview
+```
+
+## Browse in the app
+
+| Page | Route |
+|---|---|
+| Bundle, latest version | `/:ns/bundles/:name` |
+| Bundle version | `/:ns/bundles/:name/v/:v` |
+| Entry, latest version | `/:ns/bundles/:name/entries/:entry` |
+| Entry at a bundle version | `/:ns/bundles/:name/v/:v/entries/:entry` |
+
+## Built-in agent
+
+The built-in agent can read bundles. It cannot change them.
+
+| Tool | Use |
+|---|---|
+| `dreamlake_bundles_list` | List the bundles of a namespace. |
+| `dreamlake_bundle_search` | Search entries. |
+| `dreamlake_bundle_get` | Read a bundle or a bundle version. |
+| `dreamlake_bundle_get_entry` | Read one entry. |
+| `dreamlake_bundle_tree` | List the files of a bundle version. |
+| `dreamlake_bundle_view_images` | View the preview images of a bundle or an entry. |
+
+To make a new version, use `dl bundle push`.
 
 ## Use an entry in a scene stack
 
