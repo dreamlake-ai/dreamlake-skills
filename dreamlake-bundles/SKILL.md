@@ -13,9 +13,10 @@ scenes for new work. The concepts are in
 [reference/docs-bundles.md](reference/docs-bundles.md); read it before a first
 push.
 
-**Status:** bundles are in development. Before each task, run
-`dl bundle --help`. If the command is missing, tell the user that the
-installed CLI does not support bundles yet, and stop. Do not invent commands.
+**Status:** released; migration commands (`import-library`, `import-scene`,
+`cutover`) need CLI 0.143 or later. Before each task, run `dl bundle --help`.
+If a command is missing, tell the user to update the CLI, and stop. Do not
+invent commands.
 Commands need the `dl` CLI logged in (`dreamlake-cli` skill).
 
 ## When to use
@@ -36,7 +37,7 @@ Commands need the `dl` CLI logged in (`dreamlake-cli` skill).
 | lay out a bundle, write manifests, push a new version, add or change a preview image | [publish](actions/publish.md) |
 | get one entry (or the full bundle) for a program, pin versions in `dreamlake.lock` | [pull](actions/pull.md) |
 | prove `uses` declarations are complete, find suggested `uses`, set up CI | [check-and-deps](actions/check-and-deps.md) |
-| import an asset library or a scene into a bundle | [migrate](actions/migrate.md) |
+| import an asset library or a scene into a bundle, cut it over or undo the cutover | [migrate](actions/migrate.md) |
 | find an entry ("find me a mug"), list versions or entries, inspect one entry | [search](actions/search.md) |
 
 A new bundle runs: publish (with `"uses": ["/"]`) → check-and-deps (narrow
