@@ -1,9 +1,9 @@
-<!-- generated from https://viz.dreamlake.ai/components/episode-line-chart.md at 0.33.6 9f5c6486; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/episode-line-chart.md at 0.33.7 6566643f; do not edit -->
 
 # Line charts
 
 `EpisodeLineChart` plots recorded signals against seconds. Hover to compare
-sample values; use `onSeek` to send a clicked time to playback.
+sample values locally; press and drag to send the selected time to playback through `onSeek`.
 
 ## Compact embeds
 
@@ -15,10 +15,10 @@ an embedded 2×2 chart grid, or `height="100%"` inside explicitly sized grid row
 with `min-height: 0`. The normal size continues to fill its parent.
 
 The example uses a three-second recording, fractional-second labels and short
-major/minor tick marks. All four charts share `time`, `onHover`, zoom and pan;
-only the hovered chart shows a readout. No new cursor callback is needed.
-Use `onHoverEnd` to clear the preview. `isScrubOwner={false}` explicitly
-suppresses a readout. The readout follows both pointer axes in a body portal,
+major/minor tick marks. All four charts share `time`, zoom and pan;
+only the hovered chart shows a local readout. Press and drag updates shared time
+through `onSeek` (or the legacy `onHover` callback when `onSeek` is absent).
+`isScrubOwner` controls the shared hairline emphasis and keyboard readout. The readout follows both pointer axes in a body portal,
 stays 12px below and to the right of the pointer and can extend beyond the chart.
 Only browser edges clamp it into view. It passes pointer events through; Escape dismisses it. Keyboard zoom/pan shows the focused
 chart's readout when `time` is set. Recorded sample values are never interpolated.
@@ -95,9 +95,10 @@ export function CompactSpec() {
                 markers={markers}
                 ranges={ranges}
                 time={time}
-                onHover={setTime}
-                onHoverEnd={() => setTime(null)}
-                onSeek={setSeek}
+                onSeek={(time) => {
+                  setTime(time);
+                  setSeek(time);
+                }}
                 {...viewport}
                 onViewportChange={setViewport}
               />
@@ -487,9 +488,10 @@ export function AnnotationsSpec() {
           markers={shown ? markers : []}
           ranges={shown ? ranges : []}
           time={time}
-          onHover={hover("chart")}
-          onHoverEnd={() => setTime(null)}
-          onSeek={setSeek}
+          onSeek={(next) => {
+            hover("chart")(next);
+            setSeek(next);
+          }}
           isScrubOwner={owner === "chart"}
         />
       </div>
@@ -504,9 +506,10 @@ export function AnnotationsSpec() {
           frames={[]}
           tracks={[{ id: "phases", name: "Episode phases", blocks: ranges }]}
           time={time}
-          onHover={hover("timeline")}
-          onHoverEnd={() => setTime(null)}
-          onSeek={setSeek}
+          onSeek={(next) => {
+            hover("timeline")(next);
+            setSeek(next);
+          }}
         />
       </div>
       <p className="text-xs opacity-70">
@@ -560,7 +563,7 @@ export function SharedViewportSpec() {
     time: hover ?? playhead,
     onHover: (time: number) => { setOwner(id); setHover(time) },
     onHoverEnd: () => setHover(null),
-    onSeek: setPlayhead,
+    onSeek: (time: number) => { setOwner(id); setPlayhead(time) },
     isScrubOwner: owner === id,
   })
   const shared = { ...viewport, onViewportChange: setViewport, maxZoom: 1000 }
@@ -577,7 +580,7 @@ export function SharedViewportSpec() {
           </div>
           <output data-testid="viewport-readout">Window: {start.toFixed(2)}–{end.toFixed(2)} s · Zoom: {viewport.zoom.toFixed(3)}×</output>
           <output data-testid="viewport-hover">Preview: {hover === null ? '—' : `${hover.toFixed(2)} s`}</output>
-          <output data-testid="viewport-playhead">{playhead === null ? 'Click a plot to seek' : `Playhead: ${playhead.toFixed(2)} s`}</output>
+          <output data-testid="viewport-playhead">{playhead === null ? 'Press and drag to seek' : `Playhead: ${playhead.toFixed(2)} s`}</output>
           <label className="flex items-center gap-2"><input type="checkbox" checked={disabled} onChange={event => setDisabled(event.target.checked)} />Disable charts</label>
         </div>
       </div>
@@ -591,7 +594,7 @@ export function SharedViewportSpec() {
         <EpisodeTimeline duration={duration} frames={[]} tracks={[{ id: 'phase', name: 'Episode phase', blocks: ranges }]} {...shared} {...bind('timeline')} />
       </div>
       <p className="text-xs opacity-70">One shared window for both charts and timeline. Event times stay absolute: Contact 6 s, Grasp 7–12 s, Release 14 s. The camera follows the same absolute preview/playhead time.</p>
-      <p className="text-xs opacity-70">Alt/Ctrl/Meta + wheel zooms at the pointer. Drag pans; Shift-drag zooms. Focus a plot for + / −, arrow keys, or Home. Plain vertical scrolling stays with the page.</p>
+      <p className="text-xs opacity-70">Alt/Ctrl/Meta + wheel zooms at the pointer. Press and drag to scrub. Alt-drag pans; Shift-drag zooms. Hover only shows the local readout. Focus a plot for + / −, arrow keys, or Home. Plain vertical scrolling stays with the page.</p>
     </div>
   )
 }
@@ -613,14 +616,15 @@ props for local viewport state. Reset a controlled group to `{ zoom: 1, panPct: 
 | Gesture                        | Result                                               |
 | ------------------------------ | ---------------------------------------------------- |
 | Alt, Ctrl, or Meta + wheel     | Zoom around the pointer.                             |
-| Horizontal wheel or drag       | Pan a zoomed chart. A drag begins after four pixels. |
+| Horizontal wheel or Alt + drag | Pan a zoomed chart. A drag begins after four pixels. |
 | Shift + vertical drag          | Zoom around the initial pointer position.            |
-| Click without dragging         | Call `onSeek` with the clicked time.                 |
+| Press and drag                 | Call `onSeek` while held; release stops scrubbing.   |
+| Hover                          | Show the local readout without moving playback.     |
 | Focus the plot, then `+` / `-` | Zoom in / out.                                       |
 | Left / right arrow             | Pan by 10% of the visible window.                    |
 | `Home`                         | Reset the viewport.                                  |
 
-A completed drag does not seek. Ordinary vertical scrolling scrolls the page.
+Pan and zoom gestures do not seek. Ordinary vertical wheel scrolling scrolls the page.
 All chart layers follow the viewport; a cursor outside it is hidden.
 
 ## Dense series
@@ -729,9 +733,10 @@ export function DenseSeriesSpec() {
           {...viewport}
           onViewportChange={setViewport}
           time={time}
-          onHover={setTime}
-          onHoverEnd={() => setTime(null)}
-          onSeek={setSeek}
+          onSeek={(time) => {
+            setTime(time);
+            setSeek(time);
+          }}
           markers={[
             {
               id: "spike",
@@ -777,11 +782,11 @@ touch controls.
 
 ## Shared pin and hover preview
 
-Clicking can pin one time across every linked plot while hover continues to
-preview other moments. Use one `useTimelinePreview(clock)` controller for the
-whole group: `preview(ownerId, time)` on hover, `endPreview(ownerId)` on leave,
-and `pin(time)` on seek. Ending the current preview returns every view to the
-pin. Do not give each chart its own pin or stop forwarding hover when pinned.
+Pressing and dragging pins one time across every linked plot. Use one
+`useTimelinePreview(clock)` controller for the whole group and forward `onSeek`
+to `pin(time)`. Ordinary hover remains a local readout. Explicit `preview` and
+`endPreview` calls support keyboard controls or deliberate temporary previews;
+ending an explicit preview restores the shared pin.
 
 The [shared timeline example](viz-components-episode-timeline.md#shared-click-to-pin-and-hover-preview)
 connects two compact charts, a timeline and a shared clock readout, with keyboard
@@ -796,7 +801,7 @@ unavailable channel keeps its space with “NO SIGNAL”.
 
 // Mirrors the design's Episode-view bottom row: four time-series plots
 // (joints, motor temperatures, right-arm = NO SIGNAL, tactile) sharing
-// one hover cursor. Hovering any chart updates the cursor on every
+// one playback cursor. Pressing any chart updates the cursor on every
 // other chart; only the one under the pointer renders the tooltip.
 export const MultiChartSyncSpec = () => {
   const [time, setTime] = useState<number | null>(null)
@@ -805,8 +810,7 @@ export const MultiChartSyncSpec = () => {
   const bind = (id: string) => ({
     time,
     isScrubOwner: ownerId === id,
-    onHover: (t: number) => { setTime(t); setOwnerId(id) },
-    onHoverEnd: () => { setTime(null); setOwnerId(null) },
+    onSeek: (t: number) => { setTime(t); setOwnerId(id) },
   })
 
   return (
@@ -849,7 +853,7 @@ export const MultiChartSyncSpec = () => {
 
 ## Synced with EpisodeTimeline + EpisodeVideoStack
 
-Move across the video, timeline, or charts to inspect the same recorded moment:
+Press and drag across the video, timeline, or charts to inspect the same recorded moment:
 
 ```tsx file="EpisodeViewSpec.tsx"
 
@@ -963,8 +967,7 @@ const [ownerId, setOwnerId] = useState<string | null>(null)
 const bind = (id: string) => ({
   time,
   isScrubOwner: ownerId === id,
-  onHover: (t: number) => { setTime(t); setOwnerId(id) },
-  onHoverEnd: () => { setTime(null); setOwnerId(null) },
+  onSeek: (t: number) => { setTime(t); setOwnerId(id) },
 })
 
 <EpisodeLineChart {...bind('joints')} series={joints} duration={duration} />
@@ -972,9 +975,8 @@ const bind = (id: string) => ({
 ```
 
 [Timeline](viz-components-episode-timeline.md) and [Video](https://viz.dreamlake.ai/components/episode-video-stack)
-share the hover callbacks but do not use `isScrubOwner`. Video tracks camera
-identity through `activeId`. Keep a separate playback time if leaving a hover
-should restore the committed playhead.
+share press-and-drag seeking but do not use `isScrubOwner`. Video tracks camera
+identity through `activeId`. Ordinary pointer movement leaves playback unchanged.
 
 ## Series shape
 
@@ -1046,7 +1048,7 @@ Set `disabled` for an unavailable channel. It retains its size, shows
 | `rendering`            | `'auto' \| 'exact'`            | `'auto'`               | Reduce dense display geometry or retain visible vertices after measurement.                                                                       |
 | `yRange`               | `[number, number]`             | auto-fit               | Explicit y bounds. Auto-fit includes valid bands, adds 5% padding, and rounds outward.                                                            |
 | `time`                 | `number \| null`               | `null`                 | Shared cursor time; null hides it.                                                                                                                |
-| `onHover`              | `(t: number) => void`          | —                      | Receive the hovered time.                                                                                                                         |
+| `onHover`              | `(t: number) => void`          | —                      | Legacy scrub callback when `onSeek` is absent; hover remains local.                                                                                                                         |
 | `onHoverEnd`           | `() => void`                   | —                      | Receive pointer leave.                                                                                                                            |
 | `onSeek`               | `(t: number) => void`          | —                      | Receive a click's time.                                                                                                                           |
 | `size`                 | `"default" \| "compact"`       | `"default"`            | Compact sets a 150px total height and fewer y ticks.                                                                                              |

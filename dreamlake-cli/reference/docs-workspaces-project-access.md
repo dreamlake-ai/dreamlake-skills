@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.208 d4991f749; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.212 ba8f7d140; do not edit -->
 
 # Project access
 
@@ -500,3 +500,11 @@ shows audience sources, previews and confirms grants/policy/revocation, and
 reloads access before mutation. Unsupported audience/policy responses stop
 mutations. Cancel before confirmation submits no writes. Unknown mutation
 outcomes require readback instead of automatic retries.
+
+## File the Project’s Dash
+
+In an existing Project, choose **Dash** from the resource filing dialog to place
+the live experiment browser in the tree. Its default location is
+`experiments/Dash`. Open it to browse experiment folders, runs and metrics in
+the right panel. New runs appear through the same Dash. A Project can file its
+own Dash once. Removing the node keeps its experiment data and permissions.

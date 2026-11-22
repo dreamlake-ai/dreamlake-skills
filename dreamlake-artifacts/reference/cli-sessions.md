@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.140.0 14b9b01; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.141.0 b6fad46; do not edit -->
 
 # Terminal sessions
 
@@ -21,8 +21,9 @@ UUID does not move a conversation between computers or users.
 
 ## Registration and visibility (0.82.0+)
 
-With the matching API release, **all newly registered sessions default to public**:
-UI creation, API creation, CLI creation, metadata-only imports and machine sync.
+New sessions in a personal namespace default to public unless the creating
+command selects private visibility. Organization namespaces require private
+sessions, and native registration there defaults to private.
 Public uses DreamLake PUBLIC read semantics: anyone can read session metadata and
 an uploaded, redacted conversation. It does not grant terminal execution, resource
 editing, or access to linked private Memos/artifacts. Private and team sessions
@@ -47,10 +48,13 @@ dl sessions register --provider claude --session <native-uuid> --cwd /absolute/r
 dl sessions register --provider claude --session "${CLAUDE_SESSION_ID:-$CLAUDE_CODE_SESSION_ID}" --cwd "$PWD" --visibility private --write-env "$HOME/.dreamlake/sessions/current.env"
 ```
 
-This returns a **saved descriptor ID**, distinct from the native UUID. Registration
-is idempotent for the personal owner/provider/native ID: registering the same
-provider and UUID again (from another directory, on another day) returns the
-existing saved session, never a second one. It reuses an unambiguous existing
+This returns a **saved descriptor ID**, distinct from the native UUID. In **CLI
+and TypeScript 0.141.0+** with the matching server release, registration
+uses the effective CLI namespace, including repository, profile, and opted-in
+[remote-managed defaults](https://cli.dreamlake.ai/auth#remote-managed-namespace-defaults). An explicit
+`--namespace` overrides that destination. Registration is idempotent for the
+namespace/owner/provider/native ID: registering the same provider and UUID again
+in that namespace returns the existing saved session. It reuses an unambiguous existing
 registration; conflicting saved identities require explicit selection. Without
 `--json` the command prints the saved ID, the recipe that lets a runner message
 it (one `control restart --permission … --raise` that records the level — a
@@ -63,6 +67,27 @@ every `dl` process that shell starts), mode 600, the explicit
 saved-session context described below. The
 [`/dreamlake` Claude Code skill](https://cli.dreamlake.ai/dev/claude-code-skill) wraps exactly this
 command.
+Changing the default does not move or duplicate a previously registered native
+conversation. If it exists only in another namespace, registration stops with a
+conflict. Creating a separate registration requires an explicit destination and
+copy opt-in:
+
+```bash
+dl sessions register --provider codex --session <native-uuid> --cwd /absolute/repository --namespace fortyfive --allow-copy --json
+```
+
+This creates metadata only; it does not transfer the existing transcript or links.
+Upload the transcript to the returned saved ID explicitly. Re-uploading identical
+content to the same saved ID is idempotent; changes update its revision with a
+concurrency check. `upload-conversation` takes a saved ID and never creates a new
+session. To update an older session after changing your default, pass its original
+`--namespace`. Explicit saved-session environment context remains pinned to its
+existing namespace.
+
+The TypeScript `client.sessions(namespace).register(...)` also uses that scope,
+including `dl claude`/`dl codex` and runner-created registrations. The SDK's optional
+`allowCopy: true` is the same explicit cross-namespace opt-in.
+
 A metadata-only session has `archiveOnly: true`, null `launch`, and no host
 binding. It can be linked and read but cannot open a terminal. A later verified
 host registration with the same owner/provider/UUID and exact cwd can bind the

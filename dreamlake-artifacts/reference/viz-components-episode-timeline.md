@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/episode-timeline.md at 0.33.6 9f5c6486; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/episode-timeline.md at 0.33.7 6566643f; do not edit -->
 
 # Timeline
 
@@ -13,7 +13,7 @@ full-height grid; labels adapt to the recording duration and available width.
 
 ## Basic usage
 
-Hover to preview a moment; click to seek. Zoom in to reveal more thumbnails:
+Hover to inspect a moment locally; press and drag to seek. Zoom in to reveal more thumbnails:
 
 ```tsx file="BasicSpec.tsx"
 
@@ -51,7 +51,9 @@ hover should preview without committing a seek.
 ## Shared click-to-pin and hover preview
 
 Use one shared clock and `useTimelinePreview(clock)` for linked plots, video or
-3D views. Clicking pins a time; hover still previews other moments in every view.
+3D views. Pressing and dragging pins the selected time; ordinary pointer movement
+shows only a local readout. Explicit `preview` calls remain available to keyboard
+controls and integrations that deliberately request a temporary preview.
 Leaving the current preview returns all views to the pin. Without a pin, leave
 restores the time from before the first preview.
 
@@ -284,7 +286,7 @@ preview as a navigation override; use `preview()` for transient inspection.
 The native slider and buttons in the example make the same actions available
 to keyboard and touch users. Arrow keys preview the selected time, Enter pins,
 and Escape or blur ends the slider preview. Touch release ends its preview;
-"Pin selected time" commits it. Plot and timeline clicks also call `pin`.
+"Pin selected time" commits it. Plot and timeline presses and held drags also call `pin`.
 Chart zoom/pan keyboard controls keep their existing behavior. If another
 component implements its own controls, route them through this same controller.
 
@@ -345,17 +347,17 @@ const tracks: TimelineTrack[] = [
 ];
 ```
 
-Use stable block IDs for callbacks. A block click calls `onBlockClick` instead
-of `onSeek`, allowing annotation inspection without moving playback.
+Use stable block IDs for callbacks. A block click calls `onBlockClick` after
+seeking to the pressed time; dragging scrubs without opening the block.
 
 ## Interaction model
 
 | Gesture                    | Result                                                                         |
 | -------------------------- | ------------------------------------------------------------------------------ |
-| Hover                      | Show the cursor and call `onHover(time)`; call `onHoverEnd` on leave.          |
-| Click empty space          | Call `onSeek(time)`.                                                           |
+| Hover                      | Show the local cursor and readout without moving playback.          |
+| Press and drag             | Call `onSeek(time)` while held; release stops scrubbing.                                                           |
 | Click a block              | Call `onBlockClick(block, trackId)`.                                           |
-| Drag at least four pixels  | Pan when zoomed in.                                                            |
+| Alt + drag                 | Pan when zoomed in.                                                            |
 | Shift + vertical drag      | Zoom around the initial pointer position.                                      |
 | Alt, Ctrl, or Meta + wheel | Zoom around the pointer; trackpad pinch also uses this path.                   |
 | Horizontal wheel           | Pan. The timeline consumes this gesture to prevent browser history navigation. |
@@ -405,7 +407,7 @@ seconds to mark available and loading regions.
 | `time`                | `number \| null`                                               | `null`           | Cursor position when the pointer is not hovering.                            |
 | `onHover`             | `(t: number) => void`                                          | —                | Receive the pointer's time.                                                  |
 | `onHoverEnd`          | `() => void`                                                   | —                | Receive pointer leave.                                                       |
-| `onSeek`              | `(t: number) => void`                                          | —                | Receive a click in empty space.                                              |
+| `onSeek`              | `(t: number) => void`                                          | —                | Receive a pointer press, held drag, or release.                                              |
 | `loadedRanges`        | `{ from: number; to: number }[] \| null`                       | —                | Available spans, shown below the ruler.                                      |
 | `pendingRanges`       | `{ from: number; to: number }[]`                               | —                | Spans currently loading.                                                     |
 | `zoom` / `panPct`     | `number`                                                       | `1` / `0`        | Controlled visible window.                                                   |

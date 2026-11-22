@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.33.6 9f5c6486; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.33.7 6566643f; do not edit -->
 
 <span id="view-components" />
 
@@ -165,3 +165,11 @@ texture budgets, a 512 MiB network budget and at most 2048 dynamic dependency
 requests. Large images have additional decoder limits. Switching/unmounting
 aborts work, terminates its worker and disposes geometry, textures and materials.
 These are resource caps, not a promise that every scene below them fits every GPU.
+
+## Inspect a visualization
+
+Move over a camera or plot to reveal its maximize control, or focus the control
+with the keyboard. It opens the shared media viewer while the episode's clock
+continues to synchronize the expanded visualization with its siblings. The
+control fades after 1.8 seconds without pointer activity; focused controls remain
+visible. Escape returns to the inline view without resetting the playhead.

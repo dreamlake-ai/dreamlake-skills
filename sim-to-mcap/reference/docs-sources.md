@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.208 d4991f749; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.212 ba8f7d140; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -704,8 +704,14 @@ that every session in a larger burst has been loaded.
 This endpoint accepts explicit provider title metadata, not conversation or terminal
 output. It preserves byte observations, upload consent, capture boundaries, namespace
 ownership, and manually assigned session names. Current Source permissions govern
-both updates and title reads; a title is never copied into another namespace's legacy
-session record. Provider-title support requires a compatible daemon; publication of the
+both updates and title reads. A newer retained provider title also refreshes an exact
+reciprocally linked terminal's proven automatic name, after current execution-namespace,
+host and enrollment checks. Manual names, unknown legacy naming provenance and newer
+terminal titles remain unchanged. The first private registration may apply its provider
+title while establishing that reciprocal link. An identical metadata replay or bounded
+authorized identity backfill can repair missed propagation without reading or uploading
+conversation bytes. An inaccessible terminal does not prevent the Source title update.
+Provider-title support requires a compatible daemon; publication of the
 backend alone does not update installed devices.
 Authorized registered-session responses expose `nameIsAutomatic`. A UI may prefer a newer
 provider title only for an exact authorized archive binding whose flag is true; false
@@ -904,3 +910,33 @@ original authority transaction. A joined provider title reaches the representati
 after current reciprocal, owner, enrollment, host and execution-namespace checks; manual
 labels remain authoritative. An inaccessible terminal does not authorize following its
 redirect or changing its label.
+
+### First-user fallback title negotiation
+
+New daemons may request `{ "metadataProtocolVersion": 2, "titleMetadataProtocolVersion": 1 }`
+in signed Source configuration, optionally alongside `sessionMetadataProtocolVersion: 1`.
+Only this opt-in adds `capabilities.firstUserPromptTitleMetadata`; unchanged clients retain
+their existing response shape. After that capability is present, the existing registration
+request may use `metadata.titleKind: "first-user-prompt"`. Its receipt, exact Source/profile
+binding and current execution authorization are unchanged. First-user text is not sent to
+the explicit provider-title endpoint and does not grant archive upload or execution rights.
+
+The receiver records automatic title quality separately from observation time and binds it
+to the exact name hash. Explicit provider titles take precedence over a first-user fallback,
+which takes precedence over a proven generated fallback. Updates within the same quality
+remain monotonic; a higher-quality promotion does not regress the collection timestamp.
+Manual names and automatic legacy names with unknown quality remain protected. Old writers
+that change a name cannot leave usable quality evidence for the previous name. A generic-looking
+name alone is never proof of generated provenance. Legacy quality may be established only with the optional `priorFallbackRegistration`
+proof: the exact original nonrecursive fallback registration, at most 16 KiB, whose
+successful unexpired server-ledger hash and receipt still match the current binding.
+The automatic name and its metadata timestamp must still equal that original request.
+The receiver records proven fallback quality and promotes the new first-user title in
+one authorized transaction. If unknown legacy quality needs to be established, supplied
+proof with missing, expired or contradictory retained evidence returns
+`ARCHIVE_TITLE_PROVENANCE_UNAVAILABLE` without changing the label. Omitting proof leaves
+unknown quality unchanged. Already proven quality follows its existing precedence rules;
+manual names remain unchanged, and neither path needs to revalidate unused prior proof.
+The total registration
+payload is bounded to 30 KiB (32 KiB signed HTTP envelope). This never infers provenance
+from a generic-looking name or re-reads historical transcripts.

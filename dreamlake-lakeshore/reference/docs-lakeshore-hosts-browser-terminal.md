@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.208 d4991f749; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.212 ba8f7d140; do not edit -->
 
 # Browser terminal
 
@@ -442,6 +442,17 @@ observation timestamps describe binding and authority; they do not prove an SSH
 connection is open. `GET /namespaces/:ns/hosts/terminal-targets` and saved-session
 `/:id/target` resolve current authorized transport metadata without issuing an
 attach ticket. PTY, forwarding and native transcript UI additions are deferred.
+
+Session lists and metadata expose `canRename` separately from `canManage`.
+Show Rename only when `canRename` is explicitly `true`: owning a private archive
+in an organization does not itself grant the existing `lakeshore:use` permission
+required to rename it. The server checks authority again on
+`PATCH /namespaces/:ns/terminal-sessions/:id/name` with `{ "name": "Chosen title" }`.
+Names must be nonempty after trimming, at most 128 JavaScript string units, and
+contain no control characters. An explicit rename updates both the saved registry
+name and an existing canonical alias atomically. Automatic refreshes preserve
+manual names; otherwise provider titles outrank first-prompt titles, which
+outrank generic fallbacks. Freshness orders titles only within the same quality.
 
 ### Terminal target catalog
 
@@ -957,7 +968,8 @@ Forking creates a new Codex conversation that starts from the saved
 conversation's history, on the same machine and Unix account, in the same
 working directory and Codex home. DreamLake saves it as a new **private** session
 named `Fork of <name>` and opens it in a direct foreground terminal. The fork is
-a child of the saved session but has its own, independent history: messages in
+saved with the original session as its parent, so it appears nested under that
+session. It has its own, independent history: messages in
 the fork do not appear in the original, and the original keeps running
 untouched. Forking does not resume, write to or stop the original conversation,
 does not send a message or start a turn, and does not create a new tmux session.
@@ -1412,3 +1424,51 @@ The default policy uses one small local tmux callback per minute while
 detached, with no network polling or content upload. Browser and daemon restarts
 do not reset its timer. Older tmux versions without deferred callbacks retain
 sessions rather than claiming cleanup succeeded.
+
+## Native session upload destinations
+
+Native session registration (`POST /terminal-sessions/register`) accepts an
+optional `namespace` alongside the native provider, conversation ID and original
+working directory. Omitting it retains the legacy personal namespace destination.
+The CLI sends its resolved default namespace. Registration stores metadata and
+creates no host binding, terminal connection or execution permission.
+
+An active organization member can register their own private conversation archive
+in that organization's namespace. Organization archives are private; an explicit
+public visibility request is rejected. Conversation reads and uploads require the
+archive owner and current membership. Runtime terminal operations retain their
+separate execution authorization.
+
+Repeating registration in the same destination returns the existing session ID.
+Repeating identical conversation uploads retains the same content revision;
+changed content requires the current `expectedRevision`. A native identity already
+registered by the same owner in another namespace requires both an explicit
+`namespace` and `allowCopy: true` to create another registration. Existing copies
+remain independently addressable. Changing a default does not move or delete
+sessions, or copy conversation contents.
+
+### Managed CLI defaults
+
+`GET /auth/namespace-policy` returns
+`{managed, defaultNamespace, managedBy}` for the authenticated user. An absent
+policy returns `false`, `null`, `null`. A configured policy whose namespace or
+membership is no longer available fails with `cli_namespace_policy_unavailable`;
+clients must not silently fall back to another destination.
+
+An organization owner can set the organization's namespace as a current member's
+CLI default with `PUT /namespaces/:slug/cli-namespace-defaults/:userId` and an empty
+JSON object. `DELETE` on the same route clears it, including after the member has
+left. Owners cannot overwrite a policy managed by another organization. These
+preferences are stored separately from user-editable profile metadata.
+
+Managed mode is explicitly enabled per CLI login and API origin. Its precedence
+is explicit namespace, remote managed default, repository namespace, local profile
+default, then personal namespace. Without a remote policy the existing local
+precedence applies. Unreachable or invalid remote policy responses fail closed.
+Unmanaged clients retain the existing local selection behavior. The default grants
+no additional permissions, and every destination operation checks its authority.
+See the [CLI documentation](https://cli.dreamlake.ai) for the managed-mode commands.
+
+## Browse computer files
+
+The separate [Files tab](https://docs.dreamlake.ai/lakeshore/hosts/files) browses explicit Nymph directory exports. It is owner-only and shows metadata; sharing a terminal does not share files.

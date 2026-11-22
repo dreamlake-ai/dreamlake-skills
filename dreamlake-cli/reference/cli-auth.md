@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/auth.md at 0.140.0 14b9b01; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/auth.md at 0.141.0 b6fad46; do not edit -->
 
 # Authentication and namespaces
 
@@ -8,6 +8,48 @@ its **environment** chooses a deployment, and its **default namespace** chooses
 where resource commands operate. Selecting `fortyfive` or `dyna-robotics` does
 not change your signed-in account or grant access. The server checks permissions
 on every operation.
+
+## Remote-managed namespace defaults
+
+**CLI and TypeScript 0.141.0+:** these controls require the matching server policy API.
+
+Enable managed defaults for the current login when an organization manages its
+members' upload destination:
+
+```bash cli-help="namespace managed"
+dl namespace managed on
+dl namespace managed status --json
+dl namespace managed off
+```
+
+Managed mode checks the remote policy on every implicit namespace resolution.
+The order is explicit `--namespace`, remote managed default, repository `.dreamrc`,
+global profile default, then personal namespace. When the server reports no policy,
+local defaults still apply. An unreachable server, invalid policy, or revoked
+membership stops resolution; it never silently falls back to a different upload
+destination. Unmanaged mode preserves the existing local behavior.
+
+The opt-in belongs to the verified login profile and API origin, survives profile
+switching and verified credential refresh, and does not grant access. The server
+validates current membership when reading or using a managed destination.
+`namespace use` and `namespace reset` still edit local/global preferences;
+`namespace managed off` stops applying the remote policy on this login.
+
+An organization OWNER can set or clear that organization's default for a current
+member. These commands change the remote policy; they do not enable managed mode
+on the member's computers. Use the member's exact user ID:
+
+```bash cli-help="namespace policy set"
+dl namespace policy set fortyfive <user-id> --json
+```
+
+```bash cli-help="namespace policy clear"
+dl namespace policy clear fortyfive <user-id> --json
+```
+
+A policy belonging to another organization cannot be overwritten by this
+organization. Clearing a policy restores local fallback for managed clients.
+Neither operation moves, copies, hides, or deletes existing sessions.
 
 ## Choose a workspace
 
