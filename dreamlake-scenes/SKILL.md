@@ -17,6 +17,8 @@ tool and the CLI's compose step with that interpreter** — hosted runtimes
 provide their venv this way and it is not on `PATH`. Tool paths below are
 relative to this skill's directory.
 
+For new work, use `dreamlake-bundles`: it publishes scenes as versioned bundle entries. Use this skill for existing scenes.
+
 ## Route the request
 
 | The user wants to… | Action |

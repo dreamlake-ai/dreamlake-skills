@@ -1,0 +1,13 @@
+{
+  "name": "dreamlake-bundles",
+  "description": "Publish, pull, check and search DreamLake bundles: versioned sets of robot, part, object, scene, env and env-set entries. Push a bundle, pull one entry with its uses and refs closure, write lock files, check declarations, import libraries and scenes. Not for code (dl runnable).",
+  "requires": [
+    "dreamlake-cli"
+  ],
+  "docs": [
+    "https://docs.dreamlake.ai/bundles",
+    "https://docs.dreamlake.ai/bundles/reference",
+    "https://docs.dreamlake.ai/bundles/migration"
+  ],
+  "tools": null
+}

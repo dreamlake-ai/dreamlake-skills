@@ -170,6 +170,29 @@
         "sha256": "f50cc6c2ef5d3a15a67975ada07e1a201b83bb779670cf3e7e55c8cea6df4e96"
       }
     ],
+    "dreamlake-bundles": [
+      {
+        "url": "https://docs.dreamlake.ai/bundles",
+        "file": "reference/docs-bundles.md",
+        "version": "0.1.211 c256e9d3",
+        "source_sha256": "0a9795a1fa7931527a704ccb93fee5ac3871f9a5512ef1d3f18754c440d7abc5",
+        "sha256": "71a712feb43531fa0d0796d6bf129368b7e8ccb02f813168437a1515e060ab50"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/bundles/reference",
+        "file": "reference/docs-bundles-reference.md",
+        "version": "0.1.211 c256e9d3",
+        "source_sha256": "c5344ed38a0a9bf5498ea72477baf3e0b741373c73eff4a9dca7edff72ac8de4",
+        "sha256": "ea2f14d8bda03c0b42dd0754eab467618076c2975fb4c2c937f218b9614df06d"
+      },
+      {
+        "url": "https://docs.dreamlake.ai/bundles/migration",
+        "file": "reference/docs-bundles-migration.md",
+        "version": "0.1.211 c256e9d3",
+        "source_sha256": "78f28a74d733e82653aa9b9b0fe7a711933ffef9df0eb7ffcfd5c035e5a55945",
+        "sha256": "f6a98a5618114f6731b37ae8db3dc93b5ce67ebc677b9b3632a101c33880ea5a"
+      }
+    ],
     "dreamlake-cli": [
       {
         "url": "https://cli.dreamlake.ai/",
