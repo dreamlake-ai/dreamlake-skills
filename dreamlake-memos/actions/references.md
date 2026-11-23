@@ -2,7 +2,7 @@
 
 Use this to extract a list or checklist item into a linked Memo, to edit an
 existing memo reference, or to insert Memo references, `:artifact[...]`,
-experiment, project, folder and `:bundle[...]` references, and placeholder directives. It does not create a Task or mark work complete; Tasks
+experiment, project, folder, `:bundle[...]` and `:viewer[...]` (3D Preview) references, and placeholder directives. It does not create a Task or mark work complete; Tasks
 that link Memo items are `dreamlake-tasks`.
 
 Preserve resource directives when editing; do not flatten an artifact,
@@ -83,6 +83,27 @@ Write `:bundle[<ns>/<bundle>@<version>#<entry>]` for one bundle entry and
 
 Syntax, card and palette behavior:
 [bundles](../reference/docs-notes-linked-items.md#bundles).
+
+## 3D Preview references
+
+Write `:viewer[<ref>]` to show the live 3D Preview of a bundle entry, a
+library asset or a scene version. Prefer the bundle form
+`<ns>/<bundle>@<version>#<entry>`; use `library:<ns>/<lib>#<asset>` or
+`scene:<ns>/<name>@<version>` only for content that is not in a bundle.
+
+1. Resolve the target first, as for a bundle reference. Copy the returned
+   `viewerDirective` (bundle entry with a `model`, library asset), the
+   `3D:` line of `dl bundle entry`, or `dl viewer ref <ref>`. Never guess a
+   version and never write `@latest`.
+2. Use the plain card by default: a click opens the Preview panel beside the
+   memo. Add `{embed="true"}` (optionally `height="420"`) only when the user
+   asks for the live preview inline in the memo.
+3. Insert it with the revision-guarded edit workflow below and read it back.
+4. A Preview tab's copy control copies the exact directive, pinned to the
+   version it shows; paste that source unchanged. An unreadable target renders
+   as **Unavailable preview**; that is not a reason to rewrite it.
+
+Syntax: [3D previews](../reference/docs-notes-linked-items.md#3d-previews).
 
 ## Terminal references and explicit actions
 

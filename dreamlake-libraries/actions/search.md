@@ -86,6 +86,12 @@ library card opens `/<ns>/libraries/<name>`, and an asset opens as a panel
 beside the grid at `?asset=<id>` — a shareable URL, not a separate page.
 Viewers by kind: [`assets/library-conventions.md`](../assets/library-conventions.md).
 
+To show an asset's 3D preview in a Memo or a Chat, write
+`:viewer[library:<ns>/<lib>#<asset>]` (the built-in agent's asset tool
+returns it as `viewerDirective`; `dl viewer ref` normalizes one). When the
+library has been imported into a bundle, prefer the bundle entry's
+`:viewer[ns/bundle@N#entry]`; the memos references action has the procedure.
+
 ## Built-in agent and SDK workflow
 
 Use this procedure only after the deployed tool catalog exposes the Library
