@@ -38,7 +38,7 @@ Commands need the `dl` CLI logged in (`dreamlake-cli` skill).
 | get one entry (or the full bundle) for a program, pin versions in `dreamlake.lock` | [pull](actions/pull.md) |
 | prove `uses` declarations are complete, find suggested `uses`, set up CI | [check-and-deps](actions/check-and-deps.md) |
 | import an asset library or a scene into a bundle, cut it over or undo the cutover | [migrate](actions/migrate.md) |
-| find an entry ("find me a mug"), list versions or entries, inspect one entry | [search](actions/search.md) |
+| find an entry ("find me a mug"), list versions or entries, inspect one entry, cite it in a Memo or Chat (`:bundle[...]`) | [search](actions/search.md) |
 
 A new bundle runs: publish (with `"uses": ["/"]`) → check-and-deps (narrow
 `uses`) → publish again → pull/lock in consumers.

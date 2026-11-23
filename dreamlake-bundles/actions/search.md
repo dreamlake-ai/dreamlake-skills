@@ -18,6 +18,9 @@ Flags: `dl bundle search --help`. API:
 2. Run `info` on the best result before you pull it. Read `kind`, `uses` and
    `refs`. An entry with `"uses": ["/"]` pulls the full bundle.
 3. Give the user the full reference `ns/bundle@N#entry`, with the version.
+   In a Memo or a Chat, write it as the directive `:bundle[ns/bundle@N#entry]`
+   (the [directive](../reference/docs-bundles-reference.md#directive)); the
+   Memo edit procedure is `dreamlake-memos` references.
 4. To get it, use the pull action.
 5. To show it to the user in the browser, give the app route
    ([Browse in the app](../reference/docs-bundles.md#browse-in-the-app)).

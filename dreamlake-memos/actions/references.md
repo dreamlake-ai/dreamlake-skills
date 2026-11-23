@@ -2,7 +2,7 @@
 
 Use this to extract a list or checklist item into a linked Memo, to edit an
 existing memo reference, or to insert Memo references, `:artifact[...]`,
-experiment, project and folder references, and placeholder directives. It does not create a Task or mark work complete; Tasks
+experiment, project, folder and `:bundle[...]` references, and placeholder directives. It does not create a Task or mark work complete; Tasks
 that link Memo items are `dreamlake-tasks`.
 
 Preserve resource directives when editing; do not flatten an artifact,
@@ -62,6 +62,27 @@ for a DreamLake project or folder.
 
 Syntax and badge behavior:
 [experiments, projects and folders](../reference/docs-notes-linked-items.md#experiments-projects-and-folders).
+
+## Bundle references
+
+Write `:bundle[<ns>/<bundle>@<version>#<entry>]` for one bundle entry and
+`:bundle[<ns>/<bundle>@<version>]` for a whole bundle.
+
+1. Resolve the target first: `dl bundle search` or `dl bundle info`
+   (`dreamlake-bundles` search action). Use the displayed version that the
+   command returns, or the `directive` field of a built-in agent Bundle tool.
+   Never guess a version, never write `@latest` in a directive, and never
+   substitute a title for the bundle or entry name.
+2. Pin the version unless the user asks to follow the latest version; then
+   omit `@<version>`.
+3. Insert the directive with the revision-guarded edit workflow below and read
+   it back.
+4. Preserve existing source exactly. An invalid reference stays literal text;
+   an unreadable target renders as **Unavailable bundle**. Neither is a reason
+   to rewrite it, and a reference grants no access.
+
+Syntax, card and palette behavior:
+[bundles](../reference/docs-notes-linked-items.md#bundles).
 
 ## Terminal references and explicit actions
 
