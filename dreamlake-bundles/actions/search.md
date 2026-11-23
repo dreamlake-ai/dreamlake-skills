@@ -20,7 +20,10 @@ Flags: `dl bundle search --help`. API:
 3. Give the user the full reference `ns/bundle@N#entry`, with the version.
    In a Memo or a Chat, write it as the directive `:bundle[ns/bundle@N#entry]`
    (the [directive](../reference/docs-bundles-reference.md#directive)); the
-   Memo edit procedure is `dreamlake-memos` references.
+   Memo edit procedure is `dreamlake-memos` references. For an entry with a
+   `model`, `dl bundle entry` and the built-in agent's entry tool also return
+   `viewerDirective` (`:viewer[ns/bundle@N#entry]`): use it when the user wants
+   the 3D preview itself rather than a card that links to the entry.
 4. To get it, use the pull action.
 5. To show it to the user in the browser, give the app route
    ([Browse in the app](../reference/docs-bundles.md#browse-in-the-app)).
