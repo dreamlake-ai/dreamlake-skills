@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.21.1",
+  "version": "v2026.11.21.4-3-gabc05bb9",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -29,6 +29,14 @@
       ],
       "tools": null,
       "files": 16
+    },
+    "dreamlake-bundles": {
+      "description": "Publish, pull, check and search DreamLake bundles: versioned sets of robot, part, object, scene, env and env-set entries. Push a bundle, pull one entry with its uses and refs closure, write lock files, check declarations, import libraries and scenes. Not for code (dl runnable).",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 7
     },
     "dreamlake-cli": {
       "description": "Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows; routes compute and domain work elsewhere.",
