@@ -56,6 +56,8 @@ for more media). Use `--no-previews` on push only when the user asks.
 | Symptom | Likely cause | Do |
 |---|---|---|
 | Push prints `unchanged @N` | The tree is equal to the latest version | Expected; no version was made |
+| Push prints `the push includes .git/` | The directory is a Git work tree; the push keeps every file except `.dreamlake/` at the root | Ask the user. To leave it out, push again with `--exclude .git/` |
+| Push prints `excluded N paths` | `.dreamlake/` at the root (local index from a pull) or `--exclude` patterns | Expected for `.dreamlake/`. Tell the user which other paths were left out |
 | 409 on push | Another person pushed a new version first | Pull the latest version, merge your change, push again |
 | 400 `manifest not in stored form` | A client other than `dl bundle push` uploaded the manifest | Push with `dl bundle push`; it writes the stored form ([Manifest format](../reference/docs-bundles-reference.md#manifest-format)) |
 | Push warns about the format | Whitespace is not in the standard format | `dl bundle fmt ./my-bundle`; the warning does not stop the push |

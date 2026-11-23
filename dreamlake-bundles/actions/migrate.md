@@ -49,9 +49,9 @@ asks for it.
    - The old library or scene still opens and is unchanged.
 5. Pull the bundle (the pull action, full version) and read the manifests.
 6. Narrow `uses` for each entry with the check-and-deps action.
-7. Push the result (the publish action). `dl bundle push` skips dot paths
-   and `node_modules/`. If the imported bundle has such paths, tell the user
-   that a push from a local directory removes them from the new version.
+7. Push the result (the publish action). With CLI 0.143.3 and later the push
+   keeps dot paths and `node_modules/` too. With an older CLI, update it
+   first (`dl self-update`), or the push removes them from the new version.
 8. Change consumers to pinned refs (`ns/bundle@N#entry`) and write
    `dreamlake.lock` (the pull action).
 9. Prepare access before the cutover. After the cutover the old item uses the
@@ -83,5 +83,5 @@ asks for it.
 | An imported entry has no preview | The source had no thumbnail; imports do not render | `dl bundle preview <ref> --render` (the publish action) |
 | A ref uses an old library or scene name | The bundle was renamed | After cutover the old name resolves to the bundle. Before cutover it still names the old item. Write the new name in new refs |
 | The excluded list of an import names files the user wants | `--exclude` or the map row's `exclude:` matched them | Remove the pattern and run the import again for a new version |
-| A later `dl bundle push` version lost `.thumbs/` or other dot paths | `dl bundle push` skips dot paths; the import keeps them | Tell the user; run the import again for that source, or keep the import version |
+| A later `dl bundle push` version lost `.thumbs/` or other dot paths | The push was made with a CLI older than 0.143.3, or with `--exclude` | Update the CLI and push again from a directory that has the files, or run the import again for that source |
 | Imported entries have `"uses": ["/"]` | The importer cannot know the exact files | Expected; run the check-and-deps action |
