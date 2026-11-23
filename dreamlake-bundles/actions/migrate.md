@@ -6,6 +6,7 @@ dl bundle import-library <ns>/<library> --map migration/map.yml --dry-run
 dl bundle import-library --batch <n> --map migration/map.yml
 dl bundle import-scene <ns>/<scene> --to <ns>/<bundle>#<entry>
 dl bundle import-scene --batch <n> --map migration/map.yml
+dl bundle import-library <ns>/<library> --exclude <pattern> [--exclude <pattern>]
 dl bundle cutover <ns>/<bundle> [--source scene:<ns>/<scene>] [--undo]
 ```
 
@@ -33,7 +34,11 @@ asks for it.
    import ([reference/docs-bundles-reference.md](../reference/docs-bundles-reference.md#server-side-import));
    it is always a shadow import.
 3. Run the import. It prints one status line for each item; keep the
-   lines for the report. Record the new bundle version.
+   lines for the report. Record the new bundle version. The import is
+   lossless (CLI 0.143.2 and later): it keeps dot files, dot directories and
+   `node_modules/` paths. Do not add `--exclude` (or `exclude:` in the map)
+   unless the user asks to leave files out. Report the `excluded N paths`
+   list of each item to the user.
 4. Verify the shadow import:
    - `dl bundle versions <ns>/<bundle> --json`: `import-scene` makes one
      bundle version for each scene version; the messages start with
@@ -44,7 +49,9 @@ asks for it.
    - The old library or scene still opens and is unchanged.
 5. Pull the bundle (the pull action, full version) and read the manifests.
 6. Narrow `uses` for each entry with the check-and-deps action.
-7. Push the result (the publish action).
+7. Push the result (the publish action). `dl bundle push` skips dot paths
+   and `node_modules/`. If the imported bundle has such paths, tell the user
+   that a push from a local directory removes them from the new version.
 8. Change consumers to pinned refs (`ns/bundle@N#entry`) and write
    `dreamlake.lock` (the pull action).
 9. Prepare access before the cutover. After the cutover the old item uses the
@@ -75,4 +82,6 @@ asks for it.
 | An import stopped (network, 5xx) | — | Run the same command again. Imports are resumable and skip finished items |
 | An imported entry has no preview | The source had no thumbnail; imports do not render | `dl bundle preview <ref> --render` (the publish action) |
 | A ref uses an old library or scene name | The bundle was renamed | After cutover the old name resolves to the bundle. Before cutover it still names the old item. Write the new name in new refs |
+| The excluded list of an import names files the user wants | `--exclude` or the map row's `exclude:` matched them | Remove the pattern and run the import again for a new version |
+| A later `dl bundle push` version lost `.thumbs/` or other dot paths | `dl bundle push` skips dot paths; the import keeps them | Tell the user; run the import again for that source, or keep the import version |
 | Imported entries have `"uses": ["/"]` | The importer cannot know the exact files | Expected; run the check-and-deps action |
