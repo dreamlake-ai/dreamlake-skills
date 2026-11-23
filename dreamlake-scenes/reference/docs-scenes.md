@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.216 8dc669b28; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.218 86f9a4a6; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -8,6 +8,9 @@
   A scene is a **simulation environment** — a directory holding one MJCF scene
   or one URDF robot, plus its assets — that you push from the terminal and
   open as a live, interactive 3D page in the dashboard.
+
+**For new work, use [bundles](https://docs.dreamlake.ai/bundles).** Libraries and scenes continue to
+operate. Refer to [Migrate to bundles](https://docs.dreamlake.ai/bundles/migration).
 
 ## Browsing in the app
 

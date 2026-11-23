@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.216 8dc669b28; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.218 86f9a4a6; do not edit -->
 
 # Markdown authoring
 
@@ -238,6 +238,7 @@ Use `:memo[id]` to reference another Memo. Existing Markdown links remain suppor
 ```markdown
 :memo[6ab5aaeed3b4339ea2f4c162]
 :artifact[namespace/artifact-id]
+:bundle[namespace/bundle@4#entry]
 ```
 
 Both `:memo` and legacy `:note` forms remain readable, including named attributes
@@ -255,7 +256,7 @@ Menu selection never sends a message. Complete the selected content slot before
 sending. `::` offers standalone leaves and `:::` offers row/column templates.
 Code spans, fenced code and URLs do not open this menu.
 
-All 19 rich-token names below accept the existing inline form and a standalone
+All 20 rich-token names below accept the existing inline form and a standalone
 block-leaf form with exactly two leading colons. Leaves must occupy their own
 line. Triple or longer fences belong only to `row`/`col`; other combinations
 remain literal. Invalid or incomplete directives do not activate resources.
@@ -279,6 +280,7 @@ remain literal. Invalid or incomplete directives do not activate resources.
 | `experiment` | `namespace/project/run` | Open the specified experiment |
 | `project` | `namespace/project` | Open project |
 | `folder` | `namespace/project/folder` | Open folder |
+| `bundle` | `namespace/bundle[@version][#entry]` | Permission-checked card (thumbnail, kind, title, displayed version); opens the bundle or entry page. See [Bundles](docs-notes-linked-items.md#bundles) |
 | `chatgpt-content-reference` | Imported citation index | Unresolved marker; does not invent a citation target |
 | `video` | HTTPS URL or Memo `files/path`; required nonempty `title`, optional paired `width`/`height` | Standalone `:video` or `::video`; attachment media needs its explicit owner |
 | `grid` | `:::grid{columns=2}`; 1–6 columns, default 2 | Equal-width cells wrap into rows; stack below 480px |

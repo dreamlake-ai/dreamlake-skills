@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.216 8dc669b28; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries/reference.md at 0.1.218 86f9a4a6; do not edit -->
 
 # Libraries Reference
 
@@ -6,6 +6,9 @@
   feature to a person; this page specifies it for a program — exact request
   and response shapes, the wire manifest, and how the calls compose into
   survey → search → inspect → verify → pull.
+
+**For new work, use [bundles](https://docs.dreamlake.ai/bundles).** Libraries and scenes continue to
+operate. Refer to [Migrate to bundles](https://docs.dreamlake.ai/bundles/migration).
 
 Base URL: `https://api.dreamlake.ai` in production, `http://localhost:3001`
 in local dev.

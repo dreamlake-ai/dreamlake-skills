@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.216 8dc669b28; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.218 86f9a4a6; do not edit -->
 
 # Linked memo items
 
@@ -84,6 +84,36 @@ Badges show titles only after your access is checked. Otherwise they read
 clicked. A reference grants no access. Invalid paths stay literal text. Use
 `:experiment`, not `:run`: in DreamLake, runs are Lakeshore function
 invocations.
+
+## Bundles
+
+`:bundle[...]` refers to a [bundle](https://docs.dreamlake.ai/bundles) or to one entry of a bundle. The
+bracket holds the same reference as bundle `refs` and lock files:
+
+```markdown
+:bundle[fortyfive/kitchen]
+:bundle[fortyfive/kitchen@4]
+:bundle[fortyfive/kitchen@4#mug-01]
+:bundle[fortyfive/kitchen#mug-01]
+```
+
+- Without `@N`, the card shows the latest version. With `@N`, it shows that
+  version. `@latest` is not accepted.
+- The card shows the thumbnail (or an icon for the kind), the kind, the title
+  and the displayed version. Click it to open the bundle or entry page.
+- Type `:bundle[` (or `/bundle` in the slash menu) to search. Type a word to
+  find bundles in this namespace and matching entries. Type `ns/` to search
+  another namespace, and `ns/name#` to choose an entry of one bundle. The
+  inserted reference is pinned: a bundle to its latest version, an entry to its
+  displayed version. Delete `@N` to follow the latest version.
+- In **⌘K**, `/bundle <query>` opens a bundle or an entry.
+  `/bundle ref <query>` copies the reference (`ns/name@N#entry`) and
+  `/bundle pull <query>` copies the `dl bundle pull` command.
+- A `:bundle` reference in a Memo is a linked item: **Related** lists it under
+  "Mentioned in this memo" when you can read it.
+- Unreadable or missing targets show **Unavailable bundle** and do nothing
+  when clicked. A reference grants no access. Invalid references stay literal
+  text.
 
 ## Terminal references and actions
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.216 8dc669b28; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.218 86f9a4a6; do not edit -->
 
 # Asset Libraries
 
@@ -6,6 +6,9 @@
   robots, meshes, textures, or any files at all — stored exactly as you pushed
   them and searchable per asset. Find a model, preview it in 3D, download just
   its files, and drop them into your own scene.
+
+**For new work, use [bundles](https://docs.dreamlake.ai/bundles).** Libraries and scenes continue to
+operate. Refer to [Migrate to bundles](https://docs.dreamlake.ai/bundles/migration).
 
 Libraries exist for the *"I need a mug for this scene"* problem: scene
 generation feeds on big open asset repos (Google Scanned Objects is 1,030
