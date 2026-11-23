@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.222 39839715f; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.223 63628016d; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -27,6 +27,56 @@ and its Agents editor link; creation does not launch a session.
   "tools": ["dreamlake_notes_read", "dreamlake_resource_api_discover", "dreamlake_resource_api_read"]
 }
 ```
+
+## Accounts and namespaces
+
+An account is the authenticated identity. A namespace selects the default resource
+scope within that account's existing access. Switching namespace never signs in
+as another user, moves a saved session, or creates a Project delegation.
+
+| Operation | Built-in agent | Browser command | External agent with local CLI |
+| --- | --- | --- | --- |
+| Inspect identity | `dreamlake_auth_status` | `/auth status` | `dl auth status` |
+| List saved logins | Reports one browser identity; local profiles are unavailable | `/auth profiles` explains the browser boundary | `dl auth profiles` |
+| Switch account | `dreamlake_auth_switch` returns a sign-in link | `/auth switch` opens the authenticated sign-out/sign-in flow | `dl auth switch <profile>` |
+| List namespaces | `dreamlake_namespace_list` | `/namespace list` | `dl namespace list` |
+| Inspect namespace | `dreamlake_namespace_status` | `/namespace status` | `dl namespace status` |
+| Select namespace | `dreamlake_namespace_use` with `namespace` | `/namespace use <namespace>` or `/su <namespace>` | `dl namespace use <namespace>` or `dl su <namespace>` |
+
+The browser has one active login. Its account switch clears that login through
+the existing identity-provider flow and asks you to sign in again. Saved server
+conversations retain their original owner; return to that account to reopen
+them. A handoff result has `status: "sign_in_required"` and
+`accountChanged: false`; it is not proof that another account was activated.
+Credentials and local CLI profile files never enter the server tool context.
+CLI profile selection changes the local CLI configuration, not the browser login.
+
+The namespace-use tool requires the turn's write capability. It checks current
+membership and the exact conversation owner and active turn before saving the
+selection. The current turn keeps its admitted identity and namespace; subsequent
+turns use the selected namespace and recheck access. Namespace status reports
+both `namespace` (this turn) and `nextTurnNamespace` (the saved selection).
+After an uncertain switch response, read status before retrying. An Agent
+definition remains bound to its own namespace; reselect the definition before
+changing that scope. Scoped durable/delegated credentials cannot change identity
+or scope through these controls.
+
+The corresponding authenticated API surfaces are:
+
+- `GET /agent/identity`: credential-free caller ID, personal namespace,
+  memberships, and browser sign-in handoff metadata. It never provisions an
+  agent or lists local CLI profiles.
+- `POST /agent/sessions/:id/namespace` with `{ "namespace": "fortyfive",
+  "turnId": "the-active-turn-id" }`: saves the next-turn selection, returning
+  `apiVersion: 1`, `namespace`, `appliesTo: "next_turn"`, `sessionId`, and `turnId`.
+  A stale turn or foreign conversation cannot redirect ongoing work.
+- `GET /agent/sessions/:id`: reads the owner's saved `actingNamespace`; callers
+  starting an external agent turn may also supply `actingNamespace` directly
+  to the existing chat API. Every admission independently checks membership.
+
+These endpoints retain the deployment's built-in-agent access policy. Direct
+resource APIs retain their own authorization; an identity response grants no
+additional access.
 
 ## Choose tool permissions
 

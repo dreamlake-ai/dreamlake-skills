@@ -89,3 +89,9 @@ partial activity feed as proof of authorship or a complete audit trail. Never
 append invented events or import terminal output into activity. For an explicit
 TypeScript integration, follow the [SDK operations](../reference/cli-sessions.md#typescript-resource-relationships)
 using the same confirmed identities and readback.
+
+## Inspect native parent and agent relationships
+
+For a native ancestry question, first read the [native relationship contract](../reference/docs-lakeshore-hosts-native-session-lineage.md). Resolve the authorized Source and exact native address before reading relationships. Keep resource affiliations separate from native ancestry; an associated Memo does not identify a spawning agent.
+
+Use the documented read interface when HTTP is allowed. For an explicitly SDK-only request, report a missing documented SDK operation instead of inventing one or silently switching transports. Report unresolved parents and unsupported evidence as such; do not turn a read-only question into collection, transcript upload or terminal execution. For authorized metadata reconciliation, follow the [native collection prerequisites](../reference/docs-lakeshore-hosts-native-session-lineage.md#native-collection), preserve the exact applied Source and archive policy, and verify the returned evidence through a readback. Report local inspection, recorded metadata and automatic activation separately.
