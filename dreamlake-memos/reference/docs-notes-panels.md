@@ -1,15 +1,17 @@
-<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.218 86f9a4a6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.220 8b1ad5c1; do not edit -->
 
 # Panels and agent control
 
 DreamLake views use the native UIKit panel surface: drag, dock, resize, tab and
-close work the same for memo editors, memo lists, artifact views and explicitly
-opened web previews.
+close work the same for memo editors, memo lists, artifact views, explicitly
+opened web previews and 3D Preview panels ([`:viewer[...]`](docs-notes-linked-items.md#3d-previews)).
 
 Memo and artifact tabs share a 240px preferred width and
 130px minimum width in compact layouts. Titles use an ellipsis when needed;
 the reference control stays after the title, before the close button. Memos
-retain their short hash labels and artifacts use a copy icon.
+retain their short hash labels; other views with a directive (artifacts,
+sessions, dashboards, experiments and 3D Previews) use a copy icon. The control
+copies the view's directive; paste it in a memo to reference the same view.
 
 The [UIKit layout controller](https://uikit.dreamlake.ai/components/layout-controller)
 owns destination addressing and the forkable starting-layout → command → result

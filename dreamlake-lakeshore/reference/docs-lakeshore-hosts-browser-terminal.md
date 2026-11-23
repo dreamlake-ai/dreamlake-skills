@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.218 86f9a4a6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.220 8b1ad5c1; do not edit -->
 
 # Browser terminal
 
@@ -189,9 +189,11 @@ jobs, the agent list and sharing stay with the owner.
   control plane cannot confirm a
   close, Compute says so and keeps the revoked member listed with a
   **Retry close** button until those connections close or reach their current
-  deadline. That is at most 30 minutes after a connection opened or, for a
-  keyboard-idle `dl ssh` session, at most 30 minutes 10 seconds after its last
-  keystroke renewal. A renewal rechecks the grant, so none succeeds after revoke.
+  deadline. Renewable browser sessions use a five-minute activity window plus
+  ten seconds of cleanup grace; keyboard-idle `dl ssh` sessions use at most
+  30 minutes 10 seconds after their last keystroke renewal. Legacy fixed-lifetime
+  connections retain their original deadline. A renewal rechecks the grant, so
+  none succeeds after revoke.
 - The grant also stops working while the member is not in the organization,
   the owner can no longer use the machine, the enrollment is revoked, or the
   machine moves to another namespace. Then new connections are refused and
@@ -1091,9 +1093,11 @@ observed, and saving/opening a bookmark does not automatically inspect a host.
 - At most 12 terminal connections per account across browser windows and CLI SSH, and 48 per gateway.
 - Settings → Compute → Concurrent web terminals defaults to 12 and can lower the limit for this account in this browser. The frontend counts connecting and connected terminals across panels on the page; lowering the setting preserves existing connections.
 - When a limit is reached, disconnect an unused terminal and retry. Disconnect and quota reasons remain visible in the terminal banner.
-- A session closes after five minutes without input, output or resize, and
-  always after thirty minutes. tmux and its processes keep running after
-  either limit, and reconnecting returns to them.
+- A renewable session closes after five minutes without input, output or resize.
+  Activity renews its existing relay session; it has no additional thirty-minute
+  gateway limit. An idle closure stays disconnected until you reconnect.
+  tmux and its processes keep running and reconnecting returns to them.
+  Explicit administrator limits and legacy static relay grants still apply.
 - Access is checked again every few seconds. Revoking the enrollment or
   signing out closes the session.
 - Terminal output goes only to your browser. DreamLake does not record, log or

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.218 86f9a4a6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/markdown.md at 0.1.220 8b1ad5c1; do not edit -->
 
 # Markdown authoring
 
@@ -239,6 +239,7 @@ Use `:memo[id]` to reference another Memo. Existing Markdown links remain suppor
 :memo[6ab5aaeed3b4339ea2f4c162]
 :artifact[namespace/artifact-id]
 :bundle[namespace/bundle@4#entry]
+:viewer[namespace/bundle@4#entry]
 ```
 
 Both `:memo` and legacy `:note` forms remain readable, including named attributes
@@ -281,6 +282,7 @@ remain literal. Invalid or incomplete directives do not activate resources.
 | `project` | `namespace/project` | Open project |
 | `folder` | `namespace/project/folder` | Open folder |
 | `bundle` | `namespace/bundle[@version][#entry]` | Permission-checked card (thumbnail, kind, title, displayed version); opens the bundle or entry page. See [Bundles](docs-notes-linked-items.md#bundles) |
+| `viewer` | `namespace/bundle[@version]#entry`, `library:namespace/library#asset` or `scene:namespace/scene[@version]`; `embed` (`true`/`false`), `height` (120–2000 px) | 3D Preview card; a click opens the Preview panel beside the memo. `embed="true"` shows the live 3D preview inline. See [3D previews](docs-notes-linked-items.md#3d-previews) |
 | `chatgpt-content-reference` | Imported citation index | Unresolved marker; does not invent a citation target |
 | `video` | HTTPS URL or Memo `files/path`; required nonempty `title`, optional paired `width`/`height` | Standalone `:video` or `::video`; attachment media needs its explicit owner |
 | `grid` | `:::grid{columns=2}`; 1–6 columns, default 2 | Equal-width cells wrap into rows; stack below 480px |

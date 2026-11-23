@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.218 86f9a4a6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/metrics.md at 0.1.220 8b1ad5c1; do not edit -->
 
 # Machine metrics
 
@@ -30,15 +30,27 @@ order:
 1. A metrics Source configured for the enrollment
    ([Direct Source snapshots](#direct-source-snapshots-operator-configured)).
    The response has `mode: "source"`.
-2. Otherwise, Ripple, if the DreamLake operator has enabled the enrollment
-   for Ripple ([Ripple collector](#ripple-collector)). Ripple provides CPU and
-   memory only: `cpu_percent`, `memory_total_bytes` and `memory_used_bytes`.
+2. Otherwise, Ripple, if the enrollment has a working Ripple binding: the host
+   registered Ripple itself
+   ([Set up with the enrollment identity](#set-up-with-the-enrollment-identity)),
+   or the DreamLake operator enabled the enrollment for Ripple
+   ([Ripple collector](#ripple-collector)). Ripple provides CPU and memory
+   only: `cpu_percent`, `memory_total_bytes` and `memory_used_bytes`.
 3. Otherwise, the readings Nymph reports to the Lakeshore control plane
    (Nymph 0.1.68 and earlier; see [Local collection](#local-collection)).
 
-A read uses only that source. If the source is unavailable the request fails
-(see [Read through DreamLake](#read-through-dreamlake)); it does not fall back
-to another source, and readings from different sources are never combined.
+This order is the same for the Host owner and for people the Host is shared
+with, with one exception: when an enrollment has both a metrics Source and a
+working Ripple binding, people it is shared with get Ripple's readings while
+Ripple has a current reading with CPU and memory, and the metrics Source's
+otherwise. `origin=ripple` asks for Ripple's readings even when a metrics
+Source is configured ([Set up with the enrollment identity](#set-up-with-the-enrollment-identity)).
+
+A read returns readings from one source only; readings from different sources
+are never combined. If the chosen source is unavailable the request fails
+(see [Read through DreamLake](#read-through-dreamlake)) and does not fall back
+to another source, except in the shared-recipient case above, where Ripple
+being unavailable returns the metrics Source's readings.
 
 ## Local collection
 
@@ -146,7 +158,8 @@ uploaded or saved), and the loopback `/metrics` route returns an empty history.
 
 Ripple is a small standalone CPU and memory collector. It can print local
 readings with no DreamLake account, or report an enrolled host to DreamLake
-once the DreamLake operator has enabled that host for Ripple.
+once the host has [registered itself](#set-up-with-the-enrollment-identity)
+or the DreamLake operator has enabled it for Ripple.
 
 | | Linux | macOS (since v0.4.0) |
 | --- | --- | --- |
@@ -216,10 +229,133 @@ Activity Monitor's "Memory Used". Ripple measures the kernel it runs on: in
 a container on a Mac (for example Docker Desktop) it reports Docker's Linux
 virtual machine, not the Mac.
 
+### Set up with the enrollment identity
+
+Since Ripple v0.6.0, an enrolled host can register its own collector when the
+DreamLake deployment accepts self-registration. Run the release's
+`setup-compute.sh` as the enrolled Unix user, with the values from the host's
+enrollment. The script refuses to run as root; from a root shell, use
+`sudo -u <user> -H bash setup-compute.sh …`.
+
+```shell
+RIPPLE_VERSION=v0.6.0   # self-registration needs v0.6.0 or later
+curl -fsSLO "$RIPPLE_BASE/$RIPPLE_VERSION/setup-compute.sh"
+curl -fsSL "$RIPPLE_BASE/$RIPPLE_VERSION/setup-compute.sh.sha256" | sha256sum -c -
+
+bash setup-compute.sh --api-url https://api.dreamlake.ai \
+  --enrollment-id "$ENROLLMENT_ID" --machine-id "$MACHINE_ID" \
+  --identity-file "$IDENTITY_FILE"      # the enrollment's identity.key
+```
+
+The script creates a collector token on the host and registers only the
+token's SHA-256 with DreamLake, signed by the enrollment's identity key. The
+token itself never leaves the host. DreamLake takes the Host, namespace and
+owner from the enrollment, never from the request. The collector then runs
+as a user service for that enrollment (a systemd user unit on Linux, a launchd
+agent on macOS), and readings appear through the same
+[read endpoint](#read-through-dreamlake). The script prints one JSON result
+and exits 0 when done, 3 when pending (for example, no usable user service
+manager; `action` says what to do), 1 on failure and 2 on invalid arguments.
+
+To turn the collector off for an enrollment, run
+`bash setup-compute.sh --enrollment-id "$ENROLLMENT_ID" --opt-out` as the same
+user. It stops and removes that enrollment's collector and records the
+choice, so later setup runs change nothing until you pass `--opt-in`.
+`--uninstall` removes the collector without recording a choice.
+
+When the deployment accepts self-registration, managed EC2 hosts launched with
+enrollment run this step automatically unless the launch sets
+`"ripple": false` ([EC2 provider](https://docs.dreamlake.ai/lakeshore/providers/ec2#ripple-setup-on-managed-hosts)).
+
+#### With `dl hosts enroll`
+
+**Requires DreamLake CLI 0.144.0 or later**, and a deployment that accepts
+self-registration. `dl hosts enroll` (`--local` or `--ssh`) runs this setup on
+a new enrollment once the enrollment is online. It runs the v0.6.0
+`setup-compute.sh` as the enrolled user, and only if the script's SHA-256
+matches the digest pinned in the CLI and the release's checksum files.
+
+- `--no-ripple` skips the collector, and later runs for that enrollment
+  remember the choice. `--ripple` installs it explicitly, including on an
+  enrollment created before this option existed; such enrollments get
+  nothing otherwise.
+- The result is reported separately from the enrollment (`ripple` in JSON, a
+  `Ripple metrics:` line in text) and never changes the enrollment's result or
+  exit code. To retry, rerun the same command.
+- `ready` means the server returned a fresh Ripple sample (no older than 90
+  seconds, with `cpu_percent`, `memory_used_bytes` and `memory_total_bytes`)
+  taken after the install started. `awaiting_data` means it is set up but no
+  such sample has arrived yet. `pending` means the user service cannot run
+  yet, for example with no systemd user manager on Linux or no logged-in
+  session on macOS. `failed` gives a `reason`. For unsafe directory
+  permissions (`state_unsafe`) it also gives the exact repair, such as a
+  `chmod go-w …` to run as the enrolled user before rerunning.
+- On Nymph versions that support the setting, choosing Ripple turns off
+  Nymph's own readings for that enrollment only. A `[metrics]` table you
+  wrote yourself is kept unchanged.
+
+See [Ripple metrics collector](https://cli.dreamlake.ai/host-enrollment#ripple-metrics-collector)
+in the CLI reference for every status and reason.
+
+The registration endpoint is
+`POST /host-metrics/ripple/v1/enrollments/{enrollmentId}/binding` with
+`{"tokenSha256","timestamp","signature"}`. `timestamp` is Unix seconds and
+must be within 5 minutes of the server's clock. `signature` is the unpadded
+base64url Ed25519 signature, by the enrollment's identity key, of the UTF-8
+text `dreamlake:ripple-binding:v1`, the enrollment ID, the token's SHA-256
+(lowercase hex) and the timestamp, joined by single newlines with no
+trailing newline. Responses:
+
+| Status | Meaning |
+| --- | --- |
+| `204` | registered, or the same token was already registered |
+| `401` | wrong key or unknown enrollment (`invalid_binding_signature`), or clock skew (`binding_clock_skew`) |
+| `403` | the enrollment is revoked, or its owner no longer owns the Host or holds `lakeshore:use` |
+| `409` | a different token is already registered (`ripple_binding_conflict`) |
+| `404` | this deployment does not accept self-registration |
+
+Only the first token is accepted; DreamLake never replaces a working
+binding. The binding belongs to the enrollment as it was when registered:
+its namespace, Host and owner. If the Host is moved or transferred, the
+binding stops working until the host runs `setup-compute.sh` again, which
+registers it under the new owner's authority. Revoking the enrollment ends it.
+
+Once registered, the [read endpoint](#read-through-dreamlake) returns the
+host's Ripple readings by default, unless the enrollment uses a metrics Source
+(see [Where readings come from](#where-readings-come-from) for people the Host
+is shared with). Add `origin=ripple` to read Ripple in either case:
+
+```shell
+auth() { printf 'Authorization: Bearer %s\n' "$(dl auth token)"; }   # keeps the token off the command line
+curl -fsS -H @<(auth) "https://api.dreamlake.ai/namespaces/$NS/hosts/$HOST_ID/enrollments/$ENROLLMENT_ID/metrics?resolution=60&origin=ripple"
+```
+
+With `origin=ripple` the response is always Ripple's, never a metrics Source
+or the control-plane history: the usual `{latest,tiers,stale}` (for the Host
+owner also `"metricsOrigin":"ripple"`, even before the first reading), `404`
+`ripple_not_bound` when the enrollment has no working Ripple binding, or `503`
+when Ripple storage cannot be read. When an owner's enrollment uses a
+metrics Source, its response includes `"rippleAvailable":true` if Ripple can
+also be read.
+
+The Host owner can check the registration, with the same `auth` helper:
+
+```shell
+curl -fsS -H @<(auth) "https://api.dreamlake.ai/namespaces/$NS/hosts/$HOST_ID/enrollments/$ENROLLMENT_ID/ripple-binding"
+# {"registration":"enabled","state":"bound","source":"enrollment","boundAt":"…",…}
+```
+
+`state` is `unbound`, `bound` or `inactive` (the Host moved or changed owner
+since registration), and `source` is `enrollment` (registered by the host) or
+`static` (issued by the operator). This is the host's monitoring status; it
+does not change the enrollment's own online/offline status. Only the Host
+owner with `lakeshore:use` can read it; connection grantees and assistants
+cannot.
+
 ### Report an enrolled host to DreamLake
 
-Reporting is enabled per enrollment by the DreamLake operator; there is no
-self-service token. Ask the operator for:
+Without self-registration, the DreamLake operator can enable reporting for an
+enrollment. Ask the operator for:
 
 - the enrollment's machine ID (`host-…`); samples labeled with any other ID
   are refused;
@@ -509,7 +645,9 @@ readings exist. All timestamps are Unix seconds. A reading older than 90 seconds
 is stale. HTTP 401/403 indicates missing access, 404 a missing or no longer
 shared binding,
 409 an unverified worker identity, and 502/503 unavailable upstream readings.
-Do not replace an error with zero utilization.
+Do not replace an error with zero utilization. When the readings come from
+Ripple, the owner's response also has `"metricsOrigin":"ripple"`; recipients
+of a [shared host](#shared-hosts) get the same readings without it.
 
 `latest.values` uses unit-bearing keys such as `cpu_percent`,
 `memory_used_bytes`, `memory_total_bytes`, `filesystem_used_bytes`, and

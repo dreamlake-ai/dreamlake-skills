@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.143.3 c86b1f8; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.144.0 0529e4a; do not edit -->
 
 # Host enrollment
 
@@ -409,10 +409,32 @@ inspection is online, enrollment rejects that mount with HTTP 409
 authorized execution connection before running enrollment. See
 [connection ownership](cli-queues.md#ownership-execution-and-namespace-names).
 
-The command prints a request ID before enrollment. After an interrupted request,
-repeat the same inputs with `--request-id <id>`. If the API returns `retryAt`, wait
-until that time before starting a new request. JSON errors retain the request ID
-and available operation/retry fields.
+The command prints a request ID once the target identity is known. A rerun of
+the same logical enrollment reuses it automatically. A logical enrollment is the
+same DreamLake API, host name and transport (`--local`, or the same `--ssh`
+arguments) for the same target identity. Without `--request-id`, the rerun
+behaves as follows:
+
+- If the backend already confirmed the enrollment online, the rerun sends no
+  new enrollment request and gets no grant. It refreshes the target's
+  configuration and repeats only the remaining steps, such as Ripple or the web
+  terminal. The receipt reports `resumed: true`.
+- Otherwise it repeats the saved request. If that request has expired on the
+  server, it is replaced once by a new one.
+
+The saved state is `~/.dreamlake/host-enrollments/<key>.json` (mode 0600). It
+holds identifiers only (request, host, enrollment and machine IDs, the public
+key, Unix user and control-plane URL), never a grant, token, private key or SSH
+credential. A different target identity, name, transport or API never uses it,
+and an explicit `--request-id` is never replaced.
+
+A pending, partial or failed result includes `retry.command`, printed as
+`Retry (resumes this enrollment): …` or `Retry: …`. It rebuilds the command from
+the validated inputs with `--request-id`, for `--local` or with the exact
+`--ssh` arguments. It never includes passwords, Vault entries, key exports,
+password descriptors or credential-saving consent. If the API returns `retryAt`,
+wait until that time before starting a new request. JSON errors retain the
+request ID and available operation/retry fields.
 `--wait-seconds` bounds readiness polling (default 60). A timeout reports
 `pending` and exits nonzero; it does not claim enrollment succeeded. Repeat
 execution preserves the target identity and reuses the user service. Runner/job
@@ -437,6 +459,127 @@ dl hosts enroll --local --name geyang/dev/my-mac --web-terminal
 # Enroll without browser shell access.
 dl hosts enroll --local --name geyang/dev/my-mac --no-web-terminal
 ```
+
+## Ripple metrics collector
+
+**CLI 0.144.0+:** requires a server that accepts Ripple
+enrollment bindings and the published Ripple v0.6.0 release.
+
+After the backend confirms the enrollment online, `dl hosts enroll` (`--local`
+or `--ssh`) installs the Ripple host-metrics collector on a new enrollment.
+`--no-ripple` skips it; `--ripple` installs it explicitly. The web Compute
+**Enroll** dialog builds the same command and adds `--no-ripple` when you turn
+metrics off.
+
+```bash
+# Enroll without the metrics collector; later runs remember this choice.
+dl hosts enroll --local --name geyang/dev/my-mac --no-ripple
+# Install the collector on an existing enrollment.
+dl hosts enroll --local --name geyang/dev/my-mac --ripple
+```
+
+The choice belongs to the enrollment and is stored on the target, next to the
+enrollment's identity key. Without either flag:
+
+- A new enrollment installs Ripple.
+- A rerun keeps the recorded choice, so an earlier `--no-ripple` stays off.
+- An enrollment created before this setting has no recorded choice and gets
+  nothing installed until you pass `--ripple`.
+
+Listing, sharing, upgrading or inspecting a host never installs Ripple, and
+`dl nymph setup` does not install it. Choosing Ripple turns off Nymph's own
+`[metrics]` readings in this enrollment's generated `nymph.toml` only, and
+`--no-ripple` removes only the table enrollment added; see
+[Nymph's own metrics](#nymphs-own-metrics). When that file changes, only this
+enrollment's Nymph service restarts to read it. The choice never changes
+another enrollment's Nymph service or identity, or the Nymph access policy.
+
+Enrollment creates any missing directory it needs with an exact mode. Its
+state directories are 0700, and `~/.config/systemd/user`,
+`~/Library/LaunchAgents` and `~/.local/bin` are 0755. This holds under any
+umask, including Ubuntu's default 0002. Existing directories are never changed.
+Before Ripple runs, enrollment checks the directories Ripple will use: the user
+service directory and Ripple's state directories. Each must be a real
+directory owned by the enrolled user that no one else can write. Otherwise
+Ripple is not run, and the result is `failed` with `reason` `state_unsafe` and
+the exact repair in `action`, for example
+`chmod go-w '/home/alice/.config/systemd/user'`. Run it as that user, then rerun
+the same command.
+
+Setup runs on the target as the enrolled Unix user. It downloads
+`setup-compute.sh` from the immutable Ripple `v0.6.0` release directory. The CLI
+pins that script's SHA-256
+(`87ed45d3ca0ba38958b0bffbb92ee7892dd6fbfa8fdcf2c70417b1421614282d`). Setup runs
+the script only when the downloaded bytes match this pin and the release's
+`setup-compute.sh.sha256` and `SHA256SUMS` both name them. On any mismatch
+nothing runs and the result is `failed` with `reason` `helper_digest_mismatch`.
+Setup identifies itself to the release host with the User-Agent
+`DreamLake-CLI (dl hosts enroll; Ripple setup)`. The script receives the
+DreamLake API URL, the enrollment ID and machine ID issued by the server, and
+the path of the enrollment's existing `identity.key`. It binds the collector
+to that enrollment with a signature from this key. The private key, the
+collector token and your DreamLake login never leave the target or appear in
+arguments. Setup does not log in to DreamLake on the target. Setup also stops
+if the target's key or Nymph machine ID does not match this enrollment.
+
+The receipt reports Ripple separately from the core enrollment, as `ripple` in
+JSON and a `Ripple metrics:` line in text. A Ripple result never changes the
+core result or the exit code. To retry, rerun the same `dl hosts enroll`
+command.
+
+| `ripple.status` | Meaning |
+| --- | --- |
+| `ready` | The server returned a fresh Ripple sample, taken after this install, with CPU and memory readings. |
+| `awaiting_data` | Installed and bound, but the server cannot yet show a fresh Ripple sample. `reason` is `no_fresh_sample` or `origin_unsupported`; see below. |
+| `pending` | Bound, but the collector's service is not running yet, for example because the Linux user has no systemd user manager or the Mac has no logged-in session. `action` says what to do on the target. |
+| `failed` | Not installed. `reason` is the setup step or the helper's own reason, for example `helper_unavailable`, `helper_digest_mismatch`, `server_unsupported`, `binding_conflict` or `clock_skew`. `retryable` and `action` come from the helper when it reports them. |
+| `disabled` | `--no-ripple` now or on an earlier run, or `reason` `host_opted_out` when the host opted out with `setup-compute.sh --opt-out`. |
+| `not_requested` | An enrollment from before this setting, or a managed `dl nymph setup`. |
+| `skipped` | The core enrollment is still pending, so Ripple was not started. |
+
+Readiness is read from the server, never from the target. Only this check asks
+the enrollment's metrics with `origin=ripple`. The server must label the answer
+`metricsOrigin: "ripple"`, so a Nymph metrics Source or other readings on the
+same enrollment never count. A ready sample must be fresh (at most 90 seconds
+old and not stale). It must carry `cpu_percent`, `memory_used_bytes` and
+`memory_total_bytes`, and be taken after the install started. If a Ripple sample
+was already on the server, for example on a retry, the new one must be newer.
+
+The `awaiting_data` reasons:
+
+- `no_fresh_sample`: no qualifying sample arrived during the wait. The wait is
+  90 seconds, or `--wait-seconds` when you pass it.
+- `origin_unsupported`: the server does not label Ripple samples, so the CLI
+  cannot confirm delivery and never reports `ready`.
+
+### Nymph's own metrics
+
+Ripple replaces Nymph's built-in resource readings. When Ripple is on for an
+enrollment, enrollment adds this table to that enrollment's own generated
+`nymph.toml`:
+
+```toml
+[metrics]
+# dl hosts enroll: Ripple reports this enrollment's host metrics
+enabled = false
+```
+
+Nymph 0.1.9 to 0.1.33 turns these readings on by default, and 0.1.34 and later
+turn them off. Nymph 0.1.8 and earlier has no `[metrics]` table and rejects
+unknown tables, so enrollment never adds it there. The version is read from the
+installed Nymph binary, including one installed with `--nymph-version`.
+
+The table is added when Ripple is chosen, before the collector is set up. If
+Ripple setup then fails, Nymph 0.1.9 to 0.1.33 still sends no readings of its
+own until Ripple runs or you turn Ripple off.
+
+A `[metrics]` table that you wrote yourself, including `enabled = true` or an
+opt-out, is carried over unchanged. Enrollment stops without changing anything
+if it cannot carry the table over exactly. Turning Ripple off later removes
+only the table that enrollment added. Managed `dl nymph setup` configurations
+never get this table.
+
+Check later samples with `dl hosts metrics`.
 
 ## Agent session metadata
 
@@ -464,8 +607,9 @@ The channel is still gated by Nymph at startup:
   without a confirmed enrollment binding sends nothing, and the API rejects
   revoked enrollments.
 
-Other automatic uploads (metrics, experiment reporting, job output) are not
-turned on.
+Nymph turns on no other automatic uploads (metrics, experiment reporting, job
+output). Host metrics come from the separate Ripple collector; see
+[Ripple metrics collector](#ripple-metrics-collector).
 
 Existing enrollments keep their settings. Repeating enrollment preserves the
 current `[sessions]` table exactly: absent stays off, `enabled = false` stays
@@ -501,6 +645,8 @@ These output changes require CLI 0.52.1.
 dl hosts enroll --local --name geyang/dev/my-mac
 # Structured output for scripts.
 dl hosts enroll --local --name geyang/dev/my-mac --json
+# Enroll without the Ripple metrics collector.
+dl hosts enroll --local --name geyang/dev/my-mac --no-ripple
 ```
 
 A successful default summary starts with:

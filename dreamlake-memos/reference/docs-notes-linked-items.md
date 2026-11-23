@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.218 86f9a4a6; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.220 8b1ad5c1; do not edit -->
 
 # Linked memo items
 
@@ -114,6 +114,44 @@ bracket holds the same reference as bundle `refs` and lock files:
 - Unreadable or missing targets show **Unavailable bundle** and do nothing
   when clicked. A reference grants no access. Invalid references stay literal
   text.
+
+## 3D previews
+
+`:viewer[...]` shows the 3D Preview of a bundle entry, a library asset or a
+scene version: the same viewer as the library asset panel, the bundle entry
+page and the scene page (MuJoCo, URDF, mesh, USD and splat).
+
+```markdown
+:viewer[fortyfive/teleop-berry@1#scene]
+:viewer[fortyfive/teleop-berry#scene]
+:viewer[library:fortyfive/flexiv#mjlab-flexiv-rizon4s-claw--v2]
+:viewer[scene:fortyfive/s1-lab@3]
+:viewer[fortyfive/teleop-berry@1#scene]{embed="true" height="420"}
+```
+
+- Prefer the bundle form. Libraries move to bundles at cutover; `library:`
+  references stay readable.
+- The card shows the thumbnail, `3D`, the kind, the title and the version.
+  Click it to open the **Preview** panel on a tab beside the memo. A modified
+  click opens the resource's page.
+- `embed="true"` shows the live 3D preview inline, at `height` pixels
+  (default 360).
+- The Preview panel owns its controls: entry or representation switch, reload,
+  open page and fullscreen. Camera and drag = force belong to the viewer. Drag,
+  dock and tab the panel like any other; the address keeps it.
+- The Preview tab's copy button copies the exact directive, pinned to the
+  version the panel shows. Paste it in a memo to get the same card. Every tab
+  with a directive (memo, artifact, session, dashboard, experiment, Preview)
+  has this button.
+- Type `:viewer[` (or `/viewer` in the slash menu) to search bundle entries,
+  scenes and library assets. In **⌘K**, `/viewer <query>` opens the Preview
+  panel and `/viewer ref <query>` copies the directive.
+- A `:viewer` reference is a linked item: **Related** lists it under
+  "Mentioned in this memo" when you can read it. The DreamLake agent receives
+  the references on the page, gets `viewerDirective` from bundle entry and
+  library asset tools, and can open the Preview panel with a layout action.
+- Unreadable or missing targets show **Unavailable preview**. A reference
+  grants no access. Invalid references stay literal text.
 
 ## Terminal references and actions
 
