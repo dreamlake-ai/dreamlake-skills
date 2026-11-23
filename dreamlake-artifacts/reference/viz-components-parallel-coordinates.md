@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/parallel-coordinates.md at 0.33.7 6566643f; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/parallel-coordinates.md at 0.33.8 0197160d; do not edit -->
 
 # Parallel coordinates
 
@@ -297,10 +297,14 @@ and renders a window of rows while keeping its active accessible option mounted.
 ## Smooth exploration of a larger comparison
 
 Hovering or focusing a run raises its trace without moving the pointer targets.
-Selection remains controlled by stable IDs. Every trace stays fully opaque at
-rest, during hover or keyboard preview, and during selection. Width and a
-contrast halo emphasize the active trace without dimming other lines or fading.
-Recorded positions and
+The example toggles use UIKit’s `Checkbox`: an accent-color checkmark at rest, with the box visible on hover or keyboard focus.
+
+Selection remains controlled by stable IDs. Traces stay fully bright at rest
+and during hover or keyboard preview. Selecting a visible run dims background
+curves to 16% opacity while selected and previewed traces stay bright. Clearing
+the selection restores full brightness; IDs outside the visible data do not dim
+the chart. Emphasis changes immediately, without a fade animation. Width and a
+contrast halo distinguish the active trace. Recorded positions and
 missing-value gaps update immediately, without interpolating research data.
 
 ```tsx file="DenseComparisonSpec.tsx"
@@ -707,28 +711,16 @@ export function AxisModesSpec() {
         limits are configured in the host.
       </p>
       <div className="flex flex-wrap gap-3 text-xs">
-        <label>
-          <input
-            type="checkbox"
-            checked={padding}
-            onChange={(e) => setPadding(e.target.checked)}
-          />{" "}
+        <label className="inline-flex items-center gap-1.5">
+          <Checkbox checked={padding} onCheckedChange={setPadding} />
           Left 20px / right 44px
         </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={below}
-            onChange={(e) => setBelow(e.target.checked)}
-          />{" "}
+        <label className="inline-flex items-center gap-1.5">
+          <Checkbox checked={below} onCheckedChange={setBelow} />
           Labels below
         </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={linear}
-            onChange={(e) => setLinear(e.target.checked)}
-          />{" "}
+        <label className="inline-flex items-center gap-1.5">
+          <Checkbox checked={linear} onCheckedChange={setLinear} />
           Straight connectors
         </label>
         <button

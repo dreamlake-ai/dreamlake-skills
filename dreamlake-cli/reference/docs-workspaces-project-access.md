@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.221 8507b5090; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.222 39839715f; do not edit -->
 
 # Project access
 
@@ -508,3 +508,11 @@ the live experiment browser in the tree. Its default location is
 `experiments/Dash`. Open it to browse experiment folders, runs and metrics in
 the right panel. New runs appear through the same Dash. A Project can file its
 own Dash once. Removing the node keeps its experiment data and permissions.
+
+## File a Repo
+
+A Project can file a registered Repo from its own namespace. Choose the Repo in
+the resource picker or use `dl project attach` with `--type repo` and the Repo
+database ID. The default folder is `sources/`. Selecting the node opens the
+Repo and its snapshots in the Project’s right panel. Readers need namespace
+Repo read access. Detaching the node preserves the Repo and all its snapshots.

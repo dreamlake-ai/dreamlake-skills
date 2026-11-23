@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.33.7 6566643f; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.33.8 0197160d; do not edit -->
 
 <span id="reference" />
 
@@ -170,6 +170,12 @@ video codecs other than H.264 are unsupported.
 - **Video.** Bind a `foxglove.CompressedVideo` topic carrying H.264 Annex B
   packets to `frameStack.cameras`. Playback requires browser WebCodecs support
   for the stream. Seeking starts at a preceding keyframe.
+- **Synchronized playback.** The playhead stays at the last ready time while
+  the reader fetches chunks or a mounted camera, point cloud, or numeric track
+  prepares its sample. Playback resumes when these views can advance together.
+  Cameras and point clouds use indexed message timestamps, so different sample
+  rates can legitimately repeat a frame. A failed required read stops playback
+  and reports the error.
 - **Numeric protobuf arrays.** Select the repeated field with
   `<topic>::<field>` and its zero-based dimension by name. For example,
   `field: ["/joints::positions", "positions.0"]` draws the first position
