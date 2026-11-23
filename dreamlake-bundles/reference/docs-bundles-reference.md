@@ -1,11 +1,11 @@
-<!-- generated from https://docs.dreamlake.ai/bundles/reference.md at 0.1.211 4d40cfa8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles/reference.md at 0.1.218 86f9a4a6; do not edit -->
 
 # Bundles Reference
 
   The machine contract of [Bundles](docs-bundles.md). This page gives the manifest
   fields, the hashing algorithm and the REST API.
 
-**Status:** In development. Not released yet.
+**Status:** Released (CLI 0.143 and later, and the production `/bundles` API).
 
 ## Layout of a bundle version
 
@@ -252,6 +252,37 @@ each version from `W` to `V`. A reference `@V#e` normalizes to `@W#e`.
 | `rootHash` | The root hash of the bundle version, `blake3:<hex>`. |
 | `objects` | Optional. Present only for an `env-set` generator that selects objects from another bundle: `{bundle, version, prefix, rootHash}`. It records the pinned bundle version, the object prefix and the root hash of that version, so that the selection is reproducible. |
 
+## Directive
+
+Memos and Chats refer to a bundle or an entry with the `:bundle` directive.
+The bracket holds the reference grammar of `refs`:
+
+| Source | Meaning |
+|---|---|
+| `:bundle[ns/name]` | The bundle, latest version. |
+| `:bundle[ns/name@N]` | The bundle at version `N`. |
+| `:bundle[ns/name@N#entry]` | One entry, pinned to version `N`. |
+| `:bundle[ns/name#entry]` | One entry, latest version. |
+
+- `ns` is a namespace. `name` and `entry` start with a letter or a digit and
+  contain only letters, digits, `_`, `.` and `-` (128 characters maximum).
+  `N` is an integer from 1.
+- `@latest` is not accepted in the directive. Write no version to follow the
+  latest version.
+- The brace form `:bundle{namespace="ns" bundle="name" version="N" entry="e"}`
+  is also accepted. No other attributes are accepted.
+- An invalid directive stays literal text. Code spans and code blocks stay
+  literal.
+- The card reads `GET /namespaces/:ns/bundles/:name/entries/:entry?version=N`
+  (an entry) or `GET /namespaces/:ns/bundles/:name` (a bundle) with the access
+  of the reader. If the read fails, the card shows **Unavailable bundle** and
+  links to nothing. A directive grants no access.
+- The card links to `/:ns/bundles/:name[/v/:N][/entries/:entry]`.
+- The editor completion and the command palette insert a pinned reference: a
+  bundle at its latest version, an entry at its displayed version.
+- The built-in agent cites entries with this directive. The Bundle tools return
+  a `directive` field that it copies.
+
 ## REST API
 
 All routes are scoped to a namespace. Authentication, visibility, share
@@ -283,12 +314,23 @@ A client gets the closure of an entry like this: read the entry, presign its
 A push has three steps.
 
 1. **`POST /namespaces/:ns/bundles/:name/upload-credentials`** — body
-   `{hashes: [...]}`. Returns
+   `{hashes: ["blake3:..." | {hash, size, uploadId?}]}`. Returns
    `{missing: ["blake3:..."], uploads: [{hash, size?, transfer}]}`.
    Blobs that the server has already are not in `missing`. `transfer` is
    `{kind: "single-put", put: {url, headers}}` or an `s3-multipart` transfer
-   with the same shape as the library upload authorizations. Clients also
-   accept the simple form `{hash, url, headers?}`.
+   with the same shape as the library upload authorizations. The server
+   gives a single PUT up to 64 MiB (or when `size` is not given) and an
+   `s3-multipart` transfer (16 MiB parts) above that. Call again with the same
+   `{hash, size}` to resume: the server signs only the missing parts and
+   returns the stored parts in `transfer.completed`. To find an open upload
+   without `uploadId`, the server's S3 identity must have
+   `s3:ListBucketMultipartUploads` on the bundle bucket. Without it, the
+   server starts a new upload. Resume and abort also need
+   `s3:ListMultipartUploadParts` and `s3:AbortMultipartUpload`. The server
+   checks these actions at startup. `GET /health/bundle-storage` shows the
+   result: `status` is `ok`, `missing` (with the denied actions in `missing`),
+   `error`, `pending` or `disabled`. It returns 503 for `missing` and `error`.
+   Set `BUNDLE_STORAGE_CHECK=0` to turn the check off.
 2. Upload each missing blob to its target.
 3. **`POST /namespaces/:ns/bundles/:name/versions`** — body
    `{parentVersion, tree: [{path, hash, size}], message}`. Use
@@ -304,13 +346,92 @@ A push has three steps.
    version, it returns 409 with `{error, latestVersion?}`. Pull the latest
    version, merge, and push again.
 
+### Migration cutover
+
+An import is a shadow import: the bundle records its sources, and the old
+scene or library does not change.
+**`POST /namespaces/:ns/bundles/:name/cutover`** — body
+`{undo?, sources?: ["scene:ns/name" | "library:ns/name"]}`. Members only.
+The default `sources` are all shadow sources of the bundle. After the
+cutover, the old `/scenes` and `/libraries` read routes answer from the
+bundle, their write routes answer `409 migrated_to_bundle`, and the old
+names (`old_name` in `bundle.json`) resolve to the bundle. `{undo: true}`
+reverses it. Returns `{migrated, shadow, aliases}`. The bundle detail returns
+the old names in `nameAliases`.
+
+An old name can belong to one bundle only. When the cutover finds an old name
+of another bundle, it answers `409 name_taken`, except in one case: when
+`bundle.json` of this bundle has `split_from: {bundle: "ns/name", entry}`
+that names that other bundle. Then the old name moves to this bundle at the
+cutover. Use `split_from` when you move an entry out of a bundle, for example
+a public scene out of a private bundle.
+
+**`DELETE /namespaces/:ns/bundles/:name/aliases/:alias`** — drop one old name
+(live or pending) of this bundle. Members only.
+
+**`POST /namespaces/:ns/bundles/:name/aliases/:alias/transfer`** — body
+`{to}`. Move one old name to another bundle of the namespace. Members only.
+The target must hold the item that the old name names (it imported or cut
+over `scene:<alias>` or `library:<alias>`), or its `split_from` names this
+bundle. Otherwise the answer is `409 transfer_not_allowed`.
+
+### Server-side import
+
+For a library or a scene that is too large to download and push again, the
+server can do the import. The result is the same bundle as
+`dl bundle import-library` or `dl bundle import-scene` (without a map): the
+same files, `bundle.json` and entry manifests, thus the same root hash and
+effective hashes. The file bytes stay in object storage. The server reads
+each library file once to calculate its BLAKE3 hash, and copies it in S3. A
+scene file is not read: its BLAKE3 hash is in its storage address. The
+import is a shadow import, and it does not change the source.
+
+**`POST /namespaces/:ns/bundles/:name/imports`** — body
+`{source: {kind: "library" | "scene", namespace, name, revision?}, shadow: true, concurrency?}`.
+Members only; the caller must also be able to read the source. Returns
+`202 {job}`. A library is imported at its current revision. A scene is
+imported at `revision` (the scene version; default the latest), one version
+for each job. The job registers one bundle version on the latest version of
+the bundle, with the message `import library ns/lib@r<revision>` or
+`import scene ns/scene@<version>`. The same request continues the same job.
+When the job is done, the same request registers again and returns
+`unchanged: true` if nothing changed.
+
+**`GET /namespaces/:ns/bundles/:name/imports/:id`** — the job: `state`
+(`queued`, `running`, `done`, `failed`), `phase`, `progress` (files and bytes:
+total, done, copied), `error` and `result` (`{version, rootHash, unchanged}`).
+**`GET /namespaces/:ns/bundles/:name/imports`** lists the jobs of the bundle.
+
+**`POST /namespaces/:ns/bundles/:name/imports/:id/resume`** — continue a
+failed or stopped job. The files that are already copied are not read again.
+A job that lost its runner (for example, at a deploy) continues
+automatically after its lease expires (90 seconds).
+
+Operators can run a job to completion from a shell in a server pod:
+`pnpm exec tsx scripts/bundle-import.ts --job <id>`, or
+`--bundle <ns/name> --source library:<ns/lib>`.
+
+The server-side import is lossless, as the CLI import is. `exclude` (an
+optional list of path patterns) leaves out more paths. A pattern without `*`
+or `?` is a path prefix at a segment boundary. A pattern with `*` or `?` is a
+glob of the whole path: `**` matches across `/`, `*` and `?` do not, and the
+glob also matches a leading directory. A trailing `/` matches directories
+only. The job `result.excluded` lists the paths that were left out
+(`{count, bytes, byReason, paths}`).
+
+The server-side import also copies the asset thumbnails of a library: each
+one becomes the thumbnail preview of its entry (`result.previews`). Asking
+for an import again adds missing thumbnails, and imports again a version that
+an earlier, lossy rule made without some files.
+
 ### Previews
 
 **`POST /namespaces/:ns/bundles/:name/previews`** — body
 `{effectiveHash, files: [{role, hash, size, mime}]}`. Owners and editors
-only. Returns the upload targets. `role` is `thumbnail` or `gallery`. `mime`
-is `image/png`, `image/jpeg`, `image/webp` or `video/mp4`. For a bundle
-preview, give the root hash of the version as `effectiveHash`.
+only. Returns `{missing, uploads}`, the same shape as upload-credentials.
+`role` is `thumbnail` or `gallery`. `mime` is `image/png`, `image/jpeg`,
+`image/webp` or `video/mp4`. For a bundle preview, give `rootHash` (the root
+hash of a version) in place of `effectiveHash`.
 
 Previews are not part of the version tree and not part of a hash. A new or a
 changed preview does not make a version.
@@ -326,6 +447,11 @@ prefix holds:
 - `previews`: one row for each preview: effective hash, kind (`image` or
   `video`), role (`thumbnail` or `gallery`), hash, MIME type, width and
   height.
+
+In the current server, the prefix is the stable catalog prefix
+`bundles/catalog/<id>`, so a rename or an old name does not move the content.
+Blobs and tree objects are content-addressed objects under the prefix, and
+`manifests` and `previews` are DreamDB datasets.
 
 The server stores each file one time in a bundle, across all versions of that
 bundle. It does not share files across bundles or namespaces. A version write

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.211 4d40cfa8; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.218 86f9a4a6; do not edit -->
 
 # Bundles
 
@@ -7,10 +7,10 @@
   all new simulation content. Bundles replace libraries and scenes for new
   work.
 
-**Status:** In development. The `dl bundle` commands, the SDK module
-`dreamlake.bundles` and the `/bundles` REST API are not released yet. This
-page describes the decided design. Libraries and scenes continue to operate
-without change. Refer to [Migrate to bundles](docs-bundles-migration.md).
+**Status:** Released. The `dl bundle` commands (CLI 0.143 and later), the
+`/bundles` REST API and the bundle pages on dreamlake.ai are in production.
+Libraries and scenes continue to operate until they are cut over to bundles.
+Refer to [Migrate to bundles](docs-bundles-migration.md).
 
 ## Bundle and entry
 
@@ -458,6 +458,22 @@ The built-in agent can read bundles. It cannot change them.
 | `dreamlake_bundle_view_images` | View the preview images of a bundle or an entry. |
 
 To make a new version, use `dl bundle push`.
+
+## Refer to a bundle in Memos and Chats
+
+Write the `:bundle` directive in a Memo or a Chat message. It uses the same
+address as `refs` and the lock file:
+
+```markdown
+The robot is :bundle[fortyfive/astribot-s1@7#s1-dual-wuji].
+The mugs are in :bundle[fortyfive/kitchen@4].
+```
+
+The directive shows an inline card with the thumbnail (or an icon for the
+kind), the kind, the title and the displayed version. Click the card to open
+the bundle or entry page. Type `:bundle[` in the editor to search bundles and
+entries, or use **⌘K** → `/bundle`. Refer to
+[Linked memo items](https://docs.dreamlake.ai/notes/linked-items#bundles) for the full syntax.
 
 ## Use an entry in a scene stack
 
