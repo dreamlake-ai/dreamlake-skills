@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.145.1 4ee3a14; do not edit -->
 
 # Host enrollment
 
@@ -183,19 +183,22 @@ Use both flags to include offline archived hosts. Permanent entry deletion is
 not supported.
 
 Read the catalog revision before submitting a change. Lifecycle commands require
-one exact lowercase 24-character Host ID, not a name or wildcard. Use the revision
-returned by the read; `0` below illustrates a record with no prior catalog changes.
+one exact full `namespace/group/host[/user]` name or lowercase 24-character Host ID.
+Full names supply the namespace; an explicit `--namespace` must match. Name lookup
+includes offline and archived hosts and rejects ambiguous matches. Partial names
+and wildcards are not accepted. Use the revision returned by the read; `0` below illustrates a record with no prior catalog changes.
 
 ```bash cli-help="hosts lifecycle"
+dl hosts lifecycle geyang/dev/my-host --json
 dl hosts lifecycle HOST_ID --namespace geyang --json
 ```
 
 ```bash cli-help="hosts archive"
-dl hosts archive HOST_ID --namespace geyang --request-id archive-example-1 --expected-revision 0 --json
+dl hosts archive geyang/dev/my-host --request-id archive-example-1 --expected-revision 0 --json
 ```
 
 ```bash cli-help="hosts restore"
-dl hosts restore HOST_ID --namespace geyang --request-id restore-example-1 --expected-revision 1 --json
+dl hosts restore geyang/dev/my-host --request-id restore-example-1 --expected-revision 1 --json
 ```
 
 Every accepted new request increments the revision, including archiving an
@@ -204,7 +207,8 @@ timestamp is retained by repeated archive actions. Restore clears that timestamp
 All responses state `executionAffected:false` and `retirementSupported:false`.
 
 Retain the request ID, Host ID, namespace, action and expected revision. After an
-ambiguous transport failure, repeat that exact request; the CLI never retries or
+ambiguous transport failure, use the resolved Host ID and namespace reported in
+the error to repeat that exact request, even if the host name has changed; the CLI never retries or
 refreshes the revision automatically. Reusing a request ID with different inputs
 returns `409 request_id_conflict`. A stale revision returns
 `409 catalog_revision_conflict`; inspect the current catalog state before choosing
@@ -1437,18 +1441,31 @@ can itself be rolled back. Receipts from the ad-hoc 2026-10 upgrade are not used
 
 ### Fleet behavior and results
 
-`--concurrency` (1–16, default 1) bounds hosts processed at once; one host is
+`--concurrency` (1–16, default 5) bounds hosts processed at once; one host is
 never processed twice at the same time. After `--max-failures` failed hosts
-(default 1) no new host is started; hosts in progress finish, and the rest are
+(default 5) no new host is started; hosts in progress finish, and the rest are
 reported as `not_started`. Each host ends as `upgraded`, `rolled_back`,
 `current`, `planned` (dry run), `failed`, `skipped` or `not_started`.
 
 Outcomes are appended as JSON Lines while the run proceeds, to `--record` or
-`~/.dreamlake/hosts-upgrades/<run>.jsonl`: one `run` entry, a `scheduled` entry
+`~/.dreamlake/hosts-upgrades/<run>.jsonl`: one `run` entry, remote-stage `progress` entries, a `scheduled` entry
 when a restart is scheduled, one `host` entry per finished host and a final
-`summary`. The command prints a table, or the full report with `--json`, and
+`summary`. During execution an interactive terminal shows a live paginated table
+with remote bootstrap, restart, reconnect and verification status. Use left/right,
+Page Up/Page Down or p/n to change pages; q leaves the live view and streams
+updates while upgrades continue. Redirected output streams timestamped stage
+updates to stderr. `--json` suppresses progress and prints only the final JSON
+report to stdout; the JSON Lines record still captures live stages.
+
+The command prints a final table, or the full report with `--json`, and
 exits 0 only when every selected host is `upgraded`, `rolled_back`, `current` or
 `planned`.
+
+Linux verification checks the running `/proc/<pid>/exe` checksum, not only the
+installed file or its modification time. If systemd's effective `ExecStart` uses
+a different binary than the enrolled unit file, upgrade fails with
+`service_binary_override` before installing or restarting anything. Reconcile
+that service override locally, preserving its enrollment config, then retry.
 
 If verification times out, the host may still have restarted correctly; run
 `hosts upgrade` again with the same version: a verified or running new binary is

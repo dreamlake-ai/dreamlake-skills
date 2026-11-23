@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.145.1 4ee3a14; do not edit -->
 
 # Environments
 
@@ -306,14 +306,23 @@ dl nymph access show --name alice/computers/laptop
 ```
 
 ```bash cli-help="nymph access grant"
+dl nymph access grant file-metadata --name alice/computers/laptop
 dl nymph access grant upload --name alice/computers/laptop
 dl nymph access grant command-execution --name alice/computers/laptop
 ```
+
+With CLI **0.145.1+** and Nymph **0.1.71+**, `file-metadata` controls Files
+metadata access independently of automatic uploads. The overview shows the
+effective Files permission: older policies without an explicit value inherit
+`upload`; an explicit denial overrides that fallback. Existing upload and
+session-metadata choices are preserved when editing another permission.
+Files also requires enabled exports and the host's existing filesystem permissions.
 
 Each grant has its own default-No confirmation. For automation, `--yes` explicitly
 approves only that one permission. Revoke independently:
 
 ```bash cli-help="nymph access revoke"
+dl nymph access revoke file-metadata --name alice/computers/laptop
 dl nymph access revoke upload --name alice/computers/laptop
 dl nymph access revoke command-execution --name alice/computers/laptop
 ```

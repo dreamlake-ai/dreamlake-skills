@@ -1,6 +1,32 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.145.1 4ee3a14; do not edit -->
 
 # Release notes
+
+## 0.145.1 — Separate Files metadata consent
+
+`dl nymph access grant file-metadata` and `revoke file-metadata` manage Files
+metadata consent independently of upload consent on Nymph 0.1.71 or later.
+The overview displays the effective permission, including the upload fallback
+for older policies. Changes require restarting the selected enrollment.
+
+Nymph policy inspection accepts known optional boolean permissions and preserves
+them when editing another permission. Invalid or unknown fields remain rejected,
+and initial managed setup still requires deny-all access.
+
+## 0.145.0 — Named host archiving and parallel upgrades
+
+`dl hosts archive`, `restore`, and `lifecycle` accept exact full host names,
+including offline and archived records. Request IDs and expected revisions remain
+explicit; errors retain the resolved Host ID for safe retries.
+
+Fleet upgrades and rollbacks process five hosts concurrently by default, stop
+starting new hosts after five failures, and show live per-host remote status.
+Interactive terminals provide a paginated view; redirected output streams progress
+to stderr. Linux verification checks the running executable and refuses service
+overrides that would restart a different binary.
+
+This release also includes `dl viewer ref/open` and viewer directives in bundle
+entry output. The bundled skill remains pinned to published `v2026.11.23.1`.
 
 ## 0.138.0 — Worker downloads for targeted UDFs
 
