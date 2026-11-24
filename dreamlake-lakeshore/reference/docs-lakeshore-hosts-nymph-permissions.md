@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions.md at 0.1.223 63628016d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions.md at 0.1.225 79bd752ea; do not edit -->
 
 # Nymph permissions and commands
 

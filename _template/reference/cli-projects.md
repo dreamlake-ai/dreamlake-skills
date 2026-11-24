@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.145.1 4ee3a14; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.146.3 08ef5bd; do not edit -->
 
 # Projects & data
 
@@ -306,6 +306,12 @@ permission; readable content cannot be redistributed by a reader.
 Available in CLI 0.62.0 with the companion Project-sharing backend release.
 Ownership transfer remains separately execution-gated. Check installed help
 and server support before relying on attachment commands.
+
+File a registered Repo from the same namespace under `sources/`. The Project tab shows its remote and snapshots. Project filing preserves the Repo’s existing namespace access. Use `--parent` to select another Project folder.
+
+```bash
+dl project attach research --namespace acme --type repo --resource "$REPO_ID"
+```
 
 **CLI 0.142.0+:** the `dash` attachment files the current Project’s live experiment browser under
 `experiments/Dash`. Click the node to browse folders, runs and their data in the

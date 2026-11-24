@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.146.2 b4ebe43; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.146.3 08ef5bd; do not edit -->
 
 # Terminal sessions
 

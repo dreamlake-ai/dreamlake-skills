@@ -1,6 +1,32 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.145.1 4ee3a14; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.146.3 08ef5bd; do not edit -->
 
 # Release notes
+
+## 0.146.3 — DreamLake Account sign-in
+
+New production logins open `auth.dreamlake.ai`. Installed CLI versions and saved profiles can still use `auth.vuer.ai`. Their device requests continue on the original host, and the browser opens DreamLake Account for approval. Existing DreamLake tokens and namespace settings continue to work. The account site may ask you to sign in again on its new domain.
+
+## 0.146.2 — Native session relationship guidance
+
+The embedded `dreamlake-cli` skill now includes the native session relationship
+reference from product docs 0.1.223 and its inspection procedure. The public
+skill pin is
+[v2026.11.23.4](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.23.4),
+preserving the Memo SVG and account/namespace guidance. The CLI embeds
+`dreamlake-cli`; the full `dreamlake-session-archives` procedure and its required
+skills are installed from the public release.
+
+The guide distinguishes verified spawn, fork and component membership for Codex,
+Claude, Kimi Code and DeepSeek Harness. Signed metadata reporting requires Nymph
+0.1.73 or later, the source's explicit metadata permission and its applied binding.
+A CLI upgrade alone does not activate collection or change archive upload policy.
+This release adds guidance, with no new lineage CLI command or SDK method.
+
+## 0.146.0 — File Repos in Projects
+
+Use `dl project attach --type repo` to file a same-namespace Repo in a Project.
+The default folder is `sources/`. Select the node to browse snapshots in the
+Project tab. The Repo keeps its namespace read permissions.
 
 ## 0.145.1 — Separate Files metadata consent
 

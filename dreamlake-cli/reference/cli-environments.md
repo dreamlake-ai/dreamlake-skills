@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.145.1 4ee3a14; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.146.3 08ef5bd; do not edit -->
 
 # Environments
 
@@ -133,9 +133,11 @@ dl auth env use dev
 
 > **Warning:** The device-flow auth server must be the one your target API trusts. The
 > built-ins set this automatically (staging uses `staging-auth.vuer.ai`,
-> prod uses `auth.vuer.ai`). For a custom env on a non-default auth server,
+> prod uses `auth.dreamlake.ai`). For a custom env on a non-default auth server,
 > pass `--auth <url>`. A mismatch fails token exchange with
 > `No matching key found in JWKS`.
+
+Installed CLI versions and saved profiles that use `auth.vuer.ai` can continue to sign in. The verification page opens at `auth.dreamlake.ai`. Existing production tokens and profile files continue to work.
 
 ## Overrides and storage
 

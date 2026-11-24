@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/episode-line-chart.md at 0.33.8 0197160d; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/episode-line-chart.md at 0.33.9 3f29c10d; do not edit -->
 
 # Line charts
 
@@ -18,7 +18,11 @@ The example uses a three-second recording, fractional-second labels and short
 major/minor tick marks. All four charts share `time`, zoom and pan;
 only the hovered chart shows a local readout. Press and drag updates shared time
 through `onSeek` (or the legacy `onHover` callback when `onSeek` is absent).
-`isScrubOwner` controls the shared hairline emphasis and keyboard readout. The readout follows both pointer axes in a body portal,
+`isScrubOwner` controls the shared hairline emphasis and keyboard readout.
+While pressing and dragging, a solid 2px blue vertical bar with a contrast
+outline marks the local seek position immediately, even before the host updates
+`time`. It stays visible at the plot edges during a captured drag and clears on
+release, cancellation, Escape, or window blur. The readout follows both pointer axes in a body portal,
 stays 12px below and to the right of the pointer and can extend beyond the chart.
 Only browser edges clamp it into view. It passes pointer events through; Escape dismisses it. Keyboard zoom/pan shows the focused
 chart's readout when `time` is set. Recorded sample values are never interpolated.
@@ -161,6 +165,54 @@ the complete wiring:
 
 The y-axis fits the data automatically. Set `yRange` to compare several charts
 on a fixed scale; [Numeric axes](https://viz.dreamlake.ai/components/numeric-axis) explains tick labels.
+
+## Progressive loading and gaps
+
+An endpoint arriving early must not create a line through unloaded data. Supply
+`data.coverage` with the immutable loaded intervals belonging to that snapshot
+(sorted, with touching intervals merged).
+Lines, uncertainty bands, trace hits and readouts stay empty across uncovered
+intervals. MCAP datasets supply this metadata automatically, including missing
+overlapping chunks. The shared playback cursor can still move through a gap.
+
+Leave `coverage` absent for a complete recording; irregular sample spacing does
+not imply missing data. An empty array means nothing has loaded. Replace the
+whole data object as samples and coverage arrive. Explicit `NaN` samples also
+break a trace. Hover the middle below, then load its deferred observations:
+
+```tsx file="ProgressiveSeriesSpec.tsx"
+
+/** The endpoint is loaded first; the middle observations arrive later. */
+export function ProgressiveSeriesSpec() {
+  const [complete, setComplete] = useState(false)
+  const [time, setTime] = useState<number | null>(null)
+  return (
+    <div>
+      <Button onClick={() => setComplete(value => !value)}>
+        {complete ? 'Defer middle data' : 'Load middle data'}
+      </Button>
+      <div className="mt-3 h-[170px]">
+        <EpisodeLineChart
+          title="Progressive recording"
+          duration={10}
+          time={time}
+          onSeek={setTime}
+          series={[{
+            id: 'recorded', label: 'Recorded value', color: '#3388aa',
+            data: complete ? {
+              x: [0, 1, 3, 4, 7, 9, 10], y: [1, 2, 1, 3, 2, 3, 4],
+              coverage: [{ from: 0, to: 10 }],
+            } : {
+              x: [0, 1, 9, 10], y: [1, 2, 3, 4],
+              coverage: [{ from: 0, to: 1 }, { from: 9, to: 10 }],
+            },
+          }]}
+        />
+      </div>
+    </div>
+  )
+}
+```
 
 ## Line width and active emphasis
 
@@ -594,7 +646,7 @@ export function SharedViewportSpec() {
         <EpisodeTimeline duration={duration} frames={[]} tracks={[{ id: 'phase', name: 'Episode phase', blocks: ranges }]} {...shared} {...bind('timeline')} />
       </div>
       <p className="text-xs opacity-70">One shared window for both charts and timeline. Event times stay absolute: Contact 6 s, Grasp 7–12 s, Release 14 s. The camera follows the same absolute preview/playhead time.</p>
-      <p className="text-xs opacity-70">Alt/Ctrl/Meta + wheel zooms at the pointer. Press and drag to scrub. Alt-drag pans; Shift-drag zooms. Hover only shows the local readout. Focus a plot for + / −, arrow keys, or Home. Plain vertical scrolling stays with the page.</p>
+      <p className="text-xs opacity-70">Alt/Ctrl/Meta + wheel zooms at the pointer. Press and drag to scrub: a blue vertical bar marks the active position on the chart or timeline. Alt-drag pans; Shift-drag zooms. Hover only shows the local readout. Focus a plot for + / −, arrow keys, or Home. Plain vertical scrolling stays with the page.</p>
     </div>
   )
 }

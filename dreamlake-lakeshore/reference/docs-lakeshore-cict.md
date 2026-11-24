@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.223 63628016d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.225 79bd752ea; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -23,8 +23,10 @@ starts a single-use runner there, and writes the evidence the job declares
 (results, replays, metrics) to a Source, where the CI/CT page and the Source
 viewers show it.
 
-This is CI/CT **channel A** (triggered by GitHub). Submitting suites from
-DreamLake itself, without GitHub, is planned separately.
+This is CI/CT **channel A** (triggered by GitHub). To start a suite when a
+container image is pushed to GHCR, Google Artifact Registry or Amazon ECR, see
+[Run a suite when an image is pushed](https://docs.dreamlake.ai/lakeshore/cict/registry-triggers).
+Submitting suites from DreamLake itself, without GitHub, is planned separately.
 
 ## How a job runs
 
@@ -353,6 +355,9 @@ Two ways are supported by design:
 | GET | `/namespaces/:ns/cict/runs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs/:run` | read |
 | GET | `/namespaces/:ns/cict/runs/:run/comparison` | removed: always `410 comparison_removed` |
+| GET / POST | `/namespaces/:ns/github/registry-triggers` | `lakeshore:read` / `lakeshore:use`: registry push triggers |
+| DELETE | `/namespaces/:ns/github/registry-triggers/:triggerId` | `lakeshore:use` |
+| GET | `/namespaces/:ns/github/registry-evaluations?limit=` | `lakeshore:read`: registry-triggered runs; the ECR secret and reconcile routes are in [Run a suite when an image is pushed](https://docs.dreamlake.ai/lakeshore/cict/registry-triggers#api) |
 
 The built-in agent can call these through its resource API tools. Creating or
 deleting a pool is a control operation. Completing a GitHub binding is not

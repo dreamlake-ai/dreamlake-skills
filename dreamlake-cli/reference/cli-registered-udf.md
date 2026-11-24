@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/registered-udf.md at 0.145.1 4ee3a14; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/registered-udf.md at 0.146.3 08ef5bd; do not edit -->
 
 # Execute a registered Python UDF
 
