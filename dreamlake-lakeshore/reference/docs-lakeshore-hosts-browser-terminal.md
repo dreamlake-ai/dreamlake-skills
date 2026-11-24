@@ -1,18 +1,352 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Browser terminal
 
 Compute can open an interactive SSH terminal on a machine you own and have
-enrolled. Open **Compute**, select the machine, choose **Terminal**
+enrolled, or on one whose owner has [shared it with you](#share-a-machine-with-a-teammate).
+Open **Compute**, select the machine, choose **Terminal**
 (`/:namespace/compute?view=terminal`), then **Connect**. The terminal runs as
 the enrolled Unix user. Keys stay on the server, and the browser never sends a
 host address or a key.
 
 A machine is listed only when its daemon is online, reports native SSH
-support, and is bound to your personal namespace enrollment. Organization
-namespaces are not supported yet.
+support, and is bound to an enrollment you own in that namespace or one
+shared with you. In an organization namespace, membership alone does not list
+anyone else's machines.
+
+## Create a named tmux session and copy its reference
+
+**Compatibility:** CLI 0.137.0 and Python 0.56.1 include the named-tmux client
+operations. The host needs Nymph 0.1.59 or later, plus a reference-capable API
+and terminal gateway. Check the enrollment's advertised capability before
+using it; installing a client alone does not enable an older daemon or server.
+
+Use the same action words in the CLI, command palette and Markdown directive:
+
+| Surface | Create a new session |
+|---|---|
+| CLI | `dl tmux new research --host alice/dev/my-computer` |
+| Command palette | `/tmux new research --host alice/dev/my-computer` |
+| Memo or Chat directive | `:tmux[new research --host alice/dev/my-computer]` |
+
+The action creates a new session. If that name already exists, it reports a
+conflict; it never attaches to the existing session as a side effect. Omit the
+name for an automatically generated unique name. New names use 1–64 ASCII
+letters, digits, hyphens or underscores. Choose the exact enrolled Unix account
+when a machine has more than one. Shared-host grants retain their server-assigned
+name prefix; the returned reference contains the actual name.
+
+The CLI creates detached by default and prints the confirmed reference. Add
+`--open` to attach interactively. The palette opens the newly created session
+in the originating view. A directive displays an explicit **Run** action.
+Rendering, editing, previewing, importing, indexing or reopening a document
+never executes its action. Opening an action link in another tab shows the
+Run screen; it does not create a session merely by loading the URL.
+
+Keep the request UUID printed by the CLI. After an interrupted request, repeat
+it with the same `--request-id` and the same name/host, or inspect that operation.
+Clients poll an existing operation; they do not submit another create while
+waiting. A changed request with the same ID conflicts. An expired or interrupted
+operation does not authorize a fresh creation under that ID.
+
+### Open an existing session
+
+Copy Reference from a confirmed tmux terminal returns:
+
+```text
+:tmux[<enrollment-id>/<server-id>/<percent-encoded-exact-session-name>]
+```
+
+The enrollment ID has 24 lowercase hexadecimal characters; the server ID has
+16. Copy the returned reference unchanged. The exact name, rather than tmux's
+reusable numeric session ID, identifies the session within that enrollment and
+server. A replacement with the same exact name in that server can be opened;
+a different session that inherits an old numeric ID cannot. A missing session
+is unavailable: opening its reference never creates it and never falls back to
+a login shell, another server or another Unix account.
+
+`dl tmux open REFERENCE` attaches to the referenced session.
+`dl tmux list --host alice/dev/my-computer` and `dl tmux resolve REFERENCE`
+read the authorized inventory; inventory is an observation, not proof of a live
+attachment. The gateway performs a fresh exact lookup before attaching.
+References confer no access: ownership or the current host grant is checked on
+every open. Private socket paths and connection credentials are never embedded
+in the reference.
+
+You can paste the reference into Memos or Chat, or drag its terminal tab into
+Context and reopen it there. A transient shell's browser handle is not a durable
+reference. Copying a saved agent conversation is a separate action; it does not
+turn terminal output into a saved conversation or an archive. Neither copying
+nor creating a tmux reference indexes program or terminal output.
+
+### API and client parity
+
+Creation, operation polling and reference resolution are enrollment-scoped,
+without a namespace in the route:
+
+| Operation | API |
+|---|---|
+| Create | `POST /terminal-references/:enrollment/tmux/sessions`, body `{requestId, name?}` |
+| Read creation result | `GET /terminal-references/:enrollment/tmux/operations/:requestId` |
+| Resolve an existing reference | `GET /terminal-references/:enrollment/tmux/:server?name=EXACT_NAME` |
+
+Inventory uses `GET /namespaces/:namespace/hosts/:host/enrollments/:enrollment/multiplexer-sessions`.
+It reads cached metadata without requesting a scan. Attachment uses the terminal
+gateway's `POST /namespaces/:namespace/terminal/tickets`, with
+`targetId: "enrollment-ENROLLMENT_ID"`, terminal `cols` and `rows`, and
+`launch: {kind: "tmux-reference", enrollmentId, serverId, session}`. Use a
+gateway-configured client transport and its allowed Origin for this call; the
+API transport alone does not open a terminal.
+
+The creation envelope carries the original `requestId`, nullable `requestedName`,
+and `pending`, `succeeded` or `failed` status. A success includes the canonical
+`reference` and `directive`; callers should use that result rather than inventing
+an identity from a host label. Keep original request IDs through retries and
+check the returned enrollment/name binding before opening.
+
+Pending operations return HTTP 202. A completed create returns 201 on success,
+and reading a completed operation returns 200. A completed failure, including
+`name_exists`, is a 200 response with `status: failed`; inspect the envelope even
+when HTTP succeeds. Reusing a request ID with a different name and an unsupported
+enrollment return 409. Request UUIDs use lowercase hexadecimal characters.
+
+The TypeScript `@dreamlake/dreamlake-cli/api` client exposes `tmux.create`,
+`tmux.operation`, `tmux.resolve`, `tmux.list` and `tmux.attachTicket`.
+See the [CLI command and SDK guide](https://cli.dreamlake.ai/host-enrollment#named-tmux-references-and-creation)
+for signatures, flags and compatibility. The Python `client.tmux` client exposes `create`, `operation`, `resolve`,
+`list` and `attach_ticket`; consult the [Python SDK tmux guide](https://py.dreamlake.ai/tmux) for its typed
+receipts and explicit gateway transport. The existing `hosts tmux` command
+family exposes the same named operations.
+
+### Python SDK
+
+Python 0.56.1 includes the synchronous methods below. Configure
+`DreamLakeClient(dl_url="https://api.dreamlake.ai", token=token)` for metadata
+and creation. Each call makes one HTTP request; it does not retry or poll
+automatically.
+
+| Operation | Call |
+|---|---|
+| Create | `client.tmux.create(enrollment, request_id=request_id, name="work")` |
+| Read result | `client.tmux.operation(enrollment, request_id, expected_name="work", timeout=30)` |
+| Resolve | `client.tmux.resolve(reference)` |
+| List | `client.tmux.list(namespace, host_id, enrollment)` |
+| Attach ticket | `gateway.tmux.attach_ticket(namespace, reference, origin="https://dreamlake.ai", cols=80, rows=24)` |
+
+Generate a lowercase request UUID with `str(uuid4())` and retain it before
+creation. Check the returned dictionary's `status`; a pending receipt needs
+another operation read, while a failed receipt carries `error`. The operation
+read's `expected_name=None` binds an omitted name; omitting that parameter
+skips its optional name comparison. Its `timeout` applies to that HTTP request.
+
+Use `parse_tmux_reference` from `dreamlake.api` to parse a confirmed directive.
+For attachment, configure a separate
+`DreamLakeClient(dl_url="https://term.dreamlake.ai", token=token)`. Use the
+successful receipt's authorized target and exact reference. The returned
+ticket is a short-lived credential for the terminal stream, not an attached
+local terminal; do not print or save it in a Memo.
+
+## Share a machine with a teammate
+
+In an organization namespace, the owner of a machine can let one named member,
+or one team of the organization, connect to it with their own DreamLake account:
+
+1. Open **Compute** in the organization namespace and select the machine.
+2. Under **Access**, choose the Unix account, enter the member's username, and
+   choose **Grant**.
+
+A team grant names the team's slug instead of a username; see
+[Manage grants without Compute](#manage-grants-without-compute).
+
+The member then sees the machine in Compute, marked **Shared with you**, and
+can open the terminal there or with `dl ssh <namespace>/<group>/<machine>`.
+Each person signs in as themselves, and their DreamLake sessions and saved
+sessions stay their own. DreamLake never passes the owner's DreamLake sign-in
+or connection credentials to the member; credentials stored on the machine
+itself are a different matter (see below). The grant covers connecting and
+reading that enrollment's [machine readings](https://docs.dreamlake.ai/lakeshore/hosts/metrics#shared-hosts).
+Machine settings, metrics management (Ripple upgrade target and metrics Source),
+jobs, the agent list and sharing stay with the owner.
+
+- Only the machine's owner can grant or revoke, and only to a current member
+  of the organization or a team of that organization. Personal namespaces
+  cannot share machines.
+- A grant covers one enrollment, that is one Unix account on that machine.
+- **A team grant follows the team's membership.** It reaches each person who,
+  at the time of each connection, is a direct member of that team, is not a team
+  **guest**, and is a current organization member. Members of parent or child
+  teams are not included. A guest never connects through a team grant, even after
+  joining the organization, until their team role is changed. People the team's
+  owners and admins add later get access too, without the machine owner being
+  asked, so grant a team only when you accept everyone its managers may add. An
+  archived team's grants give no access until it is restored.
+- A person's access is the union of their current grants: they can reach the
+  same enrollment directly and through one or more teams.
+- **Revoke** stops new connections through that grant at once and asks the
+  control plane to close every connection opened through it, browser or
+  `dl ssh`; they usually end within a few seconds. A connection whose person
+  still holds another current grant to that enrollment is kept instead. If the
+  control plane cannot confirm a
+  close, Compute says so and keeps the revoked member listed with a
+  **Retry close** button until those connections close or reach their current
+  deadline. Renewable browser sessions use a five-minute activity window plus
+  ten seconds of cleanup grace; keyboard-idle `dl ssh` sessions use at most
+  30 minutes 10 seconds after their last keystroke renewal. Legacy fixed-lifetime
+  connections retain their original deadline. A renewal rechecks the grant, so
+  none succeeds after revoke.
+- The grant also stops working while the member is not in the organization,
+  the owner can no longer use the machine, the enrollment is revoked, or the
+  machine moves to another namespace. Then new connections are refused and
+  browser terminals close, but a `dl ssh` session that is already open runs
+  until its current deadline (the same bounds; renewals are refused meanwhile).
+- When a person is removed from a team or leaves it, or is removed from the
+  organization, the connections they opened through that team's grants are
+  closed like a revoke, unless another current grant of theirs covers the
+  enrollment. Deleting a team revokes its machine grants and closes their
+  connections. Other people's connections are never touched. This is best
+  effort: a connection the control plane cannot confirm closed runs until its
+  current deadline (the same bounds as above), while its renewals and any new
+  connection are refused at once. Membership changes do not report how many
+  connections were closed.
+- A member's tmux sessions get their own names, so the default `web-ssh`
+  does not attach the owner's session. Their shell can still reach everything
+  the Unix account can.
+
+The shell runs as the enrolled Unix user. If you share your own account, the
+member (for a team grant, every member of the team) can read its files, attach
+its tmux sessions, and use any credentials
+stored in it on that machine, including agent logins and the machine's
+DreamLake daemon identity. To keep people apart, create a separate Unix
+account for the member, [enroll](docs-lakeshore-hosts-enroll.md) that account, and
+share that enrollment instead.
+
+### Manage grants without Compute
+
+The same owner-only grant is available through the API and its clients. Each
+call is made as the signed-in owner; none of them changes who may grant, the
+organization-member requirement or the one-enrollment scope.
+
+| Surface | List | Grant | Revoke |
+|---|---|---|---|
+| API | `GET /namespaces/:namespace/hosts/:hostId/access-grants` | `POST` the same path with `{"enrollmentId": "ENROLLMENT_ID", "grantee": "USERNAME"}` (`@` optional) | `DELETE …/access-grants/:grantId` |
+| CLI (0.128.0 or later) | `dl hosts access list HOST_ID` | `dl hosts access grant HOST_ID --enrollment ENROLLMENT_ID --user USERNAME` | `dl hosts access revoke HOST_ID GRANT_ID` |
+| TypeScript, `@dreamlake/dreamlake-cli/api` (same release) | `hosts(ns).accessGrants(hostId)` | `hosts(ns).grantAccess(hostId, { enrollmentId, grantee })` | `hosts(ns).revokeAccess(hostId, grantId)` |
+| Python (0.54.0 or later) | `client.hosts.access_grants(ns, host_id)` | `client.hosts.grant_access(ns, host_id, enrollment_id=…, grantee=…)` | `client.hosts.revoke_access(ns, host_id, grant_id)` |
+| Built-in agent | `dreamlake_host_access_grants` | `dreamlake_host_access_grant` | `dreamlake_host_access_revoke` |
+
+To grant a team, send exactly one of `grantee` or `team`, where `team` is the
+slug of a team in the namespace's organization. Revoke a team grant by its ID
+like any other grant. The version minimums in the table above cover person
+grants only. Team grants need the API released on 2026-11-17, CLI 0.132.0 or
+later, Python 0.56.0 or later, and the current Compute.
+
+| Surface | List people and teams | Grant a team | Revoke receipt |
+|---|---|---|---|
+| Compute | **Brief › Access › Terminal access** lists Person and Team rows | Choose **Organization team**, read the warning under **Grant** and grant | Says how many connections stay open through another grant |
+| API | `GET …/access-grants?grantees=all` | `POST` with `{"enrollmentId": "ENROLLMENT_ID", "team": "TEAM_SLUG"}`, returns `teamGrant` | adds `stillAuthorizedConnections` |
+| CLI (0.132.0 or later) | `dl hosts access list HOST_ID` | `dl hosts access grant HOST_ID --enrollment ENROLLMENT_ID --team TEAM_SLUG` | `dl hosts access revoke HOST_ID GRANT_ID` |
+| TypeScript (same release) | `hosts(ns).allAccessGrants(hostId)` | `hosts(ns).grantAccess(hostId, { enrollmentId, team })` | `hosts(ns).revokeAccess(hostId, grantId)` |
+| Python (0.56.0 or later) | `client.hosts.access_grants(ns, host_id)` | `client.hosts.grant_access(ns, host_id, enrollment_id=…, team="TEAM_SLUG")` | `client.hosts.revoke_access(ns, host_id, grant_id)` |
+| Built-in agent | `dreamlake_host_access_grants` (`teamGrants`) | `dreamlake_host_access_grant` with `team` | `dreamlake_host_access_revoke` |
+
+TypeScript `allAccessGrants` and Python `access_grants()` report a server that
+predates team grants as unsupported (TypeScript `HostTeamGrantsUnsupportedError`),
+never as an empty team list.
+
+To list team grants, the API call adds `?grantees=all` and returns `grants`
+(people), `teamGrants` and `teams`, the organization's live teams that can be
+granted. Python `access_grants()` returns the same three lists, and the
+built-in agent lists `teamGrants` alongside `grants`. Without `?grantees=all`
+the response lists people only, so once a machine has any team grant that
+request is refused with `409 host_access_grant_client_upgrade_required`
+rather than showing an incomplete list. Update the client if you see it. More
+than 100 grants in any listed set fails closed with `503 host_access_grant_limit`.
+
+For CLI flags and output, see [Share connection access](https://cli.dreamlake.ai/host-enrollment#share-connection-access)
+in the CLI guide. A grant always names an exact enrollment, so choose the Unix account first;
+host and enrollment IDs come from `dl hosts enrollments HOST_ID` or the host
+details. Granting the same person or team the same enrollment again while the
+grant is active returns it unchanged (`201` when created, `200` when already
+active). After
+a revoke, the same request grants access again, so do not repeat a grant whose
+outcome is unknown. List the grants first, and grant again only as a new decision.
+Errors keep their
+API codes: `grantee_not_found`, `team_not_found`, `grantee_not_member`,
+`grantee_is_owner`, `host_access_grant_org_only`, `enrollment_not_found`,
+`host_not_found`, and `invalid_host_access_grant` (including neither or both of
+`grantee` and `team`).
+
+Each grant lists `id`, `enrollmentId`, `unixUser`, `machineId`, `grantee`
+(`username`, `name`), `grantedAt` and `state`; a team grant lists `team`
+(`slug`, `name`) instead of `grantee`, plus `inactive` when the team was
+deleted. A revoke returns
+`closedConnections`, `stillAuthorizedConnections` (connections kept because
+their person holds another current grant to that enrollment) and
+`unconfirmedConnections`, plus `unconfirmedUntil` when
+some closes were not confirmed. Those connections may stay open until that
+time. The grant then stays listed with `state: "revoked"`, `pendingConnections`
+and `pendingUntil`, and repeating the revoke retries the close.
+
+The built-in agent's mutating grant tools need **Full access** turned on for
+the message, and act only when you name the person or team and the machine.
+Before a team grant, the agent says it applies to every current direct member
+and to anyone added later. They use
+your own sign-in, not a service account, and the agent's generic API tools
+cannot reach these routes. Machine service-account host grants
+(`dl service-accounts host-grants`) are a different permission for a machine's
+own identity. They neither share a machine with a person nor make a service
+account a grantee.
+
+## Hosts in Projects
+
+The owner can file a machine in a Project of the same namespace, by default in
+its `hosts` folder. Filing is placement only. No Project role, Project grant or
+Project membership gives anyone access to the machine: it opens no terminal or
+`dl ssh` session and exposes no lifecycle controls, metrics or jobs. Connection
+access stays the person and team grants above.
+
+- Only the machine's exact owner can file it; anyone else is refused as if it
+  did not exist (404). Filing also needs Project content-create permission.
+  Only an organization owner holds the machine-use permission an owner needs,
+  and organization owners administer every Project in the namespace, so the
+  owner can file and unfile there; other Project writers can also unfile.
+  Filing again returns the same entry.
+- A machine is filed only in its own namespace. A cross-namespace mount is
+  refused with `400 host_placement_same_namespace_only`.
+- Signed-in members of the namespace who can read the Project see the
+  machine's name, its owner and their own relation to it (owner, grant or
+  none). Public and anonymous readers, external Project grantees and service
+  accounts see nothing. No enrollment, Unix account, status or credential is
+  shown. Where a machine is filed is visible to its owner only.
+- Changing the Project's grants does not involve filed machines.
+- Moving the machine to another namespace unfiles it from every Project in the
+  same step. The move preview reports this as `projectPlacements` (count, policy
+  `unfile`); filing after the preview makes it stale (`move_preview_conflict`).
+- A whole Project cannot be moved while a machine is filed in it. The move is
+  refused with `PROJECT_RESOURCE_TRANSFER_UNSUPPORTED`,
+  `UNSUPPORTED_PROJECT_CONTENT` or `PROJECT_STREAM_RESOURCE_UNSUPPORTED`;
+  unfile the machines first.
+- Unfiling, deleting the Project or moving it never deletes or changes the
+  machine.
+
+Filing needs the same releases as team grants: CLI 0.132.0 or later, Python
+0.56.0 or later, and the current Compute. The CLI can also tag the filing with
+`--bindr NAME_OR_ID`.
+
+| Surface | File | Unfile |
+|---|---|---|
+| Compute | **Brief › Access › Projects › File**: choose a Project you can write to and, optionally, a Bindr. In the Project, the machine opens as a reference card. | Remove it from the Projects row |
+| API | `POST /namespaces/:namespace/projects/:project/resources` with `{"resourceType": "host", "resourceId": "HOST_ID"}` | `DELETE` the same path and body |
+| CLI (0.132.0 or later) | `dl project attach PROJECT --namespace NAMESPACE --type host --resource HOST_ID` | `dl project detach PROJECT --namespace NAMESPACE --type host --resource HOST_ID` |
+| TypeScript (same release) | `projects(ns).attach(project, { type: "host", resourceId: hostId })` | `projects(ns).detach(project, { type: "host", resourceId: hostId })` |
+| Python (0.56.0 or later) | `client.projects.attach(namespace, project, "host", host_id)` | `client.projects.detach(namespace, project, "host", host_id)` |
+| Built-in agent | `dreamlake_resource_project_api_write`, which also needs an explicit service-account grant on that Project | the same tool |
 
 ## Connection command
+
+These connection defaults apply to ordinary host terminals. A copied named-tmux
+reference uses the exact attachment flow above and never creates a replacement
+session or falls back to a login shell.
 
 The terminal button in the session header (**Connection command**) selects
 the program a new session starts with:
@@ -88,6 +422,17 @@ SSH target. Resolve the caller-selected host/session explicitly; refuse ambiguit
 | GraphQL | No session-registry query or mutation is exposed | Use REST; unrelated GraphQL resource queries do not imply session parity |
 | External MCP | No standalone session-registry MCP server is exposed by these repositories | Built-in tool plugins are not an MCP publishing endpoint; external MCP projection is deferred |
 
+The session lists accept `scope=mine|available`. `mine` requires authentication
+and filters the authenticated owner's records before search and pagination,
+including in organization namespaces. Admin authority does not widen it.
+`available` retains the endpoint's existing visibility rules; omitting `scope`
+preserves legacy callers. Scoped responses echo `scope`; clients using Mine
+must reject a missing or different echo from an older API. Scoped cursors bind
+the actor, namespace, scope and query; start a fresh page when those change.
+The archive-source catalog accepts the same scope, so an admin can choose Mine
+without listing other owners' archive sources. Source settings may explicitly
+choose available or retain their existing unscoped admin view.
+
 `searchIn=title` matches saved titles case-insensitively before pagination;
 `all`/omission preserves broad metadata/body search under existing visibility
 rules. Change filters by starting a new cursor sequence. Client releases that
@@ -101,6 +446,17 @@ observation timestamps describe binding and authority; they do not prove an SSH
 connection is open. `GET /namespaces/:ns/hosts/terminal-targets` and saved-session
 `/:id/target` resolve current authorized transport metadata without issuing an
 attach ticket. PTY, forwarding and native transcript UI additions are deferred.
+
+Session lists and metadata expose `canRename` separately from `canManage`.
+Show Rename only when `canRename` is explicitly `true`: owning a private archive
+in an organization does not itself grant the existing `lakeshore:use` permission
+required to rename it. The server checks authority again on
+`PATCH /namespaces/:ns/terminal-sessions/:id/name` with `{ "name": "Chosen title" }`.
+Names must be nonempty after trimming, at most 128 JavaScript string units, and
+contain no control characters. An explicit rename updates both the saved registry
+name and an existing canonical alias atomically. Automatic refreshes preserve
+manual names; otherwise provider titles outrank first-prompt titles, which
+outrank generic fallbacks. Freshness orders titles only within the same quality.
 
 ### Terminal target catalog
 
@@ -155,11 +511,12 @@ Title filtering happens before pagination and retains the existing read permissi
 It does not search transcript bodies or grant terminal access. Use Python SDK 0.45.0 or later for `client.sessions.search(..., search_in="title")`.
 CLI 0.114.0 adds `dl sessions search --search-in title` and the `sess`/`session` aliases.
 
-Opening reuses the existing managed tmux path and explicit foreground fallback
-when tmux is unavailable. Resuming saved app history is distinct from attaching
-an arbitrary running process; an existing native writer remains protected.
-Transport retries attach only. A foreground session is nonpersistent and cannot
-be shared; disconnecting may end its process.
+Opening attaches the exact saved tmux session when it is running and otherwise
+opens a Direct terminal (see [reopening a running session](#reopening-a-running-session)).
+Resuming saved app history is distinct from attaching an arbitrary running
+process; an existing native writer remains protected. Transport retries attach
+only. A Direct terminal cannot be shared with the organization and has no Stop
+action; closing it may end its process.
 
 Nymph 0.1.39 registers valid Codex names/titles and Claude
 explicit log/index titles, using summaries only where applicable. Blank names
@@ -231,17 +588,23 @@ seconds. `unknown` is an honest absence of current evidence, not a stopped claim
 Use **Sessions** in the main left sidebar for your saved sessions, including
 while browsing an organization. In Memos, the session-library tab at the left of
 the chat tab row opens a picker without moving the memo editor. Its available
-list includes your sessions and sessions shared with a team you belong to. The dedicated `/:namespace/sessions`
+list includes your sessions and sessions shared with an organization you belong to. The dedicated `/:namespace/sessions`
 page saves a machine, its enrolled Unix user, an absolute working directory and
-an agent conversation UUID. Click a saved session to open it immediately in the
-browser terminal. A session link selects its saved configuration; visiting or
-refreshing the link alone executes no command.
+an agent conversation UUID. Clicking a saved session shows its conversation
+without connecting to the machine. Choose **Terminal** in the session header to
+open the browser terminal, and **Conversation** to switch back while keeping that
+terminal. A session link selects its saved configuration; visiting or refreshing
+the link alone executes no command.
 
 Opening a saved session adds a closable terminal tab. Use **+** in the terminal
 tab strip to choose another saved session. Choosing an already-open session
-focuses its existing tab. Switching tabs keeps their terminal connections open;
-closing a tab detaches that viewer while the agent keeps running on the host.
-Refreshing still only selects the saved session in the link; click to reconnect.
+focuses its existing tab; choosing a tab whose open failed checks the session
+again. Switching tabs keeps their terminal connections open. Closing a tmux tab,
+or a Direct tab that joined a running provider session, detaches that viewer
+while the agent keeps running on the host; closing any other Direct tab may end
+its process.
+Refreshing still only selects the saved session in the link; choose **Terminal**
+to reconnect.
 
 With focus on a session row, **Up/Down** moves through visible entries and
 scrolls the focused row into view. It does not open or start a terminal. Press
@@ -252,10 +615,11 @@ Use the controls beside search to choose a view of the same saved sessions:
 
 - **Machine** groups sessions by their enrolled machine. Each row keeps its
   machine and Unix user visible.
-- **Recent** shows one flat list, newest observed conversation activity first.
-  The time comes from the exact Codex conversation's activity metadata on its
-  machine. Sessions without that observation show **Activity unknown** at the
-  end; their registration time is never substituted.
+- **Recent** shows one flat list, newest conversation activity first. The time
+  comes from the exact conversation's activity metadata on its machine, from
+  agent hooks, or from the newest message time in an uploaded conversation
+  archive, whichever is latest. Sessions with no known activity come last;
+  their registration or upload time is never substituted.
 - **Repo** groups sessions by the actual Git repository resolved on their
   machine. A verified, sanitized remote identity can join the same repository
   across machines. Repositories without a safe remote stay grouped by their
@@ -298,13 +662,45 @@ attaches to the running process. Closing its browser viewer detaches from it.
 
 The machine needs its selected provider (Codex or Claude Code), the saved
 conversation and the usual provider login. Authentication and workspace trust
-prompts remain interactive. With the matching direct-runtime gateway and client,
-an owner opening a session on a machine without tmux uses a **direct foreground
-terminal**. No package installation is required. Direct mode may stop on disconnect;
-it has no detached process, managed Stop action or shared attachment. Reopening is
-an explicit new foreground resume, never an automatic reconnect loop. A host reboot
-or exiting the provider ends its process; opening again
-resumes the conversation in a new process. Bookmarks persist in DreamLake, while
+prompts remain interactive. Opening never creates a tmux session, background
+session or fork by itself, and no package installation is required.
+
+#### Reopening a running session
+
+When an owner chooses **Terminal** for a saved session, DreamLake checks the
+machine in this order:
+
+1. **Exact tmux.** If that exact session's tmux terminal is still running, the
+   tab attaches to it. This applies to Codex and Claude.
+2. **Direct.** Otherwise, including on a machine without tmux, the tab shows
+   **Direct** and runs the provider on the machine:
+   - **Codex** rejoins the conversation when its only writer is the Codex home's
+     own managed app-server daemon, joining the same running turn. Output
+     produced while no viewer was attached appears when the turn completes or
+     from history. Any other or unverifiable writer is refused with
+     `native_session_active`, and the owner can choose
+     [Fork and open in terminal](#fork-a-busy-codex-conversation). With no
+     writer, Direct resumes the conversation from its saved history.
+   - **Claude Code** attaches when the conversation is running in exactly one
+     Claude background session, identified by `claude agents` in the saved
+     working directory. When the conversation is known to be open in another
+     Claude terminal, or the check is ambiguous, opening is refused with
+     `native_session_active`: continue it in that terminal, or reopen here
+     after it ends. There is no Claude fork. Otherwise Direct runs
+     `claude --resume` from saved history. That is not proof that no other
+     terminal has the conversation open, and if one does, the two can continue
+     as independent conversations.
+
+The terminal says it rejoined a running session only after the gateway verified
+the Codex daemon or Claude background session; that session keeps running when
+you close the tab.
+A freshly resumed Direct terminal may end when you close or disconnect, and a
+Codex reply that is still running may then finish in its daemon. Reopening is
+explicit, never an automatic reconnect loop; each open is checked again after
+final authorization. Direct terminals have no Stop action and cannot be shared
+with the organization; a joined session keeps its own lifetime, permissions and
+stop. A host reboot or exiting the provider ends its process. Bookmarks persist
+in DreamLake, while
 Codex history and running processes stay on the selected machine and Unix account.
 Changing machines does not transfer either one.
 
@@ -317,11 +713,14 @@ access and connection limits below still apply.
 
 ### Share a session with a team
 
-Sessions are private by default. The owner can change **Private** to **Team**
-and choose one organization they belong to. The interface names that team;
-this setting does not publish the session to the internet or every organization
-on the account. Both the owner and teammate must remain active members of the
-selected team.
+Sessions are private by default. The owner can change **Private** to
+**Organization** and choose one organization they belong to. This shares the
+session with every current member of that organization, not with an organization
+team. The API keeps the legacy visibility value `team` for this setting
+(`visibility: "team"` with `organizationId`); it still means the whole
+organization. It does not publish the session to the internet or to the owner's other
+organizations. Both the owner and the viewer must remain active members of the
+selected organization.
 
 Team access is interactive: teammates can see terminal output and type through
 the owner's running session. Share only sessions intended for that team. Memo
@@ -330,7 +729,7 @@ access. Only the owner can change sharing or use the managed start/stop controls
 A teammate attaches to an existing runtime; if it is absent, the owner must open
 it first. Closing any terminal tab disconnects only that viewer.
 
-Changing back to **Private**, losing membership or revoking the machine enrollment
+Changing back to **Private**, losing organization membership or revoking the machine enrollment
 removes access. The gateway rechecks active connections and disconnects viewers
 whose access has been revoked. Saved descriptors are resolved on the server;
 the shared-session route does not accept arbitrary machines, directories or SSH
@@ -347,10 +746,10 @@ Status is refreshed on explicit actions, not by polling every row or hidden tab.
 
 The gateway exposes authenticated, origin-checked `POST` endpoints at
 `/namespaces/:namespace/terminal/sessions/:savedId/status`, `/start` and `/stop`.
-Status accepts `{}`. Start accepts `{}` (automatic selection) or
+Status accepts `{}`. Start accepts `{}` (tmux) or
 `{ runtime: 'auto' | 'tmux' | 'direct' }`. Automatic selection prefers tmux, including
 common user-local and Homebrew installations; otherwise it prepares direct mode
-for the owner. An explicit tmux request never silently switches modes. Direct
+for the owner. The default and explicit tmux requests never silently switch modes. Direct
 preparation checks executable, directory and provider config without starting a
 process. Stop requires the exact fresh observation's
 `{ generation, paneId, panePid }`; it is an explicit process-ending operation,
@@ -368,6 +767,11 @@ Each successful response is `{ runtime }` with:
 | `clients` | Number of attached tmux viewers, or `null` when unknown |
 | `dependencies` | `{ tmux, codex }`; `codex: null` means not checked during this action |
 | `reason`, `created` | Optional fixed failure reason and whether start created or resumed this runtime |
+
+Managed tmux attachment pins the owner, generation and exact pane before final
+authorization, then rechecks them before enabling input. A changed saved binding
+or owner closes an existing viewer at its next access lease. Archive read access
+does not grant machine execution permission.
 
 New managed sessions retain an exited pane so its exit status can be observed.
 Start can resume that same owned runtime with a new generation. Concurrent starts
@@ -415,6 +819,42 @@ sets `[sessions] enabled = true`. Configurations that omit the key stop
 discovering sessions after upgrading. Nymph does not rewrite configuration
 files, and an explicit `enabled = true` keeps discovery on. See
 [host testing](https://docs.dreamlake.ai/lakeshore/hosts/testing) for the related job output setting.
+
+**New enrollments (CLI 0.135.0 or later):** a fresh `dl hosts enroll`
+(`--local` or `--ssh`) and a fresh `dl nymph setup` write
+`[sessions] enabled = true` into the daemon configuration they create, when
+the installed Nymph is 0.1.32 or later. Older Nymph gets no default. Existing
+machines keep their settings: re-enrolling or re-running setup preserves an
+explicit `enabled = false`, a missing `[sessions]` table (discovery stays off)
+and any session options already configured. When a `[sessions]` table cannot be
+kept exactly, or the installed Nymph rejects it, enrollment stops before
+rewriting the service configuration. It also stops rather than replace a local
+access policy: `dl hosts enroll` does not re-enroll a machine set up with
+`dl nymph setup`, and `dl nymph setup` does not re-enroll one whose
+`access_file` points anywhere other than that enrollment's own `access.json`.
+See [Agent session metadata](https://cli.dreamlake.ai/host-enrollment#agent-session-metadata)
+in the CLI guide. To turn discovery on for an existing machine, add the setting
+yourself and restart the daemon.
+
+**New AWS machines with automatic registration:** an EC2 instance launched
+with `--host-name`, which registers itself through cloud-init (see
+[service accounts](https://docs.dreamlake.ai/lakeshore/service-accounts)), installs the Nymph release
+pinned by the DreamLake installation (v0.1.43 in production). With v0.1.43 or
+later it writes `[sessions] enabled = true`, with `api_origin` set to that
+installation's API, when it first creates its configuration. A bootstrap retry
+reuses the existing configuration instead of rewriting it, so owner changes to
+`[sessions]` or `access_file` survive, and a configuration bound to another
+server, namespace or machine stops the bootstrap. Instances that are already
+running, and machines installed any other way, are never changed automatically.
+
+The setting turns on automatic session discovery, which sends session metadata
+and never uploads transcripts automatically. No Nymph code change is involved.
+Without `api_origin`, only the production control plane has a default
+destination. Where a local [upload policy](docs-lakeshore-hosts-nymph-permissions.md)
+exists, it still wins: while its `upload` is `false`, which is how
+`dl nymph setup` creates it, no session metadata is sent. Sessions are
+registered only after the daemon confirms its enrollment through the signed
+handshake. Updating the CLI does not change machines that are already enrolled.
 
 With **nymph 0.1.29 or later**, session discovery enabled and the matching
 product API on an enrolled machine, new local Codex
@@ -505,17 +945,48 @@ it does not capture or take over the original local TTY.
 With the Codex native-writer guard deployed, a positive observation of a writable
 handle to the exact conversation's local rollout file blocks creating or
 restarting a managed process, or launching a new direct process, with
-`native_session_active`. Continue in the existing Codex chat rather than retrying
-automatically or terminating it to clear the error. An already-running managed
-tmux session remains attachable without starting another writer.
+`native_session_active`, unless Direct verifies that the writer is the Codex
+home's own managed daemon and joins it. Continue in the existing Codex chat
+rather than retrying automatically or terminating it to clear the error. An
+already-running managed tmux session remains attachable without starting another
+writer.
 
 This check reads file/process metadata, not conversation contents, and does not
-stop the observed process. It applies to Codex only. Missing tools, unsupported
+stop the observed process. This file check applies to Codex; Claude uses the
+`claude agents` check above. Missing tools, unsupported
 layouts, timeouts and inconclusive observations retain the previous behavior;
 the absence of an error does **not** prove there is no other writer. The guard
 does not provide an exclusive-writer lock or adopt native app sessions. CLI
 0.84.1+ preserves the error and recovery guidance; older clients may show only
 HTTP 409. Client updates alone do not deploy the gateway guard.
+
+#### Fork a busy Codex conversation
+
+A running exact tmux terminal or a joinable managed daemon is opened directly;
+no fork is offered then. If a Direct open is refused because another writer
+holds the conversation (`native_session_active`), the Sessions page offers
+**Fork and open in terminal** for a Codex session you own. Nothing happens on the
+machine until you choose it.
+
+Forking creates a new Codex conversation that starts from the saved
+conversation's history, on the same machine and Unix account, in the same
+working directory and Codex home. DreamLake saves it as a new **private** session
+named `Fork of <name>` and opens it in a direct foreground terminal. The fork is
+saved with the original session as its parent, so it appears nested under that
+session. It has its own, independent history: messages in
+the fork do not appear in the original, and the original keeps running
+untouched. Forking does not resume, write to or stop the original conversation,
+does not send a message or start a turn, and does not create a new tmux session.
+
+One choice creates one fork, even if the request is repeated or the connection
+drops while it runs; choosing **Fork and open in terminal** again later creates
+another fork. Only the owner can fork; shared (team) viewers and connection
+grants cannot. Claude sessions are not supported. The machine needs Python 3 and
+a Codex CLI whose `codex app-server` supports forking. If they are missing, or
+the saved conversation is no longer found at its working directory, the action
+reports that forking is unavailable or unsupported; it never falls back to
+resuming the original.
+This requires the matching terminal gateway and browser release.
 
 Older daemons still require explicit discovery and saving. That discovery reads the enrolled user's
 default `~/.codex` SQLite index for recent, unarchived root conversations from
@@ -554,8 +1025,12 @@ than being reported as a successful complete scan.
 `GET /namespaces/:namespace/terminal-sessions` now returns one page with
 `sessions`, `hasMore` and `nextCursor`. `pageSize` defaults to 100 and may be
 1–100; pass `cursor` for the next page. This is a response page size, not a
-bookmark count limit. `sort=created` is the default; `sort=recent` orders known
-activity first and leaves missing activity at the bottom. `q` searches saved
+bookmark count limit. `sort=created` is the default; `sort=recent` orders by
+`lastActivityAt`, newest first, and leaves missing activity at the bottom.
+`lastActivityAt` can be known while `activityStatus` and `metadataObservedAt`
+are `null`: those two describe a host metadata observation, and activity can
+also come from hooks or an uploaded archive (see
+[Optional conversation archives](#optional-conversation-archives)). `q` searches saved
 metadata; repeated `machineId` values restrict machines. Clients that also
 match their displayed machine names can pass repeated `matchMachineId` values
 alongside `q`. Change the search or sort by starting a new cursor sequence.
@@ -615,10 +1090,14 @@ observed, and saving/opening a bookmark does not automatically inspect a host.
 
 ## Limits
 
-- At most two terminals per user and eight per gateway.
-- A session closes after five minutes without input, output or resize, and
-  always after thirty minutes. tmux and its processes keep running after
-  either limit, and reconnecting returns to them.
+- At most 12 terminal connections per account across browser windows and CLI SSH, and 48 per gateway.
+- Settings → Compute → Concurrent web terminals defaults to 12 and can lower the limit for this account in this browser. The frontend counts connecting and connected terminals across panels on the page; lowering the setting preserves existing connections.
+- When a limit is reached, disconnect an unused terminal and retry. Disconnect and quota reasons remain visible in the terminal banner.
+- A renewable session closes after five minutes without input, output or resize.
+  Activity renews its existing relay session; it has no additional thirty-minute
+  gateway limit. An idle closure stays disconnected until you reconnect.
+  tmux and its processes keep running and reconnecting returns to them.
+  Explicit administrator limits and legacy static relay grants still apply.
 - Access is checked again every few seconds. Revoking the enrollment or
   signing out closes the session.
 - Terminal output goes only to your browser. DreamLake does not record, log or
@@ -688,10 +1167,15 @@ older uploads must be re-uploaded once to populate it. A verified empty snapshot
 contains zero messages and is displayed as empty, not as a missing upload. Catalog responses never
 include conversation text. No new search service or index is required.
 
-In the standalone Sessions page, clicking a saved Claude session opens its
-**Conversation** view without starting
-or attaching to a terminal. Choose **Terminal** explicitly to use the existing
-terminal workflow. A missing archive is shown as missing, not an empty conversation.
+In the standalone Sessions page, clicking a saved Claude Code session that is
+bound to Compute (or selecting it and pressing Enter) opens its **Terminal**,
+as it does for Codex. Its **Conversation** tab stays one click away. A Claude
+session without a Compute binding, or one you can only read
+(**Compute · read only**), opens its **Conversation** view. Reloading or
+visiting a session link (`?session=`) only selects the session: a Claude
+session shows its Conversation, and other sessions usually show their saved
+details. Nothing connects until you open the session. A missing archive is
+shown as missing, not an empty conversation.
 Reading works independently of host liveness; it does not fetch local transcripts
 or trigger an upload. The S3 backup collector remains separate: a backup must be
 explicitly imported/uploaded into the conversation API to be readable here.
@@ -733,6 +1217,60 @@ with `role` (`user`, `assistant`, `tool`, or `system`), `text`, and optional ISO
 without truncation. Catalog responses never include these bytes. The archive is
 a snapshot, not live transcript synchronization or a portable provider resume
 file. It does not restore missing native state on another host.
+
+A successful `PUT` also records the archive's newest message `timestamp` as the
+session's `lastActivityAt`, so the session takes its place in `sort=recent`. It
+only moves activity forward: an older archive never replaces newer activity
+observed on the host or reported by hooks. Messages without a timestamp, before
+2000, or more than five minutes ahead of the server clock are ignored. An
+archive with none left, including an empty one, does not supply or advance
+activity: the session keeps any activity it already has, and a previously
+unknown session remains unknown. The upload time itself is never used, and
+`activityStatus` and `metadataObservedAt` are not changed. Re-sending identical
+content records the activity for an archive uploaded before this was recorded.
+The archive's messages and `revision` stay the same; its `updatedAt` can
+change.
+
+### Session labels: stored content and Compute
+
+Session lists and the session view show two independent labels. The first says
+what DreamLake stores:
+
+| Label | Meaning |
+| --- | --- |
+| **Metadata only** | DreamLake holds only the session's metadata (name, provider, binding, observed activity). No conversation archive is stored. |
+| **Full session** | A conversation archive exists and can be read, including a verified empty one. |
+
+The label depends only on the archive. It is independent of whether a terminal
+is bound (`archiveOnly`), of run state, of provider and of whether search text
+was indexed. A Codex or Claude Code session becomes Full only when someone
+explicitly uploads a conversation snapshot (see
+[Optional conversation archives](#optional-conversation-archives)). Automatic
+Nymph discovery sends metadata and never uploads transcripts, so a discovered
+session stays Metadata only until such an upload. That snapshot is not kept in
+sync with the machine and does not make the session runnable. Built-in
+DreamLake agent conversations use the same archive and are stored by DreamLake
+itself, so they are labelled by the same rule without an upload. Earlier
+releases showed **Abstract** for Metadata only.
+
+The second label says where the session runs:
+
+| Label | Meaning |
+| --- | --- |
+| **Compute** | The session is bound to an enrolled Compute machine. Opening it connects its terminal. Whether the machine is online, and whether you can sign in, is checked only when you open it. |
+| **Compute · read only** | The session is bound to Compute and you can read it as a public session, but you cannot use its terminal. Terminal use still needs the owner's sharing or a connection grant. |
+| **Not on Compute** | No Compute machine is bound, for example an uploaded archive without a host binding or a built-in DreamLake agent conversation. It has no terminal; any stored conversation stays readable. |
+
+A session whose response carries neither a binding nor an archive-only marker
+shows no Compute label. Neither label grants access or changes it.
+
+Session list routes (`GET /namespaces/:namespace/terminal-sessions`,
+`/terminal-sessions/available` and a resource's linked sessions) and the
+single-session reads (`/:id/metadata` and `/:id`) return
+`hasConversationArchive: true | false`. List routes look the archives up in one
+read of their ids for the sessions already shown to the reader; no archive text
+is read or returned. Responses from older servers omit the field, and clients
+show no label rather than **Metadata only**.
 
 Clicking a saved Codex or Claude row in a Memo's **Contributing sessions** opens
 its terminal in the panel to the right. It does not open the archive first or
@@ -810,6 +1348,7 @@ enabled = true
 state_dir = "/home/worker/.local/state/dreamlake/ssh"
 sshd = "/usr/sbin/sshd"
 max_duration_s = 3600
+idle_timeout_s = 1800
 max_sessions = 28
 ```
 
@@ -820,10 +1359,18 @@ Use the existing private state directory and SSH host key for an enrolled servic
 | `enabled` | `false` | Enables the SSH backend only when local `command_execution` also permits it. |
 | `state_dir` | Empty | Required private directory for enabled SSH; retains its host key and boot binding. |
 | `sshd` | `/usr/sbin/sshd` | Local OpenSSH server executable used by the backend. |
-| `max_duration_s` | 3600 | Session lifetime cap, 60–14400 seconds; request and credential expiry can shorten it. Browser/API delegations currently cap requests at 1800 seconds. |
+| `max_duration_s` | 3600 | Total session lifetime in seconds, measured from creation. `0` disables the total limit; otherwise 60–14400. Keyboard activity never extends it. Nymph 0.1.42+. |
+| `idle_timeout_s` | 1800 | Keyboard inactivity limit, 60–14400 seconds. The CLI may request a shorter limit. Protocol grace is internal; setting both limits to 1800 is valid. Nymph 0.1.42+. |
+| `renewable_expiry` | `true` | Lets the control plane move an open keyboard-idle session's deadline forward through the daemon lease. `false` keeps every deadline fixed at open, and keyboard-idle sessions are refused for this host. Nymph 0.1.41+. |
 | `max_sessions` | 28 | Combined local SSH/tunnel task capacity, integer 1–4096; validated at configuration load. |
 
-There is no new Nymph environment-variable or CLI-flag override for `max_sessions`. It belongs in the config selected by `--config` or the existing service configuration. Omitted options use defaults; unknown options are rejected. Nymph reads this file at startup, not on every poll. `nymph access --config /absolute/path/to/udf-daemon.toml` inspects the file plus local policy without starting a worker; its `settings.sshEnabled`, `sshMaxSessions` and `sshMaxDurationSeconds` describe that inspected startup configuration, not proof that an already-running daemon has reloaded it.
+#### Keyboard-idle sessions
+
+`dl ssh` and `dl tmux` request a 30-minute keyboard inactivity limit, shortened by the host’s `idle_timeout_s` policy. With Nymph 0.1.42+, `max_duration_s` independently caps total lifetime. Set `max_duration_s = 0` and `idle_timeout_s = 1800` to keep active sessions open and close them after 30 minutes idle. The CLI observes keystrokes and pastes before encryption and reports them, at most about once a minute, to the DreamLake backend. The backend rechecks the user's current access to that exact enrollment, exactly as for a new session, and asks the control plane to renew. The control plane accepts a renewal only from the backend that issued the session, for the same worker binding and with that session's credential, and advances the inactivity deadline, with an internal ten-second grace for clean client shutdown. The total lifetime limit is never extended by this grace. The session credential's expiry moves with it in place. Nymph applies the new deadline from its next 15-second lease reply. The relay connection, `sshd` and the remote shell are not touched by a renewal.
+
+Remote output, mouse and focus reports, terminal replies, window resizes and SSH keepalives never renew a session. A host needs Nymph that advertises renewable expiry. Nymph 0.1.42+ advertises the two independent timeout policies; no extra margin is required in configuration. Older daemons retain their renewal-window behavior. A daemon or control plane without support falls back to a fixed session, with a CLI notice. Revoking the user's access, the grant, the enrollment or the issuing connection stops renewals; revoking a grant or connection also closes the session at once. A session whose person still holds another current grant to that enrollment is kept and renews under that grant.
+
+There is no new Nymph environment-variable or CLI-flag override for `max_sessions`. It belongs in the config selected by `--config` or the existing service configuration. Omitted options use defaults; unknown options are rejected. Nymph reads this file at startup, not on every poll. `nymph access --config /absolute/path/to/udf-daemon.toml` inspects the file plus local policy without starting a worker; its `settings.sshEnabled`, `sshMaxSessions`, `sshMaxDurationSeconds`, `sshIdleTimeoutSeconds` and (newer daemons) `sshRenewableExpiry` describe that inspected startup configuration, not proof that an already-running daemon has reloaded it.
 
 Keep local combined capacity at least the intended simultaneous SSH plus tunnel count for the worker (28 for the defaults). A deliberately lower local capacity still applies: the control plane does not currently advertise or negotiate this local setting, so its counters are control-plane admission limits, not guaranteed local slots. OS process/file-descriptor limits, memory and OpenSSH remain additional constraints. Do not increase those blindly or use quota changes to broaden grants.
 
@@ -844,3 +1391,90 @@ HTTP `429` with `session_limit` means an admission quota was reached. The new re
 Close only a connection/tunnel you intend to release, then refresh and retry. Closing an SSH viewer need not stop the underlying agent or tmux workload. A full namespace can block a host with free local slots. If counts appear stale, allow cleanup/connection deadlines to pass and inspect the lifecycle; do not delete session records to bypass the counter. `503 ssh_busy` / `controlplane_busy` indicates the bounded write queue, not the concurrent-session quota. `daemon_unavailable`, `terminal_not_ready` and permission errors require their own readiness/authorization checks.
 
 For the authority model and proposed live-configuration boundary, see [Nymph permissions and commands](docs-lakeshore-hosts-nymph-permissions.md).
+
+### Target-list diagnostics
+
+The gateway's authenticated `GET /namespaces/:slug/terminal/targets` and
+`GET /namespaces/:slug/terminal/aliases` responses include `Server-Timing` for
+discovery, authorization and total request duration. Authority-read entries
+report the maximum completed read duration and bounded completion, denial and
+unavailability counts. Concurrent reads may still be pending when a failed
+request returns; these counts are not a complete inventory or a request-rate
+measurement.
+
+On failure, `X-Terminal-Discovery-Failure` distinguishes discovery failure from
+authorization failure. For an unavailable authority read, it identifies only the
+fixed operation and failure category: capacity, deadline, transport, invalid
+response or upstream HTTP status. It contains no host identifiers, request URLs,
+credentials, upstream error messages or terminal content. These headers do not
+change authorization, retries or timeouts, and do not grant access to a target.
+
+### Cleanup after closing a saved agent session
+
+New DreamLake-created saved-agent-session wrappers are retired after their last
+tmux viewer disconnects for a full 30-minute grace period, normally within
+30–31 minutes. Reopening resets the grace period. This policy can terminate a
+still-running agent in that wrapper; quiet background work does not extend it.
+Saved session metadata and native conversation history remain available for
+explicit resume.
+
+Only the exact newly created wrapper generation qualifies. Existing attach-only
+sessions and explicitly named `dl tmux new NAME` sessions are excluded. Changed
+ownership, a replacement pane or a reused tmux name leaves the replacement
+untouched. Existing generations retain their previously installed cleanup policy.
+
+Administrators can set `detachedCleanupSeconds` in the protected terminal gateway
+configuration (0 disables installation; maximum seven days). The legacy
+`exitedCleanupSeconds` setting is used as a fallback when the new field is absent.
+The default policy uses one small local tmux callback per minute while
+detached, with no network polling or content upload. Browser and daemon restarts
+do not reset its timer. Older tmux versions without deferred callbacks retain
+sessions rather than claiming cleanup succeeded.
+
+## Native session upload destinations
+
+Native session registration (`POST /terminal-sessions/register`) accepts an
+optional `namespace` alongside the native provider, conversation ID and original
+working directory. Omitting it retains the legacy personal namespace destination.
+The CLI sends its resolved default namespace. Registration stores metadata and
+creates no host binding, terminal connection or execution permission.
+
+An active organization member can register their own private conversation archive
+in that organization's namespace. Organization archives are private; an explicit
+public visibility request is rejected. Conversation reads and uploads require the
+archive owner and current membership. Runtime terminal operations retain their
+separate execution authorization.
+
+Repeating registration in the same destination returns the existing session ID.
+Repeating identical conversation uploads retains the same content revision;
+changed content requires the current `expectedRevision`. A native identity already
+registered by the same owner in another namespace requires both an explicit
+`namespace` and `allowCopy: true` to create another registration. Existing copies
+remain independently addressable. Changing a default does not move or delete
+sessions, or copy conversation contents.
+
+### Managed CLI defaults
+
+`GET /auth/namespace-policy` returns
+`{managed, defaultNamespace, managedBy}` for the authenticated user. An absent
+policy returns `false`, `null`, `null`. A configured policy whose namespace or
+membership is no longer available fails with `cli_namespace_policy_unavailable`;
+clients must not silently fall back to another destination.
+
+An organization owner can set the organization's namespace as a current member's
+CLI default with `PUT /namespaces/:slug/cli-namespace-defaults/:userId` and an empty
+JSON object. `DELETE` on the same route clears it, including after the member has
+left. Owners cannot overwrite a policy managed by another organization. These
+preferences are stored separately from user-editable profile metadata.
+
+Managed mode is explicitly enabled per CLI login and API origin. Its precedence
+is explicit namespace, remote managed default, repository namespace, local profile
+default, then personal namespace. Without a remote policy the existing local
+precedence applies. Unreachable or invalid remote policy responses fail closed.
+Unmanaged clients retain the existing local selection behavior. The default grants
+no additional permissions, and every destination operation checks its authority.
+See the [CLI documentation](https://cli.dreamlake.ai) for the managed-mode commands.
+
+## Browse computer files
+
+The separate [Files tab](https://docs.dreamlake.ai/lakeshore/hosts/files) browses explicit Nymph directory exports. It is owner-only and shows metadata; sharing a terminal does not share files.

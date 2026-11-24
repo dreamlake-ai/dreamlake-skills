@@ -1,6 +1,9 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Profiles and workspaces
+
+See [Folder and Bindr visibility](https://docs.dreamlake.ai/workspaces/folder-visibility) for Private,
+Unlisted and Public organization within projects.
 
 ## One namespace, two layouts
 
@@ -17,7 +20,7 @@ being able to browse a catalog does not grant permission to modify every item.
 
 Signed-out visitors and signed-in visitors browsing someone else's namespace see
 public catalogs only. Projects, Memos, Annotations, Scenes and Artifacts support
-public browsing in either layout. Private catalogs such as Sources, Connections
+public browsing in either layout. Sources expose public entries to visitors. Private catalogs such as Connections
 and Vault are not advertised to visitors. A directly shared resource can still be
 opened according to its existing server permissions; a share does not turn its
 owner's private catalog into a public list.
@@ -121,18 +124,115 @@ the directory is visible to members. Governance remains permission-controlled.
 ### Inviting members
 
 Organization owners add people from **Members → + invite**. Search finds an
-existing DreamLake user by name, username or email. For someone without an
-account yet, type their full email address and choose **Invite by email**,
-optionally with a role and teams. The invitation appears in the members list as
-*invited · not signed up yet*, under the **invited** filter, and only owners can
-see it. The first time that person signs in to DreamLake with the invited email,
-they join with the chosen role and teams and the row becomes a normal member.
-Owners can revoke a pending invitation from its row.
+existing DreamLake user by name, username or email; choosing that account adds
+them immediately. Otherwise type a full email address and choose **Invite by
+email**, optionally with a role and teams. An email invitation never adds anyone
+immediately, even when the address belongs to an existing account: it appears in
+the members list as *invited · pending sign-in*, under the **invited** filter, and
+only owners can see it. The person joins with the invitation's role and teams the
+next time they sign in to DreamLake, when that sign-in's identity provider
+confirms the exact invited email as verified; the row then becomes a normal
+member. Being signed in already is not enough: someone with an open session joins
+after signing out and back in, or an owner adds their account directly. Until a
+verified sign-in, the invitation stays pending.
+Owners can revoke a pending invitation from its row. Inviting a pending email
+again updates its role and teams; when the invitation is accepted it uses its most
+current role and teams, skipping teams deleted in the meantime. An invitation
+counts only while the owner who sent it is still an owner: demoting or removing
+that owner, or that owner leaving, revokes their pending invitations at once.
 
 Signing in is a separate gate. DreamLake uses Vuer accounts, and new accounts
 may wait for approval before they can sign in at all. If the invited person sees
 a waiting-list page, a Vuer auth administrator adds their email to DreamLake's
 allowed emails. The organization invitation is kept until they get through.
+
+### Teams
+
+Teams group people, for example to grant a Project or share a machine with them.
+Only organization owners create teams; the creator becomes the team's first
+**owner**. A team slug is 3–40 lowercase letters, digits and hyphens, cannot
+start or end with a hyphen, and is unique in the organization.
+
+| Role | Can |
+| --- | --- |
+| Organization owner | Everything below on every team of the organization, whether or not they are in it; add a DreamLake user who is not yet an organization member to a team, which also makes them an organization **member** |
+| Team owner | Edit, rename, archive, restore and delete the team; grant, change and remove every team role |
+| Team admin | Edit and rename the team; add **existing organization members** as members; remove members and guests; invite and revoke guests |
+| Team maintainer | Older role. In a team without any owner it acts as an owner, as it always did. Once the team has an owner it acts as an admin. |
+| Team member | See the team (as any member sees visible teams) and leave it |
+| Guest | See this one team, its members (without their email addresses) and the Projects granted to the team, and leave it. Nothing else of the organization. |
+
+Managing a team always needs current organization membership: someone who leaves
+the organization loses all team authority. Admins cannot grant, change or remove
+owner, admin or maintainer roles. A team admin cannot bring someone new into the
+organization: ask an owner to add them or invite them by email first. To add
+someone outside the organization to only this team, invite them as a guest.
+
+**Leaving and removal.** Anyone can leave a team except its last owner, who must
+first make another member an owner. In a team without owners, the last maintainer
+must first make another member an owner or maintainer. Leaving or being removed
+from the organization removes every team membership in it and the Project grants
+that person issued in the organization's Projects. Direct Project grants **to** a
+removed person are kept by default, so deliberate external-collaborator access
+survives; an owner can opt in to deleting them as part of the removal (see
+[Project access](https://docs.dreamlake.ai/workspaces/project-access)). A removed or departed person
+immediately stops receiving access through the team's Project grants and machine
+grants; connections they opened through a team machine grant are closed
+(best effort, usually within seconds).
+
+**Guests.** A team owner, admin or maintainer, or an organization owner, invites
+a guest by email from the team page. DreamLake does not send the email: copy the
+invitation link (`/teams/invitations/<id>`) and send it yourself. The person signs
+in with an identity provider that verifies that email address. If they are
+already signed in, they sign out and back in. The invitation then shows up for
+them and they **accept** or **decline** it; nobody else can use the link. An
+invitation expires after 14 days and can be revoked while pending.
+
+Accepting always makes the person a **guest** of that team, never an
+organization member. This holds even if they are already in the organization or
+join it before accepting. A guest:
+
+- reaches the Projects granted to the team, with the grant's role, and nothing
+  else in the organization's Projects;
+- never gets machine access (SSH, the browser terminal or machine lists) through
+  the team's machine grants. This holds even if they later join the organization
+  while still a guest. Access granted to them some other way is unaffected: a
+  direct machine grant, their own machines, or another team where they are not a
+  guest.
+- cannot see the organization's members, its other teams or its settings.
+
+To give a guest the regular member role, first add them to the organization,
+then change their team role. Guests cannot be added any other way, and nobody
+can be changed into a guest.
+
+**Renaming.** Owners and admins can change the slug of an active team. The old
+slug stays reserved for that team: no other team can use any current, earlier or
+deleted team's slug, so an old link never leads to a different team. The team
+can take back one of its own earlier slugs. Members, grants and invitations
+follow the team, not its slug. The slug cannot change while the team holds Vault
+state, because Vault entry names include it.
+
+**Archiving.** An owner can archive a team and restore it later. While it is
+archived, the team keeps its members, grants and invitations but gives no access.
+Nobody receives anything through its Project grants or machine grants, and
+connections opened through a team machine grant are closed. It accepts no
+changes and no new members. Guest invitations to it cannot be accepted, and its
+guests lose sight of it. It is left out of team lists, except the organization's
+**Archived** list. Members can leave an archived team, and an owner can still
+delete it.
+
+**Nesting.** A team can be created inside a parent team of the same organization.
+Nesting is organizational only: members, Project grants and machine access are
+never inherited between parent and child teams. A team's parent cannot be changed
+after creation, and a team with child teams cannot be deleted until its child
+teams are deleted.
+
+**Deleting a team** needs a team owner or an organization owner. It removes the
+team's memberships, its Project grants and its place in pending invitations,
+revokes its pending guest invitations and its machine grants, and keeps its slug
+reserved. A team that still holds Vault state (secrets, including retired ones
+awaiting purge, access keys, Host credential bindings or pending transfers) is
+refused until that state is cleared.
 
 ## Your Dashboard
 
@@ -180,6 +280,25 @@ Pagination totals use the same visibility filter. Supplied invalid or expired
 credentials return 401. Anonymous project summaries omit internal bindr/dataset
 counts. Anonymous Memos searches do not activate or flush collaborative rooms.
 Creating, modifying, sharing and deleting remain authenticated operations.
+
+## Browsing resources in a Project
+
+Click a filed Scene, Annotation, Workflow, Agent, or infrastructure Stack to
+open it in a tab to the right of the Project tree. Clicking the same resource
+again focuses its existing tab. You can switch between these tabs, bound
+Sources, Memos, and Artifacts while keeping your place in the Project.
+
+Dash entries in the Project inventory and Bindrs open at the linked run,
+metric, file, or folder. For example, select a training run’s reward metric,
+open the Scene in a second tab, then select the reward tab to return to it.
+
+Each resource row shows its type and location inline. In **#all** and in a
+single Bindr, a row is indented only when its own Run is also listed and the
+row follows that Run without interruption in the current sort order.
+The **BINDRS** aggregate and search results are flat and keep each row's path,
+so a file filed on its own, or several files with the same name, can still be
+told apart. Within a group, files in deeper folders keep their folder path
+relative to the Run.
 
 ## Project workspace search (development preview)
 
@@ -256,3 +375,8 @@ Organizations load in batches of six, with at most three simultaneous catalog
 requests. A failed organization can be retried without reloading your personal
 resources. Memos requests are bounded by the existing API; Scenes currently reads
 the organization's full catalog and displays the six most recent entries.
+
+## Project addresses
+
+[Project names and addresses](https://docs.dreamlake.ai/workspaces/project-addresses) explains automatic
+slugs, separate custom settings, preserved old links, and rename conflicts.

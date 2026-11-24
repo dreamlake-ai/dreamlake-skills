@@ -1,0 +1,14 @@
+{
+  "name": "dreamlake-session-archives",
+  "description": "Configure local session Sources and archives, inspect native relationships, and manage personal session names and list placement without changing provider records or granting remote execution.",
+  "requires": [
+    "dreamlake-cli",
+    "dreamlake-lakeshore"
+  ],
+  "docs": [
+    "https://docs.dreamlake.ai/sources",
+    "https://cli.dreamlake.ai/sessions",
+    "https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage"
+  ],
+  "tools": null
+}

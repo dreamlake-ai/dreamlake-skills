@@ -61,6 +61,11 @@ fetch (exit 1), transferring nothing — script it as `stat … || pull …`.
 the library's `revision`, so repeated reads against an unchanged library
 cost one small catalog request and no manifest download.
 
+When judging an asset's appearance, compare the default and staged preview at
+one fixed camera. Use the [staging reference](../reference/viz-components-staging.md)
+to distinguish lighting changes from material problems, and check whether an edit
+was saved before reporting it as part of the library asset.
+
 ## Pull
 
 Pulls verify every file's sha256 and are incremental: files already correct
@@ -80,6 +85,12 @@ the global search page (select libraries → search → asset cards). A
 library card opens `/<ns>/libraries/<name>`, and an asset opens as a panel
 beside the grid at `?asset=<id>` — a shareable URL, not a separate page.
 Viewers by kind: [`assets/library-conventions.md`](../assets/library-conventions.md).
+
+To show an asset's 3D preview in a Memo or a Chat, write
+`:viewer[library:<ns>/<lib>#<asset>]` (the built-in agent's asset tool
+returns it as `viewerDirective`; `dl viewer ref` normalizes one). When the
+library has been imported into a bundle, prefer the bundle entry's
+`:viewer[ns/bundle@N#entry]`; the memos references action has the procedure.
 
 ## Built-in agent and SDK workflow
 

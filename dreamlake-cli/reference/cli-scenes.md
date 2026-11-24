@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/scenes.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/scenes.md at 0.146.4 f2cf298; do not edit -->
 
 # Scenes
 
@@ -102,7 +102,9 @@ dl scene compose --force                 # write into a non-empty out dir
 - A registry `src` (`"ns/name[@version]"`) resolves through the immutable,
   hash-verified version cache at `~/.dreamlake/cache/envs/`, so a pinned
   ref with a cache hit costs zero network. Public scenes resolve without
-  login. A `"./"`-prefixed `src` is a local directory or file.
+  login. A `"./"`-prefixed `src` is a local directory or file. A
+  `"bundle:ns/name@v#entry"` `src` is a [bundle](https://cli.dreamlake.ai/bundles) entry: the CLI
+  pulls its closure (cached per effective hash) and uses its `model` file.
 - The CLI validates the stack's shape and resolves layer srcs;
   **composition itself** (Merge / Attach / Update / Remove / Patch, URDF
   import, compile validation) **runs in the reference engine** — Python,

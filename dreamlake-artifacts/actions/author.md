@@ -14,6 +14,17 @@ Pick the kind, make the file self-contained for the sandbox, style it deliberate
 run the checklist, then hand it to [publish](publish.md). Start from the matching
 template in `assets/templates/` when one exists.
 
+For a built 3D environment preview, consult the installed
+[staging reference](../reference/viz-components-staging.md) and check the package
+version before using its shared controls. Verify placement on the actual model
+and keep any renderer-specific approximations explicit. Follow the packaging
+rules below for the artifact kind you selected.
+
+For asynchronous scenes or data initialization, implement the documented
+[preview-readiness contract](../reference/docs-artifacts.md#shared-preview-generation).
+Keep the page unready until the intended scene is drawable, then check the
+actual thumbnail. A completed document or a successful upload is not that check.
+
 ## The rendering environment (read this first — it drives every choice)
 
 Artifacts render on a dedicated frame origin with **bundled** libraries and a

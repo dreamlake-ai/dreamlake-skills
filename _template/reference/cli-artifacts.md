@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.146.4 f2cf298; do not edit -->
 
 # Artifacts
 
@@ -362,10 +362,11 @@ Values you set are yours: a later `push` keeps the title, the description
 and the cover unless that push passes `--title`, `--description` or
 `--cover` again; `meta set --clear-…` returns a field to automatic. Without
 a description the card shows a one-line summary built from the title and
-kind. Without a cover, DreamLake renders one for you: a screenshot of the
-artifact as the viewer shows it, taken within about fifteen minutes of a
-push (a new version gets a new screenshot) — the default DreamLake card
-stands in until then. The gallery and list cards use the same image.
+kind. Prefer generating and inspecting your own thumbnail, then explicitly
+uploading it with `--cover`. Cloud screenshots are a fallback when no user
+cover is available. Generation is asynchronous, refreshes for new versions,
+and has no fixed completion guarantee; the default DreamLake card stands in
+until a cover is available. The gallery and list cards use the same image.
 `meta show` reports whether the current cover is yours or generated.
 
 Cover images are PNG, JPEG or WebP, at least 600×315, at most 2 MiB;
@@ -561,3 +562,22 @@ await api.artifacts("my-team").share("report").latestOnly(false);
 `false` disables the policy; omission preserves it. `latestOnly` verifies
 management permission and resolves a renamed slug to its immutable artifact ID
 before writing. It neither creates a share token nor uploads a version.
+
+## Related resources and history
+
+CLI 0.133.0+ with the companion resource-relationships API release records explicit links
+between a Memo and an Artifact without changing their content or sharing:
+
+```bash
+dl resources link note MEMO_ID artifact ARTIFACT_CATALOG_ID --json
+dl resources relationships artifact ARTIFACT_CATALOG_ID --json
+dl resources history artifact ARTIFACT_CATALOG_ID --json
+dl resources sessions artifact loss-plot --namespace team --json
+```
+
+Relationship/history commands use the stable 24-hex catalog `resourceId`, not the
+namespace-scoped `artifactId` used by publication and saved-session links. Read
+back relationships after writing; remove a record with `resources unlink
+RELATIONSHIP_ID`. History is best-effort activity with 90-day retention, not a
+complete audit log. See [resource relationships and history](https://cli.dreamlake.ai/sessions#resource-relationships-and-history)
+for identity lookup, permission rules, pagination and SDK methods.

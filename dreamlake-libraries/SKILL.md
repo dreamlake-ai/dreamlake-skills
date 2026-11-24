@@ -22,6 +22,8 @@ before a first push. Commands need the `dl` CLI logged in
 (`dl login`; `dreamlake-cli` skill) — some flags carry minimum
 versions, check `dl --version` and `dl library <cmd> --help`.
 
+For new work, use `dreamlake-bundles`: it publishes assets as versioned bundle entries. Use this skill for existing libraries.
+
 ## Route the request
 
 | The user wants to… | Action |

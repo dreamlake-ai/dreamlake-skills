@@ -1,15 +1,17 @@
-<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/panels.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Panels and agent control
 
 DreamLake views use the native UIKit panel surface: drag, dock, resize, tab and
-close work the same for memo editors, memo lists, artifact views and explicitly
-opened web previews.
+close work the same for memo editors, memo lists, artifact views, explicitly
+opened web previews and 3D Preview panels ([`:viewer[...]`](docs-notes-linked-items.md#3d-previews)).
 
 Memo and artifact tabs share a 240px preferred width and
 130px minimum width in compact layouts. Titles use an ellipsis when needed;
 the reference control stays after the title, before the close button. Memos
-retain their short hash labels and artifacts use a copy icon.
+retain their short hash labels; other views with a directive (artifacts,
+sessions, dashboards, experiments and 3D Previews) use a copy icon. The control
+copies the view's directive; paste it in a memo to reference the same view.
 
 The [UIKit layout controller](https://uikit.dreamlake.ai/components/layout-controller)
 owns destination addressing and the forkable starting-layout → command → result
@@ -55,7 +57,7 @@ Dragging a preview out preserves its named association and role, so subsequent
 requests can target the original destination, the last one, or a spatial match.
 The UI default is the last destination for that source instance.
 
-Pinned tabs can still be moved or explicitly closed. Notes that are still syncing
+Pinned tabs can still be moved or explicitly closed. Memos that are still syncing
 retain their disposal guard. A failed replacement or stale layout leaves the
 existing view intact. Ordinary web links keep browser navigation.
 
@@ -65,7 +67,7 @@ Memo tags and `:preview[https://example.com/#section]` open new targets as tabs
 in the existing panel on the right, creating a right-hand panel only when one
 is absent. Clicking an already-open target activates it. Different preview URL
 fragments are separate tab targets. Opening either kind of reference from a
-side Note adds a tab in that same side panel. Existing tabs stay mounted and
+side Memo adds a tab in that same side panel. Existing tabs stay mounted and
 retain editor and preview state; these reference clicks do not replace content.
 
 ## Sessions beside a memo
@@ -107,7 +109,9 @@ sessions available to your account. Select a session to open a terminal in that
 same panel, beside the memo you are editing. Selecting an already-open session
 activates its tab. The memo and inactive chats and terminals keep their mounted
 state while you switch tabs. A tmux terminal keeps running when its viewer closes.
-On a machine without tmux, an owner can use **direct** mode; closing or losing that
+An owner reopening a session reattaches its tmux terminal if that exact terminal is
+still running; otherwise it opens in **direct** mode, also on machines without tmux,
+and the tab shows **Direct**. Closing or losing a direct
 connection may stop its foreground process. Direct terminals show this limitation,
 require an explicit reopen to resume, and have no managed Stop or shared attachment.
 They do not reconnect automatically. This requires the matching runtime gateway
@@ -123,8 +127,8 @@ Restoring a terminal tab from an address shows **Open session**; restoring a
 layout never starts a command. The address contains the saved session ID, not
 terminal output or connection credentials.
 
-The library includes your private sessions and sessions shared with a team you
-belong to. Sharing a memo or its layout does not share a terminal. Session access
+The library includes your private sessions and sessions shared with an
+organization you belong to. Sharing a memo or its layout does not share a terminal. Session access
 is checked separately each time it is opened or reconnected. See
 [Browser terminal](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal) for sharing, machine
 requirements, discovery and managed-session behavior.

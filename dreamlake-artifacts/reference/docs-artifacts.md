@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.226 2adcb7d24; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -360,8 +360,13 @@ cannot load; it does not render the artifact body to make a project thumbnail.
 ## Push one
 
 ```bash
-dl artifact push ./report.html
+dl artifact push ./report.html --cover ./report-cover.jpg
 ```
+
+Prefer creating and inspecting a thumbnail yourself, then explicitly uploading it
+with `--cover`. Cloud-generated previews are a fallback when no user cover is
+available; they do not replace a user-selected cover. Later content versions
+retain the explicit cover until you change or clear it.
 
 That's it. The CLI prints an **open link** — click it to see your artifact
 rendered at `dreamlake.ai/<you>/artifacts`.
@@ -479,8 +484,9 @@ three unless it passes `--title`, `--description` or `--cover` again, and
 `meta set --clear-…` returns a field to automatic. Without a description the
 card shows a one-line summary built from the title and kind. Without a cover,
 DreamLake renders one for you — a screenshot of the artifact as the viewer
-shows it, within about fifteen minutes of a push, refreshed for every new
-version — and the default DreamLake card stands in until then. The gallery
+shows it as a fallback, refreshed for every new version. Generation is
+asynchronous; scheduling and rendering time are not a completion guarantee.
+The default DreamLake card stands in until a cover is available. The gallery
 and your artifacts list use the same cover and description, so a published
 artifact appears there as a picture rather than a live frame.
 
@@ -803,3 +809,62 @@ Built-in agents discover the canonical artifact operation using
 `dreamlake_resource_api_write` with write permission enabled. The route schema
 includes all three values. [Local MCP](https://docs.dreamlake.ai/lakeshore/agents/mcp) provides
 `artifact_get` and `artifact_visibility_set` directly.
+
+## Related resources and activity
+
+Open the collapsed context panel for **Related** resources and **History**.
+Explicit links, accessible saved sessions, and recent recorded activity remain
+separate. Links can also be recorded from the Memo editor and through the API or
+CLI. See [relationships, permissions and API identities](https://docs.dreamlake.ai/notes/activity).
+
+## Shared preview generation
+
+The shared preview worker runs separately from the API. A successful content publication records a
+persistent task in the same database transaction; pushing does not wait for a
+screenshot. Tasks bind the content and renderer versions and use expiring claims
+and bounded retries. An expired claim cannot publish over a newer result.
+
+Automatic previews and user covers are stored separately. A user cover remains
+preferred while an automatic preview follows the current content version. Lists
+load static images. Failed generation does not prevent authorized content reads.
+
+The browser renderer waits for the real preview frame, nested documents, fonts
+and images in view; offscreen lazy images do not block capture. Images in closed
+dialogs or hidden templates do not block capture either, including empty image
+placeholders populated only when a dialog opens. Visible broken images still
+prevent a successful capture. Frame replacement
+or navigation invalidates earlier readiness checks. Applications with asynchronous scene initialization can declare
+`window.dreamlakePreviewReady = false` before starting and set it to `true` once
+the scene is drawable. Endless live streams do not need to become network-idle.
+A timeout is a failed preview, not permission to save a blank loading screen.
+Visible busy/indeterminate-progress indicators and conventional `loading` elements must clear
+before capture, including inside nested frames. Short visible loading messages
+ending in an ellipsis are also treated as busy. Hidden loading templates do not
+block capture. DOM completion alone does not prove that arbitrary asynchronous
+application work has finished: authors should provide the explicit readiness
+signal above, especially for WebGL scenes without a marked loading state.
+Generated JPEG images are limited to 256 KiB. This limit does not change the
+existing user-cover upload limits.
+
+Publication events are the normal trigger. New publication tasks take priority
+over periodic recovery tasks without interrupting an active render. Recovery
+scans only fill missing tasks. Opening an authorized Artifact catalog list or
+Artifact detail also admits a missing current-version thumbnail. Existing user
+covers and current generated covers are kept; pending tasks are deduplicated and
+running leases are not interrupted. An access can retry a terminal task after a
+one-hour cooldown, with the same bounded attempts for that retry. Repeated reads
+during the cooldown do not restart it. Admission failures do not prevent opening
+the original Artifact.
+
+Opening an Artifact detail also refreshes a legacy automatic cover made by an
+older renderer. The old image remains readable until its replacement commits;
+user covers are never replaced. Catalog lists do not mass-refresh existing
+covers solely for a renderer upgrade.
+
+Artifact list cards, Feed previews and Gallery cards use static covers or a
+placeholder, not a live iframe. Visible missing covers refresh metadata with a
+bounded polling window; an expired image URL is refreshed without downloading
+the Artifact body. Opening the Artifact itself still uses its interactive viewer.
+Neither a scan interval, a view nor successful publication guarantees a
+thumbnail completion time. Prefer generating and inspecting an explicit cover
+with `--cover`; cloud generation is the fallback.

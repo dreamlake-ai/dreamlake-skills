@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.146.4 f2cf298; do not edit -->
 
 # Terminal sessions
 
@@ -21,11 +21,12 @@ UUID does not move a conversation between computers or users.
 
 ## Registration and visibility (0.82.0+)
 
-With the matching API release, **all newly registered sessions default to public**:
-UI creation, API creation, CLI creation, metadata-only imports and machine sync.
+New sessions in a personal namespace default to public unless the creating
+command selects private visibility. Organization namespaces require private
+sessions, and native registration there defaults to private.
 Public uses DreamLake PUBLIC read semantics: anyone can read session metadata and
 an uploaded, redacted conversation. It does not grant terminal execution, resource
-editing, or access to linked private Notes/artifacts. Private and team sessions
+editing, or access to linked private Memos/artifacts. Private and team sessions
 retain their existing access rules. Existing records without a visibility field
 remain private/team; synchronization never resets an existing sharing choice.
 
@@ -47,10 +48,13 @@ dl sessions register --provider claude --session <native-uuid> --cwd /absolute/r
 dl sessions register --provider claude --session "${CLAUDE_SESSION_ID:-$CLAUDE_CODE_SESSION_ID}" --cwd "$PWD" --visibility private --write-env "$HOME/.dreamlake/sessions/current.env"
 ```
 
-This returns a **saved descriptor ID**, distinct from the native UUID. Registration
-is idempotent for the personal owner/provider/native ID: registering the same
-provider and UUID again (from another directory, on another day) returns the
-existing saved session, never a second one. It reuses an unambiguous existing
+This returns a **saved descriptor ID**, distinct from the native UUID. In **CLI
+and TypeScript 0.141.0+** with the matching server release, registration
+uses the effective CLI namespace, including repository, profile, and opted-in
+[remote-managed defaults](https://cli.dreamlake.ai/auth#remote-managed-namespace-defaults). An explicit
+`--namespace` overrides that destination. Registration is idempotent for the
+namespace/owner/provider/native ID: registering the same provider and UUID again
+in that namespace returns the existing saved session. It reuses an unambiguous existing
 registration; conflicting saved identities require explicit selection. Without
 `--json` the command prints the saved ID, the recipe that lets a runner message
 it (one `control restart --permission … --raise` that records the level — a
@@ -63,12 +67,33 @@ every `dl` process that shell starts), mode 600, the explicit
 saved-session context described below. The
 [`/dreamlake` Claude Code skill](https://cli.dreamlake.ai/dev/claude-code-skill) wraps exactly this
 command.
+Changing the default does not move or duplicate a previously registered native
+conversation. If it exists only in another namespace, registration stops with a
+conflict. Creating a separate registration requires an explicit destination and
+copy opt-in:
+
+```bash
+dl sessions register --provider codex --session <native-uuid> --cwd /absolute/repository --namespace fortyfive --allow-copy --json
+```
+
+This creates metadata only; it does not transfer the existing transcript or links.
+Upload the transcript to the returned saved ID explicitly. Re-uploading identical
+content to the same saved ID is idempotent; changes update its revision with a
+concurrency check. `upload-conversation` takes a saved ID and never creates a new
+session. To update an older session after changing your default, pass its original
+`--namespace`. Explicit saved-session environment context remains pinned to its
+existing namespace.
+
+The TypeScript `client.sessions(namespace).register(...)` also uses that scope,
+including `dl claude`/`dl codex` and runner-created registrations. The SDK's optional
+`allowCopy: true` is the same explicit cross-namespace opt-in.
+
 A metadata-only session has `archiveOnly: true`, null `launch`, and no host
 binding. It can be linked and read but cannot open a terminal. A later verified
 host registration with the same owner/provider/UUID and exact cwd can bind the
 same descriptor, preserving privacy and resource links.
 
-CLI 0.82.0+ automatically registers metadata after an acknowledged Note/artifact
+CLI 0.82.0+ automatically registers metadata after an acknowledged Memo/artifact
 content write when `CODEX_THREAD_ID` or `CLAUDE_SESSION_ID` supplies an exact native
 UUID. `CLAUDE_CODE_SESSION_ID`, which Claude Code exports to every command it
 runs, is accepted as the Claude fallback, so writes made from inside a Claude
@@ -180,7 +205,8 @@ These additions require matching provider-aware API, gateway and collector relea
 ## Link memos and artifacts (0.78.0+)
 
 With the matching resource-session API deployed, a saved session can be linked
-to multiple memos and artifacts, including resources in another namespace.
+to multiple memos, artifacts and annotations, including resources in another namespace.
+Annotation links require CLI 0.133.0+ and the companion resource-relationships API release.
 Linking requires resource write access and session read access. Every list checks
 both permissions again; sharing a resource does not share its terminal.
 
@@ -189,6 +215,8 @@ dl sessions link SESSION_ID --namespace geyang \
   --resource-namespace fortyfive --note MEMO_ID --json
 dl sessions link SESSION_ID --namespace geyang \
   --resource-namespace fortyfive --artifact loss-plot --json
+dl sessions link SESSION_ID --namespace geyang \
+  --resource-namespace fortyfive --annotation training-run --json
 ```
 
 ```bash cli-help="sessions unlink"
@@ -202,7 +230,12 @@ dl sessions resources SESSION_ID --namespace geyang --page-size 25 --json
 
 `resources` returns bounded pages (maximum 50); continue with its `nextCursor`.
 These commands only change or read affiliations. They never open, start or stop
-terminals and never modify memo or artifact content.
+terminals and never modify Memo, Artifact or Annotation content. A manual link
+is an association, not proof that the session authored the resource.
+
+For an annotation, use its current/old slug or immutable storage name. For an
+artifact, use its logical ID. `--note` uses the stable 24-hex Memo ID. The saved
+terminal session ID is 24 hex characters and is scoped by `--namespace`.
 
 Memo creation and confirmed body/section changes are attributed by the Memo server,
 using the same optional identity as [Memo presence](https://cli.dreamlake.ai/notes/collaboration).
@@ -225,6 +258,94 @@ result. Retry only metadata operations, never the content write.
 `DREAMLAKE_SESSION_AFFILIATION=0` disables automatic attribution and affiliation.
 Historical resources require exact evidence or an explicit link; they are not
 assigned by guessing authorship.
+
+## Resource relationships and history
+
+These commands require CLI 0.133.0+ and the companion resource-relationships API release.
+The Memo editor and Artifact/Annotation side panels read the same records.
+They keep content edits, relationships and saved-session associations separate.
+
+```bash cli-help="resources relationships"
+dl resources relationships note MEMO_ID --json
+dl resources relationships artifact ARTIFACT_CATALOG_ID --json
+dl resources relationships annotation ANNOTATION_CATALOG_ID --json
+dl resources relationships annotation ANNOTATION_CATALOG_ID --cursor NEXT_CURSOR --json
+```
+
+```bash cli-help="resources link"
+dl resources link note MEMO_ID artifact ARTIFACT_CATALOG_ID --description "Supporting chart" --json
+dl resources link note MEMO_ID annotation ANNOTATION_CATALOG_ID --json
+```
+
+```bash cli-help="resources unlink"
+dl resources unlink RELATIONSHIP_ID --json
+```
+
+```bash cli-help="resources history"
+dl resources history annotation ANNOTATION_CATALOG_ID --json
+dl resources history artifact ARTIFACT_CATALOG_ID --before NEXT_CURSOR --json
+```
+
+`relationships`, `link` and `history` use stable resource catalog IDs: 24 hex
+characters for `note`, `artifact`, `annotation` and `repo`, a UUID for
+`infra_stack`, or a 64-hex attribution context ID for `session`. An artifact's
+logical ID, annotation slug, title or native session UUID is not a catalog ID.
+Use `id` from `dl annotation get NAME --namespace NAMESPACE`.
+`dl artifact list --namespace NAMESPACE --json` returns artifact catalog rows
+containing `resourceId`; the logical
+`artifactId` remains the identifier for artifact publication and saved-session links.
+
+`link` records `related_to`, requires write access to the source and read access
+to the target, and is idempotent for the same source, target and relation.
+Its optional description has a 1,000-character limit. Re-linking replaces the
+relationship properties; omitting the description clears the previous one.
+Read back `relationships`
+to verify the saved record and its returned 64-hex ID. `unlink` uses that ID,
+requires source write access and succeeds if already absent. It removes only
+the relationship. Neither operation grants access, changes sharing or edits
+content. On an uncertain response, read back before retrying; never repeat a
+content write to repair a relationship.
+
+Relationships are filtered by current access to both ends. Each page scans up
+to 100 records; pass its exact `nextCursor` as `--cursor` to continue. History
+reads at most 50 scanned events per page; use its `nextCursor` as `--before`.
+Continue even if a permission-filtered page is empty but has a cursor. No command
+automatically follows pages.
+Activity is best-effort server-recorded `read`, `view` and `edit` evidence with
+90-day retention, not a complete audit log. Relationship creation/removal does
+not create an activity event. There is no command to fabricate events.
+
+```bash cli-help="resources sessions"
+dl resources sessions annotation training-run --namespace fortyfive --page-size 25 --json
+dl resources sessions artifact loss-plot --namespace fortyfive --json
+```
+
+`sessions` uses the namespace plus Memo ID, artifact logical ID or annotation
+name/slug, just like `sessions link`. It returns at most 50 saved sessions and
+accepts `--cursor NEXT_CURSOR`. Use `sessions resources SESSION_ID --namespace
+SESSION_NAMESPACE` for the reverse lookup. A saved terminal session (24 hex)
+is separate from a self-reported attribution context (`session`, 64 hex).
+Attribution context is not authentication, a conversation archive or permission
+to open a terminal.
+
+### TypeScript resource relationships
+
+```ts
+import {createClient} from '@dreamlake/dreamlake-cli/api'
+const client = createClient({remote: 'https://api.dreamlake.ai', token})
+const memo = {kind: 'note' as const, id: memoId}
+const annotation = {kind: 'annotation' as const, id: annotationCatalogId}
+const receipt = await client.resources.link(memo, annotation, 'Training evidence')
+await client.resources.relationships(annotation) // optional nextCursor as second argument
+await client.resources.history(annotation) // optional nextCursor as second argument
+await client.resources.unlink(receipt.id)
+await client.resources.sessions({namespace: 'team', type: 'annotation', id: 'training-run'})
+await client.sessions('owner').link(savedSessionId, {namespace: 'team', type: 'annotation', id: 'training-run'})
+```
+
+The SDK uses the same paths and permissions with explicit credentials. Link and
+history operations do not upload transcripts or run terminal commands. See the
+[product activity contract](https://docs.dreamlake.ai/notes/activity).
 
 ## Select the host
 

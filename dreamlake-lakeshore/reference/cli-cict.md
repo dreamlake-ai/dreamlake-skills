@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/cict.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/cict.md at 0.146.4 f2cf298; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -13,6 +13,21 @@ These commands need a server with the GitHub runner integration enabled;
 otherwise every command returns HTTP 404 `github_runners_disabled`. The same
 operations are available in TypeScript as `dl.cict(namespace)` and in Python
 as `client.cict`.
+
+## Where a namespace stands
+
+```bash cli-help="cict status"
+dl cict status my-team
+dl cict status my-team --json
+```
+
+`status` lists every setup step (GitHub, DreamLake GPU, and the six steps for
+your own Slurm cluster), marks which are done and prints the next one with the
+page, command and API call that does it. Once ready it prints the `runs-on`
+line to use. It is the starting point for an agent setting up CI/CT: repeat it
+and do the next step. Only installing the GitHub App needs a person in a
+browser; enrolling a login node needs SSH, and binding its service account
+needs a namespace owner. TypeScript: `dl.cict(ns).onboarding()`.
 
 ## Connect GitHub
 
@@ -111,7 +126,7 @@ the runner that served it. Its ID is `<installationId>-<jobId>`.
 
 ```bash cli-help="cict runs"
 dl cict runs list my-team --limit 20
-dl cict runs show my-team/91234567-48812345678 --result
+dl cict runs show my-team/91234567-48812345678 --file metrics.json
 ```
 
 ```bash cli-help="cict runs list"
@@ -120,28 +135,20 @@ dl cict runs list my-team --limit 20 --json
 
 Each line shows the run ID, status or conclusion, repository, job, commit,
 routing (pool name, `unmatched`, `unbound` or `rejected:<reason>`) and the
-evidence state (`pending`, `written`, `failed` or `none`).
+evidence state (`pending`, `written`, `failed` or `none`). CI/CT does not
+compare runs or read a result format: a job's own steps decide whether it
+passes.
 
 ```bash cli-help="cict runs show"
 dl cict runs show my-team/91234567-48812345678
-dl cict runs show my-team/91234567-48812345678 --result --json
+dl cict runs show my-team/91234567-48812345678 --file metrics.json --json
 ```
 
 `show` adds the GitHub job link, the runner and its Slurm job, a runner error
-code when start failed, and the evidence location. `--result` also reads the
-run's `result.json` from the evidence Source; it is `null` when the run wrote
-none or evidence is not written yet.
-
-```bash cli-help="cict runs compare"
-dl cict runs compare my-team/91234567-48812345678
-dl cict runs compare my-team/91234567-48812345678 --all --json
-```
-
-`compare` lists the cases that changed against the baseline: the latest
-earlier run of the same repository, workflow and job on the default branch
-whose evidence was written. Each case is `regressed`, `fixed`,
-`still_failing`, `unchanged`, `added` or `removed`, with the change in its
-score (such as normalized return) when both runs report one.
+code when start failed, and the evidence location. `--file <path>` also reads
+one JSON file the run declared as evidence, relative to its evidence folder;
+it is `null` when the run did not write it or evidence is not written yet.
+`dl cict runs compare` was removed with baseline comparisons.
 
 ## DreamLake GPU
 
@@ -158,9 +165,16 @@ dl cict usage my-team
 dl cict platform show my-team --json
 ```
 
-`show` prints the machine catalog, whether the namespace may use it (not
-enabled, enabled but not started, in use, or paused), its concurrency limit,
-running and queued jobs, where results go and this month's GPU time.
+`show` prints the machine catalog with each machine type's price per GPU-hour,
+whether the namespace may use it (not enabled, enabled but not started, in
+use, or paused), its concurrency limit, running and queued jobs, where results
+go and this month's GPU time. With prepaid billing on it adds what this month
+was charged; otherwise what the GPU time is worth (not charged).
+
+`dl cict runs show` adds a `cost` line for a DreamLake GPU job: the credit it
+holds while it runs (its time limit at its price), then what it was charged
+(the GPU time Slurm measured), or why it was not charged. Billing runs on
+sandboxes for now: no real money moves.
 
 ```bash cli-help="cict platform start"
 dl cict platform start my-team
@@ -178,10 +192,15 @@ dl cict platform source my-team --source 1123456789abcdef01234567
 ```bash cli-help="cict usage"
 dl cict usage my-team
 dl cict usage my-team --month 2026-10 --json
+dl cict usage my-team --jobs --sender octocat --limit 20
 ```
 
-`usage` reports DreamLake GPU time, from each job's start to its end, by
-repository and workflow.
+`usage` reports a month of DreamLake GPU time, from each job's start to its
+end, by the GitHub user who triggered each job and by repository and
+workflow. `--jobs` lists the jobs newest first instead; `--sender LOGIN`
+keeps one person's and `--limit` caps how many (1–500). The month line and
+each job show what was charged (or `charge pending` until Slurm reports), or
+what the GPU time is worth when DreamLake GPU is not billed.
 
 ### Administer DreamLake GPU
 
@@ -225,13 +244,18 @@ dl cict platform admin machine gpu-rtx5090 --label dreamlake-gpu-rtx5090 \
   --provider 0123456789abcdef01234567 --limit 6 --enable \
   --env DREAMLAKE_ROBOT_ASSETS_CACHE=/work/shared/robot-assets
 dl cict platform admin machine gpu-rtx5090 --disable
+dl cict platform admin machine gpu-rtx5090 --price 240
 ```
 
 `machine` creates or changes a machine type. A machine type is what one job
 gets, not one machine: jobs land on any free node of the provider's partition.
 The GPUs, CPUs, memory and time limit come from the provider's launch layer,
 so they always match what Slurm allocates; `--limit` caps jobs at once across
-all namespaces. Runners start with the provider's association.
+all namespaces. Runners start with the provider's association. `--price`
+sets the price in credits per GPU-hour (one credit is $0.005, so `240` is
+$1.20); `--price 0` makes it free and `--price none` clears it. A job keeps the price it started at, so a
+change applies to later jobs only. A machine type without a price cannot run
+jobs while billing is on.
 
 ## Troubleshooting
 
@@ -240,6 +264,11 @@ all namespaces. Runners start with the provider's association.
 | routing `unbound` | The repository's App installation is not bound to a namespace; run `dl cict github connect`. |
 | routing `unmatched` | No pool or DreamLake GPU label covers every label in `runs-on`; check `dl cict pools list` and `dl cict platform show`. |
 | `queued #N` | A DreamLake GPU job waiting for a slot in the namespace or on the machine type. |
+| `held: insufficient_credit` | The namespace's credit cannot cover what the job holds while it runs; add credit in Settings → Billing and it starts within a minute. |
+| `held: billing_budget_exceeded` | The namespace's spending limit is reached (a new account's limit is zero); a namespace owner raises it in Settings → Billing. |
+| `held: billing_setup_required` | The namespace has no billing account yet; a namespace owner sets it up in Settings → Billing. |
+| `held: machine_unpriced` | The machine type has no price; a platform admin sets one with `--price`. |
+| `held: evidence_authorizer_invalid` | The person who authorized result writes can no longer write; run `dl cict platform source`. |
 | routing `refused:platform_not_activated` | DreamLake GPU is enabled but not started; run `dl cict platform start`. |
 | routing `refused:platform_not_allowed` | DreamLake GPU is not enabled for the namespace. |
 | routing `rejected:public_repository` | Public repositories are refused unless the server allows them. |

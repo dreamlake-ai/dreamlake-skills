@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Files and attachments
 
@@ -109,7 +109,7 @@ A stale content ETag returns 412; a destination conflict returns 409 unless you
 explicitly choose `--overwrite`. Inspect the current file/path and permissions
 before retrying. An ETag is a content check, not a promise that the path or sharing
 metadata has remained unchanged. This workflow moves a path within one Memo; it
-does not change Note/project ownership or perform a FortyFive transfer.
+does not change Memo/project ownership or perform a FortyFive transfer.
 
 ### Copy an attachment within a Memo
 
@@ -158,7 +158,7 @@ text/copy requests and these operation routes with
 `503 file_publication_unavailable`; that refusal does not enable recovery.
 
 The journal covers JSON text creation/replacement at
-`POST /namespaces/:slug/notes/:noteId/files` and same-Note copy at
+`POST /namespaces/:slug/notes/:noteId/files` and same-Memo copy at
 `POST /namespaces/:slug/notes/:noteId/files/:fileId/copy`. It does not cover the
 raw binary/streaming upload route, inline media, Memo bodies or saved versions.
 The existing File response and HTTP 200/201 remain unchanged. Raw-upload inventory
@@ -192,7 +192,7 @@ CLI keys are printable ASCII, 1–256 bytes without surrounding spaces. Preserve
 the key and exact request; the CLI never automatically retries.
 
 ```bash
-: "${NOTE_ID:?set a disposable Note ID}"
+: "${NOTE_ID:?set a disposable Memo ID}"
 : "${NAMESPACE:?set its namespace}"
 dl --version
 # Choose only the intended write or copy.
@@ -344,8 +344,8 @@ they do not change Memo ownership or project filing.
 
 ```bash
 set -euo pipefail
-: "${NOTE_ID:?Set NOTE_ID to your disposable Note ID}"
-: "${NAMESPACE:?Set NAMESPACE to that Note namespace}"
+: "${NOTE_ID:?Set NOTE_ID to your disposable Memo ID}"
+: "${NAMESPACE:?Set NAMESPACE to that Memo namespace}"
 dl memos files write access-check.txt --text before \
   --note "$NOTE_ID" --namespace "$NAMESPACE"
 ETAG=$(dl memos files cat access-check.txt --json \
@@ -513,6 +513,13 @@ The response contains `url`, `contentType` and `sizeBytes`. The URL has the form
 than the temporary storage URL it redirects to. Do not construct it from the
 attachment path or ID.
 
+A plain `<img>` or `<video>` load is redirected to temporary storage. A
+cross-origin request that carries an `Origin` header, such as `fetch()` or an
+element with `crossorigin="anonymous"`, receives the bytes directly from the
+media URL with CORS headers, so canvas reads and image processing work.
+Single byte ranges (`Range: bytes=…`) return `206`. Use the media URL itself
+for these reads; the temporary storage URL does not allow every origin.
+
 Insert the Markdown snippet into your existing memo with the append helper:
 
 ```bash
@@ -529,6 +536,64 @@ Anyone holding a media URL can load it without signing in. Making a memo
 private does not revoke that URL. For an image that must inherit the memo's
 permissions, keep it as a file attachment and use the authenticated file
 preview instead of publishing an inline media URL.
+
+### SVG figures in light and dark themes
+
+An SVG loaded through Markdown image syntax or an HTML `img` is its own
+document: it cannot inherit the Memo's CSS variables or text `currentColor`.
+Define a complete semantic palette inside the SVG, then override it with
+`@media (prefers-color-scheme: dark)`. For an embedded SVG, that query follows
+the embedding element's resolved `color-scheme`; DreamLake sets it from the
+app's selected theme, including an explicit theme different from the operating
+system. Keep the SVG free of a forced `color-scheme: light`, which would
+interfere with its adaptive palette. Opening the SVG URL directly instead follows
+the browser's preference.
+See [embedded color-scheme behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme#embedded_elements).
+
+Pair text and background colors in each theme, including node fills, borders,
+connectors and accents. Keep connectors opaque so their contrast does not depend
+on content underneath. This self-contained example needs no script or external
+stylesheet:
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160"
+     role="img" aria-labelledby="title description">
+  <title id="title">Memo source and rendered view</title>
+  <desc id="description">Source Markdown flows into the rendered Memo.</desc>
+  <style>
+    :root {
+      --bg: #ffffff; --ink: #172033; --node: #f1f5f9;
+      --line: #64748b; --accent: #2563eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827; --ink: #e5e7eb; --node: #1f2937;
+        --line: #94a3b8; --accent: #93c5fd;
+      }
+    }
+    .canvas { fill: var(--bg); }
+    .node { fill: var(--node); stroke: var(--accent); stroke-width: 2; }
+    .line { fill: none; stroke: var(--line); stroke-width: 3; opacity: 1; }
+    text { fill: var(--ink); font: 18px sans-serif; text-anchor: middle; }
+  </style>
+  <rect class="canvas" width="560" height="160" rx="12" />
+  <path class="line" d="M210 80H350m-10-8 10 8-10 8" />
+  <rect class="node" x="30" y="40" width="180" height="80" rx="8" />
+  <rect class="node" x="350" y="40" width="180" height="80" rx="8" />
+  <text x="120" y="86">Markdown</text>
+  <text x="440" y="86">Rendered Memo</text>
+</svg>
+```
+
+Keep the SVG's `title` and `desc`, and supply meaningful Markdown alt text when
+inserting its uploaded URL. Check the rendered figure in explicit app Light and
+Dark modes, with the operating-system theme opposite in each case. Verify text,
+node fills, background, connectors and accent borders together; checking only
+the SVG source or only System mode does not cover those combinations.
+
+Inline SVG in an authored HTML page shares that page's DOM and may use its host
+CSS variables or `currentColor`. This differs from an uploaded SVG image; raw
+inline SVG/HTML is not enabled in the Memo Markdown renderer.
 
 ### Look at one
 
@@ -566,3 +631,31 @@ permission. Sharing an attachment does not publish the Memo body or other files.
 Uploaded HTML renders in a separate origin, never the dashboard's. Markdown,
 SVG, code and images render too; anything else offers a download. A file with
 no rendered form is refused rather than linked.
+
+## Attachment thumbnails
+
+HTML attachment publication records a durable, version-bound generation
+task for the shared preview worker; the uploaded file remains readable while that task is pending or failed.
+The file list exposes `thumbnailUrl` and `thumbnailStatus` (`pending`, `ready`,
+`failed`, or `unsupported`). A ready image inherits the Memo's read authorization;
+listing it never creates a public share link. Signed image URLs retain their
+bounded expiry and are not an immediate revocation mechanism.
+
+New publications take priority over historical recovery work; an active render
+keeps its lease. Queueing and retries still mean there is no fixed completion
+time guarantee.
+
+The initial renderer covers HTML attachments. It uses the existing isolated
+preview frame and produces a compressed static image for the attachment list.
+The compact attachment panel displays these images in its Documents rows, with
+pending and failed placeholders; opening a document still opens the original.
+Historical HTML attachments are included in background recovery, so a ready
+thumbnail is not limited to files uploaded after this feature was introduced.
+Markdown, CSV, JSON, PDF and archives do not currently receive generated
+attachment thumbnails; an `unsupported` status is not a pending generation job.
+HTML attachments use the same [readiness and compression contract](https://docs.dreamlake.ai/artifacts#shared-preview-generation)
+as Artifacts. Visible loading states must clear before capture; asynchronous
+applications without a marked loading state should provide the explicit
+readiness signal. A thumbnail still showing a loading screen is not a verified
+preview, even when an image URL exists.
+PDF, video and Scene adapters are future extensions, not newly supported formats.

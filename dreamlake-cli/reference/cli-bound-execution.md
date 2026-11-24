@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/bound-execution.md at 0.146.4 f2cf298; do not edit -->
 
 # Execute a bound UDF on a queue
 
@@ -36,6 +36,23 @@ execution. The worker does not install dependencies:
 export DREAMLAKE_RUNTIME_ROOT=/srv/dreamlake/runtimes
 LOCK=$(shasum -a 256 uv.lock | cut -d' ' -f1)
 UV_PROJECT_ENVIRONMENT="$DREAMLAKE_RUNTIME_ROOT/$LOCK" uv sync --locked --no-dev --python 3.12.13
+```
+
+The worker's runner reads `DREAMLAKE_RUNTIME_ROOT` from its own process
+environment, not from your shell. For a host worker started by a service
+manager, set it in the daemon service's environment and restart the daemon
+while it is idle. The runtime's interpreter is separate from the one that runs
+the worker daemon and its `dreamlake-lakeshore`: the runner starts the
+environment's `bin/python -I -B`, so neither the daemon's `PYTHONPATH` nor its
+site-packages reach the UDF. To keep the runtime off interpreters a system
+package manager upgrades, build it on a uv-managed CPython:
+
+```bash
+uv python install 3.12.13
+LOCK=$(shasum -a 256 uv.lock | cut -d' ' -f1)
+UV_PYTHON_PREFERENCE=only-managed UV_PROJECT_ENVIRONMENT="$DREAMLAKE_RUNTIME_ROOT/$LOCK" \
+  uv sync --locked --no-dev --python 3.12.13
+"$DREAMLAKE_RUNTIME_ROOT/$LOCK/bin/python" -I -c 'import platform; print(platform.python_version())'
 ```
 
 Run `uv sync` in a checkout of the bound revision. A missing environment
@@ -114,19 +131,42 @@ dl runnable execution-receipt exec/acme/recipes.process@EXECUTION_DIGEST \
 With `--target namespace/group/host[/user]`, the submitting CLI and the UDF need no
 control-plane token. The DreamLake server uses the host enrollment's
 connection on your behalf, and the worker daemon keeps its normal enrollment
-credentials; you must own the host, and its worker must be pinned
-to the queue you name (see [Pin a worker to dedicated queues](../queues/)).
+credentials; you must own the host, and its worker must claim the queue you
+name: either it is pinned to exactly that queue (see
+[Pin a worker to dedicated queues](../queues/)), or it is unpinned, its claims
+are enabled and the queue is one of its declared queues.
+`default` is never accepted. Otherwise the server answers
+`409 target_not_eligible` (`target_not_pinned` on earlier servers).
 
 ```bash
 dl runnable bind udf/acme/recipes.process@FULL_SHA256 \
   --target acme/compute/worker --project recipes
 ```
 
-`bind --target` builds this checkout's configured archive locally, then uploads
-it through DreamLake. The archive must be at most 128 KiB. The server checks its
-layout and digest, stores it at a key derived from the sha256 in the host's
-control plane, and registers the RepoSnapshot. `bind` then registers the binding
-with the server-derived control-plane block.
+With direct Source delivery (pending release), `bind --target` builds the checkout locally, requests a scoped PUT for the content digest, uploads the code archive directly to storage, and registers its metadata with DreamLake. The compressed code limit is 64 MiB inclusive.
+
+Keep the project in a subdirectory of the snapshot and name it with
+`--project`: put `.dreamrc` beside the project files, mount them under a
+target directory, and declare the UDF `source` as the entrypoint's module
+path. For example, with `udf_full/main.py` and its helper modules next to
+`pyproject.toml`, `uv.lock` and `.python-version`:
+
+```yaml
+udfs:
+  - {name: acme.full_project, entrypoint: "udf_full.main:run", source: udf_full/main.py}
+code:
+  mounts:
+    - local_path: .
+      target: app
+      exclude: [".dreamrc", ".venv/", "__pycache__/"]
+```
+
+and bind with `--project app`. Sibling modules of the entrypoint's package
+import from the snapshot; third-party packages come from the locked runtime.
+
+The worker receives a job ticket for every targeted code snapshot. It redeems the ticket for a short-lived read after claiming the invocation. It verifies the downloaded bytes against the binding and checks the configured archive before importing the entrypoint. Code archives allow up to 64 MiB decompressed, 10,000 entries and 16 MiB per file. Keep large simulation dependencies in separate resources.
+
+For a historical control-plane storage binding, use the same checkout and bind again to stage that digest in your private Source. A worker without ticket support returns a rejected receipt and needs an upgrade before a new attempt.
 
 ```bash
 dl runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
@@ -135,9 +175,9 @@ dl runnable execute exec/acme/recipes.process@EXECUTION_DIGEST \
 
 The task request becomes `dreamlake-bound-task-v2`: the target host,
 enrollment and worker are part of the task key and invocation ID, so the same
-inputs on another worker are a different task. The server checks the pin,
-re-reads the control-plane CodeRepo and the stored archive bytes against the
-binding, and submits with the archive inline. Only the target worker can
+inputs on another worker are a different task. The server checks that the worker claims the queue,
+checks the control-plane CodeRepo and managed object's metadata,
+and submits the binding, task request and ticket to the target worker. Only that worker can
 claim the attempt, and the UDF run needs no control-plane token. Inputs are at
 most 16 KiB. Repeating the identical command returns the same invocation. Changed
 inputs (or queue, timeout or target) are a different task, with a new task key and
@@ -153,7 +193,7 @@ The queued function is `dreamlake.lakeshore.bound.run_bound_udf`, resolved
 from the worker's installed SDK; the user's code comes from the snapshot. In
 order, before any user module is imported, the worker:
 
-1. downloads the archive and requires its full SHA-256;
+1. downloads the archive, using the job ticket for a targeted execution, and verifies its full SHA-256;
 2. unpacks it with the configured-snapshot runner into a fresh directory;
 3. re-hashes the registered source, `pyproject.toml` and `uv.lock`;
 4. selects `$DREAMLAKE_RUNTIME_ROOT/<uv.lock sha256>` and starts

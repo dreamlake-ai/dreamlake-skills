@@ -39,6 +39,7 @@ keys for the requested SDK-only procedure.
 | Archive or restore catalog visibility | Check installed support, read `hosts lifecycle HOST_ID`, then use explicit request ID and expected revision with `hosts archive` or `hosts restore`; this never retires runtime |
 | Find active hosts across groups | `dl hosts list`; select the authorized namespace (CLI 0.73.0+: verified online only) |
 | Include offline or unknown hosts | CLI 0.73.0+ `dl hosts list --all`; CLI 0.72.0 lists all states without this flag |
+| Create a named tmux session or reopen a copied tmux reference | [tmux](tmux.md) |
 | Save or reopen an exact agent terminal session | [Terminal sessions](../reference/cli-sessions.md): `dl sessions targets`, then `create` / `resume` / `open`; Codex requires CLI 0.74.1+ and matching terminal API/gateway; Claude requires CLI 0.77.0+ and provider-aware services |
 | Find host IP addresses, OS, CPU inventory or daemon version | Check `hosts list --help` for `--wide`, then inspect `hosts status HOST`; follow the [inventory reference](../reference/cli-host-enrollment.md#list-and-inspect-hosts) and verify installed support |
 | Inspect one host and its enrollments | `dl hosts status` with its returned host ID or full name |
@@ -165,7 +166,12 @@ checks require an explicit enrollment from that result; never choose one
 implicitly or combine multiple enrollments' observations. Metrics older than
 90 seconds or marked stale remain historical; missing/invalid/future timestamps
 and missing values remain unknown, not zero. Read the source sample time and
-stale flag alongside client freshness.
+stale flag alongside client freshness. `hosts metrics` shows the default
+Resources source: for a host with an explicit legacy Metrics Source it can
+still show Nymph history, so its readings do not show that Ripple works. Only
+the origin-qualified server read used by the enrollment receipt verifies actual
+Ripple for that exact enrollment; do not displace the old Source
+([machines](machines.md)).
 
 `hosts check` reads advertised capability with a 30-second SSH or 60-second
 tracked-run observation window. Exit zero means observed `ready`; `not_ready`,

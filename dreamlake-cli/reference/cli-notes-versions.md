@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/versions.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/versions.md at 0.146.4 f2cf298; do not edit -->
 
 # Saved versions
 
@@ -21,6 +21,8 @@ dl memos tag MEMO_ID end-of-day --namespace my-org --summary "Reviewed today's a
 dl memos tag MEMO_ID reviewed --hash sha256:CONTENT_HASH --json
 # Connect this checkpoint to an earlier version in the same Memo.
 dl memos tag MEMO_ID next-checkpoint --parent VERSION_ID
+# Keep every dotted segment and deliberately start independent history.
+dl memos tag MEMO_ID 1.2.03.04.005 --root
 # Read and validate without creating a version.
 dl memos tag MEMO_ID preview --dry-run --json
 ```
@@ -39,6 +41,17 @@ characters maximum). Tags are labels, not unique IDs or idempotency keys:
 repeating a successful create makes another version. Retain the returned `id`
 for reading and ancestry. `--parent` must identify a saved version in the same
 Memo; it records ancestry without restoring or altering the live Memo.
+
+With the matching backend automatic-ancestry update, omitting `--parent`
+selects a proven causal ancestor in the same RTC room and generation.
+Use `--root` to deliberately save an independent root; do not combine it
+with `--parent`. When ancestry cannot be proven, the backend leaves the
+save unlinked. Existing saved history is unchanged.
+
+Dotted numeric labels may have any number of parts, optionally prefixed
+with `v`: `1.2.03.04.005`, for example. Segments and leading zeros are
+preserved. The updated history UI displays this as the version label;
+the server's internal save number and immutable ID remain independent.
 
 A server or transport failure after submission may leave the outcome uncertain.
 Paginate `memos hist` and read matching candidates with `memos read --version`

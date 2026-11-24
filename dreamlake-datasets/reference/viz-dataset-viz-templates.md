@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/templates.md at 0.31.3 545152ca; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/templates.md at 0.33.9 3f29c10d; do not edit -->
 
 <span id="templates" />
 
@@ -7,6 +7,9 @@
 Choose the example closest to how your data is stored. Each demo reads the
 `.dreamrc` published with its dataset; inspect the config, then change the field
 bindings in the [playground](viz-dataset-viz-gallery.md).
+
+Each timeline and its playback controls start at the media panel’s left edge
+and resize with it. Track labels and recorded time spans stay intact.
 
 ## 1. LeRobot with annotation features
 

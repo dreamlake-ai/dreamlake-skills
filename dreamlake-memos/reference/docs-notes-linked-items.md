@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Linked memo items
 
@@ -84,6 +84,99 @@ Badges show titles only after your access is checked. Otherwise they read
 clicked. A reference grants no access. Invalid paths stay literal text. Use
 `:experiment`, not `:run`: in DreamLake, runs are Lakeshore function
 invocations.
+
+## Bundles
+
+`:bundle[...]` refers to a [bundle](https://docs.dreamlake.ai/bundles) or to one entry of a bundle. The
+bracket holds the same reference as bundle `refs` and lock files:
+
+```markdown
+:bundle[fortyfive/kitchen]
+:bundle[fortyfive/kitchen@4]
+:bundle[fortyfive/kitchen@4#mug-01]
+:bundle[fortyfive/kitchen#mug-01]
+```
+
+- Without `@N`, the card shows the latest version. With `@N`, it shows that
+  version. `@latest` is not accepted.
+- The card shows the thumbnail (or an icon for the kind), the kind, the title
+  and the displayed version. Click it to open the bundle or entry page.
+- Type `:bundle[` (or `/bundle` in the slash menu) to search. Type a word to
+  find bundles in this namespace and matching entries. Type `ns/` to search
+  another namespace, and `ns/name#` to choose an entry of one bundle. The
+  inserted reference is pinned: a bundle to its latest version, an entry to its
+  displayed version. Delete `@N` to follow the latest version.
+- In **⌘K**, `/bundle <query>` opens a bundle or an entry.
+  `/bundle ref <query>` copies the reference (`ns/name@N#entry`) and
+  `/bundle pull <query>` copies the `dl bundle pull` command.
+- A `:bundle` reference in a Memo is a linked item: **Related** lists it under
+  "Mentioned in this memo" when you can read it.
+- Unreadable or missing targets show **Unavailable bundle** and do nothing
+  when clicked. A reference grants no access. Invalid references stay literal
+  text.
+
+## 3D previews
+
+`:viewer[...]` shows the 3D Preview of a bundle entry, a library asset or a
+scene version: the same viewer as the library asset panel, the bundle entry
+page and the scene page (MuJoCo, URDF, mesh, USD and splat).
+
+```markdown
+:viewer[fortyfive/teleop-berry@1#scene]
+:viewer[fortyfive/teleop-berry#scene]
+:viewer[library:fortyfive/flexiv#mjlab-flexiv-rizon4s-claw--v2]
+:viewer[scene:fortyfive/s1-lab@3]
+:viewer[fortyfive/teleop-berry@1#scene]{embed="true" height="420"}
+```
+
+- Prefer the bundle form. Libraries move to bundles at cutover; `library:`
+  references stay readable.
+- The card shows the thumbnail, `3D`, the kind, the title and the version.
+  Click it to open the **Preview** panel on a tab beside the memo. A modified
+  click opens the resource's page.
+- `embed="true"` shows the live 3D preview inline, at `height` pixels
+  (default 360).
+- The Preview panel owns its controls: entry or representation switch, reload,
+  open page and fullscreen. Camera and drag = force belong to the viewer. Drag,
+  dock and tab the panel like any other; the address keeps it.
+- The Preview tab's copy button copies the exact directive, pinned to the
+  version the panel shows. Paste it in a memo to get the same card. Every tab
+  with a directive (memo, artifact, session, dashboard, experiment, Preview)
+  has this button.
+- Type `:viewer[` (or `/viewer` in the slash menu) to search bundle entries,
+  scenes and library assets. In **⌘K**, `/viewer <query>` opens the Preview
+  panel and `/viewer ref <query>` copies the directive.
+- A `:viewer` reference is a linked item: **Related** lists it under
+  "Mentioned in this memo" when you can read it. The DreamLake agent receives
+  the references on the page, gets `viewerDirective` from bundle entry and
+  library asset tools, and can open the Preview panel with a layout action.
+- Unreadable or missing targets show **Unavailable preview**. A reference
+  grants no access. Invalid references stay literal text.
+
+## Terminal references and actions
+
+A confirmed tmux session can be copied as
+`:tmux[<enrollment-id>/<server-id>/<percent-encoded-exact-session-name>]`.
+Pasting it into a Memo or Chat preserves the exact session identity. Opening it
+checks current access and attaches to that name; it never creates a replacement
+for a missing session. A reference grants no machine access.
+
+For an action, use the same command grammar as the CLI and palette:
+
+```text
+:tmux[new research --host alice/dev/my-computer]
+```
+
+The directive shows **Run**. It creates a new session only when explicitly run;
+viewing, editing, previewing or importing the Memo does not execute it. An
+existing name produces a conflict. To open a session that already exists, use
+its copied reference instead. Code examples and escaped directives remain
+literal text.
+
+See [named tmux sessions and release prerequisites](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal#create-a-named-tmux-session-and-copy-its-reference)
+for the shared CLI, palette and API contract. Transient shell handles and saved
+agent conversations are separate from tmux references; terminal output is not
+automatically saved or indexed.
 
 ## Create and link a memo
 

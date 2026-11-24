@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/skills.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/skills.md at 0.146.4 f2cf298; do not edit -->
 
 # Agent skills
 
@@ -14,13 +14,13 @@ revision it came from.
 
 ## Setup
 
-Run `dl init` once. It asks which agent you use (Claude Code, Codex,
-or both) and where skills should go (this project or your home directory), remembers
-both, installs the embedded `dreamlake-cli` skill without touching the
-network, and lists the other skills in the catalog.
+Run `dl init` once. It asks which agents you use, where to install their
+skills, and whether to update them automatically. It saves those choices,
+installs the embedded `dreamlake-cli` skill offline, and lists the other
+skills in the catalog.
 
 ```bash file="terminal" cli-help="dreamlake"
-# Guided agent setup: choose agent and scope, install dreamlake-cli offline
+# Choose agents, scope and update mode
 dl init
 # Install more skills from the public release
 dl skill install dreamlake-memos
@@ -32,24 +32,44 @@ dl skill update
 dl init
 dl init --agent codex
 dl init --agent claude --global
-# Claude Code and Codex: one copy in each agent's directory
-dl init --agent all --global
+# Set up both agents and opt in to automatic updates
+dl init --agent all --global --auto-update
 ```
 
-With `--agent`, `init` runs without prompts and still saves the choice; add
-`--global` to save global scope. Non-interactive or `--json` usage requires
+With `--agent`, `init` runs without prompts. Add `--global` to save global
+scope and use `--auto-update` or `--no-auto-update` to set the update choice.
+Omitting the update flags preserves an existing choice for the same target.
+New setups default to manual updates. Non-interactive or `--json` usage requires
 `--agent` with `claude`, `codex`, `all`, or a comma-separated list such as
 `claude,codex`. Canceling the guided setup writes nothing,
 not even the preference.
 
-The choice is saved as `{ "agent", "scope" }` in
-`~/.local/state/dreamlake/skill-preferences.json` (`$XDG_STATE_HOME` is
-honoured). Several agents are saved as `{ "agent", "agents", "scope" }`:
-`agents` is the list and `agent` its first entry, so a CLI older than
-multi-agent support still reads the file and uses that one agent. Every `skill` subcommand defaults to it; `--agent`, `--global`,
+The choices are saved in `~/.local/state/dreamlake/skill-preferences.json`
+(`$XDG_STATE_HOME` is honoured). The file records the agent, scope and
+automatic update setting. Several agents are saved in the `agents` list
+with its first entry also saved as `agent` for older CLIs. Installation and
+listing commands use the saved agent selection. `--agent`, `--global`,
 `--project` and `--dir <path>` override it for one invocation without changing
 it. With nothing saved and no `--agent`, commands use Claude Code and the
 current project and print a one-line hint to run `dl init`.
+
+## Automatic updates
+
+```bash file="terminal" cli-help="skill auto-update"
+dl skill auto-update
+dl skill auto-update on
+dl skill auto-update off
+```
+
+Automatic updates are off until enabled. When enabled, a regular CLI command
+can trigger a silent background check at most once every four
+hours for the saved agents and scope. Project scope applies to the directory
+selected during setup. For older project preferences, enabling the setting
+records the current directory. The updater checks the latest release and
+applies newer versions to CLI-managed installations with unmodified files.
+Edited or unmanaged installs can be reviewed through `dl skill list --refresh`
+and updated manually. `dl skill auto-update off` restores one-line startup
+reminders.
 
 ## Commands
 
@@ -58,6 +78,7 @@ dl skill list
 dl skill read dreamlake-memos
 dl skill install dreamlake-memos
 dl skill update
+dl skill auto-update
 dl skill remove dreamlake-memos
 ```
 
@@ -111,6 +132,7 @@ dl skill remove dreamlake-memos --agent codex --global --json
 | Command | Reads | Writes | Network |
 | --- | --- | --- | --- |
 | `init` | embedded bundle and catalog snapshot | preference file, `dreamlake-cli` | never |
+| `skill auto-update [on\|off]` | preference file | update choice when set | never |
 | `skill list` | server registry when logged in, else catalog snapshot; install manifests | nothing | when logged in, unless `--local`; `--refresh` fetches the release |
 | `skill read <name> [--file <path>]` | server registry when logged in, else the embedded bundle | nothing | when logged in, unless `--local` |
 | `skill install <name...>` | latest `catalog.json`, `skills.tar.gz` | the named skills and their `requires` | yes; `dreamlake-cli` alone works offline |
@@ -456,19 +478,22 @@ CLI, so the CLI will not delete it.
 
 ## Reminders after updating
 
-At the start of a terminal command, the CLI compares each installed manifest's
+In manual mode, at the start of a terminal command, the CLI compares each installed manifest's
 version with the newest version it knows — the embedded `dreamlake-cli` tag,
 and the catalog snapshot for other skills — for both agents, in the current
-project and your home directory. When something newer exists it prints one
-stderr line per installed path per CLI version:
+project and your home directory. It prints a single stderr line with the
+number of installations that have a newly available update.
 
 ```text file="stderr"
-Installed skill /work/.claude/skills/dreamlake-cli is v2026.10.27; v2026.11.02 is available. Update with: dl skill update dreamlake-cli --agent claude --dir '/work'
+4 skill installs have updates. Run dl skill list --local --agent all
 ```
 
-Reminders never change files, never use the network, and stay out of JSON,
-piped and background invocations. `skill list --refresh` is the networked
-check and shows `latest` next to each installed version.
+The CLI remembers the skill release it last showed for each installation.
+A CLI upgrade with the same skill release stays quiet. Run
+`dl skill list --local --agent all` to compare the installed versions with
+the embedded catalog, or add `--refresh` to check the latest published release.
+Startup reminders leave the installed skills untouched, work offline and
+stay out of JSON, piped and background invocations.
 
 ## `--json`
 

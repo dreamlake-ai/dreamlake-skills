@@ -7,12 +7,10 @@
     "https://cli.dreamlake.ai/agents",
     "https://cli.dreamlake.ai/analytics",
     "https://cli.dreamlake.ai/artifacts",
+    "https://cli.dreamlake.ai/auth",
     "https://cli.dreamlake.ai/bound-execution",
     "https://cli.dreamlake.ai/collections",
     "https://cli.dreamlake.ai/command-reference",
-    "https://cli.dreamlake.ai/dev/notes/npm-publication",
-    "https://cli.dreamlake.ai/dev/notes/queue-mount-release",
-    "https://cli.dreamlake.ai/dev/notes/task-session-scope",
     "https://cli.dreamlake.ai/downloading",
     "https://cli.dreamlake.ai/dreamrc",
     "https://cli.dreamlake.ai/dreamrc/visualization",
@@ -65,7 +63,8 @@
     "https://cli.dreamlake.ai/vault-write-recovery",
     "https://cli.dreamlake.ai/workflows",
     "https://docs.dreamlake.ai/agents/workspace-files",
-    "https://docs.dreamlake.ai/workspaces/project-access"
+    "https://docs.dreamlake.ai/workspaces/project-access",
+    "https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage"
   ],
   "tools": null
 }

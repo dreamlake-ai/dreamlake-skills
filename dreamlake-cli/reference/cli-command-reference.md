@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/command-reference.md at 0.146.4 f2cf298; do not edit -->
 
 # Command reference
 
@@ -36,6 +36,21 @@ options and validation. Existing scripts using explicit `list` continue to work.
 
 This convention is available in CLI 0.76.0 and later. Earlier releases require
 explicit `list`.
+
+## Named tmux terminals
+
+| Command | What it does |
+| --- | --- |
+| `tmux new [name] --host <selector>` | Create a new named tmux session; never attach on a name conflict |
+| `tmux open <reference>` | Attach only to the exact existing named reference |
+| `tmux list --host <selector>` | Read cached enrolled-host tmux metadata |
+| `tmux resolve <reference>` | Resolve cached metadata without creating or attaching |
+
+These actions also exist under `hosts tmux`. See
+[Named tmux references and creation](https://cli.dreamlake.ai/host-enrollment#named-tmux-references-and-creation)
+for capability requirements, request UUID retries, the matching command palette
+syntax and `:tmux[...]` directives. The compatibility command `tmux HOST
+--session NAME` retains its original create-or-attach behavior.
 
 ## Auth & environments
 
@@ -336,20 +351,25 @@ See [Agent skills](cli-skills.md).
 | `org member list <org>` | List members |
 | `org member add <org> <user> [--role]` | Add a member (by email/name) |
 | `org member role <org> <user> --role <r>` | Change a member's role |
-| `org member remove <org> <user>` | Remove a member |
+| `org member remove <org> <user> [--revoke-direct-project-grants]` | Remove a member (org OWNER only); optionally delete their direct grants on the org's Projects |
 
 ## Teams
 
 | Command | What it does |
 | --- | --- |
-| `team list [<org>]` | Teams in an org, or all your teams |
-| `team show <org> <team>` | Show a team (members, sub-teams) |
-| `team create <org> <team> [--visibility] [--parent]` | Create a team (nested via `--parent`) |
-| `team update <org> <team>` / `team delete <org> <team>` / `team leave <org> <team>` | Manage a team |
-| `team member list <org> <team>` | List members |
-| `team member add <org> <team> <user> [--role]` | Add a member |
+| `team list [<org>] [--archived]` | Teams in an org, or all your teams including guest teams; `--archived` for archived teams |
+| `team show <org> <team>` | Show a team (your role and permissions, members, sub-teams) |
+| `team create <org> <team> [--visibility] [--parent]` | Create a team (you become OWNER; nested via `--parent`) |
+| `team update <org> <team> [--name] [--slug] [--description] [--visibility]` / `team leave <org> <team>` | Edit (including renaming the slug) or leave a team |
+| `team archive <org> <team>` / `team restore <org> <team>` | Archive a team (reversible; grants nothing while archived) or restore it |
+| `team delete <org> <team>` | Permanently delete a team (owner authority) |
+| `team member list <org> <team>` | List members, including guests |
+| `team member add <org> <team> <user> [--role]` | Add a member (`owner\|admin\|maintainer\|member`); an org owner adding an outsider also adds them to the org |
 | `team member role <org> <team> <user> --role <r>` | Change a role |
-| `team member remove <org> <team> <user>` | Remove a member |
+| `team member remove <org> <team> <user>` | Remove a member or guest |
+| `team guest invite <org> <team> <email>` | Invite an outside collaborator to one team without org membership (never host/SSH access through team grants) |
+| `team guest list <org> <team> [--status]` / `team guest revoke <org> <team> <id\|email>` | Manage a team's guest invitations |
+| `team guest inbox` / `team guest accept <id>` / `team guest decline <id>` | Your guest invitations |
 
 ## Terminal sessions
 

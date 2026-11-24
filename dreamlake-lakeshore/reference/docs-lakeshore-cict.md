@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.226 2adcb7d24; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -23,8 +23,10 @@ starts a single-use runner there, and writes the evidence the job declares
 (results, replays, metrics) to a Source, where the CI/CT page and the Source
 viewers show it.
 
-This is CI/CT **channel A** (triggered by GitHub). Submitting suites from
-DreamLake itself, without GitHub, is planned separately.
+This is CI/CT **channel A** (triggered by GitHub). To start a suite when a
+container image is pushed to GHCR, Google Artifact Registry or Amazon ECR, see
+[Run a suite when an image is pushed](https://docs.dreamlake.ai/lakeshore/cict/registry-triggers).
+Submitting suites from DreamLake itself, without GitHub, is planned separately.
 
 ## How a job runs
 
@@ -80,12 +82,36 @@ on the Source: if they leave the namespace or lose it, jobs wait in the queue
 and Setup says so until another namespace admin chooses **Re-authorize**.
 After that, copy a label from the machine catalog in Setup. See [DreamLake GPU](#dreamlake-gpu) for limits and usage.
 
-*Your own machines.* You need a [Slurm provider](https://docs.dreamlake.ai/lakeshore/providers/slurm)
-registered in the namespace with a host bound to it, and a launch layer that
-sets the partition, GPU type, memory, time limit and excluded nodes. Create a
-runner pool in Setup (**Your own machines → New pool**) or with the CLI. The
-pool name becomes the default label `dreamlake-<name>`. Setup only offers
-providers that can start runners and Sources you can edit.
+*Your own machines.* Only Slurm clusters are supported. The cluster needs a
+login node that can run `sbatch`, a directory shared between it and the compute
+nodes, `uv` and Python on the compute nodes, and outbound internet from them
+(the runner talks to GitHub). Setup → **Your own machines** lists six steps and
+shows which are done:
+
+1. **Enroll the login node** (Compute → **Enroll a Host**): run the shown
+   command from a terminal that can SSH to it. Jobs run as the Unix user you
+   enroll, with that user's files, quota and priority.
+2. **Bind a service account** (the host in Compute → **Service account → Bind
+   service account**): the machine's own DreamLake identity. Without it jobs
+   run but cannot save evidence; revoking it stops that machine's writes. A
+   namespace owner does this.
+3. **Register a [Slurm provider](https://docs.dreamlake.ai/lakeshore/providers/slurm)** (Providers →
+   **Register**): the cluster name and the partitions jobs may use.
+4. **Associate the login node** (the provider → **Hosts → Associate an
+   enrolled host**): which enrolled Unix account submits, the partition, the
+   shared directory as seen by the login node and by compute nodes, and uv and
+   Python on compute nodes.
+5. **Set the launch layer** (the provider → **Configuration → Set launch
+   layer**): what each job asks for, such as
+   `{"partition": "gpu", "gres": "gpu:1", "cpusPerTask": 8, "memGiB": 32, "time": "02:00:00"}`.
+   **Check** validates it without launching anything.
+6. **Create a runner pool** (Setup → **New pool**) or with the CLI. The pool
+   name becomes the default label `dreamlake-<name>`. Setup only offers
+   providers that can start runners and Sources you can edit, and warns when
+   the provider's machine cannot save evidence.
+
+Another spec on the same cluster (more time, another GPU type) is steps 3–6
+again with a different launch layer; another cluster is all six.
 
 ```bash
 dl cict pools create my-team --name bos14-gpu \
@@ -113,9 +139,16 @@ for every flag.
 Each machine type is what **one job** gets, not one machine: jobs land on any
 free node of the cluster partition behind it.
 
-| Label | Per job: GPU | CPU | Memory | Time limit |
-| --- | --- | --- | --- | --- |
-| `dreamlake-gpu-rtx5090` | 1 × RTX 5090 | 8 | 32 GB | 2 h |
+Machine labels, limits and prices are deployment configuration. The table below
+describes the documented profiles; use Setup’s currently offered catalog for
+your namespace before choosing a label. A listed profile does not establish
+that it is enabled for your namespace.
+
+| Label | Per job: GPU | CPU | Memory | Time limit | Price |
+| --- | --- | --- | --- | --- | --- |
+| `dreamlake-gpu-rtx5090` | 1 × RTX 5090 | 8 | 32 GB | 2 h | $1.20 / GPU-hour |
+| `dreamlake-gpu-rtx5090-8h` | 1 × RTX 5090 | 8 | 32 GB | 8 h | $1.20 / GPU-hour |
+| `dreamlake-gpu-rtxpro6000` | 1 × RTX PRO 6000 | 8 | 32 GB | 2 h | $2.40 / GPU-hour |
 
 - **Concurrency.** Each namespace runs a limited number of DreamLake GPU jobs
   at once (2 by default), and each machine type has a limit across all
@@ -125,11 +158,54 @@ free node of the cluster partition behind it.
   you choose another in Setup), under the same folder layout as pools.
 - **Cache.** `DREAMLAKE_CACHE_DIR` is private to your namespace; other
   namespaces cannot read or change it.
-- **Usage.** Setup shows a month's GPU time, from each job's start to its
-  end: by the GitHub user who triggered each job, by repository and workflow,
-  and job by job with a link to each run. `dl cict usage` prints the same.
+- **Usage.** Setup shows a month's GPU time and what it is worth: by the
+  GitHub user who triggered each job, by repository and workflow, and job by
+  job with a link to each run. `dl cict usage` prints the same.
+- **How GPU time is measured.** From the moment Slurm gives the job its node
+  until it lets go, times the job's GPUs. Waiting in DreamLake's queue or in
+  Slurm's queue is not counted. Right after a job ends its time is an estimate
+  from GitHub's job times; within a few minutes Slurm's accounting replaces it.
+  A job the infrastructure failed (Slurm `NODE_FAIL` or `BOOT_FAIL`) is not
+  priced.
+- **Prices (not charged yet).** Each machine type has a price per GPU-hour, in
+  credits (one credit = $0.005). A job keeps the price it ran at, so a later
+  price change does not change past jobs. **Nothing is charged today**: the
+  price shows what DreamLake GPU usage is worth until it joins prepaid
+  billing.
+- **Prepaid credits (sandbox validation).** When DreamLake turns billing on, a
+  job is paid from the namespace's prepaid credits (Settings → Billing):
+  before Slurm is asked for a node, the most the job can cost — its time
+  limit, on every GPU it holds, at its price — is held from the balance. When
+  the job ends, the GPU time Slurm measured is charged (capped at the time
+  limit; GitHub's estimate if Slurm never reports) and the rest is given back.
+  Not charged: a job that never got a node, a job cancelled before its runner
+  picked it up (even if Slurm had already given the runner a node), and a job
+  the infrastructure failed. A machine type priced at 0 is free. Without
+  enough credit, or without a billing account, a job waits in DreamLake's
+  queue — the run page says why — and starts once credit is added. Billing currently runs against Stripe and
+  Metronome sandboxes only: no real money moves.
 - **Availability.** DreamLake GPU is enabled per namespace by the DreamLake
   team. A paused namespace starts no new jobs; running ones finish.
+
+## Check where a namespace stands
+
+`dl cict status` (or `GET /namespaces/:ns/cict/onboarding`) reports every
+step above, whether it is done, and the next one with the page, CLI command
+and API call that does it. It is the same for people and agents: an agent can
+take a namespace from nothing to running jobs by repeating it and doing
+`next`. Only these need a person: installing the GitHub App (in a browser),
+enabling DreamLake GPU (the DreamLake team), enrolling a login node (a terminal
+with SSH to it; an agent with such a shell can run the command) and binding
+its service account (a namespace owner; DreamLake's built-in agent cannot).
+`alsoNeeded` lists person-only steps that can happen alongside `next`.
+`route` is the path being followed (DreamLake GPU once it is enabled or
+nothing else has started, otherwise your own machines); `readyVia` says which
+one is ready.
+
+```bash
+dl cict status my-team          # ready / next step
+dl cict status my-team --json   # every step, with ui, cli and api hints
+```
 
 ## Write the workflow (developers)
 
@@ -175,7 +251,7 @@ Only files listed in the manifest are copied to the Source. Write them under
 `$DREAMLAKE_RUN_DIR`, then write the manifest last:
 
 ```json
-[".dreamrc", "result.json", "metrics.json", "replays/walk_01/episode.json", "replays/walk_01/frames.parquet"]
+[".dreamrc", "metrics.json", "render.png", "replays/walk_01/episode.json", "replays/walk_01/frames.parquet"]
 ```
 
 - `results.json` is a JSON array of paths relative to `$DREAMLAKE_RUN_DIR`.
@@ -184,8 +260,9 @@ Only files listed in the manifest are copied to the Source. Write them under
 - `metrics.json` (optional) is an array of points,
   `[{"step": 0, "values": {"pass_rate": 1.0}}]`: at most 128 points of at most
   16 finite numbers each.
-- `result.json` is the suite verdict the CI/CT page shows: a `verdict`,
-  `passed`/`total` counts and a `cases` array with per-case checks.
+- Any other file is yours: logs your job writes, renders, checkpoints, a
+  suite result in whatever format you use. The run page lists them and opens
+  each one beside the run.
 - `.dreamrc` makes the run folder open as a visualization in the Source viewer,
   for example a MuJoCo replay with a timeline and line charts. A `.dreamrc`
   in a run sub-folder applies to that folder.
@@ -197,26 +274,24 @@ and date.
 
 ## See results
 
-Every finished run is compared case by case with its **baseline**: the latest
-earlier finished run of the same repository, workflow and job on the
-repository's default branch whose evidence was written. A case that passed in
-the baseline and fails now is a regression; the reverse is a fix. Add
-`push: branches: [main]` (your default branch) to the workflow's triggers so
-baselines exist.
+CI/CT shows every job the same way, whatever it runs: how it ended, how long
+it took, where it ran, what it cost on DreamLake GPU and the files it declared.
+It does not read or compare a result format; your job's own steps decide pass
+or fail.
 
 - **GitHub:** a `DreamLake CI/CT` check on the commit, opened when the runner
-  starts and completed with `N/M cases passed · K regressions vs main@sha`;
-  its Details link opens the run in DreamLake. The job log and step summary
-  are there too; `DREAMLAKE_RUN_URL` holds the run's DreamLake link for the
-  summary.
-- **CI/CT page** (`/<namespace>/cict`): runs grouped by repository with their
-  regressions against the baseline; open a run for its progress, the case
-  comparison (changed cases first, each check's observed values in both runs)
-  and its evidence. **Setup** on the same page connects GitHub and manages
-  runner pools.
+  starts and completed with how the job ended (`Passed on DreamLake · 4m`),
+  where it ran and where its evidence is; its Details link opens the run in
+  DreamLake. The job log and step summary are there too; `DREAMLAKE_RUN_URL`
+  holds the run's DreamLake link for the summary.
+- **CI/CT page** (`/<namespace>/cict`): one row per job, with its status,
+  branch and commit, machine, duration, GPU time and cost, who triggered it
+  and when; re-runs fold into the job's row. Open a run for its progress, run
+  details and evidence; each evidence file opens in a tab beside it. **Setup**
+  on the same page connects GitHub and manages runner pools.
 - **Source:** the run folder, with replays and charts from its `.dreamrc`.
 - **CLI and SDKs:** `dl cict runs list my-team` and
-  `dl cict runs show my-team/<run-id> --result`.
+  `dl cict runs show my-team/<run-id>`.
 
 ## Report metrics
 
@@ -271,14 +346,18 @@ Two ways are supported by design:
 | GET / POST | `/namespaces/:ns/github/runner-pools` | read / execution admin |
 | PATCH / DELETE | `/namespaces/:ns/github/runner-pools/:poolId` | execution admin (DELETE answers `409 runner_pool_busy` while jobs still need it) |
 | GET | `/namespaces/:ns/github/runner-targets` | read: Slurm providers and whether a pool can start runners on each |
+| GET | `/namespaces/:ns/cict/onboarding` | read: every setup step, done or not, and the next one with UI, CLI and API hints |
 | GET | `/namespaces/:ns/cict/platform` | read: DreamLake GPU catalog, access, occupancy, month GPU time |
 | POST | `/namespaces/:ns/cict/platform/activate` | execution admin + namespace admin: start using DreamLake GPU |
 | PATCH | `/namespaces/:ns/cict/platform` | execution admin: change the evidence Source, or re-authorize with the same one (the caller becomes the authorizer) |
-| GET | `/namespaces/:ns/cict/usage?month=YYYY-MM&sender=&limit=` | read: totals, by repository and workflow, by the GitHub user who triggered each job, and the jobs (newest first) |
+| GET | `/namespaces/:ns/cict/usage?month=YYYY-MM&sender=&limit=` | read: totals, by repository and workflow, by the GitHub user who triggered each job, and the jobs (newest first); each with `credits` (not charged), and per job `source` (`github` estimate or `slurm`) |
 | GET | `/namespaces/:ns/github/jobs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs/:run` | read |
-| GET | `/namespaces/:ns/cict/runs/:run/comparison` | read (and Source use) |
+| GET | `/namespaces/:ns/cict/runs/:run/comparison` | removed: always `410 comparison_removed` |
+| GET / POST | `/namespaces/:ns/github/registry-triggers` | `lakeshore:read` / `lakeshore:use`: registry push triggers |
+| DELETE | `/namespaces/:ns/github/registry-triggers/:triggerId` | `lakeshore:use` |
+| GET | `/namespaces/:ns/github/registry-evaluations?limit=` | `lakeshore:read`: registry-triggered runs; the ECR secret and reconcile routes are in [Run a suite when an image is pushed](https://docs.dreamlake.ai/lakeshore/cict/registry-triggers#api) |
 
 The built-in agent can call these through its resource API tools. Creating or
 deleting a pool is a control operation. Completing a GitHub binding is not

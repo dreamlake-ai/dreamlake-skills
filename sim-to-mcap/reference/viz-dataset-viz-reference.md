@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.31.3 545152ca; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.33.9 3f29c10d; do not edit -->
 
 <span id="reference" />
 
@@ -165,7 +165,32 @@ are omitted with warnings.
 Requires indexed MCAP v1 with uncompressed, lz4, or zstd chunks. Supported
 messages include Foxglove protobuf/JSON, ROS 1 `ros1` with `ros1msg`, and ROS 2
 `cdr` with `ros2msg`. `ros2idl`, flatbuffers, grids, calibration messages, and
-compressed-video packets are not decoded by this reader.
+video codecs other than H.264 are unsupported.
+
+- **Video.** Bind a `foxglove.CompressedVideo` topic carrying H.264 Annex B
+  packets to `frameStack.cameras`. Playback requires browser WebCodecs support
+  for the stream. Seeking starts at a preceding keyframe.
+- **Synchronized playback.** The playhead stays at the last ready time while
+  the reader fetches chunks or a mounted camera, point cloud, or numeric track
+  prepares its sample. Playback resumes when these views can advance together.
+  Cameras and point clouds use indexed message timestamps, so different sample
+  rates can legitimately repeat a frame. A failed required read stops playback
+  and reports the error.
+- **Numeric protobuf arrays.** Select the repeated field with
+  `<topic>::<field>` and its zero-based dimension by name. For example,
+  `field: ["/joints::positions", "positions.0"]` draws the first position
+  in a `lineChart` series. Check the recording's joint identifiers before
+  assigning a joint name. The first populated sample establishes the columns,
+  up to 256 elements per array and 1,024 numeric columns per selected group.
+  Missing elements produce gaps. Later growth does not add columns.
+- **Remote reads.** The storage endpoint must honor HTTP Range with a
+  partial (206) response. Source Files can open recordings over 50 MiB.
+  An individual index or chunk read is limited to 64 MiB and a decoded
+  chunk to 128 MiB. The MCAP reader cancels a whole-object (200) response.
+  File size alone does not determine startup cost; index size, chunk layout
+  and the distance to a keyframe affect how much data a view needs.
+  All episodes in a page share two MCAP transfer slots, with at most one
+  background transfer.
 
 <span id="the-default-mcap-view" />
 

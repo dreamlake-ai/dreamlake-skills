@@ -12,6 +12,7 @@ before using a new capability; a skill update does not deploy the product.
 | Request | Action |
 | --- | --- |
 | Define or edit an agent, attach instructions and optional skills | [Author an agent](actions/author.md) |
+| Publish a draft or activate an older agent release | [Agent releases](actions/releases.md) |
 | Discover and execute an operation on a DreamLake resource | [Use resource APIs](actions/resource-api.md) |
 
 For setup or login, use the setup action of `dreamlake-cli`. Use SDKs when the

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/index.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/index.md at 0.146.4 f2cf298; do not edit -->
 
 # DreamLake CLI
 
@@ -23,6 +23,7 @@ Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs on
 | Upload files or folders | [Uploading](cli-uploading.md) |
 | Organize data (projects, bindrs, datasets) | [Projects & data](cli-projects.md) |
 | Manage an organization | [Organizations](cli-organizations.md) |
+| Create or open a named tmux terminal | [Named tmux references and creation](https://cli.dreamlake.ai/host-enrollment#named-tmux-references-and-creation) |
 | See every command | [Command reference](cli-command-reference.md) |
 
 ## What it does

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/dreamrc.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/dreamrc.md at 0.146.4 f2cf298; do not edit -->
 
 # The .dreamrc reference
 
@@ -6,6 +6,67 @@
 them without reinterpreting visualization fields as launcher options or scene
 composition. New registration fields are implemented in this change; release
 availability must be verified separately.
+
+## Repository namespace
+
+**CLI 0.140.0+, Python SDK 0.58.0+.** The root `namespace` field selects the
+DreamLake workspace for this repository. It is separate from Kubernetes
+`kube.namespace`, provider placement and `LAKESHORE_NAMESPACE` control-plane
+scope, and does not contain credentials. Use Lakeshore **0.5.4+** when the same
+file also configures compute: older releases can forward the root `namespace`
+as a launcher extra.
+
+```yaml file=".dreamrc"
+# Default workspace for this repository
+namespace: fortyfive
+```
+
+For commands that resolve an implicit namespace, precedence is:
+
+1. Explicit command/API namespace or namespace-qualified target.
+2. `namespace` in the nearest project `.dreamrc`.
+3. The active profile's global default.
+4. The signed-in account's personal namespace.
+
+Discovery starts in the current directory and walks toward the nearest `.git`
+boundary or home directory. It uses the nearest project `.dreamrc` within that
+boundary; a home `.dreamrc` is not the global namespace store. A discovered file
+without `namespace` inherits the profile default, rather than searching another
+ancestor file. Other `.dreamrc` consumers retain their own discovery rules. An explicit local
+read without a project file reports how to create one. Malformed local YAML or
+an invalid namespace reports an error; `--global` bypasses that file.
+
+| Scope | Read | Write with `namespace use` or `namespace reset` |
+| --- | --- | --- |
+| Automatic | Local field when set, otherwise global/personal fallback | Existing project `.dreamrc`; otherwise active profile's global default |
+| `--local` | Require a project file; inherit global/personal when its field is unset | Nearest project `.dreamrc`, or create at the nearest Git root/current directory |
+| `--global` | Ignore project `.dreamrc` | Active profile's global default only |
+
+```bash file="terminal"
+dl namespace use fortyfive --local
+dl namespace use dyna-robotics --global
+dl namespace status
+dl namespace reset --local
+dl --global hosts list
+```
+
+For ordinary resource commands, `--local`/`--global` must precede the command,
+as in `dl --global hosts list`. Namespace commands and `auth status` also accept
+the scope flag after the command.
+
+Omit the name in an interactive terminal to choose from the membership-verified
+picker. It writes directly to the same destination as a named selection. In
+scripts or agents, provide a name explicitly. `namespace status` shows the effective source, selected config file and profile
+default separately so you can distinguish repository scope from account
+preferences.
+
+Local writes preserve unrelated YAML fields and comments. Local reset removes
+only `namespace`; the file remains usable by its other consumers. A committed or
+copied `.dreamrc` intentionally selects that workspace when opened, without a
+hidden binding file. The current identity and server still enforce resource
+access, and namespace selection cannot grant membership. Login credentials and
+saved profiles always remain global. See [Authentication](cli-auth.md) for commands and
+SDK entry points.
 
 ## Registration fields
 

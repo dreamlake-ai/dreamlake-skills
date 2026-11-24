@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.31.3 545152ca; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.33.9 3f29c10d; do not edit -->
 
 <span id="write-the-dreamrc" />
 
@@ -19,11 +19,11 @@ This page covers the keys you change when adapting that example.
 
 ## Field bindings
 
-| Form | Meaning |
-| --- | --- |
-| `series: [action]` | Plot every column of a field |
-| `series: [{ field: [action, x] }]` | Select a named dimension |
-| `cameras: ['observation.images.*']` | Select matching camera fields |
+| Form                                             | Meaning                                    |
+| ------------------------------------------------ | ------------------------------------------ |
+| `series: [action]`                               | Plot every column of a field               |
+| `series: [{ field: [action, x] }]`               | Select a named dimension                   |
+| `cameras: ['observation.images.*']`              | Select matching camera fields              |
 | `{ field: hands, as: keypoints, on: cam_front }` | Interpret an overlay and select its camera |
 
 Dots remain part of a field name. `*` matches within field or dimension names.
@@ -82,15 +82,15 @@ common ratio. Other options are passed to the registered view.
 
 ## Select episodes
 
-| `dataset` key | Use |
-| --- | --- |
-| `format` | `lerobot`, `umi`, `mcap`, `folder`, or a registered reader |
-| `episodes: auto` | Ask the reader to enumerate; the default |
-| `episodes: 'episodes/*/'` | Select directories with a glob |
-| `episodes: { limit: 3 }` | Preview three automatically enumerated episodes |
-| `episodes: { glob, sort, limit }` | Filter, order, and cap glob results |
-| `path` | Select a UMI store or one MCAP file |
-| `fps` | Supply the clock for folder stills or a UMI ReplayBuffer |
+| `dataset` key                     | Use                                                        |
+| --------------------------------- | ---------------------------------------------------------- |
+| `format`                          | `lerobot`, `umi`, `mcap`, `folder`, or a registered reader |
+| `episodes: auto`                  | Ask the reader to enumerate; the default                   |
+| `episodes: 'episodes/*/'`         | Select directories with a glob                             |
+| `episodes: { limit: 3 }`          | Preview three automatically enumerated episodes            |
+| `episodes: { glob, sort, limit }` | Filter, order, and cap glob results                        |
+| `path`                            | Select a UMI store or one MCAP file                        |
+| `fps`                             | Supply the clock for folder stills or a UMI ReplayBuffer   |
 
 `sort` accepts `name`, `name-desc`, or `none`. Path globs support `*` within a
 segment, not recursive `**`. Folder datasets need a glob.
@@ -118,11 +118,11 @@ A declaration replaces a same-named field in the viewer's inventory.
 
 ## Storage
 
-| Driver | Keys |
-| --- | --- |
-| `hf` | `repo`; optional `root`, `revision` (default `main`), `repoType` (default `datasets`) |
-| `http` | `url`; directory listing uses `index.json` |
-| Host-registered | Identifiers expected by the application driver |
+| Driver          | Keys                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `hf`            | `repo`; optional `root`, `revision` (default `main`), `repoType` (default `datasets`) |
+| `http`          | `url`; directory listing uses `index.json`                                            |
+| Host-registered | Identifiers expected by the application driver                                        |
 
 A config's `storage` takes precedence over an injected storage instance or
 `rootStorage`. Omit it when a host should supply the dataset's location.
@@ -147,7 +147,7 @@ name: Simulation scenes
 dataset:
   format: usd
   episodes:
-    glob: "*/*.usdz"
+    glob: '*/*.usdz'
     limit: 10000
 views:
   - view: metaPanel
@@ -160,6 +160,12 @@ The `usd` view accepts exactly one file in its `scene` binding. It renders in an
 supports search over scene names and task paths and opens one scene at a time.
 The selected scene loads in a worker; switching scenes cancels the old load
 and releases its GPU resources. Static scenes render on demand.
+
+While layers and textures download, the viewer shows received bytes and file
+counts. A percentage covers the currently requested downloads when their sizes
+are available; dependencies discovered later can increase the total. Unknown
+sizes show bytes received without a percentage. Composition and geometry loading
+remain separate from network progress, and retries start with fresh counters.
 
 Place `.dreamrc` at the collection root without `storage`. The app supplies
 the Project or Source location and resolves dependencies using its authorized

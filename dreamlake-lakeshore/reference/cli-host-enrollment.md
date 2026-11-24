@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/host-enrollment.md at 0.146.4 f2cf298; do not edit -->
 
 # Host enrollment
 
@@ -183,19 +183,22 @@ Use both flags to include offline archived hosts. Permanent entry deletion is
 not supported.
 
 Read the catalog revision before submitting a change. Lifecycle commands require
-one exact lowercase 24-character Host ID, not a name or wildcard. Use the revision
-returned by the read; `0` below illustrates a record with no prior catalog changes.
+one exact full `namespace/group/host[/user]` name or lowercase 24-character Host ID.
+Full names supply the namespace; an explicit `--namespace` must match. Name lookup
+includes offline and archived hosts and rejects ambiguous matches. Partial names
+and wildcards are not accepted. Use the revision returned by the read; `0` below illustrates a record with no prior catalog changes.
 
 ```bash cli-help="hosts lifecycle"
+dl hosts lifecycle geyang/dev/my-host --json
 dl hosts lifecycle HOST_ID --namespace geyang --json
 ```
 
 ```bash cli-help="hosts archive"
-dl hosts archive HOST_ID --namespace geyang --request-id archive-example-1 --expected-revision 0 --json
+dl hosts archive geyang/dev/my-host --request-id archive-example-1 --expected-revision 0 --json
 ```
 
 ```bash cli-help="hosts restore"
-dl hosts restore HOST_ID --namespace geyang --request-id restore-example-1 --expected-revision 1 --json
+dl hosts restore geyang/dev/my-host --request-id restore-example-1 --expected-revision 1 --json
 ```
 
 Every accepted new request increments the revision, including archiving an
@@ -204,7 +207,8 @@ timestamp is retained by repeated archive actions. Restore clears that timestamp
 All responses state `executionAffected:false` and `retirementSupported:false`.
 
 Retain the request ID, Host ID, namespace, action and expected revision. After an
-ambiguous transport failure, repeat that exact request; the CLI never retries or
+ambiguous transport failure, use the resolved Host ID and namespace reported in
+the error to repeat that exact request, even if the host name has changed; the CLI never retries or
 refreshes the revision automatically. Reusing a request ID with different inputs
 returns `409 request_id_conflict`. A stale revision returns
 `409 catalog_revision_conflict`; inspect the current catalog state before choosing
@@ -308,6 +312,55 @@ JSON preserves this verdict and its identity/timestamp fields. Exit status is
 zero only for `ready`; `not_ready`, `unknown`, and request failures exit one.
 No grant, handshake, job, enrollment change, or machine lifecycle action occurs.
 
+## Set a Ripple upgrade target
+
+**CLI and TypeScript 0.142.0+:** requires the matching server Ripple target API.
+
+A Ripple host-metrics collector that was started with automatic updates turned
+on installs the version its enrollment's target names. `hosts ripple-target`
+reads, sets, or clears that target for one exact enrollment, with no
+redeployment. Only the Host owner who holds `lakeshore:use` in the namespace
+can read or change it. Callers without `lakeshore:use`, including connection
+grantees, get `forbidden`; other members who hold it but do not own the Host
+get `host_not_found`. Setting the target on one enrollment never changes any
+other.
+
+```bash cli-help="hosts ripple-target get"
+dl hosts ripple-target get geyang/workstations/worker --enrollment ENROLLMENT_ID
+dl hosts ripple-target get HOST_ID --namespace geyang --enrollment ENROLLMENT_ID --json
+```
+
+```bash cli-help="hosts ripple-target set"
+dl hosts ripple-target set geyang/workstations/worker --enrollment ENROLLMENT_ID --version v0.5.0
+```
+
+```bash cli-help="hosts ripple-target clear"
+dl hosts ripple-target clear geyang/workstations/worker --enrollment ENROLLMENT_ID
+```
+
+The host selector and `--namespace` follow `hosts metrics`; `--enrollment` is
+required and the CLI never picks or fans out to other enrollments. `--version`
+accepts only a stable release tag, `vMAJOR.MINOR.PATCH` without leading zeros,
+of at most 32 characters. `latest`, pre-release and build suffixes are refused
+before any request is sent. Neither the CLI nor the server checks that the
+version is published, so set only a released Ripple version.
+
+Text output shows `Ripple target:` with the version or `none`, the Host ID, the
+enrollment ID, and when the target last changed. JSON returns `hostId`,
+`enrollmentId`, `targetVersion` (null when there is no target), and `updatedAt`
+(null when it was never set). `set` and `clear` are idempotent: after an
+uncertain outcome, rerun the same command or read the target with `get`.
+Refusals exit 1 and name the server's code, such as `invalid_target_version`,
+`forbidden`, `host_not_found`, or `enrollment_not_found`.
+
+The collector sees a change on its next accepted delivery, within about 30
+seconds. A collector without automatic updates ignores the target. A collector
+with automatic updates installs only a version strictly newer than the version
+it is running, so clearing a target or setting an older version never rolls a
+host back. The TypeScript API exposes the same operations as
+`hosts(namespace).rippleTarget(hostId, enrollmentId)` and
+`hosts(namespace).setRippleTarget(hostId, enrollmentId, version | null)`.
+
 ## Enrollment
 
 `dl hosts enroll` bootstraps a user-owned nymph on this computer with
@@ -360,10 +413,32 @@ inspection is online, enrollment rejects that mount with HTTP 409
 authorized execution connection before running enrollment. See
 [connection ownership](cli-queues.md#ownership-execution-and-namespace-names).
 
-The command prints a request ID before enrollment. After an interrupted request,
-repeat the same inputs with `--request-id <id>`. If the API returns `retryAt`, wait
-until that time before starting a new request. JSON errors retain the request ID
-and available operation/retry fields.
+The command prints a request ID once the target identity is known. A rerun of
+the same logical enrollment reuses it automatically. A logical enrollment is the
+same DreamLake API, host name and transport (`--local`, or the same `--ssh`
+arguments) for the same target identity. Without `--request-id`, the rerun
+behaves as follows:
+
+- If the backend already confirmed the enrollment online, the rerun sends no
+  new enrollment request and gets no grant. It refreshes the target's
+  configuration and repeats only the remaining steps, such as Ripple or the web
+  terminal. The receipt reports `resumed: true`.
+- Otherwise it repeats the saved request. If that request has expired on the
+  server, it is replaced once by a new one.
+
+The saved state is `~/.dreamlake/host-enrollments/<key>.json` (mode 0600). It
+holds identifiers only (request, host, enrollment and machine IDs, the public
+key, Unix user and control-plane URL), never a grant, token, private key or SSH
+credential. A different target identity, name, transport or API never uses it,
+and an explicit `--request-id` is never replaced.
+
+A pending, partial or failed result includes `retry.command`, printed as
+`Retry (resumes this enrollment): …` or `Retry: …`. It rebuilds the command from
+the validated inputs with `--request-id`, for `--local` or with the exact
+`--ssh` arguments. It never includes passwords, Vault entries, key exports,
+password descriptors or credential-saving consent. If the API returns `retryAt`,
+wait until that time before starting a new request. JSON errors retain the
+request ID and available operation/retry fields.
 `--wait-seconds` bounds readiness polling (default 60). A timeout reports
 `pending` and exits nonzero; it does not claim enrollment succeeded. Repeat
 execution preserves the target identity and reuses the user service. Runner/job
@@ -389,6 +464,177 @@ dl hosts enroll --local --name geyang/dev/my-mac --web-terminal
 dl hosts enroll --local --name geyang/dev/my-mac --no-web-terminal
 ```
 
+## Ripple metrics collector
+
+**CLI 0.144.0+:** requires a server that accepts Ripple
+enrollment bindings and the published Ripple v0.6.0 release.
+
+After the backend confirms the enrollment online, `dl hosts enroll` (`--local`
+or `--ssh`) installs the Ripple host-metrics collector on a new enrollment.
+`--no-ripple` skips it; `--ripple` installs it explicitly. The web Compute
+**Enroll** dialog builds the same command and adds `--no-ripple` when you turn
+metrics off.
+
+```bash
+# Enroll without the metrics collector; later runs remember this choice.
+dl hosts enroll --local --name geyang/dev/my-mac --no-ripple
+# Install the collector on an existing enrollment.
+dl hosts enroll --local --name geyang/dev/my-mac --ripple
+```
+
+The choice belongs to the enrollment and is stored on the target, next to the
+enrollment's identity key. Without either flag:
+
+- A new enrollment installs Ripple.
+- A rerun keeps the recorded choice, so an earlier `--no-ripple` stays off.
+- An enrollment created before this setting has no recorded choice and gets
+  nothing installed until you pass `--ripple`.
+
+Listing, sharing, upgrading or inspecting a host never installs Ripple, and
+`dl nymph setup` does not install it. Choosing Ripple turns off Nymph's own
+`[metrics]` readings in this enrollment's generated `nymph.toml` only, and
+`--no-ripple` removes only the table enrollment added; see
+[Nymph's own metrics](#nymphs-own-metrics). When that file changes, only this
+enrollment's Nymph service restarts to read it. The choice never changes
+another enrollment's Nymph service or identity, or the Nymph access policy.
+
+Enrollment creates any missing directory it needs with an exact mode. Its
+state directories are 0700, and `~/.config/systemd/user`,
+`~/Library/LaunchAgents` and `~/.local/bin` are 0755. This holds under any
+umask, including Ubuntu's default 0002. Existing directories are never changed.
+Before Ripple runs, enrollment checks the directories Ripple will use: the user
+service directory and Ripple's state directories. Each must be a real
+directory owned by the enrolled user that no one else can write. Otherwise
+Ripple is not run, and the result is `failed` with `reason` `state_unsafe` and
+the exact repair in `action`, for example
+`chmod go-w '/home/alice/.config/systemd/user'`. Run it as that user, then rerun
+the same command.
+
+Setup runs on the target as the enrolled Unix user. It downloads
+`setup-compute.sh` from the immutable Ripple `v0.6.0` release directory. The CLI
+pins that script's SHA-256
+(`87ed45d3ca0ba38958b0bffbb92ee7892dd6fbfa8fdcf2c70417b1421614282d`). Setup runs
+the script only when the downloaded bytes match this pin and the release's
+`setup-compute.sh.sha256` and `SHA256SUMS` both name them. On any mismatch
+nothing runs and the result is `failed` with `reason` `helper_digest_mismatch`.
+Setup identifies itself to the release host with the User-Agent
+`DreamLake-CLI (dl hosts enroll; Ripple setup)`. The script receives the
+DreamLake API URL, the enrollment ID and machine ID issued by the server, and
+the path of the enrollment's existing `identity.key`. It binds the collector
+to that enrollment with a signature from this key. The private key, the
+collector token and your DreamLake login never leave the target or appear in
+arguments. Setup does not log in to DreamLake on the target. Setup also stops
+if the target's key or Nymph machine ID does not match this enrollment.
+
+The receipt reports Ripple separately from the core enrollment, as `ripple` in
+JSON and a `Ripple metrics:` line in text. A Ripple result never changes the
+core result or the exit code. To retry, rerun the same `dl hosts enroll`
+command.
+
+| `ripple.status` | Meaning |
+| --- | --- |
+| `ready` | The server returned a fresh Ripple sample, taken after this install, with CPU and memory readings. |
+| `awaiting_data` | Installed and bound, but the server cannot yet show a fresh Ripple sample. `reason` is `no_fresh_sample` or `origin_unsupported`; see below. |
+| `pending` | Bound, but the collector's service is not running yet, for example because the Linux user has no systemd user manager or the Mac has no logged-in session. `action` says what to do on the target. |
+| `failed` | Not installed. `reason` is the setup step or the helper's own reason, for example `helper_unavailable`, `helper_digest_mismatch`, `server_unsupported`, `binding_conflict` or `clock_skew`. `retryable` and `action` come from the helper when it reports them. |
+| `disabled` | `--no-ripple` now or on an earlier run, or `reason` `host_opted_out` when the host opted out with `setup-compute.sh --opt-out`. |
+| `not_requested` | An enrollment from before this setting, or a managed `dl nymph setup`. |
+| `skipped` | The core enrollment is still pending, so Ripple was not started. |
+
+Readiness is read from the server, never from the target. Only this check asks
+the enrollment's metrics with `origin=ripple`. The server must label the answer
+`metricsOrigin: "ripple"`, so a Nymph metrics Source or other readings on the
+same enrollment never count. A ready sample must be fresh (at most 90 seconds
+old and not stale). It must carry `cpu_percent`, `memory_used_bytes` and
+`memory_total_bytes`, and be taken after the install started. If a Ripple sample
+was already on the server, for example on a retry, the new one must be newer.
+
+The `awaiting_data` reasons:
+
+- `no_fresh_sample`: no qualifying sample arrived during the wait. The wait is
+  90 seconds, or `--wait-seconds` when you pass it.
+- `origin_unsupported`: the server does not label Ripple samples, so the CLI
+  cannot confirm delivery and never reports `ready`.
+
+### Nymph's own metrics
+
+Ripple replaces Nymph's built-in resource readings. When Ripple is on for an
+enrollment, enrollment adds this table to that enrollment's own generated
+`nymph.toml`:
+
+```toml
+[metrics]
+# dl hosts enroll: Ripple reports this enrollment's host metrics
+enabled = false
+```
+
+Nymph 0.1.9 to 0.1.33 turns these readings on by default, and 0.1.34 and later
+turn them off. Nymph 0.1.8 and earlier has no `[metrics]` table and rejects
+unknown tables, so enrollment never adds it there. The version is read from the
+installed Nymph binary, including one installed with `--nymph-version`.
+
+The table is added when Ripple is chosen, before the collector is set up. If
+Ripple setup then fails, Nymph 0.1.9 to 0.1.33 still sends no readings of its
+own until Ripple runs or you turn Ripple off.
+
+A `[metrics]` table that you wrote yourself, including `enabled = true` or an
+opt-out, is carried over unchanged. Enrollment stops without changing anything
+if it cannot carry the table over exactly. Turning Ripple off later removes
+only the table that enrollment added. Managed `dl nymph setup` configurations
+never get this table.
+
+Check later samples with `dl hosts metrics`.
+
+## Agent session metadata
+
+A new enrollment turns on Nymph's agent-session metadata channel by writing
+`[sessions] enabled = true` to its `nymph.toml`. This covers the standard
+`dl hosts enroll` (`--local` or `--ssh`, as shown in the web Compute guide) and
+`dl nymph setup`. Nymph then lists your local Codex and Claude sessions in
+DreamLake as private entries. It sends only metadata: provider, session ID,
+working directory, title, activity times, run state and repository root/status.
+The title is the one the agent app records (a name you set, or a title or summary
+the app generated), so it can describe the conversation. Nymph never sends
+transcripts, prompt or message text, tool output or Git remote URLs, and it never
+changes a session's visibility. Uploading a full transcript remains a separate
+action that you start yourself.
+
+The channel is still gated by Nymph at startup:
+
+- **Local consent:** `dl nymph setup` starts with uploads denied in its
+  `access.json`, so no session metadata is sent until
+  `dl nymph access grant upload` and a restart. A local policy with `upload = false` always wins.
+- **Destination:** only the production control plane
+  (`https://api.lakeshore.dreamlake.ai`) has a default destination. Other
+  control planes stay silent unless `api_origin` is set.
+- **Enrollment:** each request is signed by the enrolled identity. A daemon
+  without a confirmed enrollment binding sends nothing, and the API rejects
+  revoked enrollments.
+
+Nymph turns on no other automatic uploads (metrics, experiment reporting, job
+output). Host metrics come from the separate Ripple collector; see
+[Ripple metrics collector](#ripple-metrics-collector).
+
+Existing enrollments keep their settings. Repeating enrollment preserves the
+current `[sessions]` table exactly: absent stays off, `enabled = false` stays
+off, and `enabled = true` keeps its roots and options. Existing settings must
+also pass the installed Nymph's own check (Nymph 0.1.32 or newer). Enrollment
+cannot preserve them in some cases: multi-line values, quoted or dotted keys,
+duplicates or unknown keys. It then stops without changing anything; simplify
+`[sessions]` and retry. A brand-new enrollment on an installed Nymph older than
+0.1.32 gets no default.
+
+Enrollment also stops, before changing anything, rather than replace a local
+access policy:
+
+- `dl hosts enroll` does not re-enroll a computer that has a policy from
+  `dl nymph setup`; use `dl nymph setup` for that enrollment.
+- `dl nymph setup` does not re-enroll a computer whose `nymph.toml` points
+  `access_file` anywhere other than that enrollment's own `access.json`.
+
+To opt out, set `enabled = false` under `[sessions]` and restart the service.
+Later enrollments keep that choice.
+
 ## Output format
 
 Enrollment prints a readable summary by default, including the host name,
@@ -403,6 +649,8 @@ These output changes require CLI 0.52.1.
 dl hosts enroll --local --name geyang/dev/my-mac
 # Structured output for scripts.
 dl hosts enroll --local --name geyang/dev/my-mac --json
+# Enroll without the Ripple metrics collector.
+dl hosts enroll --local --name geyang/dev/my-mac --no-ripple
 ```
 
 A successful default summary starts with:
@@ -774,7 +1022,7 @@ dl ssh HOST_ID --namespace geyang --enrollment ENROLLMENT_ID
 ```
 
 ```bash cli-help="hosts ssh"
-dl hosts ssh geyang/dev/worker --duration 1800
+dl hosts ssh geyang/dev/worker --duration 900
 ```
 
 Select an exact host by ID or full name. A single ready SSH enrollment is selected
@@ -782,7 +1030,63 @@ automatically. With CLI 0.96.0+, when several are ready, an interactive terminal
 showing each Unix user, UID, readiness and enrollment ID. Without a terminal, the
 CLI prints those choices with copyable commands and exits without connecting.
 `--enrollment` selects an exact enrollment directly; scripts can use it to avoid
-prompts. Cancelling the chooser opens no session. Session lifetime is 120–1800 seconds (`--duration`, default 1800).
+prompts. Cancelling the chooser opens no session.
+
+### Keyboard-idle disconnect
+
+Nymph 0.1.42+ separates `max_duration_s` (total lifetime; `0` disables it) from `idle_timeout_s` (keyboard inactivity). `dl` uses the shorter of the host inactivity limit and its 30-minute request, and reports keyboard activity often enough for that limit. A total lifetime limit still closes an actively used session. Equal settings such as 1800 seconds are valid; timing grace is internal.
+
+**CLI 0.127.0+.** An interactive `dl ssh` or `dl tmux` session ends 30 minutes
+(or the shorter negotiated host limit in CLI 0.129.0+) after the last keystroke or paste (or, before the first one, after the session
+was requested), not at a fixed time. It is disconnected at
+once, with no warning, and the CLI prints
+`dl: disconnected after 30 minutes without keyboard input.` and exits 124. A
+session in which you keep typing stays on the same connection, shell and
+foreground program while you work, up to any configured total lifetime: renewing it never reconnects.
+
+Only keystrokes and pastes count. Remote output (a log you are watching, a
+progress bar, a tmux status line), mouse movement and clicks, focus changes,
+terminal replies to the remote program's queries, window resizes and SSH
+keepalives never postpone the disconnect, even when the terminal delivers a
+report in several pieces. Some encodings are byte-for-byte identical, so they
+are read the way terminal programs read them: a modified F3 key that some
+terminals send exactly like a cursor-position reply (`ESC[1;5R`) does not
+count, and an Escape key followed within 50 ms by `[`, `]`, `O`, `P`, `_`, `^`
+or `X` is read as the start of one sequence. The CLI reads keyboard input only
+from its own terminal.
+
+How it works: the native `dl` build runs OpenSSH inside a pseudo-terminal it
+owns, so it can see keystrokes before they are encrypted; OpenSSH still sets its
+own terminal mode, follows window resizes and handles Ctrl-C and the `~` escape
+as before. While you type, the CLI reports activity to the DreamLake backend at
+most about once a minute. The backend rechecks your current access to that host
+enrollment, exactly as for a new connection, and the control plane extends the
+session and its credential to 30 minutes 10 seconds from that report. If your
+access is revoked, renewals stop and the session ends within that window;
+revoking a host access grant closes it at once unless another current grant
+(person or team) still authorizes you.
+
+The CLI falls back to a fixed 30-minute session, and says so, when keyboard
+observation or renewal is not available:
+
+- `dl: keyboard-idle sessions need the native dl build; this session ends after 30 minutes.`
+  The npm package runs on Node, which has no pseudo-terminal support.
+- `dl: this host does not support keyboard-idle sessions yet; this session ends after 30 minutes.`
+  The host's Nymph does not yet follow renewed deadlines (or the backend is older).
+
+Without a terminal on stdin and stdout (input piped in), `dl ssh` keeps the
+fixed lifetime. `--duration SECONDS` (120–1800) asks for that fixed lifetime
+explicitly instead of the keyboard rule. `--timeout SECONDS` is an absolute,
+opt-in limit in either mode (up to 604800 seconds with the keyboard rule, up to
+the duration otherwise) and returns 124. `dl exec` is unchanged: a fixed
+lifetime of 120–1800 seconds (`--duration`, default 1800).
+
+When a session ends, the CLI restores the local terminal and switches off modes
+a remote program may have left on (mouse reporting, focus events, bracketed
+paste, application keys, a hidden cursor and, when one was entered, the
+alternate screen), so an abrupt disconnect no longer leaves mouse movement
+printing as text such as `35;1;36M`. A session the server already ended is
+cleaned up without a warning.
 
 With CLI 0.100.0+, when the selector names no host (a keyword such as
 `dl ssh gpu`, a misspelled or missing `namespace/group/host[/user]`, or an
@@ -845,7 +1149,142 @@ session and returns 124; it does not guarantee termination of detached remote
 processes. SSH session cleanup removes temporary local keys and closes the
 session. File copy and forwarding remain outside these commands.
 
-## Persistent tmux shells
+## Named tmux references and creation
+
+**CLI 0.137.0+.** The explicit tmux commands share their action syntax with the command palette
+and tmux action directives. They require a server, terminal gateway and enrolled
+Nymph that advertise the named-tmux capability. An older deployment returns
+`terminal_reference_unsupported`; local CLI support does not prove that a host
+has received this capability.
+
+```bash cli-help="tmux new"
+# Create only; a pre-existing name is a conflict, never an attachment
+dl tmux new work --host geyang/dev/worker
+# Omit the name to request a fresh generated name
+dl tmux new --host geyang/dev/worker
+# Explicitly attach to the result once creation succeeds
+dl tmux new work-2 --host geyang/dev/worker --open
+```
+
+`new` creates a detached named session and prints its durable directive when
+successful. `--host` is required and accepts an exact Host ID or
+`namespace/group/host[/user]`. For a Host ID, use the configured namespace or
+`--namespace`. If multiple enrolled accounts match, select `--enrollment`;
+the command never chooses an arbitrary account. A requested name collision
+returns a conflict without attaching, replacing, or sending input to it. New
+names contain 1–64 letters, digits, underscores or hyphens. A connection grant
+may add a server-controlled ownership prefix; use the exact name and directive
+returned by the operation.
+
+The CLI prints a lowercase request UUID before submitting creation. If a response is lost,
+retry the identical name and host with `--request-id UUID`. Reusing the UUID
+observes the same creation operation; changing arguments with that UUID is a
+conflict. `--wait 0` returns a pending receipt immediately; the default waits up
+to 30 seconds, and the maximum is 60. `--json` prints the operation receipt,
+including its request ID, original `requestedName` (null if omitted), and
+pending, succeeded or failed status. The created reference contains the actual
+server-issued name. A pending
+receipt is not confirmation that the session was created. `--open` requires
+interactive stdin and stdout before any creation request is sent.
+
+```bash cli-help="tmux open"
+# Attach only to the named session in this exact enrollment and tmux server
+dl tmux open ':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]'
+```
+
+```bash cli-help="tmux list"
+# Read the last collected metadata; this does not trigger a scan
+dl tmux list --host geyang/dev/worker
+```
+
+```bash cli-help="tmux resolve"
+# Inspect cached resolution without creating or attaching
+dl tmux resolve ':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]' --json
+```
+
+A durable reference has the form
+`:tmux[ENROLLMENT_ID/SERVER_ID/PERCENT_ENCODED_EXACT_NAME]`. Its enrollment is a
+24-character lowercase hexadecimal ID and its server is a 16-character lowercase
+hexadecimal ID issued by the enrolled host. The name is percent encoded once.
+Do not infer the server from a numeric tmux row ID, machine name, default socket,
+or a browser terminal. The directive contains no private socket path.
+
+`open` requires an interactive terminal and fresh authorization. It attaches
+only to the exact name in the referenced server; a missing, stale, inaccessible
+or unsupported reference never creates a session and never falls back to a
+plain shell. Press **Ctrl-]** to detach. A replacement with the same name in the
+same server scope is the same named destination. Renaming a session does not
+redirect its old name through a reused numeric tmux ID. These references identify
+live terminals; `:session[ID]` identifies a separately saved agent conversation.
+Ephemeral browser shells do not receive durable tmux references.
+
+The command palette uses `/tmux new work --host geyang/dev/worker`. In notes and
+chat, `:tmux[new work --host geyang/dev/worker]` is an explicit creation action;
+rendering or previewing it does not execute it. Activating it requests a new
+session. `:tmux[...enrollment/server/name...]` instead opens an existing named
+reference. The shared actions are `new`, `open`, `list` and `resolve`.
+
+Action arguments support single or double quote grouping and backslash escapes;
+there is no shell expansion, variable substitution, command substitution, pipe or
+redirect execution. For example, `new "work-item" --host geyang/dev/worker`
+requests the literal name `work-item`. Quoting does not expand the allowed new-name
+character set; existing reference names retain their exact percent-encoded text. Unknown or repeated options and ambiguous
+host selections fail explicitly. CLI output and retry flags (`--json`, `--wait`,
+`--request-id`, `--open`) are CLI options, not directive action arguments.
+
+```bash cli-help="hosts tmux new"
+dl hosts tmux new work --host geyang/dev/worker
+```
+
+```bash cli-help="hosts tmux open"
+dl hosts tmux open ':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]'
+```
+
+```bash cli-help="hosts tmux list"
+dl hosts tmux list --host geyang/dev/worker
+```
+
+```bash cli-help="hosts tmux resolve"
+dl hosts tmux resolve ':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]' --json
+```
+
+### TypeScript API
+
+For integrations, `createClient` exposes the same metadata and creation contract:
+
+```typescript
+import { createClient, parseTmuxReference } from '@dreamlake/dreamlake-cli/api';
+const dl = createClient({ remote: 'https://api.dreamlake.ai', token });
+const enrollment = 'aaaaaaaaaaaaaaaaaaaaaaaa';
+const requestId = crypto.randomUUID(); // Persist before the write; reuse on retry.
+const result = await dl.tmux.create(enrollment, { requestId, name: 'work' });
+const operation = await dl.tmux.operation(enrollment, requestId);
+const reference = parseTmuxReference(':tmux[aaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbb/work]');
+const resolved = await dl.tmux.resolve(reference);
+const inventory = await dl.tmux.list('geyang', hostId, enrollment);
+```
+
+Creation calls `POST /terminal-references/:enrollment/tmux/sessions` with
+`{ requestId, name? }`. Operation reads use
+`GET /terminal-references/:enrollment/tmux/operations/:requestId`. Resolution uses
+`GET /terminal-references/:enrollment/tmux/:server?name=EXACT_NAME`. Listing uses
+the existing enrolled-host `multiplexer-sessions` metadata endpoint. A pending
+creation returns HTTP 202. A completed operation read returns HTTP 200 with
+`succeeded` or `failed`; an existing name reports `failed` with `name_exists`.
+Reusing a request UUID with changed arguments returns HTTP 409. All metadata
+and operation reads are read-only; listing and resolution never enqueue a
+daemon scan.
+
+`tmux.attachTicket(namespace, reference, { cols, rows })` requires a separately
+configured gateway transport with its allowed `Origin` header. It sends only a
+`tmux-reference` launch with exact enrollment, server and name. The gateway
+reauthorizes and resolves the owned server privately before attachment. It
+cannot launch a shell or create a missing session. The SDK does not read local
+login credentials or allocate a local terminal.
+
+<a id="persistent-tmux-shells" />
+
+### Compatibility: persistent SSH tmux shells
 
 **CLI 0.116.0+.** `dl tmux HOST` creates or attaches to the remote tmux session `dl-session`.
 `dl hosts tmux HOST` is the same command. Linux/macOS, local OpenSSH, an interactive
@@ -853,13 +1292,19 @@ terminal on stdin and stdout, and remote tmux are required. The host is always
 explicit; `dl-session` is a tmux name, not a default machine or saved agent session.
 
 ```bash cli-help="tmux"
-# Create or return to dl-session on this host
+# Explicit create-only operation
+dl tmux new work --host geyang/dev/worker
+# Read cached session metadata
+dl tmux list --host geyang/dev/worker
+# Compatibility: create or return to dl-session on this host
 dl tmux geyang/dev/worker
 # A separate named terminal; --sess and --session are interchangeable
 dl tmux geyang/dev/worker --sess work
 ```
 
 ```bash cli-help="hosts tmux"
+dl hosts tmux new work --host geyang/dev/worker
+# Compatibility: create or attach
 dl hosts tmux geyang/dev/worker --session work
 ```
 
@@ -874,7 +1319,8 @@ same authenticated, host-key-pinned SSH relay as `dl ssh`. tmux is looked up in
 the enrolled account's login PATH. If it is missing, the command exits 127 and
 explains how to install it or open a plain shell with `dl ssh HOST`.
 
-Each connection has its own SSH lifetime (default 1800 seconds). Reconnecting
+Each connection ends after 30 minutes without keyboard input (see
+[Keyboard-idle disconnect](#keyboard-idle-disconnect)), or at a fixed `--duration`. Reconnecting
 requires fresh authorization; it does not replay input. Detaching or losing the
 connection leaves tmux running, but reboot survival is not provided. When a user
 systemd manager is available, newly started tmux servers use a separate scope.
@@ -995,18 +1441,31 @@ can itself be rolled back. Receipts from the ad-hoc 2026-10 upgrade are not used
 
 ### Fleet behavior and results
 
-`--concurrency` (1–16, default 1) bounds hosts processed at once; one host is
+`--concurrency` (1–16, default 5) bounds hosts processed at once; one host is
 never processed twice at the same time. After `--max-failures` failed hosts
-(default 1) no new host is started; hosts in progress finish, and the rest are
+(default 5) no new host is started; hosts in progress finish, and the rest are
 reported as `not_started`. Each host ends as `upgraded`, `rolled_back`,
 `current`, `planned` (dry run), `failed`, `skipped` or `not_started`.
 
 Outcomes are appended as JSON Lines while the run proceeds, to `--record` or
-`~/.dreamlake/hosts-upgrades/<run>.jsonl`: one `run` entry, a `scheduled` entry
+`~/.dreamlake/hosts-upgrades/<run>.jsonl`: one `run` entry, remote-stage `progress` entries, a `scheduled` entry
 when a restart is scheduled, one `host` entry per finished host and a final
-`summary`. The command prints a table, or the full report with `--json`, and
+`summary`. During execution an interactive terminal shows a live paginated table
+with remote bootstrap, restart, reconnect and verification status. Use left/right,
+Page Up/Page Down or p/n to change pages; q leaves the live view and streams
+updates while upgrades continue. Redirected output streams timestamped stage
+updates to stderr. `--json` suppresses progress and prints only the final JSON
+report to stdout; the JSON Lines record still captures live stages.
+
+The command prints a final table, or the full report with `--json`, and
 exits 0 only when every selected host is `upgraded`, `rolled_back`, `current` or
 `planned`.
+
+Linux verification checks the running `/proc/<pid>/exe` checksum, not only the
+installed file or its modification time. If systemd's effective `ExecStart` uses
+a different binary than the enrolled unit file, upgrade fails with
+`service_binary_override` before installing or restarting anything. Reconcile
+that service override locally, preserving its enrollment config, then retry.
 
 If verification times out, the host may still have restarted correctly; run
 `hosts upgrade` again with the same version: a verified or running new binary is
@@ -1017,7 +1476,8 @@ reported as `current`, and a still-due restart is verified rather than repeated.
 **CLI 0.102.0+:** requires the matching host-move server.
 The move changes the namespace and name prefix while preserving the Host ID,
 personal owner, enrollments and machine keys. Organization membership does not
-give another member access to the computer. Existing execution connections stay
+give another member access to the computer, and [connection grants](#share-connection-access)
+stop working once the Host leaves the namespace they were made in. Existing execution connections stay
 bound to their original owner namespace and remain independently authorized.
 
 Preview first with the exact Host ID from inventory:
@@ -1053,6 +1513,13 @@ adapter, ordinary run history and acknowledged executions retain their original
 namespaces, IDs, targets, output, statuses, execution IDs and cancellation intent.
 A move does not cancel, restart or relaunch active work. Pending delivery,
 private/reporting runs and other unsupported run dependencies remain blockers.
+
+CLI 0.132.0+: when the Host is filed in Projects, the optional
+`projectPlacements` preview/receipt field reports `count` and policy `unfile`,
+and the human preview adds `Project placements: N will be removed`. The move
+removes those filings and their Bindr tags in the same operation; it changes no
+host connection grants. The field is absent when the Host is filed nowhere and
+from older servers. See [Hosts in Projects](https://cli.dreamlake.ai/projects#hosts-in-projects).
 
 The server preview is authoritative; never detach dependencies or re-enroll a
 machine to bypass a blocker. The operation makes no control-plane writes and
@@ -1095,6 +1562,145 @@ TypeScript: `client.hosts('fortyfive').rename(hostId, { name, expectedName })`.
 Python: `client.hosts.rename('fortyfive', host_id, name=name, expected_name=expected_name)`.
 HTTP: `POST /namespaces/:slug/hosts/:id/rename` with `{ "name": "...", "expectedName": "..." }`.
 Read the new name back and verify SSH independently.
+
+## Share connection access
+
+**CLI 0.128.0+.** The owner of a Host in an
+organization namespace can let one named member connect to one enrollment.
+**CLI 0.132.0+,** with a server that supports team grants: the owner can instead grant one
+enrollment to a team (see [Team grants](#team-grants)).
+Organization membership alone grants nothing; personal namespaces have no grants.
+Filing a Host in a Project grants nothing either (see
+[Hosts in Projects](https://cli.dreamlake.ai/projects#hosts-in-projects)).
+
+A grant shares that enrollment's Unix account. The person connects as that
+user, with its files, processes, tmux sessions, agent logins, credentials and
+OS permissions on the machine; DreamLake creates no OS user and cannot isolate
+them. To give someone their own account, enroll a separate Unix user on the
+machine and grant that enrollment.
+
+```bash cli-help="hosts access"
+dl hosts access list fortyfive/bos14/bos14-ctrl
+dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --user alice
+dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --team robotics
+dl hosts access revoke fortyfive/bos14/bos14-ctrl GRANT_ID
+```
+
+```bash cli-help="hosts access list"
+dl hosts access list fortyfive/bos14/bos14-ctrl
+dl hosts access list HOST_ID --namespace fortyfive --json
+```
+
+`list` shows each grant's ID, kind (`user` or `team`), person or team, Unix
+account, enrollment, machine and state. A revoked grant stays listed with
+`state: "revoked"`, `pendingConnections` and `pendingUntil` while connections
+opened through it are not yet confirmed closed and not yet expired.
+
+CLI 0.132.0+: `list` asks the server for every grantee kind
+(`?grantees=all`). `--json` keeps person grants in `grants`, adds team grants
+in `teamGrants` and the organization's teams in `teams`, and sets
+`teamGrantsSupported`. A server without team grants answers person grants
+only; the CLI then says the server does not support team grants instead of
+"Only you can connect", and `teamGrantsSupported` is `false`. Older clients
+that list a Host with team grants get
+`host_access_grant_client_upgrade_required` (HTTP 409) rather than an
+incomplete list: update the client.
+
+```bash cli-help="hosts access grant"
+dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --user alice
+dl hosts access grant HOST_ID --namespace fortyfive --enrollment ENROLLMENT_ID --user @alice --json
+dl hosts access grant fortyfive/bos14/bos14-ctrl --enrollment ENROLLMENT_ID --team robotics
+```
+
+`grant` needs the exact enrollment ID (from `dl hosts enrollments`) and exactly
+one of the member's DreamLake username (`--user`) or a team slug (`--team`,
+CLI 0.132.0+); the CLI never picks an enrollment, Unix account, person or team for you. Granting the same person the same enrollment again returns the
+existing grant. If a grant or revoke gets no clear answer (the server cannot be
+reached, a server error, or an unreadable response), its outcome is unknown and
+the CLI does not retry it: check `dl hosts access list` before doing anything
+else. Refusals name the reason: `grantee_not_found`,
+`grantee_not_member`, `grantee_is_owner`, `host_access_grant_org_only`,
+`enrollment_not_found`, `team_not_found`, `invalid_host_access_grant` (also
+what a server without team grants answers to `--team`),
+`host_access_grant_limit` or `host_not_found` (you do not own that Host).
+
+```bash cli-help="hosts access revoke"
+dl hosts access revoke fortyfive/bos14/bos14-ctrl GRANT_ID
+dl hosts access revoke HOST_ID GRANT_ID --namespace fortyfive --json
+```
+
+Revoking denies new connections at once and closes the person's open
+connections through the control plane. The receipt reports
+`closedConnections` and `unconfirmedConnections`; any unconfirmed ones also
+carry `unconfirmedUntil`, the latest time they end on their own. Revoking takes
+a person or team grant ID. A connection whose user still holds another current
+grant to the same enrollment (their own person grant, or another team's) stays
+open and is counted in `stillAuthorizedConnections` (CLI 0.132.0+; older servers
+omit it). While any
+close is unconfirmed the command exits 1. Running the same revoke again tries
+to close them again; the CLI never does this on its own. Revoking is idempotent.
+
+The grantee runs the ordinary commands: the Host appears in their
+`dl hosts list` and `dl hosts status` with only the granted enrollments, and
+`dl ssh`, `dl exec` and `dl tmux` connect to it. `hosts list` then adds an
+ACCESS column (`owner` or `shared`, also the `{access}` format field) and
+`hosts status` adds an `Access: shared` line; both come from the server's
+`access.kind: "grant"` marker, and `--json` keeps the backend `access` object.
+Management, metrics, checks, saved sessions, moves and grant management stay
+with the owner. A grant also stops working without revocation when the person
+leaves the organization, the owner loses access, the enrollment is revoked or
+the Host moves; open `dl ssh` sessions then end at their own expiry.
+
+### Team grants
+
+**CLI 0.132.0+; requires a server that supports team grants.** A team grant lets every
+current direct member of one live team in the Host's organization connect to
+one enrollment. Members of parent or child teams are not included. The team's
+owners, admins and maintainers decide who that is: adding an organization
+member to the team lets them connect, and every member connects as the same
+Unix account, with its files, processes and credentials. An archived team's
+grant lets no one connect until the team is restored.
+
+Team grants never apply to the team's [guests](https://cli.dreamlake.ai/teams#guests). Connecting
+through a team grant requires organization membership, and a member whose role
+in that team is `GUEST` gets no SSH, web-terminal or host session through any
+team grant, even after they join the organization separately. Changing their
+team role from `GUEST` to `MEMBER` or higher, which is possible once they are
+an organization member, is what lets the team's grants apply to them. Access
+they hold another way is unchanged: a direct grant to them, their own hosts, or
+a grant through another team where they are not a `GUEST`.
+
+Grant a team only an
+enrollment you would grant each of its members.
+
+Access is the union of a person's own grant and the grants of their teams for
+that enrollment. Losing one path never closes a connection another current
+path still authorizes. When a person leaves or is removed from the team, the
+team is deleted, or they leave the organization, new connections through the
+team are denied at once and their open team-path connections close: browser
+terminals within a few seconds; `dl ssh` sessions when the control plane is
+reachable, otherwise at their deadline (30 minutes after opening for a fixed
+session, 30 minutes 10 seconds after the last renewal for keyboard-idle), since
+renewal is refused once access is gone. Removal does not report close counts.
+A grantee's `dl hosts status` names the teams their access comes through.
+
+TypeScript: `client.hosts('fortyfive').accessGrants(hostId)`,
+`grantAccess(hostId, { enrollmentId, grantee })` and
+`revokeAccess(hostId, grantId)`. CLI 0.132.0+: `allAccessGrants(hostId)` lists
+person and team grants (`HostAccessGrantsAll`) and throws
+`HostTeamGrantsUnsupportedError` when the server lacks team grants;
+`grantAccess(hostId, { enrollmentId, team })` returns `{ teamGrant }`.
+Python: `client.hosts.access_grants('fortyfive', host_id)`,
+`grant_access('fortyfive', host_id, enrollment_id=..., grantee=...)` and
+`revoke_access('fortyfive', host_id, grant_id)`.
+HTTP: `GET`/`POST /namespaces/:slug/hosts/:id/access-grants` with
+`{ "enrollmentId": "...", "grantee": "alice" }` or, with team grants,
+`{ "enrollmentId": "...", "team": "robotics" }` and `GET …?grantees=all`, and
+`DELETE /namespaces/:slug/hosts/:id/access-grants/:grantId`.
+
+These person-to-enrollment grants are separate from
+[service account host grants](cli-service-accounts.md), which give a machine
+identity `read`/`use` permission on a Host.
 
 ## SSH usage and capacity
 

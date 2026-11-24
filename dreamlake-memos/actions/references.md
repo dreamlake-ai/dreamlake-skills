@@ -2,7 +2,7 @@
 
 Use this to extract a list or checklist item into a linked Memo, to edit an
 existing memo reference, or to insert Memo references, `:artifact[...]`,
-experiment, project and folder references, and placeholder directives. It does not create a Task or mark work complete; Tasks
+experiment, project, folder, `:bundle[...]` and `:viewer[...]` (3D Preview) references, and placeholder directives. It does not create a Task or mark work complete; Tasks
 that link Memo items are `dreamlake-tasks`.
 
 Preserve resource directives when editing; do not flatten an artifact,
@@ -62,6 +62,62 @@ for a DreamLake project or folder.
 
 Syntax and badge behavior:
 [experiments, projects and folders](../reference/docs-notes-linked-items.md#experiments-projects-and-folders).
+
+## Bundle references
+
+Write `:bundle[<ns>/<bundle>@<version>#<entry>]` for one bundle entry and
+`:bundle[<ns>/<bundle>@<version>]` for a whole bundle.
+
+1. Resolve the target first: `dl bundle search` or `dl bundle info`
+   (`dreamlake-bundles` search action). Use the displayed version that the
+   command returns, or the `directive` field of a built-in agent Bundle tool.
+   Never guess a version, never write `@latest` in a directive, and never
+   substitute a title for the bundle or entry name.
+2. Pin the version unless the user asks to follow the latest version; then
+   omit `@<version>`.
+3. Insert the directive with the revision-guarded edit workflow below and read
+   it back.
+4. Preserve existing source exactly. An invalid reference stays literal text;
+   an unreadable target renders as **Unavailable bundle**. Neither is a reason
+   to rewrite it, and a reference grants no access.
+
+Syntax, card and palette behavior:
+[bundles](../reference/docs-notes-linked-items.md#bundles).
+
+## 3D Preview references
+
+Write `:viewer[<ref>]` to show the live 3D Preview of a bundle entry, a
+library asset or a scene version. Prefer the bundle form
+`<ns>/<bundle>@<version>#<entry>`; use `library:<ns>/<lib>#<asset>` or
+`scene:<ns>/<name>@<version>` only for content that is not in a bundle.
+
+1. Resolve the target first, as for a bundle reference. Copy the returned
+   `viewerDirective` (bundle entry with a `model`, library asset), the
+   `3D:` line of `dl bundle entry`, or `dl viewer ref <ref>`. Never guess a
+   version and never write `@latest`.
+2. Use the plain card by default: a click opens the Preview panel beside the
+   memo. Add `{embed="true"}` (optionally `height="420"`) only when the user
+   asks for the live preview inline in the memo.
+3. Insert it with the revision-guarded edit workflow below and read it back.
+4. A Preview tab's copy control copies the exact directive, pinned to the
+   version it shows; paste that source unchanged. An unreadable target renders
+   as **Unavailable preview**; that is not a reason to rewrite it.
+
+Syntax: [3D previews](../reference/docs-notes-linked-items.md#3d-previews).
+
+## Terminal references and explicit actions
+
+When the user supplies a confirmed tmux reference, preserve it exactly through
+revision-guarded editing and read it back. Use the current
+[linked-items reference](../reference/docs-notes-linked-items.md) for its syntax
+and availability. Never synthesize a session reference from a display name or a
+transient browser tab handle.
+
+If the requested deliverable is a creation directive, author the documented
+action grammar. Do not execute it merely to insert, preview or verify the Memo.
+Keep authoring and execution distinct in the result. If the user separately
+asks to run the action, follow the published terminal procedure and retain the
+operation receipt before linking its returned reference.
 
 ## Create a Memo and link it
 
@@ -136,3 +192,22 @@ Re-read the returned revision to verify. On a conflict or uncertain outcome,
 retain the original baseline and proposed patch; reconcile before another write.
 Preserve checkbox state, list indentation, nested content and adjacent prose.
 Report the new Memo ID and what moved. Never force an overwrite or invent a target.
+
+## Record a relationship in the Memo side panel
+
+```bash
+dl resources --help
+dl resources link note MEMO_ID artifact ARTIFACT_CATALOG_ID --json
+dl resources relationships note MEMO_ID --json
+```
+
+Resolve the Memo and target from current metadata before recording the requested
+relationship. Read back the saved association and verify the intended target.
+Use the `dreamlake-cli` session-links action for relationship removal, related
+sessions and activity. Follow the [activity contract](../reference/docs-notes-activity.md)
+for identities and permissions. If the installed command or server lacks this
+capability, report the gap instead of editing the Memo body as a workaround.
+
+Keep explicit relationships separate from native references in prose. When the
+user requests a body reference too, use the revision-guarded edit workflow above.
+Repair a missing relationship independently; never replay a successful body edit.

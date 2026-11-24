@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Writing and formatting
 

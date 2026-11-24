@@ -10,6 +10,9 @@ Flag semantics and the kind/extension table:
 [Pushing](../reference/cli-artifacts.md#pushing) or `dl artifact push --help`.
 After a successful push the CLI prints an **open link** (the dashboard URL,
 with `?share=` appended when `--share` was used) — hand it to the user.
+For every content update, complete the [thumbnail check](#thumbnail-check-on-every-update)
+before reporting the artifact as fully verified, including static builds and
+self-contained HTML pages.
 
 For customer-facing latest-only sharing, follow [share](share.md#external-customers-latest-version-only)
 and inspect the saved policy after pushing.
@@ -93,11 +96,14 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
 - `--description`: the sentence the card shows in Slack, Twitter/X, LinkedIn
   or a chat tool. Give every new artifact one; update it when the content
   meaningfully changes.
-- `--cover` is optional: without one DreamLake generates a cover from a
-  screenshot of the artifact shortly after each push, with the default card
-  standing in until then. Pass `--cover` only when the user wants a specific
-  image. Accepted formats, size bounds, the recommended shape and the CLI
-  version both flags need: [Link previews](../reference/cli-artifacts.md#link-previews).
+- Preserve an intentional custom image while it accurately represents the
+  content. Prefer generating a thumbnail yourself, inspecting it, and explicitly uploading
+  it with `--cover`. Make this the default recommendation for every new Artifact;
+  respect an explicit user choice to omit a cover. Cloud-generated screenshots
+  are a fallback, never the primary publishing workflow or a substitute for
+  checking the intended composition. If local generation is unavailable, explain
+  that fallback and verify its eventual result separately. Accepted formats and
+  bounds: [Link previews](../reference/cli-artifacts.md#link-previews).
 - A title, description or cover the user set **survives later pushes**: a
   push without the flag keeps the stored value, so do not restate them on
   every re-push. Change or clear them later with
@@ -107,6 +113,45 @@ Every artifact page carries Open Graph tags, so a pasted URL unfurls as a card.
   [Make the link card yours](../reference/docs-artifacts.md#make-the-link-card-yours).
 - What the card reveals depends on visibility — see [share](share.md) before
   pasting a share link anywhere.
+
+## Thumbnail check on every update
+
+```bash
+# Inspect before the content update and again after publishing it.
+dl artifact meta show <id> --namespace <slug>
+# If the uploaded thumbnail is outdated, replace it on the same artifact.
+dl artifact meta set <id> --namespace <slug> --cover ./current-cover.png
+dl artifact meta show <id> --namespace <slug>
+```
+
+1. Before each update, inspect the existing cover and latest artifact content.
+   Record the cover source and the intended artifact ID and namespace. Compare
+   the image with the proposed content, including visible titles, charts and
+   layout; do not assume a successful content push refreshes an uploaded image.
+2. If an uploaded cover will be stale, prepare a representative screenshot of
+   the updated artifact or revise the supplied image. Inspect it before using
+   `--cover` on the content push, or replace it afterward with `meta set` above.
+   Keep the same artifact ID and namespace and preserve unrelated metadata and
+   sharing settings. Retain a still-accurate custom cover; do not clear it merely
+   to trigger automatic generation.
+3. If the current-version cover is missing, open the authorized Artifact list
+   or detail once, then check the automatic result separately. Follow the
+   [shared preview guidance](../reference/docs-artifacts.md#shared-preview-generation)
+   for access-triggered recovery and its retry cooldown; repeated refreshes are
+   not a way to bypass backoff. A static placeholder does not prove the original
+   Artifact is broken: open the content to distinguish a generation failure
+   from a content failure. Prefer supplying an inspected explicit cover when
+   needed. Do not repeatedly push content just to retry a thumbnail check.
+4. After publishing, read metadata back, open the latest artifact and visually
+   compare its thumbnail in the DreamLake gallery/list with the rendered content.
+   Check the actual image, not just the cover URL or a successful upload receipt.
+   Reject a thumbnail that still shows a loading state. Follow the shared preview
+   guidance for asynchronous application readiness before calling it verified.
+   Treat third-party link-card caching separately using the same reference.
+5. Report whether the thumbnail was retained, replaced, or is still pending,
+   with the artifact link and what was actually checked. If generation or visual
+   inspection is unavailable, report the content update separately and leave
+   thumbnail verification explicitly unresolved.
 
 ## Upload transport
 
@@ -131,18 +176,30 @@ link, never the push. Selection, opt-out and manual link/unlink are the
 ## Examples
 
 ```bash
-# Dashboard (kind auto-detected as html) with its link-card description
+# Dashboard with an inspected, locally generated cover
 dl artifact push ./dashboard.html --title "Q1 Dashboard" \
-    --description "Revenue, churn and pipeline for the quarter"
+    --description "Revenue, churn and pipeline for the quarter" --cover dashboard-cover.jpg
 
 # React component with a stable id, then a new version of the same artifact
-dl artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart"
+dl artifact push ./chart.jsx --kind react --id sales-chart --title "Sales Chart" --cover chart-cover.jpg
 dl artifact push ./chart.jsx --id sales-chart
 
 # Public (viewable without login); private with a share link in one step
-dl artifact push ./report.html --visibility public --title "Public Report"
-dl artifact push ./draft.md --share
+dl artifact push ./report.html --visibility public --title "Public Report" --cover report-cover.jpg
+dl artifact push ./draft.md --share --cover draft-cover.jpg
 ```
 
 An owned artifact moves with its whole Project; see the `projects` action of
 `dreamlake-cli`.
+
+## Verify generated previews
+
+After publishing, inspect the artifact's current version and open its card and
+full preview separately. A successful push proves content publication, not that
+a screenshot was generated. When investigating a missing preview, record the
+resource/version, any configured user cover, and generation evidence. Distinguish
+waiting for generation from rendering failure; a successful batch can contain
+individual failures. Do not repeatedly repush unchanged content to force retries.
+Consult the product documentation's release status before relying on a new
+preview-worker path or readiness contract. Report unverified deployment support
+explicitly, and preserve private resource permissions while collecting evidence.

@@ -110,3 +110,17 @@ durable purge is irreversible; a legacy `storage_unavailable` response alone doe
 not establish that such intent exists.
 See the canonical Memos guide for release and acceptance boundaries; these changes
 do not enable cross-workspace transfers or grant access through filing.
+
+## Verify attachment previews
+
+After upload or replacement, compare the stored file identity/content revision
+with the displayed thumbnail and open the original file separately. Upload
+success alone is not preview-generation acceptance. If the installed API exposes
+generation status, distinguish pending from failed and unsupported; consult the
+product docs for deployed support. Check the same reader's permissions rather
+than minting a share link to make a private preview load. Report generation,
+image display and original-file access as separate observations.
+Reject a thumbnail that still shows a loading state. For asynchronous HTML,
+follow the shared readiness guidance linked from the
+[attachment thumbnail contract](../reference/docs-notes-files.md#attachment-thumbnails)
+and check the rendered image again before declaring the preview verified.

@@ -1,11 +1,18 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.146.4 f2cf298; do not edit -->
 
 # Environments
 
 The CLI can target multiple DreamLake deployments. It ships with two
 **built-in** environments — `staging` and `prod` — so you never type their
-URLs. Each environment keeps its own token; switching never logs you out of
-the other.
+URLs. Saved login profiles keep independent tokens and namespace defaults.
+Switching profiles does not log you out of the others.
+
+**CLI 0.139.0+:** a profile is a saved login, an environment is its deployment,
+and a namespace is the resource scope. For example, a `work` profile can use
+`prod` and default to `fortyfive`; `dyna-robotics` can be another namespace
+available to the same signed-in account. Selecting either namespace keeps
+your identity and permissions unchanged. See [Authentication](cli-auth.md) for the
+complete command guide.
 
 ## Log into a built-in environment
 
@@ -23,7 +30,19 @@ No `--url` / `--bss` needed — the URLs are baked in. `dl login` with
 no `--env` re-authenticates the active environment, and falls back to `prod`
 when nothing is logged in yet.
 
-## Switch environments
+## Saved profiles and environments
+
+```bash file="terminal"
+dl auth login --env prod --profile work
+dl auth profiles list
+dl auth switch work
+dl auth status
+```
+
+Use separate profile names when saving multiple accounts on the same deployment.
+`dl login` remains an alias for `dl auth login`. Existing environment names such
+as `prod` and `staging` remain valid profile names, and the earlier commands
+continue to work:
 
 ```bash file="terminal"
 dl auth env list           # show logged-in envs (* = active)
@@ -38,8 +57,9 @@ dl auth env remove staging # forget a saved env
 Every command then targets the active environment — **and so does the
 Python SDK**: switching writes the token and server to `~/.dreamlake`,
 the same files `dreamlake-py` resolves its connection from. One switch
-moves both tools. `dl profile` shows which environment is in
-effect (`[env: prod]`).
+moves both tools for subsequent connection resolution. Already-created SDK
+clients should be recreated after a switch. `dl auth status` shows the saved
+profile, effective connection, identity and default namespace separately.
 
 The `*` in `auth env list` marks the environment your commands will *actually*
 hit, not just the last one you selected — if a `DREAMLAKE_*` env var is
@@ -48,39 +68,59 @@ disappears and a memo explains why.
 
 ## Select the default CLI namespace
 
-**CLI 0.102.0+:** `su` selects the default
-resource namespace for subsequent CLI invocations under the current saved login:
+**CLI 0.140.0+:** save a repository default in `.dreamrc`, or a global default for
+the current login profile:
 
-```bash cli-help="su"
-dl su fortyfive
+```bash file="terminal"
+dl namespace list
+dl namespace use fortyfive --local
+dl namespace status
 dl hosts list
-dl hosts list --namespace geyang
-dl su geyang
+dl hosts list --namespace dyna-robotics
+dl namespace use dyna-robotics --global
+dl namespace reset --local
 ```
 
-Use the actual namespace name; `personal` is not a special alias. Selection
-requires your personal namespace or an organization you belong to, checked with
-the current authenticated account. It changes local CLI scope and does not
-change login identity, grant permissions, move resources, or switch the GUI.
-An explicit `--namespace` or namespace-qualified target wins for that invocation
-and leaves the stored default unchanged. Otherwise commands using the shared
-namespace resolver use the selected scope, then the signed-in personal
-namespace when no selection exists. Existing commands that require an explicit
-namespace still require it.
+`dl su` remains the short form of `dl namespace use`:
 
-The selection is stored separately from cached personal identity in
-`~/.dreamlake/config.json`, bound to the remote and a credential fingerprint.
-A different remote/token cannot inherit it. `login`, `auth env use`, and logout
-clear the selection; select it again for the intended environment. Access is
-still enforced by every resource route, so revoked membership causes an access
-error rather than a silent switch to another namespace.
+```bash cli-help="su"
+dl su fortyfive --local
+dl su dyna-robotics --global
+```
 
-The public TypeScript API requires explicit namespaces (for example,
-`client.hosts('fortyfive')`) and never reads CLI configuration. The Python host
-API likewise takes an explicit namespace. Python's implicit personal-namespace
-resolver remains tied to the authenticated identity; this CLI setting does not
-change that SDK default. Built-in agent `/su <namespace>` is a separate,
-conversation-scoped selection.
+Omitting the name opens a picker in an interactive terminal; scripts and agents
+supply the name. Use the actual namespace name; `personal` is not a special
+alias. Selection verifies membership using the current account, without changing
+identity, permissions, resources or the GUI workspace.
+
+An explicit `--namespace` or namespace-qualified target wins for that invocation.
+Otherwise the shared resolver uses the nearest project `.dreamrc` root
+`namespace`, the profile's global default, then the personal namespace. Existing
+commands that require an explicit namespace still require one.
+
+Without scope flags, selection writes to an existing project `.dreamrc`, or the
+global profile when no project file exists. `--local` creates the file at the
+nearest Git root/current directory when needed. `--global` ignores local scope.
+A local file without `namespace` inherits the global default on reads; automatic
+writes still target that file. See [`.dreamrc`](cli-dreamrc.md#repository-namespace) for
+discovery boundaries and reset behavior. Status reports the effective source, selected config file and profile default
+separately.
+
+Switching profiles restores each profile's global default but leaves repository
+configuration unchanged. The global default is bound to the saved connection;
+a repository's YAML selection is intentionally portable. Access is enforced by
+every resource route, so revoked membership causes an access error rather than
+a silent switch to another namespace. Credentials remain global.
+
+**Python SDK 0.58.0+:** implicit namespace resolution reads the same project
+`.dreamrc` and shared global defaults. Explicit namespace arguments still win.
+
+The browser-compatible TypeScript client never reads local files: pass a namespace
+to `createClient`, or select one through its verified namespace API. That default
+belongs to the client instance. Node programs can explicitly use the separate
+`/auth` module for local/global shared state. See [Authentication](cli-auth.md) for API
+examples. Built-in agent `/su <namespace>` remains a separate conversation-scoped
+selection.
 
 ## Custom / self-hosted environments
 
@@ -93,9 +133,11 @@ dl auth env use dev
 
 > **Warning:** The device-flow auth server must be the one your target API trusts. The
 > built-ins set this automatically (staging uses `staging-auth.vuer.ai`,
-> prod uses `auth.vuer.ai`). For a custom env on a non-default auth server,
+> prod uses `auth.dreamlake.ai`). For a custom env on a non-default auth server,
 > pass `--auth <url>`. A mismatch fails token exchange with
 > `No matching key found in JWKS`.
+
+Installed CLI versions and saved profiles that use `auth.vuer.ai` can continue to sign in. The verification page opens at `auth.dreamlake.ai`. Existing production tokens and profile files continue to work.
 
 ## Overrides and storage
 
@@ -114,20 +156,22 @@ The effective connection lives in two files shared with the Python SDK
 | File | Contents |
 | --- | --- |
 | `~/.dreamlake/tokens.json` | the active token (`dreamlake-token` slot) |
-| `~/.dreamlake/config.json` | `remote_url`, cached personal `namespace`, optional CLI `default_namespace`, `device_secret` |
+| `~/.dreamlake/config.json` | `remote_url`, cached personal `namespace`, optional connection-bound `default_namespace`, `device_secret` |
 
-`login` and `auth env use` always rewrite the token and server **together**, so
-the pair can never point at different environments.
+`login`, `auth switch` and `auth env use` rewrite the active token, server and
+global namespace selection from the same saved profile; they do not rewrite
+repository `.dreamrc` files.
 
-`~/.dreamlake/auth.yml` additionally caches a token per environment — it
-exists only so `auth env use` can switch without a new device-flow login, and
-is never consulted to answer "what am I connected to":
+`~/.dreamlake/auth.yml` additionally caches saved profiles. The legacy `envs`
+key is retained for compatibility; each entry can name its deployment and
+store an independent namespace default. Switching restores the saved connection
+without a new device-flow login:
 
 ```yaml file="auth.yml"
-current: prod
+current: work
 envs:
-  staging: { server, bss, auth, namespace, token }
-  prod:    { server, bss, auth, namespace, token }
+  staging: { server, auth, namespace, token }
+  work: { server, auth, namespace, token, environment: prod, defaultNamespace: fortyfive }
 ```
 
 ## Receipt web links
@@ -155,23 +199,24 @@ trimmed); it beats every derivation above.
 ## Shared login contract (v1)
 
 Every DreamLake client that reuses this login (the DreamLake CLI, `ml-dash`
-with `--backend native` or its managed mode, and the Python SDK as a reader)
+with `--backend native` or its managed mode, and the Python SDK)
 follows the same rules on `~/.dreamlake`. Clients other than the SDK may
 override the directory for tests only.
 
 | File | Role |
 | --- | --- |
-| `auth.yml` | saved environments: `{ current, envs: { <name>: { server, auth?, namespace, token } } }` (YAML, `chmod 600`) |
+| `auth.yml` | saved profiles under the compatibility `envs` key: connection, identity and optional `environment` / `defaultNamespace` (YAML, `chmod 600`) |
 | `tokens.json` + `config.json` | the *projection*: the one connection every reader uses (`dreamlake-token`; `remote_url`, `namespace`) |
 
-- **Login** saves the environment under its name in `auth.yml`, makes it
-  `current`, and projects it, writing the token and server together.
-- **Logout of an environment** (default: `current`) removes it from
-  `auth.yml`. If the projection still holds that environment's server and
-  token, the client projects the new `current` environment, or clears the
+- **Login** saves the login under its profile name in `auth.yml`, makes it
+  `current`, and projects its connection. `--env` selects the deployment;
+  `--profile` selects the saved login name.
+- **Logout of a profile** (default: `current`) removes it from
+  `auth.yml`. If the projection still holds that profile's server and
+  token, the client projects the new `current` profile, or clears the
   projection when none is left. Clearing deletes the token slot,
   `remote_url`, `namespace` and `default_namespace`, and keeps other keys such
-  as `device_secret`. Other saved environments are unchanged.
+  as `device_secret`. Other saved profiles are unchanged.
 - **Orphan projection**: a logout with no saved environment clears a
   projection that another client wrote without saving it, so a logout always
   stays logged out.
@@ -263,14 +308,23 @@ dl nymph access show --name alice/computers/laptop
 ```
 
 ```bash cli-help="nymph access grant"
+dl nymph access grant file-metadata --name alice/computers/laptop
 dl nymph access grant upload --name alice/computers/laptop
 dl nymph access grant command-execution --name alice/computers/laptop
 ```
+
+With CLI **0.145.1+** and Nymph **0.1.71+**, `file-metadata` controls Files
+metadata access independently of automatic uploads. The overview shows the
+effective Files permission: older policies without an explicit value inherit
+`upload`; an explicit denial overrides that fallback. Existing upload and
+session-metadata choices are preserved when editing another permission.
+Files also requires enabled exports and the host's existing filesystem permissions.
 
 Each grant has its own default-No confirmation. For automation, `--yes` explicitly
 approves only that one permission. Revoke independently:
 
 ```bash cli-help="nymph access revoke"
+dl nymph access revoke file-metadata --name alice/computers/laptop
 dl nymph access revoke upload --name alice/computers/laptop
 dl nymph access revoke command-execution --name alice/computers/laptop
 ```

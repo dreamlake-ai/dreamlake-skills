@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/queues.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/queues.md at 0.146.4 f2cf298; do not edit -->
 
 # Mount a queue server
 
@@ -243,8 +243,8 @@ Otherwise the worker would claim from its poll queue again.
 
 Correct discovered setup mistakes in this source guide and its task action,
 then regenerate and check the DreamLake skill references. Keep account-specific
-URLs, token values and operational receipts in the team's private Note, not in
-public skills. Update that Note in place with its current revision, preserve
+URLs, token values and operational receipts in the team's private Memo, not in
+public skills. Update that Memo in place with its current revision, preserve
 linked setup-example directives, and read back the saved content. Track source,
 CLI release, docs publication, skill synchronization and live verification
 separately; never convert an unverified step into a success claim.

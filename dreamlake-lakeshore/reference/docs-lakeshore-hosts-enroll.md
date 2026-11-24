@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/enroll.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Enroll a host
 
@@ -146,6 +146,15 @@ the exact original tuple. A reused ID with changed input or a stale revision
 returns 409. A replay returns the historical receipt (`replayed:true`); read
 lifecycle again for current state. Authorization is checked again on every retry.
 
+## Named terminal sessions
+
+After enrollment, use `dl tmux new research --host alice/dev/my-computer`
+to create a named tmux session on a compatible host. The command palette and
+`:tmux[new research --host alice/dev/my-computer]` action directive use the
+same grammar. See [Browser terminal](docs-lakeshore-hosts-browser-terminal.md#create-a-named-tmux-session-and-copy-its-reference)
+for capability prerequisites, explicit Run behavior, creation conflicts and
+portable references to existing sessions.
+
 ## Inspect in Compute
 
 The [Compute dashboard](https://github.com/dreamlake-ai/dreamlake-ai/pull/310) uses `/:namespace/compute` for the host inventory and `/:namespace/compute/hosts/:hostId` for details. It preserves enrollment instructions, Unix-user identity, verified heartbeat status and a link to tracked runs. Search a group with a pattern such as `fortyfive/bos14/*`, or search `offline`. **Enroll host** opens the CLI handoff; copy the command for another host, or use `--local` on the computer being enrolled.
@@ -163,7 +172,13 @@ consult the CLI release notes for package availability.
 A host has both a namespace and a personal owner. Moving it to an organization
 namespace changes where it is filed; it retains its `ownerUserId` and remains
 private to that user. Organization membership does not give another member
-access to that host. Compute displays the server-provided private state with a
+access to that host. To let a member or a team of the organization connect,
+the owner grants that member or team an enrollment explicitly; see
+[Share a machine with a teammate](docs-lakeshore-hosts-browser-terminal.md#share-a-machine-with-a-teammate).
+Filing the host in a Project gives nobody access; see
+[Hosts in Projects](docs-lakeshore-hosts-browser-terminal.md#hosts-in-projects). A
+move unfiles the host from every Project, and its preview reports
+`projectPlacements` when there are any. Compute displays the server-provided private state with a
 lock and **Private** badge. A namespace name or a badge by itself is not an
 access grant.
 
@@ -292,6 +307,15 @@ the original identity key. After repair, verify the generated idle setting, then
 restore only required custom sections such as `private_tracked` and any reviewed
 service overrides. Reload the user manager and restart the same unit if you edit
 it, then wait for a fresh verified host status.
+
+From CLI **0.135.0**, the regenerated `nymph.toml` keeps the machine's
+existing `[sessions]` choice: an explicit `enabled = false`, an absent table
+and configured session options are preserved, and only a fresh enrollment
+turns session metadata discovery on. When it cannot keep a `[sessions]` table
+exactly, or would have to replace a local access policy, enrollment stops
+before rewriting the service configuration. New AWS machines with automatic
+registration follow their own first-configuration rule. See
+[Discovering machine sessions](docs-lakeshore-hosts-browser-terminal.md#discovering-machine-sessions-and-registry-paging).
 
 For an unresolved response, reuse the original request ID to reconcile it. A
 confirmed `request_expired` receipt requires a new explicit repair operation ID;
@@ -448,3 +472,59 @@ for the HTTP, TypeScript and Python APIs.
 For usage counts, namespace-versus-worker limits, complete SSH configuration options, validation and mixed-version rollout, see [SSH capacity and usage](docs-lakeshore-hosts-browser-terminal.md#ssh-capacity-and-usage). Verify the guide’s component version requirements and deployed versions before use.
 
 The [Nymph permissions and commands record](docs-lakeshore-hosts-nymph-permissions.md) distinguishes local policy, authenticated commands, read-only inspection, startup-only configuration, existing lifecycle exceptions and the requirements for a future dynamic-configuration feature. Capacity is not authority: increasing a quota must not enable SSH, upload data or bypass local execution denial.
+
+## tmux and GNU Screen metadata
+
+The host inventory API supports a bounded, current Unix-account view of tmux and
+GNU Screen sessions. It requires compatible Nymph and control-plane releases;
+an unavailable or older producer returns an unknown state, not an empty session
+list. This is metadata only: it never reads panes, scrollback, working directories,
+process arguments, environment variables, or terminal output. Session names can
+contain private project information and follow the host's access boundary.
+
+Read the exact enrollment with
+`GET /namespaces/:slug/hosts/:hostId/enrollments/:enrollmentId/multiplexer-sessions`.
+Only its current owner or a current, explicit user/team host-access grantee can
+read it. Namespace membership alone grants no access. The response identifies
+`hostId`, `enrollmentId`, `machineId`, and `unixUser`; `status` and `reason`
+distinguish reported, missing, stale, inactive, disabled, and unavailable states.
+Stale and disabled responses contain `snapshot: null`, so cached names should
+not remain visible. Responses are private and must not be cached.
+
+A reported snapshot has `version`, `reportId`, `configRevision`, `collectedAt`,
+and exactly two provider results. Each provider identifies `kind`, `scope`,
+`checkedSockets`, `status`, `truncated`, and up to 128 sessions. A session has an
+opaque `id`, `name`, `attached`, and optional `windowCount`/`createdAt`.
+A failed provider has no session rows; `truncated` can still indicate an
+incomplete scan. tmux covers at most 16 servers in its configured current-user
+socket directories; Screen uses its default current-user directory. This does
+not discover arbitrary custom sockets elsewhere on the filesystem.
+
+The collector uses bounded local scans at most once per minute and publishes
+changed reports through the existing signed heartbeat. Successful unchanged
+scans send a small report-ID heartbeat, renewing collection freshness without
+resending names. `observedAt` is the server receipt time and differs from
+`collectedAt`. Both must be no older than 180 seconds; an active worker must
+have been seen within 60 seconds. A five-second future-clock allowance applies.
+This has small, nonzero local process and I/O overhead.
+
+The owner can set the desired configuration with
+`PUT /namespaces/:slug/hosts/:hostId/enrollments/:enrollmentId/multiplexer-sessions/configuration`:
+
+```json
+{"enabled":false,"expectedRevision":null}
+```
+
+Use the exact current `configuration.revision` instead of `null` after the first
+configuration change. A stale revision returns `409 configuration_changed`;
+read the current state before deciding whether to retry. The response is the
+same full inventory envelope as GET. Disable clears stored names immediately;
+`configuration.applied` becomes true only after a matching fresh daemon report.
+`canManage` is false for host-access grantees. `configuration: null` means the
+control plane did not provide a verified desired configuration.
+
+Collection defaults on for a compatible configured collector. Remote enable
+never overrides explicit local `enabled=false` or a local/managed
+`session_metadata` denial. In that case the desired configuration may remain
+enabled while providers report disabled and `applied` is false. Collection and
+this toggle grant no archive upload, terminal connection, or execution rights.

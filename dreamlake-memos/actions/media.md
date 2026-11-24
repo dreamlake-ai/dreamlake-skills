@@ -13,6 +13,11 @@ Do not substitute a file-preview URL or upload the image twice.
 IMAGE_URL=$(dl memos media upload "./architecture diagram.png")
 ```
 
+For an SVG figure, first read the
+[light and dark theme guidance](../reference/docs-notes-files.md#svg-figures-in-light-and-dark-themes).
+Check the figure in both explicit app themes, including an opposite
+operating-system theme, before uploading it.
+
 On success, use the returned URL directly. No `--json`, `jq`, memo ID or
 namespace is required. Stop on upload failure; do not insert an empty or guessed
 URL. Uploading media does not edit a memo. If insertion is requested, follow the

@@ -46,12 +46,50 @@ subset, follow [Workspace or Restricted](../reference/cli-projects.md#workspace-
 and verify the policy after saving; do not infer it from private visibility or an
 empty grant list. Attach by database ID (an Artifact uses its database ID,
 not its `artifactId`); supported types are `note`, `artifact`, `annotation`,
-`workflow`, `env` and `source`. Attachment requires the Project's content-create
+`workflow`, `env` and `source`, plus `host` where the installed client lists it
+([File a host in a Project](#file-a-host-in-a-project)). Attachment requires the Project's content-create
 permission plus the resource's own sharing-management permission; ordinary
 organization-member READ or public Project visibility is insufficient. Grouping
 an already-attached resource into a Bindr of the same Project needs Project write
 authority and resource readability, without sharing it again; use the server's
 current `canBind` result, not a role guessed from membership.
+
+## File a host in a Project
+
+Filing a host (type `host`, by its Host ID) is newer than the other types: use
+it only when `dl project attach --help` lists it. It records placement only.
+
+1. Establish the exact host, Project and optional Bindr. A request that
+   names them explicitly is the authorization; ask only for what is missing
+   or ambiguous. Who may file, and where, is in
+   [Project attachment access](../reference/cli-projects.md#project-attachment-access-cli-0620);
+   a refusal is reported, not worked around.
+2. When you file, state once in the same reply that the Project's
+   organization members, now and later, see the host's name and owner, and
+   that nobody gains connection access through it.
+3. File, with the Bindr in the same command when one was asked for:
+
+   ```bash
+   dl project attach research --namespace acme --type host --resource "$HOST_ID" --bindr "Lab machines" --json
+   ```
+
+   Output, exit codes and version floors are in
+   [Hosts in Projects](../reference/cli-projects.md#hosts-in-projects).
+   A partial result means the host is filed but not tagged: run the same
+   command again, which re-files the same node and tags it. Never file a
+   second copy, and report a tag that still did not succeed instead of
+   dropping it. If the installed `dl project attach --help` does not list
+   `--bindr` (or `host`), stop and update the CLI; do not tag through
+   another command or raw HTTP. For an explicit SDK request, use only the
+   documented SDK Project and Bindr methods.
+4. If the user wants Project members to connect, that is a separate explicit
+   grant: the `host-access` action of `dreamlake-lakeshore`. Do not file a host
+   to share it, and do not grant connection access because it is filed.
+
+Unfiling (detach) removes the placement and its Bindr tags and leaves the host
+and its connection grants unchanged. A whole-Project move is refused while a
+host is filed in the Project: unfile it first, with the user's authorization,
+then preview the move again (the `projects` action).
 
 ## What Project grants give and withhold
 
@@ -61,8 +99,8 @@ current `canBind` result, not a role guessed from membership.
   content EDIT, never Source ADMIN, Connection/Vault credentials or sharing
   management. Explicit grants cover future attachments without copied links.
 - Grants never give resource sharing management, deletion, ownership transfer,
-  execution, host/secret access, catalog management or infrastructure
-  credentials. Permission to publish a Workflow version is not permission to Run.
+  execution, host/secret access (also for a host filed in the Project), catalog
+  management or infrastructure credentials. Permission to publish a Workflow version is not permission to Run.
   Project ADMIN is not transfer authority.
 - Public Project visibility alone never opens a private resource. Independent
   resource links, acceptance records and namespace membership remain valid; Project

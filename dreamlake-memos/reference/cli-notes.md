@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes.md at 0.146.4 f2cf298; do not edit -->
 
 # Memos
 
@@ -68,3 +68,13 @@ different purposes. Keep original edit baselines and acknowledged receipts;
 never replay an uncertain mutation solely because a newer design offers a
 cleaner name for it. The family pages identify remaining implementation and
 protocol decisions explicitly.
+
+## Related resources
+
+CLI 0.133.0+ with the companion resource-relationships API release lets a Memo record an
+explicit association with an Artifact or Annotation, independently of references
+in its body. Use `dl resources link note MEMO_ID artifact ARTIFACT_CATALOG_ID`
+and read back `dl resources relationships note MEMO_ID`. See
+[resource relationships and history](https://cli.dreamlake.ai/sessions#resource-relationships-and-history)
+for identity lookup, removal, related sessions, activity and SDK methods. A
+relationship grants no access and does not change the Memo's content.

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/ownership.md at 0.125.1 6a3ffb6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/ownership.md at 0.146.4 f2cf298; do not edit -->
 
 # Ownership transfers
 
@@ -211,7 +211,7 @@ below selects reviewed Memos explicitly and never fills the complete plan itself
 
 ```bash cli-help="project transfer-preview"
 dl project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive
-# Explicitly include only reviewed Notes already filed in this project.
+# Explicitly include only reviewed Memos already filed in this project.
 dl project transfer-preview dreamlake --namespace geyang --to-namespace fortyfive --include-note MEMO_ID --json
 ```
 

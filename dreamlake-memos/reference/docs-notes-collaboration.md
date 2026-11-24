@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/collaboration.md at 0.1.159 ae6783ad; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/collaboration.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Collaboration and review
 
@@ -59,7 +59,7 @@ CLI read describes server content, not proof that every open editor matches it.
 These activation and acknowledgement safeguards have previously passed runtime
 acceptance. That does not establish readiness of the later catalog or attachment
 candidates or diagnose a current read failure. Activation rechecks current access and its exact Memo
-ownership/storage/room binding before returning a room. Existing signed-in public-Note and
+ownership/storage/room binding before returning a room. Existing signed-in public-Memo and
 read-share body reads remain supported; they do not acquire edit permission, and
 this change does not enable anonymous API endpoints.
 A busy or stale ownership lease can return `409 WRITER_FENCE_REQUIRED` or
