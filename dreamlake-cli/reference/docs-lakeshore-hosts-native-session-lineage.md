@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage.md at 0.1.225 79bd752ea; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage.md at 0.1.226 2adcb7d24; do not edit -->
 
 # Native session relationships
 
@@ -135,8 +135,9 @@ SQLite persistence is not yet readable by this adapter. Unsupported evidence rem
 A personal title, list position, or archive preference is separate from recorded
 ancestry. Moving a fork to the top level retains its “forked from” evidence and
 all managed permission ceilings. Archiving a parent **from your list** hides
-that exact parent; its remaining children appear at the top level with their
-own descendants intact. It does not archive the children, stop a process,
+that exact parent; its remaining children appear beneath the nearest visible
+ancestor, or at the top level when none remains, with their own descendants intact.
+It does not archive the children, stop a process,
 delete a conversation, or change upload/indexing consent. Restoring the parent
 restores inherited nesting unless a child has its own explicit root placement.
 
