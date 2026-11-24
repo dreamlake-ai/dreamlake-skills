@@ -1221,23 +1221,23 @@
       {
         "url": "https://docs.dreamlake.ai/sources",
         "file": "reference/docs-sources.md",
-        "version": "0.1.223 63628016d",
-        "source_sha256": "79d654af11f8a2fd1bf3680b65f3994e8436fa68c6cf2f7aff69ba44ffcf601a",
-        "sha256": "bbe923d111bd1e793553dfd47f5c22ce559f4bfcfa8c2aea4774ceb9509e8e18"
+        "version": "0.1.225 79bd752ea",
+        "source_sha256": "79ca202ead7dedc9ab19a5c57db8e4e02e689c3096ba52228edd147067da883c",
+        "sha256": "5142543db4e3d386f1ad7b10ed32293920ff94648a22702e30fc70a158a1a31e"
       },
       {
         "url": "https://cli.dreamlake.ai/sessions",
         "file": "reference/cli-sessions.md",
-        "version": "0.145.1 4ee3a14",
-        "source_sha256": "8bcb75bc725f88d17e09bbce5c5f793b0931a948aa33e0079e62230c22b84e0e",
-        "sha256": "89ed4b31afb9ab68d7f594995ad0b6a2a1334a6e099efad8fa5a03d5bab8d30c"
+        "version": "0.146.2 b4ebe43",
+        "source_sha256": "8f03e4bbe4a989362a6e4fb2d66f0f5fcb3def4666870190ad71e8a602c9cb73",
+        "sha256": "7593cf9fd0f2354d5c315e95687fec0c931b72607de7f800e14d984fb6c0218c"
       },
       {
         "url": "https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage",
         "file": "reference/docs-lakeshore-hosts-native-session-lineage.md",
-        "version": "0.1.223 63628016d",
-        "source_sha256": "e344ba79eab0f5ae0c30fc755f84fe9d896f16b604ca4b3739b46ab052a8280f",
-        "sha256": "7cd914b517926d1aae8cba38593727aa3934a13fe575ce9ffa20aa3038bbb6c2"
+        "version": "0.1.225 79bd752ea",
+        "source_sha256": "1a493a918ffd2ed5868f4f1ece482e7dd12b8a60e368e6b99a6914fa8cf17808",
+        "sha256": "20f9ae11c24e9048cd7e9ab96dfa076f673c8117f3921ddc1ff6f42b1629da72"
       }
     ],
     "dreamlake-tasks": [

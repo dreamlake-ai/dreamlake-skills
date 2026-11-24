@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage.md at 0.1.223 63628016d; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage.md at 0.1.225 79bd752ea; do not edit -->
 
 # Native session relationships
 
@@ -129,3 +129,115 @@ capabilities remain false. DeepSeek’s default `.jsonl.zstd` format decodes onl
 header frame, with 512 KiB compressed-input, 256 KiB decoded-header and 8 MiB
 decoder-window limits. Later conversation frames are not decoded. DeepSeek
 SQLite persistence is not yet readable by this adapter. Unsupported evidence remains absent rather than inferred.
+
+## Personal session presentation
+
+A personal title, list position, or archive preference is separate from recorded
+ancestry. Moving a fork to the top level retains its “forked from” evidence and
+all managed permission ceilings. Archiving a parent **from your list** hides
+that exact parent; its remaining children appear at the top level with their
+own descendants intact. It does not archive the children, stop a process,
+delete a conversation, or change upload/indexing consent. Restoring the parent
+restores inherited nesting unless a child has its own explicit root placement.
+
+These preferences belong to the authenticated person and namespace. They do not
+rename provider files or change another person's list. The older owner operation
+`PATCH /namespaces/:ns/terminal-sessions/:id/archive` is different: it sets the
+registered session's `archivedAt` and still enforces its existing control rules.
+
+Read exact identities with the read-only endpoint:
+
+```http
+POST /namespaces/:ns/session-presentation/query
+Content-Type: application/json
+
+{"identities":[{"kind":"native","sourceId":"0123456789abcdef01234567","provider":"codex","nativeSessionId":"native-session-id"}]}
+```
+
+A registered identity is `{"kind":"registered","sessionId":"24-hex-id"}`.
+Native identities require `sourceId`, `provider`, and `nativeSessionId`, plus
+`componentId` for an agent/component. Providers are `codex`, `claude`, `kimi`, and
+`deepseek`. A component never aliases its containing session. The server checks
+current registry/source access and metadata existence; an uncollected address
+reported in authorized lineage is sufficient for a preference, but grants no
+content or terminal access. An unavailable native association does not prevent
+an independently readable registry identity from retaining its own preference.
+
+The response is `{entries:[...]}` in input order. Each entry contains:
+
+```json
+{
+  "identity": {"kind":"native","sourceId":"0123456789abcdef01234567","provider":"codex","nativeSessionId":"native-session-id"},
+  "aliases": [{"kind":"native","sourceId":"0123456789abcdef01234567","provider":"codex","nativeSessionId":"native-session-id"}],
+  "revision": 0,
+  "titleOverride": null,
+  "placement": "inherit",
+  "archived": false
+}
+```
+
+`aliases` includes the supplied identity and any independently authorized exact
+registry/native association. Match aliases exactly, including namespace,
+source, provider and component; never join by title or an unscoped native UUID.
+One unreadable or nonexistent identity fails the whole batch with `404`; no
+partial result is returned. Batches contain 1–100 identities. The query has a
+10-second work budget and returns `503` if it cannot finish. A failed query is
+unknown state, not permission to overwrite with default values.
+
+Change only the intended fields using the returned revision:
+
+```http
+PATCH /namespaces/:ns/session-presentation
+Content-Type: application/json
+
+{"identity":{"kind":"native","sourceId":"0123456789abcdef01234567","provider":"codex","nativeSessionId":"native-session-id"},"expectedRevision":0,"patch":{"titleOverride":"Investigate source catalog","placement":"root"}}
+```
+
+Patch fields are `titleOverride` (trimmed, nonempty text up to 128 Unicode
+characters and 512 UTF-8 bytes, or `null` to restore the normal title),
+`placement` (`inherit` or `root`), and `archived` (boolean). Control characters,
+invalid Unicode and bidirectional override/isolate characters are rejected.
+The response `{entry,previous}` supplies the new state and the previous state.
+Undo must use `entry.revision` as `expectedRevision` and restore only the fields
+changed by that action from `previous`. A newer change returns `409
+session_presentation_revision_conflict`; re-read instead of overwriting it.
+
+Preferences persist across browsers and devices. Storage is bounded to 4,096
+identity entries and 4 MiB per account; exceeding either limit returns `409
+session_presentation_capacity` without losing existing entries. Metadata-only
+labels stay metadata-only. Collectors cannot overwrite personal names or
+placement. No transcript bytes are read or indexed by these endpoints. The
+built-in resource API exposes the query as a read operation and the patch as a
+write operation under the same authenticated boundaries.
+
+## Saved conversation provenance
+
+The archive revision is the retained native byte snapshot. Its conversation
+reader is a bounded projection, not a promise that every native record is a
+readable message. Compressed native snapshots are retained as encoded
+originals;
+the message reader does not currently decode them. Tool output, developer context, encrypted blocks and hidden
+reasoning are not extracted or indexed. Keep the native revision when a
+projection is partial; uploading or reading it does not decrypt opaque content.
+
+`GET /namespaces/:ns/session-archive-sources/:sourceId/sessions/:sessionId/revisions/:revisionId/messages`
+returns the existing message page with optional `message.provenance`:
+
+- `inter-agent`: `nativeMessageId`, `author`, `recipient`, and `opaqueContent`.
+  The compatibility role is `assistant`; display the agent route rather than
+  presenting this as a human request. `opaqueContent: true` means some native
+  blocks remain unavailable, including encrypted task payloads. A visible
+  envelope alone is not the complete task.
+- `inherited`: `nativeSessionId` identifies the explicitly copied source history.
+  Preserve the original message role and label it inherited history, not a new
+  request to the current child. This native ID grants no access to that session.
+
+Codex inter-agent projection accepts only the exact native agent-message
+shape and its plaintext input-text blocks. Inherited response history requires
+an exact current-session header, an explicit parent ID, a matching copied
+parent header and a new-task boundary within the first 512 KiB/256 records.
+If canonical chat events occur in that prefix, response mirrors stay omitted.
+Unknown or incomplete provenance never enables a generic response-item fallback.
+Pagination retains the bounded provenance in a signed, actor/revision-scoped
+cursor, with fresh source authorization on each page. Captured ranges without
+that verified prefix do not infer inherited history.
