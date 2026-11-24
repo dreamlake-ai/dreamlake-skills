@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-session-archives",
-  "description": "Configure namespace-bound local session Sources and restricted archives, inspect evidence-backed native parent and agent relationships, and recover approved archival without granting remote execution.",
+  "description": "Configure local session Sources and archives, inspect native relationships, and manage personal session names and list placement without changing provider records or granting remote execution.",
   "requires": [
     "dreamlake-cli",
     "dreamlake-lakeshore"

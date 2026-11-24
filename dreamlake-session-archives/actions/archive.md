@@ -27,7 +27,11 @@ inventing an upload CLI command.
    frozen eligible denominator, complete and blocked entries, excluded files,
    root sessions and child components separately. Distinguish retained native
    bytes from readable message coverage and an incomplete inventory from a
-   complete census. A successful PUT alone is not upload completion.
+   complete census. Check [provider and representation boundaries](../reference/docs-sources.md#native-archive-completeness-and-provider-boundaries)
+   before promising a readable conversation: test its paginated projection
+   separately from retained bytes. Follow [conversation provenance](../reference/docs-lakeshore-hosts-native-session-lineage.md#saved-conversation-provenance)
+   when interpreting inherited history or inter-agent input; do not describe
+   opaque content as recovered plaintext. A successful PUT alone is not upload completion.
 5. Recover an uncertain result by reading status and using the documented
    recovery operation. If a snapshot changed, inspect the new observation and
    applicable consent instead of silently expanding the old approval. After
