@@ -1,6 +1,18 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.146.3 08ef5bd; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.146.4 f2cf298; do not edit -->
 
 # Release notes
+
+## 0.146.4 — Personal session presentation guidance
+
+Updates the pinned public skills release to
+[v2026.11.24.1](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.24.1).
+The embedded CLI skill carries refreshed published references; installing
+`dreamlake-session-archives` resolves its complete dependency closure with the
+personal-name, list-placement, revision-guarded Undo and archive verification
+procedures. Guidance distinguishes retained native bytes from readable messages
+and opaque inter-agent payloads, and preserves provider/component boundaries.
+This release does not add SDK presentation methods, enable unsupported provider
+body capture, or upgrade a running Nymph daemon.
 
 ## 0.146.3 — DreamLake Account sign-in
 
