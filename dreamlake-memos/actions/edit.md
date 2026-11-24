@@ -7,16 +7,18 @@ appending a reference, or updating a prompt. Named before/after checkpoints and
 presence intent are part of the edit workflow; do not wait for a separate request
 to make the work visible. A read-only review creates no checkpoints.
 
-For generated additions, prefer streaming into a reviewed cursor. Inspect
-installed `dl memos insert --help` and the
-[editing reference](../reference/cli-notes-editing.md) before choosing the input
-path. Publish intent and save a reviewed before checkpoint, stream the addition,
-then verify the last acknowledged revision and save one after checkpoint.
-Follow the returned cursor/revision for successive completed insertions; never
-follow the human's moving selection or guess an offset after a concurrent edit.
-If streaming is unavailable, use bounded acknowledged insertions only when the
-installed interface documents continuation; otherwise preserve the draft and
-use the documented targeted-edit workflow below. Never invent a stream flag.
+For generated additions, prefer a native stream at a reviewed cursor when the
+installed interface supports it. Check `dl memos insert --help` and the
+[editing reference](../reference/cli-notes-editing.md). Publish intent, save one
+before checkpoint, feed the text producer, verify the last acknowledged revision,
+and save one after checkpoint. The stream owns its cursor; never follow the
+human's selection or recompute its position from an old numeric offset.
+
+Keep the final receipt and any interruption evidence. A partial stream is already
+an edit: do not restart it or replay text to recover missing metadata. Stream
+sequence numbers are not HTTP command IDs. Reconcile uncertain text before a new
+write. If the installed client lacks native streaming, use a supported targeted
+edit or upgrade; do not describe repeated HTTP inserts as a native stream.
 
 Honor the user's concurrency choice. Preserve the original baseline so human
 edits can be reconciled; do not add `--exact` as a general safeguard. Choose exact
