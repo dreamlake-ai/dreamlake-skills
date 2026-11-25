@@ -917,6 +917,22 @@
         "sha256": "d90a56cb83200daf963536f11b361e917ef39957ca78f05a7d37684a8c3c5b58"
       }
     ],
+    "dreamlake-links": [
+      {
+        "url": "https://docs.dreamlake.ai/links",
+        "file": "reference/docs-links.md",
+        "version": "0.1.228 b40c11b12",
+        "source_sha256": "085f3235741e0cb9390b0bb4779bb5f2f49bae1f625f9a707c334eccf2c4bd45",
+        "sha256": "5f7d504b1ce2dde90726a43a711d96aed0f33845bb8cfa9c64de650a1f634fe7"
+      },
+      {
+        "url": "https://cli.dreamlake.ai/links",
+        "file": "reference/cli-links.md",
+        "version": "0.147.0 7d93f98",
+        "source_sha256": "81507ac60e470bfd258fc4b99a4a5ac8e82105811c208ab88f5aa24e9bb2115e",
+        "sha256": "e2eeadd021fbe6f96c99788bb4dbcb06b6433ff833935ee565bfa879623241ce"
+      }
+    ],
     "dreamlake-memos": [
       {
         "url": "https://docs.dreamlake.ai/notes",

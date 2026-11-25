@@ -2,7 +2,8 @@
   "name": "dreamlake-agents",
   "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
   "requires": [
-    "dreamlake-cli"
+    "dreamlake-cli",
+    "dreamlake-links"
   ],
   "docs": [
     "https://docs.dreamlake.ai/agents/authoring",
