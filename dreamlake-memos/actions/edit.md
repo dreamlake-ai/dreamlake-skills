@@ -8,8 +8,11 @@ presence intent are part of the edit workflow; do not wait for a separate reques
 to make the work visible. A read-only review creates no checkpoints.
 
 For generated additions, prefer a native stream at a reviewed cursor when the
-installed interface supports it. Check `dl memos insert --help` and the
-[editing reference](../reference/cli-notes-editing.md). Publish intent, save one
+installed interface supports it. For the CLI, check `dl memos insert --help` and
+the [editing reference](../reference/cli-notes-editing.md). For a requested SDK or
+built-in tool, use its documented operations and availability in the
+[API and tool guidance](../reference/docs-notes-cli-editing.md); do not switch
+interfaces to check support. Publish intent, save one
 before checkpoint, feed the text producer, verify the last acknowledged revision,
 and save one after checkpoint. The stream owns its cursor; never follow the
 human's selection or recompute its position from an old numeric offset.
