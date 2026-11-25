@@ -1,6 +1,21 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.146.4 f2cf298; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.147.0 7d93f98; do not edit -->
 
 # Release notes
+
+## 0.146.5 — Unlisted Projects and CI/CT dispatch
+
+- Create or update Projects with `--visibility unlisted`. Anyone with the link can
+  read an unlisted Project without signing in; it stays out of public profiles
+  and search. Mounted resources keep their own access settings.
+- Restricted Projects remain private. Set visibility back to private to revoke
+  anonymous Project access.
+
+- `dl cict dispatch NS --repo owner/repo --workflow cict.yml [--ref branch]
+  [--input name=value]…` runs a workflow (`workflow_dispatch`) through the
+  namespace's GitHub App installation; `dl cict dispatches NS` lists what was
+  run and whether it started. SDK: `dl.cict(ns).dispatch(...)`,
+  `dispatches()` and `dispatchBranches()`. Needs a server with manual dispatch.
+- `dl cict runs show` names the DreamLake user for a run started this way.
 
 ## 0.146.4 — Personal session presentation guidance
 

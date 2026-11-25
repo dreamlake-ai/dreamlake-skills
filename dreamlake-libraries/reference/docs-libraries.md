@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/libraries.md at 0.1.228 b40c11b12; do not edit -->
 
 # Asset Libraries
 
@@ -668,3 +668,9 @@ For tabletop robotics, `framing: workbench` offers a closer default view; Reset
 view and Show full scene remain available. Large scenes are loaded on demand in
 an abortable worker and render on demand. Unsupported materials and primitives
 remain documented preview limitations, not simulation support.
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside libraries with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.228 b40c11b12; do not edit -->
 
 # Profiles and workspaces
 
@@ -380,3 +380,9 @@ the organization's full catalog and displays the six most recent entries.
 
 [Project names and addresses](https://docs.dreamlake.ai/workspaces/project-addresses) explains automatic
 slugs, separate custom settings, preserved old links, and rename conflicts.
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside Projects and Bindrs with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.

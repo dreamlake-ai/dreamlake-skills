@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.228 b40c11b12; do not edit -->
 
 # Bundles
 
@@ -490,3 +490,9 @@ Refer to [Scene layers](https://docs.dreamlake.ai/scenes/layers) for the stack f
     Manifest fields, the hashing algorithm and the REST API.
 
     Import libraries and scenes into bundles. What stays the same.
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside bundles with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.

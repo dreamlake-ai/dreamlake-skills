@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.228 b40c11b12; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -484,3 +484,9 @@ That compatibility does not admit new fixed-manifest Project transfers. Preserve
 the original request/key after a lost response and never clear a claim or lease
 manually. Independent Scene sharing and released Project-derived content access
 remain available.
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside Scenes with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.

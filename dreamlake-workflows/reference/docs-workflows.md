@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.228 b40c11b12; do not edit -->
 
 {/* FigWf* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -136,3 +136,9 @@ supports Project, ordinary Project files/images/videos and owned Memos.
 A mount/reference of this resource blocks
 the entire transfer rather than silently excluding it. Its existing independent
 sharing and released Project-derived content access remain available.
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside workflows with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.

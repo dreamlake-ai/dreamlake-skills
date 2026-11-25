@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.228 b40c11b12; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -987,3 +987,9 @@ manual names remain unchanged, and neither path needs to revalidate unused prior
 The total registration
 payload is bounded to 30 KiB (32 KiB signed HTTP envelope). This never infers provenance
 from a generic-looking name or re-reads historical transcripts.
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside Sources with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.

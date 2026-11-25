@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.228 b40c11b12; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -868,3 +868,9 @@ the Artifact body. Opening the Artifact itself still uses its interactive viewer
 Neither a scan interval, a view nor successful publication guarantees a
 thumbnail completion time. Prefer generating and inspecting an explicit cover
 with `--cover`; cloud generation is the fallback.
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside artifacts with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details under Related. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.

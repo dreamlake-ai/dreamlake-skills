@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.228 b40c11b12; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -370,6 +370,12 @@ duplicate dedicated tools. Inspect the schema in the running deployment first.
 
 ## Host inventory and partial search
 
+`dreamlake_providers_list` reads the acting namespace’s compute provider catalog
+with the caller’s provider-read permission. It returns provider IDs, names and
+kinds, the total count and the next page. Check this catalog separately from
+registered Hosts when assessing machine launch prerequisites. Launch-server
+identity and readiness require their own verification.
+
 `dreamlake_hosts_list` accepts `prefix`, `search`, `page`, `pageSize`,
 `offsetWithinPage` (default 0) and `archived`. `prefix` filters the canonical catalog. `search` performs a literal,
 case-insensitive match within **one returned page**, over names, IDs, verified
@@ -481,3 +487,34 @@ When reporting an error, retain its exact code, tool, time and available
 receipt/request IDs. A 404 alone does not distinguish an incorrect identifier,
 wrong namespace, unavailable route or denied visibility. Inspect authorized
 resource discovery before attributing it to a missing tool.
+
+## Reading public posts
+
+For a public X status URL, `dreamlake_web_read` retrieves the single post
+from X’s official oEmbed endpoint and returns its canonical permalink and
+author. Reading a public Thread Reader index exposes up to eight candidate
+post links in order. Each post can then be checked at X. The author’s numbered
+parts can establish the extent of a numbered series. A WeChat verification
+redirect ends the read with `agent_web_read_challenge`.
+
+## Files in the current Source
+
+Resolve the Source shown in the active panel or page to its namespace and ID.
+A managed Source can receive a direct public HTTPS file with
+`dreamlake_files_download_url`. The tool creates a new path, verifies the
+stored bytes and returns the size, revision and SHA-256 digest. The limit is
+8 MiB. Redirects and authenticated downloads are unsupported. A social video
+page requires a separate media URL, and playback needs a player check.
+
+When a publisher offers a downloadable copy of a YouTube or X video, pass
+its publisher page as `url` to `dreamlake_web_read` and the platform permalink
+as `mediaFor`. Verify the publisher identity when selecting the page. The matching section, article or figure must contain one video,
+the platform link, and same-origin file links that are also sources on that
+player. The returned links retain the publisher’s rendition labels. Choose a
+matching format and language within the Source size limit. Ambiguous blocks
+return `agent_web_read_media_unmatched`.
+
+Use `dreamlake_files_mcap_summary` on a managed uncompressed MCAP up to
+8 MiB to count messages, list topics and read the log-time span in nanoseconds.
+A malformed or incomplete recording produces an error. Empty recordings have
+a zero count and null timestamps.

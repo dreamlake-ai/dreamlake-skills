@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.228 b40c11b12; do not edit -->
 
 # Browser terminal
 
@@ -1478,3 +1478,9 @@ See the [CLI documentation](https://cli.dreamlake.ai) for the managed-mode comma
 ## Browse computer files
 
 The separate [Files tab](https://docs.dreamlake.ai/lakeshore/hosts/files) browses explicit Nymph directory exports. It is owner-only and shows metadata; sharing a terminal does not share files.
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside saved terminal sessions with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.
