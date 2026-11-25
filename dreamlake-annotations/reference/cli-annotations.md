@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/annotations.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/annotations.md at 0.148.0 3b3fee9; do not edit -->
 
 # Annotations
 
@@ -125,3 +125,9 @@ is best-effort with 90-day retention, not a complete audit log. See
 [resource relationships and history](https://cli.dreamlake.ai/sessions#resource-relationships-and-history)
 for pagination, SDK methods and the distinction between saved sessions and
 attribution contexts.
+
+## Saved URLs
+
+Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
+covers list, add, read, update and remove commands, immutable resource IDs,
+creation recovery, version conflicts, and the TypeScript API.

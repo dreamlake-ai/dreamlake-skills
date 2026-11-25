@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.230 c3d3b594e; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -363,6 +363,7 @@ duplicate dedicated tools. Inspect the schema in the running deployment first.
 
 | Request | Discover and use |
 | --- | --- |
+| Create or revise artifact content | The discovered Artifact `POST /namespaces/:slug/artifacts/:artifactId/apply` operation takes `contentBase64` and appends a version under the resource write grant. Its response includes the resulting version. |
 | Share only an artifact's most recent version | Find the artifact catalog POST operation and set `shareLatestOnly: true`. Add `share: true` only when the user also requested issuing a share link. This does not upload a new artifact version. |
 | Rename an annotation | Find the annotation PATCH operation and set `title`; unchanged visibility should be omitted. Annotation share operations remain separate. |
 | Add a resource to a Bindr in another project | Discover Bindr membership operations and use the exact resource and Bindr identifiers. An association does not transfer resource ownership or imply formal project filing. Canonical namespace and access checks still apply. |
@@ -496,6 +497,10 @@ author. Reading a public Thread Reader index exposes up to eight candidate
 post links in order. Each post can then be checked at X. The author’s numbered
 parts can establish the extent of a numbered series. A WeChat verification
 redirect ends the read with `agent_web_read_challenge`.
+
+A YouTube watch-page read can return the title, public description and links
+from the description for the requested video. The publisher may link its
+download page there. Video playback restrictions still apply.
 
 ## Files in the current Source
 

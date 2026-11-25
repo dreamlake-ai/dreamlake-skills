@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.230 c3d3b594e; do not edit -->
 
 # Memos
 
@@ -147,6 +147,5 @@ Correct a fact here first and a step there; see [Skills](https://docs.dreamlake.
 
 ## Saved URLs
 
-Keep web and DreamLake URLs alongside Memos with [Links](https://docs.dreamlake.ai/links).
-Open the Links tab in the resource details under Related. The guide covers permissions, editing,
-creation recovery, and CLI, TypeScript, Python and agent access.
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

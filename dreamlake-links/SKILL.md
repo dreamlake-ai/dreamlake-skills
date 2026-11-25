@@ -1,17 +1,17 @@
 ---
 name: dreamlake-links
-description: Save, find, edit and remove web or DreamLake URLs on resources; recover uncertain saves and preserve concurrent edits. Use for saved URLs, not resource ownership, sharing, imports or session relationships.
+description: Save and manage web or DreamLake URLs as files in Project, Source, and Bindr lists; integrate link files through CLI or SDKs and recover earlier saved URL records.
 ---
 
 # DreamLake Links
 
-Use when the user wants URLs kept alongside a Project, Source, Bindr or another
-resource. Read the installed command help or deployed tool catalog before acting.
+Use when the user wants saved URLs in ordinary file lists, including previews
+and file actions. Read the installed command help or deployed tool catalog.
 
 | Request | Action |
 | --- | --- |
-| Save, list, edit or remove a URL; recover an uncertain save | [Saved URLs](actions/saved-urls.md) |
-| Integrate saved URLs into Python or TypeScript | [SDK integration](actions/sdk.md) |
+| Save or edit link files; convert an earlier saved URL record | [Link files](actions/saved-urls.md) |
+| Integrate link files into Python or TypeScript | [SDK integration](actions/sdk.md) |
 
 Use the setup action of `dreamlake-cli` for installation and login. Prefer the CLI
 for ordinary tasks; use SDKs for an explicitly requested integration. Do not invent

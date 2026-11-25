@@ -16,7 +16,7 @@ drifts from what is actually released.
 | Skill | Use it for | Requires |
 |---|---|---|
 | `dreamlake-cli` | Install and log in to the DreamLake CLI, pick an environment, upload and download data, browse or upload Sources, grant Project access, move whole Projects, transfer ownership, link writes to agent sessions, manage Vault, register UDFs, push workflows; routes compute and domain work elsewhere. | — |
-| `dreamlake-links` | Save, find, edit and remove web or DreamLake URLs on resources; recover uncertain saves and preserve concurrent edits. Use for saved URLs, not resource ownership, sharing, imports or session relationships. | `dreamlake-cli` |
+| `dreamlake-links` | Save and manage web or DreamLake URLs as files in Project, Source, and Bindr lists; integrate link files through CLI or SDKs and recover earlier saved URL records. | `dreamlake-cli` |
 | `dreamlake-agents` | Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery. | `dreamlake-cli`, `dreamlake-links` |
 | `dreamlake-session-archives` | Configure local session Sources and archives, inspect native relationships, and manage personal session names and list placement without changing provider records or granting remote execution. | `dreamlake-cli`, `dreamlake-lakeshore` |
 | `dreamlake-lakeshore` | Operate DreamLake compute through the CLI: connect Lakeshore (Add Host, Runtime workers, queue mounts), enroll and inspect hosts and sessions, read Slurm and external jobs, provision machines via a user-configured launch server, Infrastructure Stacks, AWS, and CI/CT GitHub Actions runners. | `dreamlake-cli`, `dreamlake-memos`, `dreamlake-ripple` |
