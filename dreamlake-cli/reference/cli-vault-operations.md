@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-operations.md at 0.148.0 3b3fee9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-operations.md at 0.148.1 f511425; do not edit -->
 
 # Vault operations
 
