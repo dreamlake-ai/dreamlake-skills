@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.230 c3d3b594e; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -871,6 +871,5 @@ with `--cover`; cloud generation is the fallback.
 
 ## Saved URLs
 
-Keep web and DreamLake URLs alongside artifacts with [Links](https://docs.dreamlake.ai/links).
-Open the Links tab in the resource details under Related. The guide covers permissions, editing,
-creation recovery, and CLI, TypeScript, Python and agent access.
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.
