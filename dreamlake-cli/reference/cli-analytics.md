@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/analytics.md at 0.146.4 f2cf298; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/analytics.md at 0.147.0 7d93f98; do not edit -->
 
 # Product analytics
 

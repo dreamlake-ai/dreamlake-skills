@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.228 b40c11b12; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -293,6 +293,40 @@ or fail.
 - **CLI and SDKs:** `dl cict runs list my-team` and
   `dl cict runs show my-team/<run-id>`.
 
+## Run a workflow from DreamLake
+
+**Run workflow** on the CI/CT page starts a repository's workflow without a
+push or a pull request: pick the repository, the workflow file and the branch,
+optionally add inputs, and confirm. It is GitHub's own `workflow_dispatch`,
+sent through your bound App installation, so the workflow must declare
+`workflow_dispatch:` (and every input you send). Its DreamLake jobs then run,
+queue and are billed like any other.
+
+- Needs `lakeshore:use` in the namespace, the same as registry push triggers.
+  Whoever can run a workflow this way can run any branch of any repository the
+  installation reaches, with that repository's secrets: grant `lakeshore:use`
+  accordingly.
+- GitHub shows the run as started by the DreamLake App; the CI/CT page shows
+  who asked for it in DreamLake.
+- The form shows the inputs the workflow declares under
+  `workflow_dispatch.inputs` in the chosen branch's file, with their
+  descriptions, defaults and choices, and says when that version of the
+  workflow cannot be run by hand. Reading the file needs the App's
+  **Contents: read** permission; an installation that has not granted it gets
+  free-form `name = value` inputs instead (GitHub refuses names the workflow
+  does not declare, and the page shows why). Inputs are sent as text. Never use
+  `${{ inputs.… }}` inside `run:`; pass inputs through `env:` and quote them.
+- Only private repositories can run DreamLake jobs (unless the server allows
+  public ones). At most 10 runs a minute per namespace.
+- When GitHub's answer is lost, the run is marked *outcome unknown*: check the
+  repository's Actions page before running it again.
+- Branches are listed when the App has Contents: read; otherwise type the
+  branch name. A GitHub owner grants a new App permission on the
+  installation's settings page (GitHub asks them to review it).
+
+CLI: `dl cict dispatch my-team --repo acme/sim --workflow cict.yml --ref main
+--input sim_seconds=120`.
+
 ## Report metrics
 
 Two ways are supported by design:
@@ -335,7 +369,7 @@ Two ways are supported by design:
 | Routing `rejected` | A public repository or an inactive installation. |
 | Runner `failed` | The allocation could not be submitted; `dl cict runs show` gives the error code. |
 | Evidence `failed` | The manifest was missing, unreadable or listed an invalid path. |
-| Evidence `pending` for long | The runner may still be flushing files, or the cluster connection blipped; DreamLake retries for a few minutes. |
+| Evidence `pending` for long | The runner may still be flushing files, or the cluster connection blipped. DreamLake persists up to five attempts and resumes interrupted evidence collection after a server restart. |
 
 ## API
 
@@ -355,6 +389,12 @@ Two ways are supported by design:
 | GET | `/namespaces/:ns/cict/runs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs/:run` | read |
 | GET | `/namespaces/:ns/cict/runs/:run/comparison` | removed: always `410 comparison_removed` |
+| GET | `/namespaces/:ns/cict/dispatch/repositories?installationId=` | `lakeshore:read`: repositories the installation reaches, for Run workflow |
+| GET | `/namespaces/:ns/cict/dispatch/workflows?installationId=&repository=` | `lakeshore:read`: the repository's active workflow files |
+| GET | `/namespaces/:ns/cict/dispatch/branches?installationId=&repository=` | `lakeshore:read`: branches, default first (`null` when the App may not list them) |
+| GET | `/namespaces/:ns/cict/dispatch/inputs?installationId=&repository=&workflow=&ref=` | `lakeshore:read`: whether the workflow at that ref can be run by hand and its declared inputs; `inputs: null` with a `reason` when the file cannot be read (`contents_permission_required`, `workflow_not_found`, `workflow_unreadable`) |
+| POST | `/namespaces/:ns/cict/dispatches` | `lakeshore:use`: run a workflow (`installationId`, `repository`, `workflow`, `ref`, `inputs`, `requestId`); a retry with the same `requestId` returns the first answer |
+| GET | `/namespaces/:ns/cict/dispatches?limit=` | `lakeshore:read`: workflows run from DreamLake and what came of each |
 | GET / POST | `/namespaces/:ns/github/registry-triggers` | `lakeshore:read` / `lakeshore:use`: registry push triggers |
 | DELETE | `/namespaces/:ns/github/registry-triggers/:triggerId` | `lakeshore:use` |
 | GET | `/namespaces/:ns/github/registry-evaluations?limit=` | `lakeshore:read`: registry-triggered runs; the ECR secret and reconcile routes are in [Run a suite when an image is pushed](https://docs.dreamlake.ai/lakeshore/cict/registry-triggers#api) |

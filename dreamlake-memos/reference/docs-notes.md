@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.228 b40c11b12; do not edit -->
 
 # Memos
 
@@ -144,3 +144,9 @@ The skill's reference pages are fetched from this guide's published
 Markdown; its procedures are written in the
 [dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills) repository.
 Correct a fact here first and a step there; see [Skills](https://docs.dreamlake.ai/dev/skills).
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside Memos with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details under Related. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.

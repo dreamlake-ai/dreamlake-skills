@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.146.4 f2cf298; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.147.0 7d93f98; do not edit -->
 
 # Projects & data
 
@@ -22,6 +22,7 @@ DreamLake organizes assets in a hierarchy: a **project** contains
 
 ```bash file="terminal"
 dl create project my-robots --description "robot captures"   # private
+dl create project product-demo --visibility unlisted          # anyone with the link
 dl create project shared-set --public                        # public
 dl update project my-robots --public                         # flip visibility
 dl list project
@@ -29,7 +30,12 @@ dl delete project my-robots                                  # soft delete; the 
 ```
 
 Projects are **private by default**; `--public` / `--visibility public`
-shares them. `update project` also changes `--name`, `--description`, `--tags`.
+shares them publicly. `--visibility unlisted` allows anyone with the direct Project
+link to read without listing it on public profiles, catalogs or namespace search.
+Use `dl update project product-demo --visibility private` to revoke link-only
+access. Mounted resources keep their own permissions; share the intended Memos,
+Artifacts and other items separately. Restricted Projects must remain private.
+`update project` also changes `--name`, `--description`, `--tags`.
 
 > **Warning:** `delete project` is a soft delete with no restore. Everything filed in the
 > project (Memos, artifacts, workflows, annotations, envs, Sources) is unfiled
@@ -199,10 +205,12 @@ values is rejected. These flags identify the source workspace, not a destination
 dl project access research --ns acme --json
 # Remove the workspace-member Read baseline; explicit grants remain.
 dl project access research --ns acme --mode restricted
-# A public Project must become private atomically when restricted.
+# A public or unlisted Project must become private atomically when restricted.
 dl project access research --ns acme --mode restricted --visibility private
 # Restore the workspace-member baseline; this does not make the Project public.
 dl project access research --ns acme --mode workspace
+# Share by link while keeping the Project out of public discovery.
+dl project access research --ns acme --mode workspace --visibility unlisted
 ```
 
 `workspace` preserves the existing workspace-member Read baseline. `restricted`
@@ -232,8 +240,8 @@ A missing/mismatched creation acknowledgment is an unknown outcome; retain any
 returned Project ID and inspect before retrying. Omitted access mode keeps the
 existing creation payload and default workspace behavior unchanged.
 
-`restricted` with final public visibility is refused. `--visibility private`
-explicitly authorizes the atomic public-to-private change; omitting it must not
+`restricted` with final public or unlisted visibility is refused. `--visibility private`
+explicitly authorizes the atomic change to private; omitting it must not
 silently hide a public Project. The command does not change recipients, team
 membership, resource ownership, or file/Memo content. Use the existing grant and
 revoke commands below for recipient access.

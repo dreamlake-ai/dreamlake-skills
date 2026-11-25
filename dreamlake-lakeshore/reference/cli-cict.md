@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/cict.md at 0.146.4 f2cf298; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/cict.md at 0.147.0 7d93f98; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -149,6 +149,34 @@ code when start failed, and the evidence location. `--file <path>` also reads
 one JSON file the run declared as evidence, relative to its evidence folder;
 it is `null` when the run did not write it or evidence is not written yet.
 `dl cict runs compare` was removed with baseline comparisons.
+
+## Run a workflow from DreamLake
+
+```bash cli-help="cict dispatch"
+dl cict dispatch my-team --repo acme/sim --workflow cict.yml
+dl cict dispatch my-team --repo acme/sim --workflow cict.yml --ref isaac-sim --input sim_seconds=120
+```
+
+`dispatch` runs a repository's workflow without a push or pull request: it is
+GitHub's `workflow_dispatch`, sent through the namespace's GitHub App
+installation, so the workflow must declare `workflow_dispatch:` and every
+`--input` you pass (GitHub refuses others and the reason is printed). Without
+`--ref` it runs the repository's default branch; `--installation` picks the
+GitHub account when several are connected. Its DreamLake jobs run, queue and
+are billed like any other, and `dl cict runs show` names you in `by`. GitHub
+shows the run as started by the DreamLake App. Needs `lakeshore:use`; only
+private repositories, at most 10 runs a minute per namespace. When GitHub's
+answer is lost the run may have started: check the repository's Actions page.
+`dispatch` exits 1 when GitHub did not start the run and 2 when the outcome is
+not known yet; it then prints the command to ask again with `--request-id`,
+which returns the recorded answer and never starts the run twice.
+
+```bash cli-help="cict dispatches"
+dl cict dispatches my-team --limit 10
+```
+
+`dispatches` lists the workflows run from DreamLake, newest first, with
+whether each started (`dispatched`, `failed` with the reason, or `unknown`).
 
 ## DreamLake GPU
 

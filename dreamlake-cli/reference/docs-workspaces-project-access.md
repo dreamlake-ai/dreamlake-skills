@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.228 b40c11b12; do not edit -->
 
 # Project access
 
@@ -53,9 +53,23 @@ No existing Project is automatically made private, public or restricted.
 | Access mode | Visibility | Baseline access |
 |---|---|---|
 | Workspace | Private | Organization members retain their existing READ baseline; private personal Projects have no organization baseline |
+| Workspace | Unlisted | Anyone with the direct Project link can read; excluded from public profiles, catalogs and namespace search |
 | Workspace | Public | Public READ remains available |
 | Restricted | Private | Active explicit user/team grants and namespace-owner authority only |
-| Restricted | Public | Invalid; rejected without a partial policy change |
+| Restricted | Unlisted or Public | Invalid; rejected without a partial policy change |
+
+Choose **Unlisted** when creating or editing a Project to share a product offering
+by link without listing it on your public profile. Copy its Project link and send
+it to your audience; recipients do not need to sign in. Changing it back to
+Private revokes link-only access immediately. Unlisted is link sharing, not a
+password or a selected-recipient grant.
+
+The Project's ordinary file tree inherits its visibility. Explicit private or
+unlisted subfolders and Bindrs remain hidden from browsing unless independently
+authorized. Mounted Memos, Artifacts and other resources keep their own access:
+sharing the Project does not publish them. Set the intended showcase items to
+Unlisted or Public using their own sharing controls. Merely opening a shared
+Project does not add it to a visitor's profile or discovery lists.
 
 Private visibility alone does not mean "only selected coworkers." Restricted mode
 is what removes the normal workspace-member baseline. Namespace owners retain

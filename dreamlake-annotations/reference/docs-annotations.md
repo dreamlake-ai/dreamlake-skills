@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.226 2adcb7d24; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.228 b40c11b12; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -276,3 +276,9 @@ Open the collapsed context panel for **Related** resources and **History**.
 Explicit links, accessible saved sessions, and recent recorded activity remain
 separate. Links can also be recorded from the Memo editor and through the API or
 CLI. See [relationships, permissions and API identities](https://docs.dreamlake.ai/notes/activity).
+
+## Saved URLs
+
+Keep web and DreamLake URLs alongside annotations with [Links](https://docs.dreamlake.ai/links).
+Open the Links tab in the resource details under Related. The guide covers permissions, editing,
+creation recovery, and CLI, TypeScript, Python and agent access.
