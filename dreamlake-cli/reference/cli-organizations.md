@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/organizations.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/organizations.md at 0.148.0 3b3fee9; do not edit -->
 
 # Organizations
 

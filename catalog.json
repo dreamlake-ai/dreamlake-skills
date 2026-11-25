@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.24.2",
+  "version": "v2026.11.25",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -80,7 +80,7 @@
       "files": 8
     },
     "dreamlake-links": {
-      "description": "Save, find, edit and remove web or DreamLake URLs on resources; recover uncertain saves and preserve concurrent edits. Use for saved URLs, not resource ownership, sharing, imports or session relationships.",
+      "description": "Save and manage web or DreamLake URLs as files in Project, Source, and Bindr lists; integrate link files through CLI or SDKs and recover earlier saved URL records.",
       "requires": [
         "dreamlake-cli"
       ],

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.230 c3d3b594e; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -990,6 +990,5 @@ from a generic-looking name or re-reads historical transcripts.
 
 ## Saved URLs
 
-Keep web and DreamLake URLs alongside Sources with [Links](https://docs.dreamlake.ai/links).
-Open the Links tab in the resource details. The guide covers permissions, editing,
-creation recovery, and CLI, TypeScript, Python and agent access.
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

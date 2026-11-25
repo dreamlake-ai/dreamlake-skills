@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/runnable-api.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/runnable-api.md at 0.148.0 3b3fee9; do not edit -->
 
 # Runnable registry API
 
@@ -147,3 +147,9 @@ runtime requirements, and verified delivery bindings. Resolve aliases or `latest
 before retaining a version. Script and graph histories are not currently joined;
 do not interchange their version IDs. A `.dreamrc` workflow declaration requires
 an explicit schema before implementation. See [workflows](https://cli.dreamlake.ai/workflows).
+
+## Saved URLs
+
+Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
+covers list, add, read, update and remove commands, immutable resource IDs,
+creation recovery, version conflicts, and the TypeScript API.

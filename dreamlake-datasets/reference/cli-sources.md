@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sources.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sources.md at 0.148.0 3b3fee9; do not edit -->
 
 # Sources
 
@@ -457,3 +457,9 @@ read local directories or CLI login state.
 
 See [Custom Source visualization](https://docs.dreamlake.ai/sources/custom-visualization)
 for `.dreamrc`, the browser's read-only data bridge, isolation and Python examples.
+
+## Saved URLs
+
+Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
+covers list, add, read, update and remove commands, immutable resource IDs,
+creation recovery, version conflicts, and the TypeScript API.

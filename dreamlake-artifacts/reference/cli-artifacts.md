@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/artifacts.md at 0.148.0 3b3fee9; do not edit -->
 
 # Artifacts
 
@@ -581,3 +581,9 @@ back relationships after writing; remove a record with `resources unlink
 RELATIONSHIP_ID`. History is best-effort activity with 90-day retention, not a
 complete audit log. See [resource relationships and history](cli-sessions.md#resource-relationships-and-history)
 for identity lookup, permission rules, pagination and SDK methods.
+
+## Saved URLs
+
+Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
+covers list, add, read, update and remove commands, immutable resource IDs,
+creation recovery, version conflicts, and the TypeScript API.
