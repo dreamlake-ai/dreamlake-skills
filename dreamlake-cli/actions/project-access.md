@@ -54,6 +54,32 @@ an already-attached resource into a Bindr of the same Project needs Project writ
 authority and resource readability, without sharing it again; use the server's
 current `canBind` result, not a role guessed from membership.
 
+## Share a Project with another namespace
+
+Sharing a whole Project with another personal or organization namespace is
+unreleased: use it only when the installed `dl project --help` lists `share`
+and `shared`, and the server accepts the request. If either is missing, stop
+and say so; do not substitute per-user grants, a public Project or raw HTTP.
+Read each command's `--help` for its flags, roles and output.
+
+```bash
+dl project --help                                  # share, shares, unshare, shared, accept-share, leave-share
+dl project share --help
+dl project shares "$PROJECT_ID" --namespace acme   # sending side: pending and active
+dl project shared --namespace partner-lab          # receiving side
+```
+
+- Sending: name the exact Project, recipient namespace and role the user asked
+  for, then list the shares and report whether it is waiting for the recipient
+  or in effect. An upgrade waits; do not describe it as granted.
+- Receiving: list first, show the user the Project, sender, role and revision,
+  and accept only that revision. If it is refused as stale, list again and ask
+  again; never accept a revision the user has not seen.
+- Before leaving or revoking, state that it ends the whole share, including a
+  role already in effect, and that user and team grants are unaffected.
+- After a failed or uncertain change, list the shares before any second
+  attempt.
+
 ## File a host in a Project
 
 Filing a host (type `host`, by its Host ID) is newer than the other types: use
