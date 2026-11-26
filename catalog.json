@@ -24,12 +24,12 @@
       "files": 7
     },
     "dreamlake-artifacts": {
-      "description": "Author, publish, version, list, share, revoke, remove and restore standalone DreamLake artifacts, and reference them from Memos. Excludes Source-owned custom visualizations.",
+      "description": "Author, publish, version and manage DreamLake artifacts, including static sites; use UIKit for internal team interfaces. Excludes Source-owned visualizations, hosted-page generation and Memo editing.",
       "requires": [
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 16
+      "files": 17
     },
     "dreamlake-bundles": {
       "description": "Publish, pull, check and search DreamLake bundles: versioned sets of robot, part, object, scene, env and env-set entries. Push a bundle, pull one entry with its uses and refs closure, write lock files, check declarations, import libraries and scenes. Not for code (dl runnable).",
