@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.230 c3d3b594e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.233 ebffa13ba; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -81,19 +81,9 @@ additional access.
 ## Choose tool permissions
 
 Open the **Permissions** popover in agent chat, or the matching control in
-**Built-in agent** settings. Choose **Read only** to inspect resources without
-changing them (connected apps may still prepare actions for review), or **Full access**, the last option, to enable changes and administrative tools
-within your existing permissions. The Eye and ShieldAlert icons identify the two levels;
-a checkmark identifies the selected level. Opening or dismissing the popover does
-not change permission. Arrow keys move focus; Enter, Space or a click selects the level.
+**Built-in agent** settings. **Read only** lets the agent inspect accessible DreamLake resources and connected accounts. It can draft text in the conversation. **Full access** enables changes and administrative tools within your existing permissions, including authorized actions in connected apps. The selected level applies to your next message. Your browser remembers the choice for your signed-in account across chat and settings.
 
-The choice applies to the next message; it does not cancel or revoke an already
-admitted turn. Connected apps have a separate switch. The choice is saved for your signed-in account in this browser and is shared by
-chat and settings. It does not create a Project delegation, connect an app, apply
-a host policy, or remove an action's existing confirmation requirement. Agent
-definition tool restrictions and current resource permissions still apply. This
-selector does not yet provide persistent per-agent or per-session permission
-overlays.
+Arrow keys move focus in the popover. Enter, Space or a click selects the level. Each call still requires the relevant Project grant, host permission or provider authorization. App tool policies can require approval or block an action. See [Connected agent apps](https://docs.dreamlake.ai/agents/apps).
 
 ## Diagnose Project access
 

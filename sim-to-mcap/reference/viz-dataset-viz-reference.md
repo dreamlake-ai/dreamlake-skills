@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.33.11 8bca2cf6; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.33.13 f324fe18; do not edit -->
 
 <span id="reference" />
 
@@ -176,6 +176,33 @@ video codecs other than H.264 are unsupported.
   Cameras and point clouds use indexed message timestamps, so different sample
   rates can legitimately repeat a frame. A failed required read stops playback
   and reports the error.
+- **Cameras before their first frame.** A camera shows the last frame at or
+  before the cursor, never a later one. Cameras in one recording can start at
+  different instants, so at a given time a camera may have no frame yet: its
+  tile then says when the stream starts ("First frame at +0.125 s", with a
+  jump to it) once that is known from data already read, or only that no
+  frame exists before a stated time. Moving the cursor backward clears a
+  frame that would now be in the future. A read that fails shows as failed.
+  While a paused drag is moving, each camera resolves one cursor position at
+  a time and then the position the pointer is on, so frames for positions
+  passed on the way may not appear; the playhead marker follows the pointer
+  throughout and the release position is always resolved.
+  A channel is reported as having no frames only when the recording states
+  it: the file holds no messages, or its statistics list that channel with
+  a count of zero. A channel missing from the per-channel counts, or a
+  camera without message indexes, is unknown rather than empty: it cannot
+  be synchronized and reports that instead.
+- **Loading before interaction.** An episode that has only been rendered
+  loads a bounded amount: the data under the cursor, a short warm-up from
+  the playhead, and a few chunks spread across the episode, so charts show
+  real samples along their whole axis with gaps between them. The budget is
+  4 MiB per episode and 16 MiB per page; episodes mounted after the page
+  budget is spent load only what the cursor needs. Playing, seeking, or
+  reading a chart (keeping the pointer on it and moving along it) lifts the
+  limit for that episode; hovering alone does not. Loading then follows the
+  playhead up to 60 seconds ahead, for buffered bytes and decoded frames
+  alike, rather than continuing through the episode while paused. Timeline
+  text tracks are the exception: they are read whole when mounted.
 - **Numeric protobuf arrays.** Select the repeated field with
   `<topic>::<field>` and its zero-based dimension by name. For example,
   `field: ["/joints::positions", "positions.0"]` draws the first position
@@ -184,7 +211,10 @@ video codecs other than H.264 are unsupported.
   up to 256 elements per array and 1,024 numeric columns per selected group.
   Missing elements produce gaps. Later growth does not add columns.
 - **Remote reads.** The storage endpoint must honor HTTP Range with a
-  partial (206) response. Source Files can open recordings over 50 MiB.
+  partial (206) response. The file size is read from a suffix range
+  (`bytes=-N`) whose `Content-Range` the endpoint must expose to the page;
+  a one-byte range and then `HEAD` are tried only when suffix ranges are
+  not supported. Source Files can open recordings over 50 MiB.
   An individual index or chunk read is limited to 64 MiB and a decoded
   chunk to 128 MiB. The MCAP reader cancels a whole-object (200) response.
   File size alone does not determine startup cost; index size, chunk layout

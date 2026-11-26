@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.230 c3d3b594e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.233 ebffa13ba; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -80,7 +80,14 @@ person who authorizes those writes. Starting needs the namespace admin role,
 because it may create a Source. Each run writes with that person's edit right
 on the Source: if they leave the namespace or lose it, jobs wait in the queue
 and Setup says so until another namespace admin chooses **Re-authorize**.
-After that, copy a label from the machine catalog in Setup. See [DreamLake GPU](#dreamlake-gpu) for limits and usage.
+Then add credit: DreamLake GPU is paid from the namespace's prepaid credit.
+A namespace owner opens **Settings → Billing**, sets up billing (one click)
+and buys a credit pack ($10, $50 or $100); the credit arrives within a minute.
+Billing currently runs on Stripe and Metronome sandboxes: pay with a Stripe
+test card such as `4242 4242 4242 4242`, and no real money moves. Without
+credit, DreamLake GPU jobs wait in the queue and say why. After that, copy a
+label from the machine catalog in Setup. See [DreamLake GPU](#dreamlake-gpu)
+for limits, prices and how jobs are charged.
 
 *Your own machines.* Only Slurm clusters are supported. The cluster needs a
 login node that can run `sbatch`, a directory shared between it and the compute
@@ -156,36 +163,47 @@ that it is enabled for your namespace.
   shows them as queued; the run page shows their place in line.
 - **Results.** Evidence goes to your namespace's Source (`cict-evidence` unless
   you choose another in Setup), under the same folder layout as pools.
-- **Cache.** `DREAMLAKE_CACHE_DIR` is private to your namespace; other
-  namespaces cannot read or change it.
-- **Usage.** Setup shows a month's GPU time and what it is worth: by the
+- **Cache.** `DREAMLAKE_CACHE_DIR` (kept on the cluster) and
+  `DREAMLAKE_NODE_CACHE_DIR` (kept on the node's own disk) are separate for
+  each namespace, so no other namespace's jobs reuse or clear yours. Jobs run
+  under one cluster account, so this is a separation by path, not a
+  permission boundary: keep secrets out of caches. A node cache that no job is
+  using may be removed when the node runs short of disk.
+- **Usage.** Setup shows a month's GPU time and what it was charged: by the
   GitHub user who triggered each job, by repository and workflow, and job by
-  job with a link to each run. `dl cict usage` prints the same.
+  job with a link to each run. `dl cict usage` prints the same; Settings →
+  Billing has the statement.
 - **How GPU time is measured.** From the moment Slurm gives the job its node
   until it lets go, times the job's GPUs. Waiting in DreamLake's queue or in
   Slurm's queue is not counted. Right after a job ends its time is an estimate
   from GitHub's job times; within a few minutes Slurm's accounting replaces it.
   A job the infrastructure failed (Slurm `NODE_FAIL` or `BOOT_FAIL`) is not
   priced.
-- **Prices (not charged yet).** Each machine type has a price per GPU-hour, in
-  credits (one credit = $0.005). A job keeps the price it ran at, so a later
-  price change does not change past jobs. **Nothing is charged today**: the
-  price shows what DreamLake GPU usage is worth until it joins prepaid
-  billing.
-- **Prepaid credits (sandbox validation).** When DreamLake turns billing on, a
-  job is paid from the namespace's prepaid credits (Settings → Billing):
-  before Slurm is asked for a node, the most the job can cost — its time
-  limit, on every GPU it holds, at its price — is held from the balance. When
-  the job ends, the GPU time Slurm measured is charged (capped at the time
-  limit; GitHub's estimate if Slurm never reports) and the rest is given back.
-  Not charged: a job that never got a node, a job cancelled before its runner
-  picked it up (even if Slurm had already given the runner a node), and a job
-  the infrastructure failed. A machine type priced at 0 is free. Without
-  enough credit, or without a billing account, a job waits in DreamLake's
-  queue — the run page says why — and starts once credit is added. Billing currently runs against Stripe and
-  Metronome sandboxes only: no real money moves.
+- **Prices.** Each machine type has a price per GPU-hour, in credits (one
+  credit = $0.005; the catalog shows dollars). A job keeps the price it ran
+  at, so a later price change does not change past jobs. A machine type
+  priced at 0 is free.
+- **Paying for a job.** Every DreamLake GPU job is paid from the namespace's
+  prepaid credit (Settings → Billing). Before Slurm is asked for a node, the
+  most the job can cost — its machine type's time limit, on every GPU it
+  holds, at its price — is held from the credit (for example $2.40 for a
+  2-hour RTX 5090 job). When the job ends, the GPU time Slurm measured is
+  charged (capped at the time limit; GitHub's job times if Slurm never
+  reports) and the rest is returned. Not charged: a job that never got a node,
+  a job cancelled before its runner picked it up (even if Slurm had already
+  given the runner a node), and a job the infrastructure failed.
+- **Without credit.** A job the namespace cannot pay for — no billing account,
+  or less credit than the job holds — waits in DreamLake's queue without
+  taking a GPU. Its GitHub check and its run page say why, and it starts
+  within a minute of credit being added. Credit is the namespace's balance in
+  Metronome, less what running jobs hold.
+- **Sandbox.** Billing runs against Stripe and Metronome sandboxes: credit is
+  bought with Stripe test cards and no real money moves.
 - **Availability.** DreamLake GPU is enabled per namespace by the DreamLake
-  team. A paused namespace starts no new jobs; running ones finish.
+  team. Until runners are isolated per job (every namespace's jobs currently
+  run under one service identity on a shared cluster), it stays an allowlist of
+  trusted namespaces, whatever credit a namespace has. A paused namespace
+  starts no new jobs; running ones finish.
 
 ## Check where a namespace stands
 
@@ -193,8 +211,10 @@ that it is enabled for your namespace.
 step above, whether it is done, and the next one with the page, CLI command
 and API call that does it. It is the same for people and agents: an agent can
 take a namespace from nothing to running jobs by repeating it and doing
-`next`. Only these need a person: installing the GitHub App (in a browser),
-enabling DreamLake GPU (the DreamLake team), enrolling a login node (a terminal
+`next`. On DreamLake GPU the last step is **Set up billing and add credit**,
+with the credit available. Only these need a person: installing the GitHub App
+(in a browser), enabling DreamLake GPU (the DreamLake team), setting up billing
+and buying credit (a namespace owner), enrolling a login node (a terminal
 with SSH to it; an agent with such a shell can run the command) and binding
 its service account (a namespace owner; DreamLake's built-in agent cannot).
 `alsoNeeded` lists person-only steps that can happen alongside `next`.
@@ -209,22 +229,32 @@ dl cict status my-team --json   # every step, with ui, cli and api hints
 
 ## Write the workflow (developers)
 
+**Start from the template.** [dreamlake-ai/cict-template](https://github.com/dreamlake-ai/cict-template)
+has three workflows that run as they are on DreamLake GPU: a GPU check
+(PyTorch), a MuJoCo control task with a rendered video, and headless Isaac Sim
+with RTX rendering. For a new project choose **Use this template** on GitHub
+and create the repository **private**. For an existing one, two changes to a
+workflow are enough: the `runs-on` label, and a step that keeps your output
+directory as the run's evidence,
+[`dreamlake-ai/cict-evidence`](https://github.com/dreamlake-ai/cict-evidence).
+Your code needs no DreamLake imports or paths. The template's README covers
+headless rendering, large installs and system libraries on these machines.
+
 ```yaml
 name: cict
 on: [pull_request, workflow_dispatch]
 jobs:
   sim-suite:
-    runs-on: dreamlake-bos14-gpu
+    runs-on: dreamlake-gpu-rtx5090         # or a pool's label
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv, cached on the cluster
-        run: |
-          command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/0.9.5/install.sh | sh
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          echo "UV_CACHE_DIR=$DREAMLAKE_CACHE_DIR/uv" >> "$GITHUB_ENV"
-      - run: uv sync --frozen
-      - run: uv run python ci/run_suite.py --out "$DREAMLAKE_RUN_DIR"
+      - run: uv sync --frozen               # uv is on PATH, its cache already set
+      - run: uv run python ci/run_suite.py --out outputs
+      - uses: dreamlake-ai/cict-evidence@v1 # keep outputs/, pass or fail
+        if: always()
+        with:
+          path: outputs
 ```
 
 The job's exit code decides the GitHub check. A suite usually exits `0` when
@@ -238,17 +268,29 @@ writes evidence in every case.
 | `DREAMLAKE_RUN_DIR` | Absolute directory for this run's evidence. It outlives the runner. |
 | `DREAMLAKE_RESULTS_PATH` | `$DREAMLAKE_RUN_DIR/results.json`, the evidence manifest. |
 | `DREAMLAKE_METRICS_PATH` | `$DREAMLAKE_RUN_DIR/metrics.json`, optional headline metrics. |
-| `DREAMLAKE_CACHE_DIR` | Persistent cache shared by the pool's runs: package caches, downloaded models. |
+| `DREAMLAKE_CACHE_DIR` | Persistent cache on the cluster, kept between runs (per namespace on DreamLake GPU). |
+| `DREAMLAKE_NODE_CACHE_DIR` | Cache on the node's own disk, kept between runs on that node, per namespace: large installs and models. Removed when the node runs short of disk and no job is using it. |
 | `DREAMLAKE_RUN_URL` | This run's page in DreamLake, for links in the step summary. |
 | Pool `env` | Whatever the pool admin set, such as asset cache paths. |
 
-Use `DREAMLAKE_CACHE_DIR` for anything worth keeping between runs; the first
-environment install is slow and later runs reuse it.
+Set by default, unless the pool or your workflow sets them first:
+
+| Variable | Default |
+| --- | --- |
+| `UV_CACHE_DIR`, `UV_PYTHON_INSTALL_DIR`, `PIP_CACHE_DIR` | under `DREAMLAKE_CACHE_DIR` |
+| `HF_HOME`, `TORCH_HOME` | under `DREAMLAKE_NODE_CACHE_DIR` |
+| `MUJOCO_GL`, `PYOPENGL_PLATFORM` | `egl`: nodes have no display |
+| `PATH` | includes `uv` (a checksum-verified release) |
+
+So `uv`, `pip`, Hugging Face and PyTorch downloads are paid once and reused
+by later runs without any setup in the workflow.
 
 ## Declare evidence
 
-Only files listed in the manifest are copied to the Source. Write them under
-`$DREAMLAKE_RUN_DIR`, then write the manifest last:
+The [`dreamlake-ai/cict-evidence`](https://github.com/dreamlake-ai/cict-evidence)
+step does this for you from any output directory (with `include`/`exclude`
+globs). To do it yourself: only files listed in the manifest are copied to the
+Source. Write them under `$DREAMLAKE_RUN_DIR`, then write the manifest last:
 
 ```json
 [".dreamrc", "metrics.json", "render.png", "replays/walk_01/episode.json", "replays/walk_01/frames.parquet"]
@@ -279,9 +321,13 @@ it took, where it ran, what it cost on DreamLake GPU and the files it declared.
 It does not read or compare a result format; your job's own steps decide pass
 or fail.
 
-- **GitHub:** a `DreamLake CI/CT` check on the commit, opened when the runner
-  starts and completed with how the job ended (`Passed on DreamLake · 4m`),
-  where it ran and where its evidence is; its Details link opens the run in
+- **GitHub:** a `DreamLake CI/CT` check on the commit. A DreamLake GPU job
+  that has to wait shows it at once as queued, with why (`Waiting on
+  DreamLake: not enough credit`, waiting for a GPU slot, …) and what lets it
+  start. The check moves to in progress when the runner starts and completes
+  with how the job ended (`Passed on DreamLake · 4m`), where it ran, where its
+  evidence is and, on DreamLake GPU, what it cost (rewritten with the final
+  charge once Slurm has reported). Its Details link opens the run in
   DreamLake. The job log and step summary are there too; `DREAMLAKE_RUN_URL`
   holds the run's DreamLake link for the summary.
 - **CI/CT page** (`/<namespace>/cict`): one row per job, with its status,
@@ -289,6 +335,12 @@ or fail.
   and when; re-runs fold into the job's row. Open a run for its progress, run
   details and evidence; each evidence file opens in a tab beside it. **Setup**
   on the same page connects GitHub and manages runner pools.
+- **Run page, GitHub side:** the job's steps with the one that failed, and
+  the end of its GitHub log (read from GitHub when you open it, never stored
+  by DreamLake; GitHub masks secrets in it), so a failure can be read without
+  leaving DreamLake. **Cancel** stops the run's whole GitHub workflow run
+  (GitHub cancels every job in it, including jobs waiting in DreamLake's
+  queue); it needs `lakeshore:use`.
 - **Source:** the run folder, with replays and charts from its `.dreamrc`.
 - **CLI and SDKs:** `dl cict runs list my-team` and
   `dl cict runs show my-team/<run-id>`.
@@ -300,7 +352,10 @@ push or a pull request: pick the repository, the workflow file and the branch,
 optionally add inputs, and confirm. It is GitHub's own `workflow_dispatch`,
 sent through your bound App installation, so the workflow must declare
 `workflow_dispatch:` (and every input you send). Its DreamLake jobs then run,
-queue and are billed like any other.
+queue and are billed like any other. Before you confirm, the dialog lists the
+workflow's jobs and the DreamLake GPU machine each runs on, with the most each
+job holds from the credit while it runs; when `runs-on` comes from an input
+(`runs-on: ${{ inputs.machine }}`), it follows the machine chosen in the form.
 
 - Needs `lakeshore:use` in the namespace, the same as registry push triggers.
   Whoever can run a workflow this way can run any branch of any repository the
@@ -363,6 +418,10 @@ Two ways are supported by design:
 | Routing `unmatched` | No pool or DreamLake GPU label covers every `runs-on` label. Check the machine catalog and `dl cict pools list`. |
 | Waiting for a GPU | The namespace or the machine type is at its limit; the job starts when a slot frees. |
 | Waiting for re-authorization | The person who authorized result writes can no longer edit the Source. A namespace admin chooses **Re-authorize** in Setup (or runs `dl cict platform source`); waiting jobs then start. |
+| Waiting: not enough credit | The credit cannot cover what the job holds while it runs (its time limit at its price). A namespace owner adds credit in Settings → Billing; it starts within a minute. |
+| Waiting: billing not set up | The namespace has no billing account. A namespace owner sets it up and buys credit in Settings → Billing. |
+| Waiting: billing unavailable | DreamLake could not reach Metronome to check the credit; the job starts once it can. |
+| Waiting: machine type has no price | The DreamLake team has not priced that machine type yet. |
 | Not started: DreamLake GPU not enabled | Ask the DreamLake team to enable it for the namespace. |
 | Not started: DreamLake GPU not set up | Open Setup and choose **Start using**. |
 | Not started: DreamLake GPU paused | New jobs are paused for the namespace; contact the DreamLake team. |
@@ -388,11 +447,13 @@ Two ways are supported by design:
 | GET | `/namespaces/:ns/github/jobs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs/:run` | read |
+| GET | `/namespaces/:ns/cict/runs/:run/log?lines=` | read: the job's GitHub steps (`failedStep`) and the last lines of its GitHub log (1–1000, default 300), read from GitHub on demand; `available: false` until the job finishes |
+| POST | `/namespaces/:ns/cict/runs/:run/cancel` | `lakeshore:use`: cancel the run's GitHub workflow run (every job in it); `already: true` when it had finished |
 | GET | `/namespaces/:ns/cict/runs/:run/comparison` | removed: always `410 comparison_removed` |
 | GET | `/namespaces/:ns/cict/dispatch/repositories?installationId=` | `lakeshore:read`: repositories the installation reaches, for Run workflow |
 | GET | `/namespaces/:ns/cict/dispatch/workflows?installationId=&repository=` | `lakeshore:read`: the repository's active workflow files |
 | GET | `/namespaces/:ns/cict/dispatch/branches?installationId=&repository=` | `lakeshore:read`: branches, default first (`null` when the App may not list them) |
-| GET | `/namespaces/:ns/cict/dispatch/inputs?installationId=&repository=&workflow=&ref=` | `lakeshore:read`: whether the workflow at that ref can be run by hand and its declared inputs; `inputs: null` with a `reason` when the file cannot be read (`contents_permission_required`, `workflow_not_found`, `workflow_unreadable`) |
+| GET | `/namespaces/:ns/cict/dispatch/inputs?installationId=&repository=&workflow=&ref=` | `lakeshore:read`: whether the workflow at that ref can be run by hand and its declared inputs; `inputs: null` with a `reason` when the file cannot be read (`contents_permission_required`, `workflow_not_found`, `workflow_unreadable`); `jobs` gives each job's `runs-on` label sets (a literal matrix expands; `null` when an expression decides; `input`/`fallback` when a workflow_dispatch input decides, with its options as the sets) |
 | POST | `/namespaces/:ns/cict/dispatches` | `lakeshore:use`: run a workflow (`installationId`, `repository`, `workflow`, `ref`, `inputs`, `requestId`); a retry with the same `requestId` returns the first answer |
 | GET | `/namespaces/:ns/cict/dispatches?limit=` | `lakeshore:read`: workflows run from DreamLake and what came of each |
 | GET / POST | `/namespaces/:ns/github/registry-triggers` | `lakeshore:read` / `lakeshore:use`: registry push triggers |
