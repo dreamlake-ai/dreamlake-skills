@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.235 7622fafd5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.236 2eadb8b0b; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}

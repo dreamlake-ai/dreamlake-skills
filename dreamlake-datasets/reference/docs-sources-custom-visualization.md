@@ -1,6 +1,10 @@
-<!-- generated from https://docs.dreamlake.ai/sources/custom-visualization.md at 0.1.235 7622fafd5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources/custom-visualization.md at 0.1.236 2eadb8b0b; do not edit -->
 
 # Custom Source visualization
+
+For the intended folder, file, and episode experience, read the illustrated
+[Source views guide](https://docs.dreamlake.ai/sources/views). That guide labels proposed contracts;
+this page documents the currently supported application and read bridge.
 
 A Source can render your HTML, JavaScript, CSS or statically exported React/Vite
 application in its Visualize tab. Its `.dreamrc` selects the application:

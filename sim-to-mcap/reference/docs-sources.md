@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.235 7622fafd5; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.236 2eadb8b0b; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -12,6 +12,11 @@
   `.dreamrc` file at a dataset's root and the app renders every episode in
   it: cameras, time series, timelines, 3D. Nothing is imported or converted
   to render — connected storage is read where it lives.
+
+To design how users browse and inspect your content, start with
+[Source views](https://docs.dreamlake.ai/sources/views). The illustrated guide covers folder galleries,
+file previews, logical episodes, and custom tabs, with supported and proposed
+capabilities identified separately.
 
 ## Visibility and sharing
 
