@@ -1,6 +1,6 @@
 {
   "name": "dreamlake-artifacts",
-  "description": "Author, publish, version and manage DreamLake artifacts, including static sites; use UIKit for internal team interfaces. Excludes Source-owned visualizations, hosted-page generation and Memo editing.",
+  "description": "Author, publish, version and manage DreamLake artifacts, including static sites; design interactive interfaces with Vike, React, TypeScript and DreamLake UIKit by default. Excludes Source-owned visualizations, hosted-page generation and Memo editing.",
   "requires": [
     "dreamlake-cli"
   ],

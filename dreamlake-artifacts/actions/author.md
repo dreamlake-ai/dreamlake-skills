@@ -1,12 +1,12 @@
 # Author artifact content
 
-Choose the packaging before writing code:
+For a new interface, implement the [Vike + TypeScript/React and UIKit interface](uikit.md) unless the user explicitly requests another stack or format. A review, replay or selection tool is an interface even when the prompt only describes its content. Honor explicit user choices and preserve an existing design when editing. Choose the packaging for the requested deliverable:
 
 - A built application, media-heavy deck or simulation: use
   [static builds](publish.md#static-builds). Preserve chunks and lazy assets.
-- A self-contained file: use the matching template below and the sandbox rules.
+- When the user asks for a self-contained file: use the matching template below and the sandbox rules.
   Respect an explicit request for this format; do not silently convert it.
-- An internal team interface: use [UIKit](uikit.md). For charts, use
+- For charts, use
   [Viz](charts.md); for slide/tab state, read [routing](routing.md).
 
 ## Single-file templates

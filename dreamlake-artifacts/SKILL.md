@@ -1,18 +1,18 @@
 ---
 name: dreamlake-artifacts
-description: Author, publish, version and manage DreamLake artifacts, including static sites; use UIKit for internal team interfaces. Excludes Source-owned visualizations, hosted-page generation and Memo editing.
+description: Author, publish, version and manage DreamLake artifacts, including static sites; design interactive interfaces with Vike, React, TypeScript and DreamLake UIKit by default. Excludes Source-owned visualizations, hosted-page generation and Memo editing.
 ---
 
 # DreamLake Artifacts
 
 Read only the action needed. For new content: author → publish → share when
-requested. For internal team interfaces, use UIKit and existing shared examples.
+requested. For every new artifact interface, follow the [interface design defaults](actions/uikit.md) unless the user specifies a different design, stack or format.
 Prefer skills and publishing conventions over artifact-specific runtime machinery.
 
 | Request | Action |
 | --- | --- |
 | Create or repair content; choose a single file or built site | [author](actions/author.md) |
-| Build an internal team interface with UIKit | [UIKit](actions/uikit.md) |
+| Design and verify an artifact interface | [UIKit](actions/uikit.md) |
 | Charts using shared Viz components | [charts](actions/charts.md) |
 | Slides, tabs, deep links, back/forward | [routing](actions/routing.md) |
 | Publish, update a version, metadata or cover | [publish](actions/publish.md) |
