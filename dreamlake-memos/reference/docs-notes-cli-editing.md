@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.238 95a35de02; do not edit -->
 
 # Read, edit and search from the CLI
 
@@ -659,11 +659,12 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
 
 ## Native streaming and concurrency defaults
 
-**Release candidate, publication pending (24 November 2026):** CLI/TypeScript
-0.147.0 and Python 0.59.0 implement the interfaces below with the matching native
-streaming backend. Older clients and servers may not support them; verify the
-installed version and command help before use. A merged source change is not a
-published release.
+**Release candidate, publication pending (25 November 2026):** the interfaces
+below are implemented on the native-streaming CLI/TypeScript and Python branches.
+Published CLI 0.147.1 and Python 0.59.0 do not contain these additions. Verify the
+installed methods and command help before use; package publication and the matching
+backend production acceptance are separate requirements. A merged source change
+is not a published release.
 
 `note.streamInsert` (TypeScript) and `note.stream_insert` (Python) accept an
 original snapshot or revision, a Unicode code-point cursor and an iterable of

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.238 95a35de02; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -487,6 +487,5 @@ remain available.
 
 ## Saved URLs
 
-Keep web and DreamLake URLs alongside Scenes with [Links](https://docs.dreamlake.ai/links).
-Open the Links tab in the resource details. The guide covers permissions, editing,
-creation recovery, and CLI, TypeScript, Python and agent access.
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

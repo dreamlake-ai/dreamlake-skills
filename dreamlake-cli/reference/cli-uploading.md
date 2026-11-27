@@ -1,11 +1,11 @@
-<!-- generated from https://cli.dreamlake.ai/uploading.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/uploading.md at 0.149.0 587adf6; do not edit -->
 
 # Uploading
 
-`dl upload` sends a file (or a flat directory) to an episode. Large
+`dl upload` sends a file (or a flat directory) to a Project or episode. Large
 files use resumable S3 multipart uploads.
 
-> **Note:** `dl upload` is for episodes. To put original bytes into a Source's
+> **Note:** `dl upload` accepts `project@namespace` for Project files and `project@namespace:episode` for episode files. To put original bytes into a Source's
 > managed files, use `dl source upload` — see
 > [Upload files into a Source](cli-sources.md#upload-files-into-a-source).
 

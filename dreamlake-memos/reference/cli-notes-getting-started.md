@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.147.1 d940d42; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/getting-started.md at 0.149.0 587adf6; do not edit -->
 
 # Create and find memos
 

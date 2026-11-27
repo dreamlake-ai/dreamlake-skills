@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.238 95a35de02; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -81,19 +81,9 @@ additional access.
 ## Choose tool permissions
 
 Open the **Permissions** popover in agent chat, or the matching control in
-**Built-in agent** settings. Choose **Read only** to inspect resources without
-changing them (connected apps may still prepare actions for review), or **Full access**, the last option, to enable changes and administrative tools
-within your existing permissions. The Eye and ShieldAlert icons identify the two levels;
-a checkmark identifies the selected level. Opening or dismissing the popover does
-not change permission. Arrow keys move focus; Enter, Space or a click selects the level.
+**Built-in agent** settings. **Read only** lets the agent inspect accessible DreamLake resources and connected accounts. It can draft text in the conversation. **Full access** enables changes and administrative tools within your existing permissions, including authorized actions in connected apps. The selected level applies to your next message. Your browser remembers the choice for your signed-in account across chat and settings.
 
-The choice applies to the next message; it does not cancel or revoke an already
-admitted turn. Connected apps have a separate switch. The choice is saved for your signed-in account in this browser and is shared by
-chat and settings. It does not create a Project delegation, connect an app, apply
-a host policy, or remove an action's existing confirmation requirement. Agent
-definition tool restrictions and current resource permissions still apply. This
-selector does not yet provide persistent per-agent or per-session permission
-overlays.
+Arrow keys move focus in the popover. Enter, Space or a click selects the level. Each call still requires the relevant Project grant, host permission or provider authorization. App tool policies can require approval or block an action. See [Connected agent apps](https://docs.dreamlake.ai/agents/apps).
 
 ## Diagnose Project access
 
@@ -363,6 +353,7 @@ duplicate dedicated tools. Inspect the schema in the running deployment first.
 
 | Request | Discover and use |
 | --- | --- |
+| Create or revise artifact content | The discovered Artifact `POST /namespaces/:slug/artifacts/:artifactId/apply` operation takes `contentBase64` and appends a version under the resource write grant. Its response includes the resulting version. |
 | Share only an artifact's most recent version | Find the artifact catalog POST operation and set `shareLatestOnly: true`. Add `share: true` only when the user also requested issuing a share link. This does not upload a new artifact version. |
 | Rename an annotation | Find the annotation PATCH operation and set `title`; unchanged visibility should be omitted. Annotation share operations remain separate. |
 | Add a resource to a Bindr in another project | Discover Bindr membership operations and use the exact resource and Bindr identifiers. An association does not transfer resource ownership or imply formal project filing. Canonical namespace and access checks still apply. |
@@ -497,6 +488,10 @@ post links in order. Each post can then be checked at X. The author’s numbered
 parts can establish the extent of a numbered series. A WeChat verification
 redirect ends the read with `agent_web_read_challenge`.
 
+A YouTube watch-page read can return the title, public description and links
+from the description for the requested video. The publisher may link its
+download page there. Video playback restrictions still apply.
+
 ## Files in the current Source
 
 Resolve the Source shown in the active panel or page to its namespace and ID.
@@ -518,3 +513,10 @@ Use `dreamlake_files_mcap_summary` on a managed uncompressed MCAP up to
 8 MiB to count messages, list topics and read the log-time span in nanoseconds.
 A malformed or incomplete recording produces an error. Empty recordings have
 a zero count and null timestamps.
+
+## Thread links in the local MCP adapter
+
+The local MCP adapter exposes `thread_open_url`. Pass a `namespace` to
+open its Threads list. To open a known Thread, pass its `id` with an optional
+`session` selector. The tool returns a browser URL and the
+storage type `browser-local`. It does not inspect or change saved layouts.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces/project-access.md at 0.1.238 95a35de02; do not edit -->
 
 # Project access
 
@@ -389,6 +389,96 @@ still be an owner, have another direct/team grant, or receive Workspace/public
 baseline access. Namespace-owner recovery remains available; deleting a grant
 must not manufacture a new owner or bypass transaction fencing.
 
+## Share with another namespace
+
+A Project can be shared with another organization or personal namespace. The
+Project keeps its single owner, address, storage and billing: recipients open it
+at its normal `/<namespace>/projects/<project>` address. A share is separate
+from direct user and team grants. Each has its own lifecycle, and ending one
+never removes the other.
+
+**Lifecycle.** A current Project ADMIN invites a namespace with `READ` (the
+default) or `WRITE`. An invitation grants nothing until the recipient accepts:
+the organization's owner, or the person who owns a personal namespace.
+Ordinary members of the recipient organization do not see invitations.
+
+In the web app, open the owning Project's **Access** page, choose **Share to
+namespace**, and send an invitation to the intended namespace. Use **Copy
+invitation link** on the pending invitation or role upgrade and send the link
+to a recipient owner. Opening the link lets that owner review the current
+proposal. Access changes only when the owner explicitly accepts it. Forwarding
+the link gives another person no additional rights. Once accepted, members
+can find the Project under **Shared with this space** on their Projects page.
+
+- **Upgrade** (`READ` to `WRITE`) is a new proposal. The accepted `READ` stays in
+  force until the recipient owner accepts. They can also decline only the upgrade.
+- **Downgrade** (`WRITE` to `READ`) applies at once.
+- **Revision guard.** Accepting names the `revision` the owner read. If the
+  proposal changed in the meantime the accept answers `409 SHARE_REVISION_MISMATCH`.
+  Repeating an accept that already succeeded returns the same share.
+- **Rechecked on accept.** The person who proposed must still be a Project ADMIN
+  in their own right and still be allowed to share every attached resource. Otherwise
+  the accept answers `409 SHARE_SOURCE_UNAVAILABLE` and does not say which check
+  failed. Inviting or upgrading checks the same at proposal time.
+- **Ending.** The source ADMIN can revoke and the recipient owner can decline or
+  leave, each without the other side's permission. An ended share is never
+  revived. Sharing again is a new invitation that needs a new acceptance.
+
+A share also ends, for good, when the Project is deleted or transferred to
+another owner, when either namespace or organization is deleted, or when the
+person who proposed or issued it leaves the source organization. That matches
+the grants they issued.
+
+**Audience.** An organization share follows the recipient's current members:
+someone who joins later gets access, and someone who leaves loses it on their
+next request. A personal-namespace share reaches only that person. Machine
+identities, service accounts and agents get nothing from a share.
+
+**What `READ` and `WRITE` mean.** A share gives the recipient's people the
+same content role an explicit grant of that role would. That covers Project
+content, its file tree and Bindrs, and the attached resources the Project
+already passes on to its collaborators. Each attached resource keeps its own
+ceilings:
+
+- a Source in `owner_admin` mode stays closed;
+- an external mount grant still caps the role at its maximum;
+- Project roles never reach Source administration or Connection credentials;
+- a filed Host stays placement-only.
+
+`WRITE` can create, edit and delete content, and can move experiments to Trash
+and restore them.
+
+A share is never `ADMIN`. It does not let recipients manage access or settings,
+see the Project's other grants or recipients, or delete or transfer it.
+Actions that act on the owner's infrastructure also require the caller's own
+Project role and ignore a share:
+
+- native experiment sessions and workload credentials;
+- job submission and job reporting;
+- managed experiments on an external Dash service, including reads through that
+  service, because every request to it carries a token signed with the caller's
+  own authority. Native Project content and native experiments are different:
+  they follow the normal share policy above;
+- Stack mounts;
+- accepting external mount offers;
+- delegating the Project to an agent.
+
+Creating chat rooms and inviting people into them also requires the caller's
+own role, because the room remembers its members. Inside existing rooms,
+recipients read and write live, following the share.
+
+**Revocation limits.** Ending a share, or a person leaving the recipient
+organization, is ordered against content writes that are already in progress.
+A write that was authorized before the change either commits first or is
+refused. Two exceptions remain: read URLs and resource-scoped upload
+credentials that were already issued keep their short lifetime, and a Memo
+editor already connected to the collaboration room is not ejected
+immediately. See [Project resource access](https://docs.dreamlake.ai/dev/notes/project-resource-sharing).
+
+**Discovery.** Members of the recipient namespace find shared Projects on that
+namespace's shared-projects list, which names the source namespace. The source
+namespace's own Project catalog and existing default lists do not change.
+
 ## Project boundary and independent resource access
 
 The policy controls Project discovery, its structure and content access derived
@@ -451,7 +541,8 @@ use a weaker legacy endpoint to make a refusal pass.
 
 | Interface | Shipped support and boundary |
 | --- | --- |
-| REST | Policy read/change, atomic restricted creation, direct grants and complete bounded effective audience. |
+| REST | Policy read/change, atomic restricted creation, direct grants, namespace shares and the bounded effective audience (`apiVersion: 2`, incomplete, while namespace shares are accepted). |
+| Namespace shares | REST only in this backend change. Web, CLI and SDK support ship separately; until then use the REST contract below. |
 | Web UI | Project Access controls for policy and user/team grants; the baseline/direct-grant display is not the complete human audience. |
 | CLI and terminal | CLI 0.117.0+: noninteractive commands, JSON, `project audience` and keyboard `project permissions`. |
 | TypeScript | Package 0.117.0+: `client.projects(namespace)` policy, grant and audience methods. |
@@ -477,6 +568,24 @@ references and the separately accepted public, CLI-embedded and server pins.
 - `POST /namespaces/:namespace/projects` optionally accepts `accessMode`; omission
   preserves Workspace behavior. Restricted/private creation is atomic.
 - Catalog responses advertise the versioned atomic-create capability above.
+- Namespace shares, source side (current Project ADMIN in their own right):
+  `GET` and `POST /namespaces/:namespace/projects/:project/namespace-shares`
+  with body `{ "targetNamespace": "...", "role": "READ" | "WRITE" }` (`role`
+  defaults to `READ`), and `DELETE …/namespace-shares/:shareId`.
+- Namespace shares, recipient side: `GET /namespaces/:namespace/shared-projects`.
+  Members get accepted shares; the owner also gets invitations and pending upgrades.
+  `POST …/shared-projects/:shareId/accept` takes `{ "revision": N }`.
+  `DELETE …/shared-projects/:shareId` declines or leaves. To decline the
+  proposal shown on an invitation link, send `?scope=proposal&revision=N`.
+  A changed revision returns `409`. Declining an upgrade preserves the
+  accepted role. Accept and decline are for the recipient owner only.
+- A share object is `{ id, projectId, projectSlug, sourceNamespace,
+  targetNamespace, role, proposedRole, revision }`. `role` is `null` while only
+  invited. List responses are `{ "shares": [...] }`, a `POST` returns one share
+  and a `DELETE` returns 204. Use `projectId` and `sourceNamespace` for links.
+  Sharing with the Project's own namespace is refused.
+- `GET …/access` adds `viewerSharedRole` (`READ`, `WRITE` or `null`): the part of
+  the viewer's role that comes from a namespace share.
 
 Unknown/malformed policy input fails validation. Denied access is not a valid empty
 Project response. A body RTC revision is not a metadata permission/version token.
@@ -499,7 +608,16 @@ users (including organization members with no surviving Project role), effective
 roles and every contributing direct grant, team grant, workspace, owner-recovery
 or public source. Public access is also an open audience, never an exhaustive
 list of named visitors. Independent resource shares are outside this inventory.
-The response includes `apiVersion: 1`, `complete: true` and `people`.
+Without accepted namespace shares, the response includes `apiVersion: 1`,
+`complete: true` and `people`, unchanged.
+
+While the Project has at least one accepted namespace share, the response is
+`apiVersion: 2` with `complete: false`, plus `namespaceAudience`. Each entry is
+`{ kind: "namespace", shareId, namespace, role, membersListed: false }`.
+Recipient members are never listed, so `people` still names only people with an
+independent access path. A client that understands only version 1 must treat a
+version 2 response as incomplete and must not present `people` as everyone with
+access. Pending invitations grant nothing and are not part of the audience.
 
 The bounded inventory refuses more than 1,000 grant rows, organization membership
 rows, granted-team membership rows or candidate users with

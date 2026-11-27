@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/scenes.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/scenes.md at 0.149.0 587adf6; do not edit -->
 
 # Scenes
 
@@ -192,3 +192,9 @@ namespace/name. If an upload crossing the server upgrade gets
 credentials, reupload to the returned target, then register. Retrying the old
 registration alone does not repair the reservation. Existing issued credentials
 and signed URLs keep their original finite TTL.
+
+## Saved URLs
+
+Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
+covers list, add, read, update and remove commands, immutable resource IDs,
+creation recovery, version conflicts, and the TypeScript API.

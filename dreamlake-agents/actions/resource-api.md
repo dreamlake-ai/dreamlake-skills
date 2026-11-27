@@ -38,3 +38,12 @@ actual multimodal result, not a text URL. Discover the deployed contracts first.
 For Library display or page-context work, choose a specific Library before
 opening or reading its view. Do not use the draft global search page as
 current-result context; backend searches may still span multiple Libraries.
+
+
+## Hand off a Thread
+
+Use a Thread URL from the browser, the installed CLI, or the local MCP
+link tool when the capability is advertised. A URL alone does not establish that a Thread was
+saved. Use the signed-in browser to verify the restored panels. If the
+assistant has no access to that browser, describe the proposed panels and
+give the user the source links.

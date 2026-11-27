@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.149.0 587adf6; do not edit -->
 
 # Terminal sessions
 
@@ -760,3 +760,9 @@ unresolved. This adapter requires the companion memo-command backend and an
 explicitly owned runner/pane. It does not adopt an unbound managed terminal or
 infer its permission level. Claude tmux memo result collection is unsupported.
 This is unreleased integration work, not a live acceptance claim.
+
+## Saved URLs
+
+Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
+covers list, add, read, update and remove commands, immutable resource IDs,
+creation recovery, version conflicts, and the TypeScript API.

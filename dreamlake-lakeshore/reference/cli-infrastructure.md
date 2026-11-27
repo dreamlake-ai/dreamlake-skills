@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/infrastructure.md at 0.147.0 7d93f98; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/infrastructure.md at 0.149.0 587adf6; do not edit -->
 
 # Infrastructure stacks
 

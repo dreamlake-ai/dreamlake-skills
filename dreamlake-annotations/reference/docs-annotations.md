@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.238 95a35de02; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -279,6 +279,5 @@ CLI. See [relationships, permissions and API identities](https://docs.dreamlake.
 
 ## Saved URLs
 
-Keep web and DreamLake URLs alongside annotations with [Links](https://docs.dreamlake.ai/links).
-Open the Links tab in the resource details under Related. The guide covers permissions, editing,
-creation recovery, and CLI, TypeScript, Python and agent access.
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

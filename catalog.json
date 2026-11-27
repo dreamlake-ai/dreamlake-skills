@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.25-5-g4831654b",
+  "version": "v2026.11.25-7-g2c224a6a",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -24,12 +24,12 @@
       "files": 7
     },
     "dreamlake-artifacts": {
-      "description": "Author, publish, version, list, share, revoke, remove and restore standalone DreamLake artifacts, and reference them from Memos. Excludes Source-owned custom visualizations.",
+      "description": "Author, publish, version and manage DreamLake artifacts, including static sites; use UIKit for internal team interfaces. Excludes Source-owned visualizations, hosted-page generation and Memo editing.",
       "requires": [
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 16
+      "files": 17
     },
     "dreamlake-bundles": {
       "description": "Publish, pull, check and search DreamLake bundles: versioned sets of robot, part, object, scene, env and env-set entries. Push a bundle, pull one entry with its uses and refs closure, write lock files, check declarations, import libraries and scenes. Not for code (dl runnable).",
@@ -69,7 +69,7 @@
         "dreamlake-ripple"
       ],
       "tools": null,
-      "files": 14
+      "files": 15
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
@@ -80,7 +80,7 @@
       "files": 8
     },
     "dreamlake-links": {
-      "description": "Save, find, edit and remove web or DreamLake URLs on resources; recover uncertain saves and preserve concurrent edits. Use for saved URLs, not resource ownership, sharing, imports or session relationships.",
+      "description": "Save and manage web or DreamLake URLs as files in Project, Source, and Bindr lists; integrate link files through CLI or SDKs and recover earlier saved URL records.",
       "requires": [
         "dreamlake-cli"
       ],
@@ -128,7 +128,8 @@
     "dreamlake-tasks": {
       "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Memos for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",
       "requires": [
-        "dreamlake-cli"
+        "dreamlake-cli",
+        "dreamlake-memos"
       ],
       "tools": null,
       "files": 10

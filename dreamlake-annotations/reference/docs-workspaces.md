@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workspaces.md at 0.1.238 95a35de02; do not edit -->
 
 # Profiles and workspaces
 
@@ -353,9 +353,10 @@ projects; the project's files stay stored but can no longer be opened. The
 project's address (its URL slug) becomes free, so a new project can use it; an
 old link that names only the address then opens the new project, never the
 deleted one's files. A project cannot be deleted while a job submitted to it
-is still queued, running or being cancelled. There is no restore in the
-dashboard. See the [API reference](https://docs.dreamlake.ai/api#namespaces--projects) for the matching
-endpoint.
+is still queued, running or being cancelled. DreamLake also blocks deletion of
+a private Agent context project linked to an active built-in agent account.
+There is no restore in the dashboard. See the
+[API reference](https://docs.dreamlake.ai/api#namespaces--projects) for the matching endpoint.
 
 Once the server release with the issue #1343 fix is out (not yet released),
 deleting a workflow, artifact, annotation or scene also removes it from every
@@ -383,6 +384,5 @@ slugs, separate custom settings, preserved old links, and rename conflicts.
 
 ## Saved URLs
 
-Keep web and DreamLake URLs alongside Projects and Bindrs with [Links](https://docs.dreamlake.ai/links).
-Open the Links tab in the resource details. The guide covers permissions, editing,
-creation recovery, and CLI, TypeScript, Python and agent access.
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

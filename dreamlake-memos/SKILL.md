@@ -24,7 +24,7 @@ an edit made while creating, linking or filing resources:
 | Create a memo or a namespace profile introduction | [create](actions/create.md) |
 | Read or set the catalog summary | [summary](actions/summary.md) |
 | File into a Project, change its folder, inspect filing | [move](actions/move.md) |
-| Related resources, tmux references and explicit action directives, sessions, activity history, new Memo references, saved legacy references, `:artifact[...]`, `:dashboard`/`:experiment`/`:project`/`:folder` references, `:bundle[...]` references, extraction, side panel, placeholders | [references](actions/references.md) |
+| Related resources, tmux references and explicit action directives, sessions, activity history, new Memo references, saved legacy references, `:artifact[...]`, `:dashboard`/`:experiment`/`:project`/`:folder`/`:task` references, `:bundle[...]` references, extraction, side panel, placeholders | [references](actions/references.md) |
 | Transfer a standalone Memo to another namespace | [transfer](actions/transfer.md) |
 
 Moving a whole Project with its Memos is the `projects` action of `dreamlake-cli`;

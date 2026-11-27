@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.228 b40c11b12; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.238 95a35de02; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -12,6 +12,11 @@
   `.dreamrc` file at a dataset's root and the app renders every episode in
   it: cameras, time series, timelines, 3D. Nothing is imported or converted
   to render — connected storage is read where it lives.
+
+To design how users browse and inspect your content, start with
+[Source views](https://docs.dreamlake.ai/sources/views). The illustrated guide covers folder galleries,
+file previews, logical episodes, and custom tabs, with supported and proposed
+capabilities identified separately.
 
 ## Visibility and sharing
 
@@ -990,6 +995,5 @@ from a generic-looking name or re-reads historical transcripts.
 
 ## Saved URLs
 
-Keep web and DreamLake URLs alongside Sources with [Links](https://docs.dreamlake.ai/links).
-Open the Links tab in the resource details. The guide covers permissions, editing,
-creation recovery, and CLI, TypeScript, Python and agent access.
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.
