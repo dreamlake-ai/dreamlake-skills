@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/episode-timeline.md at 0.33.13 f324fe18; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/episode-timeline.md at 0.33.14 9ac89cf8; do not edit -->
 
 # Timeline
 
@@ -400,7 +400,9 @@ through `onViewportChange` and reset to `{ zoom: 1, panPct: 0 }`. Try the
 
 Zoom anchors to the pointer and stays inside the episode. For chunked data,
 pass `loadedRanges` and `pendingRanges` as `{ from, to }` intervals in episode
-seconds to mark available and loading regions.
+seconds to mark available and loading regions. They draw as a thin blue strip
+directly under the ruler's bottom line and follow its zoom and pan. The strip
+is decorative: it takes no pointer or keyboard input.
 
 ## Props
 

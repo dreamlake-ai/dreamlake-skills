@@ -1,6 +1,12 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.151.0 e1153b9; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.151.1 499a5bc; do not edit -->
 
 # Release notes
+
+## 0.151.1 — Remote execution skill propagation
+
+Embeds the CLI skill and catalog from `v2026.11.27.1`, with references refreshed
+from the released remote execution documentation. The matching agent skill
+includes exec/SSH selection, streaming and async recovery, permissions and limits.
 
 ## 0.151.0 — Built-in agent remote execution
 

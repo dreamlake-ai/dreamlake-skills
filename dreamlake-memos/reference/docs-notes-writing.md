@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.240 62005a8a7; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.241 c3aeb6d5e; do not edit -->
 
 # Writing and formatting
 
@@ -63,9 +63,10 @@ To make a link in the rich editor, paste a URL or use the Link command.
 
 When you are signed in, **Cmd+K** (Windows or Linux **Ctrl+K**) opens the
 page’s command palette, including from the rich editor, Vim mode and source
-mode. The editor keeps its selection. In developer mode, **Cmd+Enter** can
+mode. With the cursor in the Note, **Cmd+/** (**Ctrl+/**) opens the same
+palette with `/` already entered. The editor keeps its selection. In developer mode, **Cmd+Enter** can
 still hand that selection to the agent. See [Agent conversations](https://docs.dreamlake.ai/agents/background-turns)
-for the slash shortcuts and browser terminal keys.
+for the shortcuts used in a chat or a browser terminal.
 
 ## Placeholders
 

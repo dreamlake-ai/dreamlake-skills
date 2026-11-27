@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.240 62005a8a7; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.241 c3aeb6d5e; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}

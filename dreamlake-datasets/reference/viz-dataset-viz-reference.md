@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.33.13 f324fe18; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.33.14 9ac89cf8; do not edit -->
 
 <span id="reference" />
 
@@ -183,10 +183,21 @@ video codecs other than H.264 are unsupported.
   jump to it) once that is known from data already read, or only that no
   frame exists before a stated time. Moving the cursor backward clears a
   frame that would now be in the future. A read that fails shows as failed.
-  While a paused drag is moving, each camera resolves one cursor position at
-  a time and then the position the pointer is on, so frames for positions
-  passed on the way may not appear; the playhead marker follows the pointer
-  throughout and the release position is always resolved.
+  While a drag is held on a camera tile or on the timeline, each camera
+  resolves the position the pointer is on; positions the pointer has left
+  are not loaded in full. Until the exact frame is ready the tile shows a
+  preview, marked `~` in its counter: the closest real sample on the
+  trailing side of the cursor (at or before it going forward, at or after it
+  going backward) — a frame that landed during the drag, or for an H.264
+  camera a keyframe decoded on its own, read toward the cursor within a
+  bounded window. With nothing on that side yet the picture already on
+  screen stays. The exact frame is on the trailing side too, so its arrival
+  is a step in the direction of travel. Previews exist only
+  while the press is held; a click, a keyboard or programmatic seek and the
+  release itself never start one. On release only a frame at or before the
+  cursor may stay until the exact frame lands, and the release position is
+  always resolved. The playhead is a thin black line on every camera and red
+  only on the tile being pressed; a timeline drag leaves all of them black.
   A channel is reported as having no frames only when the recording states
   it: the file holds no messages, or its statistics list that channel with
   a count of zero. A channel missing from the per-channel counts, or a

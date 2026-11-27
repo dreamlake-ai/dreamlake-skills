@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.33.13 f324fe18; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.33.14 9ac89cf8; do not edit -->
 
 <span id="view-components" />
 
@@ -73,6 +73,12 @@ fallback rules as the [line chart](https://viz.dreamlake.ai/components/episode-l
 Bind labelled intervals to `tracks`. WebVTT files, string columns, and integer
 columns with label tables can supply them. With no tracks, a known episode
 duration still gives you a ruler. `controls: false` hides the playback bar.
+
+The playback bar's speed menu offers 0.25× to 2× in quarter steps, then 2.5×,
+3× and 4×. A speed applies to the whole episode: cameras, charts and 3D views
+all follow the same clock. An expanded camera or plot covers the playback bar,
+so its header carries the same speed menu; choosing a speed there changes the
+episode's speed, not only that view's.
 
 ## bandTrack
 
@@ -173,3 +179,11 @@ with the keyboard. It opens the shared media viewer while the episode's clock
 continues to synchronize the expanded visualization with its siblings. The
 control fades after 1.8 seconds without pointer activity; focused controls remain
 visible. Escape returns to the inline view without resetting the playhead.
+
+In a list of several episodes, the chevron beside maximize (and beside Close in
+the expanded view) is **Next episode with _topic_**: it moves to the same
+camera or plot in the episode directly after this one, keeping it inline or
+expanded as it was. "Same" means the exact fields the view bound. If the next
+episode did not record them, nothing moves and the control says so; it never
+skips ahead or shows a different topic. The last episode's control reads "Last
+episode". It is separate from the timeline's **Next frame** stepper.
