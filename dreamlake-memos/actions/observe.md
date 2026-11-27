@@ -13,6 +13,9 @@ availability and observation time before interpreting the participants. If the
 client or server cannot supply the requested observation, say which capability
 is missing; do not infer that nobody is present or that no work happened.
 Refresh the observation when the user changes their selection or asks again.
+Do not use selection updates to move an insertion target. Observing a caret is
+not permission to follow it with edits; keep an active stream at its reviewed
+agent cursor and use the [edit action](edit.md) for a newly requested placement.
 
 For “what changed since my last read,” compare against the revision from that
 read using the [read action](read.md). If no baseline was retained, say so and

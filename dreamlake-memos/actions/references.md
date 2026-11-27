@@ -197,7 +197,7 @@ creation receipt does not checkpoint the parent or publish intent on it.
 Check installed `dl memos --help` and the current server and editor
 version first. Follow [read](read.md) for an original complete source snapshot and
 retain its opaque revision. Locate or create the child, read it back, then use
-the revision-guarded exact patch in [edit](edit.md) to replace only the source
+the original-baseline patch in [edit](edit.md) to replace only the source
 item with the child's returned canonical directive, using its confirmed full ID.
 Re-read the returned revision to verify. On a conflict or uncertain outcome,
 retain the original baseline and proposed patch; reconcile before another write.
