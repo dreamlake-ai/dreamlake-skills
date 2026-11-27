@@ -28,18 +28,29 @@ Flags: `dl bundle push --help` and
    [layout guidelines](../reference/docs-bundles.md#layout-guidelines): one
    directory for each entry, shared files in `shared/`, objects in
    `objects/<category>-<id>/`.
-3. Write each entry manifest. Set `kind`. If you do not know the exact files
+3. Include a root `README.md` with every publication, including updates. Give
+   the purpose and entry/configuration inventory, units and dimensions (mark
+   estimates and their basis), prerequisites and a minimal load/use example,
+   generation parameters and seeds where applicable, validation performed,
+   known limitations, and provenance/licences. For simulation assets, explain
+   static versus dynamic objects and which material effects survive each
+   delivered format. Keep `bundle.json` and entry descriptions concise and
+   consistent with this explanation. Check how the target page presents the
+   README; if it does not render it, provide a readable companion and clearly
+   distinguish that companion from native bundle UI. Include the documentation
+   in the final read-back verification.
+4. Write each entry manifest. Set `kind`. If you do not know the exact files
    that the entry reads, start with `"uses": ["/"]`. Check each `uses` item
    against the [uses grammar](../reference/docs-bundles-reference.md#uses-grammar).
-4. Write cross-bundle references in `refs` as `ns/bundle@N#entry`. You can
+5. Write cross-bundle references in `refs` as `ns/bundle@N#entry`. You can
    write `@latest`; push pins it.
-5. Run `dl bundle check ./my-bundle#<entry>` for each entry (the
+6. Run `dl bundle check ./my-bundle#<entry>` for each entry (the
    check-and-deps action). Do not push an entry that fails `check`.
-6. Run `dl bundle fmt`, then `push --dry-run`. Read the effective hashes. An
+7. Run `dl bundle fmt`, then `push --dry-run`. Read the effective hashes. An
    entry that you did not change must keep its hash.
-7. Run `push` with a `--message`. Report the new version and the changed
+8. Run `push` with a `--message`. Report the new version and the changed
    entries to the user.
-8. Narrow `"uses": ["/"]` later with the check-and-deps action, then push
+9. Narrow `"uses": ["/"]` later with the check-and-deps action, then push
    again.
 
 ## Previews
