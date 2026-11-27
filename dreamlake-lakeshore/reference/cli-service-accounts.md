@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/service-accounts.md at 0.151.1 499a5bc; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/service-accounts.md at 0.152.1 c41a5eb; do not edit -->
 
 # Service accounts
 
@@ -118,6 +118,19 @@ to one enrollment, and one enrollment binds to one account. Repeating the same
 binding is safe; attempting to replace either side fails. Binding does not
 rekey or restart Nymph. Inspect the binding with `service-accounts show` and
 check the machine with `hosts status` afterward.
+
+## Detach a machine account
+
+Review the binding and grants with `dl service-accounts show`. Unbind uses the
+enrollment ID and binding ID from that review. The host owner must also manage
+the namespace. Detaching removes the machine identity binding and its grant to
+this host. The enrollment, keys, connection grants and other resource grants are
+preserved. An active bootstrap reservation blocks detachment. After an uncertain
+response, read the binding again before taking further action.
+
+```bash cli-help="service-accounts unbind"
+dl service-accounts unbind my-team/0123456789abcdef01234567 --enrollment 444444444444444444444444 --expected-binding 555555555555555555555555
+```
 
 ## Revoke
 

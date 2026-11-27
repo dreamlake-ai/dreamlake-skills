@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.241 c3aeb6d5e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.242 ff603b446; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -7,7 +7,7 @@ minutes of compute per change. DreamLake lets a GitHub Actions job run on your
 DreamLake machines by changing one line of the workflow:
 
 ```yaml
-runs-on: dreamlake-gpu-rtx5090   # a DreamLake GPU, or your own pool's label
+runs-on: blacksmith-4vcpu-gpu-rtx5090-ubuntu-2404   # a DreamLake GPU, or your own pool's label
 ```
 
 The job can run on either of two kinds of machines:
@@ -153,9 +153,18 @@ that it is enabled for your namespace.
 
 | Label | Per job: GPU | CPU | Memory | Time limit | Price |
 | --- | --- | --- | --- | --- | --- |
-| `dreamlake-gpu-rtx5090` | 1 × RTX 5090 | 8 | 32 GB | 2 h | $1.20 / GPU-hour |
-| `dreamlake-gpu-rtx5090-8h` | 1 × RTX 5090 | 8 | 32 GB | 8 h | $1.20 / GPU-hour |
-| `dreamlake-gpu-rtxpro6000` | 1 × RTX PRO 6000 | 8 | 32 GB | 2 h | $2.40 / GPU-hour |
+| `blacksmith-4vcpu-gpu-rtx5090-ubuntu-2404` | 1 × RTX 5090 | 8 | 32 GB | 2 h | $1.20 / GPU-hour |
+| `blacksmith-4vcpu-gpu-rtx5090-8h-ubuntu-2404` | 1 × RTX 5090 | 8 | 32 GB | 8 h | $1.20 / GPU-hour |
+| `blacksmith-4vcpu-gpu-rtxpro6000-ubuntu-2404` | 1 × RTX PRO 6000 | 8 | 32 GB | 2 h | $2.40 / GPU-hour |
+
+Machine names use `blacksmith-4vcpu-{machine-type}-ubuntu-2404`. Copy the exact
+label from Setup. This is a naming change: the provider's per-job specification
+above remains authoritative (the current GPU providers allocate 8 CPUs). Existing
+`dreamlake-gpu-*` labels remain compatibility aliases, including queued jobs;
+new workflows and examples should use the canonical names. Machine IDs, prices,
+namespace access, concurrency limits and evidence destinations are unchanged.
+These labels route to DreamLake's existing GPU providers. The ordinary
+`blacksmith-4vcpu-ubuntu-2404` CPU label is outside this integration.
 
 - **Concurrency.** Each namespace runs a limited number of DreamLake GPU jobs
   at once (2 by default), and each machine type has a limit across all
@@ -245,7 +254,7 @@ name: cict
 on: [pull_request, workflow_dispatch]
 jobs:
   sim-suite:
-    runs-on: dreamlake-gpu-rtx5090         # or a pool's label
+    runs-on: blacksmith-4vcpu-gpu-rtx5090-ubuntu-2404         # or a pool's label
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
