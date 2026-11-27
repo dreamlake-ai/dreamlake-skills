@@ -2,7 +2,7 @@
 
 Use this to extract a list or checklist item into a linked Memo, to edit an
 existing memo reference, or to insert Memo references, `:artifact[...]`,
-experiment, project, folder, `:bundle[...]` and `:viewer[...]` (3D Preview) references, and placeholder directives. It does not create a Task or mark work complete; Tasks
+experiment, project, folder, Task, `:bundle[...]` and `:viewer[...]` (3D Preview) references, and placeholder directives. It does not create a Task or mark work complete; Tasks
 that link Memo items are `dreamlake-tasks`.
 
 Preserve resource directives when editing; do not flatten an artifact,
@@ -62,6 +62,17 @@ for a DreamLake project or folder.
 
 Syntax and badge behavior:
 [experiments, projects and folders](../reference/docs-notes-linked-items.md#experiments-projects-and-folders).
+
+## Task references
+
+Resolve the Task under its current namespace and Project. Copy the reference
+from the Task detail view, or check installed `dl tasks show --help` and use
+the copy procedure in the [Task CLI guide](https://cli.dreamlake.ai/tasks/#copy-a-task-reference-for-a-memo).
+Use the confirmed full Task ID when more than one Task has the same title.
+
+Insert the reference through [edit](edit.md) with its reviewed revision guard.
+Read the saved source and open the badge to verify the target. Preserve any
+existing hidden Task links. See [Task reference behavior](../reference/docs-notes-linked-items.md#task-references).
 
 ## Bundle references
 
