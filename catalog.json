@@ -69,7 +69,7 @@
         "dreamlake-ripple"
       ],
       "tools": null,
-      "files": 14
+      "files": 15
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
