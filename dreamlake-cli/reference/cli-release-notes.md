@@ -1,6 +1,16 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.149.0 587adf6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.151.0 e1153b9; do not edit -->
 
 # Release notes
+
+## 0.151.0 — Built-in agent remote execution
+
+`dl agents chat --host-execution` opts into authorized remote command and SSH
+shell tools on a deployment that provides them. Text mode streams exact UTF-8
+output to stdout/stderr; JSON mode retains the structured events. Execution
+handles support streaming yields and asynchronous continuation through the
+built-in agent. Existing host access and agent-definition tool permissions apply.
+
+See [agent remote execution](cli-agents.md#remote-execution) for recovery and limits.
 
 ## 0.146.5 — Unlisted Projects and CI/CT dispatch
 

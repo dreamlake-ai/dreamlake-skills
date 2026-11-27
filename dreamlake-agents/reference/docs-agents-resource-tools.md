@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.238 95a35de02; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.240 62005a8a7; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -81,7 +81,7 @@ additional access.
 ## Choose tool permissions
 
 Open the **Permissions** popover in agent chat, or the matching control in
-**Built-in agent** settings. **Read only** lets the agent inspect accessible DreamLake resources and connected accounts. It can draft text in the conversation. **Full access** enables changes and administrative tools within your existing permissions, including authorized actions in connected apps. The selected level applies to your next message. Your browser remembers the choice for your signed-in account across chat and settings.
+**Built-in agent** settings. **Read only** lets the agent inspect accessible DreamLake resources and connected accounts. It can draft text in the conversation. **Full access** enables changes and administrative tools within your existing permissions, including commands on authorized enrolled hosts and authorized actions in connected apps. The selected level applies to your next message. Your browser remembers the choice for your signed-in account across chat and settings.
 
 Arrow keys move focus in the popover. Enter, Space or a click selects the level. Each call still requires the relevant Project grant, host permission or provider authorization. App tool policies can require approval or block an action. See [Connected agent apps](https://docs.dreamlake.ai/agents/apps).
 
@@ -520,3 +520,90 @@ The local MCP adapter exposes `thread_open_url`. Pass a `namespace` to
 open its Threads list. To open a known Thread, pass its `id` with an optional
 `session` selector. The tool returns a browser URL and the
 storage type `browser-local`. It does not inspect or change saved layouts.
+
+## Remote shell execution
+
+The built-in agent offers `dreamlake_exec` (equivalent to `dl exec`) and
+`dreamlake_ssh` (an interactive login shell, equivalent to `dl ssh`). Both use
+an exact `hostId` and `enrollmentId`, the enrolled host key, and the caller's
+existing SSH connection permissions. Execution happens on that host, never in
+the API server's local shell. The target needs POSIX and Python 3.
+
+Full access enables the `hosts:execute` turn scope. API clients may instead
+supply `capabilities: { "hostExecution": 1 }`. Read-only, session-control and
+host-inventory access alone do not enable it. Each start, read, write, resize
+and cancel resolves current caller access again and obtains a fresh bounded
+SSH delegation. Revocation prevents subsequent access; it does not prove that
+a previously detached remote process has stopped. An agent definition must
+also include the tools in its allowed tool list. These are foreground agent
+tools; asynchronous remote processes are separate from durable agent jobs.
+
+For `dreamlake_exec`, choose exactly one of `command` or `argv`:
+
+```json
+{
+  "hostId": "HOST_ID",
+  "enrollmentId": "ENROLLMENT_ID",
+  "requestId": "build-1",
+  "command": "printf '%s\\n' \"$PROJECT\" | head -1",
+  "cwd": "/workspace/project",
+  "env": { "PROJECT": "example" },
+  "mode": "streaming",
+  "yieldTimeMs": 1000
+}
+```
+
+`command` runs `/bin/bash -lc`, preserving pipes, redirects and expansion.
+`argv` passes literal arguments without expansion. `cwd` is absolute and `env`
+overrides the remote environment. `pty: true` requests a terminal; stdout and
+stderr then share the PTY stream. `dreamlake_ssh` always uses a PTY and the
+remote login shell. `cols` and `rows` set its initial size.
+
+Both modes return `executionId`, `state`, `exitCode`, `signal`, ordered `output`
+records, `nextCursor`, `hasMore` and `truncated`. Output records contain a
+`stream` and base64 `data`; these preserve exact bytes across arbitrary UTF-8
+and binary chunk boundaries. `stdout` and `stderr` are bounded convenience
+previews, with `previewTruncated` when shortened. Streaming emits live
+`execution_output` SSE events for the returned batch and yields after the
+requested wait (0–10000 ms; default 1000); async uses zero wait. SSH connection
+setup still occurs before either result. Continue with the same lifecycle:
+
+| Tool | Inputs beyond the exact host/enrollment |
+| --- | --- |
+| `dreamlake_execution_read` | `executionId`, `cursor` (default 0), optional `mode` and `yieldTimeMs` |
+| `dreamlake_execution_write` | `executionId`, stable `operationId`, `chars` and/or `eof` |
+| `dreamlake_execution_resize` | `executionId`, stable `operationId`, `cols`, `rows` |
+| `dreamlake_execution_cancel` | `executionId`, stable `operationId` |
+
+Use `nextCursor` for the next read; `hasMore` means another retained page
+exists. Input acceptance queues bytes to remote stdin; it does not prove the
+program consumed them. EOF closes pipe stdin or sends Ctrl-D to a PTY.
+Cancellation requests SIGTERM followed by SIGKILL after two seconds. Read until
+a terminal state is observed; closing a transport is not process termination.
+Detached descendants can remain after the observed shell exits.
+
+`timeout` limits the remote process lifetime, independently of the tool wait:
+1–1800 seconds, default 1800. Handles survive agent-turn completion and API
+restarts while their private host-side state under `/tmp` remains. Host reboot,
+temporary-file cleanup, or supervisor loss can make a handle unavailable or
+unknown; do not infer completion or restart the command. Retained output is
+bounded to 8 MiB of encoded records per execution and reads are paged. Each
+caller/namespace/host/enrollment binding retains at most 256 execution records;
+at most eight may be active (`execution_concurrency_limit`). History
+exhaustion reports `execution_history_limit` without launching another command.
+State is owned by the enrolled Unix account, whose existing access boundary
+also applies to these files.
+
+A durable server reservation permits only the first admission to create a
+remote process. It has no automatic expiry and stores only identity and a
+request digest. A lost admission acknowledgement or missing host state fails
+closed instead of dispatching again.
+
+Choose a stable `requestId` before starting. After an uncertain response, reuse
+that ID and identical inputs, or read the checkpointed `executionId`; changed
+inputs conflict instead of launching a second command. Reuse `operationId`
+after an uncertain stdin/control call, never a fresh ID as an automatic retry.
+Missing state is uncertainty, not permission to relaunch. Tool receipts retain
+identifiers and status, not commands, environment values, stdin or raw output.
+Output is not automatically indexed. The browser's output preview is transient;
+use the handle and cursor to read it again.

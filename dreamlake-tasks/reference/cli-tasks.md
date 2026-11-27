@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.149.0 587adf6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/tasks.md at 0.151.0 e1153b9; do not edit -->
 
 # Task operation examples
 
@@ -59,6 +59,22 @@ dl tasks show vault/entries/write-recovery --to-json
 ```
 
 The UI opens the selected task/folder in an outline and waterfall. Its detail panel shows memo links and event history. A task with a start and no end has a striped open bar to the present; it does not acquire an endedAt timestamp.
+
+## Copy a Task reference for a Memo
+
+Resolve the Task in its Project, then print the reference.
+
+```bash cli-help="tasks show"
+dl tasks show vault/entries/write-recovery --namespace ge --project my-project --directive
+```
+
+The result uses `:task[namespace/project/full-task-id]`. Copy it into a Memo as
+Markdown source. A rename or move within the Project keeps the Task ID. Use
+`--to-json` with `--directive` to return the Task and reference as JSON.
+
+See [Task references in Memos](https://docs.dreamlake.ai/notes/linked-items/#task-references)
+for the badge and its access rules. Task-to-Memo links for prompts, comments and
+acceptance use `tasks notes`.
 
 ## Rename, move and reorder
 

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.149.0 587adf6; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.151.0 e1153b9; do not edit -->
 
 # Terminal sessions
 
@@ -18,6 +18,27 @@ Codex state, the requested directory, and `codex` installed. Persistent terminal
 use `tmux`; CLI **0.81.0+** with a matching gateway can connect directly when
 tmux is unavailable. A session
 UUID does not move a conversation between computers or users.
+
+## Open Threads in the browser
+
+Use the **Threads** sidebar entry for the selected organization. The **Sessions**
+entry at the bottom opens native sessions. A Thread restores the saved layout
+in the browser and account where it was saved.
+
+```bash cli-help="threads"
+dl threads --namespace example-org
+dl threads 1ad5a956-c5fa-47c0-a9dc-9d29d2612c42 --session saved-session
+```
+
+In the browser command palette, use `/new thread Launch review` to save the current panels and `/thread Launch review` to reopen them.
+
+These commands print links. Create, edit, archive, and restore saved Threads
+in the signed-in browser. A link preserves the existing resource permissions
+and opens the layout without starting a runtime.
+
+The TypeScript SDK exports `threadsUrl(namespace)` and
+`threadUrl(id, { session })` from
+`@dreamlake/dreamlake-cli/api`. Both return strings without making API calls.
 
 ## Registration and visibility (0.82.0+)
 

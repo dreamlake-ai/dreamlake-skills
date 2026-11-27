@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.238 95a35de02; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/agent-presence.md at 0.1.240 62005a8a7; do not edit -->
 
 # Agent presence and activity
 
