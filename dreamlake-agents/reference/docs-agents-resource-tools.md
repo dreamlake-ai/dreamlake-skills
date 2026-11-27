@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.236 2eadb8b0b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.238 95a35de02; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -513,3 +513,10 @@ Use `dreamlake_files_mcap_summary` on a managed uncompressed MCAP up to
 8 MiB to count messages, list topics and read the log-time span in nanoseconds.
 A malformed or incomplete recording produces an error. Empty recordings have
 a zero count and null timestamps.
+
+## Thread links in the local MCP adapter
+
+The local MCP adapter exposes `thread_open_url`. Pass a `namespace` to
+open its Threads list. To open a known Thread, pass its `id` with an optional
+`session` selector. The tool returns a browser URL and the
+storage type `browser-local`. It does not inspect or change saved layouts.
