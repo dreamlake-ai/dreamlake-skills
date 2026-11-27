@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/links.md at 0.1.236 2eadb8b0b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/links.md at 0.1.238 95a35de02; do not edit -->
 
 # Links
 
@@ -6,8 +6,9 @@ A link is a `.url` file in the existing file list. Choose **New link**, enter a
 file name and a web or DreamLake URL, and save it in the current folder or Bindr.
 Sources save new files in managed storage. Uploaded `.url` files work the same way.
 
-Select a link to preview its target. It uses the existing file panel, including
-file metadata, download, and the actions available in that file's location.
+Select a link to preview its target directly below its native tab. The page fills
+the available panel; file properties are in **File info** in the tab row. Download
+and the actions available in that file's location remain available.
 The web preview provides an address field, back/forward, reload, zoom, and
 **Open in browser**. Selecting a different link changes both its preview and
 address. There is no separate Links tab.
@@ -16,6 +17,21 @@ The preview address follows in-frame navigation when the browser permits reading
 that frame's location. Browsers keep another origin's navigation private, so its
 address remains the last known URL. Websites can also refuse embedding; use
 **Open in browser** for those sites.
+
+Opening a visible preview of a public HTTPS page also requests a screen capture.
+The capture runs in the background and is cached privately for your signed-in
+account. Reopening the same URL during the same UTC day reuses it. A cached image
+can appear while the live frame loads; **Show cached screenshot** beside the
+address switches to it, and **Show live page** returns to the interactive frame.
+Captures expire automatically after two days. Listing files or leaving an unopened
+tab inactive does not generate screenshots.
+
+The renderer has no browser login or account cookies: it captures the public page,
+which may differ from your signed-in view. DreamLake account pages and local/HTTP
+URLs stay live without automatic screenshots. A maximum of 60 new URL captures per
+account per UTC day bounds background work; cached reads continue to work. A failed
+capture or exhausted limit does not prevent live navigation or opening externally.
+Screen captures are not indexed or imported as file contents.
 
 The filename is the list title. Narrow list panels hide actions, dates, and other
 metadata. At the smallest width, they show only titles, without icons.

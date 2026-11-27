@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.236 2eadb8b0b; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.238 95a35de02; do not edit -->
 
 # Browser terminal
 
@@ -13,6 +13,25 @@ A machine is listed only when its daemon is online, reports native SSH
 support, and is bound to an enrollment you own in that namespace or one
 shared with you. In an organization namespace, membership alone does not list
 anyone else's machines.
+
+## Threads and native sessions
+
+Open **Threads** near the top of the sidebar for the selected organization.
+Open **Sessions** at the bottom for native sessions. The header's dropdown
+beside **+** contains creation and source actions.
+
+A Thread saves a layout with references to sessions and documents in your
+browser. Open the Thread to restore its supported panels. A Thread link has
+the form `/threads/<uuid>`. Add `?session=<saved-id>` to bring a session
+forward. Use `/new thread Launch review` to save the current panels and
+`/thread Launch review` to bring them back. Opening a
+Thread does not start a terminal. Archive and restore use the three-dot
+menu on the Thread. Open **Session list options → Archived threads** to find
+archived work.
+
+Threads open in the browser and account where they were saved. The CLI, SDKs,
+and local MCP adapter can build a link to a known Thread. They do not read
+or change the browser's stored layouts.
 
 ## Create a named tmux session and copy its reference
 
