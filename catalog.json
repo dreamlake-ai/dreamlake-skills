@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.10.6-183-gb6642007",
+  "version": "v2026.11.10.6-188-g5ddf18ce",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
