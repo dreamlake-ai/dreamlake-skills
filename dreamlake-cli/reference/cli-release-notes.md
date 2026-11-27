@@ -1,6 +1,13 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.151.1 499a5bc; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.152.1 c41a5eb; do not edit -->
 
 # Release notes
+
+## 0.152.0 — Machine service account unbind
+
+Use `dl service-accounts show` to review the binding and its grants, then
+`dl service-accounts unbind` to detach that binding and remove its own-host
+grant. The enrollment and machine key remain available for personal connections.
+See [service accounts](https://cli.dreamlake.ai/service-accounts#detach-a-machine-account).
 
 ## 0.151.1 — Remote execution skill propagation
 

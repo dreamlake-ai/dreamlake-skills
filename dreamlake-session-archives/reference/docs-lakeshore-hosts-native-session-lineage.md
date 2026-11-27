@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage.md at 0.1.241 c3aeb6d5e; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage.md at 0.1.242 ff603b446; do not edit -->
 
 # Native session relationships
 
