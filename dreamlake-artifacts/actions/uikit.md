@@ -1,29 +1,30 @@
-# Use UIKit for internal team interfaces
+# Design an artifact interface
 
-Use DreamLake UIKit components, tokens and standard examples for internal team
-artifact interfaces. Keep content and application-specific actions in the artifact;
-improve missing reusable behavior in UIKit rather than copying a component fork.
-Preserve an existing artifact's design and the user's requested deliverable format.
+For a new interface, implement a **Vike page in TypeScript and React with DreamLake UIKit**.
+A request for an “artifact” leaves this default in effect, even for a small review tool.
+Aim for a meticulously polished interface, excellent UX and a high-quality visual experience.
+Honor explicit choices of style, stack and format. Preserve the design when editing.
 
-1. Read the public [UIKit setup](https://uikit.dreamlake.ai/index.md), then use
-   the [component index](https://uikit.dreamlake.ai/llms.txt) to load only the
-   needed component and style guides. Private repository access is not a prerequisite.
-2. Install from the public npm registry in the application build. Inspect the
-   installed package version, exports and peer dependencies before using an
-   example: live docs can describe components newer than the npm release.
-   Use a compatible published version; report a missing export rather than
-   inventing a prop or silently switching to a private workspace dependency.
-3. Follow the installed package README for its CSS build and dependency scan;
-   importing tokens alone is not a styling check. Bundle UIKit with the application
-   and publish the built client directory through [static builds](publish.md#static-builds).
-   Do not paste package imports into the single-file React template or rely on
-   browser CDN imports. For an explicitly requested self-contained file,
-   bundle its dependencies and styles into that output and check the sandbox.
-4. Check the rendered components and their interaction in DreamLake at the
-   intended panel size, including theme and keyboard behavior. Group related
-   panels as tabs, keep width stable and preserve inactive work. Follow the
-   shared component examples for tab alignment and contextual actions.
+- **Compose the page.** Make the task title the first visible text. Omit branding bars, category
+  labels above the title, slogans and repeated explanations. Use spacing and alignment before
+  frames and borders. Start the page and title area on `background: var(--bg)` with
+  `color: var(--ink)`. Let the heading inherit both. Use UIKit tokens for panels,
+  controls, focus and selection. Keep illustration colors inside the illustration.
+- **Choose what to show.** For alternative visual items, use selectable image
+  thumbnails and one active detail. Keep synchronized signals together. Use a list
+  or disclosure for text records.
+- **Reuse controls.** Read the [setup](https://uikit.dreamlake.ai/index.md), search the
+  [component index](https://uikit.dreamlake.ai/llms.txt), and check the installed public
+  package's exports and README before implementing a control. Bundle its components
+  and CSS as documented. Preserve tab state and width when switching views.
+- **Polish the result.** Inspect the rendered interface at desktop and narrow widths
+  in both themes. Complete its main task by pointer and keyboard. Refine hierarchy,
+  contrast, focus and clipping until the selection and next action are clear.
+  Compare the first visible text with the main heading and remove anything above it.
+  Verify the heading and its nearest painted background against the UIKit theme
+  in both modes, including any header or banner wrapped around it.
 
-The public [UIKit agent skill](https://uikit.dreamlake.ai/llm-readable.md#import-it-as-a-skill)
-is optional; these public docs are sufficient. Reusing UIKit does not make an
-artifact or its data public. Retain its existing access settings.
+Before delivery, locate the actual Vike page, its UIKit component imports and the
+prerendered client entry. Complete missing parts unless the user chose another format.
+For publication, use the [static build workflow](publish.md#static-builds).
+For an explicitly requested standalone file, bundle its dependencies and check it in the sandbox.
