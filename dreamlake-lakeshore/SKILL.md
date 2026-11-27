@@ -26,6 +26,7 @@ evidence standard are in [machines](actions/machines.md).
 | Request | Action |
 | --- | --- |
 | Connect Lakeshore: Add Host, Runtime workers, queue mounts, shared connection upkeep | [lakeshore](actions/lakeshore.md) |
+| Reopen a saved browser Thread or save the current panels | [threads](actions/threads.md) |
 | Hosts, IP addresses, system inventory, enrollments, metrics, SSH/exec, power, catalog visibility, agent terminal sessions | [hosts](actions/hosts.md) |
 | Create a named tmux session, reopen an exact session reference, or author a tmux action directive | [tmux](actions/tmux.md) |
 | SSH usage/limits, Nymph capacity configuration and command permission boundaries | [SSH capacity and permissions](actions/ssh-capacity.md) |
