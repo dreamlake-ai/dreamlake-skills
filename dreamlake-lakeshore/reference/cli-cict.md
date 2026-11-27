@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/cict.md at 0.151.1 499a5bc; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/cict.md at 0.152.1 c41a5eb; do not edit -->
 
 # CI/CT with GitHub Actions
 
@@ -268,7 +268,7 @@ job gets on each, read from its launch layer. A provider without a bound host,
 a launch layer or a GPU in it cannot back a machine type.
 
 ```bash cli-help="cict platform admin machine"
-dl cict platform admin machine gpu-rtx5090 --label dreamlake-gpu-rtx5090 \
+dl cict platform admin machine gpu-rtx5090 --label blacksmith-4vcpu-gpu-rtx5090-ubuntu-2404 \
   --provider 0123456789abcdef01234567 --limit 6 --enable \
   --env DREAMLAKE_ROBOT_ASSETS_CACHE=/work/shared/robot-assets
 dl cict platform admin machine gpu-rtx5090 --disable
