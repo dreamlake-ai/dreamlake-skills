@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.10.6-183-gb6642007",
+  "version": "v2026.11.10.6-188-g5ddf18ce",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
@@ -128,7 +128,8 @@
     "dreamlake-tasks": {
       "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Memos for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",
       "requires": [
-        "dreamlake-cli"
+        "dreamlake-cli",
+        "dreamlake-memos"
       ],
       "tools": null,
       "files": 10
