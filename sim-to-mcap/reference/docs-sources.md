@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources.md at 0.1.246 0cede4387; do not edit -->
 
 {/* The FigSrc* tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. */}
@@ -12,6 +12,11 @@
   `.dreamrc` file at a dataset's root and the app renders every episode in
   it: cameras, time series, timelines, 3D. Nothing is imported or converted
   to render — connected storage is read where it lives.
+
+To design how users browse and inspect your content, start with
+[Source views](https://docs.dreamlake.ai/sources/views). The illustrated guide covers folder galleries,
+file previews, logical episodes, and custom tabs, with supported and proposed
+capabilities identified separately.
 
 ## Visibility and sharing
 
@@ -208,6 +213,46 @@ Each page returns at most 200 messages, reads at most 8 MiB of native chunks and
 uses an actor-bound cursor. A complete native snapshot does not imply complete
 decoded coverage. Cross-namespace session links are optional and disappear when
 the viewer cannot read either side.
+
+### Native archive completeness and provider boundaries
+
+A saved session link, a collected native identity, a committed byte snapshot, a
+readable conversation and a running terminal are separate states. Check the
+exact Source, native session and optional component before joining them. A UUID
+or hash-shaped label does not establish that a session is synthetic, uploaded,
+or safe to discard.
+
+| Native client | Metadata and title support | Native body preservation and readable projection | Managed saved-session launch |
+| --- | --- | --- | --- |
+| Codex | Explicit native titles, negotiated first-user fallback, spawn/fork evidence | JSONL snapshots; gzip/zstd retained as encoded bytes. Supported plaintext records project to messages; opaque content remains opaque. | Supported when the exact authorized host/session is runnable |
+| Claude Code | Explicit native titles, negotiated first-user fallback, exact component membership | Root and subagent JSONL snapshots. Subagents retain their parent/component identity and need component-aware history consent. | Supported for eligible root sessions; a saved component archive does not imply an independently attachable terminal |
+| DeepSeek Harness | Bounded native relationship headers where evidence exists | Explicit role/content JSONL exports can be read. The installed Harness persistence format is not a complete native-body integration. | Not currently supported by the native saved-session launcher |
+| Kimi Code | Negotiated relationship metadata only | Native body observation/upload and conversation projection are not currently supported | Not currently supported by the native saved-session launcher |
+| Antigravity CLI | No shipped native adapter | No shipped native-body or conversation adapter | Not currently supported by the native saved-session launcher |
+
+Installing a client does not enable any of these permissions. A generic terminal
+may run an installed client, but that does not resume a particular saved session.
+Native compressed archives currently have no server-side readable-message
+projection. Retain the encoded originals; do not rename them to JSONL, claim a
+complete conversation from a partial projection, or re-upload them merely to
+change their display name.
+
+Verify preservation against the approved snapshot: exact occurrence/generation,
+representation, `completeThrough`, byte count and `snapshot-complete` coverage.
+An upload request or history approval alone is not completion. Larger histories
+may require several worker passes. A live file changing between snapshot chunks
+can stop at a retained partial revision; do not retry that older approval as if
+it covered the new generation. Read the current observation and obtain matching
+consent through the normal workflow.
+
+Nymph 0.1.75 retries unstructured gateway `502`, `503` and `504` responses within
+its existing bounded retry budget, preserving the request body and idempotency
+identity. Explicit structured denials and authorization failures remain terminal.
+This prevents that transient response class from becoming a new permanent local
+failure; it does not prove the cause of historical blocked work, clear existing
+blocked journals, or upgrade a running daemon. Reconcile an uncertain write by
+reading its exact receipt/state before another operation. Do not edit a live
+worker journal or reset all Sources to recover one archive.
 
 ### Configuration delivery and the private catalog
 
@@ -913,6 +958,13 @@ redirect or changing its label.
 
 ### First-user fallback title negotiation
 
+A first-user fallback is metadata derived from an eligible human request, not a
+generated summary. Explicit native titles and manually chosen names retain their
+priority. Missing or unreadable evidence keeps the existing honest placeholder.
+A current user's [personal title override](https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage#personal-session-presentation)
+is independent of these collector rules and never rewrites native files or
+another person's labels. Renaming does not upload or index the conversation.
+
 New daemons may request `{ "metadataProtocolVersion": 2, "titleMetadataProtocolVersion": 1 }`
 in signed Source configuration, optionally alongside `sessionMetadataProtocolVersion: 1`.
 Only this opt-in adds `capabilities.firstUserPromptTitleMetadata`; unchanged clients retain
@@ -940,3 +992,8 @@ manual names remain unchanged, and neither path needs to revalidate unused prior
 The total registration
 payload is bounded to 30 KiB (32 KiB signed HTTP envelope). This never infers provenance
 from a generic-looking name or re-reads historical transcripts.
+
+## Saved URLs
+
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

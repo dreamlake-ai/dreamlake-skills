@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/index.md at 0.33.7 6566643f; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/index.md at 0.35.7 bc55070d; do not edit -->
 
 <span id="overview" />
 <span id="visualizing-an-episode" />
@@ -101,11 +101,11 @@ Dataset readers support specific layouts and encodings. Check the
 Install the public npm release into a React application:
 
 ```bash
-npm install --save-exact @dreamlake/viz@0.33.7 @dreamlake/uikit@0.2.15
+npm install --save-exact @dreamlake/viz@0.33.9 @dreamlake/uikit@0.3.2
 ```
 
 The package includes ESM and TypeScript declarations. React, React DOM and
-UIKit (`^0.2.11`) are peer dependencies. Parallel coordinates use UIKit's shared
+UIKit (`^0.2.15 || ^0.3.2`) are peer dependencies. Parallel coordinates use UIKit's shared
 list selection and virtualization through its focused `/list` entry. Components use Tailwind v4 utilities. In a stylesheet at
 `src/styles.css`, import the Viz styles and register its published source:
 

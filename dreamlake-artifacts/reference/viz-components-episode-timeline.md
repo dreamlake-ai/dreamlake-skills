@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/episode-timeline.md at 0.33.7 6566643f; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/episode-timeline.md at 0.35.7 bc55070d; do not edit -->
 
 # Timeline
 
@@ -43,6 +43,11 @@ export const BasicSpec = () => {
   onSeek={setTime}
 />
 ```
+
+Pressing and dragging shows a solid 2px blue vertical bar with a contrast outline
+through the ruler and tracks. It follows the pointer immediately and stays at
+the visible edge when dragging beyond the timeline. Releasing or cancelling
+the gesture removes this active bar.
 
 Hover temporarily overrides `time`. On pointer leave, the cursor returns to
 that value, or disappears when it is `null`. Keep playback time separate when
@@ -395,7 +400,9 @@ through `onViewportChange` and reset to `{ zoom: 1, panPct: 0 }`. Try the
 
 Zoom anchors to the pointer and stays inside the episode. For chunked data,
 pass `loadedRanges` and `pendingRanges` as `{ from, to }` intervals in episode
-seconds to mark available and loading regions.
+seconds to mark available and loading regions. They draw as a thin blue strip
+directly under the ruler's bottom line and follow its zoom and pan. The strip
+is decorative: it takes no pointer or keyboard input.
 
 ## Props
 

@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/layout.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/layout.md at 0.152.2 26fd86b; do not edit -->
 
 # Layout control
 
@@ -99,3 +99,22 @@ Content queries compare metadata values supplied by the application.
 
 This release's transport controls a selected local browser session. It does not
 provide unattended remote workspace control or persist live session IDs across reloads.
+
+## 3D Preview panels
+
+`dl viewer` works with the 3D Preview of a bundle entry, a library asset or a
+scene version: the panel that `:viewer[...]` opens in a Memo. A reference is
+`ns/bundle[@N]#entry` (preferred), `library:ns/lib#asset` or `scene:ns/name[@N]`.
+
+```bash
+dl viewer ref fortyfive/teleop-berry@1#scene          # :viewer[fortyfive/teleop-berry@1#scene]
+dl viewer ref library:fortyfive/flexiv#rizon4s --json # ref, type, directive, page
+dl viewer open fortyfive/teleop-berry@1#scene --cdp http://127.0.0.1:9222 --page PAGE_ID --layout LAYOUT_ID
+```
+
+`dl viewer open` reads the layout revision, then applies one `open` request for
+view kind `asset-preview` with only `{ ref }` as content, beside the first
+region (`--destination REGION_ID` and `--placement tab|left|right|above|below`
+change that). The page resolves the reference as the signed-in user; the
+request carries no credentials or share tokens. It exits nonzero unless the
+request is applied.

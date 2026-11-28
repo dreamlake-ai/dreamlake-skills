@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/workflows.md at 0.1.246 0cede4387; do not edit -->
 
 {/* FigWf* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -136,3 +136,8 @@ supports Project, ordinary Project files/images/videos and owned Memos.
 A mount/reference of this resource blocks
 the entire transfer rather than silently excluding it. Its existing independent
 sharing and released Project-derived content access remain available.
+
+## Saved URLs
+
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

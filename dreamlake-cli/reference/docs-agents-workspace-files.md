@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/workspace-files.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/workspace-files.md at 0.1.246 0cede4387; do not edit -->
 
 # Agent workspace files
 
@@ -44,7 +44,9 @@ workspace files; use Source or library APIs to consume those assets.
 ## Paths and revisions
 
 `prefix` is an explicit root inside the selected endpoint. `path` is relative
-to that root; returned paths remain relative. Empty paths select the root for
+to that root; returned paths remain relative. Use `prefix: ""` for the Source
+root, not `"/"`; a subfolder prefix also has no leading or trailing slash.
+Empty paths select the root for
 listing. Absolute paths, backslashes, empty segments, `.` and `..` are rejected.
 Names containing percent escapes are literal names and are never decoded again.
 A prefix confines one operation but is not an authorization grant: a caller

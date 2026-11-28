@@ -1,10 +1,14 @@
 {
   "name": "dreamlake-session-archives",
-  "description": "Configure namespace-bound local session discovery and restricted archive storage, inspect upload consent and historical coverage, and recover interrupted archival without granting remote execution.",
-  "requires": ["dreamlake-cli", "dreamlake-lakeshore"],
+  "description": "Configure local session Sources and archives, inspect native relationships, and manage personal session names and list placement without changing provider records or granting remote execution.",
+  "requires": [
+    "dreamlake-cli",
+    "dreamlake-lakeshore"
+  ],
   "docs": [
     "https://docs.dreamlake.ai/sources",
-    "https://cli.dreamlake.ai/sessions"
+    "https://cli.dreamlake.ai/sessions",
+    "https://docs.dreamlake.ai/lakeshore/hosts/native-session-lineage"
   ],
   "tools": null
 }

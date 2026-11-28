@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/episode-line-chart.md at 0.33.7 6566643f; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/episode-line-chart.md at 0.35.7 bc55070d; do not edit -->
 
 # Line charts
 
@@ -18,7 +18,12 @@ The example uses a three-second recording, fractional-second labels and short
 major/minor tick marks. All four charts share `time`, zoom and pan;
 only the hovered chart shows a local readout. Press and drag updates shared time
 through `onSeek` (or the legacy `onHover` callback when `onSeek` is absent).
-`isScrubOwner` controls the shared hairline emphasis and keyboard readout. The readout follows both pointer axes in a body portal,
+`isScrubOwner` controls cursor emphasis and the keyboard readout.
+While pressing and dragging, a thin vertical cursor line and outlined position
+label mark the local seek time immediately, even before the host updates `time`. The label
+stays inside the plot at either endpoint; release, cancellation, Escape, or
+window blur ends the held state. Only the hovered or keyboard-active chart
+reveals its position marker. The separate sample tooltip follows both pointer axes in a body portal,
 stays 12px below and to the right of the pointer and can extend beyond the chart.
 Only browser edges clamp it into view. It passes pointer events through; Escape dismisses it. Keyboard zoom/pan shows the focused
 chart's readout when `time` is set. Recorded sample values are never interpolated.
@@ -95,6 +100,7 @@ export function CompactSpec() {
                 markers={markers}
                 ranges={ranges}
                 time={time}
+                onClearCursor={() => setTime(null)}
                 onSeek={(time) => {
                   setTime(time);
                   setSeek(time);
@@ -161,6 +167,54 @@ the complete wiring:
 
 The y-axis fits the data automatically. Set `yRange` to compare several charts
 on a fixed scale; [Numeric axes](https://viz.dreamlake.ai/components/numeric-axis) explains tick labels.
+
+## Progressive loading and gaps
+
+An endpoint arriving early must not create a line through unloaded data. Supply
+`data.coverage` with the immutable loaded intervals belonging to that snapshot
+(sorted, with touching intervals merged).
+Lines, uncertainty bands, trace hits and readouts stay empty across uncovered
+intervals. MCAP datasets supply this metadata automatically, including missing
+overlapping chunks. The shared playback cursor can still move through a gap.
+
+Leave `coverage` absent for a complete recording; irregular sample spacing does
+not imply missing data. An empty array means nothing has loaded. Replace the
+whole data object as samples and coverage arrive. Explicit `NaN` samples also
+break a trace. Hover the middle below, then load its deferred observations:
+
+```tsx file="ProgressiveSeriesSpec.tsx"
+
+/** The endpoint is loaded first; the middle observations arrive later. */
+export function ProgressiveSeriesSpec() {
+  const [complete, setComplete] = useState(false)
+  const [time, setTime] = useState<number | null>(null)
+  return (
+    <div>
+      <Button onClick={() => setComplete(value => !value)}>
+        {complete ? 'Defer middle data' : 'Load middle data'}
+      </Button>
+      <div className="mt-3 h-[170px]">
+        <EpisodeLineChart
+          title="Progressive recording"
+          duration={10}
+          time={time}
+          onSeek={setTime}
+          series={[{
+            id: 'recorded', label: 'Recorded value', color: '#3388aa',
+            data: complete ? {
+              x: [0, 1, 3, 4, 7, 9, 10], y: [1, 2, 1, 3, 2, 3, 4],
+              coverage: [{ from: 0, to: 10 }],
+            } : {
+              x: [0, 1, 9, 10], y: [1, 2, 3, 4],
+              coverage: [{ from: 0, to: 1 }, { from: 9, to: 10 }],
+            },
+          }]}
+        />
+      </div>
+    </div>
+  )
+}
+```
 
 ## Line width and active emphasis
 
@@ -594,7 +648,7 @@ export function SharedViewportSpec() {
         <EpisodeTimeline duration={duration} frames={[]} tracks={[{ id: 'phase', name: 'Episode phase', blocks: ranges }]} {...shared} {...bind('timeline')} />
       </div>
       <p className="text-xs opacity-70">One shared window for both charts and timeline. Event times stay absolute: Contact 6 s, Grasp 7–12 s, Release 14 s. The camera follows the same absolute preview/playhead time.</p>
-      <p className="text-xs opacity-70">Alt/Ctrl/Meta + wheel zooms at the pointer. Press and drag to scrub. Alt-drag pans; Shift-drag zooms. Hover only shows the local readout. Focus a plot for + / −, arrow keys, or Home. Plain vertical scrolling stays with the page.</p>
+      <p className="text-xs opacity-70">Alt/Ctrl/Meta + wheel zooms at the pointer. Press and drag to scrub: a blue vertical bar marks the active position on the chart or timeline. Alt-drag pans; Shift-drag zooms. Hover only shows the local readout. Focus a plot for + / −, arrow keys, or Home. Plain vertical scrolling stays with the page.</p>
     </div>
   )
 }
@@ -626,6 +680,33 @@ props for local viewport state. Reset a controlled group to `{ zoom: 1, panPct: 
 
 Pan and zoom gestures do not seek. Ordinary vertical wheel scrolling scrolls the page.
 All chart layers follow the viewport; a cursor outside it is hidden.
+
+The selected position stays visible as a thin vertical line after a click or
+held drag. Hover previews a second position without changing the pin: the
+preview is blue and the parked position remains light gray. Leaving the plot
+restores the parked cursor. Linked charts retain their shared position.
+
+Pass `onClearCursor` to show a small × above the cursor, outside the plot.
+Clearing removes the pin; it does not seek or obscure the curves. The control
+has its own reserved row, so showing it never shifts the plot. There is no
+wedged label over the data. The local sample tooltip still follows the pointer.
+Charts do not add a focus or active-selection border.
+
+Keep playback controlled through `onSeek`; ordinary hover does not change it:
+
+```tsx
+const [time, setTime] = useState(0)
+
+<EpisodeLineChart
+  series={series}
+  duration={duration}
+  time={time}
+  onSeek={setTime}
+/>
+```
+
+Compact video previews use the same press-and-drag interaction. Expanded media
+uses its timeline below the image, keeping the image available for inspection.
 
 ## Dense series
 
@@ -958,8 +1039,9 @@ export const EpisodeViewSpec = () => {
 ### Cursor sync protocol
 
 Share `time` across charts. Each chart detects local hover automatically; peers
-show shared hairlines without duplicate readouts. Optionally track the owner
-with `isScrubOwner` to also distinguish bright and muted hairlines.
+retain the same time while their position markers and readouts stay hidden.
+Optionally track the owner with `isScrubOwner` to distinguish active cursor
+emphasis and control the keyboard readout.
 
 ```tsx
 const [time, setTime] = useState<number | null>(null)
@@ -1028,7 +1110,7 @@ can extend outside the plot and any clipping ancestor. Only the browser viewport
 clamps it as needed to keep an 8px margin. Moving the pointer still moves the
 readout when controlled `time` is frozen; sample selection continues to use the
 chart's time semantics. Scrolling updates its position without anchoring it to
-the chart corner. Peers show only the shared hairline. Hover readouts always
+the chart corner. Peers keep their shared time without showing a marker. Hover readouts always
 pass pointer events through.
 
 ## Disabled state

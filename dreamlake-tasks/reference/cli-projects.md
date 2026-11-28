@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/projects.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/projects.md at 0.152.2 26fd86b; do not edit -->
 
 # Projects & data
 
@@ -22,6 +22,7 @@ DreamLake organizes assets in a hierarchy: a **project** contains
 
 ```bash file="terminal"
 dl create project my-robots --description "robot captures"   # private
+dl create project product-demo --visibility unlisted          # anyone with the link
 dl create project shared-set --public                        # public
 dl update project my-robots --public                         # flip visibility
 dl list project
@@ -29,7 +30,12 @@ dl delete project my-robots                                  # soft delete; the 
 ```
 
 Projects are **private by default**; `--public` / `--visibility public`
-shares them. `update project` also changes `--name`, `--description`, `--tags`.
+shares them publicly. `--visibility unlisted` allows anyone with the direct Project
+link to read without listing it on public profiles, catalogs or namespace search.
+Use `dl update project product-demo --visibility private` to revoke link-only
+access. Mounted resources keep their own permissions; share the intended Memos,
+Artifacts and other items separately. Restricted Projects must remain private.
+`update project` also changes `--name`, `--description`, `--tags`.
 
 > **Warning:** `delete project` is a soft delete with no restore. Everything filed in the
 > project (Memos, artifacts, workflows, annotations, envs, Sources) is unfiled
@@ -199,10 +205,12 @@ values is rejected. These flags identify the source workspace, not a destination
 dl project access research --ns acme --json
 # Remove the workspace-member Read baseline; explicit grants remain.
 dl project access research --ns acme --mode restricted
-# A public Project must become private atomically when restricted.
+# A public or unlisted Project must become private atomically when restricted.
 dl project access research --ns acme --mode restricted --visibility private
 # Restore the workspace-member baseline; this does not make the Project public.
 dl project access research --ns acme --mode workspace
+# Share by link while keeping the Project out of public discovery.
+dl project access research --ns acme --mode workspace --visibility unlisted
 ```
 
 `workspace` preserves the existing workspace-member Read baseline. `restricted`
@@ -232,8 +240,8 @@ A missing/mismatched creation acknowledgment is an unknown outcome; retain any
 returned Project ID and inspect before retrying. Omitted access mode keeps the
 existing creation payload and default workspace behavior unchanged.
 
-`restricted` with final public visibility is refused. `--visibility private`
-explicitly authorizes the atomic public-to-private change; omitting it must not
+`restricted` with final public or unlisted visibility is refused. `--visibility private`
+explicitly authorizes the atomic change to private; omitting it must not
 silently hide a public Project. The command does not change recipients, team
 membership, resource ownership, or file/Memo content. Use the existing grant and
 revoke commands below for recipient access.
@@ -286,6 +294,110 @@ Denied or uncertain responses are failures; inspect current grants before retryi
 Verify installation and matching server deployment separately. No ownership adapter
 is enabled by granting project access.
 
+## Share a Project with another namespace
+
+A Project ADMIN can share a Project with another namespace, personal or
+organization. The recipient namespace's OWNER accepts or declines. Once
+accepted, members of that namespace get the shared role on the Project. The
+role is `READ` or `WRITE`; `ADMIN` cannot be shared, and a share never lets the
+recipient run anything as the owning namespace. A Project cannot be shared with
+its own namespace. User and team grants are separate and stay as they are.
+
+These commands need a server with cross-namespace Project sharing. `--namespace`
+is the owning namespace for `shares`, `share` and `unshare`, and the receiving
+namespace for `shared`, `accept-share` and `leave-share`.
+
+```bash cli-help="project share"
+# Invite a namespace with READ; nothing is shared until one of its owners accepts.
+dl project share research --namespace acme --to partner-lab
+# Propose an upgrade; READ stays in effect until the recipient accepts.
+dl project share research --namespace acme --to partner-lab --role WRITE
+# Downgrade; READ applies immediately, with nothing for the recipient to accept.
+dl project share research --namespace acme --to partner-lab --role READ
+```
+
+```bash cli-help="project shares"
+dl project shares research --namespace acme
+```
+
+```bash cli-help="project unshare"
+# Use the exact share ID from the list.
+dl project shares research --namespace acme
+dl project unshare research SHARE_ID --namespace acme
+```
+
+`--role` defaults to `READ`. Running `share` again for the same recipient
+changes the role. An invitation or an upgrade is a proposal: it gets a new
+`revision` and waits for the recipient, and a pending upgrade keeps the current
+role in effect. A downgrade needs no acceptance and applies immediately.
+`unshare` withdraws a pending invitation or ends an active share.
+
+The recipient side works from the receiving namespace:
+
+```bash cli-help="project shared"
+dl project shared --namespace partner-lab
+```
+
+```bash cli-help="project accept-share"
+# Accept exactly the revision you reviewed in the list.
+dl project shared --namespace partner-lab
+dl project accept-share SHARE_ID --namespace partner-lab --revision 3
+```
+
+```bash cli-help="project leave-share"
+# Decline a pending invitation, or leave a Project already shared with you.
+dl project leave-share SHARE_ID --namespace partner-lab
+```
+
+`shared` lists active shares for every member of the namespace; pending
+invitations and upgrades appear for its owners only. `accept-share` requires
+`--revision`. If the owning side changed the proposal after you listed it, the
+server refuses the stale revision; list again and review the new one.
+`leave-share` always ends the whole share. On an active share with a pending
+upgrade it removes the current role as well as the proposal; to keep the
+current role, leave the upgrade unaccepted.
+
+Each share has `id`, `projectId`, `projectSlug`, `sourceNamespace`,
+`targetNamespace`, `role`, `proposedRole` and `revision`. `role` is `null` while
+an invitation is pending, and `proposedRole` is `null` when nothing is waiting.
+`projectId` and `sourceNamespace` stay stable when the Project is renamed, so use
+them to address a shared Project. In a terminal, lists print a table and changes
+print one summary line; `--json` or piped output is the server's JSON, and
+`unshare` and `leave-share` print `{ "shareId", "revoked": true }` and
+`{ "shareId", "removed": true }`.
+
+Each change sends one request and is never retried. The CLI checks that the
+returned share names the same Project, namespaces and role it asked for. If that
+check fails, or the request fails without a clear refusal, the outcome is
+unknown: list the shares before trying again. A 401, 403 or 404 is a failure,
+not an empty list.
+
+TypeScript uses the same namespace-bound API:
+
+```typescript
+// Sending side: propose, then list. Role defaults to READ when omitted.
+const source = client.projects('acme')
+const proposed = await source.shareWithNamespace({
+  project: projectId, targetNamespace: 'partner-lab', role: 'WRITE',
+})
+const { shares } = await source.namespaceShares({ project: projectId })
+
+// Receiving side: list, then accept the exact revision that was reviewed.
+const recipient = client.projects('partner-lab')
+const { shares: incoming } = await recipient.sharedProjects()
+const invitation = incoming.find(share => share.id === proposed.id)!
+await recipient.acceptSharedProject({ shareId: invitation.id, revision: invitation.revision })
+
+// Later, end the share from either side. These are alternatives; either one ends the whole share.
+await recipient.leaveSharedProject({ shareId: invitation.id })
+// await source.revokeNamespaceShare({ project: projectId, shareId: proposed.id })
+```
+
+`shareWithNamespace` uses `READ` when `role` is omitted. Mutations that the
+server answers with an unexpected share throw `ApiError` with
+code `project_namespace_share_unconfirmed`. Types: `ProjectNamespaceShare`,
+`ProjectNamespaceShareList` and `ProjectNamespaceShareRole`.
+
 ## Project attachment access (CLI 0.62.0)
 
 Independent resource share links remain available. Explicit Project user/team
@@ -306,6 +418,12 @@ permission; readable content cannot be redistributed by a reader.
 Available in CLI 0.62.0 with the companion Project-sharing backend release.
 Ownership transfer remains separately execution-gated. Check installed help
 and server support before relying on attachment commands.
+
+File a registered Repo from the same namespace under `sources/`. The Project tab shows its remote and snapshots. Project filing preserves the Repo’s existing namespace access. Use `--parent` to select another Project folder.
+
+```bash
+dl project attach research --namespace acme --type repo --resource "$REPO_ID"
+```
 
 **CLI 0.142.0+:** the `dash` attachment files the current Project’s live experiment browser under
 `experiments/Dash`. Click the node to browse folders, runs and their data in the
@@ -432,6 +550,20 @@ rows in a grant/member source or 1,000 candidate users with
 The established `grant`, `grants`, `revoke`, `inspect` and JSON commands remain
 available for scripts. Independent attached-resource shares remain separate.
 
+A Project with no accepted namespace share returns the same `apiVersion: 1`,
+`complete: true` snapshot as before. Once a share is accepted, the response is
+`apiVersion: 2` with `complete: false` and a `namespaceAudience` list of
+`{ kind: "namespace", shareId, namespace, role, membersListed: false }`. Members
+of a shared namespace are not listed, so `people` and their sources describe
+only independently named access paths: grants, membership, owners and public.
+Someone listed with no named path, or whose last named path a revocation would
+remove, may still have access through a shared namespace. The terminal view and
+revoke and mode previews show the shared namespaces and say so instead of
+claiming "no Project access". Any other version, a v2 response without a
+shared namespace, or a list longer than its `limit` fails closed. In TypeScript,
+`ProjectAudience` is `ProjectAudienceV1 | ProjectAudienceV2`; check `apiVersion`
+before reading `namespaceAudience`.
+
 ## Rename and project addresses
 
 New projects created without an explicit slug follow their display name. A
@@ -497,3 +629,9 @@ Ordinary files inherit their folder's visibility; explicitly private subfolders
 and independently private resources remain private. A Bindr shares its grouping
 and grants no new access to its members or its Project. Native runs still require
 a signed-in Project reader. See the [folder visibility contract](https://docs.dreamlake.ai/workspaces/folder-visibility/).
+
+## Saved URLs
+
+Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
+covers list, add, read, update and remove commands, immutable resource IDs,
+creation recovery, version conflicts, and the TypeScript API.

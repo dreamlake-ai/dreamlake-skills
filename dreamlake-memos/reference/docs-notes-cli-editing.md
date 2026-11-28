@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/cli-editing.md at 0.1.246 0cede4387; do not edit -->
 
 # Read, edit and search from the CLI
 
@@ -657,60 +657,63 @@ check = note.read(if_match=rev.etag)      # refused if anything changed since
 
     The endpoints underneath, if you need them directly.
 
-## Proposed incremental insertion and concurrency defaults
+## Native streaming and concurrency defaults
 
-**Not available in the checked clients.** The published TypeScript/CLI package
-`@dreamlake/dreamlake-cli` 0.125.3 and Python `dreamlake` 0.52.2 do not expose the
-streaming methods and flags below (artifact audit: 15 November 2026). This section
-records the intended contract; its examples and defaults must not be treated as
-released client behavior. Continue using the supported editing commands above
-and inspect each command's installed help for its conflict mode.
+**Release candidate, publication pending (25 November 2026):** the interfaces
+below are implemented on the native-streaming CLI/TypeScript and Python branches.
+Published CLI 0.147.1 and Python 0.59.0 do not contain these additions. Verify the
+installed methods and command help before use; package publication and the matching
+backend production acceptance are separate requirements. A merged source change
+is not a published release.
 
-The proposed collaborative editing update adds `note.streamInsert` in TypeScript and
-`note.stream_insert` in Python. These accept an original snapshot or revision,
-a code-point cursor and an iterable of text chunks; TypeScript also accepts an
-async iterable. CLI `memos insert --file -` uses the same sequential ACK workflow
-by default (`--no-stream` selects a single buffered insertion). Each request
-contains at most 2048 code points. Batch producer tokens to limit request overhead.
+`note.streamInsert` (TypeScript) and `note.stream_insert` (Python) accept an
+original snapshot or revision, a Unicode code-point cursor and an iterable of
+text chunks. TypeScript also accepts an async iterable. The CLI streams UTF-8
+stdin with `memos insert --file -`; `--no-stream` buffers one ordinary insertion.
+One authenticated persistent connection keeps a native RTC session and relative
+cursor alive. Chunks are bounded to 2048 code points and wait for acknowledgment.
+The client does not simulate typing or pace a completed document.
 
 ```python
 import dreamlake as dl
 note = dl.memos(memo_id)
 original = note.read()
-for receipt in note.stream_insert(at=original, cursor=0, chunks=generated_chunks):
+for receipt in note.stream_insert(at=original, cursor=0, chunks=generated_chunks,
+                                  intent="Add the explanation."):
     persist_receipt(receipt)
 ```
 
 ```typescript
 const note = dl.memos(memoId)
 const original = await note.read()
-for await (const receipt of note.streamInsert({at: original, cursor: 0, chunks: generatedChunks})) {
+for await (const receipt of note.streamInsert({at: original, cursor: 0,
+  chunks: generatedChunks, intent: "Add the explanation."})) {
   await persistReceipt(receipt)
 }
 ```
 
-The server returns `continuation: {revision, cursor}` after a single insertion.
-The stream uses the returned code-point cursor in that retained ACK revision,
-so human changes before the insertion point do not misplace the next chunk.
-A changed target gap or deleted anchor stops the stream. Never follow the
-human's moving selection, increment an old offset or search for inserted text.
+The cursor belongs to the agent. Its native anchor advances after each accepted
+chunk and survives independent human edits; it never follows the human caret.
+A deleted anchor, changed room or lost authority stops the stream. Concurrent
+insertions can converge without necessarily producing coherent prose.
 
-Merge is the default for patch, write, revise and insertion across these clients.
-Exact remains opt-in (`mode="exact"`, `mode: "exact"`, or CLI `--exact`) and
-checks the original revision separately for each chunk. Both modes commit
-through RTC. CLI `revise` checkpoints its retained ACK, including merged human
-contributions, even when the live draft advances afterward.
+Merge is the default for patch, write, revise and insertion. Exact is explicit
+(`mode="exact"`, `mode: "exact"`, or `--exact`) and checks each commit. Both use
+RTC. Exact does not lock the document or roll back earlier streamed chunks.
+CLI `revise` checkpoints its retained ACK, including merged human contributions.
 
-An older server may acknowledge a chunk without continuation; clients yield the
-receipt and stop rather than guessing or resending it. SDK interruption errors
-carry `lastReceipt` / `last_receipt` and `pending`. Reconcile the pending command
-ID before continuing. Canceling preserves accepted text. CLI JSON output is one
-receipt per line. Optional stream IDs prefix unique chunk command IDs; do not
-restart a partially accepted stream from chunk zero.
+Each receipt exposes `continuation: {revision, cursor}` for readback and later
+reviewed operations. The live session maintains relative anchors internally;
+never derive subsequent offsets by text search or arithmetic on an old source.
+On interruption preserve `lastReceipt` / `last_receipt` and `pending`, inspect the
+partial result and reconcile before writing again. Stream IDs label diagnostics;
+they are not HTTP command IDs and do not work with `command-status`. Never replay
+accepted text or restart a partial stream from chunk zero. Canceling stops future
+chunks. CLI `--json` emits one receipt per line.
 
-Built-in insertion tools expose continuation for successive completed calls;
-they do not execute unfinished model tool arguments. Publish presence intent and
-save before/after checkpoints for the logical edit, not every chunk. The Python
-version facade still supports list/read only; do not invent `versions.save` or
-`revise` SDK methods. See the [cross-client contract](https://docs.dreamlake.ai/notes/api/editing) and
-[CLI editing guide](https://cli.dreamlake.ai/notes/editing/) for recovery details.
+The built-in `dreamlake_notes_stream` tool sends one complete text argument
+through the same native session engine. It starts after full arguments are
+validated; partial model tool JSON remains a preview. CLI/SDK producer streams
+can instead receive text as it is generated. Keep one reviewed before checkpoint
+and one verified after checkpoint per logical edit. The Python version facade
+supports list/read; do not invent `versions.save` or `revise` methods.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/linked-items.md at 0.1.246 0cede4387; do not edit -->
 
 # Linked memo items
 
@@ -84,6 +84,26 @@ Badges show titles only after your access is checked. Otherwise they read
 clicked. A reference grants no access. Invalid paths stay literal text. Use
 `:experiment`, not `:run`: in DreamLake, runs are Lakeshore function
 invocations.
+
+## Task references
+
+Open the Task and select **Copy Task reference**. Paste the reference into a
+Memo. Use the full Task ID and the namespace and Project slug from the Task.
+
+```markdown
+1. Complete :task[geyang/demo-project/6aa9951250d9de84058e8ebb].
+```
+
+The badge shows the Task title after DreamLake checks access to the Task.
+Open the badge to go to the Task page. Missing, deleted, or inaccessible
+Tasks show **Unavailable Task**. References in code remain literal.
+
+The Task ID stays the same when a Task is renamed or moved within its
+Project. Existing Task-to-Memo role links keep their current operation.
+Mapped HTML from the Memo API carries the source range and Task address
+as an unresolved badge. The browser reads the title from the authorized Task API.
+
+You can also [copy a reference with the CLI](https://cli.dreamlake.ai/tasks/#copy-a-task-reference-for-a-memo).
 
 ## Bundles
 

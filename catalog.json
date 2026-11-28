@@ -1,14 +1,15 @@
 {
   "schema": 1,
-  "version": "v2026.11.23.1",
+  "version": "v2026.11.23.1-1-gf4314828",
   "skills": {
     "dreamlake-agents": {
-      "description": "Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery.",
+      "description": "Create and maintain DreamLake agent definitions, use discovered resource APIs, and run authorized remote commands or interactive shells through the built-in agent.",
       "requires": [
-        "dreamlake-cli"
+        "dreamlake-cli",
+        "dreamlake-links"
       ],
       "tools": null,
-      "files": 6
+      "files": 7
     },
     "dreamlake-annotations": {
       "description": "Create, extend, revise and read DreamLake annotations with the Python SDK; manage titles, URL slugs, visibility and signed-in sharing through the metadata API or CLI while preserving resource identity.",
@@ -23,12 +24,12 @@
       "files": 7
     },
     "dreamlake-artifacts": {
-      "description": "Author, publish, version, list, share, revoke, remove and restore standalone DreamLake artifacts, and reference them from Memos. Excludes Source-owned custom visualizations.",
+      "description": "Author, publish, version and manage DreamLake artifacts, including static sites; design interactive interfaces with Vike, React, TypeScript and DreamLake UIKit by default. Excludes Source-owned visualizations, hosted-page generation and Memo editing.",
       "requires": [
         "dreamlake-cli"
       ],
       "tools": null,
-      "files": 16
+      "files": 17
     },
     "dreamlake-bundles": {
       "description": "Publish, pull, check and search DreamLake bundles: versioned sets of robot, part, object, scene, env and env-set entries. Push a bundle, pull one entry with its uses and refs closure, write lock files, check declarations, import libraries and scenes. Not for code (dl runnable).",
@@ -68,7 +69,7 @@
         "dreamlake-ripple"
       ],
       "tools": null,
-      "files": 14
+      "files": 15
     },
     "dreamlake-libraries": {
       "description": "Publish, curate, search and pull DreamLake asset libraries: push a directory of 3D assets zero-config, curate it with dreamlake.yml, add thumbnails and semantic search, search per asset across libraries, inspect without downloading, pull one asset or the whole tree, add or remove single assets.",
@@ -77,6 +78,14 @@
       ],
       "tools": null,
       "files": 8
+    },
+    "dreamlake-links": {
+      "description": "Save and manage web or DreamLake URLs as files in Project, Source, and Bindr lists; integrate link files through CLI or SDKs and recover earlier saved URL records.",
+      "requires": [
+        "dreamlake-cli"
+      ],
+      "tools": null,
+      "files": 4
     },
     "dreamlake-memos": {
       "description": "Work with DreamLake Memos: read and edit with revision guards, inspect presence and human selections, compare recent changes, follow collaboration, manage versions and files, create or summarize memos, file into Projects, link resources and transfer ownership.",
@@ -108,18 +117,19 @@
       "files": 17
     },
     "dreamlake-session-archives": {
-      "description": "Configure namespace-bound local session discovery and restricted archive storage, inspect upload consent and historical coverage, and recover interrupted archival without granting remote execution.",
+      "description": "Configure local session Sources and archives, inspect native relationships, and manage personal session names and list placement without changing provider records or granting remote execution.",
       "requires": [
         "dreamlake-cli",
         "dreamlake-lakeshore"
       ],
       "tools": null,
-      "files": 4
+      "files": 6
     },
     "dreamlake-tasks": {
       "description": "Design and operate DreamLake task folders, subtasks, waterfall and status views, progress events and linked Memos for prompts, comments, details and acceptance; for task tracking inside a Project, not execution scheduling, and only after checking the installed CLI and target server.",
       "requires": [
-        "dreamlake-cli"
+        "dreamlake-cli",
+        "dreamlake-memos"
       ],
       "tools": null,
       "files": 10

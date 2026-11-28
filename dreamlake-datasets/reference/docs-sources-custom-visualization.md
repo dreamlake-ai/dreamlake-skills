@@ -1,20 +1,27 @@
-<!-- generated from https://docs.dreamlake.ai/sources/custom-visualization.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/sources/custom-visualization.md at 0.1.246 0cede4387; do not edit -->
 
 # Custom Source visualization
 
+For built-in episode browsing and playback, read [Episodes and playback](https://docs.dreamlake.ai/sources/views/episodes).
+The broader [Source views guide](https://docs.dreamlake.ai/sources/views) also labels proposed contracts.
+This page documents the supported HTML application and read bridge.
+
 A Source can render your HTML, JavaScript, CSS or statically exported React/Vite
-application in its Visualize tab. Its `.dreamrc` selects the application:
+application in a named folder-level tab. Its `.dreamrc` selects the application:
 
 ```yaml file=".dreamrc"
 visualize:
   type: custom
+  title: Overview
   entry: .dreamlake/visualization/index.html
 ```
 
 The entry is a Source-root-relative HTML file under `.dreamlake/visualization/`.
 The application is Source content: it has no Artifact catalog entry, independent
-ACL, public URL or share settings. Existing dataset/annotation configurations
-continue to use their existing renderers when no custom visualization is selected.
+ACL, public URL or share settings. Keep a valid `dataset` and `views` configuration
+to retain a separate episode browser alongside this application. With only custom HTML configured, no episode
+list is implied. The HTML application controls its own layout; episode chart
+row/grid controls do not rearrange it.
 
 ## Build and publish
 

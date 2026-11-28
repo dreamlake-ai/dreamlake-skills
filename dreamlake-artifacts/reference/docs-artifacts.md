@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/artifacts.md at 0.1.246 0cede4387; do not edit -->
 
 {/* FigWhat/FigPush/FigVersions/FigTrash come from the site-wide
     mdxComponents map in site.config.ts — no import needed. */}
@@ -294,13 +294,34 @@ transform or cache object bytes for your application.
 
 ## Preview spacing
 
-Artifact previews start with zero page margin and padding. This applies to the
-shared renderer and the default HTML document inside its isolated iframe.
-HTML and React authors can add spacing explicitly within their content; the
-preview does not add an outer gutter. To show an image edge to edge, remove
-padding from its authored container and use `display: block` on the image.
-Fit preserves the image's aspect ratio, so a differently shaped viewport can
-still leave unused space; zero padding does not crop or stretch the image.
+The built-in Artifact and file preview panels fill the space below their tabs,
+with no host padding or extra file header. The shared renderer and default HTML
+document also start with zero page margin and padding. Content owns its spacing,
+so the same artifact works in a narrow panel, standalone viewer and full screen.
+
+For readable documents, forms and dashboards, put responsive padding on the
+content's own container: use 16px in narrow panels and up to 32px when space
+allows. Keep backgrounds full width and put the gutter inside the content.
+For example, in HTML or a React component's stylesheet:
+
+```css
+html, body { margin: 0; padding: 0; }
+.artifact-content {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  padding: clamp(16px, 3vw, 32px);
+}
+```
+
+Wrap readable content in `<main class="artifact-content">` (React uses
+`className`). Avoid fixed outer margins or assuming the host supplies a gutter.
+Check the artifact in both a narrow built-in panel and a wide viewer before
+publishing. Full-bleed images, maps, canvases and slide backgrounds may use zero
+padding; give their text and controls an inset within the content where needed.
+Use `display: block` on an edge-to-edge image. Fit preserves the image's aspect
+ratio, so a differently shaped viewport can still leave unused space; zero
+padding does not crop or stretch the image.
 
 ## Reference an artifact from a Memo (development preview)
 
@@ -868,3 +889,8 @@ the Artifact body. Opening the Artifact itself still uses its interactive viewer
 Neither a scan interval, a view nor successful publication guarantees a
 thumbnail completion time. Prefer generating and inspecting an explicit cover
 with `--cover`; cloud generation is the fallback.
+
+## Saved URLs
+
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

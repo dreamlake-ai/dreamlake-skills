@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/editing.md at 0.152.2 26fd86b; do not edit -->
 
 # Editing with patches
 
@@ -544,7 +544,7 @@ exact replacement text; empty replacement text deletes the span.
 
 Original-revision whole-body `write` requires CLI 0.61.0 or later and the
 compatible Memos v2 API. CLI 0.60.0 and earlier keep whole-body write on the
-retained ETag interface. Modern write derives bounded, exact code-point changes between an original source snapshot and your target
+retained ETag interface. Default merge write derives bounded, exact code-point changes between an original source snapshot and your target
 body, retaining unchanged source islands even inside one paragraph. It emits
 ordered disjoint hunks in one v2 PATCH, rather than replacing the complete body.
 
@@ -564,8 +564,19 @@ and protects the subsequent request window; that cannot prove which source an
 older local file came from. A supplied baseline pins the retained source with
 `at`; rejected tokens are never silently exchanged for the latest revision.
 Default merge preserves unrelated concurrent changes outside the planned spans;
-`--exact` requires the original revision to remain current. Concurrent edits
+`--exact` explicitly replaces the changed body and requires the original revision to remain current. Concurrent edits
 that overlap those spans can reject and need review of the original draft.
+
+For a substantial rewrite, use `dl notes write "$MEMO_ID" --file draft.md
+--base-revision "$BASE" --exact`. This plans one replacement in linear time,
+retaining identical leading and trailing text. Characters inside the replaced
+span receive new collaborative text identities, including any unchanged words
+inside that span. The Memo and its saved history remain intact. The server
+commits native collaborative edits only if the original revision is still
+current; a concurrent change rejects the request without overwriting it.
+The SDK's `replaceContent(..., "exact")` and exact-mode `write` use the same
+contract. This replacement behavior applies to whole-body writes; exact-mode
+patches keep their supplied edit spans.
 
 `--text`, `--file`, `--file -`, and piped stdin preserve literal Unicode and line
 endings. Modern file/stdin bytes must be valid UTF-8; malformed input rejects before
@@ -580,11 +591,15 @@ LF only when absent); JSON includes the target `text` and actual PATCH. Neither
 preview predicts the future merged source. Text that resembles a unified diff
 still warns on stderr and is treated as a literal target body.
 
-Alignment is exact and bounded: source and target are limited to 1,000,000 code
-points each; generated patches to 8,000,000 UTF-8 bytes and 10,000 edits; alignment
+All whole-body writes limit source and target to 1,000,000 code points each and
+generated patches to 8,000,000 UTF-8 bytes and 10,000 edits. Merge-mode alignment
+is exact and bounded: alignment
 work to 4,000,000 cells and retained trace storage to 250,000 units. Sparse changes
 and supported dense changes preserve unchanged identities. Exceeding a limit
-fails before submission (exit 5); it never falls back to a coarse rewrite.
+fails before submission (exit 5); merge mode never falls back to replacement.
+These alignment limits bound CPU and memory used to discover unchanged text;
+they are not a document-size limit. Exact whole-body replacement does not need
+that alignment, so a large rewrite can succeed without raising those budgets.
 Invalid unpaired Unicode surrogates also reject. Lost/malformed acknowledgments
 are never replayed automatically; keep the original baseline and target and
 reconcile the Memo before resubmitting. Verify the acknowledged revision with

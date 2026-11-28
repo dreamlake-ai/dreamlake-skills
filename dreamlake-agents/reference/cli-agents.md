@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/agents.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/agents.md at 0.152.2 26fd86b; do not edit -->
 
 # Agents
 
@@ -84,6 +84,31 @@ Continue in the browser by opening the same account/page with `?s=<conversation-
 `--conversation`. Inspect durable results with
 `dl sessions tool-calls <conversation-id> --json`; use its `nextCursor` with
 `--cursor` for later pages.
+
+## Remote execution in agent chat
+
+Use `dl agents chat --host-execution` to grant the built-in agent remote
+execution tools for this turn. `--tools-write` also includes that scope,
+matching the browser's Full access setting. Neither flag creates host access:
+the server checks the caller's current connection permission and exact host
+and enrollment on every operation. `--control` alone grants session control,
+not arbitrary host commands.
+
+The agent uses `dreamlake_exec`, `dreamlake_ssh`, and their execution
+read/write/resize/cancel tools. Streaming output is printed to stdout or stderr;
+`--json` preserves each `execution_output` event, including its base64 bytes,
+execution ID and cursor. Async execution returns a handle the agent can use
+in later turns. These are agent tool modes, not new flags on `dl exec` or `dl ssh`.
+
+```bash
+# Name the exact existing host and requested command in your prompt.
+dl agents chat --namespace my-team --host-execution "On my-team/dev/worker, run pwd and report the exit code."
+```
+
+See [Remote shell execution](https://docs.dreamlake.ai/agents/resource-tools#remote-shell-execution)
+for shell versus argv behavior, prerequisites, output limits and uncertain-start
+recovery. Missing tools indicate that the server or selected agent definition
+does not offer this capability; do not retry through a broader identity.
 
 ## Agent definitions
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/bundles.md at 0.1.246 0cede4387; do not edit -->
 
 # Bundles
 
@@ -490,3 +490,8 @@ Refer to [Scene layers](https://docs.dreamlake.ai/scenes/layers) for the stack f
     Manifest fields, the hashing algorithm and the REST API.
 
     Import libraries and scenes into bundles. What stays the same.
+
+## Saved URLs
+
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.246 0cede4387; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}
@@ -484,3 +484,8 @@ That compatibility does not admit new fixed-manifest Project transfers. Preserve
 the original request/key after a lost response and never clear a claim or lease
 manually. Independent Scene sharing and released Project-derived content access
 remain available.
+
+## Saved URLs
+
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes.md at 0.1.246 0cede4387; do not edit -->
 
 # Memos
 
@@ -144,3 +144,8 @@ The skill's reference pages are fetched from this guide's published
 Markdown; its procedures are written in the
 [dreamlake-skills](https://github.com/dreamlake-ai/dreamlake-skills) repository.
 Correct a fact here first and a step there; see [Skills](https://docs.dreamlake.ai/dev/skills).
+
+## Saved URLs
+
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

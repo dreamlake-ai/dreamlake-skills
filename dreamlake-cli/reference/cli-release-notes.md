@@ -1,6 +1,108 @@
-<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/release-notes.md at 0.152.2 26fd86b; do not edit -->
 
 # Release notes
+
+## 0.152.0 — Machine service account unbind
+
+Use `dl service-accounts show` to review the binding and its grants, then
+`dl service-accounts unbind` to detach that binding and remove its own-host
+grant. The enrollment and machine key remain available for personal connections.
+See [service accounts](https://cli.dreamlake.ai/service-accounts#detach-a-machine-account).
+
+## 0.151.1 — Remote execution skill propagation
+
+Embeds the CLI skill and catalog from `v2026.11.27.1`, with references refreshed
+from the released remote execution documentation. The matching agent skill
+includes exec/SSH selection, streaming and async recovery, permissions and limits.
+
+## 0.151.0 — Built-in agent remote execution
+
+`dl agents chat --host-execution` opts into authorized remote command and SSH
+shell tools on a deployment that provides them. Text mode streams exact UTF-8
+output to stdout/stderr; JSON mode retains the structured events. Execution
+handles support streaming yields and asynchronous continuation through the
+built-in agent. Existing host access and agent-definition tool permissions apply.
+
+See [agent remote execution](cli-agents.md#remote-execution) for recovery and limits.
+
+## 0.146.5 — Unlisted Projects and CI/CT dispatch
+
+- Create or update Projects with `--visibility unlisted`. Anyone with the link can
+  read an unlisted Project without signing in; it stays out of public profiles
+  and search. Mounted resources keep their own access settings.
+- Restricted Projects remain private. Set visibility back to private to revoke
+  anonymous Project access.
+
+- `dl cict dispatch NS --repo owner/repo --workflow cict.yml [--ref branch]
+  [--input name=value]…` runs a workflow (`workflow_dispatch`) through the
+  namespace's GitHub App installation; `dl cict dispatches NS` lists what was
+  run and whether it started. SDK: `dl.cict(ns).dispatch(...)`,
+  `dispatches()` and `dispatchBranches()`. Needs a server with manual dispatch.
+- `dl cict runs show` names the DreamLake user for a run started this way.
+
+## 0.146.4 — Personal session presentation guidance
+
+Updates the pinned public skills release to
+[v2026.11.24.1](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.24.1).
+The embedded CLI skill carries refreshed published references; installing
+`dreamlake-session-archives` resolves its complete dependency closure with the
+personal-name, list-placement, revision-guarded Undo and archive verification
+procedures. Guidance distinguishes retained native bytes from readable messages
+and opaque inter-agent payloads, and preserves provider/component boundaries.
+This release does not add SDK presentation methods, enable unsupported provider
+body capture, or upgrade a running Nymph daemon.
+
+## 0.146.3 — DreamLake Account sign-in
+
+New production logins open `auth.dreamlake.ai`. Installed CLI versions and saved profiles can still use `auth.vuer.ai`. Their device requests continue on the original host, and the browser opens DreamLake Account for approval. Existing DreamLake tokens and namespace settings continue to work. The account site may ask you to sign in again on its new domain.
+
+## 0.146.2 — Native session relationship guidance
+
+The embedded `dreamlake-cli` skill now includes the native session relationship
+reference from product docs 0.1.223 and its inspection procedure. The public
+skill pin is
+[v2026.11.23.4](https://github.com/dreamlake-ai/dreamlake-skills/releases/tag/v2026.11.23.4),
+preserving the Memo SVG and account/namespace guidance. The CLI embeds
+`dreamlake-cli`; the full `dreamlake-session-archives` procedure and its required
+skills are installed from the public release.
+
+The guide distinguishes verified spawn, fork and component membership for Codex,
+Claude, Kimi Code and DeepSeek Harness. Signed metadata reporting requires Nymph
+0.1.73 or later, the source's explicit metadata permission and its applied binding.
+A CLI upgrade alone does not activate collection or change archive upload policy.
+This release adds guidance, with no new lineage CLI command or SDK method.
+
+## 0.146.0 — File Repos in Projects
+
+Use `dl project attach --type repo` to file a same-namespace Repo in a Project.
+The default folder is `sources/`. Select the node to browse snapshots in the
+Project tab. The Repo keeps its namespace read permissions.
+
+## 0.145.1 — Separate Files metadata consent
+
+`dl nymph access grant file-metadata` and `revoke file-metadata` manage Files
+metadata consent independently of upload consent on Nymph 0.1.71 or later.
+The overview displays the effective permission, including the upload fallback
+for older policies. Changes require restarting the selected enrollment.
+
+Nymph policy inspection accepts known optional boolean permissions and preserves
+them when editing another permission. Invalid or unknown fields remain rejected,
+and initial managed setup still requires deny-all access.
+
+## 0.145.0 — Named host archiving and parallel upgrades
+
+`dl hosts archive`, `restore`, and `lifecycle` accept exact full host names,
+including offline and archived records. Request IDs and expected revisions remain
+explicit; errors retain the resolved Host ID for safe retries.
+
+Fleet upgrades and rollbacks process five hosts concurrently by default, stop
+starting new hosts after five failures, and show live per-host remote status.
+Interactive terminals provide a paginated view; redirected output streams progress
+to stderr. Linux verification checks the running executable and refuses service
+overrides that would restart a different binary.
+
+This release also includes `dl viewer ref/open` and viewer directives in bundle
+entry output. The bundled skill remains pinned to published `v2026.11.23.1`.
 
 ## 0.138.0 — Worker downloads for targeted UDFs
 

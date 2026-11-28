@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.33.7 6566643f; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.35.7 bc55070d; do not edit -->
 
 <span id="reference" />
 
@@ -170,6 +170,50 @@ video codecs other than H.264 are unsupported.
 - **Video.** Bind a `foxglove.CompressedVideo` topic carrying H.264 Annex B
   packets to `frameStack.cameras`. Playback requires browser WebCodecs support
   for the stream. Seeking starts at a preceding keyframe.
+- **Synchronized playback.** The playhead stays at the last ready time while
+  the reader fetches chunks or a mounted camera, point cloud, or numeric track
+  prepares its sample. Playback resumes when these views can advance together.
+  Cameras and point clouds use indexed message timestamps, so different sample
+  rates can legitimately repeat a frame. A failed required read stops playback
+  and reports the error.
+- **Cameras before their first frame.** A camera shows the last frame at or
+  before the cursor, never a later one. Cameras in one recording can start at
+  different instants, so at a given time a camera may have no frame yet: its
+  tile then says when the stream starts ("First frame at +0.125 s", with a
+  jump to it) once that is known from data already read, or only that no
+  frame exists before a stated time. Moving the cursor backward clears a
+  frame that would now be in the future. A read that fails shows as failed.
+  While a drag is held on a camera tile or on the timeline, each camera
+  resolves the position the pointer is on; positions the pointer has left
+  are not loaded in full. Until the exact frame is ready the tile shows a
+  preview, marked `~` in its counter: the closest real sample on the
+  trailing side of the cursor (at or before it going forward, at or after it
+  going backward) — a frame that landed during the drag, or for an H.264
+  camera a keyframe decoded on its own, read toward the cursor within a
+  bounded window. With nothing on that side yet the picture already on
+  screen stays. The exact frame is on the trailing side too, so its arrival
+  is a step in the direction of travel. Previews exist only
+  while the press is held; a click, a keyboard or programmatic seek and the
+  release itself never start one. On release only a frame at or before the
+  cursor may stay until the exact frame lands, and the release position is
+  always resolved. The playhead is a thin black line on every camera and red
+  only on the tile being pressed; a timeline drag leaves all of them black.
+  A channel is reported as having no frames only when the recording states
+  it: the file holds no messages, or its statistics list that channel with
+  a count of zero. A channel missing from the per-channel counts, or a
+  camera without message indexes, is unknown rather than empty: it cannot
+  be synchronized and reports that instead.
+- **Loading before interaction.** An episode that has only been rendered
+  loads a bounded amount: the data under the cursor, a short warm-up from
+  the playhead, and a few chunks spread across the episode, so charts show
+  real samples along their whole axis with gaps between them. The budget is
+  4 MiB per episode and 16 MiB per page; episodes mounted after the page
+  budget is spent load only what the cursor needs. Playing, seeking, or
+  reading a chart (keeping the pointer on it and moving along it) lifts the
+  limit for that episode; hovering alone does not. Loading then follows the
+  playhead up to 60 seconds ahead, for buffered bytes and decoded frames
+  alike, rather than continuing through the episode while paused. Timeline
+  text tracks are the exception: they are read whole when mounted.
 - **Numeric protobuf arrays.** Select the repeated field with
   `<topic>::<field>` and its zero-based dimension by name. For example,
   `field: ["/joints::positions", "positions.0"]` draws the first position
@@ -178,7 +222,10 @@ video codecs other than H.264 are unsupported.
   up to 256 elements per array and 1,024 numeric columns per selected group.
   Missing elements produce gaps. Later growth does not add columns.
 - **Remote reads.** The storage endpoint must honor HTTP Range with a
-  partial (206) response. Source Files can open recordings over 50 MiB.
+  partial (206) response. The file size is read from a suffix range
+  (`bytes=-N`) whose `Content-Range` the endpoint must expose to the page;
+  a one-byte range and then `HEAD` are tried only when suffix ranges are
+  not supported. Source Files can open recordings over 50 MiB.
   An individual index or chunk read is limited to 64 MiB and a decoded
   chunk to 128 MiB. The MCAP reader cancels a whole-object (200) response.
   File size alone does not determine startup cost; index size, chunk layout
@@ -318,3 +365,20 @@ other catalog asset lazily through the dataset's storage. CollectionBrowser
 uses it only after a thumbnail approaches the viewport. Manually constructed
 handles may omit it; their entries then render without thumbnails. Indexed USD
 catalogs populate `EpisodeInfo.meta.thumbnail`, `tasks`, `bytes` and `filename`.
+
+### Interactive collection cards
+
+`CollectionBrowser` accepts `preview="interactive"`; `DatasetBrowser` forwards
+`config.browser.preview`. It materializes one activated inline episode, spanning
+the collection width, and keeps every other card as a lazy poster. A shared
+`TimelineClock` carries the first held poster drag into the newly mounted
+`DatasetViz`; a released/canceled drag cannot seek after an asynchronous timeline
+load. Native media gestures and playback controls continue on that same clock.
+
+`DatasetViz.scrubbing` is an optional boolean for a host handing a held poster
+gesture to the renderer. It enables the same held-frame policy as native camera
+scrubs without changing clock ownership. Set it false on release/cancel.
+
+See [interactive collection configuration](viz-dataset-viz-spec.md#interactive-episode-cards)
+for the distinction between episode discovery, browser presentation, and custom
+views, plus a downloadable `.dreamrc` example.

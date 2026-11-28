@@ -42,7 +42,7 @@ conventions: [assets/tasks-contract.md](assets/tasks-contract.md).
 
 ## Operating principles
 
-- Keep stable Task IDs in hidden links, event targets and evidence. Paths are
+- Keep stable Task IDs in native and hidden links, event targets and evidence. Paths are
   human-facing addresses; renaming titles or moving tasks must not retarget IDs.
 - `kind` is free text (agenda, workstream, stage, task); there is no separate
   Stage, Workstream or Attempt model.

@@ -1,0 +1,12 @@
+{
+  "name": "dreamlake-links",
+  "description": "Save and manage web or DreamLake URLs as files in Project, Source, and Bindr lists; integrate link files through CLI or SDKs and recover earlier saved URL records.",
+  "requires": [
+    "dreamlake-cli"
+  ],
+  "docs": [
+    "https://docs.dreamlake.ai/links",
+    "https://cli.dreamlake.ai/links"
+  ],
+  "tools": null
+}

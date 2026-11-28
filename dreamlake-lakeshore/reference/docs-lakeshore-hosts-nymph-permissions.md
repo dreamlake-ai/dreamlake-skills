@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/nymph-permissions.md at 0.1.246 0cede4387; do not edit -->
 
 # Nymph permissions and commands
 
@@ -9,6 +9,8 @@ This is the permission-boundary record for Nymph. It distinguishes implemented b
 An authenticated control-plane response is not permission to execute every operation. The server authorizes an operation for a namespace, worker and credential; the daemon also applies local owner policy and the operation's own capability checks. The process's Unix account and OS permissions remain the final host boundary.
 
 For a managed daemon, `access_file` names a separate local policy with version 1, a scope (`server`, `namespace`, `machine_id`), and explicit `upload` and `command_execution` booleans. Nymph checks that the path is absolute, is not a symlink (including parents), is a bounded regular file owned by the effective user, and has private permissions. Its scope must match the configured server/namespace/machine. Policy is loaded at startup; changes require restart. Without `access_file`, compatibility defaults permit both categories, and each upload channel sends only when its own setting enables it (for example `[sessions] enabled` or `[runtime] job_output_upload`). Omission is not deny-by-default.
+
+Nymph **0.1.71+** also accepts optional `permissions.file_metadata`. Explicit `true` allows only directory metadata inside enabled [Files exports](https://docs.dreamlake.ai/lakeshore/hosts/files), including when `upload` is false; explicit `false` denies Files even when uploads are allowed. Omission inherits `upload` for compatibility. This permission does not authorize file contents, archive content, session metadata, experiment reporting or job-output uploads. Preserve the existing policy scope and other permissions. For a `dl nymph setup` enrollment, CLI **0.145.1+** exposes `dl nymph --name namespace/group/host access grant file-metadata` and `revoke file-metadata`; the configured overview shows the effective fallback. These local changes require restarting the existing daemon, and do not establish that a running PID has applied them.
 
 A fresh enrollment from CLI **0.135.0**, and a new AWS machine with automatic registration on Nymph v0.1.43 or later, enables the session-metadata upload channel; existing machines keep their settings, or enrollment stops before rewriting the service configuration (see [new enrollments](docs-lakeshore-hosts-browser-terminal.md#discovering-machine-sessions-and-registry-paging)). Enabling an upload channel never overrides local policy. Fresh managed setup creates `access.json` with `upload` set to `false`, so no upload channel, including session metadata, sends data until the owner allows uploads on that machine (`dl nymph access grant upload`) and restarts the daemon. Enrollment, heartbeats and control traffic continue meanwhile, as described below.
 
@@ -27,6 +29,7 @@ The following inventory reflects `access.rs`, `drain.rs`, `ssh_runtime.rs`, and 
 | Operation | Effect | Local boundary | Server/identity boundary |
 |---|---|---|---|
 | `nymph access` | Inspect policy and redacted settings | Local file read; no daemon launch | No remote execution grant |
+| Files directory browsing | Return bounded names and metadata from explicit exports | `file_metadata` (or `upload` when omitted), enabled exports and OS permissions; startup-only consent | Current computer owner, exact enrollment/worker binding, fresh signed Files capability and valid signing key; terminal sharing does not grant Files access |
 | SSH usage GET | Read aggregate capacity | No local process start or config edit | Host ownership and namespace use in DreamLake; exact worker grant/admin on the control plane |
 | SSH connection / forwarding tunnel | Start backend process and serve a bounded session | `[ssh].enabled`, `command_execution`, local capacity, allowed Unix user, backend probe | In DreamLake, the enrollment's owner or a current [owner connection grant](docs-lakeshore-hosts-browser-terminal.md#share-a-machine-with-a-teammate) for that exact enrollment; exact enrollment/worker binding, SSH grant/delegation, signed daemon identity, current boot, key and ticket, expiry/revocation |
 | `run` | Execute a queued invocation | `command_execution` plus configured runner/profile/resources | Authorized worker queue/claim and bound run |

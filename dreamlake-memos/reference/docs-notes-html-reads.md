@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/html-reads.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/html-reads.md at 0.1.246 0cede4387; do not edit -->
 
 # HTML reads
 
@@ -154,6 +154,11 @@ attributes addressing the complete token in canonical Unicode-code-point
 source. The root `data-source` remains exact. When Markdown normalizes a region
 so an exact token range cannot be proven, its enclosing block remains atomic;
 the renderer never guesses an editable token range.
+
+A [Task reference](docs-notes-linked-items.md#task-references) marks its address
+with `data-rich-kind="task"`, `data-task-namespace`, `data-task-project` and
+`data-task-id`. The badge is unresolved. It carries its exact source range
+when the renderer can prove the mapping.
 
 Static previews show assets, Memos and bindrs as unresolved labels. They perform
 no metadata lookup and include no download URL or authorization capability.

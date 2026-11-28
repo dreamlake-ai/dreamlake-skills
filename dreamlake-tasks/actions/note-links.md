@@ -22,6 +22,8 @@ when execution evidence needs it. A text-only task needs no Memo; never
 duplicate Memo bodies in Task metadata. See
 [link memo items](../reference/cli-tasks.md#link-note-items-prompt-comments-and-details).
 
-To reference a Task from a Memo, keep the hidden-link form in
-[the contract](../assets/tasks-contract.md#display-and-text-links): the stable
-Task ID stays in the link while the visible text may change.
+To reference a Task from a Memo, use the references action of
+`dreamlake-memos`. Copy the reference from the Task detail view or use the
+procedure in the [Task CLI guide](../reference/cli-tasks.md#copy-a-task-reference-for-a-memo).
+Preserve any existing hidden links recorded in
+[the contract](../assets/tasks-contract.md#display-and-text-links).

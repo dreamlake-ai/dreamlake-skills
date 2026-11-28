@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/files.md at 0.1.246 0cede4387; do not edit -->
 
 # Files and attachments
 
@@ -536,6 +536,64 @@ Anyone holding a media URL can load it without signing in. Making a memo
 private does not revoke that URL. For an image that must inherit the memo's
 permissions, keep it as a file attachment and use the authenticated file
 preview instead of publishing an inline media URL.
+
+### SVG figures in light and dark themes
+
+An SVG loaded through Markdown image syntax or an HTML `img` is its own
+document: it cannot inherit the Memo's CSS variables or text `currentColor`.
+Define a complete semantic palette inside the SVG, then override it with
+`@media (prefers-color-scheme: dark)`. For an embedded SVG, that query follows
+the embedding element's resolved `color-scheme`; DreamLake sets it from the
+app's selected theme, including an explicit theme different from the operating
+system. Keep the SVG free of a forced `color-scheme: light`, which would
+interfere with its adaptive palette. Opening the SVG URL directly instead follows
+the browser's preference.
+See [embedded color-scheme behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme#embedded_elements).
+
+Pair text and background colors in each theme, including node fills, borders,
+connectors and accents. Keep connectors opaque so their contrast does not depend
+on content underneath. This self-contained example needs no script or external
+stylesheet:
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160"
+     role="img" aria-labelledby="title description">
+  <title id="title">Memo source and rendered view</title>
+  <desc id="description">Source Markdown flows into the rendered Memo.</desc>
+  <style>
+    :root {
+      --bg: #ffffff; --ink: #172033; --node: #f1f5f9;
+      --line: #64748b; --accent: #2563eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827; --ink: #e5e7eb; --node: #1f2937;
+        --line: #94a3b8; --accent: #93c5fd;
+      }
+    }
+    .canvas { fill: var(--bg); }
+    .node { fill: var(--node); stroke: var(--accent); stroke-width: 2; }
+    .line { fill: none; stroke: var(--line); stroke-width: 3; opacity: 1; }
+    text { fill: var(--ink); font: 18px sans-serif; text-anchor: middle; }
+  </style>
+  <rect class="canvas" width="560" height="160" rx="12" />
+  <path class="line" d="M210 80H350m-10-8 10 8-10 8" />
+  <rect class="node" x="30" y="40" width="180" height="80" rx="8" />
+  <rect class="node" x="350" y="40" width="180" height="80" rx="8" />
+  <text x="120" y="86">Markdown</text>
+  <text x="440" y="86">Rendered Memo</text>
+</svg>
+```
+
+Keep the SVG's `title` and `desc`, and supply meaningful Markdown alt text when
+inserting its uploaded URL. Check the rendered figure in explicit app Light and
+Dark modes, with the operating-system theme opposite in each case. Verify text,
+node fills, background, connectors and accent borders together; checking only
+the SVG source or only System mode does not cover those combinations.
+
+Inline SVG in an authored HTML page shares that page's DOM and may use its host
+CSS variables or `currentColor`. This differs from an uploaded SVG image; raw
+inline SVG/HTML is not enabled in the Memo Markdown renderer.
 
 ### Look at one
 

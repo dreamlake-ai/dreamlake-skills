@@ -74,7 +74,7 @@ namespace registered).
      user first.
    - *Paused*: report it; new jobs will not start.
 2. Give the developer a label from the catalog in `show` (for example
-   `runs-on: dreamlake-gpu-rtx5090`) and point them to
+   `runs-on: blacksmith-4vcpu-gpu-rtx5090-ubuntu-2404`) and point them to
    [Write the workflow](../reference/docs-lakeshore-cict.md#write-the-workflow-developers)
    and [Declare evidence](../reference/docs-lakeshore-cict.md#declare-evidence).
 3. `dl cict usage NS` reports the month's GPU time by who triggered each job

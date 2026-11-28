@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/annotations.md at 0.1.246 0cede4387; do not edit -->
 
 {/* The Fig tags come from the site-wide mdxComponents map in
     site.config.ts — no import needed. Beyond the install commands,
@@ -276,3 +276,8 @@ Open the collapsed context panel for **Related** resources and **History**.
 Explicit links, accessible saved sessions, and recent recorded activity remain
 separate. Links can also be recorded from the Memo editor and through the API or
 CLI. See [relationships, permissions and API identities](https://docs.dreamlake.ai/notes/activity).
+
+## Saved URLs
+
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

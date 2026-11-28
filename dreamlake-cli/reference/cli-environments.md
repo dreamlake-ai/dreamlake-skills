@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/environments.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/environments.md at 0.152.2 26fd86b; do not edit -->
 
 # Environments
 
@@ -133,9 +133,11 @@ dl auth env use dev
 
 > **Warning:** The device-flow auth server must be the one your target API trusts. The
 > built-ins set this automatically (staging uses `staging-auth.vuer.ai`,
-> prod uses `auth.vuer.ai`). For a custom env on a non-default auth server,
+> prod uses `auth.dreamlake.ai`). For a custom env on a non-default auth server,
 > pass `--auth <url>`. A mismatch fails token exchange with
 > `No matching key found in JWKS`.
+
+Installed CLI versions and saved profiles that use `auth.vuer.ai` can continue to sign in. The verification page opens at `auth.dreamlake.ai`. Existing production tokens and profile files continue to work.
 
 ## Overrides and storage
 
@@ -306,14 +308,23 @@ dl nymph access show --name alice/computers/laptop
 ```
 
 ```bash cli-help="nymph access grant"
+dl nymph access grant file-metadata --name alice/computers/laptop
 dl nymph access grant upload --name alice/computers/laptop
 dl nymph access grant command-execution --name alice/computers/laptop
 ```
+
+With CLI **0.145.1+** and Nymph **0.1.71+**, `file-metadata` controls Files
+metadata access independently of automatic uploads. The overview shows the
+effective Files permission: older policies without an explicit value inherit
+`upload`; an explicit denial overrides that fallback. Existing upload and
+session-metadata choices are preserved when editing another permission.
+Files also requires enabled exports and the host's existing filesystem permissions.
 
 Each grant has its own default-No confirmation. For automation, `--yes` explicitly
 approves only that one permission. Revoke independently:
 
 ```bash cli-help="nymph access revoke"
+dl nymph access revoke file-metadata --name alice/computers/laptop
 dl nymph access revoke upload --name alice/computers/laptop
 dl nymph access revoke command-execution --name alice/computers/laptop
 ```

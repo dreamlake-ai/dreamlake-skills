@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/notes/reading.md at 0.152.2 26fd86b; do not edit -->
 
 # Reading and changes
 
@@ -179,6 +179,11 @@ dl memos read "$MEMO_ID" --at "$REVISION" --toc
 dl memos read "$MEMO_ID" --at "$REVISION" --section s1.1
 dl memos read "$MEMO_ID" --at "$REVISION" --tag s1.1.p1
 ```
+
+Focused reads also accept legacy heading anchors returned by `memos sections`,
+including `preamble`. The CLI verifies the exact section identity, source range
+and hash before printing it. A heading named `toc` remains a section read, distinct
+from `--toc`.
 
 Selectors return mapped HTML. Nested `section` tags have content-derived IDs and
 `data-index="s1.1"`; headings use `s1.1.h`. Paragraphs (`p`), unordered lists

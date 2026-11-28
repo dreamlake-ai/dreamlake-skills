@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/workflows.md at 0.144.0 0529e4a; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/workflows.md at 0.152.2 26fd86b; do not edit -->
 
 # Workflows
 
@@ -94,3 +94,9 @@ client/backend; Source, Workflow, Annotation and structural content remain
 unsupported. Do not omit a Workflow from a mixed manifest, silently detach it,
 or copy/delete it to report a partial transfer as complete. No standalone
 Workflow transfer is added.
+
+## Saved URLs
+
+Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
+covers list, add, read, update and remove commands, immutable resource IDs,
+creation recovery, version conflicts, and the TypeScript API.

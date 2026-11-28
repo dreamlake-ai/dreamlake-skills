@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.246 0cede4387; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -28,22 +28,62 @@ and its Agents editor link; creation does not launch a session.
 }
 ```
 
+## Accounts and namespaces
+
+An account is the authenticated identity. A namespace selects the default resource
+scope within that account's existing access. Switching namespace never signs in
+as another user, moves a saved session, or creates a Project delegation.
+
+| Operation | Built-in agent | Browser command | External agent with local CLI |
+| --- | --- | --- | --- |
+| Inspect identity | `dreamlake_auth_status` | `/auth status` | `dl auth status` |
+| List saved logins | Reports one browser identity; local profiles are unavailable | `/auth profiles` explains the browser boundary | `dl auth profiles` |
+| Switch account | `dreamlake_auth_switch` returns a sign-in link | `/auth switch` opens the authenticated sign-out/sign-in flow | `dl auth switch <profile>` |
+| List namespaces | `dreamlake_namespace_list` | `/namespace list` | `dl namespace list` |
+| Inspect namespace | `dreamlake_namespace_status` | `/namespace status` | `dl namespace status` |
+| Select namespace | `dreamlake_namespace_use` with `namespace` | `/namespace use <namespace>` or `/su <namespace>` | `dl namespace use <namespace>` or `dl su <namespace>` |
+
+The browser has one active login. Its account switch clears that login through
+the existing identity-provider flow and asks you to sign in again. Saved server
+conversations retain their original owner; return to that account to reopen
+them. A handoff result has `status: "sign_in_required"` and
+`accountChanged: false`; it is not proof that another account was activated.
+Credentials and local CLI profile files never enter the server tool context.
+CLI profile selection changes the local CLI configuration, not the browser login.
+
+The namespace-use tool requires the turn's write capability. It checks current
+membership and the exact conversation owner and active turn before saving the
+selection. The current turn keeps its admitted identity and namespace; subsequent
+turns use the selected namespace and recheck access. Namespace status reports
+both `namespace` (this turn) and `nextTurnNamespace` (the saved selection).
+After an uncertain switch response, read status before retrying. An Agent
+definition remains bound to its own namespace; reselect the definition before
+changing that scope. Scoped durable/delegated credentials cannot change identity
+or scope through these controls.
+
+The corresponding authenticated API surfaces are:
+
+- `GET /agent/identity`: credential-free caller ID, personal namespace,
+  memberships, and browser sign-in handoff metadata. It never provisions an
+  agent or lists local CLI profiles.
+- `POST /agent/sessions/:id/namespace` with `{ "namespace": "fortyfive",
+  "turnId": "the-active-turn-id" }`: saves the next-turn selection, returning
+  `apiVersion: 1`, `namespace`, `appliesTo: "next_turn"`, `sessionId`, and `turnId`.
+  A stale turn or foreign conversation cannot redirect ongoing work.
+- `GET /agent/sessions/:id`: reads the owner's saved `actingNamespace`; callers
+  starting an external agent turn may also supply `actingNamespace` directly
+  to the existing chat API. Every admission independently checks membership.
+
+These endpoints retain the deployment's built-in-agent access policy. Direct
+resource APIs retain their own authorization; an identity response grants no
+additional access.
+
 ## Choose tool permissions
 
 Open the **Permissions** popover in agent chat, or the matching control in
-**Built-in agent** settings. Choose **Read only** to inspect resources without
-changing them (connected apps may still prepare actions for review), or **Full access**, the last option, to enable changes and administrative tools
-within your existing permissions. The Eye and ShieldAlert icons identify the two levels;
-a checkmark identifies the selected level. Opening or dismissing the popover does
-not change permission. Arrow keys move focus; Enter, Space or a click selects the level.
+**Built-in agent** settings. **Read only** lets the agent inspect accessible DreamLake resources and connected accounts. It can draft text in the conversation. **Full access** enables changes and administrative tools within your existing permissions, including commands on authorized enrolled hosts and authorized actions in connected apps. The selected level applies to your next message. Your browser remembers the choice for your signed-in account across chat and settings.
 
-The choice applies to the next message; it does not cancel or revoke an already
-admitted turn. Connected apps have a separate switch. The choice is saved for your signed-in account in this browser and is shared by
-chat and settings. It does not create a Project delegation, connect an app, apply
-a host policy, or remove an action's existing confirmation requirement. Agent
-definition tool restrictions and current resource permissions still apply. This
-selector does not yet provide persistent per-agent or per-session permission
-overlays.
+Arrow keys move focus in the popover. Enter, Space or a click selects the level. Each call still requires the relevant Project grant, host permission or provider authorization. App tool policies can require approval or block an action. See [Connected agent apps](https://docs.dreamlake.ai/agents/apps).
 
 ## Diagnose Project access
 
@@ -313,12 +353,19 @@ duplicate dedicated tools. Inspect the schema in the running deployment first.
 
 | Request | Discover and use |
 | --- | --- |
+| Create or revise artifact content | The discovered Artifact `POST /namespaces/:slug/artifacts/:artifactId/apply` operation takes `contentBase64` and appends a version under the resource write grant. Its response includes the resulting version. |
 | Share only an artifact's most recent version | Find the artifact catalog POST operation and set `shareLatestOnly: true`. Add `share: true` only when the user also requested issuing a share link. This does not upload a new artifact version. |
 | Rename an annotation | Find the annotation PATCH operation and set `title`; unchanged visibility should be omitted. Annotation share operations remain separate. |
 | Add a resource to a Bindr in another project | Discover Bindr membership operations and use the exact resource and Bindr identifiers. An association does not transfer resource ownership or imply formal project filing. Canonical namespace and access checks still apply. |
 | Create an agent with an instruction Note and skill folders | Use `dreamlake_agents_create` as documented above. A definition is not a running session. |
 
 ## Host inventory and partial search
+
+`dreamlake_providers_list` reads the acting namespace’s compute provider catalog
+with the caller’s provider-read permission. It returns provider IDs, names and
+kinds, the total count and the next page. Check this catalog separately from
+registered Hosts when assessing machine launch prerequisites. Launch-server
+identity and readiness require their own verification.
 
 `dreamlake_hosts_list` accepts `prefix`, `search`, `page`, `pageSize`,
 `offsetWithinPage` (default 0) and `archived`. `prefix` filters the canonical catalog. `search` performs a literal,
@@ -431,3 +478,222 @@ When reporting an error, retain its exact code, tool, time and available
 receipt/request IDs. A 404 alone does not distinguish an incorrect identifier,
 wrong namespace, unavailable route or denied visibility. Inspect authorized
 resource discovery before attributing it to a missing tool.
+
+## Reading public posts
+
+For a public X status URL, `dreamlake_web_read` retrieves the single post
+from X’s official oEmbed endpoint and returns its canonical permalink and
+author. Reading a public Thread Reader index exposes up to eight candidate
+post links in order. Each post can then be checked at X. The author’s numbered
+parts can establish the extent of a numbered series. A WeChat verification
+redirect ends the read with `agent_web_read_challenge`.
+
+A YouTube watch-page read can return the title, public description and links
+from the description for the requested video. The publisher may link its
+download page there. Video playback restrictions still apply.
+
+## Files in the current Source
+
+Resolve the Source shown in the active panel or page to its namespace and ID.
+A managed Source can receive a direct public HTTPS file with
+`dreamlake_files_download_url`. The tool creates a new path, verifies the
+stored bytes and returns the size, revision and SHA-256 digest. The limit is
+8 MiB. Redirects and authenticated downloads are unsupported. A social video
+page requires a separate media URL, and playback needs a player check.
+
+When a publisher offers a downloadable copy of a YouTube or X video, pass
+its publisher page as `url` to `dreamlake_web_read` and the platform permalink
+as `mediaFor`. Verify the publisher identity when selecting the page. The matching section, article or figure must contain one video,
+the platform link, and same-origin file links that are also sources on that
+player. The returned links retain the publisher’s rendition labels. Choose a
+matching format and language within the Source size limit. Ambiguous blocks
+return `agent_web_read_media_unmatched`.
+
+Use `dreamlake_files_mcap_summary` on a managed uncompressed MCAP up to
+8 MiB to count messages, list topics and read the log-time span in nanoseconds.
+A malformed or incomplete recording produces an error. Empty recordings have
+a zero count and null timestamps.
+
+## Thread links in the local MCP adapter
+
+The local MCP adapter exposes `thread_open_url`. Pass a `namespace` to
+open its Threads list. To open a known Thread, pass its `id` with an optional
+`session` selector. The tool returns a browser URL and the
+storage type `browser-local`. It does not inspect or change saved layouts.
+
+## Remote shell execution
+
+The built-in agent offers `dreamlake_exec` (equivalent to `dl exec`) and
+`dreamlake_ssh` (an interactive login shell, equivalent to `dl ssh`). Both use
+an exact `hostId` and `enrollmentId`, the enrolled host key, and the caller's
+existing SSH connection permissions. Execution happens on that host, never in
+the API server's local shell. The target needs POSIX and Python 3.
+
+### Execution targets
+
+`dreamlake_execution_targets_list` is a read-only tool (`hosts:read`). It lists
+the enrolled hosts the signed-in user can connect to right now, across their
+personal namespace and every organization they belong to. A target is listed
+when the user owns the host, or holds an exact
+[connection grant](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal) to it as a named person
+or through a team. Organization membership alone lists nothing.
+
+The tool reads the `GET /namespaces/:ns/hosts/terminal-targets` inventory used
+by `dl ssh` and `dl exec`, paging through each namespace as the signed-in user. It opens
+no connection and runs no command. Only registered, enrolled hosts appear;
+nothing is launched and no key, token or control-plane address is returned.
+
+```json
+{ "namespace": "acme", "search": "gpu", "limit": 25 }
+```
+
+All inputs are optional. `namespace` restricts the listing to one of the
+user's namespaces. `hostId` and `enrollmentId` look up exact targets and also
+find archived hosts, which the default listing hides. `search` is a
+case-insensitive literal filter over the pages scanned by this call. `limit`
+is 1–50 targets (default 25).
+
+| Output | Meaning |
+| --- | --- |
+| `targets` | `targetNamespace`, `hostId`, `enrollmentId`, `name`, `machineId`, `unixUser` for each ready target |
+| `namespaces` | Each namespace read by this call: `listed`, `more` (pages remain), `no_access` or `failed` |
+| `failures` | Namespaces that could not be listed, with the error `code` and `retry` inputs |
+| `partial` | `true` when any namespace failed; the other namespaces are still returned |
+| `nextCursor` | Continue with this value and the same other inputs; `null` at the end |
+| `complete` | `true` only when every namespace was read to the end without a failure |
+
+One call makes at most twelve inventory requests and stops after about twenty
+seconds, then returns `nextCursor`. A failed namespace may still hold targets:
+retry it with its `retry` inputs. `no_access` means the user has neither
+host-use permission nor a grant there. An offline or not-ready host is absent
+without having lost access. A granted target runs as the owner's enrolled
+Unix account.
+
+The agent selects a target as follows:
+
+- A specific host the user names is used exactly. A named organization or namespace restricts the candidate set. The agent asks only when it
+  matches several targets or none, and never substitutes another machine.
+- Otherwise the agent chooses. Among interchangeable candidates it picks one
+  without asking and says which.
+- It prefers a host known to hold the needed checkout or GPU when verified
+  inventory, an earlier result or the user's statement establishes that. A
+  host name alone is not evidence.
+- It never runs commands on a machine to learn whether it may use it.
+
+`execution_target_unavailable` means the failed call itself dispatched
+nothing. The agent rechecks the target by calling
+`dreamlake_execution_targets_list` with its `namespace` input set to the
+target's `targetNamespace`. What it may do next depends on the call that
+failed:
+
+| Situation | Next step |
+| --- | --- |
+| A read, write, resize or cancel failed | The remote process may still be running. No restart and no failover, whether the start was confirmed or uncertain. The agent keeps the `executionId` and reports the blocker. |
+| A start failed and an earlier attempt of the task is uncertain | No switching. The agent recovers on the original target with the same `requestId`. |
+| A start failed, every attempt is known to have dispatched nothing, and the user named the host | The host is fixed. The agent reports the blocker. |
+| A start failed, every attempt is known to have dispatched nothing, and the agent chose the host | It may start on another listed target inside the user's original constraints, with a new `requestId`, and says which. |
+
+### Targets in another namespace
+
+Pass the listed `targetNamespace` with `hostId` and `enrollmentId`. Omitting
+`targetNamespace` means the acting namespace, as before. The acting namespace
+stays pinned for every other tool.
+
+`targetNamespace` must be one of the caller's own namespace slugs, written
+exactly as listed; anything else fails with
+`execution_target_namespace_denied`. The inventory route of that namespace
+must then return this exact host and enrollment for the caller, or the call
+fails with `execution_target_unavailable`. Both checks run on every start,
+read, write, resize and cancel, before anything is dispatched.
+
+Delegated, background, durable and agent-definition turns cannot leave their
+acting namespace: another `targetNamespace` fails with
+`execution_target_namespace_pinned`, and the list covers the acting namespace
+only. Delegated, background and durable turns still do not receive the
+execution tools.
+
+Full access enables the `hosts:execute` turn scope. API clients may instead
+supply `capabilities: { "hostExecution": 1 }`. Read-only, session-control and
+host-inventory access alone do not enable it. Each start, read, write, resize
+and cancel resolves current caller access again and obtains a fresh bounded
+SSH delegation. Revocation prevents subsequent access; it does not prove that
+a previously detached remote process has stopped. An agent definition must
+also include the tools in its allowed tool list. These are foreground agent
+tools; asynchronous remote processes are separate from durable agent jobs.
+
+For `dreamlake_exec`, choose exactly one of `command` or `argv`:
+
+```json
+{
+  "hostId": "HOST_ID",
+  "enrollmentId": "ENROLLMENT_ID",
+  "requestId": "build-1",
+  "command": "printf '%s\\n' \"$PROJECT\" | head -1",
+  "cwd": "/workspace/project",
+  "env": { "PROJECT": "example" },
+  "mode": "streaming",
+  "yieldTimeMs": 1000
+}
+```
+
+`command` runs `/bin/bash -lc`, preserving pipes, redirects and expansion.
+`argv` passes literal arguments without expansion. `cwd` is absolute and `env`
+overrides the remote environment. `pty: true` requests a terminal; stdout and
+stderr then share the PTY stream. `dreamlake_ssh` always uses a PTY and the
+remote login shell. `cols` and `rows` set its initial size.
+
+Both modes return `executionId`, `state`, `exitCode`, `signal`, ordered `output`
+records, `nextCursor`, `hasMore` and `truncated`. Output records contain a
+`stream` and base64 `data`; these preserve exact bytes across arbitrary UTF-8
+and binary chunk boundaries. `stdout` and `stderr` are bounded convenience
+previews, with `previewTruncated` when shortened. Streaming emits live
+`execution_output` SSE events for the returned batch and yields after the
+requested wait (0–10000 ms; default 1000); async uses zero wait. SSH connection
+setup still occurs before either result. Continue with the same lifecycle:
+
+| Tool | Inputs beyond the exact target (`targetNamespace`, `hostId`, `enrollmentId`) |
+| --- | --- |
+| `dreamlake_execution_read` | `executionId`, `cursor` (default 0), optional `mode` and `yieldTimeMs` |
+| `dreamlake_execution_write` | `executionId`, stable `operationId`, `chars` and/or `eof` |
+| `dreamlake_execution_resize` | `executionId`, stable `operationId`, `cols`, `rows` |
+| `dreamlake_execution_cancel` | `executionId`, stable `operationId` |
+
+Use `nextCursor` for the next read; `hasMore` means another retained page
+exists. Input acceptance queues bytes to remote stdin; it does not prove the
+program consumed them. EOF closes pipe stdin or sends Ctrl-D to a PTY.
+Cancellation requests SIGTERM followed by SIGKILL after two seconds. Read until
+a terminal state is observed; closing a transport is not process termination.
+Detached descendants can remain after the observed shell exits.
+
+`timeout` limits the remote process lifetime, independently of the tool wait:
+1–1800 seconds, default 1800. Handles survive agent-turn completion and API
+restarts while their private host-side state under `/tmp` remains. Host reboot,
+temporary-file cleanup, or supervisor loss can make a handle unavailable or
+unknown; do not infer completion or restart the command. Retained output is
+bounded to 8 MiB of encoded records per execution and reads are paged. Each
+caller/namespace/host/enrollment binding retains at most 256 execution records;
+at most eight may be active (`execution_concurrency_limit`). History
+exhaustion reports `execution_history_limit` without launching another command.
+State is owned by the enrolled Unix account, whose existing access boundary
+also applies to these files.
+
+A durable server reservation permits only the first admission to create a
+remote process. It has no automatic expiry and stores only identity and a
+request digest. A lost admission acknowledgement or missing host state fails
+closed instead of dispatching again.
+
+A `requestId` is also bound to its first target for the whole conversation,
+before anything is dispatched. Starting it again on that target recovers the
+same execution from any turn or acting namespace. Starting it on any other
+host, enrollment or namespace fails with `execution_target_conflict` and
+returns the bound target; nothing runs. Use a new `requestId` only for a new
+task.
+
+Choose a stable `requestId` before starting. After an uncertain response, reuse
+that ID and identical inputs, or read the checkpointed `executionId`; changed
+inputs conflict instead of launching a second command. Reuse `operationId`
+after an uncertain stdin/control call, never a fresh ID as an automatic retry.
+Missing state is uncertainty, not permission to relaunch. Tool receipts retain
+identifiers and status, not commands, environment values, stdin or raw output.
+Output is not automatically indexed. The browser's output preview is transient;
+use the handle and cursor to read it again.

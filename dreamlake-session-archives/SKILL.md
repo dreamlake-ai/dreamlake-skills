@@ -1,16 +1,19 @@
 ---
 name: dreamlake-session-archives
-description: Configure namespace-bound local session discovery and restricted archive storage, inspect upload consent and historical coverage, and recover interrupted archival without granting remote execution.
+description: Configure local session Sources and archives, inspect native relationships, and manage personal session names and list placement without changing provider records or granting remote execution.
 ---
 
 # DreamLake session archives
 
 Use for configured local session Sources, their archive destination and audience,
-or consent and progress for session uploads. Check the deployed capabilities;
+consent and progress for session uploads, or native parent/child and agent
+relationships, or personal session names and list placement. Check the deployed capabilities;
 installing this skill does not enable an unreleased feature.
 
 | Request | Action |
 | --- | --- |
+| Give sessions useful personal names, move a child to the top level, or hide/restore a session in your list | [Manage personal session presentation](actions/presentation.md) |
+| Explain native ancestry, inspect parent/child or agent membership, or reconcile authorized relationship metadata | [Inspect native relationships](actions/native-lineage.md) |
 | Set up automatic local discovery and a personal or organization archive destination; inspect storage isolation | [Configure a session Source](actions/configure.md) |
 | Upload an inspected session or approved history; inspect coverage or recover an interrupted upload | [Approve and verify archival](actions/archive.md) |
 
@@ -29,6 +32,8 @@ SDK method, storage binding screen or enterprise policy capability.
 ## Canonical source
 
 [Source isolation and session archival](reference/docs-sources.md) supplies the
-product contract; [terminal sessions](reference/cli-sessions.md) describes the
+product contract; [native relationships](reference/docs-lakeshore-hosts-native-session-lineage.md)
+supplies the evidence and collection contract;
+[terminal sessions](reference/cli-sessions.md) describes the
 separate CLI surface. These references are fetched from docs.dreamlake.ai and
 cli.dreamlake.ai; never edit `reference/` by hand.

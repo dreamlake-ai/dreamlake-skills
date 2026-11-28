@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/writing.md at 0.1.246 0cede4387; do not edit -->
 
 # Writing and formatting
 
@@ -52,7 +52,7 @@ Use the DreamLake CLI for supported operations. Use Python or TypeScript APIs on
 
 ### Links and Cmd+K
 
-There are three ways to make a link in the rich editor:
+To make a link in the rich editor, paste a URL or use the Link command.
 
 - **Paste a URL over selected text.** Select the words and paste an `http` or
   `https` URL to get `[words](url)`. This applies only when the selection is one
@@ -60,20 +60,13 @@ There are three ways to make a link in the rich editor:
   is inserted as it is.
 - **Type `/link` at the start of a line.** The "/" menu's **Link** command
   inserts `[link text](https://)` with the URL selected, ready to type over.
-- **Press Cmd+K** (Ctrl+K on Windows and Linux). This inserts the same link
-  around the selected text, with the URL placeholder selected.
 
-In developer mode, Cmd+K means one thing everywhere: it opens the agent's ⌘K
-window. This includes the memo editor, Vim mode and source mode. The memo's text
-and selection stay as they were, so Cmd+Enter can still hand the selection to
-the agent. Use paste or `/link` for links there. With developer mode off,
-Cmd+K in the rich editor inserts a link as before. Source mode (Monaco) has no
-link shortcut.
-
-Also in developer mode, **Cmd+Option+K** (Ctrl+Alt+K on Windows and Linux) opens
-or closes the agent's ⌘K window from anywhere, with no exceptions: memo editors,
-source mode, any input, the agent's own input and browser terminals. A browser
-terminal otherwise keeps Cmd+K for its shell.
+When you are signed in, **Cmd+K** (Windows or Linux **Ctrl+K**) opens the
+page’s command palette, including from the rich editor, Vim mode and source
+mode. With the cursor in the Note, **Cmd+/** (**Ctrl+/**) opens the same
+palette with `/` already entered. The editor keeps its selection. In developer mode, **Cmd+Enter** can
+still hand that selection to the agent. See [Agent conversations](https://docs.dreamlake.ai/agents/background-turns)
+for the shortcuts used in a chat or a browser terminal.
 
 ## Placeholders
 

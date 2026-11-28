@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.33.7 6566643f; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/spec.md at 0.35.7 bc55070d; do not edit -->
 
 <span id="write-the-dreamrc" />
 
@@ -198,6 +198,106 @@ fallback. Search, task selection and clearing filters reset the displayed page.
 Counts show displayed versus matching scenes and the end of the collection.
 Only visible/nearby thumbnails resolve URLs; distant thumbnail images unmount.
 Appending metadata never downloads USD or creates additional renderers.
+
+### Interactive episode cards
+
+Use a collection for the **episode grid** and opt into lazy interactive previews:
+
+```yaml
+browser:
+  mode: collection
+  preview: interactive
+  folderPreview: stack
+  foldersFirst: true
+  layout: grid
+  groupBy: directory
+views:
+  - view: videoStack
+    cameras: [observation.image]
+    height: 200
+  - view: lineChart
+    series: [action]
+    height: 200
+  - view: timeline
+```
+
+<a href="/examples/interactive-episodes/dreamrc.yaml" download=".dreamrc">Download a complete runnable PushT <code>.dreamrc</code></a>.
+Save it as `.dreamrc`; if your browser removes the leading dot, rename the download.
+In a Source, omit `storage` to use the current folder's authorized storage.
+Keep the field names appropriate to the actual dataset format.
+
+Cards start as cheap posters. Press a poster to open its configured views inline;
+the active episode occupies the grid's full width so a chart row or a tall USD
+viewer has room. **Hold and drag horizontally to scrub recorded time.** The first
+drag continues when the real timeline arrives; releasing or canceling before
+then discards the pending seek. Hover never loads an episode or starts playback.
+Only one inline episode renders at a time. Use its native play controls for
+continuous playback, its title to open the dedicated preview, or its close
+button to return to the poster. Keyboard users can activate a poster with
+Enter/Space and then use the rendered player's controls.
+
+The dedicated episode detail and maximized media use a timeline for seeking;
+dragging across their images leaves playback unchanged. Their borderless transport
+shares play/pause, speed and frame position with the episode. An authored `timeline`
+view supplies that transport; otherwise the detail adds a compact timeline when
+the data has a duration. Play at the displayed end restarts from the beginning.
+Static scenes without recorded time keep their spatial controls and receive no
+playback timeline.
+
+`preview` defaults to `thumbnail`, preserving the existing select-to-open browser.
+`folderPreview: stack` and `foldersFirst: true` tell the Source host to place
+folder stacks above files; they do not manufacture additional datasets or change
+file membership. `layout` specifies the host's initial chart arrangement. The
+host can expose a row/grid toggle when more than one visual chart is configured;
+`timeline` and `metaPanel` do not count as charts. It changes the active episode's
+charts, not the outer episode grid.
+
+File browsers can reuse the public `InteractivePreview` without nesting another
+collection browser. Feed it a discovered `EpisodeInfo` and the existing dataset
+handle; keep one active identity in the host. `onOpen` preserves ordinary click
+and keyboard opening, while a held horizontal drag activates the inline view.
+The host must put this primitive beside its file-opening button, not inside it.
+An episode without a thumbnail can use an ordinary file icon as its poster.
+
+```tsx
+
+<InteractivePreview
+  ds={dataset}
+  info={info}
+  views={config.views}
+  labels={config.dataset.labels}
+  active={activePath === info.path}
+  onActivate={() => setActivePath(info.path)}
+  onOpen={() => openFile(info.path)}
+>
+  <EpisodePoster info={info} />
+</InteractivePreview>
+```
+
+Enumeration supplies membership; rendering supplies visualization. A host must
+not invent file entries for logical episodes without file paths, redirect
+Source entries to another storage authority, or materialize all episodes merely
+to decorate a list. Folder counts can include descendant episodes without
+opening their media.
+
+There are three separate decisions:
+
+| Configuration      | Meaning                                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| `dataset.episodes` | Which current files or records are episodes; the reader may enumerate automatically when omitted. |
+| `browser`          | How to browse those episodes: a list or collection grid, folder covers, and preview activation.   |
+| `views`            | What to render **inside each episode**, using its current data and shared clock.                  |
+
+A custom HTML tab is an optional host extension for content outside this model.
+It does not replace episode discovery and should receive the current folder or
+selection context rather than contain a copied file inventory. A custom reader
+is needed only when the recorded format or its relationships cannot be read by
+an existing adapter; it does not replace `views` or `browser`.
+
+An episode can be a static environment. The current USD reader returns no
+timeline, so activation opens an orbitable scene and dragging does **not** invent
+motion. Playback needs a recorded video/trajectory, or animated USD with a reader
+that exposes time samples. Adding `timeline` alone cannot make a static scene play.
 
 Search matches case-insensitive substrings in enumerated names, full paths and
 task metadata; underscores match spaces. It does not search mesh contents,

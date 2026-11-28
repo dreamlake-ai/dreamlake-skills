@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.220 8b1ad5c1; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.246 0cede4387; do not edit -->
 
 # Browser terminal
 
@@ -13,6 +13,25 @@ A machine is listed only when its daemon is online, reports native SSH
 support, and is bound to an enrollment you own in that namespace or one
 shared with you. In an organization namespace, membership alone does not list
 anyone else's machines.
+
+## Threads and native sessions
+
+Open **Threads** near the top of the sidebar for the selected organization.
+Open **Sessions** at the bottom for native sessions. The header's dropdown
+beside **+** contains creation and source actions.
+
+A Thread saves a layout with references to sessions and documents in your
+browser. Open the Thread to restore its supported panels. A Thread link has
+the form `/threads/<uuid>`. Add `?session=<saved-id>` to bring a session
+forward. Use `/new thread Launch review` to save the current panels and
+`/thread Launch review` to bring them back. Opening a
+Thread does not start a terminal. Archive and restore use the three-dot
+menu on the Thread. Open **Session list options → Archived threads** to find
+archived work.
+
+Threads open in the browser and account where they were saved. The CLI, SDKs,
+and local MCP adapter can build a link to a known Thread. They do not read
+or change the browser's stored layouts.
 
 ## Create a named tmux session and copy its reference
 
@@ -1478,3 +1497,8 @@ See the [CLI documentation](https://cli.dreamlake.ai) for the managed-mode comma
 ## Browse computer files
 
 The separate [Files tab](https://docs.dreamlake.ai/lakeshore/hosts/files) browses explicit Nymph directory exports. It is owner-only and shows metadata; sharing a terminal does not share files.
+
+## Saved URLs
+
+Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
+and Bindr file lists. They use the ordinary file preview and actions.

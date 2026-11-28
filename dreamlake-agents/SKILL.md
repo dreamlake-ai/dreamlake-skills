@@ -1,6 +1,6 @@
 ---
 name: dreamlake-agents
-description: Create and maintain DreamLake agent definitions, and use the built-in agent's discovered resource APIs while preserving resource permissions and recovery. Agent definitions are distinct from live sessions; runner and machine setup belongs to other skills.
+description: Create and maintain DreamLake agent definitions, use discovered resource APIs, and run authorized remote commands or interactive shells through the built-in agent. Agent definitions are distinct from live sessions; runner and machine setup belongs to other skills.
 ---
 
 # DreamLake agents
@@ -11,9 +11,11 @@ before using a new capability; a skill update does not deploy the product.
 
 | Request | Action |
 | --- | --- |
+| Save or manage link files | Use the saved-urls action of `dreamlake-links` |
 | Define or edit an agent, attach instructions and optional skills | [Author an agent](actions/author.md) |
 | Upload an agent directory (README, prompt entry, skills) or compare its versions | [Upload and review an agent directory](actions/package.md) |
 | Publish a draft or activate an older agent release | [Agent releases](actions/releases.md) |
+| Run a command or interactive shell on an enrolled host from the built-in agent | [Remote execution](actions/remote-execution.md) |
 | Discover and execute an operation on a DreamLake resource | [Use resource APIs](actions/resource-api.md) |
 
 For setup or login, use the setup action of `dreamlake-cli`. Use SDKs when the
