@@ -31,3 +31,8 @@ Dynamic configuration requires an explicit design and local opt-in. Document all
 ## Verify and record
 
 Verify counts before/after a connection, refusal at capacity, recovery after release, unavailable/stale displays, unauthorized reads and configuration validation. Keep source tests, merge, deployed versions, production checks, docs publication, skill release and installed client readback separate. Product facts belong in the owning docs; update generated references only through the normal docs-fetch workflow after publication.
+
+If the browser reports its terminal connection limit, first detach an unused
+viewer in the same account and retry. Verify the exact session and namespace
+with the session status read. Keep a saved descriptor, a live viewer, and a
+running tmux process distinct in the report.

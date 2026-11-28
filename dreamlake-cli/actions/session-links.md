@@ -95,3 +95,13 @@ using the same confirmed identities and readback.
 For a native ancestry question, first read the [native relationship contract](../reference/docs-lakeshore-hosts-native-session-lineage.md). Resolve the authorized Source and exact native address before reading relationships. Keep resource affiliations separate from native ancestry; an associated Memo does not identify a spawning agent.
 
 Use the documented read interface when HTTP is allowed. For an explicitly SDK-only request, report a missing documented SDK operation instead of inventing one or silently switching transports. Report unresolved parents and unsupported evidence as such; do not turn a read-only question into collection, transcript upload or terminal execution. For authorized metadata reconciliation, follow the [native collection prerequisites](../reference/docs-lakeshore-hosts-native-session-lineage.md#native-collection), preserve the exact applied Source and archive policy, and verify the returned evidence through a readback. Report local inspection, recorded metadata and automatic activation separately.
+
+For a request to reorder saved Threads, check `dl threads --help` and use the
+Thread-order workflow in the Sessions command reference. Read the current
+order and revision, submit the complete reordered list, then read it back.
+On conflict, re-read the current list before retrying. Thread order and saved
+terminal session identity are separate.
+
+For requests to remove a row from the user's own lists, look up the personal
+list revision in [Sessions](../reference/cli-sessions.md). Use an exact registry
+ID or source-bound native identity. If the revision changed, reread the record.
