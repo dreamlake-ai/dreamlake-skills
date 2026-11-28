@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/episode-line-chart.md at 0.34.0 93b54650; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/episode-line-chart.md at 0.35.7 bc55070d; do not edit -->
 
 # Line charts
 
@@ -18,11 +18,12 @@ The example uses a three-second recording, fractional-second labels and short
 major/minor tick marks. All four charts share `time`, zoom and pan;
 only the hovered chart shows a local readout. Press and drag updates shared time
 through `onSeek` (or the legacy `onHover` callback when `onSeek` is absent).
-`isScrubOwner` controls the shared hairline emphasis and keyboard readout.
-While pressing and dragging, a solid 2px blue vertical bar with a contrast
-outline marks the local seek position immediately, even before the host updates
-`time`. It stays visible at the plot edges during a captured drag and clears on
-release, cancellation, Escape, or window blur. The readout follows both pointer axes in a body portal,
+`isScrubOwner` controls cursor emphasis and the keyboard readout.
+While pressing and dragging, a thin vertical cursor line and outlined position
+label mark the local seek time immediately, even before the host updates `time`. The label
+stays inside the plot at either endpoint; release, cancellation, Escape, or
+window blur ends the held state. Only the hovered or keyboard-active chart
+reveals its position marker. The separate sample tooltip follows both pointer axes in a body portal,
 stays 12px below and to the right of the pointer and can extend beyond the chart.
 Only browser edges clamp it into view. It passes pointer events through; Escape dismisses it. Keyboard zoom/pan shows the focused
 chart's readout when `time` is set. Recorded sample values are never interpolated.
@@ -99,6 +100,7 @@ export function CompactSpec() {
                 markers={markers}
                 ranges={ranges}
                 time={time}
+                onClearCursor={() => setTime(null)}
                 onSeek={(time) => {
                   setTime(time);
                   setSeek(time);
@@ -679,6 +681,33 @@ props for local viewport state. Reset a controlled group to `{ zoom: 1, panPct: 
 Pan and zoom gestures do not seek. Ordinary vertical wheel scrolling scrolls the page.
 All chart layers follow the viewport; a cursor outside it is hidden.
 
+The selected position stays visible as a thin vertical line after a click or
+held drag. Hover previews a second position without changing the pin: the
+preview is blue and the parked position remains light gray. Leaving the plot
+restores the parked cursor. Linked charts retain their shared position.
+
+Pass `onClearCursor` to show a small × above the cursor, outside the plot.
+Clearing removes the pin; it does not seek or obscure the curves. The control
+has its own reserved row, so showing it never shifts the plot. There is no
+wedged label over the data. The local sample tooltip still follows the pointer.
+Charts do not add a focus or active-selection border.
+
+Keep playback controlled through `onSeek`; ordinary hover does not change it:
+
+```tsx
+const [time, setTime] = useState(0)
+
+<EpisodeLineChart
+  series={series}
+  duration={duration}
+  time={time}
+  onSeek={setTime}
+/>
+```
+
+Compact video previews use the same press-and-drag interaction. Expanded media
+uses its timeline below the image, keeping the image available for inspection.
+
 ## Dense series
 
 Increase the sample count, then zoom into a spike:
@@ -1010,8 +1039,9 @@ export const EpisodeViewSpec = () => {
 ### Cursor sync protocol
 
 Share `time` across charts. Each chart detects local hover automatically; peers
-show shared hairlines without duplicate readouts. Optionally track the owner
-with `isScrubOwner` to also distinguish bright and muted hairlines.
+retain the same time while their position markers and readouts stay hidden.
+Optionally track the owner with `isScrubOwner` to distinguish active cursor
+emphasis and control the keyboard readout.
 
 ```tsx
 const [time, setTime] = useState<number | null>(null)
@@ -1080,7 +1110,7 @@ can extend outside the plot and any clipping ancestor. Only the browser viewport
 clamps it as needed to keep an 8px margin. Moving the pointer still moves the
 readout when controlled `time` is frozen; sample selection continues to use the
 chart's time semantics. Scrolling updates its position without anchoring it to
-the chart corner. Peers show only the shared hairline. Hover readouts always
+the chart corner. Peers keep their shared time without showing a marker. Hover readouts always
 pass pointer events through.
 
 ## Disabled state

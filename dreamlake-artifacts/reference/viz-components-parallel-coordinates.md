@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/components/parallel-coordinates.md at 0.34.0 93b54650; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/components/parallel-coordinates.md at 0.35.7 bc55070d; do not edit -->
 
 # Parallel coordinates
 

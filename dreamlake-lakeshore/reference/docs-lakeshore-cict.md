@@ -1,6 +1,6 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.242 ff603b446; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/cict.md at 0.1.246 0cede4387; do not edit -->
 
-# CI/CT with GitHub Actions
+# Evaluations with GitHub Actions
 
 Continuous testing for robotics usually needs GPUs, simulator assets and
 minutes of compute per change. DreamLake lets a GitHub Actions job run on your
@@ -20,23 +20,26 @@ The job can run on either of two kinds of machines:
 GitHub keeps orchestrating the workflow: checkout, steps, logs, the pass/fail
 check on the pull request. DreamLake decides which machine takes the job,
 starts a single-use runner there, and writes the evidence the job declares
-(results, replays, metrics) to a Source, where the CI/CT page and the Source
+(results, replays, metrics) to a Source, where the Evaluations page and the Source
 viewers show it.
 
-This is CI/CT **channel A** (triggered by GitHub). To start a suite when a
+This is the GitHub Actions adapter for Evaluations. To start a suite when a
 container image is pushed to GHCR, Google Artifact Registry or Amazon ECR, see
 [Run a suite when an image is pushed](https://docs.dreamlake.ai/lakeshore/cict/registry-triggers).
-Submitting suites from DreamLake itself, without GitHub, is planned separately.
+This adapter reads workflow YAML from GitHub. DreamLake also has a separate
+[native workflow model](https://docs.dreamlake.ai/workflows); a unified Evaluations view across providers
+is planned. GitHub Actions is one supported workflow format, not the definition
+of every DreamLake workflow.
 
 ## How a job runs
 
 1. A pull request triggers a workflow job with a DreamLake label. GitHub queues
-   it and sends a `workflow_job` webhook to DreamLake through the DreamLake CI/CT
+   it and sends a `workflow_job` webhook to DreamLake through the DreamLake
    GitHub App.
 2. DreamLake verifies the webhook, finds the namespace the App installation is
    bound to, and picks the namespace's **runner pool** whose labels cover the
    job's `runs-on`, or else the **DreamLake GPU** machine type it names. The
-   job is recorded as a CI/CT run. A DreamLake GPU job waits in DreamLake's
+   job is recorded as an evaluation run. A DreamLake GPU job waits in DreamLake's
    queue until the namespace and the machine type have a free slot.
 3. DreamLake asks GitHub for a just-in-time runner configuration, valid for one
    job, and submits a Slurm allocation through the pool's provider. The
@@ -56,7 +59,7 @@ or DreamLake credential is stored in the repository.
 
 You need the namespace's execution-admin permission.
 
-**1. Connect GitHub.** In the CI/CT page, open **Setup** and choose
+**1. Connect GitHub.** In the Evaluations page, open **Setup** and choose
 **Connect GitHub** (or run the command below). Open the install link, install the App on your
 organization or account and select the repositories that may use DreamLake
 machines. Open the link in a browser signed in to DreamLake as the same user,
@@ -325,7 +328,7 @@ and date.
 
 ## See results
 
-CI/CT shows every job the same way, whatever it runs: how it ended, how long
+Evaluations shows every job the same way, whatever it runs: how it ended, how long
 it took, where it ran, what it cost on DreamLake GPU and the files it declared.
 It does not read or compare a result format; your job's own steps decide pass
 or fail.
@@ -339,11 +342,17 @@ or fail.
   charge once Slurm has reported). Its Details link opens the run in
   DreamLake. The job log and step summary are there too; `DREAMLAKE_RUN_URL`
   holds the run's DreamLake link for the summary.
-- **CI/CT page** (`/<namespace>/cict`): one row per job, with its status,
-  branch and commit, machine, duration, GPU time and cost, who triggered it
-  and when; re-runs fold into the job's row. Open a run for its progress, run
-  details and evidence; each evidence file opens in a tab beside it. **Setup**
-  on the same page connects GitHub and manages runner pools.
+- **Evaluations page** (`/<namespace>/cict`): workflow runs grouped from tracked
+  DreamLake jobs. Open a run to see the exact GitHub attempt's job checklist,
+  including hosted and skipped jobs. Select a job to unfold its steps and GitHub
+  log beside the checklist; DreamLake jobs also show runner details, cost and
+  evidence. These are job/step outcomes, not individual test-case results.
+- **Workflow definition:** the Workflow view groups the read-only YAML with a
+  structured view of job dependencies, runner labels, matrix configuration and
+  steps. The source is fetched from the run's immutable head commit, never the
+  current branch tip. Missing files or Contents permission are shown explicitly;
+  a failed YAML read does not hide the job checklist. Expressions are displayed,
+  not evaluated. **Setup** connects GitHub and manages runner pools.
 - **Run page, GitHub side:** the job's steps with the one that failed, and
   the end of its GitHub log (read from GitHub when you open it, never stored
   by DreamLake; GitHub masks secrets in it), so a failure can be read without
@@ -356,7 +365,7 @@ or fail.
 
 ## Run a workflow from DreamLake
 
-**Run workflow** on the CI/CT page starts a repository's workflow without a
+**Run workflow** on the Evaluations page starts a repository's workflow without a
 push or a pull request: pick the repository, the workflow file and the branch,
 optionally add inputs, and confirm. It is GitHub's own `workflow_dispatch`,
 sent through your bound App installation, so the workflow must declare
@@ -370,7 +379,7 @@ job holds from the credit while it runs; when `runs-on` comes from an input
   Whoever can run a workflow this way can run any branch of any repository the
   installation reaches, with that repository's secrets: grant `lakeshore:use`
   accordingly.
-- GitHub shows the run as started by the DreamLake App; the CI/CT page shows
+- GitHub shows the run as started by the DreamLake App; the Evaluations page shows
   who asked for it in DreamLake.
 - The form shows the inputs the workflow declares under
   `workflow_dispatch.inputs` in the chosen branch's file, with their
@@ -457,6 +466,8 @@ Two ways are supported by design:
 | GET | `/namespaces/:ns/cict/runs?limit=` | read |
 | GET | `/namespaces/:ns/cict/runs/:run` | read |
 | GET | `/namespaces/:ns/cict/runs/:run/log?lines=` | read: the job's GitHub steps (`failedStep`) and the last lines of its GitHub log (1–1000, default 300), read from GitHub on demand; `available: false` until the job finishes |
+| GET | `/namespaces/:ns/cict/runs/:run/workflow` | read: exact run attempt, GitHub jobs and steps including hosted/skipped jobs, and YAML/structured definition at the run commit; `totalJobs`/`truncated` expose the 1,000-job retrieval bound; source is read on demand and not stored |
+| GET | `/namespaces/:ns/cict/runs/:run/jobs/:jobId/log` | read: bounded GitHub log for a job whose membership in this exact namespace-authorized workflow attempt is verified; unavailable jobs return 404 |
 | POST | `/namespaces/:ns/cict/runs/:run/cancel` | `lakeshore:use`: cancel the run's GitHub workflow run (every job in it); `already: true` when it had finished |
 | GET | `/namespaces/:ns/cict/runs/:run/comparison` | removed: always `410 comparison_removed` |
 | GET | `/namespaces/:ns/cict/dispatch/repositories?installationId=` | `lakeshore:read`: repositories the installation reaches, for Run workflow |

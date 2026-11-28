@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/vault-cloud.md at 0.152.1 c41a5eb; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/vault-cloud.md at 0.152.2 26fd86b; do not edit -->
 
 # Cloud configuration in Vault
 

@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.242 ff603b446; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/browsing.md at 0.1.246 0cede4387; do not edit -->
 
 # Browse, create and organize
 
@@ -149,6 +149,11 @@ separate explicit action. Removing a bindr removes only its tag; removing a
 project retains the last-project guard. **Open project** and **Open bindr** navigate.
 
 ### Matching passages
+
+Catalog search treats your query as case-insensitive literal text in memo titles
+and stored searchable bodies. Punctuation such as `.` or `[` is not a regular
+expression. Title matches appear before body-only matches, with pagination
+applied to that ranked result. Search keeps the same visibility and archive filters.
 
 Searching the Memos catalog shows up to two distinct matching passages beneath
 each result title, with matching words highlighted. Hover or focus a passage to

@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.34.0 93b54650; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/reference.md at 0.35.7 bc55070d; do not edit -->
 
 <span id="reference" />
 
@@ -365,3 +365,20 @@ other catalog asset lazily through the dataset's storage. CollectionBrowser
 uses it only after a thumbnail approaches the viewport. Manually constructed
 handles may omit it; their entries then render without thumbnails. Indexed USD
 catalogs populate `EpisodeInfo.meta.thumbnail`, `tasks`, `bytes` and `filename`.
+
+### Interactive collection cards
+
+`CollectionBrowser` accepts `preview="interactive"`; `DatasetBrowser` forwards
+`config.browser.preview`. It materializes one activated inline episode, spanning
+the collection width, and keeps every other card as a lazy poster. A shared
+`TimelineClock` carries the first held poster drag into the newly mounted
+`DatasetViz`; a released/canceled drag cannot seek after an asynchronous timeline
+load. Native media gestures and playback controls continue on that same clock.
+
+`DatasetViz.scrubbing` is an optional boolean for a host handing a held poster
+gesture to the renderer. It enables the same held-frame policy as native camera
+scrubs without changing clock ownership. Set it false on release/cancel.
+
+See [interactive collection configuration](viz-dataset-viz-spec.md#interactive-episode-cards)
+for the distinction between episode discovery, browser presentation, and custom
+views, plus a downloadable `.dreamrc` example.

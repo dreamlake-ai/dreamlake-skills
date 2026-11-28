@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.242 ff603b446; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.246 0cede4387; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -529,6 +529,89 @@ an exact `hostId` and `enrollmentId`, the enrolled host key, and the caller's
 existing SSH connection permissions. Execution happens on that host, never in
 the API server's local shell. The target needs POSIX and Python 3.
 
+### Execution targets
+
+`dreamlake_execution_targets_list` is a read-only tool (`hosts:read`). It lists
+the enrolled hosts the signed-in user can connect to right now, across their
+personal namespace and every organization they belong to. A target is listed
+when the user owns the host, or holds an exact
+[connection grant](https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal) to it as a named person
+or through a team. Organization membership alone lists nothing.
+
+The tool reads the `GET /namespaces/:ns/hosts/terminal-targets` inventory used
+by `dl ssh` and `dl exec`, paging through each namespace as the signed-in user. It opens
+no connection and runs no command. Only registered, enrolled hosts appear;
+nothing is launched and no key, token or control-plane address is returned.
+
+```json
+{ "namespace": "acme", "search": "gpu", "limit": 25 }
+```
+
+All inputs are optional. `namespace` restricts the listing to one of the
+user's namespaces. `hostId` and `enrollmentId` look up exact targets and also
+find archived hosts, which the default listing hides. `search` is a
+case-insensitive literal filter over the pages scanned by this call. `limit`
+is 1–50 targets (default 25).
+
+| Output | Meaning |
+| --- | --- |
+| `targets` | `targetNamespace`, `hostId`, `enrollmentId`, `name`, `machineId`, `unixUser` for each ready target |
+| `namespaces` | Each namespace read by this call: `listed`, `more` (pages remain), `no_access` or `failed` |
+| `failures` | Namespaces that could not be listed, with the error `code` and `retry` inputs |
+| `partial` | `true` when any namespace failed; the other namespaces are still returned |
+| `nextCursor` | Continue with this value and the same other inputs; `null` at the end |
+| `complete` | `true` only when every namespace was read to the end without a failure |
+
+One call makes at most twelve inventory requests and stops after about twenty
+seconds, then returns `nextCursor`. A failed namespace may still hold targets:
+retry it with its `retry` inputs. `no_access` means the user has neither
+host-use permission nor a grant there. An offline or not-ready host is absent
+without having lost access. A granted target runs as the owner's enrolled
+Unix account.
+
+The agent selects a target as follows:
+
+- A specific host the user names is used exactly. A named organization or namespace restricts the candidate set. The agent asks only when it
+  matches several targets or none, and never substitutes another machine.
+- Otherwise the agent chooses. Among interchangeable candidates it picks one
+  without asking and says which.
+- It prefers a host known to hold the needed checkout or GPU when verified
+  inventory, an earlier result or the user's statement establishes that. A
+  host name alone is not evidence.
+- It never runs commands on a machine to learn whether it may use it.
+
+`execution_target_unavailable` means the failed call itself dispatched
+nothing. The agent rechecks the target by calling
+`dreamlake_execution_targets_list` with its `namespace` input set to the
+target's `targetNamespace`. What it may do next depends on the call that
+failed:
+
+| Situation | Next step |
+| --- | --- |
+| A read, write, resize or cancel failed | The remote process may still be running. No restart and no failover, whether the start was confirmed or uncertain. The agent keeps the `executionId` and reports the blocker. |
+| A start failed and an earlier attempt of the task is uncertain | No switching. The agent recovers on the original target with the same `requestId`. |
+| A start failed, every attempt is known to have dispatched nothing, and the user named the host | The host is fixed. The agent reports the blocker. |
+| A start failed, every attempt is known to have dispatched nothing, and the agent chose the host | It may start on another listed target inside the user's original constraints, with a new `requestId`, and says which. |
+
+### Targets in another namespace
+
+Pass the listed `targetNamespace` with `hostId` and `enrollmentId`. Omitting
+`targetNamespace` means the acting namespace, as before. The acting namespace
+stays pinned for every other tool.
+
+`targetNamespace` must be one of the caller's own namespace slugs, written
+exactly as listed; anything else fails with
+`execution_target_namespace_denied`. The inventory route of that namespace
+must then return this exact host and enrollment for the caller, or the call
+fails with `execution_target_unavailable`. Both checks run on every start,
+read, write, resize and cancel, before anything is dispatched.
+
+Delegated, background, durable and agent-definition turns cannot leave their
+acting namespace: another `targetNamespace` fails with
+`execution_target_namespace_pinned`, and the list covers the acting namespace
+only. Delegated, background and durable turns still do not receive the
+execution tools.
+
 Full access enables the `hosts:execute` turn scope. API clients may instead
 supply `capabilities: { "hostExecution": 1 }`. Read-only, session-control and
 host-inventory access alone do not enable it. Each start, read, write, resize
@@ -568,7 +651,7 @@ previews, with `previewTruncated` when shortened. Streaming emits live
 requested wait (0–10000 ms; default 1000); async uses zero wait. SSH connection
 setup still occurs before either result. Continue with the same lifecycle:
 
-| Tool | Inputs beyond the exact host/enrollment |
+| Tool | Inputs beyond the exact target (`targetNamespace`, `hostId`, `enrollmentId`) |
 | --- | --- |
 | `dreamlake_execution_read` | `executionId`, `cursor` (default 0), optional `mode` and `yieldTimeMs` |
 | `dreamlake_execution_write` | `executionId`, stable `operationId`, `chars` and/or `eof` |
@@ -598,6 +681,13 @@ A durable server reservation permits only the first admission to create a
 remote process. It has no automatic expiry and stores only identity and a
 request digest. A lost admission acknowledgement or missing host state fails
 closed instead of dispatching again.
+
+A `requestId` is also bound to its first target for the whole conversation,
+before anything is dispatched. Starting it again on that target recovers the
+same execution from any turn or acting namespace. Starting it on any other
+host, enrollment or namespace fails with `execution_target_conflict` and
+returns the bound target; nothing runs. Use a new `requestId` only for a new
+task.
 
 Choose a stable `requestId` before starting. After an uncertain response, reuse
 that ID and identical inputs, or read the checkpointed `executionId`; changed

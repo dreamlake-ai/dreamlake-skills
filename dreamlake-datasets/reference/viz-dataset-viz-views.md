@@ -1,4 +1,4 @@
-<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.34.0 93b54650; do not edit -->
+<!-- generated from https://viz.dreamlake.ai/dataset-viz/views.md at 0.35.7 bc55070d; do not edit -->
 
 <span id="view-components" />
 
@@ -39,6 +39,10 @@ active traces use 1.65 times that base. These options pass through to
 [`EpisodeLineChart`](https://viz.dreamlake.ai/components/episode-line-chart#line-width-and-active-emphasis),
 including `highlightOnHover: true` when pointer identification is wanted.
 Keep reference traces readable with `dash` and `opacity` instead of hairline widths.
+
+For target-versus-measured XYZ positions, see the runnable
+[position tracking guide](https://viz.dreamlake.ai/dataset-viz/position-tracking): one time axis, matched
+axis colors, thin solid targets, and dashed measurements.
 
 ## trajectory2d
 

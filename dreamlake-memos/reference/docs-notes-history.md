@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.242 ff603b446; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/notes/history.md at 0.1.246 0cede4387; do not edit -->
 
 # History and saved versions
 
@@ -114,6 +114,10 @@ The serving implementation routes new saves
 through the publication catalog by default, without changing the save endpoint,
 request fields, CLI commands or existing version IDs and history. It rechecks
 current edit authority and the Memo's ownership binding before publication.
+Brief database contention retries only the database decision against fresh
+authority; it does not repeat the snapshot read, version-number allocation or
+upload. Exhausted retries still return a conflict. Inspect history or reconcile
+the original idempotent request before starting another save.
 Runtime verification is not a live-save receipt and does not activate durable attachment purge
 or ownership transfer.
 
