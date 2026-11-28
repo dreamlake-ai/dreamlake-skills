@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "v2026.11.27-4-g5778bfe3",
+  "version": "v2026.11.23.1-1-gf4314828",
   "skills": {
     "dreamlake-agents": {
       "description": "Create and maintain DreamLake agent definitions, use discovered resource APIs, and run authorized remote commands or interactive shells through the built-in agent.",
@@ -9,7 +9,7 @@
         "dreamlake-links"
       ],
       "tools": null,
-      "files": 6
+      "files": 7
     },
     "dreamlake-annotations": {
       "description": "Create, extend, revise and read DreamLake annotations with the Python SDK; manage titles, URL slugs, visibility and signed-in sharing through the metadata API or CLI while preserving resource identity.",

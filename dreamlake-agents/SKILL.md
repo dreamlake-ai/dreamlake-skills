@@ -13,6 +13,7 @@ before using a new capability; a skill update does not deploy the product.
 | --- | --- |
 | Save or manage link files | Use the saved-urls action of `dreamlake-links` |
 | Define or edit an agent, attach instructions and optional skills | [Author an agent](actions/author.md) |
+| Upload an agent directory (README, prompt entry, skills) or compare its versions | [Upload and review an agent directory](actions/package.md) |
 | Publish a draft or activate an older agent release | [Agent releases](actions/releases.md) |
 | Run a command or interactive shell on an enrolled host from the built-in agent | [Remote execution](actions/remote-execution.md) |
 | Discover and execute an operation on a DreamLake resource | [Use resource APIs](actions/resource-api.md) |
