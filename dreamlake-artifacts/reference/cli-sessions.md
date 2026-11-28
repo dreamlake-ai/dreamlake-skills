@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.152.2 26fd86b; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/sessions.md at 0.153.0 8c5af684; do not edit -->
 
 # Terminal sessions
 
@@ -787,3 +787,52 @@ This is unreleased integration work, not a live acceptance claim.
 Use [Links](https://cli.dreamlake.ai/links) to save web and DreamLake URLs as ordinary files in Projects, Sources, and Bindrs. The guide
 covers list, add, read, update and remove commands, immutable resource IDs,
 creation recovery, version conflicts, and the TypeScript API.
+
+## Saved Thread order
+
+Threads keep a personal order in each namespace. Use these commands with IDs
+from the order response. The browser registers saved Thread IDs and names.
+Layouts remain in that browser.
+
+```bash cli-help="threads order"
+dl threads order --namespace fortyfive --json
+```
+
+```bash cli-help="threads reorder"
+dl threads reorder --namespace fortyfive --expected-revision "$revision" "$second" "$first"
+```
+
+Provide every returned ID once. After a revision conflict, read the order again
+before retrying. These commands require a client and server that support Thread
+order.
+
+TypeScript exports the same operations from `@dreamlake/dreamlake-cli/api`:
+
+```ts
+const threads = client.threads("fortyfive");
+const order = await threads.order();
+await threads.reorder(order.revision, order.threads.map((thread) => thread.id).reverse());
+```
+
+## Delete from my list
+
+Read the personal list revision, then use it to delete or restore the row. The
+operation hides the row in both active and archived lists for the caller and
+preserves the saved descriptor, transcript and runtime.
+
+```bash
+dl sessions presentation "$SESSION_ID" --namespace fortyfive --json
+dl sessions delete-from-list "$SESSION_ID" --namespace fortyfive --expected-revision "$REVISION"
+```
+
+To restore, reread the preference and use the current revision with `--undo`.
+The CLI also accepts the exact native identity as a JSON argument for uploaded sessions.
+
+```ts
+const sessions = client.sessions('fortyfive')
+const identity = { kind: 'registered', sessionId } as const
+const [entry] = await sessions.presentation([identity])
+await sessions.deleteFromList(identity, entry.revision)
+```
+
+Pass `false` as the third argument with the current revision to restore.

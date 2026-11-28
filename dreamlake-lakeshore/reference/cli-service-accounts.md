@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/service-accounts.md at 0.152.2 26fd86b; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/service-accounts.md at 0.153.0 8c5af68; do not edit -->
 
 # Service accounts
 

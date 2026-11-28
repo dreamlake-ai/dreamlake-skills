@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.246 0cede4387; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/resource-tools.md at 0.1.247 865b91c0f; do not edit -->
 
 # Resource APIs in the built-in agent
 
@@ -697,3 +697,35 @@ Missing state is uncertainty, not permission to relaunch. Tool receipts retain
 identifiers and status, not commands, environment values, stdin or raw output.
 Output is not automatically indexed. The browser's output preview is transient;
 use the handle and cursor to read it again.
+
+## Saved Thread order
+
+Opening panels or switching sessions inside a Thread keeps you in its layout.
+Opening another sidebar page, switching namespaces, or opening Source Settings
+leaves the Thread. Reopen the Thread to restore its saved layout. The + menu
+inside a Thread offers Codex and Claude on machines with browser launch enabled.
+
+A Thread keeps its position when opened. The order is personal to the caller and the namespace. New browser-registered Threads are appended. The API carries IDs and names, while layout contents stay in the browser.
+
+Discover the `thread-order` family, then use `dreamlake_resource_api_read` for
+`GET /namespaces/:ns/thread-order`. It returns `{ revision, threads: [{ id, name }] }`.
+Use `dreamlake_resource_api_write` for the discovered
+`PATCH /namespaces/:ns/thread-order` operation with
+`{ expectedRevision, threadIds }`. Send every returned ID exactly once in the new
+order. A conflict means another writer changed the list. Read the list again
+before deciding whether to retry. Read back the order after a write.
+
+The Threads list and sidebar adopt the saved order while the browser is open.
+A Thread saved in another browser appears only where its layout is available.
+An older deployment can lack this discoverable family.
+
+### Remove a session from the current user's lists
+
+Discover the `session-presentation` family. Read the precise registered or
+source-bound native identity with `POST /namespaces/:ns/session-presentation/query`.
+Use its revision in the write tool for `PATCH /namespaces/:ns/session-presentation`
+with `{ identity, expectedRevision, patch: { deleted: true } }`.
+The row is hidden from active and archived lists for this user. The saved session,
+transcript, process and other users' preferences are preserved. To undo, read
+the current revision and set `deleted: false`. Rediscover permissions or reread
+the entry on a conflict. Registry-level archive controls are a separate action.

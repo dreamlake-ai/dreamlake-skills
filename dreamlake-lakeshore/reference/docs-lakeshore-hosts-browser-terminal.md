@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.246 0cede4387; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/lakeshore/hosts/browser-terminal.md at 0.1.247 865b91c0f; do not edit -->
 
 # Browser terminal
 
@@ -1502,3 +1502,11 @@ The separate [Files tab](https://docs.dreamlake.ai/lakeshore/hosts/files) browse
 
 Save web and DreamLake addresses as [link files](https://docs.dreamlake.ai/links) in Project, Source,
 and Bindr file lists. They use the ordinary file preview and actions.
+
+### Browser viewer limit
+
+Each account can have up to twelve browser terminal viewers, including viewers
+in other windows. Disconnect an unused viewer and retry. A detached managed tmux
+session keeps its runtime. A saved session can also exist with no running tmux;
+use its status and exact host enrollment to distinguish those cases. Terminal
+ticket capacity is separate from SSH worker and namespace usage.

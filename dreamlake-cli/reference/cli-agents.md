@@ -1,4 +1,4 @@
-<!-- generated from https://cli.dreamlake.ai/agents.md at 0.152.2 26fd86b; do not edit -->
+<!-- generated from https://cli.dreamlake.ai/agents.md at 0.153.0 8c5af684; do not edit -->
 
 # Agents
 
@@ -180,6 +180,133 @@ Archive hides a runnable from ordinary lists; pass `includeArchived: true` to
 `list` to find it. Restore is explicit. Delete removes the definition from live
 lists and unfiles its project mounts. Conditional edits return a conflict if
 `expectedUpdatedAt` is stale.
+
+## Upload an agent directory
+
+Unreleased: `agents push`, `agents files` and `agents diff` need a server that
+serves `/runnables/{id}/definition-files`.
+
+Keep an agent in a directory and upload it as one unit. The README is for
+people, `PROMPT.md` is the prompt entry, and each skill is its own directory:
+
+```text
+reviewer/
+  README.md                      documentation shown first in the agent view
+  PROMPT.md                      the prompt entry (required)
+  agent.yaml                     name, description, runtime, tools, arguments, projects
+  skills/
+    cite-sources/
+      SKILL.md                   one skill Memo
+      references/guide.md        attachments of that Memo, kept under
+      scripts/check.py           the same relative path
+      assets/example.png
+```
+
+```bash cli-help="agents push"
+# Validate the directory and print what would change. Nothing is written.
+dl agents push ./reviewer --namespace fortyfive --dry-run
+# Create the agent, or update the draft of the agent with the same name.
+dl agents push ./reviewer --namespace fortyfive
+```
+
+`push` uses the existing agent model; it adds no package format on the server.
+`README.md` becomes `metadata.readme`, `PROMPT.md` the instruction Memo, and
+each `SKILL.md` a skill Memo reference. Files under a skill's `references/`,
+`scripts/` and `assets/` become attachments of that skill Memo with the same
+relative path, so a link such as `[guide](references/guide.md)` in `SKILL.md`
+names a file that travels with the skill. DreamLake stores those files and never
+executes or installs them; the built-in runtime receives the prompt and
+`SKILL.md` text only. A link to a file that is not in the package is reported
+as a warning.
+
+`agent.yaml` is optional. `name`, `description` and `projects` are read from it;
+every other key is stored as the runtime configuration (`metadata.agent`), with
+`runtime: builtin-v1` as the default. The name falls back to the directory name;
+`--name` overrides both. Projects are applied when the agent is created.
+
+A package is refused before any upload when `PROMPT.md` is missing or empty, a
+skill directory name is not lowercase letters, digits and hyphens, a skill
+contains anything other than `SKILL.md`, `references/`, `scripts/` and
+`assets/`, any entry is a symbolic link, there are more than 20 skills, or
+`PROMPT.md` plus all `SKILL.md` files exceed 16,000 characters.
+
+`README.md` is optional, and leaving it out is different from leaving it empty.
+When the agent already exists, a directory without `README.md` keeps the
+agent's current README exactly as it is, including one written in the UI. An
+empty `README.md` clears it. A new agent starts with an empty README either way.
+
+Pushing again updates the draft of the agent with the same name:
+
+- a Memo is rewritten only when its text differs, conditional on the body that
+  was just read, so a concurrent edit is refused rather than overwritten;
+- attachments are uploaded with overwrite; a file deleted locally stays attached;
+- a skill removed from the package is detached from the agent and its Memo is
+  kept. Nothing is deleted;
+- skill folders and Memos added to the agent elsewhere keep their place ahead of
+  the packaged skills;
+- the agent is saved last with its `updatedAt`, so a concurrent agent edit
+  returns a conflict.
+
+The skill directory name is recorded in `metadata.package.skills` as
+`{ "<name>": "<memoId>" }`. That is how a later push finds the same Memo.
+
+If a push fails after creating Memos, the error lists their IDs and they are
+kept. Each created Memo is also recorded in `.dreamlake/agent-push.json` inside
+the directory, per server, namespace and agent name. Pushing the same directory
+again reuses those Memos instead of creating a second set, and the record is
+removed once the agent is saved. A recorded Memo that can no longer be read is
+replaced by a new one. Keep `.dreamlake/` out of version control. The record
+cannot cover a create request whose response was lost: that Memo exists but was
+never reported, so check the namespace's Memos if a create call timed out.
+
+An agent whose prompt is stored inline is refused. `--convert-inline` moves the
+prompt into a Memo; from then on people need access to that Memo to run the
+agent, which inline text did not require. An archived agent must be restored
+first.
+
+`push` changes the draft only. Runs keep using the active release until you
+publish; the command prints the exact
+[`runnable definition publish`](cli-runnable-api.md) line for the saved draft.
+
+### Read the files and compare versions
+
+```bash cli-help="agents files"
+# The draft as files, with what the server enforces for each.
+dl agents files reviewer --namespace fortyfive
+# One file from an exact release.
+dl agents files reviewer --at "$VERSION" --path PROMPT.md
+```
+
+```bash cli-help="agents diff"
+# Active release → draft: what publishing now would change.
+dl agents diff reviewer --namespace fortyfive
+# Two releases.
+dl agents diff reviewer --from "$OLD_VERSION" --to "$NEW_VERSION"
+```
+
+`files` lists `README.md`, `PROMPT.md`, each skill and `agent.json` for the
+draft or a release (`--at` takes `draft` or a full version hash). Every file
+names its guard: a release file is frozen; a draft prompt or skill is editable
+only with permission on its Memo; the README and configuration only with
+permission to update the agent. The command then prints the conventions the
+server does **not** enforce: the file names are display paths, and keeping the
+prompt entry apart from skills is not a write barrier, because anyone who may
+edit both Memos may change either.
+
+`diff` compares two versions file by file, by default the active release
+against the draft. Skills are matched by Memo, so renaming a skill directory is
+not reported as a removal and an addition. Changed files are rendered with the
+same suggested-edit marks as [`memos suggest-diff`](cli-notes-suggest-diff.md). When
+both sides hash to the same definition it reports that publishing would reuse
+the release. Releases published before skill names were recorded list skills by
+Memo ID, and a release whose skills cannot be separated from its prompt shows
+the whole captured text as `PROMPT.md`. Attachments are not part of a release
+and are not compared.
+
+```ts
+const files = await client.runnables('fortyfive').definitionFiles('reviewer')            // draft
+const frozen = await client.runnables('fortyfive').definitionFiles('reviewer', version)   // release
+```
 
 ## Browse, inspect, and save external Claude agents
 

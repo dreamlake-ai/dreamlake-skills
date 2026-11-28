@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.246 0cede4387; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/scenes.md at 0.1.247 865b91c0f; do not edit -->
 
 {/* FigEnv* come from the site-wide mdxComponents map in site.config.ts —
     no import needed. */}

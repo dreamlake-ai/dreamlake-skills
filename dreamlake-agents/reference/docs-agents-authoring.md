@@ -1,4 +1,4 @@
-<!-- generated from https://docs.dreamlake.ai/agents/authoring.md at 0.1.246 0cede4387; do not edit -->
+<!-- generated from https://docs.dreamlake.ai/agents/authoring.md at 0.1.247 865b91c0f; do not edit -->
 
 # Authoring agents
 
@@ -14,9 +14,12 @@ Local edits renew a ten-minute editing window in the current browser tab.
 **Lock editing** closes that window immediately. Expiration preserves unsaved drafts.
 The editor uses a visible caret and focus outline.
 
-The top **README / Prompt** toggle switches between documentation and literal
-prompt text. A nonempty README opens first; otherwise the prompt opens.
-The right sidebar shows arguments with type badges, execution settings, and
+The agent view described in [Agent files](#agent-files) is unreleased: it needs
+a server that serves `definition-files`. The file tree in the right sidebar
+lists `README.md`, `PROMPT.md`, each skill and `agent.json`; selecting one
+switches the document on the left. A nonempty README opens first; otherwise the
+prompt opens. Below the tree, the table of contents follows the open document.
+The sidebar also shows arguments with type badges, execution settings, and
 Spec, Tasks, Access and Try it views. Spec contains the name, description,
 runtime configuration and instruction sources as JSON, preserving nested values.
 Save definition fields with **Save**. Memo-backed instruction edits synchronize
@@ -151,6 +154,72 @@ route. Built-in resource tools discover the same REST schemas. The local MCP
 adapter offers `agent_definition_versions`, `agent_definition_version_get`,
 `agent_definition_publish`, and `agent_definition_activate`; these do not start
 an assistant turn. TypeScript, CLI and Python adapters use the same CAS contract.
+
+## Agent files
+
+Unreleased. An agent reads as a small set of files. They are a view of the
+fields above, not a new storage format:
+
+| File | Stored as | Purpose |
+| --- | --- | --- |
+| `README.md` | `metadata.readme` | Documentation for people. Never sent to the model. |
+| `PROMPT.md` | `content.instructionNoteId`, or inline `markdown` | The prompt entry: every run starts with this text. |
+| `skills/<name>/SKILL.md` | one memo per entry of `content.skills`; folders are expanded | Skill text, appended after the prompt entry in order. |
+| `agent.json` | name, description, `metadata.agent`, channel, references | Configuration. |
+
+Agents created in the UI start with a README that names the agent. The prompt
+entry is its own file so that skills can change without the prompt changing.
+A skill uploaded with [`dl agents push`](https://cli.dreamlake.ai/agents) is
+shown under its directory name, recorded in `metadata.package.skills`; other
+skills are shown by memo ID. A skill memo's attachments under `references/`,
+`scripts/` and `assets/` appear beneath the selected skill with their relative
+paths. DreamLake stores those files and never executes them; the built-in
+runtime receives the prompt and skill text only.
+
+`GET /namespaces/{namespace}/runnables/{id}/definition-files?version=draft`
+returns these files with their text for the draft; pass a full release hash as
+`version` to read a release. The response also carries `definitionVersion`, the
+hash that publishing this content would produce, so equal values mean identical
+definitions. Reading requires the same access as the agent and its source
+memos. A draft whose instruction memo is empty or unreadable returns the same
+error as publishing it would.
+
+### Protection and convention
+
+Each file carries a `guard` naming what the server enforces for it:
+
+| `guard.kind` | Applies to | Enforced rule |
+| --- | --- | --- |
+| `immutable-release` | every file of a release | A release never changes. |
+| `memo-permission` | a draft prompt or skill backed by a memo | Editing needs write access to that memo. |
+| `agent-permission` | draft README, inline prompt and configuration | Editing needs permission to update the agent. |
+
+`guard.writable` says whether the caller may edit that file now. The response
+lists separately, under `conventions`, what is **not** enforced:
+
+- The file names are display paths. Nothing stores or checks them.
+- Keeping the prompt entry apart from skills is not a write barrier. Anyone who
+  may edit both memos may change either. To let someone change skills but not
+  the prompt, give them write access to the skill memos only.
+- Skill attachments are stored, not executed, and are not captured in a release.
+
+**Enable editing** in the agent view prevents accidental typing in one browser
+tab. It is not a permission.
+
+### Compare versions
+
+In **Versions**, select a release and open **Changes** to compare it with the
+draft or with another release. The comparison is per file and uses the same
+inline marks as memo text changes. Skills are matched by memo, so renaming a
+skill directory is one changed file. `dl agents diff` prints the same
+comparison. Both read `definition-files` for the two versions; there is no
+separate diff endpoint.
+
+Releases published before this view keep their IDs and content. Their skills
+are separated from the prompt by checking each recorded memo hash against the
+captured text. When a release's hashes do not allow that, `combined` is true
+and `PROMPT.md` holds the whole captured instruction text. Attachments are not
+part of any release and are not compared.
 
 ## Launch on a configured host
 
